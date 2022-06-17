@@ -1,0 +1,18 @@
+# Additional information about this file can be found here:
+# https://dart.dev/guides/language/analysis-options
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    invalid_use_of_visible_for_testing_member: error
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.graphql.dart'
+    - '**/*.mocks.dart'
+
+linter:
+  # List of all available lints can be found here:
+  # https://dart-lang.github.io/linter/lints/index.html
+  rules:
+    prefer_single_quotes: true

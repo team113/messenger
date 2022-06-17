@@ -1,0 +1,23 @@
+dartdoc:
+  errors:
+    - ambiguous-doc-reference
+    - ambiguous-reexport
+    - broken-link
+    - category-order-gives-missing-package-name
+    - deprecated
+    - duplicate-file
+    - ignored-canonical-for
+    - invalid-parameter
+    - missing-from-search-index
+    - no-canonical-found
+    - no-defining-library-found
+    - no-documentable-libraries
+    - no-library-level-docs
+    - not-implemented
+    - orphaned-file
+    - reexported-private-api-across-packages
+    - tool-error
+    - unknown-file
+    - unknown-macro
+    - unresolved-doc-reference
+    - unresolved-export

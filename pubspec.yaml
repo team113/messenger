@@ -1,0 +1,121 @@
+name: messenger
+version: 0.1.0-alpha.5
+publish_to: none
+
+environment:
+  flutter: ">=3.0.0"
+  sdk: ">=2.16.0 <3.0.0"
+
+dependencies:
+  async: ^2.8.2
+  audioplayers: ^1.0.0-rc.4
+  badges: ^2.0.2
+  callkeep: ^0.3.2
+  carousel_slider: ^4.1.1
+  chewie: ^1.3.2
+  collection: ^1.16.0
+  desktop_drop: ^0.3.3
+  dio: ^4.0.6
+  email_validator: ^2.0.1
+  expandable: ^5.0.1
+  file_picker: ^4.5.1
+  flutter:
+    sdk: flutter
+  flutter_background_service: ^2.0.0
+  flutter_background_service_android: ^2.0.0
+  flutter_background_service_ios: ^2.0.0
+  flutter_list_view: ^1.1.12
+  flutter_local_notifications: ^10.0.0-dev.13
+  flutter_svg: ^1.0.3
+  flutter_web_plugins:
+    sdk: flutter
+  flutter_webrtc:
+    git:
+      url: https://github.com/instrumentisto/flutter-webrtc.git
+  font_awesome_flutter: ^10.1.0
+  get: ^4.6.3
+  google_fonts: ^2.3.2
+  graphql_flutter: ^5.1.1-beta.3
+  hive_flutter: ^1.1.0
+  hive: ^2.1.0
+  http: ^0.13.4
+  http_parser: ^4.0.0
+  image_picker:
+    git:
+      url: https://github.com/krida2000/image_picker
+      ref: main
+      path: packages/image_picker/image_picker/
+  intl: ^0.17.0
+  js: ^0.6.4
+  material_floating_search_bar: ^0.3.7
+  medea_jason:
+    git:
+      url: https://github.com/instrumentisto/medea-jason.git
+      path: flutter/
+  mime: ^1.0.2
+  mutex: ^3.0.0
+  path_provider: ^2.0.10
+  path_provider_android: ^2.0.14
+  path_provider_ios: ^2.0.9
+  permission_handler: ^9.2.0
+  phone_numbers_parser: ^5.0.3
+  # TODO: Switch to pub.dev version when the following commit is merged into it:
+  #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
+  photo_view:
+    git:
+      url: https://github.com/bluefireteam/photo_view
+      ref: master
+  platform_detect: ^2.0.3
+  sentry_flutter: ^6.5.1
+  sliding_up_panel: ^2.0.0+1
+  toml: ^0.12.0
+  universal_io: ^2.0.4
+  uuid: ^3.0.6
+  vibration: ^1.7.4-nullsafety.0
+  video_player: ^2.4.2
+  visibility_detector: ^0.3.3
+  web_socket_channel: ^2.2.0
+  window_manager: ^0.2.3
+  yaml: ^3.1.0
+
+dev_dependencies:
+  artemis: ^7.7.0-beta
+  build_runner: ^2.1.10
+  dartdoc: ^5.0.1
+  flutter_driver:
+    sdk: flutter
+  flutter_gherkin:
+    git:
+      url: https://github.com/jonsamwell/flutter_gherkin.git
+      ref: integration_test__package_support
+  flutter_lints: ^2.0.1
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  gherkin: ^2.0.8
+  hive_generator: ^1.1.2
+  json_serializable: ^6.2.0
+  mockito: ^5.1.0
+  network_image_mock: ^2.1.0
+  sentry_dart_plugin: ^1.0.0-beta.2
+
+dependency_overrides:
+  # TODO: Remove when `flutter_gherkin` updates.
+  analyzer: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/conf.toml
+    - assets/images/
+    - assets/images/logo/
+    - assets/icons/
+    - assets/audio/
+    - pubspec.yaml
+
+sentry:
+  upload_native_symbols: true
+  upload_source_maps: true
+  include_native_sources: true
+  wait_for_processing: true

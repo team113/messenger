@@ -1,0 +1,48 @@
+/.idea/
+/.vscode/
+/*.iml
+.DS_Store
+
+/.cache/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+/.dart_tool/
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.packages
+/.pub-cache/
+/.pub/
+/build/
+/doc/
+
+# Web related
+/lib/generated_plugin_registrant.dart
+
+# GraphQL generation related
+/lib/**/*.g.dart
+/lib/api/backend/*.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Yarn/NPM dependencies
+/node_modules/
+/yarn-error.log
+
+# Tests related
+/test/.temp_hive/
+/test/**/*.mocks.dart
+/test/e2e/**/*.g.dart
+/test/e2e/reports/
+/test_driver/build/
+/test_driver/report.json

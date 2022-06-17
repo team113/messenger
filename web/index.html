@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<!--
+ Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License v3.0 as published by the
+ Free Software Foundation, either version 3 of the License, or (at your
+ option) any later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+ more details.
+
+ You should have received a copy of the GNU Affero General Public License v3.0
+ along with this program. If not, see
+ <https://www.gnu.org/licenses/agpl-3.0.html>.
+-->
+
+<html>
+<head>
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Mobile Front-End Application of Social Platform.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Gapopa">
+
+  <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="icon" type="image/pg" href="favicon/png"/>
+
+  <title>Gapopa</title>
+  <link rel="manifest" href="manifest.json">
+  <style type="text/css">
+    .container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      text-align: center;
+      font-size: 0;
+      white-space: nowrap;
+      overflow: auto;
+    }
+
+    .container:after {
+      content: '';
+      display: inline-block;
+      height: 100%;
+      vertical-align: middle;
+    }
+
+    .splash {
+      display: inline-block;
+      vertical-align: middle;
+      text-align: left;
+      font-size: 14px;
+      white-space: normal;
+    }
+  </style>
+  <script type="module">
+    import init, {
+      Jason,
+      MediaStreamSettings,
+      AudioTrackConstraints,
+      DeviceVideoTrackConstraints,
+      DisplayVideoTrackConstraints,
+      FacingMode,
+      MediaKind,
+      MediaSourceKind
+    } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js';
+
+    window.jasonLoaded = (async () => {
+      await init();
+      window.Jason = Jason;
+      window.MediaStreamSettings = MediaStreamSettings;
+      window.AudioTrackConstraints = AudioTrackConstraints;
+      window.DeviceVideoTrackConstraints = DeviceVideoTrackConstraints;
+      window.DisplayVideoTrackConstraints = DisplayVideoTrackConstraints;
+      window.FacingMode = FacingMode;
+      window.MediaKind = MediaKind;
+      window.MediaSourceKind = MediaSourceKind;
+    })();
+  </script>
+  <!-- Apple WebGL 2.0 fix:
+       https://github.com/flutter/flutter/issues/89655#issuecomment-919685843 -->
+  <!-- TODO: Remove when https://github.com/flutter/engine/pull/29038
+             is merged to stable. -->
+  <script src="https://unpkg.com/platform@1.3.5/platform.js"></script>
+  <script type="text/javascript">
+    let isSafari = /^((?!chrome|android).)*safari/i.test(platform.ua);
+    if (isSafari) {
+      HTMLCanvasElement.prototype.getContext = function (orig) {
+        return function (type) {
+          return type !== "webgl2" ? orig.apply(this, arguments) : null
+        }
+      }(HTMLCanvasElement.prototype.getContext)
+    }
+
+    window.isPopup = window.opener != null && window.opener !== window;
+
+    if (window.isPopup) {
+      if (location.pathname.startsWith('/call/')) {
+        window.addEventListener('beforeunload', function (e) {
+          var chatId = location.pathname.replace('/call/', '');
+          window.localStorage.removeItem('call_' + chatId);
+          window.localStorage.setItem('prefs_call_' + chatId,
+            JSON.stringify({
+              'width': window.innerWidth,
+              'height': window.innerHeight,
+              'left': window.screenX,
+              'top': window.screenY,
+            })
+          );
+        });
+      }
+    } else {
+      window.addEventListener('beforeunload', function (e) {
+        window.localStorage.removeItem('credentials');
+        for (var key in localStorage) {
+          if (key.startsWith('call_')) {
+            window.localStorage.removeItem(key);
+          }
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="loader" class="container">
+    <img class="splash" src="/assets/assets/images/logo/head0000.svg" />
+  </div>
+  <!-- This script installs service_worker.js to provide PWA functionality to
+       application. For more information, see:
+       https://developers.google.com/web/fundamentals/primers/service-workers
+  -->
+  <script>
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    async function loadMainDartJs() {
+      try {
+        await window.jasonLoaded;
+      } catch (e) {
+        console.error(e);
+      }
+
+      if (scriptLoaded) {
+        return;
+      }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+      scriptTag.src = 'main.dart.js';
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
+    }
+
+    if ('serviceWorker' in navigator) {
+      // Service workers are supported. Use them.
+      window.addEventListener('load', function () {
+        // Wait for registration to finish before dropping the <script> tag.
+        // Otherwise, the browser will load the script multiple times,
+        // potentially different versions.
+        var serviceWorkerUrl = 'flutter_service_worker.js?v=' +
+                               serviceWorkerVersion;
+        navigator.serviceWorker.register(serviceWorkerUrl)
+          .then((reg) => {
+            function waitForActivation(serviceWorker) {
+              serviceWorker.addEventListener('statechange', () => {
+                if (serviceWorker.state == 'activated') {
+                  console.log('Installed new service worker.');
+                  loadMainDartJs();
+                }
+              });
+            }
+            if (!reg.active && (reg.installing || reg.waiting)) {
+              // No active web worker and we have installed or are installing
+              // one for the first time. Simply wait for it to activate.
+              waitForActivation(reg.installing || reg.waiting);
+            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+              // When the app updates the serviceWorkerVersion changes, so we
+              // need to ask the service worker to update.
+              console.log('New service worker available.');
+              reg.update();
+              waitForActivation(reg.installing);
+            } else {
+              // Existing service worker is still good.
+              console.log('Loading app from service worker.');
+              loadMainDartJs();
+            }
+          });
+
+        // If service worker doesn't succeed in a reasonable amount of time,
+        // fallback to plaint <script> tag.
+        setTimeout(() => {
+          if (!scriptLoaded) {
+            console.warn(
+              'Failed to load app from service worker. ' +
+              'Falling back to plain <script> tag.',
+            );
+            loadMainDartJs();
+          }
+        }, 4000);
+      });
+    } else {
+      // Service workers not supported. Just drop the <script> tag.
+      loadMainDartJs();
+    }
+  </script>
+  <!-- Request notifications permission on the first user interaction. -->
+  <script>
+    var click = document.onclick;
+    document.onclick = function() {
+        Notification.requestPermission();
+        if (click) {
+            click();
+        }
+
+        document.onclick = click;
+    }
+  </script>
+  <!-- TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=934640 is
+             resolved -->
+  <!-- Polyfill for `indexedDB.databases()`.
+       Firefox and some other older browsers that support IndexedDB do NOT
+       support enumerating existing databases. -->
+  <script>
+    if (window.indexedDB && typeof window.indexedDB.databases === 'undefined') {
+        const LOCALSTORAGE_CACHE_KEY = 'indexedDBDatabases';
+
+        const getFromStorage = () =>
+            JSON.parse(window.localStorage[LOCALSTORAGE_CACHE_KEY] || '{}');
+
+        const writeToStorage = value =>
+            (window.localStorage[LOCALSTORAGE_CACHE_KEY] = JSON.stringify(value));
+
+        IDBFactory.prototype.databases = () =>
+            Promise.resolve(
+                Object.entries(getFromStorage()).reduce((acc, [name, version]) => {
+                    acc.push({ name, version });
+                    return acc;
+                }, [])
+            );
+
+        const open = IDBFactory.prototype.open;
+        IDBFactory.prototype.open = function (...args) {
+            const dbName = args[0];
+            const version = args[1] || 1;
+            const existing = getFromStorage();
+            writeToStorage({ ...existing, [dbName]: version });
+            return open.apply(this, args);
+        };
+
+        const deleteDatabase = IDBFactory.prototype.deleteDatabase;
+        IDBFactory.prototype.deleteDatabase = function (...args) {
+            const dbName = args[0];
+            const existing = getFromStorage();
+            delete existing[dbName];
+            writeToStorage(existing);
+            return deleteDatabase.apply(this, args);
+        };
+    }
+  </script>
+  <!-- TODO: Styles page related, should be removed at some point. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+  <script>
+    function webSaveAs(url, name) {
+      saveAs(url, name);
+    }
+  </script>
+</body>
+</html>

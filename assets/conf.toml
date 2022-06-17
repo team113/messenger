@@ -1,0 +1,46 @@
+[conf]
+# Indicator whether remote configuration should be respected, if available.
+#
+# Default:
+#   remote = true
+
+[server.http]
+# URL address of HTTP backend server.
+#
+# Unused for web, browser location is used instead.
+#
+# Default:
+#   url = "http://localhost"
+
+# Port of HTTP backend server.
+#
+# Unused for web, browser location is used instead.
+#
+# Default:
+#   port = 80
+
+# GraphQL API endpoint of HTTP backend server.
+#
+# Default:
+#   graphql = "/api/graphql"
+
+[server.ws]
+# URL address of WebSocket backend server.
+#
+# Unused for web, browser location is used instead.
+#
+# Default:
+#   url = "ws://localhost"
+
+# Port of WebSocket backend server.
+#
+# Unused for web, browser location is used instead.
+#
+# Default:
+#   port = 80
+
+[sentry]
+# Sentry DSN (Data Source Name) to send events to.
+#
+# Default:
+#   dsn = ""

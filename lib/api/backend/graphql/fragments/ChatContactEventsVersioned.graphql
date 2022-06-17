@@ -1,0 +1,88 @@
+# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+# more details.
+#
+# You should have received a copy of the GNU Affero General Public License v3.0
+# along with this program. If not, see
+# <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+fragment ChatContactEventsVersioned on ChatContactEventsVersioned {
+    events {
+        __typename
+        contactId
+        at
+        ... on EventChatContactPhoneRemoved {
+            phone {
+                phone
+                user {
+                    __typename
+                    ...User
+                }
+            }
+        }
+        ... on EventChatContactFavorited {
+            position
+        }
+        ... on EventChatContactEmailAdded {
+            email {
+                email
+                user {
+                    __typename
+                    ...User
+                }
+            }
+        }
+        ... on EventChatContactEmailRemoved {
+            email {
+                email
+                user {
+                    __typename
+                    ...User
+                }
+            }
+        }
+        ... on EventChatContactCreated {
+            name
+        }
+        ... on EventChatContactGroupAdded {
+            group {
+                __typename
+                ...Chat
+            }
+        }
+        ... on EventChatContactNameUpdated {
+            name
+        }
+        ... on EventChatContactGroupRemoved {
+            groupId
+        }
+        ... on EventChatContactUserAdded {
+            user {
+                __typename
+                ...User
+            }
+        }
+        ... on EventChatContactUserRemoved {
+            userId
+        }
+        ... on EventChatContactPhoneAdded {
+            phone {
+                phone
+                user {
+                    __typename
+                    ...User
+                }
+            }
+        }
+    }
+    ver
+    listVer
+}

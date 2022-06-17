@@ -1,0 +1,263 @@
+targets:
+  $default:
+    sources:
+      - $package$
+      - lib/**
+      - schema.graphql
+      - test/**
+    builders:
+      artemis:
+        options:
+          fragments_glob: lib/api/backend/graphql/fragments/**.graphql
+          schema_mapping:
+            - schema: schema.graphql
+              output: lib/api/backend/schema.dart
+              queries_glob: lib/api/backend/graphql/{query,subscription,mutation}/**/**.graphql
+              naming_scheme: pathedWithFields
+          scalar_mapping:
+            - graphql_type: AccessToken
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/session.dart'
+              dart_type:
+                name: AccessToken
+                imports:
+                  - 'package:messenger/domain/model/session.dart'
+            - graphql_type: AttachmentId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: AttachmentId
+                imports:
+                  - 'package:messenger/domain/model/attachment.dart'
+            - graphql_type: ChatCallCredentials
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/call.dart'
+              dart_type:
+                name: ChatCallCredentials
+                imports:
+                  - 'package:messenger/domain/model/chat_call.dart'
+            - graphql_type: ChatCallDeviceId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/call.dart'
+              dart_type:
+                name: ChatCallDeviceId
+                imports:
+                  - 'package:messenger/domain/model/chat_call.dart'
+            - graphql_type: ChatCallRoomJoinLink
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/call.dart'
+              dart_type:
+                name: ChatCallRoomJoinLink
+                imports:
+                  - 'package:messenger/store/event/chat_call.dart'
+            - graphql_type: ChatContactId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/contact.dart'
+              dart_type:
+                name: ChatContactId
+                imports:
+                  - 'package:messenger/domain/model/contact.dart'
+            - graphql_type: ChatContactPosition
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/contact.dart'
+              dart_type:
+                name: ChatContactPosition
+                imports:
+                  - 'package:messenger/domain/model/contact.dart'
+            - graphql_type: ChatContactsCursor
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/contact.dart'
+              dart_type:
+                name: ChatContactsCursor
+                imports:
+                  - 'package:messenger/store/model/contact.dart'
+            - graphql_type: ChatContactsListVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/contact.dart'
+              dart_type:
+                name: ChatContactsListVersion
+                imports:
+                  - 'package:messenger/store/model/contact.dart'
+            - graphql_type: ChatContactVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/contact.dart'
+              dart_type:
+                name: ChatContactVersion
+                imports:
+                  - 'package:messenger/store/model/contact.dart'
+            - graphql_type: ChatDirectLinkSlug
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: ChatDirectLinkSlug
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: ChatDirectLinkVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: ChatDirectLinkVersion
+                imports:
+                  - 'package:messenger/store/model/my_user.dart'
+            - graphql_type: ChatId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatId
+                imports:
+                  - 'package:messenger/domain/model/chat.dart'
+            - graphql_type: ChatItemId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatItemId
+                imports:
+                  - 'package:messenger/domain/model/chat_item.dart'
+            - graphql_type: ChatItemsCursor
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatItemsCursor
+                imports:
+                  - 'package:messenger/store/model/chat_item.dart'
+            - graphql_type: ChatItemVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatItemVersion
+                imports:
+                  - 'package:messenger/store/model/chat_item.dart'
+            - graphql_type: ChatMessageText
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatMessageText
+                imports:
+                  - 'package:messenger/domain/model/chat_item.dart'
+            - graphql_type: ChatName
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatName
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: ChatVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: ChatVersion
+                imports:
+                  - 'package:messenger/store/model/chat.dart'
+            - graphql_type: ConfirmationCode
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: ConfirmationCode
+                imports:
+                  - 'package:messenger/domain/model/my_user.dart'
+            - graphql_type: DateTime
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/precise_date_time.dart'
+              dart_type:
+                name: PreciseDateTime
+                imports:
+                  - 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
+            - graphql_type: GalleryItemId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/gallery.dart'
+              dart_type:
+                name: GalleryItemId
+                imports:
+                  - 'package:messenger/domain/model/gallery_item.dart'
+            - graphql_type: ImageGalleryItem
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: ImageGalleryItem
+                imports:
+                  - 'package:messenger/domain/model/image_gallery_item.dart'
+            - graphql_type: IncomingChatCallsCursor
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/call.dart'
+              dart_type:
+                name: IncomingChatCallsCursor
+                imports:
+                  - 'package:messenger/store/model/chat_call.dart'
+            - graphql_type: MyUserVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: MyUserVersion
+                imports:
+                  - 'package:messenger/store/model/my_user.dart'
+            - graphql_type: RecentChatsCursor
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/chat.dart'
+              dart_type:
+                name: RecentChatsCursor
+                imports:
+                  - 'package:messenger/store/model/chat.dart'
+            - graphql_type: RememberToken
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/session.dart'
+              dart_type:
+                name: RememberToken
+                imports:
+                  - 'package:messenger/domain/model/session.dart'
+            - graphql_type: RememberedSessionVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/session.dart'
+              dart_type:
+                name: RememberedSessionVersion
+                imports:
+                  - 'package:messenger/store/model/session_data.dart'
+            - graphql_type: SessionVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/session.dart'
+              dart_type:
+                name: SessionVersion
+                imports:
+                  - 'package:messenger/store/model/session_data.dart'
+            - graphql_type: Upload
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/upload.dart'
+              dart_type:
+                name: MultipartFile
+                imports:
+                  - 'package:http/http.dart'
+            - graphql_type: UserBio
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserBio
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserEmail
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserEmail
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserId
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserId
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserLogin
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserLogin
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserName
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserName
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserNum
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserNum
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserPassword
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserPassword
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserPhone
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserPhone
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UsersCursor
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UsersCursor
+                imports:
+                  - 'package:messenger/store/model/user.dart'
+            - graphql_type: UserTextStatus
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserTextStatus
+                imports:
+                  - 'package:messenger/domain/model/user.dart'
+            - graphql_type: UserVersion
+              custom_parser_import: 'package:messenger/api/backend/graphql/parsers/user.dart'
+              dart_type:
+                name: UserVersion
+                imports:
+                  - 'package:messenger/store/model/user.dart'

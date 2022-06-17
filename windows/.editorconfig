@@ -1,0 +1,15 @@
+[*.{cc,cpp,h}]
+indent_style = space
+indent_size = 2
+
+[{*.cmake,CMakeLists.txt}]
+indent_style = space
+indent_size = 2
+
+[*.manifest]
+indent_style = space
+indent_size = 2
+
+[*.rc]
+indent_style = space
+indent_size = 4

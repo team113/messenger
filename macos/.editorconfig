@@ -1,0 +1,27 @@
+[Podfile]
+indent_style = space
+indent_size = 2
+
+[*.swift]
+indent_style = space
+indent_size = 2
+
+[*.pbxproj]
+indent_style = tab
+indent_size = 4
+
+[*.plist]
+indent_style = space
+indent_size = 2
+
+[*.entitlements]
+indent_style = tab
+indent_size = 4
+
+[*.xc{scheme,workspacedata}]
+indent_style = space
+indent_size = 3
+
+[*.xib]
+indent_style = space
+indent_size = 4

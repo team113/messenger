@@ -1,0 +1,7 @@
+[*.kt]
+indent_style = space
+indent_size = 4
+
+[*.gradle]
+indent_style = space
+indent_size = 4

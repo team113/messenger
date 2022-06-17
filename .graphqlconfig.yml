@@ -1,0 +1,6 @@
+schemaPath: schema.graphql
+extensions:
+  endpoints:
+    local:
+      url: http://localhost/api/graphql
+      subscription: ws://localhost/api/graphql
