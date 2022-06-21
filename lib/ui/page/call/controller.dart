@@ -37,6 +37,7 @@ import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import 'component/common.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -172,6 +173,42 @@ class CallController extends GetxController {
 
   /// Indicator whether the minimized self view is being panned or not.
   final RxBool isSelfPanning = RxBool(false);
+
+  /// Indicator whether need to show hints to [CallButton]'s or not.
+  final RxBool hideHint = RxBool(false);
+
+  /// Indicator whether need to show bottom ui.
+  final RxBool showBottomUi = RxBool(true);
+
+  /// Indicator whether button is dragging now.
+  final RxBool isDraggingNow = RxBool(false);
+
+  /// Indicator whether the more hint is dismissed or not.
+  final RxBool isMoreHintDismissed = RxBool(false);
+
+  /// Currently draggable [CallButton].
+  final Rx<CallButton?> draggableButton = Rx(null);
+
+  /// Buttons width and height.
+  final RxDouble buttonSize = RxDouble(48);
+
+  /// [GlobalKey] of buttons panel.
+  final GlobalKey buttonsPanelKey = GlobalKey();
+
+  /// Indicator whether need to display more panel.
+  final RxBool displayMore = RxBool(false);
+
+  /// List of top panel [CallButton]'s.
+  late final RxList<CallButton> panel;
+
+  /// List of bottom panel [CallButton]'s.
+  late final RxList<CallButton> buttons;
+
+  /// [Worker] for catching the changes of [showBottomUi].
+  late final Worker _showBottomUiWorker;
+
+  /// [Timer] of bottom ui.
+  Timer? _uiBottomTimer;
 
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
@@ -315,6 +352,10 @@ class CallController extends GetxController {
   /// enabled or not.
   RxBool get isRemoteVideoEnabled => _currentCall.value.isRemoteVideoEnabled;
 
+  /// Indicator whether the inbound audio in the current [OngoingCall] is
+  /// enabled or not.
+  RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
+
   @override
   void onInit() {
     super.onInit();
@@ -402,6 +443,31 @@ class CallController extends GetxController {
     });
 
     _putParticipant(RemoteMemberId(me, null), handRaised: false);
+
+    buttons = RxList([
+      ScreenCallButton(this),
+      VideoCallButton(this),
+      EndCallButton(this),
+      AudioCallButton(this),
+      MoreCallButton(this),
+    ]);
+
+    panel = RxList([
+      SettingsCallButton(this),
+      AddMemberCallButton(this),
+      HandCallButton(this),
+      ScreenCallButton(this),
+      DisableRemoteVideoCallButton(this),
+      DisableRemoteAudioCallButton(this),
+      VideoCallButton(this),
+      AudioCallButton(this),
+    ]);
+
+    _showBottomUiWorker = ever(showBottomUi, (bool v) {
+      if (displayMore.value && !v) {
+        displayMore.value = false;
+      }
+    });
 
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
@@ -499,6 +565,8 @@ class CallController extends GetxController {
   void onClose() {
     super.onClose();
     _durationTimer?.cancel();
+    _uiBottomTimer?.cancel();
+    _showBottomUiWorker.dispose();
     _uiTimer?.cancel();
     _stateWorker.dispose();
     _panelWorker.dispose();
@@ -539,26 +607,26 @@ class CallController extends GetxController {
 
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare() async {
-    keepUi();
+    keepBottomUi();
     await _currentCall.value.toggleScreenShare();
   }
 
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() async {
-    keepUi();
+    keepBottomUi();
     await _currentCall.value.toggleAudio();
   }
 
   /// Toggles local video stream on and off.
   Future<void> toggleVideo() async {
-    keepUi();
+    keepBottomUi();
     await _currentCall.value.toggleVideo();
   }
 
   /// Changes the local video device to the next one from the
   /// [OngoingCall.devices] list.
   Future<void> switchCamera() async {
-    keepUi();
+    keepBottomUi();
 
     List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
@@ -575,7 +643,7 @@ class CallController extends GetxController {
   }
 
   Future<void> toggleSpeaker() async {
-    keepUi();
+    keepBottomUi();
 
     List<MediaDeviceInfo> outputs =
         _currentCall.value.devices.output().toList();
@@ -593,11 +661,14 @@ class CallController extends GetxController {
 
   /// Raises/lowers a hand.
   Future<void> toggleHand() async {
-    keepUi();
+    keepBottomUi();
     isHandRaised.toggle();
     _putParticipant(RemoteMemberId(me, null), handRaised: isHandRaised.value);
     await _toggleHand();
   }
+
+  /// Toggles more panel.
+  void toggleMore() => displayMore.toggle();
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.
@@ -627,6 +698,9 @@ class CallController extends GetxController {
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
+
+  /// Toggles inbound audio in the current [OngoingCall] on and off.
+  Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
   /// Toggles the provided [renderer]'s enabled status on and off.
   Future<void> toggleRendererEnabled(Rx<RtcVideoRenderer?> renderer) async {
@@ -771,6 +845,20 @@ class CallController extends GetxController {
         onPanelChanged: (b) => panelUp.value = b ?? false,
       ),
     );
+  }
+
+  /// Hides or shows bottom ui.
+  void keepBottomUi([bool? enabled]) {
+    _uiBottomTimer?.cancel();
+    showBottomUi.value = isPanelOpen.value || (enabled ?? true);
+    if (state.value == OngoingCallState.active &&
+        enabled == null &&
+        !isPanelOpen.value) {
+      _uiBottomTimer = Timer(
+        const Duration(seconds: _uiDuration),
+        () => showBottomUi.value = false,
+      );
+    }
   }
 
   /// Returns a result of the [showDialog] building an [AddChatMemberView] or an

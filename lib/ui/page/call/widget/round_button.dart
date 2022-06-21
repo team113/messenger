@@ -32,6 +32,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.hint,
     this.scale = 1,
     this.withBlur = false,
+    this.withText = true,
   }) : super(key: key);
 
   /// Callback, called when the button is tapped or activated other way.
@@ -57,6 +58,9 @@ class RoundFloatingButton extends StatefulWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
+  /// Indicator whether the button should be displayed with text or not.
+  final bool withText;
+
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
 }
@@ -68,32 +72,72 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   /// Toggles on [InkWell] hover.
   bool showHint = false;
 
+  final GlobalKey _key = GlobalKey();
+
+  OverlayEntry? _hintEntry;
+
+  @override
+  void didUpdateWidget(covariant RoundFloatingButton oldWidget) {
+    if (widget.hint != oldWidget.hint || widget.hint == null) {
+      _hintEntry?.remove();
+      _hintEntry = null;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter,
-      clipBehavior: Clip.none,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ConditionalBackdropFilter(
-              condition: !WebUtils.isSafari && widget.withBlur,
-              borderRadius: BorderRadius.circular(30),
-              child: Material(
-                elevation: 0,
-                color: widget.color,
-                type: MaterialType.circle,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onHover: (b) => Future.delayed(
-                    Duration.zero,
-                    () => mounted ? setState(() => showHint = b) : null,
-                  ),
-                  onTap: widget.onPressed,
-                  child: SizedBox(
-                    width: 60 * widget.scale,
-                    height: 60 * widget.scale,
+    return (!widget.withText)
+        ? ConditionalBackdropFilter(
+            condition: !WebUtils.isSafari && widget.withBlur,
+            borderRadius: BorderRadius.circular(30),
+            child: Material(
+              key: _key,
+              elevation: 0,
+              color: widget.color,
+              type: MaterialType.circle,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(30),
+                onHover: widget.hint != null
+                    ? (b) {
+                        if (b) {
+                          _populateOverlay();
+                        } else {
+                          _hintEntry?.remove();
+                          _hintEntry = null;
+                        }
+                      }
+                    : null,
+                onTap: widget.onPressed,
+                child: widget.children.first,
+              ),
+            ),
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ConditionalBackdropFilter(
+                condition: !WebUtils.isSafari && widget.withBlur,
+                borderRadius: BorderRadius.circular(30),
+                child: Material(
+                  key: _key,
+                  elevation: 0,
+                  color: widget.color,
+                  type: MaterialType.circle,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onHover: widget.hint != null
+                        ? (b) {
+                            if (b) {
+                              _populateOverlay();
+                            } else {
+                              _hintEntry?.remove();
+                              _hintEntry = null;
+                            }
+                          }
+                        : null,
+                    onTap: widget.onPressed,
                     child: Stack(
                       alignment: AlignmentDirectional.center,
                       children: widget.children,
@@ -101,27 +145,60 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   ),
                 ),
               ),
-            ),
-            if (widget.text != null) const SizedBox(height: 5),
-            if (widget.text != null)
-              Text(
-                widget.text!,
-                textAlign: TextAlign.center,
-                style: context.textTheme.caption?.copyWith(
-                  color: Colors.white,
-                  fontSize: 13,
+              if (widget.text != null) const SizedBox(height: 5),
+              if (widget.text != null)
+                Text(
+                  widget.text!,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.caption?.copyWith(
+                    color: Colors.white,
+                    fontSize: 13,
+                  ),
+                  maxLines: 2,
                 ),
-                maxLines: 2,
-              ),
-          ],
-        ),
-        if (widget.hint != null && showHint)
-          SizedBox(
-            width: 60 * widget.scale,
-            height: 60 * widget.scale,
-            child: IgnorePointer(
+            ],
+          );
+  }
+
+  /// Populates the [_hintEntry].
+  void _populateOverlay() {
+    if (!mounted || _hintEntry != null) return;
+
+    Offset offset = Offset.zero;
+    Size size = Size.zero;
+    final box = _key.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      offset = box.localToGlobal(Offset.zero);
+      size = box.size;
+    }
+
+    // Discard the first [LayoutBuilder] frame since no widget is drawn yet.
+    bool firstLayout = true;
+
+    // Add a rebuild to take possible animations into the account.
+    Future.delayed(300.milliseconds, _hintEntry?.markNeedsBuild);
+
+    _hintEntry = OverlayEntry(builder: (ctx) {
+      if (!firstLayout) {
+        final box = _key.currentContext?.findRenderObject() as RenderBox?;
+        if (box != null) {
+          offset = box.localToGlobal(Offset.zero);
+          size = box.size;
+        }
+      } else {
+        firstLayout = false;
+      }
+
+      return IgnorePointer(
+        child: Stack(
+          children: [
+            Positioned(
+              left: offset.dx,
+              top: offset.dy,
+              width: size.width,
+              height: size.height,
               child: Transform.translate(
-                offset: const Offset(0, -47),
+                offset: Offset(0, -size.height - 2),
                 child: UnconstrainedBox(
                   child: Text(
                     widget.hint!,
@@ -139,8 +216,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 ),
               ),
             ),
-          ),
-      ],
-    );
+          ],
+        ),
+      );
+    });
+
+    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
   }
 }

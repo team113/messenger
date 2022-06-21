@@ -25,17 +25,20 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
+import '../widget/animated_delayed.dart';
+import '../widget/buttons_dock.dart';
 import '../widget/call_cover.dart';
-import '../widget/participant.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/fit_view.dart';
 import '../widget/fit_wrap.dart';
 import '../widget/hint.dart';
+import '../widget/participant.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -192,6 +195,45 @@ Widget desktopCall(
               ),
             ],
           ),
+
+          // Makes UI appear on click and handles double tap to toggle
+          // fullscreen.
+          //
+          // Also, if [showTitle] is false, allows dragging the window.
+          Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (d) {
+              if ((d.kind != PointerDeviceKind.mouse &&
+                      d.kind != PointerDeviceKind.stylus) ||
+                  !c.handleLmb.value) {
+                c.downPosition = d.localPosition;
+                c.downButtons = d.buttons;
+              }
+            },
+            onPointerUp: (d) {
+              if (c.downButtons & kPrimaryButton != 0 &&
+                  (d.localPosition.distanceSquared -
+                              c.downPosition.distanceSquared)
+                          .abs() <=
+                      1500) {
+                if (c.primaryDrags.value == 0 && c.secondaryDrags.value == 0) {
+                  if (c.state.value == OngoingCallState.active) {
+                    if (c.displayMore.value) {
+                      c.displayMore.value = false;
+                      c.keepUi(false);
+                    } else {
+                      if (!c.showBottomUi.value) {
+                        c.keepUi();
+                      } else {
+                        c.keepUi(false);
+                      }
+                    }
+                  }
+                }
+              }
+            },
+          ),
+
           // Empty drop zone if [secondary] is empty.
           Container(
             child: secondaryWidgets.isEmpty
@@ -342,102 +384,356 @@ Widget desktopCall(
       _padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2), child: child);
 
-      List<Widget> buttons = c.state.value == OngoingCallState.active ||
-              c.state.value == OngoingCallState.joining
-          ? [
-              if (PlatformUtils.isDesktop) _padding(screenButton(c, 0.8)),
-              if (PlatformUtils.isMobile)
-                _padding(
-                  c.videoState.value.isEnabled()
-                      ? switchButton(c, 0.8)
-                      : speakerButton(c, 0.8),
-                ),
-              _padding(videoButton(c, 0.8)),
-              _padding(dropButton(c, 0.8)),
-              _padding(audioButton(c, 0.8)),
-              _padding(handButton(c, 0.8)),
-            ]
-          : isOutgoing
-              ? [
-                  if (PlatformUtils.isMobile)
-                    _padding(
-                      c.videoState.value.isEnabled()
-                          ? switchButton(c)
-                          : speakerButton(c),
+      /// Widget that displays bottom dock buttons while call is pending.
+      Widget _pendingButtons() => Obx(() {
+            bool isOutgoing =
+                (c.outgoing || c.state.value == OngoingCallState.local) &&
+                    !c.started;
+
+            List<Widget> buttons = isOutgoing
+                ? [
+                    if (PlatformUtils.isMobile)
+                      _padding(
+                        c.videoState.value.isEnabled()
+                            ? switchButton(c)
+                            : speakerButton(c),
+                      ),
+                    _padding(videoButton(c)),
+                    _padding(cancelButton(c)),
+                    _padding(audioButton(c)),
+                  ]
+                : [
+                    _padding(acceptAudioButton(c)),
+                    _padding(acceptVideoButton(c)),
+                    _padding(declineButton(c)),
+                  ];
+
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isOutgoing ? 270 : 380),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: buttons.map((e) => Expanded(child: e)).toList(),
+              ),
+            );
+          });
+
+      /// Widget that displays bottom dock buttons.
+      Widget _dock() {
+        return Obx(() {
+          bool isDocked = c.state.value == OngoingCallState.active ||
+              c.state.value == OngoingCallState.joining;
+
+          bool showBottomUi = (c.showBottomUi.isTrue ||
+              c.isDraggingNow.isTrue ||
+              c.state.value != OngoingCallState.active ||
+              (c.state.value == OngoingCallState.active &&
+                  c.locals.isEmpty &&
+                  c.remotes.isEmpty &&
+                  c.focused.isEmpty &&
+                  c.paneled.isEmpty));
+
+          final buttonsContext = c.buttonsPanelKey.currentContext;
+
+          try {
+            final buttonsBox = buttonsContext?.findRenderObject() as RenderBox?;
+            if (buttonsBox?.hasSize == true) {
+              final selfContext = c.selfKey.currentContext;
+              final selfBox = selfContext?.findRenderObject() as RenderBox?;
+              if (selfBox?.hasSize == true) {
+                Offset buttonsPos = buttonsBox!.localToGlobal(Offset.zero);
+                Offset selfPos = selfBox!.localToGlobal(Offset.zero);
+                c.isSlidingPanelEnabled.value =
+                    buttonsPos.dx + buttonsBox.size.width + 10 > selfPos.dx &&
+                        showBottomUi;
+              }
+            }
+          } catch (_) {
+            // No-op, as the [RenderBox] may not exist yet.
+          }
+
+          return AnimatedPadding(
+            key: const Key('DockedAnimatedPadding'),
+            padding: isDocked
+                ? const EdgeInsets.only(bottom: 5)
+                : const EdgeInsets.only(bottom: 30),
+            curve: Curves.ease,
+            duration: 200.milliseconds,
+            child: AnimatedSwitcher(
+              key: const Key('DockedAnimatedSwitcher'),
+              duration: 200.milliseconds,
+              child: isDocked
+                  ? AnimatedSlider(
+                      key: const Key('DockedPanelPadding'),
+                      isOpen: showBottomUi,
+                      duration: const Duration(milliseconds: 400),
+                      translate: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Draw a blurred dock with the invisible [_activeButtons]
+                            // if [isDocked].
+                            if (isDocked)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(30),
+                                  boxShadow: const [
+                                    CustomBoxShadow(
+                                      color: Color(0x33000000),
+                                      blurRadius: 8,
+                                      blurStyle: BlurStyle.outer,
+                                    )
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(2),
+                                child: ConditionalBackdropFilter(
+                                  borderRadius: BorderRadius.circular(30),
+                                  filter: ImageFilter.blur(
+                                    sigmaX: 15,
+                                    sigmaY: 15,
+                                  ),
+                                  child: AnimatedContainer(
+                                    key: c.buttonsPanelKey,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x301D6AAE),
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 13,
+                                      horizontal: 5,
+                                    ),
+                                    duration: const Duration(milliseconds: 150),
+                                    child: ReorderableDock<CallButton>(
+                                      items: c.buttons,
+                                      onReorder: (buttons) {
+                                        c.buttons.clear();
+                                        c.buttons
+                                            .addAll(buttons.cast<CallButton>());
+                                      },
+                                      onDragStarted: () {
+                                        c.displayMore.value = true;
+                                        c.hideHint.value = true;
+                                      },
+                                      onDragEnded: () =>
+                                          c.hideHint.value = false,
+                                      itemConstraints: BoxConstraints(
+                                        maxWidth: c.buttonSize.value,
+                                        maxHeight: c.buttonSize.value,
+                                      ),
+                                      itemBuilder: (context, item) => item.item
+                                          .build(context, true, small: true),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 13, right: 13),
+                      child: _pendingButtons(),
                     ),
-                  _padding(videoButton(c)),
-                  _padding(cancelButton(c)),
-                  _padding(audioButton(c)),
-                ]
-              : [
-                  _padding(acceptAudioButton(c)),
-                  _padding(acceptVideoButton(c)),
-                  _padding(declineButton(c)),
-                ];
-
-      // Indicator whether the [_activeButtons] should be in a dock or not.
-      bool isDocked = c.state.value == OngoingCallState.active ||
-          c.state.value == OngoingCallState.joining;
-
-      Widget _activeButtons() => ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: isDocked
-                  ? 330
-                  : isOutgoing
-                      ? 270
-                      : 380,
-            ),
-            child: Row(
-              crossAxisAlignment: isDocked
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.start,
-              children: buttons.map((e) => Expanded(child: e)).toList(),
             ),
           );
+        });
+      }
+
+      /// Widget that displays more buttons.
+      Widget _launchpad() {
+        Widget _builder(
+          BuildContext context,
+          List<DraggedItem?> candidate,
+          List<dynamic> rejected,
+        ) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
+                CustomBoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 8,
+                  blurStyle: BlurStyle.outer,
+                )
+              ],
+            ),
+            padding: const EdgeInsets.all(2),
+            child: ConditionalBackdropFilter(
+              borderRadius: BorderRadius.circular(30),
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: Obx(() {
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  decoration: BoxDecoration(
+                    color: candidate.isEmpty
+                        ? const Color(0x9D165084)
+                        : const Color.fromARGB(47, 34, 128, 209),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 35),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 21,
+                          children: c.panel
+                              .map(
+                                (e) => SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: Column(
+                                    children: [
+                                      Draggable(
+                                        feedback: Transform.translate(
+                                          offset: Offset(
+                                              c.buttonSize.value / 2 * -1,
+                                              c.buttonSize.value / 2 * -1),
+                                          child: SizedBox(
+                                            height: c.buttonSize.value,
+                                            width: c.buttonSize.value,
+                                            child: e.build(
+                                              context,
+                                              true,
+                                              small: true,
+                                            ),
+                                          ),
+                                        ),
+                                        data: DraggedItem(e),
+                                        onDragStarted: () {
+                                          c.draggableButton.value = e;
+                                          c.hideHint.value = true;
+                                        },
+                                        onDragCompleted: () =>
+                                            c.draggableButton.value = null,
+                                        onDragEnd: (_) =>
+                                            c.draggableButton.value = null,
+                                        onDraggableCanceled: (_, __) {
+                                          c.draggableButton.value = null;
+                                          c.hideHint.value = false;
+                                        },
+                                        maxSimultaneousDrags:
+                                            e.isRemovable ? null : 0,
+                                        dragAnchorStrategy:
+                                            pointerDragAnchorStrategy,
+                                        child: e.build(context, false),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        e.hint,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 30),
+          child: Obx(() {
+            bool isDocked = c.state.value == OngoingCallState.active ||
+                c.state.value == OngoingCallState.joining;
+            bool displayMore = (c.displayMore.value || c.isDraggingNow.value);
+
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: isDocked && displayMore
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Obx(
+                          () => c.isMoreHintDismissed.value
+                              ? Container()
+                              : AnimatedDelayed(
+                                  delay: const Duration(milliseconds: 500),
+                                  duration: const Duration(milliseconds: 200),
+                                  child: SizedBox(
+                                    width: 290,
+                                    child: HintWidget(
+                                      text: 'label_hint_drag_n_drop_buttons'.tr,
+                                      onTap: () =>
+                                          c.isMoreHintDismissed.value = true,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        const IgnorePointer(child: SizedBox(height: 30)),
+                        DragTarget<DraggedItem>(
+                          onAccept: (DraggedItem data) {
+                            c.buttons.remove(data.item);
+                            c.hideHint.value = false;
+                          },
+                          onWillAccept: (a) =>
+                              (a != null && (a.item as CallButton).isRemovable)
+                                  ? true
+                                  : false,
+                          builder: _builder,
+                        )
+                      ],
+                    )
+                  : Container(),
+            );
+          }),
+        );
+      }
 
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Center(
+        Align(
+          alignment: Alignment.bottomCenter,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
-              Padding(
-                padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
-                child: AnimatedSlider(
-                  isOpen: showUi,
-                  duration: const Duration(milliseconds: 400),
-                  translate: false,
-                  child: Stack(
-                    alignment: Alignment.center,
+              Flexible(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.deferToChild,
+                  onTap: () {
+                    if (c.state.value == OngoingCallState.active) {
+                      if (c.displayMore.value) {
+                        c.displayMore.value = false;
+                        c.keepUi(false);
+                      } else {
+                        if (!c.showBottomUi.value) {
+                          c.keepUi();
+                        } else {
+                          c.keepUi(false);
+                        }
+                      }
+                    }
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    verticalDirection: VerticalDirection.up,
                     children: [
-                      // Draw a blurred dock with the invisible [_activeButtons]
-                      // if [isDocked].
-                      if (isDocked)
-                        ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(30),
-                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0x55000000),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 13,
-                              horizontal: 5,
-                            ),
-                            child: Visibility(
-                              visible: false,
-                              maintainSize: true,
-                              maintainAnimation: true,
-                              maintainState: true,
-                              child: _activeButtons(),
-                            ),
-                          ),
-                        ),
-                      _activeButtons(),
+                      _dock(),
+                      _launchpad(),
                     ],
                   ),
                 ),
@@ -445,27 +741,32 @@ Widget desktopCall(
             ],
           ),
         ),
+
         // Bottom [MouseRegion] that toggles UI on hover.
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: MouseRegion(
-              opaque: false,
-              onEnter: (d) {
-                c.isPanelOpen.value = true;
-                c.keepUi(true);
-              },
-              onExit: (d) {
-                c.isPanelOpen.value = false;
-                if (c.showUi.value) {
-                  c.keepUi(false);
-                }
-              },
+        Obx(() {
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: !c.isSelfPanning.value &&
+                      !c.displayMore.value &&
+                      c.primaryDrags.value == 0 &&
+                      c.secondaryDrags.value == 0
+                  ? MouseRegion(
+                      opaque: false,
+                      onEnter: (d) => c.keepBottomUi(true),
+                      onHover: (d) => c.keepBottomUi(true),
+                      onExit: (d) {
+                        if (c.showBottomUi.value) {
+                          c.keepBottomUi(false);
+                        }
+                      },
+                    )
+                  : Container(),
             ),
-          ),
-        ),
+          );
+        }),
       ];
 
       List<Widget> ui = [
