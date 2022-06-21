@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6)
 
+### Added
+
+- UI:
+  - Chat page:
+    - Message and attachment sending status (!5, #3).
+
 
 
 
