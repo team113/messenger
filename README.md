@@ -1,6 +1,7 @@
 Messenger by team113
 ====================
 
+[Changelog](https://github.com/team113/messenger/blob/main/CHANGELOG.md)  
 [Contribution Guide](https://github.com/team113/messenger/blob/main/CONTRIBUTING.md)  
 
 Open-source front-end part of messenger by team113.

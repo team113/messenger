@@ -19,8 +19,9 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
-FLUTTER_VER ?= $(strip $(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml \
-                               | cut -d ':' -f2 | cut -d "'" -f2))
+FLUTTER_VER ?= $(strip \
+	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
+                                                              | tr -d'"'))
 
 
 
@@ -118,7 +119,7 @@ else
 endif
 
 
-# Clean all the Flutter dependencies and generated files.
+# Clean all Flutter dependencies and generated files.
 #
 # Usage:
 #	make flutter.clean [dockerized=(no|yes)]
@@ -153,16 +154,12 @@ else
 endif
 
 
-# Run `build_runner` Flutter tool to generate project Dart code.
+# Run `build_runner` Flutter tool to generate project Dart sources.
 #
 # Usage:
 #	make flutter.gen [overwrite=(yes|no)] [dockerized=(no|yes)]
 
 flutter.gen:
-ifeq ($(wildcard schema.graphql),)
-	@make flutter.pub dockerized=$(dockerized)
-	@make yarn dockerized=$(dockerized)
-endif
 ifeq ($(dockerized),yes)
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
@@ -204,15 +201,6 @@ endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
 		$(if $(call eq,$(device),),,-d $(device)) \
 		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env))
-
-
-# Show project version from Flutter's Pub manifest.
-#
-# Usage:
-#	make flutter.version
-
-flutter.version:
-	@printf "$(VERSION)"
 
 
 
@@ -315,8 +303,8 @@ copyright:
 
 .PHONY: build clean deps docs fmt gen lint run test \
         clean.flutter \
-		copyright \
+        copyright \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        	flutter.pub flutter.run flutter.version \
+            flutter.pub flutter.run \
         test.unit

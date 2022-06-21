@@ -12,14 +12,14 @@ Contribution Guide
 
 ## Requirements
 
-- If you don't use docker-wrapped commands, make sure that tools you're using have the same version as in docker-wrapped commands.
+- If you don't use [Docker]-wrapped commands, make sure that tools you're using have the same version as in [Docker]-wrapped commands.
 
 
 
 
 ## Prerequisites
 
-See ["Get started" guide][1] to set up [Flutter] development toolchain.
+See ["Get started" Flutter guide][1] to set up [Flutter] development toolchain.
 
 Use `doctor` utility to run [Flutter] self-diagnosis and show information about the installed tooling:
 ```bash
@@ -50,7 +50,7 @@ make run device=chrome  # in debug mode on Chrome (web) target
 To build/rebuild project use the following [`Makefile`] command:
 ```bash
 make build platform=apk
-make build platform=apk dockerized=yes  # docker-wrapped
+make build platform=apk dockerized=yes  # Docker-wrapped
 ```
 
 
@@ -59,7 +59,7 @@ make build platform=apk dockerized=yes  # docker-wrapped
 To perform a static analysis of [Dart] sources use the following [`Makefile`] command:
 ```bash
 make lint
-make lint dockerized=yes  # docker-wrapped
+make lint dockerized=yes  # Docker-wrapped
 ```
 
 
@@ -69,7 +69,7 @@ To auto-format [Dart] sources use the following [`Makefile`] command:
 ```bash
 make fmt
 make fmt check=yes       # report error instead of making changes in-place
-make fmt dockerized=yes  # docker-wrapped
+make fmt dockerized=yes  # Docker-wrapped
 ```
 
 
@@ -78,7 +78,7 @@ make fmt dockerized=yes  # docker-wrapped
 To run unit tests use the following [`Makefile`] command:
 ```bash
 make test.unit
-make test.unit dockerized=yes  # docker-wrapped
+make test.unit dockerized=yes  # Docker-wrapped
 ```
 
 
@@ -88,7 +88,7 @@ To generate project documentation use the following [`Makefile`] command:
 ```bash
 make docs
 make docs open=yes        # open using `dhttpd`
-make docs dockerized=yes  # docker-wrapped
+make docs dockerized=yes  # Docker-wrapped
 ```
   
 In order for `open=yes` to work you need to activate `dhttpd` before running the command:
@@ -104,7 +104,7 @@ __Note:__ Changing the deployment environment from `dockerized=yes` to local mac
 To reset project and clean up it from temporary and generated files use the following [`Makefile`] command:
 ```bash
 make clean
-make clean dockerized=yes  # docker-wrapped
+make clean dockerized=yes  # Docker-wrapped
 ```
 
 
@@ -169,7 +169,7 @@ Application uses custom [`Router`] routing.
 Application has nested `Router`s (e.g. one in the [`GetMaterialApp`] and one nested on the `Home` page). So, a newly added page should be placed correspondingly in the proper `Router`.
 
 
-### L10n (localization)
+### l10n (localization)
 
 Application uses [`GetX`] localization that is placed under `l10n/` directory. Any newly added language should be named as a `languagecode_COUNTRYCODE` locale (i.e. `en_US`, `ru_RU`, etc).
 
@@ -302,9 +302,9 @@ class UserBio {
 
 
 
-
 [Dart]: https://dart.dev
 [dartfmt]: https://dart.dev/tools/dart-format
+[Docker]: https://www.docker.com
 [Effective Dart]: https://dart.dev/guides/language/effective-dart
 [Flutter]: https://flutter.dev
 

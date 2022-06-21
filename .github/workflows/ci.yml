@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: ["main"]
+    tags: ["v*"]
   pull_request:
     branches: ["main"]
 
@@ -11,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: '3.0'
+  FLUTTER_VER: "3.0"
 
 jobs:
 
@@ -22,12 +23,12 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - analyze-flutter
       - build
       - copyright
-      - deps-pub
-      - docs-dart
-      - fmt-flutter
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - pubspec
       - test-unit
     runs-on: ubuntu-latest
     steps:
@@ -36,63 +37,57 @@ jobs:
 
 
 
-  ################
-  # Dependencies #
-  ################
-
-  deps-pub:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: 'stable'
-          cache: true
-      - run: make flutter.pub
-      # Make sure that `pubspec.lock` is in sync with `pubspec.yaml`.
-      - run: git diff --exit-code
-
-
-
-
   ##########################
   # Linting and formatting #
   ##########################
 
-  analyze-flutter:
-    needs: ["deps-pub"]
+  copyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: make copyright check=yes
+
+  dartanalyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: $FLUTTER_VER
-          channel: 'stable'
+          channel: stable
           cache: true
+
       - run: make flutter.pub
+
       - run: make flutter.analyze
 
-  fmt-flutter:
-    needs:
-      - deps-pub
+  dartfmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: $FLUTTER_VER
-          channel: 'stable'
+          channel: stable
           cache: true
-      - run: make flutter.pub
+
       - run: make flutter.fmt check=yes
 
-  copyright:
-    needs: ["deps-pub"]
+  pubspec:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: make copyright check=yes
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: $FLUTTER_VER
+          channel: stable
+          cache: true
+
+      - run: make flutter.pub
+
+      - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
+        run: git diff --exit-code
 
 
 
@@ -102,34 +97,32 @@ jobs:
   ############
 
   build:
-    needs: ["deps-pub"]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: apk
-            os: ubuntu-latest
-          # TODO: Uncomment when `flutter_webrtc` supports iOS platform.
-          # - platform: ios
-          #   os: macos-latest
-          - platform: windows
-            os: windows-latest
-          # TODO: Uncomment when `flutter_webrtc` supports macOS platform.
-          # - platform: macos
-          #   os: macos-latest
-          - platform: linux
-            # TODO: Change to `ubuntu-latest` when 22.04 is out of beta.
-            os: ubuntu-22.04
-          - platform: web
-            os: ubuntu-latest
-    runs-on: ${{ matrix.os }}
+        platform:
+          - apk
+          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
+          #- ios
+          - linux
+          # TODO: Uncomment once `flutter_webrtc` supports macOS platform.
+          #- macos
+          - web
+          - windows
+    # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
+    runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
+                                                  && 'macos-latest')
+                 || (matrix.platform == 'windows' && 'windows-latest')
+                 || (matrix.platform == 'linux'   && 'ubuntu-22.04')
+                                                  || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: $FLUTTER_VER
-          channel: 'stable'
+          channel: stable
           cache: true
+
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
       - run: sudo apt-get install -y
@@ -140,12 +133,29 @@ jobs:
              libgstreamer-plugins-base1.0-dev
              libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
+
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform == 'windows'
-                || matrix.platform == 'linux'
-                || matrix.platform == 'macos' }}
+        if: ${{ matrix.platform == 'linux'
+                || matrix.platform == 'macos'
+                || matrix.platform == 'windows' }}
+
       - run: make flutter.pub
+
       - run: make flutter.build platform=${{ matrix.platform }}
+
+  dartdoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: $FLUTTER_VER
+          channel: stable
+          cache: true
+
+      - run: make flutter.pub
+
+      - run: make docs.dart clean=yes
 
 
 
@@ -155,36 +165,16 @@ jobs:
   ###########
 
   test-unit:
-    needs:
-      - deps-pub
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: $FLUTTER_VER
-          channel: 'stable'
+          channel: stable
           cache: true
+
       - run: make flutter.pub
+
       - run: make test.unit
-
-
-
-
-  #################
-  # Documentation #
-  #################
-
-  docs-dart:
-    needs:
-      - deps-pub
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: 'stable'
-          cache: true
-      - run: make flutter.pub
-      - run: make docs.dart

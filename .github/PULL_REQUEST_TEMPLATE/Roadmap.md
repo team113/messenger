@@ -31,16 +31,16 @@ Related to <paste issues/PRs references>
     - [ ] In [draft mode][l:1]
     - [ ] Name contains issue reference
     - [ ] Has type and `k::` labels applied
-- [ ] [Review][l:2] is completed and changes are approved
+- Before [review][l:4]:
+    - [ ] [Draft mode][l:1] is removed
+- [ ] [Review][l:4] is completed and changes are approved
 - Before merge:
     - [ ] Milestone is set
     - [ ] PR's name and description are correct and up-to-date
-    - [ ] `Draft: ` prefix is removed
     - [ ] All temporary labels are removed
 
 
 
 
-
 [l:1]: https://help.github.com/en/articles/about-pull-requests#draft-pull-requests
-[l:2]: https://help.github.com/en/articles/reviewing-changes-in-pull-requests
+[l:4]: https://help.github.com/en/articles/reviewing-changes-in-pull-requests
