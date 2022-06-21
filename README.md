@@ -1,7 +1,7 @@
 Messenger by team113
 ====================
 
-[Contribution Guide](https://github.com/team113/messenger/CONTRIBUTING.md)  
+[Contribution Guide](https://github.com/team113/messenger/blob/main/CONTRIBUTING.md)  
 
 Open-source front-end part of messenger by team113.
 
@@ -23,4 +23,4 @@ You should have received a copy of the [GNU Affero General Public License v3.0] 
 
 
 
-[GNU Affero General Public License v3.0]: https://github.com/team113/messenger/LICENSE.md
+[GNU Affero General Public License v3.0]: https://github.com/team113/messenger/blob/main/LICENSE.md
