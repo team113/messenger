@@ -19,8 +19,10 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import 'controller.dart';
 
@@ -74,13 +76,13 @@ class AddDialogMemberView extends StatelessWidget {
               type: MaterialType.card,
               child: GetBuilder(
                 init: AddDialogMemberController(
-                  Navigator.of(context).pop,
-                  chatId,
-                  _currentCall,
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                ),
+                    Navigator.of(context).pop,
+                    chatId,
+                    _currentCall,
+                    Get.find(),
+                    Get.find(),
+                    Get.find(),
+                    Get.find()),
                 builder: (AddDialogMemberController c) => Obx(
                   () => c.status.value.isLoading || c.chat.value == null
                       ? const Center(child: CircularProgressIndicator())
@@ -149,11 +151,26 @@ class AddDialogMemberView extends StatelessWidget {
                       .map(
                     (e) {
                       bool selected = c.selectedContacts.contains(e.value);
-                      return AddContactListTile(
-                        selected,
-                        e.value,
-                        () => c.selectContact(e.value),
-                      );
+                      return e.value.value.users.isNotEmpty
+                          ? FutureBuilder<Rx<User>?>(
+                              future: c.getUser(e.value.value.users.first.id),
+                              builder: (context, snapshot) {
+                                Rx<User>? user = snapshot.data;
+                                return AddContactListTile(
+                                  selected,
+                                  e.value,
+                                  () => c.selectContact(e.value),
+                                  avatar: user == null
+                                      ? null
+                                      : AvatarWidget.fromUser(user.value),
+                                );
+                              },
+                            )
+                          : AddContactListTile(
+                              selected,
+                              e.value,
+                              () => c.selectContact(e.value),
+                            );
                     },
                   ),
                 ],

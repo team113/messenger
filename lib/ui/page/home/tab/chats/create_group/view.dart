@@ -17,6 +17,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/user.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -60,11 +62,8 @@ class CreateGroupView extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             type: MaterialType.card,
             child: GetBuilder(
-              init: CreateGroupController(
-                Navigator.of(context).pop,
-                Get.find(),
-                Get.find(),
-              ),
+              init: CreateGroupController(Navigator.of(context).pop, Get.find(),
+                  Get.find(), Get.find()),
               builder: (CreateGroupController c) => Obx(
                 () => c.status.value.isLoading
                     ? const Center(child: CircularProgressIndicator())
@@ -110,11 +109,34 @@ class CreateGroupView extends StatelessWidget {
                                           (e) {
                                             bool selected = c.selectedContacts
                                                 .contains(e.value);
-                                            return AddContactListTile(
-                                              selected,
-                                              e.value,
-                                              () => c.selectContact(e.value),
-                                            );
+                                            return e.value.value.users
+                                                    .isNotEmpty
+                                                ? FutureBuilder<Rx<User>?>(
+                                                    future: c.getUser(e.value
+                                                        .value.users.first.id),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      Rx<User>? user =
+                                                          snapshot.data;
+                                                      return AddContactListTile(
+                                                        selected,
+                                                        e.value,
+                                                        () => c.selectContact(
+                                                            e.value),
+                                                        avatar: user == null
+                                                            ? null
+                                                            : AvatarWidget
+                                                                .fromUser(
+                                                                    user.value),
+                                                      );
+                                                    },
+                                                  )
+                                                : AddContactListTile(
+                                                    selected,
+                                                    e.value,
+                                                    () => c
+                                                        .selectContact(e.value),
+                                                  );
                                           },
                                         ),
                                       ],

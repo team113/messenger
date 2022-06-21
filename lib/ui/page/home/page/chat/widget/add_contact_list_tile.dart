@@ -23,7 +23,8 @@ import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].
 class AddContactListTile extends StatelessWidget {
-  const AddContactListTile(this.selected, this.contact, this.onTap, {Key? key})
+  const AddContactListTile(this.selected, this.contact, this.onTap,
+      {Key? key, this.avatar})
       : super(key: key);
 
   /// Indicator whether this [contact] is selected.
@@ -34,6 +35,10 @@ class AddContactListTile extends StatelessWidget {
 
   /// Callback, called when this [ListTile] is tapped.
   final VoidCallback onTap;
+
+  /// [AvatarWidget] of this [AddContactListTile]
+  /// if null, [AvatarWidget.fromContact] will be used instead
+  final AvatarWidget? avatar;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,7 @@ class AddContactListTile extends StatelessWidget {
                 backgroundColor: Colors.green,
                 child: Icon(Icons.check, color: Colors.white),
               )
-            : AvatarWidget.fromContact(contact.value),
+            : avatar ?? AvatarWidget.fromContact(contact.value),
       ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),

@@ -25,6 +25,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/util/message_popup.dart';
 import '/util/obs/rxmap.dart';
@@ -34,13 +35,13 @@ export 'view.dart';
 /// Controller of the dialog member addition modal.
 class AddDialogMemberController extends GetxController {
   AddDialogMemberController(
-    this.pop,
-    this.chatId,
-    this._currentCall,
-    this._chatService,
-    this._callService,
-    this._contactService,
-  );
+      this.pop,
+      this.chatId,
+      this._currentCall,
+      this._chatService,
+      this._callService,
+      this._contactService,
+      this._userService);
 
   /// Reactive state of the [Chat] this modal is about.
   Rx<Rx<Chat>?> chat = Rx<Rx<Chat>?>(null);
@@ -80,12 +81,18 @@ class AddDialogMemberController extends GetxController {
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
 
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
+
   /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
   late final Worker _stateWorker;
 
   /// Returns the current reactive map of [ChatContact]s.
   RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
       _contactService.contacts;
+
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
 
   @override
   void onInit() {
