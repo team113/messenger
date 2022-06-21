@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -85,7 +86,7 @@ void main() async {
     runApp(
       DefaultAssetBundle(
         bundle: SentryAssetBundle(),
-        child: const App(),
+        child: Phoenix(child: const App()),
       ),
     );
   }

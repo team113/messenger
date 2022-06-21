@@ -14,7 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
@@ -22,13 +24,21 @@ import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
+import 'sending_status.dart';
 import 'user.dart';
 
 part 'chat_item.g.dart';
 
 /// Item posted in a [Chat] (its content).
 abstract class ChatItem {
-  ChatItem(this.id, this.chatId, this.authorId, this.at);
+  ChatItem(
+    this.id,
+    this.chatId,
+    this.authorId,
+    this.at, {
+    SendingStatus? status,
+  }) : status = Rx(
+            status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent));
 
   /// Unique ID of this [ChatItem].
   @HiveField(0)
@@ -45,6 +55,9 @@ abstract class ChatItem {
   /// [PreciseDateTime] when this [ChatItem] was posted.
   @HiveField(3)
   PreciseDateTime at;
+
+  /// [SendingStatus] of this [ChatItem].
+  final Rx<SendingStatus> status;
 
   /// Returns number of microseconds since the "Unix epoch" till
   /// [PreciseDateTime] when this [ChatItem] was posted.
@@ -86,7 +99,8 @@ class ChatMessage extends ChatItem {
     this.text,
     this.editedAt,
     this.attachments = const [],
-  }) : super(id, chatId, authorId, at);
+    SendingStatus? status,
+  }) : super(id, chatId, authorId, at, status: status);
 
   /// Quote of the [ChatItem] this [ChatMessage] replies to.
   @HiveField(5)
@@ -103,6 +117,17 @@ class ChatMessage extends ChatItem {
   /// [Attachment]s of this [ChatMessage].
   @HiveField(8)
   List<Attachment> attachments;
+
+  /// Returns `true` if provided [ChatMessage] has same data as this
+  /// [ChatMessage].
+  bool equal(ChatMessage other) {
+    return text == other.text &&
+        repliesTo?.id == other.repliesTo?.id &&
+        authorId == other.authorId &&
+        chatId == other.chatId &&
+        attachments.every((e) => other.attachments
+            .any((e1) => e1.size == e.size && e1.filename == e.filename));
+  }
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
@@ -125,6 +150,12 @@ class ChatForward extends ChatItem {
 @HiveType(typeId: ModelTypeId.chatItemId)
 class ChatItemId extends NewType<String> {
   const ChatItemId(String val) : super(val);
+
+  /// Constructs a dummy [ChatItemId].
+  factory ChatItemId.local() => ChatItemId('local_${const Uuid().v4()}');
+
+  /// Indicates whether this [ChatItemId] is a dummy ID.
+  bool get isLocal => val.startsWith('local_');
 }
 
 /// Text of a [ChatMessage].

@@ -31,15 +31,17 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import 'swipeable_status.dart';
-import 'video_thumbnail.dart';
+import 'video_thumbnails/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
@@ -58,6 +60,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.onResend,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -100,6 +103,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final Function(ChatItemId)? onRepliedTap;
+
+  /// Callback, called when a resend action of this [ChatItem] is triggered.
+  final Function()? onResend;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -187,160 +193,290 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMessage(BuildContext context) {
     var msg = widget.item.value as ChatMessage;
 
-    List<Attachment> media = [
-      ...msg.attachments.whereType<ImageAttachment>(),
-      ...msg.attachments.whereType<FileAttachment>().where((e) => e.isVideo)
-    ];
+    List<Attachment> media = msg.attachments
+        .where((e) =>
+            e is ImageAttachment ||
+            (e is FileAttachment && e.isVideo) ||
+            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+        .toList();
 
     List<Attachment> files = msg.attachments
-        .whereType<FileAttachment>()
-        .where((e) => !e.isVideo)
+        .where((e) =>
+            (e is FileAttachment && !e.isVideo) ||
+            (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
         .toList();
 
     return _rounded(
       context,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      Row(
+        key: const Key('ChatMessage'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (msg.text != null) Text(msg.text!.val),
-          if (msg.text != null && msg.attachments.isNotEmpty)
-            const SizedBox(height: 5),
-          if (media.isNotEmpty)
-            Column(
-              crossAxisAlignment: msg.authorId == widget.me
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: media.mapIndexed(
-                (i, e) {
-                  bool isVideo = e is FileAttachment;
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (msg.text != null) Text(msg.text!.val),
+                if (msg.text != null && msg.attachments.isNotEmpty)
+                  const SizedBox(height: 5),
+                if (media.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: msg.authorId == widget.me
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: media.mapIndexed(
+                      (i, e) {
+                        bool isLocal = e is LocalAttachment;
 
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        List<Attachment> attachments =
-                            widget.onGallery?.call() ?? media;
-
-                        int initial = attachments.indexOf(e);
-                        if (initial == -1) {
-                          initial = 0;
+                        bool isVideo;
+                        if (isLocal) {
+                          isVideo = e.file.isVideo;
+                        } else {
+                          isVideo = e is FileAttachment;
                         }
 
-                        List<GalleryItem> gallery = [];
-                        for (var o in attachments) {
-                          var link = '${Config.url}/files${o.original}';
-                          if (o is FileAttachment) {
-                            gallery.add(GalleryItem.video(link));
-                          } else {
-                            gallery.add(GalleryItem.image(link));
-                          }
-                        }
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: isLocal
+                                ? null
+                                : () {
+                                    List<Attachment> attachments =
+                                        widget.onGallery?.call() ?? media;
 
-                        GalleryPopup.show(
-                          context: context,
-                          gallery: GalleryPopup(
-                            children: gallery,
-                            initial: initial,
-                            initialKey: _galleryKeys[i],
+                                    int initial = attachments.indexOf(e);
+                                    if (initial == -1) {
+                                      initial = 0;
+                                    }
+
+                                    List<GalleryItem> gallery = [];
+                                    for (var o in attachments) {
+                                      var link =
+                                          '${Config.url}/files${o.original}';
+                                      if (o is FileAttachment) {
+                                        gallery.add(GalleryItem.video(link));
+                                      } else if (o is ImageAttachment) {
+                                        gallery.add(GalleryItem.image(link));
+                                      }
+                                    }
+
+                                    GalleryPopup.show(
+                                      context: context,
+                                      gallery: GalleryPopup(
+                                        children: gallery,
+                                        initial: initial,
+                                        initialKey: _galleryKeys[i],
+                                      ),
+                                    );
+                                  },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                isVideo
+                                    ? Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          isLocal
+                                              ? e.file.bytes == null
+                                                  ? const CircularProgressIndicator()
+                                                  : VideoThumbnail.bytes(
+                                                      key: _galleryKeys[i],
+                                                      bytes: e.file.bytes!,
+                                                      height: 300,
+                                                    )
+                                              : VideoThumbnail.path(
+                                                  key: _galleryKeys[i],
+                                                  path:
+                                                      '${Config.url}/files${e.original}',
+                                                  height: 300,
+                                                ),
+                                          Container(
+                                            width: 60,
+                                            height: 60,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Color(0x80000000),
+                                            ),
+                                            child: const Icon(
+                                              Icons.play_arrow,
+                                              color: Colors.white,
+                                              size: 48,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : isLocal
+                                        ? e.file.bytes == null
+                                            ? const CircularProgressIndicator()
+                                            : Image.memory(
+                                                e.file.bytes!,
+                                                key: _galleryKeys[i],
+                                                fit: BoxFit.cover,
+                                                height: 300,
+                                              )
+                                        : Image.network(
+                                            '${Config.url}/files${e.original}',
+                                            key: _galleryKeys[i],
+                                            fit: BoxFit.cover,
+                                            height: 300,
+                                            errorBuilder: (_, __, ___) =>
+                                                const SizedBox(
+                                              width: 300.0,
+                                              height: 300.0,
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.error,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                if (isLocal)
+                                  ElasticAnimatedSwitcher(
+                                    child: e.status.value == SendingStatus.sent
+                                        ? const Icon(
+                                            Icons.check_circle,
+                                            size: 48,
+                                            color: Colors.green,
+                                          )
+                                        : e.status.value ==
+                                                SendingStatus.sending
+                                            ? CircularProgressIndicator(
+                                                key: const Key('SendingImage'),
+                                                value: e.progress.value,
+                                                backgroundColor: Colors.white,
+                                                strokeWidth: 10,
+                                              )
+                                            : const Icon(
+                                                Icons.error,
+                                                key: Key('ErrorImage'),
+                                                size: 48,
+                                                color: Colors.red,
+                                              ),
+                                  )
+                              ],
+                            ),
                           ),
                         );
                       },
-                      child: isVideo
-                          ? Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                VideoThumbnail(
-                                  '${Config.url}/files${e.original}',
-                                  key: _galleryKeys[i],
-                                  height: 300,
-                                ),
-                                Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0x80000000),
-                                  ),
-                                  child: const Icon(
-                                    Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 48,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Image.network(
-                              '${Config.url}/files${e.original}',
-                              key: _galleryKeys[i],
-                              fit: BoxFit.cover,
-                              height: 300,
-                            ),
-                    ),
-                  );
-                },
-              ).toList(),
-            ),
-          if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-          ...files.map(
-            (e) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
-                child: InkWell(
-                  onTap: () => throw UnimplementedError(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(5, 2, 10, 0),
-                        child: Icon(
-                          Icons.attach_file,
-                          size: 18,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          e.filename,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 1),
-                        child: Text(
-                          '${e.size ~/ 1024} KB',
-                          style: const TextStyle(
-                            color: Color(0xFF888888),
-                            fontSize: 13,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                    ],
+                    ).toList(),
                   ),
+                if (media.isNotEmpty && files.isNotEmpty)
+                  const SizedBox(height: 6),
+                ...files.map(
+                  (e) {
+                    bool isLocal = e is LocalAttachment;
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
+                      child: InkWell(
+                        onTap: () => throw UnimplementedError(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
+                              child: isLocal
+                                  ? ElasticAnimatedSwitcher(
+                                      child: e.status.value ==
+                                              SendingStatus.sent
+                                          ? const Icon(
+                                              Icons.check_circle,
+                                              size: 18,
+                                              color: Colors.green,
+                                            )
+                                          : e.status.value ==
+                                                  SendingStatus.sending
+                                              ? SizedBox.square(
+                                                  key: const Key('SendingFile'),
+                                                  dimension: 18,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    value: e.progress.value,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    strokeWidth: 5,
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.error_outline,
+                                                  key: Key('ErrorFile'),
+                                                  size: 18,
+                                                  color: Colors.red,
+                                                ),
+                                    )
+                                  : const Icon(
+                                      Icons.attach_file,
+                                      key: Key('SentFile'),
+                                      size: 18,
+                                      color: Colors.blue,
+                                    ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                e.filename,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 1),
+                              child: Text(
+                                '${e.size ~/ 1024} KB',
+                                style: const TextStyle(
+                                  color: Color(0xFF888888),
+                                  fontSize: 13,
+                                ),
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-          if (msg.repliesTo != null) ...[
-            if (msg.text != null || msg.attachments.isNotEmpty)
-              const SizedBox(height: 5),
-            InkWell(
-              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(height: 18, width: 2, color: Colors.blue),
-                  const SizedBox(width: 4),
-                  Flexible(child: _repliedMessage(msg.repliesTo!)),
+                if (msg.repliesTo != null) ...[
+                  if (msg.text != null || msg.attachments.isNotEmpty)
+                    const SizedBox(height: 5),
+                  InkWell(
+                    onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(height: 18, width: 2, color: Colors.blue),
+                        const SizedBox(width: 4),
+                        Flexible(child: _repliedMessage(msg.repliesTo!)),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
+              ],
             ),
-          ],
+          ),
+          ElasticAnimatedSwitcher(
+            child: msg.status.value == SendingStatus.sending
+                ? const Padding(
+                    key: Key('SendingMessage'),
+                    padding: EdgeInsets.only(left: 8),
+                    child: Icon(Icons.access_alarm, size: 15),
+                  )
+                : msg.status.value == SendingStatus.error
+                    ? const Padding(
+                        key: Key('ErrorMessage'),
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 15,
+                          color: Colors.red,
+                        ),
+                      )
+                    : Container(key: const Key('SentMessage')),
+          )
         ],
       ),
     );
@@ -532,37 +668,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
-    bool fromMe = widget.item.value.authorId == widget.me;
+    ChatItem item = widget.item.value;
+    bool fromMe = item.authorId == widget.me;
 
     String? copyable;
-    if (widget.item.value is ChatMessage) {
-      copyable = (widget.item.value as ChatMessage).text?.val;
+    if (item is ChatMessage) {
+      copyable = item.text?.val;
     }
 
     bool isRead = false;
     if (fromMe) {
-      isRead = widget.chat.value?.lastReads.firstWhereOrNull((e) =>
-              e.memberId != widget.me &&
-              !e.at.isBefore(widget.item.value.at)) !=
+      isRead = widget.chat.value?.lastReads.firstWhereOrNull(
+              (e) => e.memberId != widget.me && !e.at.isBefore(item.at)) !=
           null;
     } else {
       isRead = widget.chat.value?.lastReads
               .firstWhereOrNull((e) => e.memberId == widget.me)
               ?.at
-              .isBefore(widget.item.value.at) ==
+              .isBefore(item.at) ==
           false;
     }
+
+    bool isSent = item.status.value == SendingStatus.sent;
 
     return SwipeableStatus(
       animation: widget.animation,
       asStack: !fromMe,
-      isSent: fromMe,
-      isDelivered: fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
-              false,
-      isRead: !fromMe || isRead,
-      swipeable:
-          Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+      isSent: isSent && fromMe,
+      isDelivered: isSent &&
+          fromMe &&
+          widget.chat.value?.lastDelivery.isBefore(item.at) == false,
+      isRead: isSent && (!fromMe || isRead),
+      swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
@@ -573,11 +710,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               padding: const EdgeInsets.only(top: 9),
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: () =>
-                    router.user(widget.item.value.authorId, push: true),
+                onTap: () => router.user(item.authorId, push: true),
                 child: AvatarWidget.fromUser(
                   widget.user?.value ??
-                      widget.chat.value!.getUser(widget.item.value.authorId),
+                      widget.chat.value!.getUser(item.authorId),
                   radius: 15,
                 ),
               ),
@@ -602,7 +738,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? 0.65
                             : 0.8,
                     child: Material(
-                      key: Key('Message_${widget.item.value.id}'),
+                      key: Key('Message_${item.id}'),
                       elevation: 6,
                       shadowColor: const Color(0x33000000),
                       borderRadius: BorderRadius.circular(15),
@@ -616,37 +752,50 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_copy_text'.tr,
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: 'btn_reply'.tr,
-                              onPressed: () => widget.onReply?.call(),
-                            ),
-                            if (widget.item.value is ChatMessage &&
-                                fromMe &&
-                                (widget.item.value.at
-                                        .add(ChatController.editMessageTimeout)
-                                        .isAfter(PreciseDateTime.now()) ||
-                                    !isRead))
+                            if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(
-                                key: const Key('EditButton'),
-                                label: 'btn_edit'.tr,
-                                onPressed: () => widget.onEdit?.call(),
+                                key: const Key('ReplyButton'),
+                                label: 'btn_reply'.tr,
+                                onPressed: () => widget.onReply?.call(),
                               ),
-                            if (widget.item.value.authorId == widget.me &&
-                                !widget.chat.value!
-                                    .isRead(widget.item.value, widget.me) &&
-                                (widget.item.value is ChatMessage ||
-                                    widget.item.value is ChatForward))
+                              if (item is ChatMessage &&
+                                  fromMe &&
+                                  (item.at
+                                          .add(
+                                              ChatController.editMessageTimeout)
+                                          .isAfter(PreciseDateTime.now()) ||
+                                      !isRead))
+                                ContextMenuButton(
+                                  key: const Key('EditButton'),
+                                  label: 'btn_edit'.tr,
+                                  onPressed: () => widget.onEdit?.call(),
+                                ),
                               ContextMenuButton(
-                                key: const Key('DeleteForAll'),
-                                label: 'label_delete_for_all'.tr,
+                                key: const Key('HideForMe'),
+                                label: 'btn_hide_for_me'.tr,
+                                onPressed: () => widget.onHide?.call(),
+                              ),
+                              if (item.authorId == widget.me &&
+                                  !widget.chat.value!.isRead(item, widget.me) &&
+                                  (item is ChatMessage || item is ChatForward))
+                                ContextMenuButton(
+                                  key: const Key('DeleteForAll'),
+                                  label: 'btn_delete_for_all'.tr,
+                                  onPressed: () => widget.onDelete?.call(),
+                                ),
+                            ],
+                            if (item.status.value == SendingStatus.error) ...[
+                              ContextMenuButton(
+                                key: const Key('Resend'),
+                                label: 'btn_resend_message'.tr,
+                                onPressed: () => widget.onResend?.call(),
+                              ),
+                              ContextMenuButton(
+                                key: const Key('Delete'),
+                                label: 'btn_delete_message'.tr,
                                 onPressed: () => widget.onDelete?.call(),
                               ),
-                            ContextMenuButton(
-                              key: const Key('HideForMe'),
-                              label: 'label_hide_for_me'.tr,
-                              onPressed: () => widget.onHide?.call(),
-                            ),
+                            ],
                           ],
                         ),
                         child: Container(
@@ -676,10 +825,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
   void _populateGlobalKeys(ChatMessage msg) {
-    _galleryKeys = [
-      ...msg.attachments.whereType<ImageAttachment>(),
-      ...msg.attachments.whereType<FileAttachment>().where((e) => e.isVideo)
-    ].map((e) => GlobalKey()).toList();
+    _galleryKeys = msg.attachments
+        .where((e) =>
+            e is ImageAttachment ||
+            (e is FileAttachment && e.isVideo) ||
+            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+        .map((e) => GlobalKey())
+        .toList();
   }
 }
 

@@ -16,24 +16,46 @@
 
 // ignore_for_file: avoid_print
 
+import 'package:dio/dio.dart' as dio;
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.graphql.dart';
+import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'parameters/attachment_type.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
+import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/attach_file.dart';
 import 'steps/fill_field.dart';
 import 'steps/has_dialog.dart';
+import 'steps/in_chat_with.dart';
+import 'steps/internet_delay.dart';
+import 'steps/long_press_message.dart';
+import 'steps/long_press_widget.dart';
+import 'steps/no_internet_connection.dart';
+import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_image_status.dart';
+import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
@@ -42,17 +64,28 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        attachFile,
         fillField,
         hasDialogWithMe,
+        hasInternetWithDelay,
         iAm,
+        iAmInChatWith,
+        longPressMessage,
+        longPressWidget,
+        noInternetConnection,
+        restartApp,
         seesAs,
         sendsMessageToMe,
         signInAs,
+        tapText,
         tapWidget,
         twoUsers,
         untilTextExists,
         user,
+        waitUntilFileStatus,
+        waitUntilImageStatus,
         waitUntilKeyExists,
+        waitUntilMessageStatus,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [
@@ -71,14 +104,19 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        AttachmentTypeParameter(),
         OnlineStatusParameter(),
+        SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
       ]
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) => Future.sync(app.main);
+Future<void> appInitializationFn(World world) {
+  Get.put<GraphQlProvider>(MockGraphQlProvider());
+  return Future.sync(app.main);
+}
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
 Future<Session> createUser(
@@ -108,4 +146,66 @@ Future<Session> createUser(
     result.createUser.session.token,
     result.createUser.session.expireAt,
   );
+}
+
+/// Extension adding ability to find widget with `skipOffstage`: `false`.
+extension SkipOffstageExtension on AppDriverAdapter {
+  /// Finds widget by provided [key] with `skipOffstage`: `false`.
+  Finder findByKeySkipOffstage(String key) =>
+      find.byKey(Key(key), skipOffstage: false);
+}
+
+/// Mocked [GraphQlProvider].
+class MockGraphQlProvider extends GraphQlProvider {
+  MockGraphQlProvider({this.delay, this.hasError = false}) : super();
+
+  /// Delay of requests.
+  Duration? delay;
+
+  /// Indicator whether methods throws exceptions.
+  bool hasError;
+
+  @override
+  Future<ChatEventsVersionedMixin?> postChatMessage(
+    ChatId chatId, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+    ChatItemId? repliesTo,
+  }) async {
+    if (hasError) {
+      throw PostChatMessageException(PostChatMessageErrorCode.artemisUnknown);
+    }
+
+    if (delay != null) {
+      await Future.delayed(delay!);
+    }
+
+    return super.postChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
+
+  @override
+  Future<UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk>
+      uploadAttachment(
+    dio.MultipartFile? attachment, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    if (hasError) {
+      await Future.delayed(delay!);
+      throw UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown);
+    }
+
+    if (delay != null) {
+      await Future.delayed(delay!);
+    }
+
+    return super.uploadAttachment(
+      attachment,
+      onSendProgress: onSendProgress,
+    );
+  }
 }

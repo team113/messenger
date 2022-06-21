@@ -24,6 +24,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -197,7 +198,7 @@ void main() async {
   when(graphQlProvider.postChatMessage(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     text: const ChatMessageText('reply message'),
-    attachments: [],
+    attachments: anyNamed('attachments'),
     repliesTo: null,
   )).thenAnswer((_) {
     var event = {
@@ -289,7 +290,8 @@ void main() async {
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
-  await messagesProvider.init();
+  await messagesProvider.init(
+      userId: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'));
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
@@ -320,8 +322,13 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
         SettingsRepository(settingsProvider, applicationSettingsProvider));
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+    AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      userRepository,
+      me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+    ));
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
 

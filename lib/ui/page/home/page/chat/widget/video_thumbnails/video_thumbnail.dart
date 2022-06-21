@@ -14,22 +14,51 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import 'src/interface.dart'
+    if (dart.library.io) 'src/io.dart'
+    if (dart.library.html) 'src/web.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
+///
+/// At least one of [path] or [bytes] arguments must be specified and non-empty.
 class VideoThumbnail extends StatefulWidget {
-  const VideoThumbnail(
-    this.path, {
+  const VideoThumbnail._({
     Key? key,
+    this.path,
+    this.bytes,
     this.height,
-  }) : super(key: key);
+  })  : assert(
+            (path != null && bytes == null) || (path == null && bytes != null)),
+        super(key: key);
+
+  /// Constructs a [VideoThumbnail] from the provided [path].
+  factory VideoThumbnail.path({
+    required String path,
+    double? height,
+    Key? key,
+  }) =>
+      VideoThumbnail._(key: key, path: path, height: height);
+
+  /// Constructs a [VideoThumbnail] from the provided [bytes].
+  factory VideoThumbnail.bytes({
+    required Uint8List bytes,
+    double? height,
+    Key? key,
+  }) =>
+      VideoThumbnail._(key: key, bytes: bytes, height: height);
 
   /// URL of the video to display.
-  final String path;
+  final String? path;
+
+  /// Bytes array of the video to display.
+  final Uint8List? bytes;
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
@@ -102,7 +131,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     try {
-      _controller = VideoPlayerController.network(widget.path);
+      if (widget.bytes != null) {
+        _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
+      } else {
+        _controller = VideoPlayerController.network(widget.path!);
+      }
+
       await _controller.initialize();
     } on PlatformException catch (_) {
       // Plugin is not supported on the current platform.
