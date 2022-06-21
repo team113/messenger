@@ -18,11 +18,18 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/provider/hive/chat.dart';
 
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
   Map<String, CustomUser> sessions = {};
+
+  /// Name of authorized user.
+  String authorizedUserName = '';
+
+  /// [ChatHiveProvider] of authorized user.
+  ChatHiveProvider? authorizedUserChatHive;
 }
 
 /// [Session] with some additional info about the [User] it represents.

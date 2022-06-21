@@ -24,6 +24,7 @@ import 'package:intl/intl.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
+import '../forward/view.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -58,6 +59,11 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.forwardMode,
+    this.forwardItems,
+    this.onPopupClosed,
+    this.onChatForwardTap,
+    this.toggleChatForward,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -100,6 +106,22 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final Function(ChatItemId)? onRepliedTap;
+
+  /// Callback, called when messages forward popup was closed.
+  final Function(bool?)? onPopupClosed;
+
+  /// Indicator whether forward mode is turned on or not.
+  final RxBool? forwardMode;
+
+  /// Map of forwarded items.
+  final RxMap<ChatItemId, ChatItemQuote>? forwardItems;
+
+  /// Callback, called when tapped on [ChatForward] item.
+  final Function(ChatItem)? onChatForwardTap;
+
+  /// Callback, called when need to add [ChatItem] to forward messages list or
+  /// remove it.
+  final Function(ChatItem)? toggleChatForward;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -180,7 +202,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    return _rounded(context, Text('label_forwarded_message'.tr));
+    ChatForward msg = widget.item.value as ChatForward;
+    return _rounded(
+      context,
+      InkWell(
+        onTap: (widget.forwardMode?.value == true &&
+                (widget.item.value is ChatMessage ||
+                    widget.item.value is ChatForward))
+            ? null
+            : () => widget.onChatForwardTap?.call(msg.item!),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: GestureDetector(
+                onTap: (widget.forwardMode?.value == true &&
+                        (widget.item.value is ChatMessage ||
+                            widget.item.value is ChatForward))
+                    ? null
+                    : () => router.user(msg.authorId, push: true),
+                child: AvatarWidget.fromUser(
+                  widget.chat.value!.getUser(msg.authorId),
+                  radius: 10,
+                ),
+              ),
+            ),
+            Container(height: 18, width: 2, color: Colors.blue),
+            const SizedBox(width: 4),
+            Flexible(
+              child: _repliedMessage((msg.item as ChatMessage), maxLines: null),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Renders [widget.item] as [ChatMessage].
@@ -218,34 +275,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        List<Attachment> attachments =
-                            widget.onGallery?.call() ?? media;
+                      onTap: (widget.forwardMode?.value == true &&
+                              (widget.item.value is ChatMessage ||
+                                  widget.item.value is ChatForward))
+                          ? null
+                          : () {
+                              List<Attachment> attachments =
+                                  widget.onGallery?.call() ?? media;
 
-                        int initial = attachments.indexOf(e);
-                        if (initial == -1) {
-                          initial = 0;
-                        }
+                              int initial = attachments.indexOf(e);
+                              if (initial == -1) {
+                                initial = 0;
+                              }
 
-                        List<GalleryItem> gallery = [];
-                        for (var o in attachments) {
-                          var link = '${Config.url}/files${o.original}';
-                          if (o is FileAttachment) {
-                            gallery.add(GalleryItem.video(link));
-                          } else {
-                            gallery.add(GalleryItem.image(link));
-                          }
-                        }
+                              List<GalleryItem> gallery = [];
+                              for (var o in attachments) {
+                                var link = '${Config.url}/files${o.original}';
+                                if (o is FileAttachment) {
+                                  gallery.add(GalleryItem.video(link));
+                                } else {
+                                  gallery.add(GalleryItem.image(link));
+                                }
+                              }
 
-                        GalleryPopup.show(
-                          context: context,
-                          gallery: GalleryPopup(
-                            children: gallery,
-                            initial: initial,
-                            initialKey: _galleryKeys[i],
-                          ),
-                        );
-                      },
+                              GalleryPopup.show(
+                                context: context,
+                                gallery: GalleryPopup(
+                                  children: gallery,
+                                  initial: initial,
+                                  initialKey: _galleryKeys[i],
+                                ),
+                              );
+                            },
                       child: isVideo
                           ? Stack(
                               alignment: Alignment.center,
@@ -287,7 +348,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
-                  onTap: () => throw UnimplementedError(),
+                  onTap: (widget.forwardMode?.value == true &&
+                          (widget.item.value is ChatMessage ||
+                              widget.item.value is ChatForward))
+                      ? null
+                      : () => throw UnimplementedError(),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -450,7 +515,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _repliedMessage(ChatItem item) {
+  Widget _repliedMessage(ChatItem item, {int? maxLines = 1}) {
     if (item is ChatMessage) {
       var desc = StringBuffer();
 
@@ -460,13 +525,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           desc.write(' [${item.attachments.length} ${'label_attachments'.tr}]');
         }
       } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.tr}]');
+        desc.write('${item.attachments.length} ${'label_attachments'.tr}');
       }
 
       return Text(
         desc.toString(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        maxLines: maxLines,
+        overflow: (maxLines == null) ? null : TextOverflow.ellipsis,
       );
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.tr;
@@ -511,7 +576,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               padding: const EdgeInsets.only(bottom: 1),
               child: Text(
                 time,
-                maxLines: 1,
+                maxLines: maxLines,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
               ),
@@ -554,124 +619,173 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     return SwipeableStatus(
-      animation: widget.animation,
-      asStack: !fromMe,
-      isSent: fromMe,
-      isDelivered: fromMe &&
-          widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
-              false,
-      isRead: !fromMe || isRead,
-      swipeable:
-          Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment:
-            fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (!fromMe && widget.chat.value!.isGroup)
-            Padding(
-              padding: const EdgeInsets.only(top: 9),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () =>
-                    router.user(widget.item.value.authorId, push: true),
-                child: AvatarWidget.fromUser(
-                  widget.user?.value ??
-                      widget.chat.value!.getUser(widget.item.value.authorId),
-                  radius: 15,
+        animation: widget.animation,
+        asStack: !fromMe,
+        isSent: fromMe,
+        isDelivered: fromMe &&
+            widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
+                false,
+        isRead: !fromMe || isRead,
+        swipeable:
+            Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+        child: GestureDetector(
+          onTap: (widget.forwardMode?.value == true &&
+                  (widget.item.value is ChatMessage ||
+                      widget.item.value is ChatForward))
+              ? () => widget.toggleChatForward?.call(widget.item.value)
+              : null,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment:
+                fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (widget.forwardMode?.value == true &&
+                  (widget.item.value is ChatMessage ||
+                      widget.item.value is ChatForward))
+                Checkbox(
+                  value: (widget.forwardItems?[widget.item.value.id] == null)
+                      ? false
+                      : true,
+                  onChanged: (value) =>
+                      widget.toggleChatForward?.call(widget.item.value),
                 ),
-              ),
-            ),
-          Flexible(
-            child: LayoutBuilder(builder: (context, constraints) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: min(
-                    550,
-                    constraints.maxWidth * 0.84 +
-                        (fromMe ? SwipeableStatus.width : 0),
+              if (!fromMe && widget.chat.value!.isGroup)
+                Padding(
+                  padding: const EdgeInsets.only(top: 9),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () =>
+                        router.user(widget.item.value.authorId, push: true),
+                    child: AvatarWidget.fromUser(
+                      widget.user?.value ??
+                          widget.chat.value!
+                              .getUser(widget.item.value.authorId),
+                      radius: 15,
+                    ),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: isRead
-                        ? 1
-                        : fromMe
-                            ? 0.65
-                            : 0.8,
-                    child: Material(
-                      key: Key('Message_${widget.item.value.id}'),
-                      elevation: 6,
-                      shadowColor: const Color(0x33000000),
-                      borderRadius: BorderRadius.circular(15),
-                      child: ContextMenuRegion(
-                        preventContextMenu: false,
-                        menu: ContextMenu(
-                          actions: [
-                            if (copyable != null)
-                              ContextMenuButton(
-                                key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.tr,
-                                onPressed: () => widget.onCopy?.call(copyable!),
-                              ),
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: 'btn_reply'.tr,
-                              onPressed: () => widget.onReply?.call(),
+              Flexible(
+                child: LayoutBuilder(builder: (BuildContext con, constraints) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: min(
+                        550,
+                        constraints.maxWidth * 0.84 +
+                            (fromMe ? SwipeableStatus.width : 0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: isRead
+                            ? 1
+                            : fromMe
+                                ? 0.65
+                                : 0.8,
+                        child: Material(
+                          key: Key('Message_${widget.item.value.id}'),
+                          elevation: 6,
+                          shadowColor: const Color(0x33000000),
+                          borderRadius: BorderRadius.circular(15),
+                          child: ContextMenuRegion(
+                            preventContextMenu: false,
+                            enabled: (widget.forwardMode?.value == true)
+                                ? false
+                                : true,
+                            menu: ContextMenu(
+                              actions: [
+                                if (copyable != null)
+                                  ContextMenuButton(
+                                    key: const Key('CopyButton'),
+                                    label: 'btn_copy_text'.tr,
+                                    onPressed: () =>
+                                        widget.onCopy?.call(copyable!),
+                                  ),
+                                ContextMenuButton(
+                                  key: const Key('ReplyButton'),
+                                  label: 'btn_reply'.tr,
+                                  onPressed: () => widget.onReply?.call(),
+                                ),
+                                if (widget.item.value is ChatMessage &&
+                                    fromMe &&
+                                    (widget.item.value.at
+                                            .add(ChatController
+                                                .editMessageTimeout)
+                                            .isAfter(PreciseDateTime.now()) ||
+                                        !isRead))
+                                  ContextMenuButton(
+                                    key: const Key('EditButton'),
+                                    label: 'btn_edit'.tr,
+                                    onPressed: () => widget.onEdit?.call(),
+                                  ),
+                                if (widget.item.value.authorId == widget.me &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage ||
+                                        widget.item.value is ChatForward))
+                                  ContextMenuButton(
+                                    key: const Key('DeleteForAll'),
+                                    label: 'label_delete_for_all'.tr,
+                                    onPressed: () => widget.onDelete?.call(),
+                                  ),
+                                ContextMenuButton(
+                                  key: const Key('HideForMe'),
+                                  label: 'label_hide_for_me'.tr,
+                                  onPressed: () => widget.onHide?.call(),
+                                ),
+                                if (widget.item.value is ChatMessage ||
+                                    widget.item.value is ChatForward)
+                                  ContextMenuButton(
+                                      key: const Key('ForwardMessage'),
+                                      label: 'label_forward'.tr,
+                                      onPressed: () async {
+                                        widget.toggleChatForward
+                                            ?.call(widget.item.value);
+                                        bool? result = await showDialog(
+                                          context: context,
+                                          builder: (_) => ChatForwardView(
+                                            widget.chat.value!.id,
+                                            widget.forwardItems!,
+                                          ),
+                                        );
+                                        widget.onPopupClosed?.call(result);
+                                      }),
+                                if (widget.item.value is ChatMessage ||
+                                    widget.item.value is ChatForward)
+                                  ContextMenuButton(
+                                      key: const Key('SelectMessages'),
+                                      label: 'label_select'.tr,
+                                      onPressed: () {
+                                        widget.toggleChatForward
+                                            ?.call(widget.item.value);
+                                        widget.forwardMode?.value = true;
+                                      }),
+                              ],
                             ),
-                            if (widget.item.value is ChatMessage &&
-                                fromMe &&
-                                (widget.item.value.at
-                                        .add(ChatController.editMessageTimeout)
-                                        .isAfter(PreciseDateTime.now()) ||
-                                    !isRead))
-                              ContextMenuButton(
-                                key: const Key('EditButton'),
-                                label: 'btn_edit'.tr,
-                                onPressed: () => widget.onEdit?.call(),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: fromMe
+                                    ? const Color(0xFFDCE9FD)
+                                    : const Color(0xFFFFFFFF),
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                            if (widget.item.value.authorId == widget.me &&
-                                !widget.chat.value!
-                                    .isRead(widget.item.value, widget.me) &&
-                                (widget.item.value is ChatMessage ||
-                                    widget.item.value is ChatForward))
-                              ContextMenuButton(
-                                key: const Key('DeleteForAll'),
-                                label: 'label_delete_for_all'.tr,
-                                onPressed: () => widget.onDelete?.call(),
+                              child: DefaultTextStyle.merge(
+                                style: const TextStyle(fontSize: 16),
+                                child: child,
                               ),
-                            ContextMenuButton(
-                              key: const Key('HideForMe'),
-                              label: 'label_hide_for_me'.tr,
-                              onPressed: () => widget.onHide?.call(),
                             ),
-                          ],
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: fromMe
-                                ? const Color(0xFFDCE9FD)
-                                : const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: DefaultTextStyle.merge(
-                            style: const TextStyle(fontSize: 16),
-                            child: child,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].

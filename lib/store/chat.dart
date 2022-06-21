@@ -280,13 +280,32 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> deleteChatDirectLink(ChatId groupId) =>
       _graphQlProvider.deleteChatDirectLink(groupId: groupId);
 
+  @override
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+  }) =>
+      _graphQlProvider.forwardChatItems(
+        from,
+        to,
+        items
+            .map((e) => ChatItemQuoteInput(
+                id: e.item.id,
+                attachments: e.attachments,
+                withText: e.withText))
+            .toList(),
+        text: text,
+      );
+
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
   Future<List<HiveChatItem>> messages(ChatId chatItemId) async {
     const maxInt = 120;
     var query = await _graphQlProvider.chatItems(chatItemId, first: maxInt);
-    return query.chat?.items.edges
+    return query.chat?.items.edges.reversed
             .map((e) => e.toHive())
             .expand((e) => e)
             .toList() ??

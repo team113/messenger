@@ -41,6 +41,7 @@ final StepDefinitionGeneric waitUntilKeyExists =
                 context.world.appDriver.findBy(key.name, FindType.key),
               );
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

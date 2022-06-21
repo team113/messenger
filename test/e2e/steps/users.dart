@@ -18,6 +18,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -31,7 +32,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   'I am {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    UserPassword password = UserPassword('123');
 
     await createUser(
       user,
@@ -43,6 +44,13 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
       password,
       num: context.world.sessions[user.name]?.userNum,
     );
+
+    context.world.authorizedUserName = user.name;
+
+    ChatHiveProvider chatHive = ChatHiveProvider();
+    await chatHive.init(userId: context.world.sessions[user.name]?.userId);
+
+    context.world.authorizedUserChatHive = chatHive;
 
     router.home();
   },

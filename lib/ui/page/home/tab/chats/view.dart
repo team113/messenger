@@ -184,6 +184,40 @@ class ChatsTabView extends StatelessWidget {
                   ),
                 Flexible(child: Text(desc.toString(), maxLines: 2)),
               ];
+            } else if (chat.lastItem is ChatForward) {
+              var item = chat.lastItem as ChatForward;
+
+              var desc = StringBuffer();
+
+              if (!chat.isGroup && item.authorId == c.me) {
+                desc.write('${'label_you'.tr}: ');
+              }
+
+              if (item.item is ChatMessage) {
+                var message = item.item as ChatMessage;
+                if (message.text != null) {
+                  desc.write(message.text!.val);
+                  if (message.attachments.isNotEmpty) {
+                    desc.write(
+                        ' [${message.attachments.length} ${'label_attachments'.tr}]');
+                  }
+                } else if (message.attachments.isNotEmpty) {
+                  desc.write(
+                      '[${message.attachments.length} ${'label_attachments'.tr}]');
+                }
+              }
+
+              subtitle = [
+                if (chat.isGroup)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: AvatarWidget.fromUser(
+                      chat.getUser(item.authorId),
+                      radius: 10,
+                    ),
+                  ),
+                Flexible(child: Text(desc.toString(), maxLines: 2)),
+              ];
             } else {
               // TODO: Implement other ChatItems.
             }

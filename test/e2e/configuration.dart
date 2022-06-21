@@ -16,7 +16,9 @@
 
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -30,23 +32,35 @@ import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/fill_field.dart';
 import 'steps/has_dialog.dart';
+import 'steps/tap_message_inside_chat.dart';
+import 'steps/sends_forward_message.dart';
+import 'steps/tap_chat.dart';
+import 'steps/tap_chat_inside_modal.dart';
+import 'steps/long_press_message_inside_chat.dart';
+import 'steps/users.dart';
+import 'steps/wait_until_message_exists.dart';
+import 'steps/wait_until_widget.dart';
+import 'steps/wait_until_text_exists.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_widget.dart';
-import 'steps/users.dart';
-import 'steps/wait_until_text_exists.dart';
-import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
 /// Configuration of a Gherkin test suite.
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        waitUntilMessageExists,
         fillField,
         hasDialogWithMe,
         iAm,
         seesAs,
         sendsMessageToMe,
+        longPressMessageInsideChat,
+        sendsForwardMessageToMe,
+        tapChatInsideModal,
+        tapMessageInsideChat,
+        tapChat,
         signInAs,
         tapWidget,
         twoUsers,
@@ -108,4 +122,10 @@ Future<Session> createUser(
     result.createUser.session.token,
     result.createUser.session.expireAt,
   );
+}
+
+/// Extension for [AppDriverAdapter] to finds widgets, don't skipping offstage.
+extension FindByKeySkipOffstage on AppDriverAdapter {
+  /// Finds widget by key, don't skipping offstage.
+  Finder findByKeySkipOffstage(Key key) => find.byKey(key, skipOffstage: false);
 }

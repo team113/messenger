@@ -138,7 +138,7 @@ class ChatsTabController extends GetxController {
   Future<void> leaveChat(ChatId id) async {
     try {
       await _chatService.removeChatMember(id, me!);
-      if (router.route == '${Routes.chat}/$id') {
+      if (router.route.name == '${Routes.chat}/$id') {
         router.pop();
       }
     } on RemoveChatMemberException catch (e) {
@@ -153,7 +153,7 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
+      if (router.route.name == '${Routes.chat}/$id') {
         router.go('/');
       }
     } on HideChatException catch (e) {

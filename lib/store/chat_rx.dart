@@ -224,8 +224,7 @@ class HiveRxChat implements RxChat {
           if (saved.value.id.val != item.value.id.val) {
             // If there's collision, then decrease timestamp with 1 millisecond
             // offset and save this item again.
-            item.value.at =
-                item.value.at.subtract(const Duration(milliseconds: 1));
+            item.value.at = item.value.at.add(const Duration(milliseconds: 1));
             put(item);
           } else if (saved.ver < item.ver) {
             _local.put(item);
