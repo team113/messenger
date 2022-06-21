@@ -15,6 +15,16 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 
 
 
+######################
+# Project parameters #
+######################
+
+FLUTTER_VER ?= $(strip $(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml \
+                               | cut -d ':' -f2 | cut -d "'" -f2))
+
+
+
+
 ###########
 # Aliases #
 ###########
@@ -211,17 +221,6 @@ flutter.version:
 # Testing commands #
 ####################
 
-# Run Flutter E2E tests.
-#
-# Usage:
-#	make test.e2e [( [start-app=no]
-#	               | start-app=yes [TAG=(dev|<docker-tag>)]
-#	                               [no-cache=(no|yes)]
-#	                               [pull=(no|yes)] )]
-#	              [device=(chrome|web-server|macos|linux|windows|<device-id>)]
-#	              [dockerized=(no|yes)]
-#	              [gen=(no|yes)]
-
 # Run Flutter unit tests.
 #
 # Usage:
@@ -319,5 +318,5 @@ copyright:
 		copyright \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        	flutter.pub flutter.run flutter.serve flutter.version \
+        	flutter.pub flutter.run flutter.version \
         test.unit
