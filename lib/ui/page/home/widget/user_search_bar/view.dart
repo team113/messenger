@@ -1,24 +1,9 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/ui/page/home/widget/avatar.dart';
 import 'controller.dart';
 
@@ -133,24 +118,24 @@ class UserSearchBar extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with the information of the provided [User].
-  Widget _user(Rx<User> user, UserSearchBarController c) => ListTile(
-        key: ValueKey(user.value.id.val),
-        leading: AvatarWidget.fromUser(user.value),
-        title: Text(user.value.name?.val ?? user.value.num.val),
+  Widget _user(RxUser rxUser, UserSearchBarController c) => ListTile(
+        key: ValueKey(rxUser.user.value.id.val),
+        leading: AvatarWidget.fromUser(rxUser.user.value),
+        title: Text(rxUser.user.value.name?.val ?? rxUser.user.value.num.val),
         trailing: trailingIcon == null
             ? null
             : IconButton(
                 onPressed: () {
-                  onTrailingTap?.call(user.value);
-                  c.addToRecent(user);
+                  onTrailingTap?.call(rxUser.user.value);
+                  c.addToRecent(rxUser);
                   searchController.clear();
                   searchController.close();
                 },
                 icon: trailingIcon!,
               ),
         onTap: () {
-          onUserTap?.call(user.value);
-          c.addToRecent(user);
+          onUserTap?.call(rxUser.user.value);
+          c.addToRecent(rxUser);
           searchController.clear();
           searchController.close();
         },

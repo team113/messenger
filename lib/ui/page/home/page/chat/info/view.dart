@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'package:expandable/expandable.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -217,18 +201,20 @@ class ChatInfoView extends StatelessWidget {
         () => Column(
           children: [
             ...c.chat!.members.values.map(
-              (u) => ListTile(
-                title: Text(u.value.name?.val ?? u.value.num.val),
-                leading: AvatarWidget.fromUser(u.value),
+              (rxUser) => ListTile(
+                title: Text(
+                    rxUser.user.value.name?.val ?? rxUser.user.value.num.val),
+                leading: AvatarWidget.fromUser(rxUser.user.value),
                 trailing: IconButton(
                   key: const Key('DeleteChatMember'),
-                  icon: Icon(
-                      u.value.id == c.me ? Icons.exit_to_app : Icons.delete),
-                  onPressed: c.membersOnRemoval.contains(u.value.id)
+                  icon: Icon(rxUser.user.value.id == c.me
+                      ? Icons.exit_to_app
+                      : Icons.delete),
+                  onPressed: c.membersOnRemoval.contains(rxUser.user.value.id)
                       ? null
-                      : () => c.removeChatMember(u.value.id),
+                      : () => c.removeChatMember(rxUser.user.value.id),
                 ),
-                onTap: () => router.user(u.value.id, push: true),
+                onTap: () => router.user(rxUser.user.value.id, push: true),
               ),
             ),
             ListTile(

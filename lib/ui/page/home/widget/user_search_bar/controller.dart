@@ -1,22 +1,7 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/user.dart';
 
 export 'view.dart';
@@ -26,10 +11,10 @@ class UserSearchBarController extends GetxController {
   UserSearchBarController(this._userService);
 
   /// [User]s search results.
-  final RxList<Rx<User>> searchResults = RxList<Rx<User>>([]);
+  final RxList<RxUser> searchResults = RxList<RxUser>([]);
 
   /// Recently searched [User]s.
-  final RxList<Rx<User>> recentSearchResults = RxList<Rx<User>>([]);
+  final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
 
   /// Status of the search.
   ///
@@ -88,9 +73,10 @@ class UserSearchBarController extends GetxController {
   }
 
   /// Adds the provided [user] to the [recentSearchResults].
-  void addToRecent(Rx<User> user) {
-    recentSearchResults.removeWhere((e) => e.value.id.val == user.value.id.val);
-    recentSearchResults.add(user);
+  void addToRecent(RxUser rxUser) {
+    recentSearchResults
+        .removeWhere((e) => e.user.value.id.val == rxUser.user.value.id.val);
+    recentSearchResults.add(rxUser);
     if (recentSearchResults.length >= 10) {
       recentSearchResults.removeAt(0);
     }

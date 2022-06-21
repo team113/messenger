@@ -1,35 +1,26 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/crop_area.dart';
+
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
+import '/store/event/user.dart';
+import '/store/model/user.dart';
+import '/store/user_rx.dart';
 import '/util/new_type.dart';
 
 /// Implementation of an [AbstractUserRepository].
@@ -53,7 +44,7 @@ class UserRepository implements AbstractUserRepository {
   final RxBool _isReady = RxBool(false);
 
   /// [users] value.
-  final RxMap<UserId, Rx<User>> _users = RxMap<UserId, Rx<User>>();
+  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
 
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -62,13 +53,13 @@ class UserRepository implements AbstractUserRepository {
   RxBool get isReady => _isReady;
 
   @override
-  RxMap<UserId, Rx<User>> get users => RxMap.unmodifiable(_users);
+  RxMap<UserId, RxUser> get users => _users;
 
   @override
   Future<void> init() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = Rx<User>(c.value);
+        _users[c.value.id] = HiveRxUser(c, this, _userLocal);
       }
       isReady.value = true;
     }
@@ -85,22 +76,21 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<List<Rx<User>>> searchByNum(UserNum num) => _search(num: num);
+  Future<List<RxUser>> searchByNum(UserNum num) => _search(num: num);
 
   @override
-  Future<List<Rx<User>>> searchByLogin(UserLogin login) =>
-      _search(login: login);
+  Future<List<RxUser>> searchByLogin(UserLogin login) => _search(login: login);
 
   @override
-  Future<List<Rx<User>>> searchByName(UserName name) => _search(name: name);
+  Future<List<RxUser>> searchByName(UserName name) => _search(name: name);
 
   @override
-  Future<List<Rx<User>>> searchByLink(ChatDirectLinkSlug link) =>
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) =>
       _search(link: link);
 
   @override
-  Future<Rx<User>?> get(UserId id) async {
-    Rx<User>? user = _users[id];
+  Future<RxUser?> get(UserId id) async {
+    RxUser? user = _users[id];
     if (user == null) {
       var query = (await _graphQlProvider.getUser(id)).user;
       if (query != null) {
@@ -110,12 +100,11 @@ class UserRepository implements AbstractUserRepository {
           query.isBlacklisted.ver,
         );
         put(stored);
-        var fetched = Rx<User>(stored.value);
+        var fetched = HiveRxUser(stored, this, _userLocal);
         users[id] = fetched;
         user = fetched;
       }
     }
-
     return user;
   }
 
@@ -144,15 +133,39 @@ class UserRepository implements AbstractUserRepository {
       if (event.deleted) {
         _users.remove(UserId(event.key));
       } else {
-        Rx<User>? user = _users[UserId(event.key)];
-        if (user == null) {
-          _users[UserId(event.key)] = Rx<User>(event.value.value);
+        RxUser? rxUser = _users[UserId(event.key)];
+        if (rxUser == null) {
+          _users[UserId(event.key)] = HiveRxUser(event.value, this, _userLocal);
         } else {
-          user.value = event.value.value;
-          user.refresh();
+          rxUser.user.value = event.value.value;
+          rxUser.user.refresh();
         }
       }
     }
+  }
+
+  @override
+  Future<Stream<UserEventsVersioned>> userEvents(
+    UserId id,
+    UserVersion? ver,
+  ) async {
+    return (await _graphQlProvider.userEvents(id, ver))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
+        // No-op.
+      } else if (events.$$typename == 'User') {
+        put((events as UserMixin).toHive());
+      } else if (events.$$typename == 'UserEventsVersioned') {
+        var mixin = events as UserEventsVersionedMixin;
+        yield UserEventsVersioned(
+          mixin.events.map((e) => _userEvent(e)).toList(),
+          mixin.ver,
+        );
+      }
+    });
   }
 
   // TODO: Search in the local storage.
@@ -160,7 +173,7 @@ class UserRepository implements AbstractUserRepository {
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
   /// (be non-`null`).
-  Future<List<Rx<User>>> _search({
+  Future<List<RxUser>> _search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -188,9 +201,8 @@ class UserRepository implements AbstractUserRepository {
     }
     await Future.delayed(Duration.zero);
 
-    Iterable<Future<Rx<User>?>> futures = result.map((e) => get(e.value.id));
-    List<Rx<User>> rxUsers =
-        (await Future.wait(futures)).whereNotNull().toList();
+    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
+    List<RxUser> rxUsers = (await Future.wait(futures)).whereNotNull().toList();
 
     return rxUsers;
   }
@@ -240,4 +252,120 @@ class UserRepository implements AbstractUserRepository {
         isDeleted: u.isDeleted,
         isBlacklisted: u.isBlacklisted.blacklisted,
       );
+
+  /// Event handler for remote [userEvents] subscription.
+  UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventUserAvatarDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
+      return EventUserAvatarDeleted(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserAvatarUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
+      return EventUserAvatarUpdated(
+          node.userId,
+          UserAvatar(
+              full: node.avatar.full,
+              original: node.avatar.original,
+              galleryItemId: node.avatar.galleryItemId,
+              big: node.avatar.big,
+              medium: node.avatar.medium,
+              small: node.avatar.small,
+              crop: node.avatar.crop != null
+                  ? CropArea(
+                      topLeft: CropPoint(
+                        x: node.avatar.crop!.topLeft.x,
+                        y: node.avatar.crop!.topLeft.y,
+                      ),
+                      bottomRight: CropPoint(
+                        x: node.avatar.crop!.bottomRight.x,
+                        y: node.avatar.crop!.bottomRight.y,
+                      ),
+                      angle: node.avatar.crop?.angle,
+                    )
+                  : null),
+          node.at);
+    }
+    if (e.$$typename == 'EventUserBioDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
+      return EventUserBioDeleted(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserBioUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
+      return EventUserBioUpdated(node.userId, node.bio, node.at);
+    }
+    if (e.$$typename == 'EventUserCallCoverDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
+      return EventUserCallCoverDeleted(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserCallCoverUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
+      return EventUserCallCoverUpdated(
+          node.userId,
+          UserCallCover(
+              galleryItemId: node.callCover.galleryItemId,
+              full: node.callCover.full,
+              original: node.callCover.original,
+              vertical: node.callCover.vertical,
+              square: node.callCover.square,
+              crop: node.callCover.crop != null
+                  ? CropArea(
+                      topLeft: CropPoint(
+                        x: node.callCover.crop!.topLeft.x,
+                        y: node.callCover.crop!.topLeft.y,
+                      ),
+                      bottomRight: CropPoint(
+                        x: node.callCover.crop!.bottomRight.x,
+                        y: node.callCover.crop!.bottomRight.y,
+                      ),
+                      angle: node.callCover.crop?.angle,
+                    )
+                  : null),
+          node.at);
+    }
+    if (e.$$typename == 'EventUserCameOffline') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
+      return EventUserCameOffline(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserCameOnline') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCameOnline;
+      return EventUserCameOnline(node.userId);
+    }
+    if (e.$$typename == 'EventUserDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
+      return EventUserDeleted(node.userId);
+    }
+    if (e.$$typename == 'EventUserNameDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
+      return EventUserNameDeleted(node.userId, node.at);
+    }
+    // TODO: provide GalleryItem to this event
+    if (e.$$typename == 'EventUserGalleryItemAdded') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
+      return EventUserGalleryItemAdded(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserGalleryItemDeleted') {
+      var node =
+          e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
+      return EventUserGalleryItemDeleted(
+          node.userId, node.galleryItemId, node.at);
+    }
+    if (e.$$typename == 'EventUserNameUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
+      return EventUserNameUpdated(node.userId, node.name, node.at);
+    }
+    if (e.$$typename == 'EventUserPresenceUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
+      return EventUserPresenceUpdated(node.userId, node.presence, node.at);
+    }
+    if (e.$$typename == 'EventUserStatusDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
+      return EventUserStatusDeleted(node.userId, node.at);
+    }
+    if (e.$$typename == 'EventUserStatusUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
+      return EventUserStatusUpdated(node.userId, node.status, node.at);
+    } else {
+      throw UnimplementedError(': ${e.$$typename}');
+    }
+  }
 }

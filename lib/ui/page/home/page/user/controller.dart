@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -24,6 +8,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -48,7 +33,7 @@ class UserController extends GetxController {
   final UserId id;
 
   /// Reactive [User] itself.
-  Rx<User>? user;
+  RxUser? rxUser;
 
   /// Status of the [user] fetching.
   ///
@@ -83,12 +68,17 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
+  /// [StreamSubscription] that indicates interest of this controller
+  ///  in user updates
+  StreamSubscription? _userSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
   void onInit() {
-    _fetchUser();
+    _fetchUser()
+        .then((_) => _userSubscription = rxUser?.updates.listen((event) {}));
 
     inContacts = RxBool(_contactService.contacts.values
         .any((e) => e.value.users.every((m) => m.id == id)));
@@ -112,12 +102,12 @@ class UserController extends GetxController {
           break;
       }
     });
-
     super.onInit();
   }
 
   @override
   void onClose() {
+    _userSubscription?.cancel();
     _contactsSubscription?.cancel();
     super.onClose();
   }
@@ -127,7 +117,7 @@ class UserController extends GetxController {
     if (!inContacts.value) {
       status.value = RxStatus.loadingMore();
       try {
-        await _contactService.createChatContact(user!.value);
+        await _contactService.createChatContact(rxUser!.user.value);
         inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
@@ -145,8 +135,8 @@ class UserController extends GetxController {
         status.value = RxStatus.loadingMore();
         try {
           Rx<ChatContact>? contact = _contactService.contacts.values
-              .firstWhereOrNull(
-                  (e) => e.value.users.every((m) => m.id == user?.value.id));
+              .firstWhereOrNull((e) =>
+                  e.value.users.every((m) => m.id == rxUser?.user.value.id));
           if (contact != null) {
             await _contactService.deleteContact(contact.value.id);
           }
@@ -166,15 +156,17 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = rxUser?.user.value.dialog;
+    dialog ??=
+        (await _chatService.createDialogChat(rxUser!.user.value.id)).chat.value;
     router.chat(dialog.id, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = rxUser?.user.value.dialog;
+    dialog ??=
+        (await _chatService.createDialogChat(rxUser!.user.value.id)).chat.value;
 
     try {
       await _callService.call(dialog.id, withVideo: withVideo);
@@ -186,8 +178,8 @@ class UserController extends GetxController {
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
-      user = await _userService.get(id);
-      status.value = user == null ? RxStatus.empty() : RxStatus.success();
+      rxUser = await _userService.get(id);
+      status.value = rxUser == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);
       router.pop();

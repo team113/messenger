@@ -28,6 +28,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show
         NotChatMemberException,
@@ -62,7 +63,7 @@ class HiveRxChat implements RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  final RxMap<UserId, Rx<User>> members = RxMap<UserId, Rx<User>>();
+  final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
 
   @override
   final RxString title = RxString('');
@@ -79,13 +80,14 @@ class HiveRxChat implements RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.value.callCover;
+        callCover = members.values.firstOrNull?.user.value.callCover;
         break;
 
       case ChatKind.dialog:
         callCover = members.values
-            .firstWhereOrNull((e) => e.value.id != me)
-            ?.value
+            .firstWhereOrNull((e) => e.user.value.id != me)
+            ?.user
+            .value
             .callCover;
         break;
 
@@ -335,7 +337,7 @@ class HiveRxChat implements RxChat {
     if (chat.value.name == null) {
       var users = members.values.take(3);
       _userWorkers.removeWhere((k, v) {
-        if (!users.any((u) => u.value.id == k)) {
+        if (!users.any((rxUser) => rxUser.user.value.id == k)) {
           v.dispose();
           return true;
         }
@@ -343,11 +345,12 @@ class HiveRxChat implements RxChat {
         return false;
       });
 
-      for (Rx<User> u in users) {
-        if (!_userWorkers.containsKey(u.value.id)) {
+      for (RxUser rxUser in users) {
+        if (!_userWorkers.containsKey(rxUser.user.value.id)) {
           // TODO: Title should be updated only if [User.name] had actually
           // changed.
-          _userWorkers[u.value.id] = ever(u, (_) => _updateTitle());
+          _userWorkers[rxUser.user.value.id] =
+              ever(rxUser.user, (_) => _updateTitle());
         }
       }
 
@@ -358,14 +361,14 @@ class HiveRxChat implements RxChat {
   /// Updates the [title].
   void _updateTitle([Iterable<User>? users]) {
     title.value = chat.value.getTitle(
-      users?.take(3) ?? members.values.take(3).map((e) => e.value),
+      users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
       me,
     );
   }
 
   /// Updates the [avatar].
   void _updateAvatar() {
-    Rx<User>? member;
+    RxUser? member;
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
@@ -373,7 +376,7 @@ class HiveRxChat implements RxChat {
         break;
 
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.value.id != me);
+        member = members.values.firstWhereOrNull((e) => e.user.value.id != me);
         break;
 
       case ChatKind.group:
@@ -386,8 +389,8 @@ class HiveRxChat implements RxChat {
     }
 
     if (member != null) {
-      avatar.value = member.value.avatar;
-      _userWorker = ever(member, (User u) => avatar.value = u.avatar);
+      avatar.value = member.user.value.avatar;
+      _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
     }
   }
 

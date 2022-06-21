@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
@@ -340,6 +324,68 @@ abstract class UserGraphQlMixin {
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+  }
+
+  /// Subscribes to [UserEvent]s of the [User] whose [UserId] was provided.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// [User] will be emitted after `SubscriptionInitialized` and
+  /// before any other [UserEvent]s (and won't be emitted ever again until
+  /// this subscription completes). This allows to skip calling [getUser]
+  /// before establishing this subscription.
+  ///
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via [getUser];
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// [User]).
+  ///
+  /// ### Completion
+  ///
+  /// Finite.
+  ///
+  /// Completes without re-subscription necessity when:
+  /// - The [User] is deleted (emits [EventUserDeleted] and
+  /// completes).
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - An error occurs on the server (error is emitted).
+  /// - The server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// This subscription could emit the same [EventUserDeleted] multiple times,
+  /// so a client side is expected to handle it idempotently considering the
+  /// `User.ver`.
+  Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
+    var variables = UserEventsArguments(id: id, ver: ver);
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'UserEvents',
+        document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
     );

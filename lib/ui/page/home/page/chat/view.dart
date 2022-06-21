@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'dart:async';
 import 'dart:io';
 
@@ -29,8 +13,8 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -264,7 +248,7 @@ class _ChatViewState extends State<ChatView>
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
                                         ),
-                                        child: FutureBuilder<Rx<User>?>(
+                                        child: FutureBuilder<RxUser?>(
                                           future: c.getUser(e.value.authorId),
                                           builder: (_, u) => ChatItemWidget(
                                             key: Key(e.value.id.val),
@@ -434,7 +418,6 @@ class _ChatViewState extends State<ChatView>
       color: Theme.of(context).colorScheme.primary,
       fontSize: 13,
     );
-
     return Obx(
       () {
         var chat = c.chat!.chat;
@@ -451,23 +434,25 @@ class _ChatViewState extends State<ChatView>
           var partner =
               chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
           if (partner != null) {
-            return FutureBuilder<Rx<User>?>(
-              future: c.getUser(partner.user.id),
-              builder: (_, snapshot) {
-                var subtitle = c.chat!.chat.value.getSubtitle(
-                  partner: snapshot.data?.value,
-                );
+            return FutureBuilder<RxUser?>(
+                future: c.getUser(partner.user.id),
+                builder: (_, snapshot) {
+                  return Obx(
+                    () {
+                      var subtitle = c.chat!.chat.value.getSubtitle(
+                        partner: snapshot.data?.user.value,
+                      );
+                      if (subtitle != null) {
+                        return Text(
+                          subtitle,
+                          style: style,
+                        );
+                      }
 
-                if (subtitle != null) {
-                  return Text(
-                    subtitle,
-                    style: style,
+                      return Container();
+                    },
                   );
-                }
-
-                return Container();
-              },
-            );
+                });
           }
         }
 

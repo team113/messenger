@@ -20,7 +20,9 @@ import 'package:get/get.dart';
 
 import '../model/user.dart';
 import '../repository/user.dart';
+
 import '/domain/model/user.dart';
+
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
@@ -34,8 +36,8 @@ class UserService extends DisposableService {
   /// [users] value is fetched.
   RxBool get isReady => _userRepository.isReady;
 
-  /// Returns the current reactive map of [User]s.
-  RxMap<UserId, Rx<User>> get users => _userRepository.users;
+  /// Returns the current map of [RxUser]s.
+  RxMap<UserId, RxUser> get users => _userRepository.users;
 
   @override
   void onInit() {
@@ -50,7 +52,7 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  Future<List<Rx<User>>> search({
+  Future<List<RxUser>> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -60,9 +62,9 @@ class UserService extends DisposableService {
       return [];
     }
 
-    HashMap<UserId, Rx<User>> result = HashMap();
+    HashMap<UserId, RxUser> result = HashMap();
 
-    List<Future<List<Rx<User>>>> futures = [
+    List<Future<List<RxUser>>> futures = [
       if (num != null) _userRepository.searchByNum(num),
       if (name != null) _userRepository.searchByName(name),
       if (login != null) _userRepository.searchByLogin(login),
@@ -71,15 +73,15 @@ class UserService extends DisposableService {
 
     // TODO: Don't wait for all request to finish, but display results as they
     //       are ready.
-    (await Future.wait(futures)).expand((e) => e).forEach((user) {
-      result[user.value.id] = user;
+    (await Future.wait(futures)).expand((e) => e).forEach((rxUser) {
+      result[rxUser.user.value.id] = rxUser;
     });
 
     return result.values.toList();
   }
 
   /// Returns an [User] by the provided [id].
-  Future<Rx<User>?> get(UserId id) => _userRepository.get(id);
+  Future<RxUser?> get(UserId id) => _userRepository.get(id);
 
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();

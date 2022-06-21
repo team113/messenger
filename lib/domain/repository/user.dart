@@ -18,12 +18,14 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/user.dart';
+import '/domain/model/user.dart';
+import '/store/event/user.dart';
+import '/store/model/user.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
-  /// Returns reactive map of [User]s.
-  RxMap<UserId, Rx<User>> get users;
+  /// Returns map of [RxUser]s.
+  RxMap<UserId, RxUser> get users;
 
   /// Indicates whether this repository was initialized and [users] can be
   /// used.
@@ -41,23 +43,40 @@ abstract class AbstractUserRepository {
   /// Searches [User]s by the provided [UserNum].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByNum(UserNum num);
+  Future<List<RxUser>> searchByNum(UserNum num);
 
   /// Searches [User]s by the provided [UserLogin].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByLogin(UserLogin login);
+  Future<List<RxUser>> searchByLogin(UserLogin login);
 
   /// Searches [User]s by the provided [UserName].
   ///
   /// This is a fuzzy search.
-  Future<List<Rx<User>>> searchByName(UserName name);
+  Future<List<RxUser>> searchByName(UserName name);
 
   /// Searches [User]s by the provided [ChatDirectLinkSlug].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByLink(ChatDirectLinkSlug link);
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
 
   /// Returns an [User] by the provided [id].
-  Future<Rx<User>?> get(UserId id);
+  Future<RxUser?> get(UserId id);
+
+  /// Subscribes to remote [UserEvent]s of the [User] with specified [UserId].
+  Future<Stream<UserEventsVersioned>> userEvents(
+    UserId id,
+    UserVersion? ver,
+  );
+}
+
+/// Unified reactive [User] entity. Subscribe for [updates] to update [user]
+///  automaticly.
+abstract class RxUser {
+  /// Reactive value of a [User] this [RxChat] represents.
+  Rx<User> get user;
+
+  /// Stream that provides updates of [user] field if listening or close remote
+  /// subscription for updates if there are no listeners.
+  Stream get updates;
 }

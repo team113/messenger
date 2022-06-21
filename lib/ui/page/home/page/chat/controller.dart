@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -35,6 +19,7 @@ import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
@@ -146,6 +131,10 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   StreamSubscription? _typingSubscription;
 
+  /// List of [StreamSubscription] that indicates interest of this controller
+  ///  in [User]s updates
+  List<StreamSubscription>? _usersSubscriptions;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -228,18 +217,11 @@ class ChatController extends GetxController {
               repliesTo: repliedMessage.value?.id,
               attachments: attachmentIds,
             );
-
-            runZonedGuarded(() async {
-              await _audioPlayer?.play(
-                AssetSource('audio/message_sent.mp3'),
-                position: Duration.zero,
-                mode: PlayerMode.lowLatency,
-              );
-            }, (e, _) {
-              if (!e.toString().contains('NotAllowedError')) {
-                throw e;
-              }
-            });
+            _audioPlayer?.play(
+              AssetSource('audio/message_sent.mp3'),
+              position: Duration.zero,
+              mode: PlayerMode.lowLatency,
+            );
 
             repliedMessage.value = null;
             attachments.clear();
@@ -269,20 +251,27 @@ class ChatController extends GetxController {
         }
       },
     );
-
     super.onInit();
   }
 
   @override
   void onReady() {
     listController.addListener(_updateFabStates);
-    _fetchChat();
+    _fetchChat().then((_) {
+      _usersSubscriptions = chat?.members.values
+          .where((u) => u.user.value.id != me)
+          .map((rxUser) => rxUser.updates.listen((event) {}))
+          .toList();
+    });
     _initAudio();
     super.onReady();
   }
 
   @override
   void onClose() {
+    _usersSubscriptions?.forEach((subscription) {
+      subscription.cancel();
+    });
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
@@ -493,7 +482,7 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
