@@ -13,8 +13,10 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- Users:
-        - Ability to get realtime updates of users profiles (#4)
+- Store:
+    - Users subscription ([#7]).
+
+[#7]: /../../pull/7
 
 
 

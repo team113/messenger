@@ -25,7 +25,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
             userId
             avatar {
             __typename
-            ...UserAvatar
+                ...UserAvatar
             }
             at
         }
@@ -45,8 +45,8 @@ fragment UserEventsVersioned on UserEventsVersioned {
         ... on EventUserCallCoverUpdated {
             userId
             callCover {
-            __typename
-            ...UserCallCover
+                __typename
+                ...UserCallCover
             }
             at
         }

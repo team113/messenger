@@ -85,7 +85,7 @@ class HiveRxChat implements RxChat {
 
       case ChatKind.dialog:
         callCover = members.values
-            .firstWhereOrNull((e) => e.user.value.id != me)
+            .firstWhereOrNull((e) => e.id != me)
             ?.user
             .value
             .callCover;
@@ -124,7 +124,7 @@ class HiveRxChat implements RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamIterator<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
@@ -337,7 +337,7 @@ class HiveRxChat implements RxChat {
     if (chat.value.name == null) {
       var users = members.values.take(3);
       _userWorkers.removeWhere((k, v) {
-        if (!users.any((rxUser) => rxUser.user.value.id == k)) {
+        if (!users.any((u) => u.id == k)) {
           v.dispose();
           return true;
         }
@@ -345,12 +345,11 @@ class HiveRxChat implements RxChat {
         return false;
       });
 
-      for (RxUser rxUser in users) {
-        if (!_userWorkers.containsKey(rxUser.user.value.id)) {
+      for (RxUser u in users) {
+        if (!_userWorkers.containsKey(u.id)) {
           // TODO: Title should be updated only if [User.name] had actually
           // changed.
-          _userWorkers[rxUser.user.value.id] =
-              ever(rxUser.user, (_) => _updateTitle());
+          _userWorkers[u.id] = ever(u.user, (_) => _updateTitle());
         }
       }
 
@@ -376,7 +375,7 @@ class HiveRxChat implements RxChat {
         break;
 
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.user.value.id != me);
+        member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
@@ -416,7 +415,7 @@ class HiveRxChat implements RxChat {
     }
   }
 
-  /// Initializes [_chatEvents] subscription.
+  /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription(
     ChatId chatId, {
     bool noVersion = false,
@@ -448,7 +447,7 @@ class HiveRxChat implements RxChat {
     _remoteSubscriptionInitialized = false;
   }
 
-  /// Handles [ChatEvent]s from the [_chatEvents] subscription.
+  /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:

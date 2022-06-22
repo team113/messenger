@@ -20,9 +20,7 @@ import 'package:get/get.dart';
 
 import '../model/user.dart';
 import '../repository/user.dart';
-
 import '/domain/model/user.dart';
-
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
@@ -36,7 +34,7 @@ class UserService extends DisposableService {
   /// [users] value is fetched.
   RxBool get isReady => _userRepository.isReady;
 
-  /// Returns the current map of [RxUser]s.
+  /// Returns the current reactive map of [RxUser]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
   @override
@@ -73,8 +71,8 @@ class UserService extends DisposableService {
 
     // TODO: Don't wait for all request to finish, but display results as they
     //       are ready.
-    (await Future.wait(futures)).expand((e) => e).forEach((rxUser) {
-      result[rxUser.user.value.id] = rxUser;
+    (await Future.wait(futures)).expand((e) => e).forEach((user) {
+      result[user.user.value.id] = user;
     });
 
     return result.values.toList();

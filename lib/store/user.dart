@@ -75,7 +75,7 @@ class UserRepository implements AbstractUserRepository {
   Future<void> init() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(c, this, _userLocal);
+        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -116,7 +116,7 @@ class UserRepository implements AbstractUserRepository {
           query.isBlacklisted.ver,
         );
         put(stored);
-        var fetched = HiveRxUser(stored, this, _userLocal);
+        var fetched = HiveRxUser(this, _userLocal, stored);
         users[id] = fetched;
         user = fetched;
       }
@@ -151,7 +151,7 @@ class UserRepository implements AbstractUserRepository {
       } else {
         RxUser? rxUser = _users[UserId(event.key)];
         if (rxUser == null) {
-          _users[UserId(event.key)] = HiveRxUser(event.value, this, _userLocal);
+          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
           rxUser.user.value = event.value.value;
           rxUser.user.refresh();

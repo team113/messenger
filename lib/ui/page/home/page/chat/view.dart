@@ -434,6 +434,7 @@ class _ChatViewState extends State<ChatView>
       color: Theme.of(context).colorScheme.primary,
       fontSize: 13,
     );
+
     return Obx(
       () {
         var chat = c.chat!.chat;
@@ -451,24 +452,23 @@ class _ChatViewState extends State<ChatView>
               chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
           if (partner != null) {
             return FutureBuilder<RxUser?>(
-                future: c.getUser(partner.user.id),
-                builder: (_, snapshot) {
-                  return Obx(
-                    () {
-                      var subtitle = c.chat!.chat.value.getSubtitle(
-                        partner: snapshot.data?.user.value,
-                      );
-                      if (subtitle != null) {
-                        return Text(
-                          subtitle,
-                          style: style,
-                        );
-                      }
+              future: c.getUser(partner.user.id),
+              builder: (_, snapshot) {
+                if (snapshot.data != null) {
+                  return Obx(() {
+                    var subtitle = c.chat!.chat.value
+                        .getSubtitle(partner: snapshot.data!.user.value);
 
-                      return Container();
-                    },
-                  );
-                });
+                    return Text(
+                      subtitle ?? '',
+                      style: style,
+                    );
+                  });
+                }
+
+                return Container();
+              },
+            );
           }
         }
 

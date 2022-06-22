@@ -15,20 +15,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/routes.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Sets the [UserBio] of the provided [TestUser].
-final StepDefinitionGeneric setBio = then2<TestUser, String, CustomWorld>(
-  '{user} set bio as {string}',
-  (TestUser user, String newBio, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    await provider.updateUserBio(UserBio(newBio));
-    provider.disconnect();
+/// Routes the [RouterState] to the provided [TestUser]'s page.
+final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
+  'I go to {user} page',
+  (TestUser user, context) async {
+    router.user(context.world.sessions[user.name]!.userId);
+    await context.world.appDriver.waitForAppToSettle();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

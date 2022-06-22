@@ -29,6 +29,7 @@ import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/fill_field.dart';
+import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';

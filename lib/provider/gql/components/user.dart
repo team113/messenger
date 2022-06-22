@@ -345,7 +345,7 @@ abstract class UserGraphQlMixin {
     );
   }
 
-  /// Subscribes to [UserEvent]s of the [User] whose [UserId] was provided.
+  /// Subscribes to [UserEvent]s of the specified [User].
   ///
   /// ### Authentication
   ///
@@ -354,7 +354,8 @@ abstract class UserGraphQlMixin {
   /// ### Initialization
   ///
   /// Once this subscription is initialized completely, it immediately emits
-  /// `SubscriptionInitialized`.
+  /// `SubscriptionInitialized`, or immediately completes (without emitting
+  /// anything) if such [User] doesn't exist.
   ///
   /// If nothing has been emitted for a long period of time after establishing
   /// this subscription (while not being completed), it should be considered as
@@ -364,10 +365,10 @@ abstract class UserGraphQlMixin {
   /// ### Result
   ///
   /// If [ver] argument is not specified (or is `null`) an initial state of the
-  /// [User] will be emitted after `SubscriptionInitialized` and
-  /// before any other [UserEvent]s (and won't be emitted ever again until
-  /// this subscription completes). This allows to skip calling [getUser]
-  /// before establishing this subscription.
+  /// [User] will be emitted after `SubscriptionInitialized` and before any
+  /// other [UserEvent]s (and won't be emitted ever again until this
+  /// subscription completes). This allows to skip doing [getUser] before
+  /// establishing this subscription.
   ///
   /// If the specified [ver] is not fresh (was queried quite a time ago), it may
   /// become stale, so this subscription will return `STALE_VERSION` error on
@@ -382,11 +383,13 @@ abstract class UserGraphQlMixin {
   /// Finite.
   ///
   /// Completes without re-subscription necessity when:
-  /// - The [User] is deleted (emits [EventUserDeleted] and
+  /// - The specified [User] is deleted (emits [EventUserDeleted] and
   /// completes).
+  /// - The specified [User] doesn't exist (emits nothing, completes immediately
+  /// after being established).
   ///
   /// Completes requiring a re-subscription when:
-  /// - Authenticated Session expires (`SESSION_EXPIRED` error is emitted).
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
@@ -395,7 +398,7 @@ abstract class UserGraphQlMixin {
   ///
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
-  /// `User.ver`.
+  /// [UserVersion].
   Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
     var variables = UserEventsArguments(id: id, ver: ver);
     return client.subscribe(

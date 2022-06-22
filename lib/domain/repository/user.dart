@@ -24,7 +24,7 @@ import '/store/model/user.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
-  /// Returns map of [RxUser]s.
+  /// Returns reactive map of [RxUser]s.
   RxMap<UserId, RxUser> get users;
 
   /// Indicates whether this repository was initialized and [users] can be
@@ -70,13 +70,14 @@ abstract class AbstractUserRepository {
   );
 }
 
-/// Unified reactive [User] entity. Subscribe for [updates] to update [user]
-///  automaticly.
+/// Unified reactive [User] entity.
 abstract class RxUser {
-  /// Reactive value of a [User] this [RxChat] represents.
+  /// Returns reactive value of a [User] this [RxChat] represents.
   Rx<User> get user;
 
-  /// Stream that provides updates of [user] field if listening or close remote
-  /// subscription for updates if there are no listeners.
-  Stream get updates;
+  /// Returns the [User.id] of this [RxUser].
+  UserId get id => user.value.id;
+
+  /// Returns a [Stream] indicating that this [RxUser] should keep its updates.
+  Stream<void> get updates;
 }

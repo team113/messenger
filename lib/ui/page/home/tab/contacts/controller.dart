@@ -66,6 +66,9 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
+  /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
+  List<StreamSubscription?>? _usersSubscriptions;
+
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
       _contactService.contacts;
@@ -73,10 +76,6 @@ class ContactsTabController extends GetxController {
   /// Returns the current reactive favorite [ChatContact]s map.
   RxMap<ChatContactId, Rx<ChatContact>> get favorites =>
       _contactService.favorites;
-
-  /// List of [StreamSubscription] that indicates interest of this controller
-  ///  in [User]s updates
-  List<StreamSubscription?>? _usersSubscriptions;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;

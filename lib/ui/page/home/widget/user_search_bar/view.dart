@@ -134,24 +134,24 @@ class UserSearchBar extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with the information of the provided [User].
-  Widget _user(RxUser rxUser, UserSearchBarController c) => ListTile(
-        key: ValueKey(rxUser.user.value.id.val),
-        leading: AvatarWidget.fromUser(rxUser.user.value),
-        title: Text(rxUser.user.value.name?.val ?? rxUser.user.value.num.val),
+  Widget _user(RxUser user, UserSearchBarController c) => ListTile(
+        key: ValueKey(user.user.value.id.val),
+        leading: AvatarWidget.fromUser(user.user.value),
+        title: Text(user.user.value.name?.val ?? user.user.value.num.val),
         trailing: trailingIcon == null
             ? null
             : IconButton(
                 onPressed: () {
-                  onTrailingTap?.call(rxUser.user.value);
-                  c.addToRecent(rxUser);
+                  onTrailingTap?.call(user.user.value);
+                  c.addToRecent(user);
                   searchController.clear();
                   searchController.close();
                 },
                 icon: trailingIcon!,
               ),
         onTap: () {
-          onUserTap?.call(rxUser.user.value);
-          c.addToRecent(rxUser);
+          onUserTap?.call(user.user.value);
+          c.addToRecent(user);
           searchController.clear();
           searchController.close();
         },

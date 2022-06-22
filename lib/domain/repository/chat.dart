@@ -25,7 +25,6 @@ import '../model/chat_item.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
-
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
@@ -173,7 +172,7 @@ abstract class RxChat {
   /// List of [User]s currently typing in this [chat].
   RxList<User> get typingUsers;
 
-  /// Listist of [RxUser]s being members of this [chat].
+  /// Reactive list of [RxUser]s being members of this [chat].
   RxMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].

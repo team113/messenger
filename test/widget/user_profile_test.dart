@@ -198,9 +198,9 @@ void main() async {
         .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
 
     when(graphQlProvider.userEvents(
-            const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
-            UserVersion('1')))
-        .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+      const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
+      UserVersion('1'),
+    )).thenAnswer((realInvocation) => Future.value(const Stream.empty()));
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));

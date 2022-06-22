@@ -28,36 +28,38 @@ import '/store/user.dart';
 import '/util/new_type.dart';
 
 /// [RxUser] implementation backed by local [Hive] storage.
-class HiveRxUser implements RxUser {
-  HiveRxUser(HiveUser hiveUser, this._userRepository, this._local)
-      : user = Rx<User>(hiveUser.value);
-
-  /// [UserRepository] that provides [UserEvent] sterem.
-  final UserRepository _userRepository;
-
-  /// [UserHiveProvider] uses for saving [HiveUser] in [Hive] storage.
-  final UserHiveProvider _local;
+class HiveRxUser extends RxUser {
+  HiveRxUser(
+    this._userRepository,
+    this._userLocal,
+    HiveUser hiveUser,
+  ) : user = Rx<User>(hiveUser.value);
 
   @override
   final Rx<User> user;
 
-  @override
-  Stream get updates => _updatesController.stream;
+  /// [UserRepository] providing the [UserEvent]s.
+  final UserRepository _userRepository;
 
-  /// [StreamController] that initializes remote subscription for user events or
-  /// cancels it if there are no listeners.
-  late final StreamController _updatesController =
-      StreamController.broadcast(onListen: () {
-    _initRemoteSubscription();
-  }, onCancel: () {
-    _remoteSubscription?.cancel();
-  });
+  /// [User]s local [Hive] storage.
+  final UserHiveProvider _userLocal;
+
+  /// [StreamController] invoking [_initRemoteSubscription] on its
+  /// [StreamController.onListen] callback and canceling it on
+  /// [StreamController.onCancel].
+  late final StreamController _updatesController = StreamController.broadcast(
+    onListen: _initRemoteSubscription,
+    onCancel: _remoteSubscription?.cancel,
+  );
 
   StreamIterator<UserEventsVersioned>? _remoteSubscription;
 
-  /// Listen to remote [Stream] of [UserEventsVersioned].
+  @override
+  Stream get updates => _updatesController.stream;
+
+  /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({UserVersion? ver}) async {
-    var userEntity = _local.get(user.value.id);
+    var userEntity = _userLocal.get(user.value.id);
     _remoteSubscription = StreamIterator(
         await _userRepository.userEvents(user.value.id, userEntity?.ver));
     while (await _remoteSubscription!
@@ -66,7 +68,7 @@ class HiveRxUser implements RxUser {
       Future.delayed(Duration.zero, () => _initRemoteSubscription(ver: ver));
       return false;
     }).onError<StaleVersionException>((_, __) {
-      _local
+      _userLocal
           .deleteSafe(userEntity?.key)
           .then((_) async => await _initRemoteSubscription());
       return false;
@@ -75,10 +77,9 @@ class HiveRxUser implements RxUser {
     }
   }
 
-  /// Event handler for [_remoteSubscription].
+  /// Handles [UserEvent]s from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEventsVersioned versioned) async {
-    var userEntity = _local.get(user.value.id);
-
+    var userEntity = _userLocal.get(user.value.id);
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       return;
     }
@@ -157,7 +158,7 @@ class HiveRxUser implements RxUser {
           // TODO: Handle this case.
           break;
       }
-      _local.put(userEntity);
+      _userLocal.put(userEntity);
     }
   }
 }

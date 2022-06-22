@@ -6,7 +6,6 @@ Feature: MyUser's updates are correct displayed to other users
 
     And I wait until `HomeView` is present
     And I go to Bob page
-    Then I wait until `UserColumn` is present
 
     And Bob set bio as "Hello world!"
     Then I wait until text "Hello world!" is present

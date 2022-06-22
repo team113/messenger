@@ -471,6 +471,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         GraphQlProviderExceptions.fire(event);
         var events =
             MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+
         if (events.$$typename == 'SubscriptionInitialized') {
           events
               as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;

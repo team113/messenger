@@ -92,14 +92,3 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
-
-/// Route to provided [TestUser] page
-final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
-  'I go to {user} page',
-  (TestUser user, context) async {
-    router.user(context.world.sessions[user.name]!.userId);
-    await context.world.appDriver.waitForAppToSettle();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);

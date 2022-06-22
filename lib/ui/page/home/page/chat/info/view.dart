@@ -217,20 +217,17 @@ class ChatInfoView extends StatelessWidget {
         () => Column(
           children: [
             ...c.chat!.members.values.map(
-              (rxUser) => ListTile(
-                title: Text(
-                    rxUser.user.value.name?.val ?? rxUser.user.value.num.val),
-                leading: AvatarWidget.fromUser(rxUser.user.value),
+              (u) => ListTile(
+                title: Text(u.user.value.name?.val ?? u.user.value.num.val),
+                leading: AvatarWidget.fromUser(u.user.value),
                 trailing: IconButton(
                   key: const Key('DeleteChatMember'),
-                  icon: Icon(rxUser.user.value.id == c.me
-                      ? Icons.exit_to_app
-                      : Icons.delete),
-                  onPressed: c.membersOnRemoval.contains(rxUser.user.value.id)
+                  icon: Icon(u.id == c.me ? Icons.exit_to_app : Icons.delete),
+                  onPressed: c.membersOnRemoval.contains(u.id)
                       ? null
-                      : () => c.removeChatMember(rxUser.user.value.id),
+                      : () => c.removeChatMember(u.id),
                 ),
-                onTap: () => router.user(rxUser.user.value.id, push: true),
+                onTap: () => router.user(u.id, push: true),
               ),
             ),
             ListTile(

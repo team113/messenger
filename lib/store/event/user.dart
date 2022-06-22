@@ -28,10 +28,10 @@ enum UserEventKind {
   avatarUpdated,
   bioDeleted,
   bioUpdated,
-  cameOffline,
-  cameOnline,
   callCoverDeleted,
   callCoverUpdated,
+  cameOffline,
+  cameOnline,
   galleryItemAdded,
   galleryItemDeleted,
   nameDeleted,
@@ -46,14 +46,14 @@ enum UserEventKind {
 class UserEventsVersioned {
   const UserEventsVersioned(this.events, this.ver);
 
-  /// [UserEvent]s itself.
+  /// [UserEvent]s themselves.
   final List<UserEvent> events;
 
-  /// Version of the [User]'s state updated by this [UserEvent].
+  /// Version of the [User]'s state updated by these [UserEvent]s.
   final UserVersion ver;
 }
 
-/// Events happening with [User].
+/// Events happening with an [User].
 abstract class UserEvent {
   const UserEvent(this.userId);
 
@@ -71,7 +71,7 @@ class EventUserAvatarDeleted extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.avatarDeleted;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserAvatar] was deleted.
   final PreciseDateTime at;
 }
 
@@ -85,7 +85,7 @@ class EventUserAvatarUpdated extends UserEvent {
 
   final UserAvatar avatar;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserAvatar] was updated.
   final PreciseDateTime at;
 }
 
