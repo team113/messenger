@@ -33,7 +33,11 @@ export 'view.dart';
 /// Controller of the group creation overlay.
 class CreateGroupController extends GetxController {
   CreateGroupController(
-      this.pop, this._chatService, this._contactService, this._userService);
+    this.pop,
+    this._chatService,
+    this._contactService,
+    this._userService,
+  );
 
   /// Status of a [createGroup] completion.
   ///

@@ -62,8 +62,12 @@ class CreateGroupView extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             type: MaterialType.card,
             child: GetBuilder(
-              init: CreateGroupController(Navigator.of(context).pop, Get.find(),
-                  Get.find(), Get.find()),
+              init: CreateGroupController(
+                Navigator.of(context).pop,
+                Get.find(),
+                Get.find(),
+                Get.find(),
+              ),
               builder: (CreateGroupController c) => Obx(
                 () => c.status.value.isLoading
                     ? const Center(child: CircularProgressIndicator())

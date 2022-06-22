@@ -70,8 +70,13 @@ class AddChatMemberView extends StatelessWidget {
               ),
               type: MaterialType.card,
               child: GetBuilder(
-                init: AddChatMemberController(Navigator.of(context).pop, chatId,
-                    Get.find(), Get.find(), Get.find()),
+                init: AddChatMemberController(
+                  Navigator.of(context).pop,
+                  chatId,
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                ),
                 builder: (AddChatMemberController c) => Obx(
                   () => c.status.value.isLoading || c.chat.value == null
                       ? const Center(child: CircularProgressIndicator())

@@ -27,8 +27,7 @@ import '/store/user.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact implements RxChatContact {
-  HiveRxChatContact(
-      HiveChatContact hiveChatContact, this._local, this._userRepo)
+  HiveRxChatContact(HiveChatContact hiveChatContact, this._userRepo)
       : contact = Rx<ChatContact>(hiveChatContact.value);
 
   @override
@@ -37,22 +36,14 @@ class HiveRxChatContact implements RxChatContact {
   /// [UserRepository] uses for updating of [user].
   final UserRepository _userRepo;
 
-  /// [ChatContact]s local [Hive] storage.
-  final ContactHiveProvider _local;
-
-  /// [ChatItemHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
-
   @override
   Rx<User>? user;
 
   /// Initializes this [HiveRxChatContact].
   void refreshUser() async {
-    print('init user');
     user = contact.value.users.isNotEmpty
         ? await _userRepo.get(contact.value.users.first.id)
         : null;
-    print(user?.value.name);
     user?.refresh();
   }
 }

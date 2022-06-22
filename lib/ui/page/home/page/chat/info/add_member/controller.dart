@@ -33,8 +33,13 @@ export 'view.dart';
 
 /// Controller of the chat member addition modal.
 class AddChatMemberController extends GetxController {
-  AddChatMemberController(this.pop, this.chatId, this._chatService,
-      this._contactService, this._userService);
+  AddChatMemberController(
+    this.pop,
+    this.chatId,
+    this._chatService,
+    this._contactService,
+    this._userService,
+  );
 
   /// ID of the [Chat] this modal is about.
   final ChatId chatId;

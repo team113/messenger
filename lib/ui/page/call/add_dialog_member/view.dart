@@ -76,13 +76,14 @@ class AddDialogMemberView extends StatelessWidget {
               type: MaterialType.card,
               child: GetBuilder(
                 init: AddDialogMemberController(
-                    Navigator.of(context).pop,
-                    chatId,
-                    _currentCall,
-                    Get.find(),
-                    Get.find(),
-                    Get.find(),
-                    Get.find()),
+                  Navigator.of(context).pop,
+                  chatId,
+                  _currentCall,
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                ),
                 builder: (AddDialogMemberController c) => Obx(
                   () => c.status.value.isLoading || c.chat.value == null
                       ? const Center(child: CircularProgressIndicator())

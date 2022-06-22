@@ -36,13 +36,14 @@ export 'view.dart';
 /// Controller of the dialog member addition modal.
 class AddDialogMemberController extends GetxController {
   AddDialogMemberController(
-      this.pop,
-      this.chatId,
-      this._currentCall,
-      this._chatService,
-      this._callService,
-      this._contactService,
-      this._userService);
+    this.pop,
+    this.chatId,
+    this._currentCall,
+    this._chatService,
+    this._callService,
+    this._contactService,
+    this._userService,
+  );
 
   /// Reactive state of the [Chat] this modal is about.
   Rx<Rx<Chat>?> chat = Rx<Rx<Chat>?>(null);
