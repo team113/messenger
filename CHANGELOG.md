@@ -15,7 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Attachments downloading and sharing (!12, #11).
+        - Attachments downloading and sharing ([#12]).
+
+[#12]: /../../pull/12
 
 
 

@@ -57,6 +57,16 @@ class PlatformUtils {
   static bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
+  static Future<String> get downloadPath async {
+    String path;
+    if (PlatformUtils.isMobile) {
+      path = (await getApplicationDocumentsDirectory()).path;
+    } else {
+      path = (await getDownloadsDirectory())!.path;
+    }
+    return '$path/${Config.downloadingDirectory}';
+  }
+
   /// Returns a stream broadcasting fullscreen changes.
   static Stream<bool> get onFullscreenChange {
     if (isWeb) {
@@ -125,15 +135,9 @@ class PlatformUtils {
       String name = p.basenameWithoutExtension(filename);
       String extension = p.extension(filename);
 
-      String path;
-      if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
-        path = (await getApplicationDocumentsDirectory()).path;
-      } else {
-        path = (await getDownloadsDirectory())!.path;
-      }
+      String path = await downloadPath;
 
       var file = File('$path/$filename');
-      //file
       int i = 1;
       while (await file.exists()) {
         filename = '$name ($i)$extension';

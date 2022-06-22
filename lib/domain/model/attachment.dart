@@ -89,15 +89,16 @@ class FileAttachment extends Attachment {
     required int size,
   }) : super(id, original, filename, size);
 
+  /// Path to this downloaded [FileAttachment].
+  @HiveField(4)
+  String? localPath;
+
   /// [DownloadingStatus] ot this [FileAttachment].
   Rx<DownloadingStatus> downloadingStatus =
       Rx<DownloadingStatus>(DownloadingStatus.empty);
 
   /// Progress ot this [FileAttachment] downloading.
   Rx<double> progress = Rx<double>(0.0);
-
-  /// Path to this downloaded [FileAttachment].
-  String? localPath;
 
   /// Indicates whether this [FileAttachment] is downloading.
   bool get isDownloading =>
@@ -122,6 +123,6 @@ enum DownloadingStatus {
   /// Indicates that the [FileAttachment] is downloaded successfully.
   downloaded,
 
-  /// Indicates that the [FileAttachment] do not downloaded.
+  /// Indicates that the [FileAttachment] is not downloaded.
   empty
 }

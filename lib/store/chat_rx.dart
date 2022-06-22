@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction, ChatKind;
 import '/domain/model/attachment.dart';
@@ -321,7 +320,7 @@ class HiveRxChat implements RxChat {
   Future<void> _initAttachmentsDownloaded() async {
     for (var message in messages) {
       if (message.value is ChatMessage) {
-        _setAttachmentsDownloaded(message.value as ChatMessage);
+        await _setAttachmentsDownloaded(message.value as ChatMessage);
       }
     }
   }
@@ -329,14 +328,17 @@ class HiveRxChat implements RxChat {
   /// Initialize downloaded status of the provided [ChatMessage]'s attachments.
   Future<void> _setAttachmentsDownloaded(ChatMessage message) async {
     var attachments = message.attachments.whereType<FileAttachment>();
-    String path;
-    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
-      path = (await getApplicationDocumentsDirectory()).path;
-    } else {
-      path = (await getDownloadsDirectory())!.path;
-    }
     if (attachments.isNotEmpty) {
+      String path = await PlatformUtils.downloadPath;
       for (var attachment in attachments) {
+        if (attachment.localPath != null) {
+          var file = File(attachment.localPath!);
+          if (await file.exists() && await file.length() == attachment.size) {
+            attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+            return;
+          }
+        }
+
         String filename = attachment.filename;
         String name = p.basenameWithoutExtension(attachment.filename);
         String extension = p.extension(attachment.filename);

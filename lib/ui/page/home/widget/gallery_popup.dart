@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -842,7 +843,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
 /// Downloads file by provided [url].
 Future<void> download(GalleryItem item) async {
-  PlatformUtils.download(item.link, item.filename);
+  await PlatformUtils.download(item.link, item.filename);
   MessagePopup.success(
       item.isVideo ? 'label_video_downloaded'.tr : 'label_image_downloaded'.tr);
 }
@@ -854,9 +855,12 @@ Future<void> saveToGallery(GalleryItem item) async {
   String savePath = '${appDocDir.path}/$filename';
   await Dio().download(item.link, savePath);
   await ImageGallerySaver.saveFile(savePath, name: filename);
-  MessagePopup.success(item.isVideo
-      ? 'label_video_saved_to_gallery'.tr
-      : 'label_image_saved_to_gallery'.tr);
+  File(savePath).delete();
+  MessagePopup.success(
+    item.isVideo
+        ? 'label_video_saved_to_gallery'.tr
+        : 'label_image_saved_to_gallery'.tr,
+  );
 }
 
 /// Downloads file by provided [url] and open `Share` dialog with it.
@@ -864,5 +868,6 @@ Future<void> share(GalleryItem item) async {
   var appDocDir = await getTemporaryDirectory();
   String savePath = '${appDocDir.path}/${item.filename}';
   await Dio().download(item.link, savePath);
-  Share.shareFiles([savePath]);
+  await Share.shareFiles([savePath]);
+  File(savePath).delete();
 }
