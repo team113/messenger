@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Message forwarding (!138, #104).
+        - Message forwarding (#8).
 
 
 [Semantic Versioning 2.0.0]: https://semver.org
