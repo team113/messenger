@@ -18,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
 import '/ui/page/home/widget/avatar.dart';

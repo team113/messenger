@@ -19,8 +19,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/repository/contact.dart';
 
-import '/domain/model/contact.dart';
-import '/domain/model/user.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
