@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Android:
-    - [ConnectionService] displaying call when application is in foreground (#10).
+    - [ConnectionService] displaying call when application is in foreground (#13).
 
 
 [Semantic Versioning 2.0.0]: https://semver.org
