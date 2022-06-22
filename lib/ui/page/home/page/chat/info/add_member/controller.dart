@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
@@ -49,8 +50,8 @@ class AddChatMemberController extends GetxController {
   /// - `status.isError`, meaning [addChatMembers] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [ChatContact]s.
-  final RxList<Rx<ChatContact>> selectedContacts = RxList<Rx<ChatContact>>([]);
+  /// Reactive list of the selected [RxChatContact]s.
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
@@ -67,8 +68,8 @@ class AddChatMemberController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// Returns the current reactive observable map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  /// Returns the current reactive observable map of [RxChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Returns an [User] from [UserService] by the provided [id].
@@ -118,7 +119,8 @@ class AddChatMemberController extends GetxController {
     try {
       List<Future> futures = [];
       for (var id in [
-        ...selectedContacts.expand((e) => e.value.users.map((u) => u.id)),
+        ...selectedContacts
+            .expand((e) => e.contact.value.users.map((u) => u.id)),
         ...selectedUsers.map((u) => u.id),
       ]) {
         futures.add(_chatService.addChatMember(chatId, id));
@@ -138,7 +140,7 @@ class AddChatMemberController extends GetxController {
   }
 
   /// Selects or unselects the specified [contact].
-  void selectContact(Rx<ChatContact> contact) {
+  void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
       selectedContacts.remove(contact);
     } else {

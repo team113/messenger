@@ -37,6 +37,7 @@ import '/provider/hive/contact.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
+import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'event/contact.dart';
@@ -57,10 +58,10 @@ class ContactRepository implements AbstractContactRepository {
   final RxBool isReady = RxBool(false);
 
   @override
-  final RxObsMap<ChatContactId, Rx<ChatContact>> contacts = RxObsMap();
+  final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
-  final RxMap<ChatContactId, Rx<ChatContact>> favorites = RxMap();
+  final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -87,9 +88,10 @@ class ContactRepository implements AbstractContactRepository {
     if (!_contactLocal.isEmpty) {
       for (HiveChatContact c in _contactLocal.contacts) {
         if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = Rx<ChatContact>(c.value);
+          contacts[c.value.id] = HiveRxChatContact(c, _contactLocal, _userRepo);
         } else {
-          favorites[c.value.id] = Rx<ChatContact>(c.value);
+          favorites[c.value.id] =
+              HiveRxChatContact(c, _contactLocal, _userRepo);
         }
       }
 
@@ -149,24 +151,26 @@ class ContactRepository implements AbstractContactRepository {
       } else {
         if (event.value?.value.favoritePosition == null) {
           favorites.remove(ChatContactId(event.key));
-          Rx<ChatContact>? contact = contacts[ChatContactId(event.key)];
+          HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
           if (contact == null) {
-            contacts[ChatContactId(event.key)] =
-                Rx<ChatContact>(event.value.value);
+            contact = HiveRxChatContact(event.value, _contactLocal, _userRepo);
+            contacts[ChatContactId(event.key)] = contact;
           } else {
-            contact.value = event.value.value;
-            contact.refresh();
+            contact.contact.value = event.value.value;
+            contact.contact.refresh();
           }
+          contact.refreshUser();
         } else {
           contacts.remove(ChatContactId(event.key));
-          Rx<ChatContact>? contact = favorites[ChatContactId(event.key)];
+          HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
           if (contact == null) {
-            favorites[ChatContactId(event.key)] =
-                Rx<ChatContact>(event.value.value);
+            contact = HiveRxChatContact(event.value, _contactLocal, _userRepo);
+            favorites[ChatContactId(event.key)] = contact;
           } else {
-            contact.value = event.value.value;
-            contact.refresh();
+            contact.contact.value = event.value.value;
+            contact.contact.refresh();
           }
+          contact.refreshUser();
         }
       }
     }

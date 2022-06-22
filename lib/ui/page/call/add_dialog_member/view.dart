@@ -141,36 +141,24 @@ class AddDialogMemberView extends StatelessWidget {
                     (e) => AddUserListTile(e, () => c.unselectUser(e)),
                   ),
                   ...c.contacts.entries
-                      .where((e) => e.value.value.users.isNotEmpty)
+                      .where((e) => e.value.contact.value.users.isNotEmpty)
                       .where((e) =>
                           c.chat.value!.value.members.firstWhereOrNull((m) =>
-                              e.value.value.users
+                              e.value.contact.value.users
                                   .firstWhereOrNull((u) => u.id == m.user.id) !=
                               null) ==
                           null)
                       .map(
                     (e) {
                       bool selected = c.selectedContacts.contains(e.value);
-                      return e.value.value.users.isNotEmpty
-                          ? FutureBuilder<Rx<User>?>(
-                              future: c.getUser(e.value.value.users.first.id),
-                              builder: (context, snapshot) {
-                                Rx<User>? user = snapshot.data;
-                                return AddContactListTile(
-                                  selected,
-                                  e.value,
-                                  () => c.selectContact(e.value),
-                                  avatar: user == null
-                                      ? null
-                                      : AvatarWidget.fromUser(user.value),
-                                );
-                              },
-                            )
-                          : AddContactListTile(
-                              selected,
-                              e.value,
-                              () => c.selectContact(e.value),
-                            );
+                      return AddContactListTile(
+                        selected,
+                        e.value,
+                        () => c.selectContact(e.value),
+                        avatar: e.value.user?.value.avatar != null
+                            ? AvatarWidget.fromUser(e.value.user?.value)
+                            : null,
+                      );
                     },
                   ),
                 ],

@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
@@ -42,8 +43,8 @@ class CreateGroupController extends GetxController {
   /// - `status.isError`, meaning [createGroup] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [ChatContact]s.
-  final RxList<Rx<ChatContact>> selectedContacts = RxList<Rx<ChatContact>>([]);
+  /// Reactive list of the selected [RxChatContact]s.
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
@@ -63,8 +64,8 @@ class CreateGroupController extends GetxController {
   /// Pops the [CreateGroupView] this controller is bound to.
   final Function() pop;
 
-  /// Returns the current reactive map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  /// Returns the current reactive map of [RxChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
@@ -78,7 +79,8 @@ class CreateGroupController extends GetxController {
 
       var chat = (await _chatService.createGroupChat(
         [
-          ...selectedContacts.expand((e) => e.value.users.map((u) => u.id)),
+          ...selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...selectedUsers.map((e) => e.id),
         ],
         name: chatName,
@@ -102,7 +104,7 @@ class CreateGroupController extends GetxController {
   Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
 
   /// Selects or unselects the provided [contact].
-  void selectContact(Rx<ChatContact> contact) {
+  void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
       selectedContacts.remove(contact);
     } else {

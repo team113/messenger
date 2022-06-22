@@ -33,12 +33,12 @@ class ContactService extends DisposableService {
   /// [contacts] value is fetched.
   RxBool get isReady => _contactRepository.isReady;
 
-  /// Returns the current reactive observable map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  /// Returns the current reactive observable map of [RxChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactRepository.contacts;
 
-  /// Returns the current reactive map of favorite [ChatContact]s.
-  RxMap<ChatContactId, Rx<ChatContact>> get favorites =>
+  /// Returns the current reactive map of favorite [RxChatContact]s.
+  RxMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
   @override

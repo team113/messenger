@@ -22,6 +22,7 @@ import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -57,8 +58,8 @@ class AddDialogMemberController extends GetxController {
   ///   error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [ChatContact]s.
-  final RxList<Rx<ChatContact>> selectedContacts = RxList<Rx<ChatContact>>([]);
+  /// Reactive list of the selected [RxChatContact]s.
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
@@ -87,8 +88,8 @@ class AddDialogMemberController extends GetxController {
   /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
   late final Worker _stateWorker;
 
-  /// Returns the current reactive map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  /// Returns the current reactive map of [RxChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Returns an [User] from [UserService] by the provided [id].
@@ -126,7 +127,7 @@ class AddDialogMemberController extends GetxController {
       await _callService.transformDialogCallIntoGroupCall(
         chatId,
         [
-          ...selectedContacts.map((e) => e.value.users.first.id),
+          ...selectedContacts.map((e) => e.contact.value.users.first.id),
           ...selectedUsers.map((e) => e.id)
         ],
         groupName,
@@ -142,7 +143,7 @@ class AddDialogMemberController extends GetxController {
   }
 
   /// Selects or unselects the specified [contact].
-  void selectContact(Rx<ChatContact> contact) {
+  void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
       selectedContacts.remove(contact);
     } else {
