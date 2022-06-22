@@ -16,7 +16,9 @@
 
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -31,11 +33,14 @@ import 'parameters/users.dart';
 import 'steps/fill_field.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
+import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
+import 'steps/wait_until_widget_in_list.dart';
 import 'world/custom_world.dart';
 
 /// Configuration of a Gherkin test suite.
@@ -46,13 +51,16 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasDialogWithMe,
         iAm,
         seesAs,
+        sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
+        tapText,
         tapWidget,
         twoUsers,
         untilTextExists,
         user,
         waitUntilKeyExists,
+        waitUntilKeyExistsInList,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [
@@ -108,4 +116,9 @@ Future<Session> createUser(
     result.createUser.session.token,
     result.createUser.session.expireAt,
   );
+}
+
+extension SkipOffstageExtension on AppDriverAdapter {
+  Finder findByKeySkipOffstage(String key) =>
+      find.byKey(Key(key), skipOffstage: false);
 }

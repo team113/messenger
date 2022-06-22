@@ -58,6 +58,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.onFileTap,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -100,6 +101,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final Function(ChatItemId)? onRepliedTap;
+
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  final Function(FileAttachment attachment)? onFileTap;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -192,7 +196,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ...msg.attachments.whereType<FileAttachment>().where((e) => e.isVideo)
     ];
 
-    List<Attachment> files = msg.attachments
+    List<FileAttachment> files = msg.attachments
         .whereType<FileAttachment>()
         .where((e) => !e.isVideo)
         .toList();
@@ -231,9 +235,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         for (var o in attachments) {
                           var link = '${Config.url}/files${o.original}';
                           if (o is FileAttachment) {
-                            gallery.add(GalleryItem.video(link));
+                            gallery
+                                .add(GalleryItem.video(link, name: o.filename));
                           } else {
-                            gallery.add(GalleryItem.image(link));
+                            gallery
+                                .add(GalleryItem.image(link, name: o.filename));
                           }
                         }
 
@@ -287,18 +293,34 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
-                  onTap: () => throw UnimplementedError(),
+                  onTap: () => widget.onFileTap?.call(e),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(5, 2, 10, 0),
-                        child: Icon(
-                          Icons.attach_file,
-                          size: 18,
-                          color: Colors.blue,
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
+                        child: e.downloadingStatus.value ==
+                                DownloadingStatus.downloaded
+                            ? const Icon(
+                                Icons.attach_file,
+                                size: 18,
+                                color: Colors.blue,
+                              )
+                            : e.downloadingStatus.value ==
+                                    DownloadingStatus.downloading
+                                ? SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                      value: e.progress.value,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.download,
+                                    key: Key('DownloadAttachment'),
+                                    size: 18,
+                                    color: Colors.blue,
+                                  ),
                       ),
                       Flexible(
                         child: Text(

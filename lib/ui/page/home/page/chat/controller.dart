@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
@@ -26,6 +27,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_file/open_file.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -401,7 +403,7 @@ class ChatController extends GetxController {
     } else {
       _messagesWorker ??= ever(
         chat!.messages,
-        (List<Rx<ChatItem>> msgs) {
+        (_) {
           if (atBottom) {
             Future.delayed(
               Duration.zero,
@@ -658,6 +660,52 @@ class ChatController extends GetxController {
       _typingSubscription?.cancel();
       _typingSubscription = null;
     });
+  }
+
+  /// Opens or downloads the provided [attachment]'s file.
+  Future<void> onFileTap(FileAttachment attachment) async {
+    if (attachment.isDownloading) {
+      return;
+    }
+
+    if (PlatformUtils.isWeb ||
+        attachment.localPath == null ||
+        !attachment.isDownloaded) {
+      downloadFile(attachment);
+    } else {
+      var path = attachment.localPath!;
+      var file = File(path);
+      if (await file.exists() && await file.length() == attachment.size) {
+        OpenFile.open(path);
+      } else {
+        downloadFile(attachment);
+      }
+    }
+  }
+
+  /// Downloads the provided [FileAttachment].
+  Future<void> downloadFile(FileAttachment attachment) async {
+    try {
+      if (PlatformUtils.isWeb) {
+        PlatformUtils.download(
+          attachment.original.val,
+          attachment.filename,
+        );
+      } else {
+        attachment.downloadingStatus.value = DownloadingStatus.downloading;
+        var file = await PlatformUtils.download(
+          attachment.original.val,
+          attachment.filename,
+          onReceiveProgress: (count, total) =>
+              attachment.progress.value = count / total,
+        );
+        attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+        attachment.localPath = file!.path;
+      }
+    } catch (_) {
+      attachment.downloadingStatus.value = DownloadingStatus.empty;
+      attachment.localPath = null;
+    }
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
