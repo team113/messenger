@@ -17,12 +17,13 @@
 fragment UserEventsVersioned on UserEventsVersioned {
     events {
         __typename
+        userId
         ... on EventUserAvatarDeleted {
-            userId
+            
             at
         }
         ... on EventUserAvatarUpdated {
-            userId
+            
             avatar {
             __typename
                 ...UserAvatar
@@ -30,20 +31,20 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserBioDeleted {
-            userId
+            
             at
         }
         ... on EventUserBioUpdated {
-            userId
+            
             bio
             at
         }
         ... on EventUserCallCoverDeleted {
-            userId
+            
             at
         }
         ... on EventUserCallCoverUpdated {
-            userId
+            
             callCover {
                 __typename
                 ...UserCallCover
@@ -51,22 +52,22 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserCameOffline {
-            userId
+            
             at
         }
         ... on EventUserCameOnline {
             userId
         }
         ... on EventUserDeleted {
-            userId
+            
             at
         }
         ... on EventUserNameDeleted {
-            userId
+            
             at
         }
         ... on EventUserGalleryItemAdded {
-            userId
+            
             galleryItem {
                 __typename
                 id
@@ -79,26 +80,26 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserGalleryItemDeleted {
-            userId
+            
             galleryItemId
             at
         }
         ... on EventUserNameUpdated {
-            userId
+            
             name
             at
         }
         ... on EventUserPresenceUpdated {
-            userId
+            
             presence
             at
         }
         ... on EventUserStatusDeleted {
-            userId
+            
             at
         }
         ... on EventUserStatusUpdated {
-            userId
+            
             status
             at
         }
