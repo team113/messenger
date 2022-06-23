@@ -116,12 +116,7 @@ class CreateGroupView extends StatelessWidget {
                                               selected,
                                               e.value,
                                               () => c.selectContact(e.value),
-                                              avatar:
-                                                  e.value.user?.value.avatar !=
-                                                          null
-                                                      ? AvatarWidget.fromUser(
-                                                          e.value.user?.value)
-                                                      : null,
+                                              user: e.value.user?.value,
                                             );
                                           },
                                         ),
