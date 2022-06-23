@@ -132,6 +132,7 @@ jobs:
              libgstreamer1.0-dev
              libgstreamer-plugins-base1.0-dev
              libpulse-dev
+             libudev-dev
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
