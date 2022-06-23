@@ -26,10 +26,10 @@ import '/util/obs/obs.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
-  /// Returns reactive observable map of [HiveRxChatContact]s.
+  /// Returns reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, HiveRxChatContact> get contacts;
 
-  /// Returns reactive map of favorite [HiveRxChatContact]s.
+  /// Returns reactive map of favorite [ChatContact]s.
   RxMap<ChatContactId, HiveRxChatContact> get favorites;
 
   /// Indicates whether this repository was initialized and [contacts] can be

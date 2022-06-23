@@ -101,7 +101,7 @@ class ContactsTabView extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(RxChatContact rxContact, ContactsTabController c) =>
+  Widget _contact(RxChatContact contact, ContactsTabController c) =>
       ContextMenuRegion(
         preventContextMenu: false,
         menu: ContextMenu(
@@ -109,22 +109,22 @@ class ContactsTabView extends StatelessWidget {
             ContextMenuButton(
               label: 'btn_change_contact_name'.tr,
               onPressed: () {
-                c.contactToChangeNameOf.value = rxContact.contact.value.id;
+                c.contactToChangeNameOf.value = contact.contact.value.id;
                 c.contactName.clear();
-                c.contactName.unchecked = rxContact.contact.value.name.val;
+                c.contactName.unchecked = contact.contact.value.name.val;
                 SchedulerBinding.instance.addPostFrameCallback(
                     (_) => c.contactName.focus.requestFocus());
               },
             ),
             ContextMenuButton(
               label: 'btn_delete_from_contacts'.tr,
-              onPressed: () => c.deleteFromContacts(rxContact.contact.value),
+              onPressed: () => c.deleteFromContacts(contact.contact.value),
             ),
           ],
         ),
-        child: c.contactToChangeNameOf.value == rxContact.contact.value.id
+        child: c.contactToChangeNameOf.value == contact.contact.value.id
             ? Container(
-                key: Key(rxContact.contact.value.id.val),
+                key: Key(contact.contact.value.id.val),
                 padding: const EdgeInsets.all(3),
                 child: Row(
                   children: [
@@ -145,31 +145,31 @@ class ContactsTabView extends StatelessWidget {
                 ),
               )
             : ListTile(
-                key: Key(rxContact.contact.value.id.val),
-                leading: Obx(() => rxContact.user?.value.avatar != null
-                    ? AvatarWidget.fromUser(rxContact.user?.value)
-                    : AvatarWidget.fromContact(rxContact.contact.value)),
-                title: Text(rxContact.contact.value.name.val),
-                trailing: rxContact.contact.value.users.isNotEmpty
+                key: Key(contact.contact.value.id.val),
+                leading: Obx(() => contact.user?.value.avatar != null
+                    ? AvatarWidget.fromUser(contact.user?.value)
+                    : AvatarWidget.fromContact(contact.contact.value)),
+                title: Text(contact.contact.value.name.val),
+                trailing: contact.contact.value.users.isNotEmpty
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
                             onPressed: () => c.startAudioCall(
-                                rxContact.contact.value.users.first),
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.call),
                           ),
                           IconButton(
                             onPressed: () => c.startVideoCall(
-                                rxContact.contact.value.users.first),
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.video_call),
                           )
                         ],
                       )
                     : null,
-                onTap: rxContact.contact.value.users.isNotEmpty
+                onTap: contact.contact.value.users.isNotEmpty
                     // TODO: Open [Routes.contact] page when it's implemented.
-                    ? () => router.user(rxContact.contact.value.users.first.id)
+                    ? () => router.user(contact.contact.value.users.first.id)
                     : null,
               ),
       );

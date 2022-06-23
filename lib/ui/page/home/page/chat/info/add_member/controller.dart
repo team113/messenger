@@ -55,7 +55,7 @@ class AddChatMemberController extends GetxController {
   /// - `status.isError`, meaning [addChatMembers] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [RxChatContact]s.
+  /// Reactive list of the selected [ChatContact]s.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.

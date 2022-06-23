@@ -24,7 +24,7 @@ import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].
 class AddContactListTile extends StatelessWidget {
-  const AddContactListTile(this.selected, this.rxContact, this.onTap,
+  const AddContactListTile(this.selected, this.contact, this.onTap,
       {Key? key, this.avatar})
       : super(key: key);
 
@@ -32,7 +32,7 @@ class AddContactListTile extends StatelessWidget {
   final bool selected;
 
   /// [ChatContact] this [AddContactListTile] is about.
-  final RxChatContact rxContact;
+  final RxChatContact contact;
 
   /// Callback, called when this [ListTile] is tapped.
   final VoidCallback onTap;
@@ -54,11 +54,11 @@ class AddContactListTile extends StatelessWidget {
                 backgroundColor: Colors.green,
                 child: Icon(Icons.check, color: Colors.white),
               )
-            : avatar ?? AvatarWidget.fromUser(rxContact.user?.value),
+            : avatar ?? AvatarWidget.fromContact(null),
       ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),
-      title: Text(rxContact.contact.value.name.val, style: font17),
+      title: Text(contact.contact.value.name.val, style: font17),
       onTap: onTap,
     );
   }

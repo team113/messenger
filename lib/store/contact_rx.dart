@@ -37,7 +37,7 @@ class HiveRxChatContact implements RxChatContact {
   @override
   Rx<User>? user;
 
-  /// Initializes this [HiveRxChatContact].
+  /// Sets and refresh this [user]'s value.
   void refreshUser() async {
     user = contact.value.users.isNotEmpty
         ? await _userRepo.get(contact.value.users.first.id)

@@ -64,11 +64,11 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Returns current reactive [RxChatContact]s map.
+  /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
-  /// Returns the current reactive favorite [RxChatContact]s map.
+  /// Returns the current reactive favorite [ChatContact]s map.
   RxMap<ChatContactId, RxChatContact> get favorites =>
       _contactService.favorites;
 
@@ -81,13 +81,13 @@ class ContactsTabController extends GetxController {
       onChanged: (s) async {
         s.error.value = null;
 
-        RxChatContact? rxChatContact = contacts.values.firstWhereOrNull(
+        RxChatContact? chatContact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (rxChatContact == null) return;
+        if (chatContact == null) return;
 
-        if (rxChatContact.contact.value.name.val == s.text) {
+        if (chatContact.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
@@ -124,11 +124,11 @@ class ContactsTabController extends GetxController {
         }
       },
       onSubmitted: (s) {
-        var rxChatContact = contacts.values.firstWhereOrNull(
+        var chatContact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (rxChatContact?.contact.value.name.val == s.text) {
+        if (chatContact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }

@@ -145,11 +145,11 @@ class UserController extends GetxController {
       if (await MessagePopup.alert('alert_are_you_sure'.tr) == true) {
         status.value = RxStatus.loadingMore();
         try {
-          RxChatContact? rxChatContact = _contactService.contacts.values
+          RxChatContact? chatContact = _contactService.contacts.values
               .firstWhereOrNull((e) =>
                   e.contact.value.users.every((m) => m.id == user?.value.id));
-          if (rxChatContact != null) {
-            await _contactService.deleteContact(rxChatContact.contact.value.id);
+          if (chatContact != null) {
+            await _contactService.deleteContact(chatContact.contact.value.id);
           }
           inContacts.value = false;
         } catch (e) {

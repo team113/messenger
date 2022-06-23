@@ -150,7 +150,7 @@ class AddChatMemberView extends StatelessWidget {
                         () => c.selectContact(e.value),
                         avatar: e.value.user?.value.avatar != null
                             ? AvatarWidget.fromUser(e.value.user?.value)
-                            : AvatarWidget.fromContact(e.value.contact.value),
+                            : null,
                       );
                     },
                   ),

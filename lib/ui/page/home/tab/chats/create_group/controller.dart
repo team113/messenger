@@ -47,7 +47,7 @@ class CreateGroupController extends GetxController {
   /// - `status.isError`, meaning [createGroup] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Reactive list of the selected [RxChatContact]s.
+  /// Reactive list of the selected [ChatContact]s.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
@@ -68,7 +68,7 @@ class CreateGroupController extends GetxController {
   /// Pops the [CreateGroupView] this controller is bound to.
   final Function() pop;
 
-  /// Returns the current reactive map of [RxChatContact]s.
+  /// Returns the current reactive map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
