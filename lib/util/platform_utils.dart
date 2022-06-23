@@ -127,6 +127,7 @@ class PlatformUtils {
     String url,
     String filename, {
     Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
   }) async {
     if (PlatformUtils.isWeb) {
       WebUtils.downloadFile(url, filename);
@@ -149,6 +150,7 @@ class PlatformUtils {
         '${Config.url}/files$url',
         file.path,
         onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
       );
       return file;
     }

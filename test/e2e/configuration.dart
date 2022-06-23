@@ -30,11 +30,13 @@ import 'hook/reset_app.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
+import 'steps/download_attachment.dart';
 import 'steps/fill_field.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/start_downloading_attachment.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/users.dart';
@@ -48,12 +50,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         fillField,
+        finishDownloading,
         hasDialogWithMe,
         iAm,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
+        startDownloading,
         tapText,
         tapWidget,
         twoUsers,

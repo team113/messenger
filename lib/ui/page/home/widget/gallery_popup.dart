@@ -841,14 +841,14 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 }
 
-/// Downloads file by provided [url].
+/// Downloads provided [GalleryItem].
 Future<void> download(GalleryItem item) async {
   await PlatformUtils.download(item.link, item.filename);
   MessagePopup.success(
       item.isVideo ? 'label_video_downloaded'.tr : 'label_image_downloaded'.tr);
 }
 
-/// Downloads file by provided [url] and save it ot gallery.
+/// Downloads provided [GalleryItem] and save it ot gallery.
 Future<void> saveToGallery(GalleryItem item) async {
   var filename = item.filename;
   var appDocDir = await getTemporaryDirectory();
@@ -863,7 +863,7 @@ Future<void> saveToGallery(GalleryItem item) async {
   );
 }
 
-/// Downloads file by provided [url] and open `Share` dialog with it.
+/// Downloads provided [GalleryItem] and open `Share` dialog with it.
 Future<void> share(GalleryItem item) async {
   var appDocDir = await getTemporaryDirectory();
   String savePath = '${appDocDir.path}/${item.filename}';

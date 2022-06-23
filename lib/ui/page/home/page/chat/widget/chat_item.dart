@@ -59,6 +59,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onGallery,
     this.onRepliedTap,
     this.onFileTap,
+    this.onDownloadingCancel,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -103,7 +104,11 @@ class ChatItemWidget extends StatefulWidget {
   final Function(ChatItemId)? onRepliedTap;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
-  final Function(FileAttachment attachment)? onFileTap;
+  final Function(FileAttachment)? onFileTap;
+
+  /// Callback, called when a cancel downloading action of a [FileAttachment] of
+  /// this [ChatItem] is triggered.
+  final Function(AttachmentId)? onDownloadingCancel;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -294,30 +299,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
                   onTap: () => widget.onFileTap?.call(e),
+                  mouseCursor:
+                      e.isDownloading ? MouseCursor.uncontrolled : null,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-                        child: e.downloadingStatus.value ==
-                                DownloadingStatus.downloaded
+                        child: e.isDownloaded
                             ? const Icon(
                                 Icons.attach_file,
+                                key: Key('DownloadedFile'),
                                 size: 18,
                                 color: Colors.blue,
                               )
-                            : e.downloadingStatus.value ==
-                                    DownloadingStatus.downloading
-                                ? SizedBox.square(
-                                    dimension: 18,
-                                    child: CircularProgressIndicator(
-                                      value: e.progress.value,
+                            : e.isDownloading
+                                ? InkWell(
+                                    onTap: () =>
+                                        widget.onDownloadingCancel?.call(e.id),
+                                    child: Stack(
+                                      alignment: AlignmentDirectional.center,
+                                      children: [
+                                        SizedBox.square(
+                                          dimension: 22,
+                                          child: CircularProgressIndicator(
+                                            key: const Key('DownloadingFile'),
+                                            value: e.progress.value,
+                                          ),
+                                        ),
+                                        const Icon(Icons.clear, size: 20),
+                                      ],
                                     ),
                                   )
                                 : const Icon(
                                     Icons.download,
-                                    key: Key('DownloadAttachment'),
+                                    key: Key('DownloadFile'),
                                     size: 18,
                                     color: Colors.blue,
                                   ),

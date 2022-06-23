@@ -20,6 +20,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -131,6 +132,9 @@ class ChatController extends GetxController {
   ///
   /// Indicates currently ongoing horizontal scroll of a view.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
+
+  /// [Map] of [CancelToken]s of [Attachment]s downloading.
+  final Map<AttachmentId, CancelToken> _downloadingAttachments = {};
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -693,18 +697,37 @@ class ChatController extends GetxController {
         );
       } else {
         attachment.downloadingStatus.value = DownloadingStatus.downloading;
+        attachment.progress.value = 0;
+        var cancelToken = CancelToken();
+        _downloadingAttachments[attachment.id] = cancelToken;
         var file = await PlatformUtils.download(
           attachment.original.val,
           attachment.filename,
           onReceiveProgress: (count, total) =>
               attachment.progress.value = count / total,
+          cancelToken: cancelToken,
         );
-        attachment.downloadingStatus.value = DownloadingStatus.downloaded;
-        attachment.localPath = file!.path;
+        if(cancelToken.isCancelled) {
+          attachment.downloadingStatus.value = DownloadingStatus.empty;
+          attachment.localPath = null;
+        } else {
+          attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+          attachment.localPath = file!.path;
+        }
       }
     } catch (_) {
       attachment.downloadingStatus.value = DownloadingStatus.empty;
       attachment.localPath = null;
+    } finally {
+      _downloadingAttachments.remove(attachment.id);
+    }
+  }
+
+  /// Cancels downloading of the [Attachment] with provided [id].
+  void cancelDownloading(AttachmentId id) {
+    var token = _downloadingAttachments[id];
+    if(token?.isCancelled == false) {
+      token!.cancel();
     }
   }
 
