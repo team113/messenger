@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import 'controller.dart';
 
