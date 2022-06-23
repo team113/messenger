@@ -232,11 +232,17 @@ class ChatController extends GetxController {
               repliesTo: repliedMessage.value?.id,
               attachments: attachmentIds,
             );
-            _audioPlayer?.play(
-              AssetSource('audio/message_sent.mp3'),
-              position: Duration.zero,
-              mode: PlayerMode.lowLatency,
-            );
+            runZonedGuarded(() async {
+              await _audioPlayer?.play(
+                AssetSource('audio/message_sent.mp3'),
+                position: Duration.zero,
+                mode: PlayerMode.lowLatency,
+              );
+            }, (e, _) {
+              if (!e.toString().contains('NotAllowedError')) {
+                throw e;
+              }
+            });
 
             repliedMessage.value = null;
             attachments.clear();

@@ -16,14 +16,13 @@
 
 import 'dart:async';
 
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/store/event/user.dart';
-import '/store/model/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 
@@ -52,113 +51,137 @@ class HiveRxUser extends RxUser {
     onCancel: _remoteSubscription?.cancel,
   );
 
-  StreamIterator<UserEventsVersioned>? _remoteSubscription;
+  /// [UserRepository.userEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamIterator<UserEvents>? _remoteSubscription;
 
   @override
   Stream get updates => _updatesController.stream;
 
   /// Initializes [UserRepository.userEvents] subscription.
-  Future<void> _initRemoteSubscription({UserVersion? ver}) async {
-    var userEntity = _userLocal.get(user.value.id);
-    _remoteSubscription = StreamIterator(
-        await _userRepository.userEvents(user.value.id, userEntity?.ver));
+  Future<void> _initRemoteSubscription({bool noVersion = false}) async {
+    var ver = noVersion ? null : _userLocal.get(user.value.id)?.ver;
+    _remoteSubscription =
+        StreamIterator(await _userRepository.userEvents(user.value.id, ver));
     while (await _remoteSubscription!
         .moveNext()
         .onError<ResubscriptionRequiredException>((_, __) {
-      Future.delayed(Duration.zero, () => _initRemoteSubscription(ver: ver));
+      _initRemoteSubscription();
       return false;
     }).onError<StaleVersionException>((_, __) {
-      _userLocal
-          .deleteSafe(userEntity?.key)
-          .then((_) async => await _initRemoteSubscription());
+      _initRemoteSubscription(noVersion: true);
       return false;
     })) {
       await _userEvent(_remoteSubscription!.current);
     }
   }
 
-  /// Handles [UserEvent]s from the [UserRepository.userEvents] subscription.
-  Future<void> _userEvent(UserEventsVersioned versioned) async {
-    var userEntity = _userLocal.get(user.value.id);
-    if (userEntity == null || versioned.ver <= userEntity.ver) {
-      return;
-    }
+  /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
+  Future<void> _userEvent(UserEvents events) async {
+    switch (events.kind) {
+      case UserEventsKind.initialized:
+        // No-op.
+        break;
 
-    userEntity.ver = versioned.ver;
-    for (var event in versioned.events) {
-      switch (event.kind) {
-        case UserEventKind.avatarDeleted:
-          event as EventUserAvatarDeleted;
-          userEntity.value.avatar = null;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.avatarUpdated:
-          event as EventUserAvatarUpdated;
-          userEntity.value.avatar = event.avatar;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.bioDeleted:
-          event as EventUserBioDeleted;
-          userEntity.value.bio = null;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.bioUpdated:
-          event as EventUserBioUpdated;
-          userEntity.value.bio = event.bio;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.cameOffline:
-          event as EventUserCameOffline;
-          userEntity.value.online = false;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.cameOnline:
-          userEntity.value.online = true;
-          break;
-        case UserEventKind.callCoverDeleted:
-          event as EventUserCallCoverDeleted;
-          userEntity.value.callCover = null;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.callCoverUpdated:
-          event as EventUserCallCoverUpdated;
-          userEntity.value.callCover = event.callCover;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.galleryItemAdded:
-          // TODO: Handle this case.
-          break;
-        case UserEventKind.galleryItemDeleted:
-          // TODO: Handle this case.
-          break;
-        case UserEventKind.nameDeleted:
-          event as EventUserNameDeleted;
-          userEntity.value.name = null;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.nameUpdated:
-          event as EventUserNameUpdated;
-          userEntity.value.name = event.name;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.presenceUpdated:
-          // TODO: Handle this case.
-          break;
-        case UserEventKind.statusDeleted:
-          event as EventUserStatusDeleted;
-          userEntity.value.status = null;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.statusUpdated:
-          event as EventUserStatusUpdated;
-          userEntity.value.status = event.status;
-          userEntity.value.lastSeenAt = event.at;
-          break;
-        case UserEventKind.userDeleted:
-          // TODO: Handle this case.
-          break;
-      }
-      _userLocal.put(userEntity);
+      case UserEventsKind.user:
+        events as UserEventsUser;
+        var saved = _userLocal.get(user.value.id);
+        if (saved == null || saved.ver < events.user.ver) {
+          await _userLocal.put(events.user);
+        }
+        break;
+
+      case UserEventsKind.event:
+        var userEntity = _userLocal.get(user.value.id);
+        var versioned = (events as UserEventsEvent).event;
+        if (userEntity == null || versioned.ver <= userEntity.ver) {
+          return;
+        }
+
+        userEntity.ver = versioned.ver;
+        for (var event in versioned.events) {
+          switch (event.kind) {
+            case UserEventKind.avatarDeleted:
+              event as EventUserAvatarDeleted;
+              userEntity.value.avatar = null;
+              break;
+
+            case UserEventKind.avatarUpdated:
+              event as EventUserAvatarUpdated;
+              userEntity.value.avatar = event.avatar;
+              break;
+
+            case UserEventKind.bioDeleted:
+              event as EventUserBioDeleted;
+              userEntity.value.bio = null;
+              break;
+
+            case UserEventKind.bioUpdated:
+              event as EventUserBioUpdated;
+              userEntity.value.bio = event.bio;
+              break;
+
+            case UserEventKind.cameOffline:
+              event as EventUserCameOffline;
+              userEntity.value.online = false;
+              userEntity.value.lastSeenAt = event.at;
+              break;
+
+            case UserEventKind.cameOnline:
+              userEntity.value.online = true;
+              break;
+
+            case UserEventKind.callCoverDeleted:
+              event as EventUserCallCoverDeleted;
+              userEntity.value.callCover = null;
+              break;
+
+            case UserEventKind.callCoverUpdated:
+              event as EventUserCallCoverUpdated;
+              userEntity.value.callCover = event.callCover;
+              userEntity.value.lastSeenAt = event.at;
+              break;
+
+            case UserEventKind.galleryItemAdded:
+              // TODO: Handle this case.
+              break;
+
+            case UserEventKind.galleryItemDeleted:
+              // TODO: Handle this case.
+              break;
+
+            case UserEventKind.nameDeleted:
+              event as EventUserNameDeleted;
+              userEntity.value.name = null;
+              break;
+
+            case UserEventKind.nameUpdated:
+              event as EventUserNameUpdated;
+              userEntity.value.name = event.name;
+              break;
+
+            case UserEventKind.presenceUpdated:
+              // TODO: Handle this case.
+              break;
+
+            case UserEventKind.statusDeleted:
+              event as EventUserStatusDeleted;
+              userEntity.value.status = null;
+              break;
+
+            case UserEventKind.statusUpdated:
+              event as EventUserStatusUpdated;
+              userEntity.value.status = event.status;
+              break;
+
+            case UserEventKind.userDeleted:
+              // TODO: Handle this case.
+              break;
+          }
+          _userLocal.put(userEntity);
+        }
+        break;
     }
   }
 }

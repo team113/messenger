@@ -67,7 +67,7 @@ class ContactsTabController extends GetxController {
   final CallService _calls;
 
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
-  List<StreamSubscription?>? _usersSubscriptions;
+  Map<ChatContactId, StreamSubscription?>? _usersSubscriptions;
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
@@ -139,7 +139,7 @@ class ContactsTabController extends GetxController {
         }
       },
     );
-    _subscribeForUsersUpdates();
+    _initContactsSubscription();
     super.onInit();
   }
 
@@ -182,14 +182,29 @@ class ContactsTabController extends GetxController {
   }
 
   /// Fills [_usersSubscriptions] list by [StreamSubscription]s of users that
-  /// are aviable in [contacts]
-  Future<void> _subscribeForUsersUpdates() async {
-    _usersSubscriptions = [];
-    for (var contact in contacts.values) {
-      for (var user in contact.value.users) {
-        _usersSubscriptions!
-            .add((await getUser(user.id))?.updates.listen((event) {}));
-      }
-    }
+  /// are available in [contacts]. Then listens contacts changes and
+  /// subscribes/unsubscribes from updates
+  Future<void> _initContactsSubscription() async {
+    _usersSubscriptions = {};
+    var subscriptionEntries = contacts.values
+        .map<Future<MapEntry<ChatContactId, StreamSubscription?>>>((e) async {
+      StreamSubscription? subscription = e.value.users.isEmpty
+          ? null
+          : (await getUser(e.value.users.first.id))?.updates.listen((event) {});
+      return MapEntry(e.value.id, subscription);
+    });
+    _usersSubscriptions!.addEntries(await Future.wait(subscriptionEntries));
+    contacts.listen((newMap) {
+      newMap.changes.forEach((e) async {
+        if (e.op == OperationKind.removed) {
+          _usersSubscriptions?[e.key]?.cancel();
+        } else if (e.op == OperationKind.added) {
+          var subscription = (await getUser(e.value!.value.users.first.id))
+              ?.updates
+              .listen((event) {});
+          _usersSubscriptions?.putIfAbsent(e.key!, () => subscription);
+        }
+      });
+    });
   }
 }

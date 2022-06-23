@@ -64,7 +64,7 @@ abstract class AbstractUserRepository {
   Future<RxUser?> get(UserId id);
 
   /// Subscribes to remote [UserEvent]s of the [User] with specified [UserId].
-  Future<Stream<UserEventsVersioned>> userEvents(
+  Future<Stream<UserEvents>> userEvents(
     UserId id,
     UserVersion? ver,
   );

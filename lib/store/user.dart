@@ -24,8 +24,6 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/crop_area.dart';
-
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
@@ -149,19 +147,19 @@ class UserRepository implements AbstractUserRepository {
       if (event.deleted) {
         _users.remove(UserId(event.key));
       } else {
-        RxUser? rxUser = _users[UserId(event.key)];
-        if (rxUser == null) {
+        RxUser? user = _users[UserId(event.key)];
+        if (user == null) {
           _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
-          rxUser.user.value = event.value.value;
-          rxUser.user.refresh();
+          user.user.value = event.value.value;
+          user.user.refresh();
         }
       }
     }
   }
 
   @override
-  Future<Stream<UserEventsVersioned>> userEvents(
+  Future<Stream<UserEvents>> userEvents(
     UserId id,
     UserVersion? ver,
   ) async {
@@ -171,15 +169,16 @@ class UserRepository implements AbstractUserRepository {
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
-        // No-op.
+        yield const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
-        put((events as UserMixin).toHive());
+        var mixin = events as UserEvents$Subscription$UserEvents$User;
+        yield UserEventsUser(mixin.toHive());
       } else if (events.$$typename == 'UserEventsVersioned') {
         var mixin = events as UserEventsVersionedMixin;
-        yield UserEventsVersioned(
+        yield UserEventsEvent(UserEventsVersioned(
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
-        );
+        ));
       }
     });
   }
@@ -218,9 +217,9 @@ class UserRepository implements AbstractUserRepository {
     await Future.delayed(Duration.zero);
 
     Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
-    List<RxUser> rxUsers = (await Future.wait(futures)).whereNotNull().toList();
+    List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
-    return rxUsers;
+    return users;
   }
 
   /// Constructs a new [User] from the given [UserMixin].
@@ -274,110 +273,54 @@ class UserRepository implements AbstractUserRepository {
     if (e.$$typename == 'EventUserAvatarDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserAvatarUpdated') {
+    } else if (e.$$typename == 'EventUserAvatarUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(
-          node.userId,
-          UserAvatar(
-              full: node.avatar.full,
-              original: node.avatar.original,
-              galleryItemId: node.avatar.galleryItemId,
-              big: node.avatar.big,
-              medium: node.avatar.medium,
-              small: node.avatar.small,
-              crop: node.avatar.crop != null
-                  ? CropArea(
-                      topLeft: CropPoint(
-                        x: node.avatar.crop!.topLeft.x,
-                        y: node.avatar.crop!.topLeft.y,
-                      ),
-                      bottomRight: CropPoint(
-                        x: node.avatar.crop!.bottomRight.x,
-                        y: node.avatar.crop!.bottomRight.y,
-                      ),
-                      angle: node.avatar.crop?.angle,
-                    )
-                  : null),
-          node.at);
-    }
-    if (e.$$typename == 'EventUserBioDeleted') {
+          node.userId, node.avatar.toModel(), node.at);
+    } else if (e.$$typename == 'EventUserBioDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
       return EventUserBioDeleted(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserBioUpdated') {
+    } else if (e.$$typename == 'EventUserBioUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
-    }
-    if (e.$$typename == 'EventUserCallCoverDeleted') {
+    } else if (e.$$typename == 'EventUserCallCoverDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserCallCoverUpdated') {
+    } else if (e.$$typename == 'EventUserCallCoverUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(
-          node.userId,
-          UserCallCover(
-              galleryItemId: node.callCover.galleryItemId,
-              full: node.callCover.full,
-              original: node.callCover.original,
-              vertical: node.callCover.vertical,
-              square: node.callCover.square,
-              crop: node.callCover.crop != null
-                  ? CropArea(
-                      topLeft: CropPoint(
-                        x: node.callCover.crop!.topLeft.x,
-                        y: node.callCover.crop!.topLeft.y,
-                      ),
-                      bottomRight: CropPoint(
-                        x: node.callCover.crop!.bottomRight.x,
-                        y: node.callCover.crop!.bottomRight.y,
-                      ),
-                      angle: node.callCover.crop?.angle,
-                    )
-                  : null),
-          node.at);
-    }
-    if (e.$$typename == 'EventUserCameOffline') {
+          node.userId, node.callCover.toModel(), node.at);
+    } else if (e.$$typename == 'EventUserCameOffline') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserCameOnline') {
+    } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
-    }
-    if (e.$$typename == 'EventUserDeleted') {
+    } else if (e.$$typename == 'EventUserDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
-      return EventUserDeleted(node.userId);
-    }
-    if (e.$$typename == 'EventUserNameDeleted') {
+      return EventUserDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserNameDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId, node.at);
-    }
-    // TODO: provide GalleryItem to this event
-    if (e.$$typename == 'EventUserGalleryItemAdded') {
+    } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      return EventUserGalleryItemAdded(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserGalleryItemDeleted') {
+      return EventUserGalleryItemAdded(node.userId,
+          (node.galleryItem as ImageGalleryItemMixin).toModel(), node.at);
+    } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
       var node =
           e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
       return EventUserGalleryItemDeleted(
           node.userId, node.galleryItemId, node.at);
-    }
-    if (e.$$typename == 'EventUserNameUpdated') {
+    } else if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
-    }
-    if (e.$$typename == 'EventUserPresenceUpdated') {
+    } else if (e.$$typename == 'EventUserPresenceUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
       return EventUserPresenceUpdated(node.userId, node.presence, node.at);
-    }
-    if (e.$$typename == 'EventUserStatusDeleted') {
+    } else if (e.$$typename == 'EventUserStatusDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
       return EventUserStatusDeleted(node.userId, node.at);
-    }
-    if (e.$$typename == 'EventUserStatusUpdated') {
+    } else if (e.$$typename == 'EventUserStatusUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status, node.at);
     } else {

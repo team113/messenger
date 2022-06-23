@@ -17,6 +17,7 @@
 import '../schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/crop_area.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
@@ -83,4 +84,49 @@ extension ImageGalleryItemConversion on ImageGalleryItemMixin {
         original: Original(original),
         square: Square(square),
       );
+}
+
+extension UserAvatarConversion on UserAvatarMixin {
+  UserAvatar toModel() => UserAvatar(
+      full: full,
+      original: original,
+      galleryItemId: galleryItemId,
+      big: big,
+      medium: medium,
+      small: small,
+      crop: crop != null
+          ? CropArea(
+              topLeft: CropPoint(
+                x: crop!.topLeft.x,
+                y: crop!.topLeft.y,
+              ),
+              bottomRight: CropPoint(
+                x: crop!.bottomRight.x,
+                y: crop!.bottomRight.y,
+              ),
+              angle: crop?.angle,
+            )
+          : null);
+}
+
+extension UserCallCoverConversion on UserCallCoverMixin {
+  UserCallCover toModel() => UserCallCover(
+      galleryItemId: galleryItemId,
+      full: full,
+      original: original,
+      vertical: vertical,
+      square: square,
+      crop: crop != null
+          ? CropArea(
+              topLeft: CropPoint(
+                x: crop!.topLeft.x,
+                y: crop!.topLeft.y,
+              ),
+              bottomRight: CropPoint(
+                x: crop!.bottomRight.x,
+                y: crop!.bottomRight.y,
+              ),
+              angle: crop?.angle,
+            )
+          : null);
 }

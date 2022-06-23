@@ -22,7 +22,7 @@ import '../world/custom_world.dart';
 
 /// Routes the [RouterState] to the provided [TestUser]'s page.
 final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
-  'I go to {user} page',
+  "I go to {user}'s page",
   (TestUser user, context) async {
     router.user(context.world.sessions[user.name]!.userId);
     await context.world.appDriver.waitForAppToSettle();

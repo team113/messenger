@@ -17,12 +17,15 @@
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/gallery_item.dart';
+import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/provider/hive/user.dart';
 import '/store/model/user.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 
-/// Possible kinds of [MyUserEvent].
+/// Possible kinds of [UserEvent].
 enum UserEventKind {
   avatarDeleted,
   avatarUpdated,
@@ -42,6 +45,21 @@ enum UserEventKind {
   userDeleted,
 }
 
+/// Tag representing a [UserEvents] kind.
+enum UserEventsKind {
+  initialized,
+  user,
+  event,
+}
+
+/// [User] event union.
+abstract class UserEvents {
+  const UserEvents();
+
+  /// [UserEventsKind] of this event.
+  UserEventsKind get kind;
+}
+
 /// [UserEvent]s along with the corresponding [UserVersion].
 class UserEventsVersioned {
   const UserEventsVersioned(this.events, this.ver);
@@ -51,6 +69,37 @@ class UserEventsVersioned {
 
   /// Version of the [User]'s state updated by these [UserEvent]s.
   final UserVersion ver;
+}
+
+/// Indicator notifying about a GraphQL subscription being successfully
+/// initialized.
+class UserEventsInitialized extends UserEvents {
+  const UserEventsInitialized();
+
+  @override
+  UserEventsKind get kind => UserEventsKind.initialized;
+}
+
+/// [UserEventsEvent] happening with the [User].
+class UserEventsEvent extends UserEvents {
+  const UserEventsEvent(this.event);
+
+  /// [UserEventsVersioned] itself.
+  final UserEventsVersioned event;
+
+  @override
+  UserEventsKind get kind => UserEventsKind.event;
+}
+
+/// Initial state of the [User].
+class UserEventsUser extends UserEvents {
+  const UserEventsUser(this.user);
+
+  /// Initial state itself.
+  final HiveUser user;
+
+  @override
+  UserEventsKind get kind => UserEventsKind.user;
 }
 
 /// Events happening with an [User].
@@ -83,6 +132,7 @@ class EventUserAvatarUpdated extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.avatarUpdated;
 
+  /// New [UserAvatar].
   final UserAvatar avatar;
 
   /// [PreciseDateTime] when the [UserAvatar] was updated.
@@ -96,7 +146,7 @@ class EventUserBioDeleted extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.bioDeleted;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserBio] was deleted.
   final PreciseDateTime at;
 }
 
@@ -107,9 +157,10 @@ class EventUserBioUpdated extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.bioUpdated;
 
+  /// New [UserBio].
   final UserBio bio;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserBio] was updated.
   final PreciseDateTime at;
 }
 
@@ -120,7 +171,7 @@ class EventUserCallCoverDeleted extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.callCoverDeleted;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserCallCover] was deleted.
   final PreciseDateTime at;
 }
 
@@ -135,7 +186,7 @@ class EventUserCallCoverUpdated extends UserEvent {
   /// New [UserCallCover].
   final UserCallCover callCover;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserCallCover] was updated.
   final PreciseDateTime at;
 }
 
@@ -146,7 +197,7 @@ class EventUserCameOffline extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.cameOffline;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [User] was online the last time.
   final PreciseDateTime at;
 }
 
@@ -160,10 +211,13 @@ class EventUserCameOnline extends UserEvent {
 
 /// Event of an [User] being deleted.
 class EventUserDeleted extends UserEvent {
-  const EventUserDeleted(UserId userId) : super(userId);
+  const EventUserDeleted(UserId userId, this.at) : super(userId);
 
   @override
   UserEventKind get kind => UserEventKind.userDeleted;
+
+  /// [PreciseDateTime] when the [User] was deleted.
+  final PreciseDateTime at;
 }
 
 /// Event of an [UserName] being deleted.
@@ -173,7 +227,7 @@ class EventUserNameDeleted extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.nameDeleted;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserName] was deleted.
   final PreciseDateTime at;
 }
 
@@ -187,19 +241,24 @@ class EventUserNameUpdated extends UserEvent {
   /// New [UserName].
   final UserName name;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserName] was updated.
   final PreciseDateTime at;
 }
 
 // TODO: Provide `GalleryItem`
 /// Event of an [User]'s `GalleryItem` being added.
 class EventUserGalleryItemAdded extends UserEvent {
-  const EventUserGalleryItemAdded(UserId userId, this.at) : super(userId);
+  const EventUserGalleryItemAdded(UserId userId, this.imageGalleryItem, this.at)
+      : super(userId);
 
   @override
   UserEventKind get kind => UserEventKind.galleryItemAdded;
 
-  /// [PreciseDateTime] when this event happened.
+  /// Added GalleryItem.
+  final ImageGalleryItem imageGalleryItem;
+
+  /// [PreciseDateTime] when the [GalleryItem] was added to the [User]'s
+  ///  gallery.
   final PreciseDateTime at;
 }
 
@@ -214,7 +273,8 @@ class EventUserGalleryItemDeleted extends UserEvent {
   /// ID of the deleted `GalleryItem`.
   final GalleryItemId galleryItemId;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [GalleryItem] was deleted from the [User]'s
+  ///  gallery.
   final PreciseDateTime at;
 }
 
@@ -229,7 +289,7 @@ class EventUserPresenceUpdated extends UserEvent {
   /// New [User]'s [Presence].
   final Presence presence;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [User]'s [Presence] was updated.
   final PreciseDateTime at;
 }
 
@@ -240,7 +300,7 @@ class EventUserStatusDeleted extends UserEvent {
   @override
   UserEventKind get kind => UserEventKind.statusDeleted;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserTextStatus] was deleted.
   final PreciseDateTime at;
 }
 
@@ -255,6 +315,6 @@ class EventUserStatusUpdated extends UserEvent {
   /// New [UserTextStatus].
   final UserTextStatus status;
 
-  /// [PreciseDateTime] when this event happened.
+  /// [PreciseDateTime] when the [UserTextStatus] was updated.
   final PreciseDateTime at;
 }

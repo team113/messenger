@@ -33,8 +33,8 @@ import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
-import 'steps/set_bio.dart';
 import 'steps/tap_widget.dart';
+import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
@@ -50,11 +50,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         seesAs,
         sendsMessageToMe,
-        setBio,
         signInAs,
         tapWidget,
         twoUsers,
         untilTextExists,
+        updateBio,
         user,
         waitUntilKeyExists,
       ]
@@ -101,6 +101,7 @@ Future<Session> createUser(
     result.createUser.user.id,
     result.createUser.user.num,
   );
+
   provider.token = result.createUser.session.token;
   await provider.updateUserName(UserName(user.name));
   if (password != null) {

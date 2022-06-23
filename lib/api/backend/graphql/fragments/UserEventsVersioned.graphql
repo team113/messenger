@@ -67,6 +67,15 @@ fragment UserEventsVersioned on UserEventsVersioned {
         }
         ... on EventUserGalleryItemAdded {
             userId
+            galleryItem {
+                __typename
+                id
+                ... on ImageGalleryItem {
+                    square
+                    original
+                    addedAt
+                }
+            }
             at
         }
         ... on EventUserGalleryItemDeleted {
