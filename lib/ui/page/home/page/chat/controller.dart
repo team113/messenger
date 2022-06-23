@@ -707,7 +707,7 @@ class ChatController extends GetxController {
               attachment.progress.value = count / total,
           cancelToken: cancelToken,
         );
-        if(cancelToken.isCancelled) {
+        if (cancelToken.isCancelled) {
           attachment.downloadingStatus.value = DownloadingStatus.empty;
           attachment.localPath = null;
         } else {
@@ -726,7 +726,7 @@ class ChatController extends GetxController {
   /// Cancels downloading of the [Attachment] with provided [id].
   void cancelDownloading(AttachmentId id) {
     var token = _downloadingAttachments[id];
-    if(token?.isCancelled == false) {
+    if (token?.isCancelled == false) {
       token!.cancel();
     }
   }
