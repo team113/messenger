@@ -222,7 +222,7 @@ class ChatController extends GetxController {
                   repliesTo: repliedMessage.value,
                   attachments: attachments,
                 )
-                .then((value) => _playMessageSent())
+                .then((_) => _playMessageSent())
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -328,7 +328,7 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       _chatService
           .resendChatItem(item)
-          .then((value) => _playMessageSent())
+          .then((_) => _playMessageSent())
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e));
     }
@@ -704,7 +704,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Plays `message sent` sound.
+  /// Plays the message sent sound.
   void _playMessageSent() {
     runZonedGuarded(
       () => _audioPlayer?.play(

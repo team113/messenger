@@ -1,6 +1,6 @@
 Feature: Chat messages has correct sending status
 
-  Scenario: User sends message without delay
+  Scenario: User sends message
     And I am Alice
     And user Bob
     And Bob has dialog with me
@@ -13,8 +13,8 @@ Feature: Chat messages has correct sending status
     Then I tap `Send` widget
     And I wait until message status is sent
 
-  Scenario: User sends message and its status change from `sending` to `sent`
-    Given I have internet with delay 2 second
+  Scenario: Message status changes from `sending` to `sent`
+    Given I have Internet with delay 2 second
     And I am Alice
     And user Bob
     And Bob has dialog with me
@@ -28,8 +28,8 @@ Feature: Chat messages has correct sending status
     And I wait until message status is sending
     And I wait until message status is sent
 
-  Scenario: User can delete messages that not sent
-    Given I do not have internet
+  Scenario: User deletes non-sent message
+    Given I do not have Internet
     And I am Alice
     And user Bob
     And Bob has dialog with me
@@ -49,8 +49,8 @@ Feature: Chat messages has correct sending status
     And I tap `Delete` button
     And I wait until `ErrorMessage` is absent
 
-  Scenario: Resended message correctly change status
-    Given I do not have internet
+  Scenario: User resends message
+    Given I do not have Internet
     And I am Alice
     And user Bob
     And Bob has dialog with me
@@ -65,15 +65,15 @@ Feature: Chat messages has correct sending status
     And I tap `ButtonOk` button
     And I wait until message status is error
 
-    Then I have internet with delay 2 second
+    Then I have Internet with delay 2 second
     And I long press message
     And I wait until `Resend` is present
     And I tap `Resend` button
     And I wait until message status is sending
     And I wait until message status is sent
 
-  Scenario: Error messages not deleted after restart the app
-    Given I do not have internet
+  Scenario: Non-sent messages are persisted
+    Given I do not have Internet
     And I am Alice
     And user Bob
     And Bob has dialog with me

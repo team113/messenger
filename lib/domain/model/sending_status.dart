@@ -24,15 +24,15 @@ part 'sending_status.g.dart';
 /// [Attachment].
 @HiveType(typeId: ModelTypeId.sendingStatus)
 enum SendingStatus {
-  /// Indicates that the request is sending.
+  /// Request is sending.
   @HiveField(0)
   sending,
 
-  /// Indicates that the request is sent successfully.
+  /// Successfully sent.
   @HiveField(1)
   sent,
 
-  /// Indicates that the request experienced an error.
+  /// Error occurred.
   @HiveField(2)
   error
 }

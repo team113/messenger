@@ -257,12 +257,14 @@ class HiveRxChat implements RxChat {
 
     try {
       if (attachments != null) {
-        var uploadFutures = attachments
+        List<Future> uploads = attachments
             .mapIndexed((i, e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
                     uploaded[i] = a;
+
+                    // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
                       put(message, ignoreVersion: true);
                     }
@@ -275,14 +277,15 @@ class HiveRxChat implements RxChat {
             .toList();
 
         if (existingId == null) {
-          var readFutures = attachments
+          List<Future> reads = attachments
               .whereType<LocalAttachment>()
               .map((e) => e.read.value?.future)
-              .whereNotNull();
-          await Future.wait(readFutures);
+              .whereNotNull()
+              .toList();
+          await Future.wait(reads);
           put(message, ignoreVersion: true);
         }
-        await Future.wait(uploadFutures);
+        await Future.wait(uploads);
       }
 
       if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
@@ -733,14 +736,14 @@ class HiveRxChat implements RxChat {
               for (var item in event.item) {
                 if (item.value is ChatMessage &&
                     messages.none((e) => e.value.id == item.value.id)) {
-                  var sendingItem = messages.firstWhereOrNull((e) =>
+                  Rx<ChatItem>? sending = messages.firstWhereOrNull((e) =>
                       e.value is ChatMessage &&
                       e.value.status.value == SendingStatus.sending &&
                       (item.value as ChatMessage)
-                          .equal(e.value as ChatMessage));
+                          .isEquals(e.value as ChatMessage));
 
-                  if (sendingItem != null) {
-                    remove(sendingItem.value.id);
+                  if (sending != null) {
+                    remove(sending.value.id);
                   }
                   put(item);
                 } else {

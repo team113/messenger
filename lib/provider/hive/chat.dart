@@ -56,8 +56,8 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
-    Hive.maybeRegisterAdapter(ChatItemIdAdapter());
     Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
+    Hive.maybeRegisterAdapter(ChatItemIdAdapter());
     Hive.maybeRegisterAdapter(ChatItemVersionAdapter());
     Hive.maybeRegisterAdapter(ChatMemberAdapter());
     Hive.maybeRegisterAdapter(ChatMemberInfoAdapter());

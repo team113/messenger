@@ -26,8 +26,6 @@ import 'src/interface.dart'
     if (dart.library.html) 'src/web.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
-///
-/// At least one of [path] or [bytes] arguments must be specified and non-empty.
 class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
     Key? key,
@@ -57,7 +55,7 @@ class VideoThumbnail extends StatefulWidget {
   /// URL of the video to display.
   final String? path;
 
-  /// Bytes array of the video to display.
+  /// Byte data of the video to display.
   final Uint8List? bytes;
 
   /// Optional height this [VideoThumbnail] occupies.

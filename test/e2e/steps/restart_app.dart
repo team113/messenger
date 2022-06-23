@@ -14,21 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/domain/service/notification.dart';
-import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/main.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/store/auth.dart';
-import 'package:messenger/ui/worker/background/background.dart';
 
-import '../configuration.dart';
 import '../world/custom_world.dart';
 
 /// Restarts application.
@@ -38,27 +29,18 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric restartApp = then<CustomWorld>(
   'I restart app',
   (context) async {
+    // Going to [Routes.restart] page ensures all [GetxController]s are properly
+    // released since they depend on [router]'s state.
+    router.go(Routes.restart);
+    await context.world.appDriver.waitForAppToSettle();
+
     await Get.deleteAll(force: true);
     Get.reset();
 
     await Future.delayed(Duration.zero);
     await Hive.close();
 
-    await Get.put(SessionDataHiveProvider()).init();
-    await Get.put(NotificationService()).init();
-    var graphQlProvider = Get.put(GraphQlProvider());
-
-    Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    var authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
-    await authService.init();
-    Get.put(BackgroundWorker(Get.find()));
-
-    await (router.delegate as AppRouterDelegate)
-        .createHomeViewDependencies(authService.userId!);
-
-    BuildContext ctx = context.world.appDriver.nativeDriver
-        .element(context.world.appDriver.findByKeySkipOffstage('HomeView'));
-    Phoenix.rebirth(ctx);
+    await main();
+    await context.world.appDriver.waitForAppToSettle();
   },
 );

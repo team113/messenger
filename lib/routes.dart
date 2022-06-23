@@ -67,18 +67,21 @@ late RouterState router;
 /// Application routes names.
 class Routes {
   static const auth = '/';
-  static const home = '/';
   static const call = '/call';
   static const chat = '/chat';
-  static const contact = '/contact';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
+  static const contact = '/contact';
+  static const home = '/';
   static const login = '/login';
   static const me = '/me';
   static const menu = '/menu';
   static const settings = '/settings';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
+
+  // E2E tests related page, should not be used in non-test environment.
+  static const restart = '/restart';
 
   // TODO: Styles page related, should be removed at some point.
   static const style = '/style';
@@ -337,7 +340,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
-    if (_state.route == Routes.style) {
+    if (_state.route == Routes.restart) {
+      return [
+        const MaterialPage(
+          key: ValueKey('RestartPage'),
+          name: Routes.style,
+          child: Center(child: Text('Restarting...')),
+        ),
+      ];
+    } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
           key: ValueKey('StylePage'),
@@ -444,7 +455,89 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         key: const ValueKey('HomePage'),
         name: Routes.home,
         child: HomeView(
-          () => createHomeViewDependencies(_state._auth.userId!),
+          () async {
+            ScopedDependencies deps = ScopedDependencies();
+            UserId me = _state._auth.userId!;
+
+            await deps.put(MyUserHiveProvider()).init(userId: me);
+            await deps.put(ChatHiveProvider()).init(userId: me);
+            await deps.put(GalleryItemHiveProvider()).init(userId: me);
+            await deps.put(UserHiveProvider()).init(userId: me);
+            await deps.put(ContactHiveProvider()).init(userId: me);
+            await deps.put(MediaSettingsHiveProvider()).init(userId: me);
+            await deps.put(ApplicationSettingsHiveProvider()).init(userId: me);
+
+            GraphQlProvider graphQlProvider = Get.find();
+            UserRepository userRepository = UserRepository(
+              graphQlProvider,
+              Get.find(),
+              Get.find(),
+            );
+            deps.put<AbstractUserRepository>(userRepository);
+            AbstractChatRepository chatRepository =
+                deps.put<AbstractChatRepository>(
+              ChatRepository(
+                graphQlProvider,
+                Get.find(),
+                userRepository,
+                me: me,
+              ),
+            );
+            AbstractContactRepository contactRepository =
+                deps.put<AbstractContactRepository>(
+              ContactRepository(
+                graphQlProvider,
+                Get.find(),
+                userRepository,
+                Get.find(),
+              ),
+            );
+            AbstractCallRepository callRepository =
+                deps.put<AbstractCallRepository>(CallRepository(
+              graphQlProvider,
+              userRepository,
+            ));
+            AbstractMyUserRepository myUserRepository =
+                deps.put<AbstractMyUserRepository>(
+              MyUserRepository(
+                graphQlProvider,
+                Get.find(),
+                Get.find(),
+              ),
+            );
+            AbstractSettingsRepository settingsRepository =
+                deps.put<AbstractSettingsRepository>(
+              SettingsRepository(Get.find(), Get.find()),
+            );
+
+            MyUserService myUserService =
+                deps.put(MyUserService(Get.find(), myUserRepository));
+            deps.put(UserService(userRepository));
+            deps.put(ContactService(contactRepository));
+            CallService callService = deps.put(CallService(
+              Get.find(),
+              settingsRepository,
+              callRepository,
+            ));
+            ChatService chatService =
+                deps.put(ChatService(chatRepository, myUserService));
+
+            deps.put(CallWorker(
+              Get.find(),
+              callService,
+              chatService,
+              Get.find(),
+            ));
+
+            deps.put(ChatWorker(
+              chatService,
+              Get.find(),
+            ));
+
+            deps.put(MyUserWorker(Get.find()));
+
+            return deps;
+          },
         ),
       ));
     } else {
@@ -493,89 +586,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           ),
         ),
       );
-
-  Future<ScopedDependencies> createHomeViewDependencies(UserId me) async {
-    ScopedDependencies deps = ScopedDependencies();
-    UserId me = _state._auth.userId!;
-
-    await deps.put(MyUserHiveProvider()).init(userId: me);
-    await deps.put(ChatHiveProvider()).init(userId: me);
-    await deps.put(GalleryItemHiveProvider()).init(userId: me);
-    await deps.put(UserHiveProvider()).init(userId: me);
-    await deps.put(ContactHiveProvider()).init(userId: me);
-    await deps.put(MediaSettingsHiveProvider()).init(userId: me);
-    await deps.put(ApplicationSettingsHiveProvider()).init(userId: me);
-
-    GraphQlProvider graphQlProvider = Get.find();
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      Get.find(),
-      Get.find(),
-    );
-    deps.put<AbstractUserRepository>(userRepository);
-    AbstractChatRepository chatRepository = deps.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        Get.find(),
-        userRepository,
-        me: me,
-      ),
-    );
-    AbstractContactRepository contactRepository =
-        deps.put<AbstractContactRepository>(
-      ContactRepository(
-        graphQlProvider,
-        Get.find(),
-        userRepository,
-        Get.find(),
-      ),
-    );
-    AbstractCallRepository callRepository =
-        deps.put<AbstractCallRepository>(CallRepository(
-      graphQlProvider,
-      userRepository,
-    ));
-    AbstractMyUserRepository myUserRepository =
-        deps.put<AbstractMyUserRepository>(
-      MyUserRepository(
-        graphQlProvider,
-        Get.find(),
-        Get.find(),
-      ),
-    );
-    AbstractSettingsRepository settingsRepository =
-        deps.put<AbstractSettingsRepository>(
-      SettingsRepository(Get.find(), Get.find()),
-    );
-
-    MyUserService myUserService =
-        deps.put(MyUserService(Get.find(), myUserRepository));
-    deps.put(UserService(userRepository));
-    deps.put(ContactService(contactRepository));
-    CallService callService = deps.put(CallService(
-      Get.find(),
-      settingsRepository,
-      callRepository,
-    ));
-    ChatService chatService =
-        deps.put(ChatService(chatRepository, myUserService));
-
-    deps.put(CallWorker(
-      Get.find(),
-      callService,
-      chatService,
-      Get.find(),
-    ));
-
-    deps.put(ChatWorker(
-      chatService,
-      Get.find(),
-    ));
-
-    deps.put(MyUserWorker(Get.find()));
-
-    return deps;
-  }
 
   /// Sets the browser's tab title accordingly to the [_state.tab] value.
   void _updateTabTitle() {

@@ -27,7 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -52,7 +51,7 @@ import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
-void main() async {
+Future<void> main() async {
   await Config.init();
   YamlMap pubspec = loadYaml(await rootBundle.loadString('pubspec.yaml'));
 
@@ -85,8 +84,9 @@ void main() async {
 
     runApp(
       DefaultAssetBundle(
+        key: UniqueKey(),
         bundle: SentryAssetBundle(),
-        child: Phoenix(child: const App()),
+        child: const App(),
       ),
     );
   }

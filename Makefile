@@ -23,6 +23,8 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d'"'))
 
+-include my.Makefile
+
 
 
 

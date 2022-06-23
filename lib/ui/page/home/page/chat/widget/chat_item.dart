@@ -476,7 +476,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       )
                     : Container(key: const Key('SentMessage')),
-          )
+          ),
         ],
       ),
     );

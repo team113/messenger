@@ -275,9 +275,8 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> deleteChatMessage(ChatMessage message) async {
     if (message.status.value != SendingStatus.sent) {
-      HiveRxChat? rxChat =
-          _chats[message.chatId] ?? (await get(message.chatId));
-      rxChat?.remove(message.id);
+      HiveRxChat? chat = _chats[message.chatId] ?? (await get(message.chatId));
+      chat?.remove(message.id);
     } else {
       await _graphQlProvider.deleteChatMessage(message.id);
     }

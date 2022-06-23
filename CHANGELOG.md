@@ -14,8 +14,10 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-  - Chat page:
-    - Message and attachment sending status (!5, #3).
+    - Chat page:
+        - Message and attachment sending status ([#5]).
+
+[#5]: /../../pull/5
 
 
 

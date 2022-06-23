@@ -21,12 +21,28 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../world/custom_world.dart';
 import '../configuration.dart';
 
+/// Replaces [GraphQlProvider] to [MockGraphQlProvider] with provided delay.
+///
+/// Examples:
+/// - I have Internet with delay 1 second
+/// - I have Internet with delay 2 seconds
+final StepDefinitionGeneric hasInternetWithDelay = given1<int, CustomWorld>(
+  'I have Internet with delay {int} second(s)?',
+  (int delay, context) async {
+    GraphQlProvider provider = Get.find();
+    if (provider is MockGraphQlProvider) {
+      provider.delay = delay.seconds;
+      provider.hasError = false;
+    }
+  },
+);
+
 /// Replaces [GraphQlProvider] to [MockGraphQlProvider] with `hasError`: true.
 ///
 /// Examples:
-/// - I do not have internet
+/// - I do not have Internet
 final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
-  'I do not have internet',
+  'I do not have Internet',
   (context) async {
     GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {

@@ -118,9 +118,9 @@ class ChatMessage extends ChatItem {
   @HiveField(8)
   List<Attachment> attachments;
 
-  /// Returns `true` if provided [ChatMessage] has same data as this
+  /// Indicates whether the [other] message has the same fields as this
   /// [ChatMessage].
-  bool equal(ChatMessage other) {
+  bool isEquals(ChatMessage other) {
     return text == other.text &&
         repliesTo?.id == other.repliesTo?.id &&
         authorId == other.authorId &&
