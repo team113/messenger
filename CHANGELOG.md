@@ -11,20 +11,19 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
 
-### Fixed
-
-- Android:
-    - [ConnectionService] displaying call when application is in foreground ([#14]).
-
-[#14]: /../../pull/14
-
 ### Added
 
 - UI:
     - Chat page:
         - Attachments downloading and sharing ([#12]).
 
+### Fixed
+
+- Android:
+    - [ConnectionService] displaying call when application is in foreground ([#14]).
+
 [#12]: /../../pull/12
+[#14]: /../../pull/14
 
 
 
