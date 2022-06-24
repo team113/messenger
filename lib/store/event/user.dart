@@ -245,20 +245,19 @@ class EventUserNameUpdated extends UserEvent {
   final PreciseDateTime at;
 }
 
-// TODO: Provide `GalleryItem`
 /// Event of an [User]'s `GalleryItem` being added.
 class EventUserGalleryItemAdded extends UserEvent {
-  const EventUserGalleryItemAdded(UserId userId, this.imageGalleryItem, this.at)
+  const EventUserGalleryItemAdded(UserId userId, this.galleryItem, this.at)
       : super(userId);
 
   @override
   UserEventKind get kind => UserEventKind.galleryItemAdded;
 
-  /// Added GalleryItem.
-  final ImageGalleryItem imageGalleryItem;
+  /// Added `GalleryItem`.
+  final ImageGalleryItem galleryItem;
 
   /// [PreciseDateTime] when the [GalleryItem] was added to the [User]'s
-  ///  gallery.
+  /// gallery.
   final PreciseDateTime at;
 }
 
@@ -274,7 +273,7 @@ class EventUserGalleryItemDeleted extends UserEvent {
   final GalleryItemId galleryItemId;
 
   /// [PreciseDateTime] when the [GalleryItem] was deleted from the [User]'s
-  ///  gallery.
+  /// gallery.
   final PreciseDateTime at;
 }
 

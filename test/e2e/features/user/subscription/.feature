@@ -1,6 +1,6 @@
-Feature: User's updates are correct displayed to me
+Feature: User subscription
 
-  Scenario: Alice sees Bob changing his bio
+  Scenario: User sees Bob changing his bio
     Given I am Alice
     And user Bob
 

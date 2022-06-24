@@ -72,7 +72,7 @@ class UserService extends DisposableService {
     // TODO: Don't wait for all request to finish, but display results as they
     //       are ready.
     (await Future.wait(futures)).expand((e) => e).forEach((user) {
-      result[user.user.value.id] = user;
+      result[user.id] = user;
     });
 
     return result.values.toList();

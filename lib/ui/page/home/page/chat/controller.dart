@@ -232,6 +232,7 @@ class ChatController extends GetxController {
               repliesTo: repliedMessage.value?.id,
               attachments: attachmentIds,
             );
+
             runZonedGuarded(() async {
               await _audioPlayer?.play(
                 AssetSource('audio/message_sent.mp3'),

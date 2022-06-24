@@ -139,7 +139,9 @@ class ContactsTabController extends GetxController {
         }
       },
     );
+
     _initContactsSubscription();
+
     super.onInit();
   }
 
@@ -186,14 +188,16 @@ class ContactsTabController extends GetxController {
   /// subscribes/unsubscribes from updates
   Future<void> _initContactsSubscription() async {
     _usersSubscriptions = {};
-    var subscriptionEntries = contacts.values
-        .map<Future<MapEntry<ChatContactId, StreamSubscription?>>>((e) async {
+
+    var subscriptionEntries = contacts.values.map((e) async {
       StreamSubscription? subscription = e.value.users.isEmpty
           ? null
-          : (await getUser(e.value.users.first.id))?.updates.listen((event) {});
+          : (await getUser(e.value.users.first.id))?.updates.listen((_) {});
       return MapEntry(e.value.id, subscription);
     });
+
     _usersSubscriptions!.addEntries(await Future.wait(subscriptionEntries));
+
     contacts.listen((newMap) {
       newMap.changes.forEach((e) async {
         if (e.op == OperationKind.removed) {

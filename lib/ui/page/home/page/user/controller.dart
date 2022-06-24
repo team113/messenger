@@ -192,8 +192,8 @@ class UserController extends GetxController {
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
-      status.value = user == null ? RxStatus.empty() : RxStatus.success();
       _userSubscription = user?.updates.listen((_) {});
+      status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);
       router.pop();

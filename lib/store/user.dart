@@ -108,17 +108,14 @@ class UserRepository implements AbstractUserRepository {
     if (user == null) {
       var query = (await _graphQlProvider.getUser(id)).user;
       if (query != null) {
-        HiveUser stored = HiveUser(
-          _user(query),
-          query.ver,
-          query.isBlacklisted.ver,
-        );
+        HiveUser stored = query.toHive();
         put(stored);
         var fetched = HiveRxUser(this, _userLocal, stored);
         users[id] = fetched;
         user = fetched;
       }
     }
+
     return user;
   }
 
@@ -204,11 +201,7 @@ class UserRepository implements AbstractUserRepository {
     ))
         .searchUsers
         .nodes
-        .map((c) => HiveUser(
-              _user(c),
-              c.ver,
-              c.isBlacklisted.ver,
-            ))
+        .map((c) => c.toHive())
         .toList();
 
     for (HiveUser user in result) {
@@ -222,53 +215,7 @@ class UserRepository implements AbstractUserRepository {
     return users;
   }
 
-  /// Constructs a new [User] from the given [UserMixin].
-  User _user(UserMixin u) => User(
-        u.id,
-        u.num,
-        name: u.name,
-        bio: u.bio,
-        avatar: u.avatar == null
-            ? null
-            : UserAvatar(
-                galleryItemId: u.avatar!.galleryItemId,
-                full: u.avatar!.full,
-                big: u.avatar!.big,
-                medium: u.avatar!.medium,
-                small: u.avatar!.small,
-                original: u.avatar!.original,
-              ),
-        callCover: u.callCover == null
-            ? null
-            : UserCallCover(
-                galleryItemId: u.callCover!.galleryItemId,
-                full: u.callCover!.full,
-                vertical: u.callCover!.vertical,
-                square: u.callCover!.square,
-                original: u.callCover!.original,
-              ),
-        gallery: u.gallery.nodes.map((e) {
-          var imageData = e as UserMixin$Gallery$Nodes$ImageGalleryItem;
-          return ImageGalleryItem(
-            original: Original(imageData.original),
-            square: Square(imageData.square),
-            id: imageData.id,
-            addedAt: imageData.addedAt,
-          );
-        }).toList(),
-        mutualContactsCount: u.mutualContactsCount,
-        online: u.online?.$$typename == 'UserOnline',
-        lastSeenAt: u.online?.$$typename == 'UserOffline'
-            ? (u.online as UserMixin$Online$UserOffline).lastSeenAt
-            : null,
-        dialog: u.dialog == null ? null : Chat(u.dialog!.id),
-        presenceIndex: u.presence.index,
-        status: u.status,
-        isDeleted: u.isDeleted,
-        isBlacklisted: u.isBlacklisted.blacklisted,
-      );
-
-  /// Event handler for remote [userEvents] subscription.
+  /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
   UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventUserAvatarDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
@@ -324,7 +271,7 @@ class UserRepository implements AbstractUserRepository {
       var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status, node.at);
     } else {
-      throw UnimplementedError(': ${e.$$typename}');
+      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }
   }
 }
