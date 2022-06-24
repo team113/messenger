@@ -272,6 +272,10 @@ class _BackgroundService {
       _initL10n(event!['locale']);
     });
 
+    _service.on('ka').listen((_) {
+      _resetConnectionTimer();
+    });
+
     _service.invoke('requireToken');
 
     _setForegroundNotificationInfo(
