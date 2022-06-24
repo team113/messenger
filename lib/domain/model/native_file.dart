@@ -90,14 +90,11 @@ class NativeFile {
   @HiveField(3)
   final int size;
 
-  /// MIME type of this file.
-  @HiveField(4)
-  String? type;
-
   /// [MediaType] of this file.
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
+  @HiveField(4)
   MediaType? mime;
 
   /// [Mutex] for synchronized access to the [readFile].
@@ -179,13 +176,11 @@ class NativeFile {
       if (_readStream != null) {
         return Future(() async {
           bytes = Uint8List.fromList(await _readStream!.first);
-          type = MimeResolver.lookup(path ?? name, headerBytes: bytes);
+          var type = MimeResolver.lookup(path ?? name, headerBytes: bytes);
           if (type != null) {
-            mime = MediaType.parse(type!);
+            mime = MediaType.parse(type);
           }
         });
-      } else if (type != null) {
-        mime = MediaType.parse(type!);
       }
     }
 
@@ -217,5 +212,36 @@ class NativeFile {
   /// Constructs a [Stream] from the [bytes].
   Stream<List<int>> _streamOfBytes() async* {
     yield bytes!.toList();
+  }
+}
+
+/// Hive adapter for [MediaType].
+class MediaTypeAdapter extends TypeAdapter<MediaType> {
+  @override
+  int get typeId => ModelTypeId.mediaType;
+
+  @override
+  MediaType read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MediaType(
+      fields[0] as String,
+      fields[1] as String,
+      (fields[2] as Map).cast<String, String>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, MediaType obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.subtype)
+      ..writeByte(2)
+      ..write(obj.parameters);
   }
 }

@@ -204,17 +204,6 @@ class ChatController extends GetxController {
         if (s.text.isNotEmpty || attachments.isNotEmpty) {
           s.editable.value = false;
           try {
-            if (attachments.isNotEmpty) {
-              s.status.value = RxStatus.empty();
-
-              for (var a in attachments.whereType<LocalAttachment>()) {
-                if (a.status.value == SendingStatus.error) {
-                  s.unsubmit();
-                  return;
-                }
-              }
-            }
-
             _chatService
                 .sendChatMessage(
                   chat!.chat.value.id,

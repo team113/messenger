@@ -306,7 +306,9 @@ class ChatRepository implements AbstractChatRepository {
       dio.MultipartFile upload;
 
       if (attachment.file.path != null) {
-        await attachment.file.readFile();
+        attachment.file
+            .readFile()
+            .then((_) => attachment.read.value?.complete(null));
         upload = await dio.MultipartFile.fromFile(
           attachment.file.path!,
           filename: attachment.file.name,
@@ -315,6 +317,7 @@ class ChatRepository implements AbstractChatRepository {
       } else if (attachment.file.stream != null ||
           attachment.file.bytes != null) {
         await attachment.file.readFile();
+        attachment.read.value?.complete(null);
         attachment.status.refresh();
         upload = dio.MultipartFile.fromBytes(
           attachment.file.bytes!,
@@ -326,7 +329,6 @@ class ChatRepository implements AbstractChatRepository {
           'At least stream, bytes or path should be specified.',
         );
       }
-      attachment.read.value?.complete(null);
 
       var response = await _graphQlProvider.uploadAttachment(
         upload,
@@ -757,23 +759,4 @@ class ChatData {
   /// [HiveChatItem]s of a [Chat.lastReadItem] returned from the [Chat]
   /// fetching.
   final List<HiveChatItem>? lastReadItem;
-}
-
-/// Extension adding an ability to insert the element based on some condition to
-/// [List].
-extension ListInsertAfter<T> on List<T> {
-  /// Inserts the [element] after the [compare] condition becomes `true`.
-  void insertAfter(T element, bool Function(T) test) {
-    bool done = false;
-    for (var i = length - 1; i > -1 && !done; --i) {
-      if (test(this[i])) {
-        insert(i + 1, element);
-        done = true;
-      }
-    }
-
-    if (!done) {
-      insert(0, element);
-    }
-  }
 }
