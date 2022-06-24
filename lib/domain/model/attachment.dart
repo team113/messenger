@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
@@ -87,10 +88,41 @@ class FileAttachment extends Attachment {
     required String filename,
     required int size,
   }) : super(id, original, filename, size);
+
+  /// Path to this downloaded [FileAttachment].
+  @HiveField(4)
+  String? localPath;
+
+  /// [DownloadingStatus] ot this [FileAttachment].
+  Rx<DownloadingStatus> downloadingStatus =
+      Rx<DownloadingStatus>(DownloadingStatus.empty);
+
+  /// Progress ot this [FileAttachment] downloading.
+  Rx<double> progress = Rx<double>(0.0);
+
+  /// Indicates whether this [FileAttachment] is downloading.
+  bool get isDownloading =>
+      downloadingStatus.value == DownloadingStatus.downloading;
+
+  /// Indicates whether this [FileAttachment] is downloaded.
+  bool get isDownloaded =>
+      downloadingStatus.value == DownloadingStatus.downloaded;
 }
 
 /// Unique ID of an [Attachment].
 @HiveType(typeId: ModelTypeId.attachmentId)
 class AttachmentId extends NewType<String> {
   const AttachmentId(String val) : super(val);
+}
+
+/// Status of some downloading, e.g. [FileAttachment] downloading.
+enum DownloadingStatus {
+  /// Downloading in progress.
+  downloading,
+
+  /// Downloading finish successfully.
+  downloaded,
+
+  /// Downloading in not started.
+  empty
 }

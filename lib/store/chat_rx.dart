@@ -15,13 +15,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
+import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction, ChatKind;
+import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -37,6 +40,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 
@@ -155,6 +159,10 @@ class HiveRxChat implements RxChat {
       }
 
       _initLocalSubscription();
+      if (!PlatformUtils.isWeb) {
+        _initAttachmentsDownloaded();
+      }
+
       status.value = RxStatus.success();
     });
   }
@@ -308,6 +316,50 @@ class HiveRxChat implements RxChat {
     );
   }
 
+  /// Initialize the [messages] attachments downloaded status.
+  Future<void> _initAttachmentsDownloaded() async {
+    for (var message in messages) {
+      if (message.value is ChatMessage) {
+        await _setAttachmentsDownloaded(message.value as ChatMessage);
+      }
+    }
+  }
+
+  /// Initialize downloaded status of the provided [ChatMessage]'s attachments.
+  Future<void> _setAttachmentsDownloaded(ChatMessage message) async {
+    var attachments = message.attachments.whereType<FileAttachment>();
+    if (attachments.isNotEmpty) {
+      String path = await PlatformUtils.downloadPath;
+      for (var attachment in attachments) {
+        if (attachment.localPath != null) {
+          var file = File(attachment.localPath!);
+          if (await file.exists() && await file.length() == attachment.size) {
+            attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+            return;
+          }
+        }
+
+        String name = p.basenameWithoutExtension(attachment.filename);
+        String extension = p.extension(attachment.filename);
+
+        var file = File('$path/${attachment.filename}');
+        int i = 1;
+        while (await file.exists() && await file.length() != attachment.size) {
+          file = File('$path/$name ($i)$extension');
+          i++;
+        }
+
+        if (await file.exists()) {
+          attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+          attachment.localPath = file.path;
+        } else {
+          attachment.downloadingStatus.value = DownloadingStatus.empty;
+          attachment.localPath = null;
+        }
+      }
+    }
+  }
+
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
@@ -400,6 +452,9 @@ class HiveRxChat implements RxChat {
       if (event.deleted) {
         messages.removeAt(i);
       } else {
+        if (event.value.value is ChatMessage && !PlatformUtils.isWeb) {
+          _setAttachmentsDownloaded(event.value.value as ChatMessage);
+        }
         if (i == -1) {
           messages.insertAfter(
             Rx<ChatItem>(event.value.value),

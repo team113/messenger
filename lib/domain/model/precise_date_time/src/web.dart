@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 

@@ -17,24 +17,15 @@
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 
-import '../configuration.dart';
-import '../parameters/keys.dart';
-
-/// Taps the widget found with the given [WidgetKey].
+/// Taps the widget with given text.
 ///
 /// Examples:
-/// - When I tap `WidgetKey` button
-/// - When I tap `WidgetKey` element
-/// - When I tap `WidgetKey` label
-/// - When I tap `WidgetKey` icon
-/// - When I tap `WidgetKey` field
-/// - When I tap `WidgetKey` text
-/// - When I tap `WidgetKey` widget
-final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
-  RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
-  (key, context) async {
+/// - When I tap "Dummy" text
+final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
+  RegExp(r'I tap {string} text'),
+  (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+    final finder = context.world.appDriver.findBy(text, FindType.text);
 
     await context.world.appDriver.scrollIntoView(finder);
     await context.world.appDriver.waitForAppToSettle();

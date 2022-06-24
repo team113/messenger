@@ -46,6 +46,9 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
+  /// Directory name to save downloaded files in.
+  static String downloadingDirectory = 'messenger';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;

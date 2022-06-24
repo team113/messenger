@@ -15,12 +15,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
 import 'web/web_utils.dart';
 
 // TODO: Remove when jonataslaw/getx#1936 is fixed:
@@ -51,6 +56,16 @@ class PlatformUtils {
   /// Indicates whether device is running on a desktop OS.
   static bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  static Future<String> get downloadPath async {
+    String path;
+    if (PlatformUtils.isMobile) {
+      path = (await getApplicationDocumentsDirectory()).path;
+    } else {
+      path = (await getDownloadsDirectory())!.path;
+    }
+    return '$path/${Config.downloadingDirectory}';
+  }
 
   /// Returns a stream broadcasting fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -104,6 +119,39 @@ class PlatformUtils {
         SystemUiMode.manual,
         overlays: SystemUiOverlay.values,
       );
+    }
+  }
+
+  /// Downloads file by provided [url].
+  static Future<File?> download(
+    String url,
+    String filename, {
+    Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
+  }) async {
+    if (PlatformUtils.isWeb) {
+      WebUtils.downloadFile(url, filename);
+      return null;
+    } else {
+      String name = p.basenameWithoutExtension(filename);
+      String extension = p.extension(filename);
+
+      String path = await downloadPath;
+
+      var file = File('$path/$filename');
+      int i = 1;
+      while (await file.exists()) {
+        file = File('$path/$name ($i)$extension');
+        i++;
+      }
+
+      await Dio().download(
+        '${Config.url}/files$url',
+        file.path,
+        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
+      );
+      return file;
     }
   }
 }

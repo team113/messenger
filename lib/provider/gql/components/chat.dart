@@ -29,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/util/log.dart';
 
 /// [Chat] related functionality.
 abstract class ChatGraphQlMixin {
@@ -711,6 +712,8 @@ abstract class ChatGraphQlMixin {
       if (e.response?.statusCode == 413) {
         throw UploadAttachmentException(UploadAttachmentErrorCode.tooBigSize);
       }
+      Log.print(
+          'UploadAttachment failed with response: ${e.response?.toString()}');
 
       rethrow;
     }

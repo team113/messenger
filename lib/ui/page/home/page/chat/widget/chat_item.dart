@@ -58,6 +58,8 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.onFileTap,
+    this.onDownloadingCancel,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -100,6 +102,13 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final Function(ChatItemId)? onRepliedTap;
+
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  final Function(FileAttachment)? onFileTap;
+
+  /// Callback, called when a cancel downloading action of a [FileAttachment] of
+  /// this [ChatItem] is triggered.
+  final Function(AttachmentId)? onDownloadingCancel;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -192,7 +201,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ...msg.attachments.whereType<FileAttachment>().where((e) => e.isVideo)
     ];
 
-    List<Attachment> files = msg.attachments
+    List<FileAttachment> files = msg.attachments
         .whereType<FileAttachment>()
         .where((e) => !e.isVideo)
         .toList();
@@ -231,9 +240,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         for (var o in attachments) {
                           var link = '${Config.url}/files${o.original}';
                           if (o is FileAttachment) {
-                            gallery.add(GalleryItem.video(link));
+                            gallery
+                                .add(GalleryItem.video(link, name: o.filename));
                           } else {
-                            gallery.add(GalleryItem.image(link));
+                            gallery
+                                .add(GalleryItem.image(link, name: o.filename));
                           }
                         }
 
@@ -287,18 +298,46 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
-                  onTap: () => throw UnimplementedError(),
+                  onTap: () => widget.onFileTap?.call(e),
+                  mouseCursor:
+                      e.isDownloading ? MouseCursor.uncontrolled : null,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(5, 2, 10, 0),
-                        child: Icon(
-                          Icons.attach_file,
-                          size: 18,
-                          color: Colors.blue,
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
+                        child: e.isDownloaded
+                            ? const Icon(
+                                Icons.attach_file,
+                                key: Key('DownloadedFile'),
+                                size: 18,
+                                color: Colors.blue,
+                              )
+                            : e.isDownloading
+                                ? InkWell(
+                                    onTap: () =>
+                                        widget.onDownloadingCancel?.call(e.id),
+                                    child: Stack(
+                                      alignment: AlignmentDirectional.center,
+                                      children: [
+                                        SizedBox.square(
+                                          dimension: 22,
+                                          child: CircularProgressIndicator(
+                                            key: const Key('DownloadingFile'),
+                                            value: e.progress.value,
+                                          ),
+                                        ),
+                                        const Icon(Icons.clear, size: 20),
+                                      ],
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.download,
+                                    key: Key('DownloadFile'),
+                                    size: 18,
+                                    color: Colors.blue,
+                                  ),
                       ),
                       Flexible(
                         child: Text(
