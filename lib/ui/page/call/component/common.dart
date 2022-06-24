@@ -67,12 +67,9 @@ abstract class CallButton {
             withText: !small,
             children: [
               if (icon != null)
-                Icon(icon, color: Colors.white)
+                Icon(icon, color: Colors.white, size: 60)
               else if (asset != null)
-                SvgLoader.asset(
-                  'assets/icons/$asset.svg',
-                  width: 60,
-                ),
+                SvgLoader.asset('assets/icons/$asset.svg', width: 60),
             ],
           ),
         ),

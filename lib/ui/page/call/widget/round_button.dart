@@ -87,6 +87,12 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   }
 
   @override
+  void dispose() {
+    _hintEntry?.remove();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return (!widget.withText)
         ? ConditionalBackdropFilter(
