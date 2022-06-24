@@ -91,6 +91,12 @@ class _ReorderableDockState extends State<ReorderableDock> {
   /// Size of dragged item.
   BoxConstraints? startDragConstraints;
 
+  /// [Offset] position of same item.
+  Offset? positionOnSameItem;
+
+  /// [BoxConstraints] constraints of same item.
+  BoxConstraints? constraintsOnSameItem;
+
   /// Overlay item used in animations.
   late OverlayEntry overlayEntry;
 
@@ -287,16 +293,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
       // OverlayEntry that will display dragged item at onDragEnded place.
       OverlayEntry overlayEntry = OverlayEntry(
-        builder: (context) {
-          return Positioned(
-            left: moveDragOffset!.dx,
-            top: moveDragOffset!.dy,
-            child: KeyedSubtree(
-              key: item.key,
-              child: widget.itemBuilder(context, item),
-            ),
-          );
-        },
+        builder: (context) => Positioned(
+          left: moveDragOffset!.dx,
+          top: moveDragOffset!.dy,
+          child: KeyedSubtree(
+            key: item.key,
+            child: widget.itemBuilder(context, item),
+          ),
+        ),
       );
 
       // Insert OverlayEntry to Overlay to display him.
@@ -352,11 +356,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
       int i =
           items.indexWhere((e) => e.item.toString() == item.item.toString());
       if (i == expandBetween || i + 1 == expandBetween) {
-        expandBetween = -1;
-        setState(() {});
-        return;
-      } else {
-        _resetAnimations();
+        return setState(() => expandBetween = -1);
       }
 
       OverlayEntry? overlayEntry;
@@ -422,29 +422,19 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
       // Post frame callBack to show animation of sliding item from old
       // place to new place.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Get RenderBox of recently added item.
-        RenderBox box2 = items[whereToPlace]
-            .reserveKey
-            .currentContext
-            ?.findRenderObject() as RenderBox;
-
-        // Get Offset position of recently added item.
-        Offset finalPosition = box2.localToGlobal(Offset.zero);
-
-        // Display animation of sliding item from old place to new place.
-        _showOverlay(
-          item,
-          context,
-          startPosition!,
-          finalPosition,
-          box2.constraints,
-          () => setState(() {
-            items[whereToPlace].hide = false;
-            widget.onDragEnded?.call();
-          }),
-        );
-      });
+      //
+      // Then display animation of sliding item from old place to new place.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showOverlay(
+            item,
+            context,
+            startPosition!,
+            positionOnSameItem!,
+            constraintsOnSameItem!,
+            () => setState(() {
+              items[whereToPlace].hide = false;
+              widget.onDragEnded?.call();
+            }),
+          ));
     }
 
     dragged = null;
@@ -473,20 +463,37 @@ class _ReorderableDockState extends State<ReorderableDock> {
     } else if (intToPlace < 0) {
       intToPlace = 0;
     }
-    expandBetween = intToPlace;
 
     // Save last drag Offset.
-    if (startDragConstraints != null && dragged != null) {
-      moveDragOffset = Offset(
-        d.offset.dx - startDragConstraints!.maxWidth / 2,
-        d.offset.dy - startDragConstraints!.maxHeight / 2,
-      );
-    } else {
-      moveDragOffset = Offset(
-        d.offset.dx - itemWidth / 2,
-        d.offset.dy - itemWidth / 2,
-      );
+    moveDragOffset = Offset(
+      d.offset.dx -
+          ((startDragConstraints != null && dragged != null)
+                  ? startDragConstraints!.maxWidth
+                  : itemWidth) /
+              2,
+      d.offset.dy -
+          ((startDragConstraints != null && dragged != null)
+                  ? startDragConstraints!.maxHeight
+                  : itemWidth) /
+              2,
+    );
+
+    if (expandBetween < 0) {
+      for (var e in items) {
+        e.updateCurrentPosition();
+      }
     }
+    int sameItemId =
+        items.indexWhere((e) => e.item.toString() == d.data.item.toString());
+    if (sameItemId >= 0) {
+      int sameItemNewId = intToPlace;
+      if (sameItemId < sameItemNewId) sameItemNewId--;
+
+      positionOnSameItem = items[sameItemNewId].position;
+      constraintsOnSameItem = items[sameItemNewId].constraints;
+    }
+
+    expandBetween = intToPlace;
 
     setState(() {});
   }
@@ -544,8 +551,23 @@ class DraggedItem<T> {
   /// [GlobalKey] of divider.
   GlobalKey dividerKey = GlobalKey();
 
+  /// [Offset] position of this item.
+  Offset? position;
+
+  /// [BoxConstraints] constraints of this item.
+  BoxConstraints? constraints;
+
   /// Indicator whether item should be hidden or not.
   bool hide = false;
+
+  /// Updates [position] and [constraints].
+  void updateCurrentPosition() {
+    RenderBox? box = key.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      position = box.localToGlobal(Offset.zero);
+      constraints = box.constraints;
+    }
+  }
 }
 
 /// Overlay block of item.
