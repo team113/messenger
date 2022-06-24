@@ -23,6 +23,25 @@ import 'package:messenger/domain/repository/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
+/// Marks attachment with the given filename as downloading.
+///
+/// Examples:
+/// - Then I start downloading "test.txt" attachment in chat with Bob
+StepDefinitionGeneric startDownloading = then2<String, TestUser, CustomWorld>(
+  'I start downloading {string} attachment in chat with {user}',
+  (name, user, context) async {
+    var chatId = context.world.sessions[user.name]?.dialog;
+    AbstractChatRepository chatRepo = Get.find();
+    var attachment = chatRepo.chats[chatId]!.messages
+        .map((e) => e.value)
+        .whereType<ChatMessage>()
+        .expand((e) => e.attachments)
+        .firstWhere((e) => e.filename == name);
+    (attachment as FileAttachment).downloadingStatus.value =
+        DownloadingStatus.downloading;
+  },
+);
+
 /// Marks attachment with the given filename as downloaded.
 ///
 /// Examples:
@@ -31,15 +50,13 @@ StepDefinitionGeneric finishDownloading = then2<String, TestUser, CustomWorld>(
   'I finish downloading {string} attachment in chat with {user}',
   (name, user, context) async {
     var chatId = context.world.sessions[user.name]?.dialog;
-    var chatRepo = Get.find<AbstractChatRepository>();
-    var chat = chatRepo.chats[chatId];
-    var message = chat!.messages
+    AbstractChatRepository chatRepo = Get.find();
+    var attachment = chatRepo.chats[chatId]!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
-        .firstWhere((e) => e.attachments.any((e) => e.filename == name));
-    (message.attachments.firstWhere((e) => e.filename == name)
-            as FileAttachment)
-        .downloadingStatus
-        .value = DownloadingStatus.downloaded;
+        .expand((e) => e.attachments)
+        .firstWhere((e) => e.filename == name);
+    (attachment as FileAttachment).downloadingStatus.value =
+        DownloadingStatus.downloaded;
   },
 );

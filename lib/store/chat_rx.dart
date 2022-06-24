@@ -339,15 +339,13 @@ class HiveRxChat implements RxChat {
           }
         }
 
-        String filename = attachment.filename;
         String name = p.basenameWithoutExtension(attachment.filename);
         String extension = p.extension(attachment.filename);
 
-        var file = File('$path/$filename');
+        var file = File('$path/${attachment.filename}');
         int i = 1;
         while (await file.exists() && await file.length() != attachment.size) {
-          filename = '$name ($i)$extension';
-          file = File('$path/$filename');
+          file = File('$path/$name ($i)$extension');
           i++;
         }
 

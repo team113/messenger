@@ -687,7 +687,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Downloads the provided [FileAttachment].
+  /// Downloads the provided [attachment]'s file.
   Future<void> downloadFile(FileAttachment attachment) async {
     try {
       if (PlatformUtils.isWeb) {

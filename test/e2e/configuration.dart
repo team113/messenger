@@ -30,19 +30,17 @@ import 'hook/reset_app.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
-import 'steps/download_attachment.dart';
+import 'steps/downloading_attachment.dart';
 import 'steps/fill_field.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
-import 'steps/start_downloading_attachment.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
-import 'steps/wait_until_widget_in_list.dart';
 import 'world/custom_world.dart';
 
 /// Configuration of a Gherkin test suite.
@@ -64,7 +62,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         user,
         waitUntilKeyExists,
-        waitUntilKeyExistsInList,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [
@@ -122,7 +119,9 @@ Future<Session> createUser(
   );
 }
 
+/// Extension adding ability to find widget with `skipOffstage`: `false`.
 extension SkipOffstageExtension on AppDriverAdapter {
+  /// Finds widget by provided [key] with `skipOffstage`: `false`.
   Finder findByKeySkipOffstage(String key) =>
       find.byKey(Key(key), skipOffstage: false);
 }

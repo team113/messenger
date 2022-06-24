@@ -46,8 +46,8 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
-  /// Directory to save downloaded files.
-  static String downloadingDirectory = '';
+  /// Directory name to save downloaded files in.
+  static String downloadingDirectory = 'messenger';
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -85,8 +85,6 @@ class Config {
         : (document['sentry']?['dsn'] ?? '');
 
     origin = url;
-
-    downloadingDirectory = 'messenger';
 
     /// Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

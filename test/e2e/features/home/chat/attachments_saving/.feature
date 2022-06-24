@@ -12,7 +12,7 @@ Feature: Attachments downloading
 
     Then I wait until text "Bob" is present
     And I tap "Bob" text
-    And I wait until `DownloadFile` in list is present
+    And I wait until `DownloadFile` is present
 
     Then I start downloading "test.txt" attachment in chat with Bob
     And I wait until `DownloadingFile` is present

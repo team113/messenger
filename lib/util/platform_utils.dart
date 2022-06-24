@@ -141,8 +141,7 @@ class PlatformUtils {
       var file = File('$path/$filename');
       int i = 1;
       while (await file.exists()) {
-        filename = '$name ($i)$extension';
-        file = File('$path/$filename');
+        file = File('$path/$name ($i)$extension');
         i++;
       }
 

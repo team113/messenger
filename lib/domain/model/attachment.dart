@@ -115,14 +115,14 @@ class AttachmentId extends NewType<String> {
   const AttachmentId(String val) : super(val);
 }
 
-/// Downloading status of some [FileAttachment].
+/// Status of some downloading, e.g. [FileAttachment] downloading.
 enum DownloadingStatus {
-  /// Indicates that the [FileAttachment] is downloading.
+  /// Downloading in progress.
   downloading,
 
-  /// Indicates that the [FileAttachment] is downloaded successfully.
+  /// Downloading finish successfully.
   downloaded,
 
-  /// Indicates that the [FileAttachment] is not downloaded.
+  /// Downloading in not started.
   empty
 }
