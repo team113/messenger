@@ -14,7 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/contact.dart';
@@ -25,23 +28,52 @@ import '/store/user.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact implements RxChatContact {
-  HiveRxChatContact(HiveChatContact hiveChatContact, this._userRepo)
+  HiveRxChatContact(
+      HiveChatContact hiveChatContact, this._local, this._userRepo)
       : contact = Rx<ChatContact>(hiveChatContact.value);
 
   @override
   final Rx<ChatContact> contact;
 
-  /// [UserRepository] uses for updating of [user].
-  final UserRepository _userRepo;
-
   @override
   Rx<User>? user;
 
-  /// Sets and refresh this [user]'s value.
-  void refreshUser() async {
-    user = contact.value.users.isNotEmpty
-        ? await _userRepo.get(contact.value.users.first.id)
-        : null;
-    user?.refresh();
+  /// [ChatContact]s local [Hive] storage.
+  final ContactHiveProvider _local;
+
+  /// [UserRepository] uses for updating of [user].
+  final UserRepository _userRepo;
+
+  /// [ContactHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _localSubscription;
+
+  /// Initializes this [HiveRxChatContact].
+  void init() async {
+    user = contact.value.users.isEmpty
+        ? null
+        : await _userRepo.get(contact.value.users.first.id);
+    _initLocalSubscription();
+  }
+
+  /// Disposes this [HiveRxChatContact].
+  void dispose() {
+    _localSubscription?.cancel();
+  }
+
+  /// Initializes [ContactHiveProvider.boxEvents] subscription.
+  void _initLocalSubscription() async {
+    contact.listen((c) async {
+      if (user != null) {
+        if (user!.value.id != c.users.firstOrNull?.id) {
+          user = contact.value.users.isEmpty
+              ? null
+              : await _userRepo.get(contact.value.users.first.id);
+        }
+      } else {
+        if (c.users.firstOrNull != null) {
+          user = await _userRepo.get(contact.value.users.first.id);
+        }
+      }
+    });
   }
 }

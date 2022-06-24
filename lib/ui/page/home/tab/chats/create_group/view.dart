@@ -64,7 +64,6 @@ class CreateGroupView extends StatelessWidget {
                 Navigator.of(context).pop,
                 Get.find(),
                 Get.find(),
-                Get.find(),
               ),
               builder: (CreateGroupController c) => Obx(
                 () => c.status.value.isLoading
@@ -115,7 +114,6 @@ class CreateGroupView extends StatelessWidget {
                                               selected,
                                               e.value,
                                               () => c.selectContact(e.value),
-                                              user: e.value.user?.value,
                                             );
                                           },
                                         ),

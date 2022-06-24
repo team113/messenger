@@ -88,9 +88,12 @@ class ContactRepository implements AbstractContactRepository {
     if (!_contactLocal.isEmpty) {
       for (HiveChatContact c in _contactLocal.contacts) {
         if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = HiveRxChatContact(c, _userRepo);
+          contacts[c.value.id] = HiveRxChatContact(c, _contactLocal, _userRepo);
+          contacts[c.value.id]?.init();
         } else {
-          favorites[c.value.id] = HiveRxChatContact(c, _userRepo);
+          favorites[c.value.id] =
+              HiveRxChatContact(c, _contactLocal, _userRepo);
+          contacts[c.value.id]?.init();
         }
       }
 
@@ -152,24 +155,23 @@ class ContactRepository implements AbstractContactRepository {
           favorites.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(event.value, _userRepo);
+            contact = HiveRxChatContact(event.value, _contactLocal, _userRepo);
             contacts[ChatContactId(event.key)] = contact;
+            contact.init();
           } else {
             contact.contact.value = event.value.value;
-            contact.contact.refresh();
           }
-          contact.refreshUser();
         } else {
           contacts.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(event.value, _userRepo);
+            contact = HiveRxChatContact(event.value, _contactLocal, _userRepo);
             favorites[ChatContactId(event.key)] = contact;
+            contact.init();
           } else {
             contact.contact.value = event.value.value;
             contact.contact.refresh();
           }
-          contact.refreshUser();
         }
       }
     }

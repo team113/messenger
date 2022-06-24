@@ -147,7 +147,6 @@ class AddChatMemberView extends StatelessWidget {
                         selected,
                         e.value,
                         () => c.selectContact(e.value),
-                        user: e.value.user?.value,
                       );
                     },
                   ),

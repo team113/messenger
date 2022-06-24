@@ -36,7 +36,6 @@ class CreateGroupController extends GetxController {
     this.pop,
     this._chatService,
     this._contactService,
-    this._userService,
   );
 
   /// Status of a [createGroup] completion.
@@ -61,9 +60,6 @@ class CreateGroupController extends GetxController {
 
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
-
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
 
   /// Pops the [CreateGroupView] this controller is bound to.
   final Function() pop;
@@ -103,9 +99,6 @@ class CreateGroupController extends GetxController {
       rethrow;
     }
   }
-
-  /// Returns an [User] from [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
 
   /// Selects or unselects the provided [contact].
   void selectContact(RxChatContact contact) {

@@ -81,13 +81,13 @@ class ContactsTabController extends GetxController {
       onChanged: (s) async {
         s.error.value = null;
 
-        RxChatContact? chatContact = contacts.values.firstWhereOrNull(
+        RxChatContact? contact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (chatContact == null) return;
+        if (contact == null) return;
 
-        if (chatContact.contact.value.name.val == s.text) {
+        if (contact.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }

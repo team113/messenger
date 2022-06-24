@@ -20,13 +20,11 @@ import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
-import '/domain/model/user.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].
 class AddContactListTile extends StatelessWidget {
-  const AddContactListTile(this.selected, this.contact, this.onTap,
-      {Key? key, this.user})
+  const AddContactListTile(this.selected, this.contact, this.onTap, {Key? key})
       : super(key: key);
 
   /// Indicator whether this [contact] is selected.
@@ -38,9 +36,6 @@ class AddContactListTile extends StatelessWidget {
   /// Callback, called when this [ListTile] is tapped.
   final VoidCallback onTap;
 
-  /// [User] that this [AddContactListTile] represents.
-  final User? user;
-
   @override
   Widget build(BuildContext context) {
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
@@ -48,14 +43,16 @@ class AddContactListTile extends StatelessWidget {
 
     return ListTile(
       leading: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 100),
-        child: selected
-            ? const CircleAvatar(
-                backgroundColor: Colors.green,
-                child: Icon(Icons.check, color: Colors.white),
-              )
-            : AvatarWidget.fromUser(user),
-      ),
+          duration: const Duration(milliseconds: 100),
+          child: selected
+              ? const CircleAvatar(
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.check, color: Colors.white),
+                )
+              : AvatarWidget.fromContact(
+                  contact.contact.value,
+                  avatar: contact.user?.value.avatar,
+                )),
       selected: selected,
       selectedTileColor: const Color(0x11000000),
       title: Text(contact.contact.value.name.val, style: font17),

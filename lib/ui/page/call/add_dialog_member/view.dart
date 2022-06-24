@@ -80,7 +80,6 @@ class AddDialogMemberView extends StatelessWidget {
                   Get.find(),
                   Get.find(),
                   Get.find(),
-                  Get.find(),
                 ),
                 builder: (AddDialogMemberController c) => Obx(
                   () => c.status.value.isLoading || c.chat.value == null
@@ -154,7 +153,6 @@ class AddDialogMemberView extends StatelessWidget {
                         selected,
                         e.value,
                         () => c.selectContact(e.value),
-                        user: e.value.user?.value,
                       );
                     },
                   ),

@@ -17,8 +17,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/contact.dart';
 
+import '/domain/repository/contact.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -146,9 +146,10 @@ class ContactsTabView extends StatelessWidget {
               )
             : ListTile(
                 key: Key(contact.contact.value.id.val),
-                leading: Obx(() => contact.user?.value.avatar != null
-                    ? AvatarWidget.fromUser(contact.user?.value)
-                    : AvatarWidget.fromContact(contact.contact.value)),
+                leading: Obx(() => AvatarWidget.fromContact(
+                      contact.contact.value,
+                      avatar: contact.user?.value.avatar,
+                    )),
                 title: Text(contact.contact.value.name.val),
                 trailing: contact.contact.value.users.isNotEmpty
                     ? Row(
