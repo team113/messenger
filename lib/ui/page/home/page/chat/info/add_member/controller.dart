@@ -24,7 +24,6 @@ import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -38,7 +37,6 @@ class AddChatMemberController extends GetxController {
     this.chatId,
     this._chatService,
     this._contactService,
-    this._userService,
   );
 
   /// ID of the [Chat] this modal is about.
@@ -70,15 +68,9 @@ class AddChatMemberController extends GetxController {
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
 
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
   /// Returns the current reactive observable map of [RxChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
-
-  /// Returns an [User] from [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
 
   /// Subscription for the [ChatService.chats] changes.
   late final StreamSubscription _chatsSubscription;

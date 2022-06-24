@@ -28,8 +28,7 @@ import '/store/user.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact implements RxChatContact {
-  HiveRxChatContact(
-      HiveChatContact hiveChatContact, this._local, this._userRepo)
+  HiveRxChatContact(HiveChatContact hiveChatContact, this._userRepo)
       : contact = Rx<ChatContact>(hiveChatContact.value);
 
   @override
@@ -38,31 +37,28 @@ class HiveRxChatContact implements RxChatContact {
   @override
   Rx<User>? user;
 
-  /// [ChatContact]s local [Hive] storage.
-  final ContactHiveProvider _local;
-
   /// [UserRepository] uses for updating of [user].
   final UserRepository _userRepo;
 
-  /// [ContactHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
+  /// [contact]'s updates subscription.
+  StreamSubscription? _updatesSubscription;
 
   /// Initializes this [HiveRxChatContact].
   void init() async {
     user = contact.value.users.isEmpty
         ? null
         : await _userRepo.get(contact.value.users.first.id);
-    _initLocalSubscription();
+    _initUpdatesSubscription();
   }
 
   /// Disposes this [HiveRxChatContact].
   void dispose() {
-    _localSubscription?.cancel();
+    _updatesSubscription?.cancel();
   }
 
-  /// Initializes [ContactHiveProvider.boxEvents] subscription.
-  void _initLocalSubscription() async {
-    contact.listen((c) async {
+  /// Initializes subscription for contact to update [user].
+  void _initUpdatesSubscription() async {
+    _updatesSubscription = contact.listen((c) async {
       if (user != null) {
         if (user!.value.id != c.users.firstOrNull?.id) {
           user = contact.value.users.isEmpty

@@ -22,7 +22,6 @@ import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -32,11 +31,7 @@ export 'view.dart';
 
 /// Controller of the group creation overlay.
 class CreateGroupController extends GetxController {
-  CreateGroupController(
-    this.pop,
-    this._chatService,
-    this._contactService,
-  );
+  CreateGroupController(this.pop, this._chatService, this._contactService);
 
   /// Status of a [createGroup] completion.
   ///

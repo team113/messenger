@@ -124,11 +124,11 @@ class ContactsTabController extends GetxController {
         }
       },
       onSubmitted: (s) {
-        var chatContact = contacts.values.firstWhereOrNull(
+        var contact = contacts.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
                 (e) => e.contact.value.id == contactToChangeNameOf.value);
-        if (chatContact?.contact.value.name.val == s.text) {
+        if (contact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }

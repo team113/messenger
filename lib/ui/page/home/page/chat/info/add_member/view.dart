@@ -73,7 +73,6 @@ class AddChatMemberView extends StatelessWidget {
                   chatId,
                   Get.find(),
                   Get.find(),
-                  Get.find(),
                 ),
                 builder: (AddChatMemberController c) => Obx(
                   () => c.status.value.isLoading || c.chat.value == null
