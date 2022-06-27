@@ -87,12 +87,11 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> init() async {
     if (!_contactLocal.isEmpty) {
       for (HiveChatContact c in _contactLocal.contacts) {
+        HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
         if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = HiveRxChatContact(c, _userRepo);
-          contacts[c.value.id]?.init();
+          contacts[c.value.id] = entry;
         } else {
-          favorites[c.value.id] = HiveRxChatContact(c, _userRepo);
-          favorites[c.value.id]?.init();
+          favorites[c.value.id] = entry;
         }
       }
 
@@ -107,6 +106,8 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   void dispose() {
+    contacts.forEach((k, v) => v.dispose());
+    favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.cancel();
   }
@@ -114,7 +115,7 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> clearCache() => _contactLocal.clear();
 
-  // TODO: Forbid creating multiple ChatContacts with the same User?s
+  // TODO: Forbid creating multiple ChatContacts with the same User?
   @override
   Future<void> createChatContact(UserName name, UserId id) =>
       _graphQlProvider.createChatContact(
@@ -154,7 +155,7 @@ class ContactRepository implements AbstractContactRepository {
           favorites.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(event.value, _userRepo);
+            contact = HiveRxChatContact(_userRepo, event.value);
             contacts[ChatContactId(event.key)] = contact;
             contact.init();
           } else {
@@ -164,7 +165,7 @@ class ContactRepository implements AbstractContactRepository {
           contacts.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(event.value, _userRepo);
+            contact = HiveRxChatContact(_userRepo, event.value);
             favorites[ChatContactId(event.key)] = contact;
             contact.init();
           } else {

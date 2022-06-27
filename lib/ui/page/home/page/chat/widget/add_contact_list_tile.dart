@@ -43,19 +43,22 @@ class AddContactListTile extends StatelessWidget {
 
     return ListTile(
       leading: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 100),
-          child: selected
-              ? const CircleAvatar(
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.check, color: Colors.white),
-                )
-              : AvatarWidget.fromContact(
+        duration: const Duration(milliseconds: 100),
+        child: selected
+            ? const CircleAvatar(
+                backgroundColor: Colors.green,
+                child: Icon(Icons.check, color: Colors.white),
+              )
+            : Obx(
+                () => AvatarWidget.fromContact(
                   contact.contact.value,
-                  avatar: contact.user?.value.avatar,
-                )),
+                  avatar: contact.user.value?.value.avatar,
+                ),
+              ),
+      ),
       selected: selected,
       selectedTileColor: const Color(0x11000000),
-      title: Text(contact.contact.value.name.val, style: font17),
+      title: Text('${contact.contact.value.name}', style: font17),
       onTap: onTap,
     );
   }

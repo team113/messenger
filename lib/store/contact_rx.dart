@@ -23,31 +23,31 @@ import 'package:hive/hive.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/provider/hive/contact.dart';
-import '/store/user.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact implements RxChatContact {
-  HiveRxChatContact(HiveChatContact hiveChatContact, this._userRepo)
+  HiveRxChatContact(this._userRepository, HiveChatContact hiveChatContact)
       : contact = Rx<ChatContact>(hiveChatContact.value);
 
   @override
   final Rx<ChatContact> contact;
 
   @override
-  Rx<User>? user;
+  final Rx<Rx<User>?> user = Rx(null);
 
-  /// [UserRepository] uses for updating of [user].
-  final UserRepository _userRepo;
+  /// [AbstractUserRepository] fetching and updating the [user].
+  final AbstractUserRepository _userRepository;
 
   /// [contact]'s updates subscription.
   StreamSubscription? _updatesSubscription;
 
   /// Initializes this [HiveRxChatContact].
   void init() async {
-    user = contact.value.users.isEmpty
+    user.value = contact.value.users.isEmpty
         ? null
-        : await _userRepo.get(contact.value.users.first.id);
+        : await _userRepository.get(contact.value.users.first.id);
     _initUpdatesSubscription();
   }
 
@@ -59,16 +59,10 @@ class HiveRxChatContact implements RxChatContact {
   /// Initializes subscription for contact to update [user].
   void _initUpdatesSubscription() async {
     _updatesSubscription = contact.listen((c) async {
-      if (user != null) {
-        if (user!.value.id != c.users.firstOrNull?.id) {
-          user = contact.value.users.isEmpty
-              ? null
-              : await _userRepo.get(contact.value.users.first.id);
-        }
-      } else {
-        if (c.users.firstOrNull != null) {
-          user = await _userRepo.get(contact.value.users.first.id);
-        }
+      if (user.value?.value.id != c.users.firstOrNull?.id) {
+        user.value = contact.value.users.isEmpty
+            ? null
+            : await _userRepository.get(contact.value.users.first.id);
       }
     });
   }

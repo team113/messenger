@@ -146,10 +146,12 @@ class ContactsTabView extends StatelessWidget {
               )
             : ListTile(
                 key: Key(contact.contact.value.id.val),
-                leading: Obx(() => AvatarWidget.fromContact(
-                      contact.contact.value,
-                      avatar: contact.user?.value.avatar,
-                    )),
+                leading: Obx(
+                  () => AvatarWidget.fromContact(
+                    contact.contact.value,
+                    avatar: contact.user.value?.value.avatar,
+                  ),
+                ),
                 title: Text(contact.contact.value.name.val),
                 trailing: contact.contact.value.users.isNotEmpty
                     ? Row(
