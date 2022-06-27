@@ -125,7 +125,7 @@ jobs:
 
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install
+      - run: sudo apt-get install -y
              ninja-build
              libunwind-dev
              libgtk-3-dev
