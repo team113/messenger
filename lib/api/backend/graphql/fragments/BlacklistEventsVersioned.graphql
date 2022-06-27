@@ -14,25 +14,18 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-subscription UserEvents($id: UserId!, $ver: UserVersion) {
-  userEvents(id: $id, ver: $ver) {
-    __typename
-    ... on SubscriptionInitialized {
-      ok
+fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
+    events {
+        __typename
+        ... on EventBlacklistRecordRemoved {
+        userId
+        user
+        at
+        }
+        ... on EventBlacklistRecordAdded {
+        userId
+        user
+        at
+        }
     }
-    ... on User {
-      ...User
-    }
-    ... on UserEventsVersioned {
-      ...UserEventsVersioned
-    }
-    ... on IsBlacklisted {
-      blacklisted
-      ver
-    }
-    ... on BlacklistEventsVersioned {
-      ...BlacklistEventsVersioned
-    }
-  }
 }
-

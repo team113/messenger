@@ -86,6 +86,7 @@ extension ImageGalleryItemConversion on ImageGalleryItemMixin {
       );
 }
 
+/// Extension adding models construction from an [UserAvatar].
 extension UserAvatarConversion on UserAvatarMixin {
   UserAvatar toModel() => UserAvatar(
       full: full,
@@ -109,6 +110,7 @@ extension UserAvatarConversion on UserAvatarMixin {
           : null);
 }
 
+/// Extension adding models construction from an [UserCallCover].
 extension UserCallCoverConversion on UserCallCoverMixin {
   UserCallCover toModel() => UserCallCover(
       galleryItemId: galleryItemId,

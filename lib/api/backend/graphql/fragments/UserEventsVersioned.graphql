@@ -19,11 +19,9 @@ fragment UserEventsVersioned on UserEventsVersioned {
         __typename
         userId
         ... on EventUserAvatarDeleted {
-            
             at
         }
         ... on EventUserAvatarUpdated {
-            
             avatar {
             __typename
                 ...UserAvatar
@@ -31,20 +29,16 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserBioDeleted {
-            
             at
         }
         ... on EventUserBioUpdated {
-            
             bio
             at
         }
         ... on EventUserCallCoverDeleted {
-            
             at
         }
         ... on EventUserCallCoverUpdated {
-            
             callCover {
                 __typename
                 ...UserCallCover
@@ -52,22 +46,18 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserCameOffline {
-            
             at
         }
         ... on EventUserCameOnline {
             userId
         }
         ... on EventUserDeleted {
-            
             at
         }
         ... on EventUserNameDeleted {
-            
             at
         }
         ... on EventUserGalleryItemAdded {
-            
             galleryItem {
                 __typename
                 id
@@ -80,26 +70,21 @@ fragment UserEventsVersioned on UserEventsVersioned {
             at
         }
         ... on EventUserGalleryItemDeleted {
-            
             galleryItemId
             at
         }
         ... on EventUserNameUpdated {
-            
             name
             at
         }
         ... on EventUserPresenceUpdated {
-            
             presence
             at
         }
         ... on EventUserStatusDeleted {
-            
             at
         }
         ... on EventUserStatusUpdated {
-            
             status
             at
         }

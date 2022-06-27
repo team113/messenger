@@ -23,7 +23,7 @@ import '../world/custom_world.dart';
 
 /// Sets the [UserBio] of the provided [TestUser].
 final StepDefinitionGeneric updateBio = then2<TestUser, String, CustomWorld>(
-  RegExp(r'{user} updates (?:his|her) bio as {string}$'),
+  RegExp(r'{user} updates (?:his|her) bio on {string}$'),
   (TestUser user, String newBio, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;

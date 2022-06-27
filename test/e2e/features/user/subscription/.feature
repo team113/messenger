@@ -7,8 +7,8 @@ Feature: User subscription
     And I wait until `HomeView` is present
     And I go to Bob's page
 
-    And Bob updates his bio as "Hello world!"
+    And Bob updates his bio on "Hello world!"
     Then I wait until text "Hello world!" is present
 
-    And Bob updates his bio as "Me Bob, me funny, haha"
+    And Bob updates his bio on "Me Bob, me funny, haha"
     Then I wait until text "Me Bob, me funny, haha" is present

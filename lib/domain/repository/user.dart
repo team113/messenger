@@ -62,17 +62,11 @@ abstract class AbstractUserRepository {
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);
-
-  /// Subscribes to remote [UserEvent]s of the [User] with specified [UserId].
-  Future<Stream<UserEvents>> userEvents(
-    UserId id,
-    UserVersion? ver,
-  );
 }
 
 /// Unified reactive [User] entity.
 abstract class RxUser {
-  /// Returns reactive value of a [User] this [RxChat] represents.
+  /// Returns reactive value of a [User] this [RxUser] represents.
   Rx<User> get user;
 
   /// Returns the [User.id] of this [RxUser].

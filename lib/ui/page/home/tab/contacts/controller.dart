@@ -67,7 +67,10 @@ class ContactsTabController extends GetxController {
   final CallService _calls;
 
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
-  Map<ChatContactId, StreamSubscription?>? _usersSubscriptions;
+  List<StreamSubscription>? _userSubscriptions;
+
+  /// [StreamSubscription]s to the [contacts] updates.
+  List<StreamSubscription>? _contactsUpdatesSubscription;
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
@@ -187,26 +190,32 @@ class ContactsTabController extends GetxController {
   /// are available in [contacts]. Then listens contacts changes and
   /// subscribes/unsubscribes from updates
   Future<void> _initContactsSubscription() async {
-    _usersSubscriptions = {};
-
-    var subscriptionEntries = contacts.values.map((e) async {
-      StreamSubscription? subscription = e.value.users.isEmpty
-          ? null
-          : (await getUser(e.value.users.first.id))?.updates.listen((_) {});
-      return MapEntry(e.value.id, subscription);
-    });
-
-    _usersSubscriptions!.addEntries(await Future.wait(subscriptionEntries));
+    var futureUsers = contacts.values
+        .where((c) => c.value.users.isNotEmpty)
+        .map((c) => getUser(c.value.users.first.id))
+        .toList();
+    _userSubscriptions = (await Future.wait(futureUsers))
+        .where((u) => u != null)
+        .map((u) => u!.updates.listen((event) {}))
+        .toList();
 
     contacts.listen((newMap) {
-      newMap.changes.forEach((e) async {
-        if (e.op == OperationKind.removed) {
-          _usersSubscriptions?[e.key]?.cancel();
-        } else if (e.op == OperationKind.added) {
-          var subscription = (await getUser(e.value!.value.users.first.id))
-              ?.updates
-              .listen((event) {});
-          _usersSubscriptions?.putIfAbsent(e.key!, () => subscription);
+      newMap.changes.listen((e) async {
+        switch (e.op) {
+          case OperationKind.added:
+            if (e.value?.value.users.isNotEmpty ?? false) {
+              RxUser? u = await getUser(e.value!.value.users.first.id);
+              if (u != null) {
+                _userSubscriptions!.add(u.updates.listen((event) {}));
+              }
+            }
+            break;
+          case OperationKind.removed:
+            // No-op
+            break;
+          case OperationKind.updated:
+            // TODO: Handle this case.
+            break;
         }
       });
     });

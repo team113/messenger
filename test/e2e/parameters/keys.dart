@@ -58,8 +58,6 @@ enum WidgetKey {
   SettingsButton,
   SignInButton,
   StartChattingButton,
-  UserBio,
-  UserColumn,
   UsernameField,
   UserSearchBar,
 }

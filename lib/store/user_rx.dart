@@ -140,15 +140,17 @@ class HiveRxUser extends RxUser {
             case UserEventKind.callCoverUpdated:
               event as EventUserCallCoverUpdated;
               userEntity.value.callCover = event.callCover;
-              userEntity.value.lastSeenAt = event.at;
               break;
 
             case UserEventKind.galleryItemAdded:
-              // TODO: Handle this case.
+              event as EventUserGalleryItemAdded;
+              userEntity.value.gallery?.add(event.galleryItem);
               break;
 
             case UserEventKind.galleryItemDeleted:
-              // TODO: Handle this case.
+              event as EventUserGalleryItemDeleted;
+              userEntity.value.gallery
+                  ?.removeWhere((item) => item.id == event.galleryItemId);
               break;
 
             case UserEventKind.nameDeleted:
@@ -162,7 +164,8 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.presenceUpdated:
-              // TODO: Handle this case.
+              event as EventUserPresenceUpdated;
+              userEntity.value.presence = event.presence;
               break;
 
             case UserEventKind.statusDeleted:
@@ -176,7 +179,8 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.userDeleted:
-              // TODO: Handle this case.
+              event as EventUserDeleted;
+              userEntity.value.isDeleted = true;
               break;
           }
           _userLocal.put(userEntity);
