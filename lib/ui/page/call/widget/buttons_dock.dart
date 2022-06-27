@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -72,6 +74,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
   /// Place where item will be placed.
   int expandBetween = -1;
+  int expandBetween2 = -1;
 
   /// Index of item was started dragging.
   int draggedIndex = -1;
@@ -230,13 +233,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
                                             startDragConstraints!.maxHeight / 2,
                                       ),
                                       startDragOffset!,
-                                      startDragConstraints!,
-                                      () => setState(() {
-                                            items[savedDraggedIndex].hide =
-                                                false;
-                                            isMovingIconNow = false;
-                                            widget.onDragEnded?.call();
-                                          }));
+                                      startDragConstraints!, () {
+                                    items[savedDraggedIndex].hide = false;
+                                    isMovingIconNow = false;
+                                    widget.onDragEnded?.call();
+                                    if (mounted) {
+                                      setState(() {});
+                                    }
+                                  });
 
                                   // Insert dragged item to items list.
                                   items.insert(draggedIndex, dragged!);
@@ -262,15 +266,18 @@ class _ReorderableDockState extends State<ReorderableDock> {
                 ),
               ),
               Flexible(
-                flex: expandBetween - 1 == i ? 1 : 0,
+                flex:
+                    (expandBetween - 1 == i || expandBetween2 - 1 == i) ? 1 : 0,
                 child: Container(
-                  width: expandBetween - 1 == i ? 10 : 0,
+                  width: (expandBetween - 1 == i || expandBetween2 - 1 == i)
+                      ? 10
+                      : 0,
                 ),
               ),
               AnimatedContainer(
                 key: e.dividerKey,
                 duration: animationsDuration,
-                width: expandBetween - 1 == i
+                width: expandBetween - 1 == i || expandBetween2 - 1 == i
                     ? startDragConstraints == null
                         ? widget.itemConstraints.maxWidth
                         : startDragConstraints!.maxWidth
@@ -425,37 +432,45 @@ class _ReorderableDockState extends State<ReorderableDock> {
       item.dividerKey = GlobalKey();
       item.reserveKey = GlobalKey();
 
-      // Remove same item.
-      items.removeAt(i);
-
-      // Save integer number of place where item will be added.
-      int whereToPlace = expandBetween;
-      if (whereToPlace > i) {
-        whereToPlace--;
-      }
-
-      if (whereToPlace > items.length) {
-        // Add item to items list and hide it.
-        items.add(item);
-        items.last.hide = true;
-
-        // Change saved place where item will be added.
-        whereToPlace = items.length;
-      } else {
-        // Add item to items list and hide it.
-        items.insert(whereToPlace, item);
-        items[whereToPlace].hide = true;
-      }
-      expandBetween = -1;
-      setState(() {});
-
-      // Remove OverlayEntry from Overlay.
-      overlayEntry.remove();
-
       // Post frame callBack to show animation of sliding item from old
       // place to new place.
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Remove same item.
+        items.removeAt(i);
+
+        // Save integer number of place where item will be added.
+        int whereToPlace = expandBetween;
+        if (whereToPlace > i) {
+          whereToPlace--;
+        }
+        setState(() {
+          expandBetween2 = i;
+        });
+
+        if (whereToPlace > items.length) {
+          // Add item to items list and hide it.
+          items.add(item);
+          items.last.hide = true;
+
+          // Change saved place where item will be added.
+          whereToPlace = items.length;
+        } else {
+          // Add item to items list and hide it.
+          items.insert(whereToPlace, item);
+          items[whereToPlace].hide = true;
+        }
+        expandBetween = -1;
+
+        // Remove OverlayEntry from Overlay.
+        overlayEntry?.remove();
         isMovingIconNow = true;
+
+        dragged = null;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          expandBetween2 = -1;
+        });
+        setState(() {});
         // Display animation of sliding item from old place to new place.
         _showOverlay(
             item,
@@ -467,13 +482,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
                   items[whereToPlace].hide = false;
                   widget.onDragEnded?.call();
                   isMovingIconNow = false;
-                }));
+                }), someFunction: () async {
+          // await Future.delayed(Duration.zero)
+          //     .then((value) => expandBetween2 = -1);
+        });
       });
     }
 
-    dragged = null;
     widget.onReorder?.call(items.map((e) => e.item).toList());
-    expandBetween = -1;
 
     setState(() {});
   }
@@ -533,12 +549,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
   }
 
   /// Resets items animations.
-  void _resetAnimations() {
+  void _resetAnimations({Function? someFunction}) {
     Duration oldAnimationsDuration = animationsDuration;
     animationsDuration = Duration.zero;
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) =>
-        Future.delayed(
-            Duration.zero, () => animationsDuration = oldAnimationsDuration));
+    SchedulerBinding.instance
+        .addPostFrameCallback((timeStamp) => Future.delayed(Duration.zero, () {
+              animationsDuration = oldAnimationsDuration;
+              someFunction?.call();
+            }));
   }
 
   /// Shows item overlay.
@@ -550,7 +568,9 @@ class _ReorderableDockState extends State<ReorderableDock> {
     BoxConstraints itemConstraints,
     Function onEnd, {
     BoxConstraints? endConstraints,
+    Function? someFunction,
   }) async {
+    someFunction?.call();
     overlayEntry = OverlayEntry(
       builder: (context) => _OverlayBlock(
         widget.itemBuilder,

@@ -514,15 +514,15 @@ Widget desktopCall(
                                             .addAll(buttons.cast<CallButton>());
                                       },
                                       onDragStarted: () {
-                                        c.morePanelBeforeStartDrag.value =
-                                            c.displayMore.value;
+                                        // c.morePanelBeforeStartDrag.value =
+                                        //     c.displayMore.value;
                                         c.displayMore.value = true;
                                         c.hideHint.value = true;
                                       },
                                       onDragEnded: () {
                                         c.hideHint.value = false;
-                                        c.displayMore.value =
-                                            c.morePanelBeforeStartDrag.value;
+                                        // c.displayMore.value =
+                                        //     c.morePanelBeforeStartDrag.value;
                                       },
                                       itemConstraints: BoxConstraints(
                                         maxWidth: c.buttonSize.value,
