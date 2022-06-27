@@ -296,9 +296,53 @@ class OngoingCall {
 
       _room = _jason!.initRoom();
 
-      _room!.onFailedLocalMedia((e) {
-        Log.print('onFailedLocalMedia', 'CALL');
-        _errors.add('Local media acquisition error $e');
+      _room!.onFailedLocalMedia((e) async {
+        if (e is LocalMediaInitException) {
+          try {
+            switch (e.kind()) {
+              case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+                _errors.add('Failed to acquire local audio: $e');
+
+                await _room?.disableAudio();
+                audioState.value = LocalTrackState.disabled;
+
+                break;
+              case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+                _errors.add('Failed to acquire local video: $e');
+
+                await setVideoEnabled(false);
+
+                break;
+              case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+                _errors.add('Failed to initiate screen capture: $e');
+
+                await setScreenShareEnabled(false);
+
+                break;
+              default:
+                _errors.add('Local media acquisition error: $e');
+                return;
+            }
+
+            if (audioState.value == LocalTrackState.enabled ||
+                audioState.value == LocalTrackState.enabling) {
+              await _room?.enableAudio();
+              audioState.value = LocalTrackState.enabled;
+            }
+            if (videoState.value == LocalTrackState.enabled ||
+                videoState.value == LocalTrackState.enabling) {
+              videoState.value == LocalTrackState.disabled;
+              await setVideoEnabled(true);
+            }
+            if (screenShareState.value == LocalTrackState.enabled ||
+                screenShareState.value == LocalTrackState.enabling) {
+              screenShareState.value == LocalTrackState.disabled;
+              await setScreenShareEnabled(true);
+            }
+          } catch (e) {
+            _errors.add('Local media acquisition error: $e');
+          }
+        }
       });
       _room!.onConnectionLoss((e) async {
         Log.print('onConnectionLoss', 'CALL');
@@ -822,7 +866,8 @@ class OngoingCall {
 
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
-      try {
+
+      Future<void> tryGetLocalTracks() async {
         try {
           tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
             audio: audioState.value == LocalTrackState.enabling,
@@ -832,18 +877,30 @@ class OngoingCall {
             videoDevice: videoDevice.value,
             facingMode: videoDevice.value == null ? FacingMode.User : null,
           ));
-        } on LocalMediaInitException {
-          audioDevice.value = null;
-          videoDevice.value = null;
-          screenShareState.value = LocalTrackState.disabled;
-
-          tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: screenShareState.value == LocalTrackState.enabling,
-            facingMode: FacingMode.User,
-          ));
+        } on LocalMediaInitException catch (e) {
+          switch (e.kind()) {
+            case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+              audioDevice.value = null;
+              audioState.value = LocalTrackState.disabled;
+              await tryGetLocalTracks();
+              break;
+            case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+              videoDevice.value = null;
+              videoState.value = LocalTrackState.disabled;
+              await tryGetLocalTracks();
+              break;
+            case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              screenShareState.value = LocalTrackState.disabled;
+              await tryGetLocalTracks();
+              break;
+            default:
+              rethrow;
+          }
         }
+      }
+
+      try {
+        await tryGetLocalTracks();
       } catch (e) {
         // TODO: Handle media acquisition exceptions.
 
