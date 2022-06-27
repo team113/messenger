@@ -104,8 +104,8 @@ class HiveRxChat implements RxChat {
     return callCover;
   }
 
-  /// List of sending [ChatItem]s.
-  final List<ChatItem> sendingMessages = [];
+  /// List of [ChatItem]s that not sent.
+  final List<ChatItem> _pending = [];
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -161,7 +161,7 @@ class HiveRxChat implements RxChat {
         for (HiveChatItem i in _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
           if (i.value.status.value != SendingStatus.sent) {
-            sendingMessages.add(i.value);
+            _pending.add(i.value);
           }
         }
       }
@@ -257,13 +257,13 @@ class HiveRxChat implements RxChat {
       if (index != -1) {
         messages[index] = message.value.obs;
       }
-      var sendingIndex = sendingMessages.indexWhere((e) => e.id == existingId);
+      var sendingIndex = _pending.indexWhere((e) => e.id == existingId);
       if (sendingIndex != -1) {
-        sendingMessages[index] = message.value;
+        _pending[sendingIndex] = message.value;
       }
     } else {
       put(message, ignoreVersion: true);
-      sendingMessages.add(message.value);
+      _pending.add(message.value);
     }
 
     try {
@@ -322,7 +322,7 @@ class HiveRxChat implements RxChat {
 
       if (event != null && event.item.firstOrNull is HiveChatMessage) {
         remove(message.value.id, message.value.timestamp);
-        sendingMessages.remove(message.value);
+        _pending.remove(message.value);
         message = event.item.first as HiveChatMessage;
       }
     } catch (e) {
@@ -750,21 +750,21 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.itemPosted:
               event as EventChatItemPosted;
               for (var item in event.item) {
-                if (item.value is ChatMessage) {
-                  ChatItem? sending = sendingMessages.firstWhereOrNull((e) =>
+                if (item.value is ChatMessage && item.value.authorId == me) {
+                  ChatItem? sending = _pending.firstWhereOrNull((e) =>
                       e is ChatMessage &&
                       e.status.value == SendingStatus.sending &&
                       (item.value as ChatMessage).isEquals(e));
 
                   if (sending != null &&
-                      messages.none((e) => e.value.id == item.value.id)) {
+                      await get(item.value.id,
+                              timestamp: item.value.timestamp) ==
+                          null) {
                     remove(sending.id, sending.timestamp);
-                    sendingMessages.remove(sending);
+                    _pending.remove(sending);
                   }
-                  put(item);
-                } else {
-                  put(item);
                 }
+                put(item);
 
                 if (item.value is ChatMemberInfo) {
                   var msg = item.value as ChatMemberInfo;

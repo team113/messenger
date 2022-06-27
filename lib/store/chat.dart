@@ -34,6 +34,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ConnectionException,
         GraphQlProviderExceptions,
         ResubscriptionRequiredException,
         UploadAttachmentException;
@@ -220,7 +221,9 @@ class ChatRepository implements AbstractChatRepository {
       for (var e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
             (e.upload.value == null || e.upload.value?.isCompleted == true)) {
-          uploadAttachment(e).onError<UploadAttachmentException>((_, __) => e);
+          uploadAttachment(e)
+              .onError<UploadAttachmentException>((_, __) => e)
+              .onError<ConnectionException>((_, __) => e);
         }
       }
 

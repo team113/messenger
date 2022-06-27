@@ -42,6 +42,7 @@ import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
@@ -215,7 +216,8 @@ class ChatController extends GetxController {
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
-                    (e, _) => MessagePopup.error(e));
+                    (e, _) => MessagePopup.error(e))
+                .onError<ConnectionException>((e, _) => MessagePopup.error(e));
 
             repliedMessage.value = null;
             attachments.clear();
@@ -319,7 +321,8 @@ class ChatController extends GetxController {
           .resendChatItem(item)
           .then((_) => _playMessageSent())
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
-          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e));
+          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
+          .onError<ConnectionException>((e, _) => MessagePopup.error(e));
     }
   }
 
@@ -670,6 +673,8 @@ class ChatController extends GetxController {
           attachments[index] = uploaded;
         }
       } on UploadAttachmentException catch (_) {
+        //No-op.
+      } on ConnectionException catch (_) {
         //No-op.
       }
     } else {

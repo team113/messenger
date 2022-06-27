@@ -16,24 +16,19 @@
 
 // ignore_for_file: avoid_print
 
-import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.graphql.dart';
-import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
-import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'mock/graphql.dart';
 import 'parameters/attachment_type.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
@@ -66,7 +61,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         fillField,
         hasDialogWithMe,
-        hasInternetWithDelay,
+        haveInternetWithDelay,
+        haveInternetWithoutDelay,
         iAm,
         iAmInChatWith,
         longPressMessage,
@@ -152,59 +148,4 @@ extension SkipOffstageExtension on AppDriverAdapter {
   /// Finds widget by provided [key] with `skipOffstage`: `false`.
   Finder findByKeySkipOffstage(String key) =>
       find.byKey(Key(key), skipOffstage: false);
-}
-
-/// Mocked [GraphQlProvider].
-class MockGraphQlProvider extends GraphQlProvider {
-  MockGraphQlProvider({this.delay, this.hasError = false}) : super();
-
-  /// Delay of requests.
-  Duration? delay;
-
-  /// Indicator whether methods throws exceptions.
-  bool hasError;
-
-  @override
-  Future<ChatEventsVersionedMixin?> postChatMessage(
-    ChatId chatId, {
-    ChatMessageText? text,
-    List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
-  }) async {
-    if (hasError) {
-      throw PostChatMessageException(PostChatMessageErrorCode.artemisUnknown);
-    }
-
-    if (delay != null) {
-      await Future.delayed(delay!);
-    }
-
-    return super.postChatMessage(
-      chatId,
-      text: text,
-      attachments: attachments,
-      repliesTo: repliesTo,
-    );
-  }
-
-  @override
-  Future<UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk>
-      uploadAttachment(
-    dio.MultipartFile? attachment, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    if (hasError) {
-      await Future.delayed(delay!);
-      throw UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown);
-    }
-
-    if (delay != null) {
-      await Future.delayed(delay!);
-    }
-
-    return super.uploadAttachment(
-      attachment,
-      onSendProgress: onSendProgress,
-    );
-  }
 }
