@@ -14,8 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -40,30 +38,27 @@ class HiveRxChatContact implements RxChatContact {
   /// [AbstractUserRepository] fetching and updating the [user].
   final AbstractUserRepository _userRepository;
 
-  /// [contact]'s updates subscription.
-  StreamSubscription? _updatesSubscription;
+  /// [Worker] reacting on the [contact] changes updating the [user].
+  Worker? _worker;
 
   /// Initializes this [HiveRxChatContact].
   void init() async {
-    user.value = contact.value.users.isEmpty
-        ? null
-        : await _userRepository.get(contact.value.users.first.id);
-    _initUpdatesSubscription();
+    _worker = ever(contact, (c) async {
+      _updateUser(c as ChatContact);
+    });
   }
 
   /// Disposes this [HiveRxChatContact].
   void dispose() {
-    _updatesSubscription?.cancel();
+    _worker?.dispose();
   }
 
-  /// Initializes subscription for contact to update [user].
-  void _initUpdatesSubscription() async {
-    _updatesSubscription = contact.listen((c) async {
-      if (user.value?.value.id != c.users.firstOrNull?.id) {
-        user.value = contact.value.users.isEmpty
-            ? null
-            : await _userRepository.get(contact.value.users.first.id);
-      }
-    });
+  /// Updates current [user] when [contact] was updated.
+  void _updateUser(ChatContact c) async {
+    if (user.value?.value.id != c.users.firstOrNull?.id) {
+      user.value = contact.value.users.isEmpty
+          ? null
+          : await _userRepository.get(contact.value.users.first.id);
+    }
   }
 }
