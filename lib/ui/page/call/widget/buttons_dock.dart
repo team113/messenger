@@ -100,6 +100,9 @@ class _ReorderableDockState extends State<ReorderableDock> {
   /// Indicator whether some item is moving now  or not.
   bool isMovingIconNow = false;
 
+  /// List of overlays.
+  List<OverlayEntry> overlays = [];
+
   /// Overlay item used in animations.
   late OverlayEntry overlayEntry;
 
@@ -114,6 +117,16 @@ class _ReorderableDockState extends State<ReorderableDock> {
   void initState() {
     items = widget.items.map((e) => DraggedItem(e)).toList();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    overlayEntry.dispose();
+    for (var e in overlays) {
+      e.remove();
+      e.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -552,7 +565,9 @@ class _ReorderableDockState extends State<ReorderableDock> {
       ),
     );
 
-    Overlay.of(context)?.insert(overlayEntry);
+    overlays.add(overlayEntry);
+
+    Overlay.of(context)!.insert(overlayEntry);
   }
 }
 
