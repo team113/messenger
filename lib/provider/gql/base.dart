@@ -120,6 +120,7 @@ class GraphQlClient {
 
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
+    print(token);
     if (_client != null && _currentToken == token) {
       return _client!;
     }

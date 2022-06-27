@@ -16,16 +16,21 @@
 
 fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
     events {
-        __typename
-        ... on EventBlacklistRecordRemoved {
-        userId
-        user
-        at
-        }
+    __typename
         ... on EventBlacklistRecordAdded {
-        userId
-        user
-        at
+            userId
+            user {
+              __typename
+            }
+            at
+        }
+    ... on EventBlacklistRecordRemoved {
+            userId
+            user {
+              __typename
+            }
+            at
         }
     }
+    ver
 }

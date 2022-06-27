@@ -22,10 +22,7 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
@@ -155,7 +152,6 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  @override
   Future<Stream<UserEvents>> userEvents(
     UserId id,
     UserVersion? ver,
@@ -177,6 +173,16 @@ class UserRepository implements AbstractUserRepository {
           mixin.ver,
         ));
       }
+      // else if (events.$$typename == 'BlacklistEventsVersioned') {
+      //   var mixin = events as BlacklistEventsVersionedMixin;
+      //   yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+      //     mixin.events.map((e) => _blacklistEvent(e)).toList(),
+      //     mixin.ver,
+      //   ));
+      // } else if (events.$$typename == 'IsBlacklisted') {
+      //   var node = events as UserMixin$IsBlacklisted;
+      //   yield UserEventsIsBlacklisted(node.blacklisted, node.ver);
+      // }
     });
   }
 
@@ -274,4 +280,18 @@ class UserRepository implements AbstractUserRepository {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }
   }
+
+  // BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
+  //   if (e.$$typename == 'EventBlacklistRecordAdded') {
+  //     var node =
+  //         e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+  //     return EventBlacklistRecordRemoved(node.userId, node.at);
+  //   } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+  //     var node =
+  //         e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+  //     return EventBlacklistRecordRemoved(node.userId, node.at);
+  //   } else {
+  //     throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+  //   }
+  // }
 }

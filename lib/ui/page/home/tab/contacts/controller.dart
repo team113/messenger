@@ -190,34 +190,36 @@ class ContactsTabController extends GetxController {
   /// are available in [contacts]. Then listens contacts changes and
   /// subscribes/unsubscribes from updates
   Future<void> _initContactsSubscription() async {
-    var futureUsers = contacts.values
-        .where((c) => c.value.users.isNotEmpty)
-        .map((c) => getUser(c.value.users.first.id))
-        .toList();
-    _userSubscriptions = (await Future.wait(futureUsers))
-        .where((u) => u != null)
-        .map((u) => u!.updates.listen((event) {}))
-        .toList();
+    // var futureUsers = contacts.values
+    //     .where((c) => c.value.users.isNotEmpty)
+    //     .map((c) => getUser(c.value.users.first.id))
+    //     .toList();
+    // print(futureUsers);
+    // _userSubscriptions = (await Future.wait(futureUsers))
+    //     .where((u) => u != null)
+    //     .map<StreamSubscription>((u) => u!.updates.listen((event) {}))
+    //     .toList();
+    // print(_userSubscriptions);
 
-    contacts.listen((newMap) {
-      newMap.changes.listen((e) async {
-        switch (e.op) {
-          case OperationKind.added:
-            if (e.value?.value.users.isNotEmpty ?? false) {
-              RxUser? u = await getUser(e.value!.value.users.first.id);
-              if (u != null) {
-                _userSubscriptions!.add(u.updates.listen((event) {}));
-              }
-            }
-            break;
-          case OperationKind.removed:
-            // No-op
-            break;
-          case OperationKind.updated:
-            // TODO: Handle this case.
-            break;
-        }
-      });
-    });
+    // contacts.listen((newMap) {
+    //   newMap.changes.listen((e) async {
+    //     switch (e.op) {
+    //       case OperationKind.added:
+    //         if (e.value?.value.users.isNotEmpty ?? false) {
+    //           RxUser? u = await getUser(e.value!.value.users.first.id);
+    //           if (u != null) {
+    //             _userSubscriptions!.add(u.updates.listen((event) {}));
+    //           }
+    //         }
+    //         break;
+    //       case OperationKind.removed:
+    //         // No-op
+    //         break;
+    //       case OperationKind.updated:
+    //         // TODO: Handle this case.
+    //         break;
+    //     }
+    //   });
+    // });
   }
 }

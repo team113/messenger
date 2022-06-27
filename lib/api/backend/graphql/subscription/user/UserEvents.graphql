@@ -26,10 +26,6 @@ subscription UserEvents($id: UserId!, $ver: UserVersion) {
     ... on UserEventsVersioned {
       ...UserEventsVersioned
     }
-    ... on IsBlacklisted {
-      blacklisted
-      ver
-    }
     ... on BlacklistEventsVersioned {
       ...BlacklistEventsVersioned
     }

@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:messenger/store/model/my_user.dart';
+
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/gallery_item.dart';
@@ -47,9 +49,16 @@ enum UserEventKind {
 
 /// Tag representing a [UserEvents] kind.
 enum UserEventsKind {
+  blacklistEvent,
   initialized,
+  isBlacklisted,
   user,
   event,
+}
+
+enum BlacklistEventsKind {
+  recordAdded,
+  recordRemoved,
 }
 
 /// [User] event union.
@@ -61,7 +70,7 @@ abstract class UserEvents {
 }
 
 /// [UserEvent]s along with the corresponding [UserVersion].
-class UserEventsVersioned {
+class UserEventsVersioned extends UserEvents {
   const UserEventsVersioned(this.events, this.ver);
 
   /// [UserEvent]s themselves.
@@ -69,6 +78,9 @@ class UserEventsVersioned {
 
   /// Version of the [User]'s state updated by these [UserEvent]s.
   final UserVersion ver;
+
+  @override
+  UserEventsKind get kind => UserEventsKind.event;
 }
 
 /// Indicator notifying about a GraphQL subscription being successfully
@@ -78,6 +90,74 @@ class UserEventsInitialized extends UserEvents {
 
   @override
   UserEventsKind get kind => UserEventsKind.initialized;
+}
+
+class UserEventsIsBlacklisted extends UserEvents {
+  UserEventsIsBlacklisted(this.blacklisted, this.ver);
+
+  final bool blacklisted;
+
+  final MyUserVersion ver;
+
+  @override
+  UserEventsKind get kind => UserEventsKind.isBlacklisted;
+}
+
+/// [BlacklistEvents] along with the corresponding [MyUserVersion].
+class BlacklistEventsVersioned extends UserEvents {
+  BlacklistEventsVersioned(this.events, this.ver);
+
+  /// [BlacklistEvent]s themselves.
+  final List<BlacklistEvent> events;
+
+  /// Version of the [MyUser]'s state updated by these [BlacklistEvents].
+  final MyUserVersion ver;
+  @override
+  UserEventsKind get kind => UserEventsKind.blacklistEvent;
+}
+
+/// Event of an [User] being added or removed to/from [MyUser.blacklist].
+abstract class BlacklistEvent {
+  BlacklistEventsKind get kind;
+}
+
+/// Event of a blacklist record being added.
+class EventBlacklistRecordAdded extends BlacklistEvent {
+  EventBlacklistRecordAdded(this.userId, this.user, this.at);
+
+  /// [UserId] of the [User] this [BlacklistEvent] is about.
+  final UserId userId;
+
+  /// [User] this [BlacklistEvent] is about.
+  final User user;
+
+  /// [PreciseDateTime] when this [BlacklistEvent] happened
+  final PreciseDateTime at;
+  @override
+  BlacklistEventsKind get kind => BlacklistEventsKind.recordAdded;
+}
+
+/// Event of a blacklist record being removed.
+class EventBlacklistRecordRemoved extends BlacklistEvent {
+  EventBlacklistRecordRemoved(this.userId, this.at);
+
+  /// [UserId] of the [User] this [BlacklistEvent] is about.
+  final UserId userId;
+
+  /// [PreciseDateTime] when this [BlacklistEvent] happened
+  final PreciseDateTime at;
+  @override
+  BlacklistEventsKind get kind => BlacklistEventsKind.recordRemoved;
+}
+
+class UserEventsBlacklistEventsEvent extends UserEvents {
+  const UserEventsBlacklistEventsEvent(this.event);
+
+  /// [UserEventsVersioned] itself.
+  final BlacklistEventsVersioned event;
+
+  @override
+  UserEventsKind get kind => UserEventsKind.blacklistEvent;
 }
 
 /// [UserEventsEvent] happening with the [User].
