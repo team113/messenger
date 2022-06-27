@@ -121,10 +121,10 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
   @override
   void dispose() {
-    overlayEntry.dispose();
     for (var e in overlays) {
-      e.remove();
-      e.dispose();
+      if (e.mounted) {
+        e.remove();
+      }
     }
     super.dispose();
   }
