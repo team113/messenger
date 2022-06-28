@@ -64,13 +64,13 @@ class ReorderableDock<T> extends StatefulWidget {
 /// State of [ReorderableDock].
 class _ReorderableDockState extends State<ReorderableDock> {
   /// Duration of animation moving button to his place on end of dragging.
-  Duration animationMovingDuration = const Duration(milliseconds: 400);
+  Duration animationMovingDuration = const Duration(milliseconds: 1000);
 
   /// List of items.
   List<DraggedItem> items = [];
 
   /// Duration of [AnimatedContainer] width changing.
-  Duration animationsDuration = 150.milliseconds;
+  Duration animationsDuration = 1000.milliseconds;
 
   /// Place where item will be placed.
   int expandBetween = -1;
@@ -175,12 +175,17 @@ class _ReorderableDockState extends State<ReorderableDock> {
                     child: LayoutBuilder(
                         builder: (c, constraints) => (isMovingIconNow &&
                                 expandBetween != i)
-                            ? Opacity(
-                                opacity: (e.hide) ? 0 : 1,
-                                child: KeyedSubtree(
-                                    key: (e.hide) ? e.reserveKey : e.key,
-                                    child: widget.itemBuilder(context, e)),
-                              )
+                            ? AnimatedContainer(
+                                constraints: (e.slowHide)
+                                    ? BoxConstraints(maxWidth: 0, maxHeight: 0)
+                                    : constraints,
+                                duration: Duration(seconds: 1),
+                                child: Opacity(
+                                  opacity: (e.hide) ? 0 : 1,
+                                  child: KeyedSubtree(
+                                      key: (e.hide) ? e.reserveKey : e.key,
+                                      child: widget.itemBuilder(context, e)),
+                                ))
                             : Draggable(
                                 dragAnchorStrategy: pointerDragAnchorStrategy,
                                 feedback: Transform.translate(
@@ -431,12 +436,15 @@ class _ReorderableDockState extends State<ReorderableDock> {
       item.key = GlobalKey();
       item.dividerKey = GlobalKey();
       item.reserveKey = GlobalKey();
+      setState(() {
+        items[i].slowHide = true;
+      });
 
       // Post frame callBack to show animation of sliding item from old
       // place to new place.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Remove same item.
-        items.removeAt(i);
+        // items.removeAt(i);
 
         // Save integer number of place where item will be added.
         int whereToPlace = expandBetween;
@@ -467,9 +475,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
         dragged = null;
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          expandBetween2 = -1;
-        });
         setState(() {});
         // Display animation of sliding item from old place to new place.
         _showOverlay(
@@ -482,9 +487,16 @@ class _ReorderableDockState extends State<ReorderableDock> {
                   items[whereToPlace].hide = false;
                   widget.onDragEnded?.call();
                   isMovingIconNow = false;
+                  expandBetween2 = -1;
+                  items.removeAt(i);
                 }), someFunction: () async {
-          // await Future.delayed(Duration.zero)
-          //     .then((value) => expandBetween2 = -1);
+          // await Future.delayed(Duration.zero).then((value) => setState(() {
+          //       expandBetween2 = -1;
+          //     }));
+          // setState(() {
+          // expandBetween2 = -10;
+          print('lllllllllllll');
+          // });
         });
       });
     }
@@ -570,7 +582,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
     BoxConstraints? endConstraints,
     Function? someFunction,
   }) async {
-    someFunction?.call();
     overlayEntry = OverlayEntry(
       builder: (context) => _OverlayBlock(
         widget.itemBuilder,
@@ -588,6 +599,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
     overlays.add(overlayEntry);
 
     Overlay.of(context)!.insert(overlayEntry);
+    await someFunction?.call();
   }
 }
 
@@ -600,6 +612,8 @@ class DraggedItem<T> {
 
   /// [GlobalKey] of item.
   GlobalKey key = GlobalKey();
+
+  bool slowHide = false;
 
   /// [GlobalKey] reserve key of item.
   GlobalKey reserveKey = GlobalKey();
