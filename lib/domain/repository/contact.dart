@@ -63,7 +63,6 @@ abstract class RxChatContact {
   /// Reactive value of a [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 
-  // TODO: Account all [ChatContact.users] and [ChatContact.groups].
   /// Reactive value of the first [User] this [ChatContact] contains.
   Rx<Rx<User>?> get user;
 }

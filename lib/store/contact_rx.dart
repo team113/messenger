@@ -39,26 +39,23 @@ class HiveRxChatContact implements RxChatContact {
   final AbstractUserRepository _userRepository;
 
   /// [Worker] reacting on the [contact] changes updating the [user].
-  Worker? _worker;
+  late final Worker _worker;
 
   /// Initializes this [HiveRxChatContact].
-  void init() async {
-    _worker = ever(contact, (c) async {
-      _updateUser(c as ChatContact);
-    });
+  void init() {
+    _worker = ever(contact, _updateUser);
   }
 
   /// Disposes this [HiveRxChatContact].
   void dispose() {
-    _worker?.dispose();
+    _worker.dispose();
   }
 
-  /// Updates current [user] when [contact] was updated.
+  /// Fetches the [user] from the [AbstractUserRepository], if needed.
   void _updateUser(ChatContact c) async {
     if (user.value?.value.id != c.users.firstOrNull?.id) {
-      user.value = contact.value.users.isEmpty
-          ? null
-          : await _userRepository.get(contact.value.users.first.id);
+      user.value =
+          c.users.isEmpty ? null : await _userRepository.get(c.users.first.id);
     }
   }
 }
