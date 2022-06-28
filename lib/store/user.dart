@@ -179,8 +179,7 @@ class UserRepository implements AbstractUserRepository {
           mixin.blacklistVer,
         ));
       } else if (events.$$typename == 'IsBlacklisted') {
-        var node =
-            events as UserEvents$Subscription$UserEvents$IsBlacklisted;
+        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
         yield UserEventsIsBlacklisted(node.blacklisted, node.blacklistVer);
       }
     });

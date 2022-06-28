@@ -19,8 +19,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/store/event/user.dart';
-import '/store/model/user.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
