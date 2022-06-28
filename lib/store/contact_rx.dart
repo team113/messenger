@@ -43,6 +43,7 @@ class HiveRxChatContact implements RxChatContact {
 
   /// Initializes this [HiveRxChatContact].
   void init() {
+    _updateUser(contact.value);
     _worker = ever(contact, _updateUser);
   }
 
