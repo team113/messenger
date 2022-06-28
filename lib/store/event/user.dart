@@ -103,20 +103,20 @@ class UserEventsIsBlacklisted extends UserEvents {
   UserEventsKind get kind => UserEventsKind.isBlacklisted;
 }
 
-/// [BlacklistEvents] along with the corresponding [MyUserVersion].
+/// [BlacklistEventsVersioned] along with the corresponding [MyUserVersion].
 class BlacklistEventsVersioned extends UserEvents {
   BlacklistEventsVersioned(this.events, this.ver);
 
   /// [BlacklistEvent]s themselves.
   final List<BlacklistEvent> events;
 
-  /// Version of the [MyUser]'s state updated by these [BlacklistEvents].
+  /// Version of the [MyUser]'s state updated by these [BlacklistEventsVersioned].
   final MyUserVersion ver;
   @override
   UserEventsKind get kind => UserEventsKind.blacklistEvent;
 }
 
-/// Event of an [User] being added or removed to/from [MyUser.blacklist].
+/// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
 abstract class BlacklistEvent {
   BlacklistEventsKind get kind;
 }

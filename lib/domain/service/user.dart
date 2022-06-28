@@ -34,7 +34,7 @@ class UserService extends DisposableService {
   /// [users] value is fetched.
   RxBool get isReady => _userRepository.isReady;
 
-  /// Returns the current reactive map of [RxUser]s.
+  /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
   @override
