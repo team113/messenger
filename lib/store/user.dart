@@ -152,6 +152,7 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
+  /// Returns the [Stream] of [UserEvent]s of the specified [User].
   Future<Stream<UserEvents>> userEvents(
     UserId id,
     UserVersion? ver,
@@ -280,6 +281,7 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
+  /// Constructs a [BlacklistEvent] from the [BlacklistEventsVersionedMixin$Events].
   BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventBlacklistRecordAdded') {
       var node =

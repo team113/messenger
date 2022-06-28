@@ -92,11 +92,15 @@ class UserEventsInitialized extends UserEvents {
   UserEventsKind get kind => UserEventsKind.initialized;
 }
 
+/// Information about some [User] being present in
+/// [MyUser]'s blacklist of the authenticated [MyUser].
 class UserEventsIsBlacklisted extends UserEvents {
   UserEventsIsBlacklisted(this.blacklisted, this.ver);
 
+  /// Indicator whether the [User] is blacklisted.
   final bool blacklisted;
 
+  /// Version of the authenticated [MyUser]'s state.
   final MyUserVersion ver;
 
   @override
@@ -118,6 +122,7 @@ class BlacklistEventsVersioned extends UserEvents {
 
 /// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
 abstract class BlacklistEvent {
+  /// [BlacklistEventsKind] of this event.
   BlacklistEventsKind get kind;
 }
 

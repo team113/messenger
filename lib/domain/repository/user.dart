@@ -22,7 +22,7 @@ import '/domain/model/user.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
-  /// Returns reactive map of [RxUser]s.
+  /// Returns reactive map of [User]s.
   RxMap<UserId, RxUser> get users;
 
   /// Indicates whether this repository was initialized and [users] can be
