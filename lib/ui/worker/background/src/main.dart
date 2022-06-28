@@ -39,6 +39,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// Background service iOS handler.
 ///
@@ -182,10 +183,10 @@ class _BackgroundService {
       {
         'ios': {'appName': 'Gapopa'},
         'android': {
-          'alertTitle': 'label_call_permissions_title'.tr,
-          'alertDescription': 'label_call_permissions_description'.tr,
-          'cancelButton': 'btn_dismiss'.tr,
-          'okButton': 'btn_allow'.tr,
+          'alertTitle': 'label_call_permissions_title'.t(),
+          'alertDescription': 'label_call_permissions_description'.t(),
+          'cancelButton': 'btn_dismiss'.t(),
+          'okButton': 'btn_allow'.t(),
           'foregroundService': {
             'channelId': 'com.team113.messenger',
             'channelName': 'Foreground calls service',
@@ -279,7 +280,7 @@ class _BackgroundService {
     _service.invoke('requireToken');
 
     _setForegroundNotificationInfo(
-      title: 'label_service_initialized'.tr,
+      title: 'label_service_initialized'.t(),
       content: '${DateTime.now()}',
     );
   }
@@ -390,7 +391,7 @@ class _BackgroundService {
         _getNotificationPlugin().then((v) {
           v.show(
             Random().nextInt(1 << 31),
-            'label_incoming_call'.tr,
+            'label_incoming_call'.t(),
             name,
             const NotificationDetails(
               android: AndroidNotificationDetails(
@@ -415,7 +416,7 @@ class _BackgroundService {
         switch (e.$$typename) {
           case 'SubscriptionInitialized':
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.tr,
+              title: 'label_service_connected'.t(),
               content: '${DateTime.now()}',
             );
             break;
@@ -434,12 +435,12 @@ class _BackgroundService {
                   call.chatId,
                   call.caller?.name?.val ??
                       call.caller?.num.val ??
-                      ('.'.tr * 3),
+                      ('.'.t() * 3),
                 );
               }
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.tr,
+                title: 'label_service_connected'.t(),
                 content: '${DateTime.now()}',
               );
             }
@@ -453,14 +454,14 @@ class _BackgroundService {
               _incomingCalls.add(call.chatId.val);
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.tr,
+                title: 'label_service_connected'.t(),
                 content: '${DateTime.now()}',
               );
 
               // TODO: Display `Chat` name instead of the `ChatCall.caller`.
               _displayIncomingCall(
                 call.chatId,
-                call.caller?.name?.val ?? call.caller?.num.val ?? ('.'.tr * 3),
+                call.caller?.name?.val ?? call.caller?.num.val ?? ('.'.t() * 3),
               );
             }
             break;
@@ -472,7 +473,7 @@ class _BackgroundService {
             _incomingCalls.remove(call.chatId.val);
 
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.tr,
+              title: 'label_service_connected'.t(),
               content: '${DateTime.now()}',
             );
 
@@ -484,13 +485,13 @@ class _BackgroundService {
       onError: (e) {
         if (e is ResubscriptionRequiredException) {
           _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.tr,
+            title: 'label_service_reconnecting'.t(),
             content: '${DateTime.now()}',
           );
           _subscribe();
         } else {
           _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.tr,
+            title: 'label_service_encountered_error'.t(),
             content: e,
           );
           throw e;

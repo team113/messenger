@@ -28,6 +28,7 @@ import '/domain/service/call.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -105,7 +106,7 @@ class CallOverlayController extends GetxController {
               }
             } else {
               Future.delayed(Duration.zero, () {
-                ongoingCall.addError('err_call_popup_was_blocked'.tr);
+                ongoingCall.addError('err_call_popup_was_blocked'.t());
               });
             }
           }

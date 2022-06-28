@@ -21,6 +21,7 @@ import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import '/domain/model/user.dart';
 import '/ui/page/home/widget/avatar.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// [FloatingSearchBar] for [User]s searching.
 class UserSearchBar extends StatelessWidget {
@@ -58,7 +59,7 @@ class UserSearchBar extends StatelessWidget {
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
         () => FloatingSearchBar(
-          hint: 'label_search'.tr,
+          hint: 'label_search'.t(),
           controller: searchController,
           scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
           transitionDuration: const Duration(milliseconds: 500),
@@ -92,7 +93,7 @@ class UserSearchBar extends StatelessWidget {
                                 ? [
                                     ListTile(
                                         title:
-                                            Text('label_search_not_found'.tr))
+                                            Text('label_search_not_found'.t()))
                                   ]
                                 : c.searchResults
                                     .map((e) => _user(e, c))
@@ -104,12 +105,13 @@ class UserSearchBar extends StatelessWidget {
                                 SizedBox(
                                   height: 100,
                                   child: Center(
-                                    child: Text('label_search_hint'.tr),
+                                    child: Text('label_search_hint'.t()),
                                   ),
                                 )
                               ]
                             : [
-                                ListTile(title: Text('label_search_recent'.tr)),
+                                ListTile(
+                                    title: Text('label_search_recent'.t())),
                                 ...c.recentSearchResults
                                     .map((e) => _user(e, c))
                                     .toList()

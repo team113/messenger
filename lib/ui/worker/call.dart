@@ -41,6 +41,7 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'background/background.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// Worker responsible for showing an incoming call notification and playing an
 /// incoming or outgoing call audio.
@@ -169,8 +170,8 @@ class CallWorker extends DisposableService {
                   }
 
                   _notificationService.show(
-                    title ?? 'label_incoming_call'.tr,
-                    body: title == null ? null : 'label_incoming_call'.tr,
+                    title ?? 'label_incoming_call'.t(),
+                    body: title == null ? null : 'label_incoming_call'.t(),
                     payload: '${Routes.chat}/${c.chatId}',
                     icon: avatarUrl,
                     playSound: false,
@@ -207,10 +208,10 @@ class CallWorker extends DisposableService {
           {
             'ios': {'appName': 'Gapopa'},
             'android': {
-              'alertTitle': 'label_call_permissions_title'.tr,
-              'alertDescription': 'label_call_permissions_description'.tr,
-              'cancelButton': 'btn_dismiss'.tr,
-              'okButton': 'btn_allow'.tr,
+              'alertTitle': 'label_call_permissions_title'.t(),
+              'alertDescription': 'label_call_permissions_description'.t(),
+              'cancelButton': 'btn_dismiss'.t(),
+              'okButton': 'btn_allow'.t(),
               'foregroundService': {
                 'channelId': 'com.team113.messenger',
                 'channelName': 'Foreground calls service',
@@ -229,8 +230,8 @@ class CallWorker extends DisposableService {
                 barrierDismissible: false,
                 context: router.context!,
                 builder: (context) => AlertDialog(
-                  title: Text('alert_popup_permissions_title'.tr),
-                  content: Text('alert_popup_permissions_description'.tr),
+                  title: Text('alert_popup_permissions_title'.t()),
+                  content: Text('alert_popup_permissions_description'.t()),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -238,7 +239,7 @@ class CallWorker extends DisposableService {
                           Navigator.of(context).pop();
                         });
                       },
-                      child: Text('alert_popup_permissions_button'.tr),
+                      child: Text('alert_popup_permissions_button'.t()),
                     ),
                   ],
                 ),

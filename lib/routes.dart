@@ -18,6 +18,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
+import 'package:messenger/fluent/localization_controller.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/user.dart';
@@ -60,6 +62,7 @@ import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// Application's global router state.
 late RouterState router;
@@ -332,7 +335,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Unknown page view.
   Page<dynamic> get _notFoundPage => MaterialPage(
         key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.tr))),
+        child: Scaffold(body: Center(child: Text('label_unknown_page'.t()))),
       );
 
   /// [Navigator]'s pages generation based on the [_state].
@@ -559,22 +562,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   @override
-  Widget build(BuildContext context) => LifecycleObserver(
-        didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
-        child: ContextMenuOverlay(
-          child: Navigator(
-            key: navigatorKey,
-            pages: _pages,
-            onPopPage: (Route<dynamic> route, dynamic result) {
-              final bool success = route.didPop(result);
-              if (success) {
-                _state.pop();
-              }
-              return success;
-            },
-          ),
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<LocalizationController>()) {
+      var localizator = FluentLocalization.of(context);
+      Get.put(LocalizationController(FluentLocalization.of(context)));
+    }
+    return LifecycleObserver(
+      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+      child: ContextMenuOverlay(
+        child: Navigator(
+          key: navigatorKey,
+          pages: _pages,
+          onPopPage: (Route<dynamic> route, dynamic result) {
+            final bool success = route.didPop(result);
+            if (success) {
+              _state.pop();
+            }
+            return success;
+          },
         ),
-      );
+      ),
+    );
+  }
 
   /// Sets the browser's tab title accordingly to the [_state.tab] value.
   void _updateTabTitle() {
@@ -587,13 +596,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
         case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.tr}');
+          WebUtils.title('$prefix${'label_tab_contacts'.t()}');
           break;
         case HomeTab.chats:
-          WebUtils.title('$prefix${'label_tab_chats'.tr}');
+          WebUtils.title('$prefix${'label_tab_chats'.t()}');
           break;
         case HomeTab.menu:
-          WebUtils.title('$prefix${'label_tab_menu'.tr}');
+          WebUtils.title('$prefix${'label_tab_menu'.t()}');
           break;
       }
     } else {

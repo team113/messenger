@@ -1,10 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:messenger/fluent/fluent_localization.dart';
 
+import 'localization_controller.dart';
+
 extension Translate on String {
-  String t(BuildContext? context, {Map<String, dynamic> args = const {}}) {
-    return context == null
+  String t({Map<String, dynamic> args = const {}}) {
+    FluentLocalization? localizator =
+        Get.find<LocalizationController>().localizator;
+    return localizator == null
         ? this
-        : FluentLocalization.of(context)!.getTranslatedValue(this, args: args);
+        : localizator.getTranslatedValue(this, args: args);
   }
 }

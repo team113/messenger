@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.login] page.
 class LoginView extends StatelessWidget {
@@ -42,7 +43,7 @@ class LoginView extends StatelessWidget {
                     children: [
                       const Icon(Icons.arrow_back_ios, color: Colors.grey),
                       Text(
-                        'btn_back'.tr,
+                        'btn_back'.t(),
                         style: context.textTheme.bodyText1!
                             .copyWith(color: Colors.grey, fontSize: 16),
                       ),
@@ -51,7 +52,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  'label_sign_in'.tr,
+                  'label_sign_in'.t(),
                   style: context.textTheme.bodyText1!
                       .copyWith(color: Colors.grey, fontSize: 16),
                 ),
@@ -71,7 +72,7 @@ class LoginView extends StatelessWidget {
                       TextButton(
                         key: key,
                         onPressed: onPressed,
-                        child: Text('btn_next'.tr,
+                        child: Text('btn_next'.t(),
                             style: context.textTheme.caption!
                                 .copyWith(color: Colors.grey, fontSize: 16)),
                       ),
@@ -107,7 +108,7 @@ class LoginView extends StatelessWidget {
                                   child: ReactiveTextField(
                                     key: const Key('UsernameField'),
                                     state: c.login,
-                                    label: 'label_sign_in_input'.tr,
+                                    label: 'label_sign_in_input'.t(),
                                     onChanged: () =>
                                         c.showPwdSection.value = false,
                                   ),
@@ -122,7 +123,7 @@ class LoginView extends StatelessWidget {
                                                 const ValueKey('PasswordField'),
                                             obscure: true,
                                             state: c.password,
-                                            label: 'label_password'.tr,
+                                            label: 'label_password'.t(),
                                           ),
                                         )
                                       : Container(),
@@ -140,7 +141,7 @@ class LoginView extends StatelessWidget {
                                 const Divider(thickness: 3),
                                 ListTile(
                                   title: Text(
-                                    '${'label_recover_account'.tr}:',
+                                    '${'label_recover_account'.t()}:',
                                     style:
                                         context.textTheme.bodyText2!.copyWith(
                                       fontSize: 18,
@@ -153,7 +154,7 @@ class LoginView extends StatelessWidget {
                                   child: ReactiveTextField(
                                     key: const ValueKey('RecoveryField'),
                                     state: c.recovery,
-                                    label: 'label_sign_in_input'.tr,
+                                    label: 'label_sign_in_input'.t(),
                                     enabled: (c.showCodeSection.value)
                                         ? false
                                         : true,
@@ -167,7 +168,7 @@ class LoginView extends StatelessWidget {
                                           child: ReactiveTextField(
                                             key: const Key('RecoveryCodeField'),
                                             state: c.recoveryCode,
-                                            label: 'label_recovery_code'.tr,
+                                            label: 'label_recovery_code'.t(),
                                             type: TextInputType.number,
                                             enabled:
                                                 (c.showNewPasswordSection.value)
@@ -185,7 +186,7 @@ class LoginView extends StatelessWidget {
                                           child: ReactiveTextField(
                                             key: const Key('PasswordField'),
                                             state: c.newPassword,
-                                            label: 'label_new_password'.tr,
+                                            label: 'label_new_password'.t(),
                                             obscure: true,
                                           ),
                                         )
@@ -200,7 +201,7 @@ class LoginView extends StatelessWidget {
                                             key: const Key(
                                                 'RepeatPasswordField'),
                                             state: c.repeatPassword,
-                                            label: 'label_repeat_password'.tr,
+                                            label: 'label_repeat_password'.t(),
                                             obscure: true,
                                           ),
                                         )

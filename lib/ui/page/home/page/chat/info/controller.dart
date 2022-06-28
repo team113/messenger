@@ -30,6 +30,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -102,7 +103,7 @@ class ChatInfoController extends GetxController {
           name = s.text.isEmpty ? null : ChatName(s.text);
         } on FormatException catch (_) {
           s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.tr;
+          s.error.value = 'err_incorrect_input'.t();
           s.unsubmit();
           return;
         }
@@ -143,7 +144,7 @@ class ChatInfoController extends GetxController {
         try {
           slug = ChatDirectLinkSlug(s.text);
         } on FormatException {
-          s.error.value = 'err_incorrect_input'.tr;
+          s.error.value = 'err_incorrect_input'.t();
         }
 
         if (slug == chat?.chat.value.directLink?.slug) {
@@ -279,7 +280,7 @@ class ChatInfoController extends GetxController {
       ),
     );
 
-    MessagePopup.success('label_copied_to_clipboard'.tr);
+    MessagePopup.success('label_copied_to_clipboard'.t());
   }
 
   /// Fetches the [chat].

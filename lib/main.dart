@@ -29,6 +29,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -152,8 +153,15 @@ class App extends StatelessWidget {
       onGenerateTitle: (context) => 'Gapopa',
       theme: Themes.light(),
       themeMode: ThemeMode.light,
-      locale: L10n.locales[L10n.chosen],
-      translationsKeys: L10n.phrases,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        supportedLocales.forEach((l) {
+          print(l);
+        });
+        return supportedLocales.contains(deviceLocale)
+            ? deviceLocale
+            : supportedLocales.first;
+      },
+      localizationsDelegates: LocalizationsConstants.localizationsDelegates,
       debugShowCheckedModeBanner: false,
     );
   }

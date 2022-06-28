@@ -44,6 +44,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
@@ -263,7 +264,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.tr,
+              label: 'btn_add_participant'.t(),
             ),
             const SizedBox(height: 13),
           ],
@@ -289,7 +290,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.tr,
+              label: 'btn_add_participant'.t(),
             ),
             const SizedBox(height: 13),
           ],
@@ -609,12 +610,12 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.tr
+                ? 'label_call_joining'.t()
                 : isOutgoing
-                    ? 'label_call_calling'.tr
+                    ? 'label_call_calling'.t()
                     : c.withVideo == true
-                        ? 'label_video_call'.tr
-                        : 'label_audio_call'.tr;
+                        ? 'label_video_call'.t()
+                        : 'label_audio_call'.t();
 
         return _layoutButton(
           icon: Center(
@@ -630,7 +631,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                c.chat.value?.title.value ?? ('.'.tr * 3),
+                c.chat.value?.title.value ?? ('.'.t() * 3),
                 style: context.textTheme.headline4
                     ?.copyWith(color: Colors.white, fontSize: 20),
                 overflow: TextOverflow.ellipsis,
@@ -745,8 +746,8 @@ Widget _mobileVideo(
                       if (participant.source != MediaSourceKind.Display)
                         ContextMenuButton(
                           label: fit == null || fit == BoxFit.cover
-                              ? 'btn_call_do_not_cut_video'.tr
-                              : 'btn_call_cut_video'.tr,
+                              ? 'btn_call_do_not_cut_video'.t()
+                              : 'btn_call_cut_video'.t(),
                           onPressed: () {
                             c.rendererBoxFit[
                                     participant.video.value!.track.id()] =
@@ -763,14 +764,14 @@ Widget _mobileVideo(
                         ),
                       if (videos.length > 1)
                         ContextMenuButton(
-                          label: 'btn_call_center_video'.tr,
+                          label: 'btn_call_center_video'.t(),
                           onPressed: () => c.highlight(participant),
                         ),
                     ],
                     ContextMenuButton(
                       label: participant.video.value?.isEnabled == true
-                          ? 'btn_call_disable_video'.tr
-                          : 'btn_call_enable_video'.tr,
+                          ? 'btn_call_disable_video'.t()
+                          : 'btn_call_enable_video'.t(),
                       onPressed: () =>
                           c.toggleRendererEnabled(participant.video),
                     ),

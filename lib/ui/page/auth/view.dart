@@ -18,6 +18,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/fluent/extension.dart';
 
 import '/l10n/_l10n.dart';
 import '/routes.dart';
@@ -143,11 +144,11 @@ class AuthView extends StatelessWidget {
               OutlinedRoundedButton(
                 key: const Key('StartChattingButton'),
                 title: Text(
-                  'btn_start_chatting'.tr,
+                  'btn_start_chatting'.t(),
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  'label_no_registration'.tr,
+                  'label_no_registration'.t(),
                   style: const TextStyle(color: Colors.white),
                 ),
                 leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -159,15 +160,15 @@ class AuthView extends StatelessWidget {
               const SizedBox(height: 10),
               OutlinedRoundedButton(
                 key: const Key('SignInButton'),
-                title: Text('btn_login'.tr),
-                subtitle: Text('label_or_register'.tr),
+                title: Text('btn_login'.t()),
+                subtitle: Text('label_or_register'.t()),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                 onPressed: router.login,
               ),
               const SizedBox(height: 10),
               if (isIosWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
+                  title: Text('btn_download'.t()),
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
@@ -177,7 +178,7 @@ class AuthView extends StatelessWidget {
                 ),
               if (isAndroidWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
+                  title: Text('btn_download'.t()),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -188,8 +189,8 @@ class AuthView extends StatelessWidget {
                 ),
               if (isDesktopWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
-                  subtitle: Text('label_application'.tr),
+                  title: Text('btn_download'.t()),
+                  subtitle: Text('label_application'.t()),
                   leading: PlatformUtils.isMacOS
                       ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
                       : (PlatformUtils.isWindows)

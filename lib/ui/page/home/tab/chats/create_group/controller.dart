@@ -25,6 +25,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -85,7 +86,7 @@ class CreateGroupController extends GetxController {
       status.value = RxStatus.error(e.toMessage());
     } on FormatException catch (_) {
       status.value = RxStatus.empty();
-      MessagePopup.error('err_incorrect_chat_name'.tr);
+      MessagePopup.error('err_incorrect_chat_name'.t());
     } catch (e) {
       status.value = RxStatus.empty();
       MessagePopup.error(e);

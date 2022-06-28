@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/contact.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 // TODO: Implement [Routes.contact] page.
 /// View of the [Routes.contact] page.
@@ -38,7 +39,7 @@ class ContactView extends StatelessWidget {
           title: Text('Contact $id'),
           elevation: 0,
         ),
-        body: Center(child: Text('Contact with tag: $id'.tr)),
+        body: Center(child: Text('Contact with tag: $id'.t())),
       ),
     );
   }

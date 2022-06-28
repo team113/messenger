@@ -29,6 +29,7 @@ import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
@@ -134,19 +135,19 @@ class _HomeViewState extends State<HomeView> {
                         CustomNavigationBarItem(
                           key: const Key('ContactsButton'),
                           icon: FontAwesomeIcons.solidCircleUser,
-                          label: 'label_tab_contacts'.tr,
+                          label: 'label_tab_contacts'.t(),
                         ),
                         CustomNavigationBarItem(
                             key: const Key('ChatsButton'),
                             icon: FontAwesomeIcons.solidComment,
-                            label: 'label_tab_chats'.tr,
+                            label: 'label_tab_chats'.t(),
                             badge: c.unreadChatsCount.value == 0
                                 ? null
                                 : '${c.unreadChatsCount.value}'),
                         CustomNavigationBarItem(
                           key: const Key('MenuButton'),
                           icon: FontAwesomeIcons.bars,
-                          label: 'label_tab_menu'.tr,
+                          label: 'label_tab_menu'.t(),
                         ),
                       ],
                       currentIndex: router.tab.index,

@@ -23,6 +23,7 @@ import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the dialog member addition modal.
 class AddDialogMemberView extends StatelessWidget {
@@ -92,7 +93,7 @@ class AddDialogMemberView extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Text(
-                                    'label_add_chat_member'.tr,
+                                    'label_add_chat_member'.t(),
                                     style: font17,
                                   ),
                                   const Spacer(),
@@ -170,9 +171,9 @@ class AddDialogMemberView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        '${'label_create_group_selected'.tr}'
+                        '${'label_create_group_selected'.t()}'
                         ' ${c.selectedContacts.length + c.selectedUsers.length} '
-                        '${'label_create_group_users'.tr}',
+                        '${'label_create_group_users'.t()}',
                         style: font13,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -183,7 +184,7 @@ class AddDialogMemberView extends StatelessWidget {
                       ? Expanded(
                           child: Center(
                             child: Text(
-                              c.status.value.errorMessage ?? 'err_unknown'.tr,
+                              c.status.value.errorMessage ?? 'err_unknown'.t(),
                               style: font13.copyWith(color: Colors.red),
                             ),
                           ),
@@ -196,7 +197,7 @@ class AddDialogMemberView extends StatelessWidget {
                             ? null
                             : c.transformDialogCallIntoGroupCall,
                     child: Text(
-                      'btn_add_participant'.tr,
+                      'btn_add_participant'.t(),
                       style:
                           c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
                               ? font17.copyWith(color: Colors.grey)

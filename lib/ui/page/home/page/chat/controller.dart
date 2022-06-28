@@ -53,6 +53,7 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -347,7 +348,7 @@ class ChatController extends GetxController {
   /// Starts the editing of the specified [item], if allowed.
   void editMessage(ChatItem item) {
     if (!item.isEditable(chat!.chat.value, me!)) {
-      MessagePopup.error('err_uneditable_message'.tr);
+      MessagePopup.error('err_uneditable_message'.t());
       return;
     }
 
@@ -628,7 +629,7 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    MessagePopup.success('label_copied_to_clipboard'.tr);
+    MessagePopup.success('label_copied_to_clipboard'.t());
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -844,11 +845,11 @@ class ChatController extends GetxController {
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
   String getTitle(Iterable<User> users, UserId? me) {
-    String title = '.'.tr * 3;
+    String title = '.'.t() * 3;
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.tr;
+        title = 'label_chat_monolog'.t();
         break;
 
       case ChatKind.dialog:
@@ -862,9 +863,9 @@ extension ChatViewExt on Chat {
       case ChatKind.group:
         if (name == null) {
           title =
-              users.take(3).map((u) => u.name?.val ?? u.num.val).join(', '.tr);
+              users.take(3).map((u) => u.name?.val ?? u.num.val).join(', '.t());
           if (members.length > 3) {
-            title += ', '.tr + ('.'.tr * 3);
+            title += ', '.t() + ('.'.t() * 3);
           }
         } else {
           title = name!.val;
@@ -889,7 +890,7 @@ extension ChatViewExt on Chat {
         return partner?.getStatus();
 
       case ChatKind.group:
-        return '${members.length} ${'label_subtitle_participants'.tr}';
+        return '${members.length} ${'label_subtitle_participants'.t()}';
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
@@ -920,22 +921,22 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
     switch (this) {
       case ChatCallFinishReason.dropped:
         return fromMe == true
-            ? 'label_chat_call_unanswered'.tr
-            : 'label_chat_call_missed'.tr;
+            ? 'label_chat_call_unanswered'.t()
+            : 'label_chat_call_missed'.t();
       case ChatCallFinishReason.declined:
-        return 'label_chat_call_declined'.tr;
+        return 'label_chat_call_declined'.t();
       case ChatCallFinishReason.unanswered:
         return fromMe == true
-            ? 'label_chat_call_unanswered'.tr
-            : 'label_chat_call_missed'.tr;
+            ? 'label_chat_call_unanswered'.t()
+            : 'label_chat_call_missed'.t();
       case ChatCallFinishReason.memberLeft:
-        return 'label_chat_call_ended'.tr;
+        return 'label_chat_call_ended'.t();
       case ChatCallFinishReason.memberLostConnection:
-        return 'label_chat_call_ended'.tr;
+        return 'label_chat_call_ended'.t();
       case ChatCallFinishReason.serverDecision:
-        return 'label_chat_call_ended'.tr;
+        return 'label_chat_call_ended'.t();
       case ChatCallFinishReason.moved:
-        return 'label_chat_call_moved'.tr;
+        return 'label_chat_call_moved'.t();
       case ChatCallFinishReason.artemisUnknown:
         return null;
     }

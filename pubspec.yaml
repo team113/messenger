@@ -115,6 +115,7 @@ flutter:
     - assets/icons/
     - assets/audio/
     - pubspec.yaml
+    - assets/translates/
 
 sentry:
   upload_native_symbols: true

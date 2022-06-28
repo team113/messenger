@@ -31,6 +31,7 @@ import '/domain/service/user.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -141,7 +142,7 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.tr) == true) {
+      if (await MessagePopup.alert('alert_are_you_sure'.t()) == true) {
         status.value = RxStatus.loadingMore();
         try {
           Rx<ChatContact>? contact = _contactService.contacts.values
@@ -204,24 +205,24 @@ extension UserViewExt on User {
     switch (presence) {
       case Presence.present:
         if (online) {
-          return 'label_online'.tr;
+          return 'label_online'.t();
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.tr} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.t()} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.tr;
+          return 'label_offline'.t();
         }
 
       case Presence.away:
         if (online) {
-          return 'label_away'.tr;
+          return 'label_away'.t();
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.tr} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.t()} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.tr;
+          return 'label_offline'.t();
         }
 
       case Presence.hidden:
-        return 'label_hidden'.tr;
+        return 'label_hidden'.t();
 
       case Presence.artemisUnknown:
         return null;
@@ -240,31 +241,31 @@ extension _DateTimeToAgo on DateTime {
     Duration diff = DateTime.now().difference(local);
 
     if (diff.inDays > 730) {
-      return '${diff.inDays ~/ 365} ${'label_ago_years'.tr}';
+      return '${diff.inDays ~/ 365} ${'label_ago_years'.t()}';
     } else if (diff.inDays > 365) {
-      return 'label_ago_year'.tr;
+      return 'label_ago_year'.t();
     } else if (diff.inDays > 60) {
-      return '${diff.inDays ~/ 30} ${'label_ago_months'.tr}';
+      return '${diff.inDays ~/ 30} ${'label_ago_months'.t()}';
     } else if (diff.inDays > 30) {
-      return 'label_ago_month'.tr;
+      return 'label_ago_month'.t();
     } else if (diff.inDays > 14) {
-      return '${diff.inDays ~/ 7} ${'label_ago_weeks'.tr}';
+      return '${diff.inDays ~/ 7} ${'label_ago_weeks'.t()}';
     } else if (diff.inDays > 7) {
-      return 'label_ago_week'.tr;
+      return 'label_ago_week'.t();
     } else if (diff.inHours > 48) {
-      return '${diff.inHours ~/ 24} ${'label_ago_days'.tr}';
+      return '${diff.inHours ~/ 24} ${'label_ago_days'.t()}';
     } else if (diff.inHours > 24) {
-      return 'label_ago_day'.tr;
+      return 'label_ago_day'.t();
     } else if (diff.inMinutes > 120) {
-      return '${diff.inHours} ${'label_ago_hours'.tr}';
+      return '${diff.inHours} ${'label_ago_hours'.t()}';
     } else if (diff.inMinutes > 60) {
-      return 'label_ago_hour'.tr;
+      return 'label_ago_hour'.t();
     } else if (diff.inMinutes > 2) {
-      return '${diff.inMinutes} ${'label_ago_minutes'.tr}';
+      return '${diff.inMinutes} ${'label_ago_minutes'.t()}';
     } else if (diff.inMinutes > 1) {
-      return 'label_ago_minutes'.tr;
+      return 'label_ago_minutes'.t();
     } else {
-      return 'label_ago_recently'.tr;
+      return 'label_ago_recently'.t();
     }
   }
 }

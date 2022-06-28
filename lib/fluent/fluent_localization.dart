@@ -32,6 +32,7 @@ class _FluentLocalizationsDelegate
   const _FluentLocalizationsDelegate();
   @override
   bool isSupported(Locale locale) {
+    print(locale);
     return LocalizationsConstants.supportedLocales.contains(locale);
   }
 

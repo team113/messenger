@@ -27,6 +27,7 @@ import '/store/event/chat_call.dart';
 import '/store/event/incoming_chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// [OngoingCall]s repository interface.
 abstract class AbstractCallRepository {
@@ -106,7 +107,7 @@ class CallAlreadyExistsException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_already_exists'.tr;
+  String toMessage() => 'err_call_already_exists'.t();
 }
 
 /// Cannot join an [OngoingCall] as it doesn't exist on the client-side.
@@ -114,7 +115,7 @@ class CallDoesNotExistException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_not_found'.tr;
+  String toMessage() => 'err_call_not_found'.t();
 }
 
 /// Cannot join or start an [OngoingCall] as the authenticated [MyUser] has
@@ -123,12 +124,12 @@ class CallAlreadyJoinedException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_already_joined'.tr;
+  String toMessage() => 'err_call_already_joined'.t();
 }
 
 /// Cannot join or start an [OngoingCall] as it's maintained in a separate
 /// popup window.
 class CallIsInPopupException with LocalizedExceptionMixin implements Exception {
   @override
-  String toMessage() => 'err_call_is_in_popup'.tr;
+  String toMessage() => 'err_call_is_in_popup'.t();
 }

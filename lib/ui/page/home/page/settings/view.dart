@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.settings] page.
 class SettingsView extends StatelessWidget {
@@ -30,17 +31,17 @@ class SettingsView extends StatelessWidget {
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
         return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.tr)),
+          appBar: AppBar(title: Text('label_settings'.t())),
           body: ListView(
             children: [
               ListTile(
-                title: Text('btn_media_settings'.tr),
+                title: Text('btn_media_settings'.t()),
                 onTap: router.settingsMedia,
               ),
               ListTile(
                 title: Row(
                   children: [
-                    Text('label_enable_popup_calls'.tr),
+                    Text('label_enable_popup_calls'.t()),
                     const SizedBox(width: 10),
                     Obx(() {
                       return Switch(

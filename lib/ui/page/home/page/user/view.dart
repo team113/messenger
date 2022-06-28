@@ -26,6 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -101,7 +102,7 @@ class UserView extends StatelessWidget {
           } else if (c.status.value.isEmpty) {
             return Scaffold(
               appBar: AppBar(),
-              body: Center(child: Text('err_unknown_user'.tr)),
+              body: Center(child: Text('err_unknown_user'.t())),
             );
           } else {
             return Scaffold(
@@ -174,7 +175,7 @@ class UserView extends StatelessWidget {
           style: const TextStyle(fontSize: 17),
         ),
         subtitle: Text(
-          'label_biography'.tr,
+          'label_biography'.t(),
           style: const TextStyle(color: Color(0xFF888888)),
         ),
       );
@@ -190,7 +191,7 @@ class UserView extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          'label_num'.tr,
+          'label_num'.t(),
           style: const TextStyle(color: Color(0xFF888888)),
         ),
         trailing: _centered(const Icon(Icons.copy)),
@@ -206,7 +207,7 @@ class UserView extends StatelessWidget {
             .localizedString()
             .toString()),
         subtitle: Text(
-          'label_presence'.tr,
+          'label_presence'.t(),
           style: const TextStyle(color: Color(0xFF888888)),
         ),
       );
@@ -222,8 +223,8 @@ class UserView extends StatelessWidget {
               ? const Icon(Icons.delete)
               : const Icon(Icons.person_add)),
           title: Text(c.inContacts.value
-              ? 'btn_delete_from_contacts'.tr
-              : 'btn_add_to_contacts'.tr),
+              ? 'btn_delete_from_contacts'.t()
+              : 'btn_add_to_contacts'.t()),
           onTap: c.status.value.isLoadingMore
               ? null
               : c.inContacts.value
@@ -235,35 +236,35 @@ class UserView extends StatelessWidget {
   /// Returns a [Chat]-dialog button opening the [User.dialog].
   Widget _dialog(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.chat)),
-        title: Text('btn_write_message'.tr),
+        title: Text('btn_write_message'.t()),
         onTap: c.openChat,
       );
 
   /// Returns a button making an audio call with the [User].
   Widget _audioCall(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.call)),
-        title: Text('btn_audio_call'.tr),
+        title: Text('btn_audio_call'.t()),
         onTap: () => c.call(false),
       );
 
   /// Returns a button making a video call with the [User].
   Widget _videoCall(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.video_call)),
-        title: Text('btn_video_call'.tr),
+        title: Text('btn_video_call'.t()),
         onTap: () => c.call(true),
       );
 
   /// Returns a button blacklisting the [User] .
   Widget _blacklist(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.block)),
-        title: Text('btn_blacklist'.tr),
+        title: Text('btn_blacklist'.t()),
         onTap: () => throw UnimplementedError(),
       );
 
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(String copy) {
     Clipboard.setData(ClipboardData(text: copy));
-    MessagePopup.success('label_copied_to_clipboard'.tr);
+    MessagePopup.success('label_copied_to_clipboard'.t());
   }
 
   /// Returns the vertically centered [widget].

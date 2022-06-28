@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import 'controller.dart';
+import 'package:messenger/fluent/extension.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
@@ -42,7 +43,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
       builder: (MenuTabController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_menu'.tr),
+          title: Text('label_menu'.t()),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.5),
             child: Container(
@@ -57,21 +58,22 @@ class MenuTabView extends StatelessWidget {
               const SizedBox(height: 10),
               ListTile(
                 key: const Key('MyProfileButton'),
-                title: Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.tr),
+                title:
+                    Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.t()),
                 leading: AvatarWidget.fromMyUser(c.myUser.value),
                 onTap: router.me,
               ),
               ...divider,
               ListTile(
                 key: const Key('SettingsButton'),
-                title: Text('btn_settings'.tr),
+                title: Text('btn_settings'.t()),
                 leading: const Icon(Icons.settings),
                 onTap: router.settings,
               ),
               ...divider,
               ListTile(
                 key: const Key('LogoutButton'),
-                title: Text('btn_logout'.tr),
+                title: Text('btn_logout'.t()),
                 leading: const Icon(Icons.logout),
                 onTap: () async {
                   if (await c.confirmLogout()) {
