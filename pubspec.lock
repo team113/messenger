@@ -358,6 +358,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.6"
+  dough:
+    dependency: "direct main"
+    description:
+      name: dough
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   email_validator:
     dependency: "direct main"
     description:
@@ -1175,6 +1182,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.3"
+  sensors:
+    dependency: transitive
+    description:
+      name: sensors
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   sentry:
     dependency: transitive
     description:

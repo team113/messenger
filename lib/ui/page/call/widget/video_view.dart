@@ -18,6 +18,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/widget/svg/svg.dart';
@@ -31,7 +33,7 @@ class RtcVideoView extends StatefulWidget {
     Key? key,
     this.borderRadius,
     this.enableContextMenu = true,
-    this.fit = BoxFit.contain,
+    this.fit,
     this.label,
     this.mirror = false,
     this.muted = false,
@@ -39,6 +41,8 @@ class RtcVideoView extends StatefulWidget {
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
+    this.useFitAlgorithm = true,
+    this.framelessBuilder,
   }) : super(key: key);
 
   /// Renderer to display WebRTC video stream from.
@@ -48,7 +52,7 @@ class RtcVideoView extends StatefulWidget {
   final bool mirror;
 
   /// [BoxFit] mode of this video.
-  final BoxFit fit;
+  final BoxFit? fit;
 
   /// Indicator whether this video should display `muted` icon or not.
   final bool muted;
@@ -58,6 +62,8 @@ class RtcVideoView extends StatefulWidget {
 
   /// Border radius of this video.
   final BorderRadius? borderRadius;
+
+  final Widget Function()? framelessBuilder;
 
   /// Indicator whether this video should take exactly the size of its
   /// [renderer]'s video stream.
@@ -78,30 +84,109 @@ class RtcVideoView extends StatefulWidget {
   /// Optional outline of this video.
   final Color? outline;
 
+  final bool useFitAlgorithm;
+
+  static BoxFit determineBoxFit(
+    RtcVideoRenderer renderer,
+    BoxConstraints constraints,
+    BuildContext context,
+  ) {
+    if (renderer.source == MediaSourceKind.Display ||
+        (renderer.width == 0 && renderer.height == 0)) {
+      return BoxFit.contain;
+    } else {
+      bool contain = false;
+
+      if (context.isMobile) {
+        // Video is horizontal.
+        if (renderer.aspectRatio >= 1) {
+          double width = constraints.maxWidth;
+          double height =
+              renderer.height * (constraints.maxWidth / renderer.width);
+          double factor = constraints.maxHeight / height;
+          contain = factor >= 3.0;
+          if (factor < 1) {
+            width = renderer.width * (constraints.maxHeight / renderer.height);
+            height = constraints.maxHeight;
+            factor = constraints.maxWidth / width;
+            contain = factor >= 2.5;
+          }
+        }
+        // Video is vertical.
+        else {
+          double width =
+              renderer.width * (constraints.maxHeight / renderer.height);
+          double height = constraints.maxHeight;
+          double factor = constraints.maxWidth / width;
+          contain = factor >= 3.9;
+          if (factor < 1) {
+            width = constraints.maxWidth;
+            height = renderer.height * (constraints.maxWidth / renderer.width);
+            factor = constraints.maxHeight / height;
+            contain = factor >= 3.0;
+          }
+        }
+      } else {
+        // Video is horizontal.
+        if (renderer.aspectRatio >= 1) {
+          double width = constraints.maxWidth;
+          double height =
+              renderer.height * (constraints.maxWidth / renderer.width);
+          double factor = constraints.maxHeight / height;
+          contain = factor >= 2.41;
+          if (factor < 1) {
+            width = renderer.width * (constraints.maxHeight / renderer.height);
+            height = constraints.maxHeight;
+            factor = constraints.maxWidth / width;
+            contain = factor >= 1.5;
+          }
+        }
+        // Video is vertical.
+        else {
+          double width =
+              renderer.width * (constraints.maxHeight / renderer.height);
+          double height = constraints.maxHeight;
+          double factor = constraints.maxWidth / width;
+          contain = factor >= 2.0;
+          if (factor < 1) {
+            width = constraints.maxWidth;
+            height = renderer.height * (constraints.maxWidth / renderer.width);
+            factor = constraints.maxHeight / height;
+            contain = factor >= 2.2;
+          }
+        }
+      }
+
+      return contain ? BoxFit.contain : BoxFit.cover;
+    }
+  }
+
   @override
   State<RtcVideoView> createState() => _RtcVideoViewState();
 }
 
 /// State of a [RtcVideoView] used to rebuild itself on size determination.
 class _RtcVideoViewState extends State<RtcVideoView> {
+  final GlobalKey _videoKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     Widget video = VideoView(
       widget.renderer.inner,
+      key: _videoKey,
       mirror: widget.mirror,
-      objectFit: widget.fit == BoxFit.cover
-          ? VideoViewObjectFit.cover
-          : VideoViewObjectFit.contain,
+      objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
     );
 
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
-      if (widget.renderer.inner.videoHeight == 0) {
+      if (widget.renderer.height == 0) {
         _waitTilSizeDetermined();
         return Stack(
           children: [
             Offstage(child: video),
+            if (widget.framelessBuilder != null) widget.framelessBuilder!(),
             const Center(child: CircularProgressIndicator())
           ],
         );
@@ -110,16 +195,29 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
     // otherwise.
-    Widget aspected() {
-      if (widget.respectAspectRatio && widget.fit != BoxFit.cover) {
+    Widget aspected(BoxFit? fit) {
+      if (widget.respectAspectRatio && fit != BoxFit.cover) {
         if (widget.renderer.inner.videoHeight == 0) {
           _waitTilSizeDetermined();
           return Stack(
             children: [
               Offstage(child: video),
+              if (widget.framelessBuilder != null) widget.framelessBuilder!(),
               const Center(child: CircularProgressIndicator())
             ],
           );
+        }
+
+        return AspectRatio(
+          aspectRatio: widget.renderer.inner.videoWidth /
+              widget.renderer.inner.videoHeight,
+          child: video,
+        );
+      }
+
+      if (fit == BoxFit.contain) {
+        if (widget.renderer.inner.videoHeight == 0) {
+          return video;
         }
 
         return AspectRatio(
@@ -134,13 +232,13 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
     // [aspected] otherwise.
-    Widget clipped() => widget.borderRadius == null
-        ? aspected()
-        : ClipRRect(borderRadius: widget.borderRadius, child: aspected());
+    Widget clipped(BoxFit? fit) => widget.borderRadius == null
+        ? aspected(fit)
+        : ClipRRect(borderRadius: widget.borderRadius, child: aspected(fit));
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
-    Widget outlined() => Container(
+    Widget outlined(BoxFit? fit) => Container(
           decoration: widget.outline == null
               ? null
               : BoxDecoration(
@@ -148,66 +246,79 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                   border: Border.all(color: widget.outline!),
                   borderRadius: widget.borderRadius,
                 ),
-          child: clipped(),
+          child: clipped(fit),
         );
 
-    return IgnorePointer(
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          outlined(),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: widget.muted || widget.label != null
-                ? Container(
-                    height: 25,
-                    padding: const EdgeInsets.symmetric(horizontal: 6.3),
-                    margin: const EdgeInsets.only(bottom: 7),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: const Color(0xDD818181),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.muted) const SizedBox(width: 1),
-                        if (widget.muted)
-                          SvgLoader.asset(
-                            'assets/icons/microphone_off_small.svg',
-                            width: 11,
-                          ),
-                        Flexible(
-                          child: AnimatedSize(
-                            duration: const Duration(milliseconds: 200),
-                            child: widget.label != null
-                                ? Padding(
-                                    padding: EdgeInsets.only(
-                                        left: widget.muted ? 6 : 1),
-                                    child: Text(
-                                      widget.label!,
-                                      style: context.theme.outlinedButtonTheme
-                                          .style!.textStyle!
-                                          .resolve({
-                                        MaterialState.disabled
-                                      })!.copyWith(
-                                        fontSize: 13,
-                                        color: Colors.white,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        RtcVideoRenderer renderer = widget.renderer;
+
+        BoxFit? fit;
+        if (renderer.source != MediaSourceKind.Display) {
+          fit = widget.fit;
+        }
+
+        // Calculate the default [BoxFit] if there's no explicit fit and this
+        // renderer's stream is from camera.
+        fit ??= RtcVideoView.determineBoxFit(renderer, constraints, context);
+
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            outlined(fit),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: widget.muted || widget.label != null
+                  ? Container(
+                      height: 25,
+                      padding: const EdgeInsets.symmetric(horizontal: 6.3),
+                      margin: const EdgeInsets.only(bottom: 7),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: const Color(0xDD818181),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.muted) const SizedBox(width: 1),
+                          if (widget.muted)
+                            SvgLoader.asset(
+                              'assets/icons/microphone_off_small.svg',
+                              width: 11,
+                            ),
+                          Flexible(
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 200),
+                              child: widget.label != null
+                                  ? Padding(
+                                      padding: EdgeInsets.only(
+                                          left: widget.muted ? 6 : 1),
+                                      child: Text(
+                                        widget.label!,
+                                        style: context.theme.outlinedButtonTheme
+                                            .style!.textStyle!
+                                            .resolve({
+                                          MaterialState.disabled
+                                        })!.copyWith(
+                                          fontSize: 13,
+                                          color: Colors.white,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.clip,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.clip,
-                                    ),
-                                  )
-                                : const SizedBox(width: 1, height: 25),
+                                    )
+                                  : const SizedBox(width: 1, height: 25),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox(width: 1, height: 1),
-          ),
-        ],
-      ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(width: 1, height: 1),
+            ),
+          ],
+        );
+      },
     );
   }
 

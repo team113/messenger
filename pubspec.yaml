@@ -16,6 +16,7 @@ dependencies:
   collection: ^1.16.0
   desktop_drop: ^0.3.3
   dio: ^4.0.6
+  dough: ^1.0.3
   email_validator: ^2.0.1
   expandable: ^5.0.1
   file_picker: ^4.5.1
