@@ -67,10 +67,10 @@ class ContactsTabController extends GetxController {
   final CallService _calls;
 
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
-  List<StreamSubscription>? _userSubscriptions;
+  Map<ChatContactId, StreamSubscription>? _contactsSubscriptions;
 
   /// [StreamSubscription]s to the [contacts] updates.
-  List<StreamSubscription>? _contactsUpdatesSubscription;
+  StreamSubscription? _contactsUpdatesSubscription;
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
@@ -148,6 +148,17 @@ class ContactsTabController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void dispose() {
+    _contactsUpdatesSubscription?.cancel();
+    if (_contactsSubscriptions != null) {
+      for (StreamSubscription subscription in _contactsSubscriptions!.values) {
+        subscription.cancel();
+      }
+    }
+    super.dispose();
+  }
+
   /// Starts an audio [ChatCall] with a [to] [User].
   Future<void> startAudioCall(User to) => _call(to, false);
 
@@ -190,36 +201,45 @@ class ContactsTabController extends GetxController {
   /// are available in [contacts]. Then listens contacts changes and
   /// subscribes/unsubscribes from updates
   Future<void> _initContactsSubscription() async {
-    // var futureUsers = contacts.values
-    //     .where((c) => c.value.users.isNotEmpty)
-    //     .map((c) => getUser(c.value.users.first.id))
-    //     .toList();
-    // print(futureUsers);
-    // _userSubscriptions = (await Future.wait(futureUsers))
-    //     .where((u) => u != null)
-    //     .map<StreamSubscription>((u) => u!.updates.listen((event) {}))
-    //     .toList();
-    // print(_userSubscriptions);
+    _contactsSubscriptions = {};
 
-    // contacts.listen((newMap) {
-    //   newMap.changes.listen((e) async {
-    //     switch (e.op) {
-    //       case OperationKind.added:
-    //         if (e.value?.value.users.isNotEmpty ?? false) {
-    //           RxUser? u = await getUser(e.value!.value.users.first.id);
-    //           if (u != null) {
-    //             _userSubscriptions!.add(u.updates.listen((event) {}));
-    //           }
-    //         }
-    //         break;
-    //       case OperationKind.removed:
-    //         // No-op
-    //         break;
-    //       case OperationKind.updated:
-    //         // TODO: Handle this case.
-    //         break;
-    //     }
-    //   });
-    // });
+    await Future.forEach(contacts.values.where((c) => c.value.users.isNotEmpty),
+        (Rx<ChatContact> contact) async {
+      RxUser? user = await getUser(contact.value.users.first.id);
+      if (user != null) {
+        _contactsSubscriptions!.putIfAbsent(
+            contact.value.id, () => user.updates.listen((event) {}));
+      }
+    });
+
+    _contactsUpdatesSubscription = contacts.changes.listen((e) async {
+      switch (e.op) {
+        case OperationKind.added:
+          if (e.value?.value.users.isNotEmpty ?? false) {
+            RxUser? user = await getUser(e.value!.value.users.first.id);
+            if (user != null && e.value != null) {
+              _contactsSubscriptions!.putIfAbsent(
+                  e.value!.value.id, () => user.updates.listen((event) {}));
+            }
+          }
+          break;
+        case OperationKind.removed:
+          _contactsSubscriptions?[e.key]?.cancel();
+          _contactsSubscriptions?.remove(e.key);
+          break;
+        case OperationKind.updated:
+          if ((e.value?.value.users.isNotEmpty ?? false) &&
+              (e.value!.value.users.first.id != contacts[e.key]?.value.id)) {
+            _contactsSubscriptions?[e.key]?.cancel();
+            _contactsSubscriptions?.remove(e.key);
+            RxUser? user = await getUser(e.value!.value.users.first.id);
+            if (user != null && e.value != null) {
+              _contactsSubscriptions!.putIfAbsent(
+                  e.value!.value.id, () => user.updates.listen((event) {}));
+            }
+          }
+          break;
+      }
+    });
   }
 }

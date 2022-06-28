@@ -20,7 +20,7 @@ subscription UserEvents($id: UserId!, $ver: UserVersion) {
     ... on SubscriptionInitialized {
       ok
     }
-    ... on User {
+    ... on User{
       ...User
     }
     ... on UserEventsVersioned {
@@ -28,6 +28,10 @@ subscription UserEvents($id: UserId!, $ver: UserVersion) {
     }
     ... on BlacklistEventsVersioned {
       ...BlacklistEventsVersioned
+    }
+    ... on IsBlacklisted {
+      blacklisted
+      blacklistVer : ver
     }
   }
 }

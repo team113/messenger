@@ -172,17 +172,17 @@ class UserRepository implements AbstractUserRepository {
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
         ));
+      } else if (events.$$typename == 'BlacklistEventsVersioned') {
+        var mixin = events as BlacklistEventsVersionedMixin;
+        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+          mixin.events.map((e) => _blacklistEvent(e)).toList(),
+          mixin.blacklistVer,
+        ));
+      } else if (events.$$typename == 'IsBlacklisted') {
+        var node =
+            events as UserEvents$Subscription$UserEvents$IsBlacklisted;
+        yield UserEventsIsBlacklisted(node.blacklisted, node.blacklistVer);
       }
-      // else if (events.$$typename == 'BlacklistEventsVersioned') {
-      //   var mixin = events as BlacklistEventsVersionedMixin;
-      //   yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
-      //     mixin.events.map((e) => _blacklistEvent(e)).toList(),
-      //     mixin.ver,
-      //   ));
-      // } else if (events.$$typename == 'IsBlacklisted') {
-      //   var node = events as UserMixin$IsBlacklisted;
-      //   yield UserEventsIsBlacklisted(node.blacklisted, node.ver);
-      // }
     });
   }
 
@@ -281,17 +281,17 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  // BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
-  //   if (e.$$typename == 'EventBlacklistRecordAdded') {
-  //     var node =
-  //         e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
-  //     return EventBlacklistRecordRemoved(node.userId, node.at);
-  //   } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
-  //     var node =
-  //         e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
-  //     return EventBlacklistRecordRemoved(node.userId, node.at);
-  //   } else {
-  //     throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
-  //   }
-  // }
+  BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordRemoved(node.userId, node.at);
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(node.userId, node.at);
+    } else {
+      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+    }
+  }
 }

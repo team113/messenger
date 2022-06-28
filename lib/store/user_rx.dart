@@ -17,8 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -63,10 +61,7 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    print('subscription for: ${user.value.name}');
-    print(user.value.id);
     var ver = noVersion ? null : _userLocal.get(user.value.id)?.ver;
-    print(ver?.val);
     _remoteSubscription =
         StreamIterator(await _userRepository.userEvents(user.value.id, ver));
     while (await _remoteSubscription!

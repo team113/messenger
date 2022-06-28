@@ -15,22 +15,22 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
-    events {
+  events {
     __typename
-        ... on EventBlacklistRecordAdded {
-            userId
-            user {
-              __typename
-            }
-            at
-        }
-    ... on EventBlacklistRecordRemoved {
-            userId
-            user {
-              __typename
-            }
-            at
-        }
+    ... on EventBlacklistRecordAdded {
+      userId
+      user {
+        __typename
+      }
+      at
     }
-    ver
+    ... on EventBlacklistRecordRemoved {
+      userId
+      user {
+        __typename
+      }
+      at
+    }
+  }
+  blacklistVer : ver
 }
