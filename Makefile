@@ -19,6 +19,12 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
+RELEASE_BRANCH := release
+MAINLINE_BRANCH := main
+CURRENT_BRANCH := $(strip $(if $(call eq,$(CI),),\
+	$(shell git branch | grep \* | cut -d ' ' -f2),$(github.ref_name)))
+
+VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d'"'))
@@ -85,7 +91,8 @@ endif
 # Build Flutter project from sources.
 #
 # Usage:
-#	make flutter.build [platform=(apk|web|linux|macos|windows)]
+#	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
+#	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 
@@ -98,6 +105,8 @@ ifeq ($(platform),macos)
 	$(error Dockerized macOS build is not supported)
 else ifeq ($(platform),windows)
 	$(error Dockerized Windows build is not supported)
+else ifeq ($(platform),ios)
+	$(error Dockerized iOS build is not supported)
 else
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
@@ -113,7 +122,10 @@ else
 #          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
-		$(if $(call eq,$(or $(platform),apk),apk),--split-debug-info=symbols,) \
+		$(if $(call eq,$(or $(platform),apk),apk),\
+		    --split-debug-info=symbols \
+		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
+		) \
 		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
@@ -297,6 +309,61 @@ copyright:
 
 
 
+###################
+# GitHub commands #
+###################
+
+# Prepare release notes for GitHub release.
+#
+# Usage:
+#	make github.release.notes [VERSION=<proj-version>]
+#	     [project-url=(https://github.com/team113/messenger|<github-project-url>)]
+
+github-proj-url = $(strip $(or $(project-url),\
+	https://github.com/team113/messenger))
+
+github.release.notes:
+	@echo "$(strip \
+		[Changelog]($(github-proj-url)/blob/v$(VERSION)/CHANGELOG.md#$(shell \
+			sed -n '/^## \[$(VERSION)\]/{\
+				s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1-\2/;\
+				s/[^0-9a-z-]*//g;\
+				p;\
+			}' CHANGELOG.md)) | \
+		[Milestone]($(github-proj-url)/milestone/$(shell \
+			sed -n '/^## \[$(VERSION)\]/,/Milestone/{\
+				s/.*milestone.\([0-9]*\).*/\1/p;\
+			}' CHANGELOG.md)) | \
+		[Repository]($(github-proj-url)/tree/v$(VERSION)))"
+
+
+
+
+################
+# Git commands #
+################
+
+# Release project version (merge to release branch and apply version tag).
+#
+# Usage:
+#	make git.release [VERSION=<proj-ver>]
+
+git.release:
+ifneq ($(CURRENT_BRANCH),$(MAINLINE_BRANCH))
+	@echo "--> Current branch is not '$(MAINLINE_BRANCH)'" && false
+endif
+	git fetch origin --tags $(RELEASE_BRANCH):$(RELEASE_BRANCH)
+ifeq ($(shell git rev-parse v$(VERSION) >/dev/null 2>&1 && echo "ok"),ok)
+	@echo "--> Tag v$(VERSION) already exists" && false
+endif
+	git fetch . $(MAINLINE_BRANCH):$(RELEASE_BRANCH)
+	git tag v$(VERSION) $(RELEASE_BRANCH)
+	git push origin $(RELEASE_BRANCH)
+	git push --tags origin $(RELEASE_BRANCH)
+
+
+
+
 ##################
 # .PHONY section #
 ##################
@@ -307,4 +374,6 @@ copyright:
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
             flutter.pub flutter.run \
+        git.release \
+        github.release.notes \
         test.unit

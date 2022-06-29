@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  ARTIFACT_PREFIX: messenger
   FLUTTER_VER: "3.0"
 
 jobs:
@@ -100,15 +101,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - apk
+        include:
+          - platform: apk
+            artifacts: build/app/outputs/flutter-apk/app-*.apk
+          - platform: appbundle
+            artifacts: build/app/outputs/bundle/release/app-release.aab
           # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
-          - linux
+          #- platform: ios
+          #  artifacts: ...
+          - platform: linux
+            artifacts: build/linux/x64/release/bundle
           # TODO: Uncomment once `flutter_webrtc` supports macOS platform.
-          #- macos
-          - web
-          - windows
+          #- platform: macos
+          #  artifacts: ...
+          - platform: web
+            artifacts: build/web
+          - platform: windows
+            artifacts: build/windows/runner/Release
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
     runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
                                                   && 'macos-latest')
@@ -142,11 +151,13 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
+             split-per-abi=yes
 
       - uses: actions/upload-artifact@v3
         with:
-          name: docs
-          path: doc/api
+          name: ${{ matrix.platform }}
+          path: ${{ matrix.artifacts }}
+          if-no-files-found: error
 
   dartdoc:
     runs-on: ubuntu-latest
@@ -188,3 +199,119 @@ jobs:
       - run: make flutter.pub
 
       - run: make test.unit
+
+
+
+
+  #############
+  # Releasing #
+  #############
+  
+  gh-pages:
+    name: Publish to GitHub Pages
+    if: ${{ github.ref == 'main' || startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    needs: ["dartdoc"]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: docs
+          path: docs
+      
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
+          destination_dir: ${{ (github.ref == 'main' && 'main') || 'release' }}
+          commit_message: ${{ github.event.head_commit.message }}
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+  release:
+    name: Release on GitHub
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    runs-on: ubuntu-latest
+    needs: ["build"]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Verify tag matches version
+        run: test "${{ github.ref_name }}" == "v$(make flutter.version)"
+      
+      - run: make github.release.notes
+             project-url="${{ github.server_url }}/${{ github.repository }}"
+             > ./release_notes.md
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: apk
+          path: android/
+      - uses: actions/download-artifact@v3
+        with:
+          name: appbundle
+          path: android/
+      - uses: actions/download-artifact@v3
+        with:
+          name: web
+          path: web/
+      - uses: actions/download-artifact@v3
+        with:
+          name: windows
+          path: windows/
+      - uses: actions/download-artifact@v3
+        with:
+          name: linux
+          path: linux/
+      - uses: actions/download-artifact@v3
+        with:
+          name: docs
+          path: docs/
+      
+      - run: mkdir package
+
+      - uses: thedoctor0/zip-release@main
+        with:
+          filename: 'package/${{ env.ARTIFACT_PREFIX }}-windows-x86_64.zip'
+          path: windows
+      - uses: thedoctor0/zip-release@main
+        with:
+          filename: 'package/${{ env.ARTIFACT_PREFIX }}-linux-x86_64.zip'
+          path: linux
+      - uses: thedoctor0/zip-release@main
+        with:
+          filename: 'package/${{ env.ARTIFACT_PREFIX }}-web.zip'
+          path: web
+      - uses: thedoctor0/zip-release@main
+        with:
+          filename: 'package/docs.zip'
+          path: docs
+
+      - run: mv android/app-arm64-v8a-release.apk 
+                package/${{ env.ARTIFACT_PREFIX }}-android-arm64-v8a.apk
+      - run: mv android/app-armeabi-v7a-release.apk
+                package/${{ env.ARTIFACT_PREFIX }}-android-armeabi-v7a.apk
+      - run: mv android/app-x86_64-release.apk
+                package/${{ env.ARTIFACT_PREFIX }}-android-x86_64.apk
+      - run: mv android/app-release.aab
+                package/${{ env.ARTIFACT_PREFIX }}-android.aab
+
+      - name: Generate SHA256 checksums
+        run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
+        working-directory: package/
+      - name: Show generated SHA256 checksums
+        run: cat *.sha256sum
+        working-directory: package/
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            package/*.apk
+            package/*.aab
+            package/*.zip
+            package/*.sha256sum
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          name: ${{ github.ref_name }}
+          bodyFile: ./release_notes.md
+          token: ${{ secrets.GITHUB_TOKEN }}
