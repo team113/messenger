@@ -20,8 +20,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';

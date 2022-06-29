@@ -197,7 +197,7 @@ Widget desktopCall(
                       1500) {
                 if (c.primaryDrags.value == 0 && c.secondaryDrags.value == 0) {
                   if (c.state.value == OngoingCallState.active) {
-                    if (!c.showUi.value || !c.showUi.value) {
+                    if (!c.showUi.value) {
                       c.keepUi();
                     } else {
                       c.keepUi(false);
@@ -340,37 +340,37 @@ Widget desktopCall(
           (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
 
       List<Widget> buttons = c.state.value == OngoingCallState.active ||
-          c.state.value == OngoingCallState.joining
+              c.state.value == OngoingCallState.joining
           ? [
-        if (PlatformUtils.isDesktop) _padding(screenButton(c, 0.8)),
-        if (PlatformUtils.isMobile)
-          _padding(
-            c.videoState.value.isEnabled()
-                ? switchButton(c, 0.8)
-                : speakerButton(c, 0.8),
-          ),
-        _padding(videoButton(c, 0.8)),
-        _padding(dropButton(c, 0.8)),
-        _padding(audioButton(c, 0.8)),
-        _padding(handButton(c, 0.8)),
-      ]
+              if (PlatformUtils.isDesktop) _padding(screenButton(c, 0.8)),
+              if (PlatformUtils.isMobile)
+                _padding(
+                  c.videoState.value.isEnabled()
+                      ? switchButton(c, 0.8)
+                      : speakerButton(c, 0.8),
+                ),
+              _padding(videoButton(c, 0.8)),
+              _padding(dropButton(c, 0.8)),
+              _padding(audioButton(c, 0.8)),
+              _padding(handButton(c, 0.8)),
+            ]
           : isOutgoing
-          ? [
-        if (PlatformUtils.isMobile)
-          _padding(
-            c.videoState.value.isEnabled()
-                ? switchButton(c)
-                : speakerButton(c),
-          ),
-        _padding(videoButton(c)),
-        _padding(cancelButton(c)),
-        _padding(audioButton(c)),
-      ]
-          : [
-        _padding(acceptAudioButton(c)),
-        _padding(acceptVideoButton(c)),
-        _padding(declineButton(c)),
-      ];
+              ? [
+                  if (PlatformUtils.isMobile)
+                    _padding(
+                      c.videoState.value.isEnabled()
+                          ? switchButton(c)
+                          : speakerButton(c),
+                    ),
+                  _padding(videoButton(c)),
+                  _padding(cancelButton(c)),
+                  _padding(audioButton(c)),
+                ]
+              : [
+                  _padding(acceptAudioButton(c)),
+                  _padding(acceptVideoButton(c)),
+                  _padding(declineButton(c)),
+                ];
 
       // Indicator whether the [_activeButtons] should be in a dock or not.
       bool isDocked = c.state.value == OngoingCallState.active ||
@@ -405,7 +405,8 @@ Widget desktopCall(
                 Padding(
                   padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
                   child: AnimatedSlider(
-                    isOpen: c.showUi.value,
+                    isOpen: c.state.value != OngoingCallState.active ||
+                        c.showUi.value,
                     duration: const Duration(milliseconds: 400),
                     translate: false,
                     child: Stack(
@@ -1706,8 +1707,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                           c.secondaryRight.value = null;
                           c.secondaryBottom.value = null;
 
-                          if (c.secondaryAlignment.value != null ||
-                              c.secondaryKeepAlignment.value != null) {
+                          if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
 
                             if (c.minimized.value) {
@@ -1721,8 +1721,6 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                             }
                             c.applySecondaryConstraints(context);
                           }
-
-                          c.secondaryKeepAlignment.value = null;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;

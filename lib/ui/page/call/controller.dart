@@ -31,8 +31,7 @@ import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
-import '/provider/gql/exceptions.dart'
-    show RemoveChatMemberException;
+import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -57,6 +56,7 @@ class CallController extends GetxController {
   });
 
   /// TODO(design): improve
+  /// Indicator whether the call opened in separate window.
   final bool isPopup;
 
   /// Duration of the current ongoing call.
@@ -83,18 +83,22 @@ class CallController extends GetxController {
   /// [Participant]s in `focus` mode.
   final RxList<Participant> focused = RxList([]);
 
-  final RxBool isSpeakerphone = RxBool(true);
-
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
   /// [Participant] that should be highlighted over the others.
   final Rx<Participant?> highlighted = Rx(null);
 
+  /// Indicator that secondary view is hovered by some participant view.
   final RxBool secondaryHovered = RxBool(false);
+
+  /// Indicator that secondary view is dragged.
   final RxBool secondaryDragged = RxBool(false);
 
+  /// Currently dragged [Participant].
   final Rx<Participant?> draggedRenderer = Rx(null);
+
+  /// Currently dragged [Participant].
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
   /// [Participant]s to display in a fit view.
@@ -106,10 +110,6 @@ class CallController extends GetxController {
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
-  OverlayEntry? addToSecondaryEntry;
-
-  final ScrollController panelScrollController = ScrollController();
-
   /// Count of a currently happening drags of the secondary videos used to
   /// determine if any drag happened at all.
   final RxInt secondaryDrags = RxInt(0);
@@ -118,7 +118,10 @@ class CallController extends GetxController {
   /// determine if any drag happened at all and to display secondary view hint.
   final RxInt primaryDrags = RxInt(0);
 
+  /// Count of a currently active targets to drop [secondaryDrags].
   final RxInt primaryTargets = RxInt(0);
+
+  /// Count of a currently active targets to drop [primaryDrags].
   final RxInt secondaryTargets = RxInt(0);
 
   /// Indicator whether the camera was switched or not.
@@ -138,7 +141,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
-  final RxBool isMoreHintDismissed = RxBool(false);
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
@@ -159,7 +161,6 @@ class CallController extends GetxController {
 
   /// [Participant] that is hovered right now.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
-  final Rx<Participant?> hoveredSecondary = Rx<Participant?>(null);
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -221,18 +222,29 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
-  final RxBool pinSecondary = RxBool(true);
-
+  /// Left coordinate of secondary view.
   final RxnDouble secondaryLeft = RxnDouble(0);
+
+  /// Top coordinate of secondary view.
   final RxnDouble secondaryTop = RxnDouble(0);
+
+  /// Right coordinate of secondary view.
   final RxnDouble secondaryRight = RxnDouble(null);
+
+  /// Bottom coordinate of secondary view.
   final RxnDouble secondaryBottom = RxnDouble(null);
+
+  /// Width of secondary view.
   late final RxDouble secondaryWidth;
+
+  /// Height of secondary view.
   late final RxDouble secondaryHeight;
 
+  /// [Alignment] of secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
+
+  /// Possible [Alignment] of secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
-  final Rx<Alignment?> secondaryKeepAlignment = Rx(null);
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -446,7 +458,6 @@ class CallController extends GetxController {
 
       if (!isGroup) {
         secondaryAlignment.value = null;
-        secondaryKeepAlignment.value = Alignment.bottomRight;
         secondaryLeft.value = null;
         secondaryTop.value = null;
         secondaryRight.value = 10;
@@ -520,7 +531,6 @@ class CallController extends GetxController {
               --hoveredRendererTimeout;
               if (hoveredRendererTimeout == 0) {
                 hoveredRenderer.value = null;
-                hoveredSecondary.value = null;
                 isCursorHidden.value = true;
               }
             }

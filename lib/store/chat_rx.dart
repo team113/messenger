@@ -193,7 +193,7 @@ class HiveRxChat implements RxChat {
       for (HiveChatItem item in _local.messages) {
         var i = items.indexWhere((e) => e.value.id == item.value.id);
         if (i == -1) {
-          _local.remove(item.value.timestamp.toString());
+          _local.remove(item.value.timestamp);
         }
       }
 
@@ -247,7 +247,7 @@ class HiveRxChat implements RxChat {
         ChatItem? message =
             messages.firstWhereOrNull((e) => e.value.id == itemId)?.value;
         if (message != null) {
-          _local.remove(message.timestamp.toString());
+          _local.remove(message.timestamp);
 
           HiveChat? chatEntity = _chatLocal.get(id);
           if (chatEntity?.value.lastItem?.id == message.id) {
@@ -256,7 +256,7 @@ class HiveRxChat implements RxChat {
             chatEntity!.value.lastItem = lastItem?.value;
             if (lastItem != null) {
               chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.timestamp.toString())?.cursor;
+                  _local.get(lastItem.value.timestamp)?.cursor;
             } else {
               chatEntity.lastItemCursor = null;
             }

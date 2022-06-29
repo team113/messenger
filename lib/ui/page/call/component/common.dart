@@ -30,7 +30,14 @@ Widget acceptAudioButton(CallController c) => RoundFloatingButton(
       color: CallController.acceptColor,
       withBlur: true,
       children: [
-        SvgLoader.asset('assets/icons/audio_call_start.svg', width: 29)
+        SizedBox(
+          width: 60,
+          height: 60,
+          child: Center(
+            child:
+                SvgLoader.asset('assets/icons/audio_call_start.svg', width: 29),
+          ),
+        )
       ],
     );
 
@@ -132,9 +139,15 @@ Widget switchButton(CallController c, [double? scale]) => Obx(
         withBlur: c.state.value != OngoingCallState.active &&
             c.state.value != OngoingCallState.joining,
         children: [
-          SvgLoader.asset(
-            'assets/icons/camera_${c.cameraSwitched.value ? 'front' : 'back'}.svg',
-            width: 28,
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: Center(
+              child: SvgLoader.asset(
+                'assets/icons/camera_${c.cameraSwitched.value ? 'front' : 'back'}.svg',
+                width: 28,
+              ),
+            ),
           )
         ],
       ),

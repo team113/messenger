@@ -342,7 +342,11 @@ class OngoingCall {
             }
           });
 
-          track.onStopped(() => _removeRemoteTrack(track));
+          // TODO: Keep [track]s to free them in [dispose].
+          track.onStopped(() {
+            _removeRemoteTrack(track);
+            track.free();
+          });
         });
       });
 
@@ -363,6 +367,10 @@ class OngoingCall {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
+
+    _room?.onClose((_) {
+      calls.remove(chatId.value);
+    });
 
     connected = true;
     _heartbeat?.cancel();

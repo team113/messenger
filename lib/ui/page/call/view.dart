@@ -45,6 +45,7 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        isPopup: isPopup,
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {

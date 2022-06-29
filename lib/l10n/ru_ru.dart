@@ -51,12 +51,13 @@ final Map<String, String> ruRU = {
   'btn_call_decline': 'Отклонить',
   'btn_call_disable_video': 'Отключить видео',
   'btn_call_do_not_cut_video': 'Не обрезать видео',
-  'btn_call_drop_video_here': 'Перенесите любое\nвидео сюда',
+  'btn_call_drop_video_here':
+      'Добавить видео в отдельную панель можно простым перетаскиванием',
   'btn_call_enable_video': 'Включить видео',
   'btn_call_end': 'Закончить',
   'btn_call_hand_down': 'Опустить руку',
   'btn_call_hand_up': 'Поднять руку',
-  'btn_call_screen_off': 'Закончить демонстрацию',
+  'btn_call_screen_off': 'Завершить демонстрацию экрана',
   'btn_call_screen_on': 'Демонстрация экрана',
   'btn_call_settings': 'Настройки',
   'btn_call_switch_camera': 'Переключить камеру',
@@ -262,8 +263,11 @@ final Map<String, String> ruRU = {
   'label_gallery': 'Галерея',
   'label_hidden': 'Статус скрыт',
   'label_hide_for_me': 'Удалить для меня',
-  'label_hint_drag_n_drop_video':
-      'Подсказка: Вы можете перетаскивать видео окна.',
+  'label_hint_from_gapopa': 'Подсказка от Gapopa',
+  'label_hint_drag_n_drop_video': 'Просто перетащите, чтобы:'
+      '\n\n• изменить размер или расположение видео;'
+      '\n\n• прикрепить одно или несколько видео к любой из сторон;'
+      '\n\n• вынести одно или несколько видео в отдельную панель.',
   'label_incoming_call': 'Входящий звонок',
   'label_last_seen': 'Был(а)',
   'label_login': 'Логин',
@@ -282,6 +286,7 @@ final Map<String, String> ruRU = {
   'label_no_contacts': 'Нет контактов',
   'label_no_registration': 'без регистрации',
   'label_num': 'Gapopa ID',
+  'label_of': 'из',
   'label_offline': 'Офлайн',
   'label_online': 'Онлайн',
   'label_outgoing_call': 'Исходящий звонок',
