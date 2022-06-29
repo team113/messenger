@@ -22,9 +22,9 @@ import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
+import '/fluent/extension.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
-import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -50,7 +50,7 @@ class MenuTabController extends GetxController {
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
     if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
-      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.t()) !=
+      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.td()) !=
           true) {
         return false;
       }

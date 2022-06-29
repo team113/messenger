@@ -29,12 +29,12 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/fluent/extension.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import 'widget/dropdown.dart';
-import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -220,7 +220,7 @@ class MyProfileController extends GetxController {
             UserName(s.text);
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -256,10 +256,10 @@ class MyProfileController extends GetxController {
 
           if (myUser.value!.emails.confirmed.contains(email) ||
               myUser.value?.emails.unconfirmed == email) {
-            s.error.value = 'err_you_already_add_this_email'.t();
+            s.error.value = 'err_you_already_add_this_email'.td();
           }
         } on FormatException {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -268,11 +268,11 @@ class MyProfileController extends GetxController {
 
           try {
             await _myUserService.addUserEmail(email!);
-            MessagePopup.success('label_email_confirmation_code_was_send'.t());
+            MessagePopup.success('label_email_confirmation_code_was_send'.td());
             _setResendEmailTimer(true);
             s.clear();
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.t();
+            s.error.value = 'err_incorrect_input'.td();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
@@ -299,10 +299,10 @@ class MyProfileController extends GetxController {
 
           if (_myUserService.myUser.value!.phones.confirmed.contains(phone) ||
               _myUserService.myUser.value?.phones.unconfirmed == phone) {
-            s.error.value = 'err_you_already_add_this_phone'.t();
+            s.error.value = 'err_you_already_add_this_phone'.td();
           }
         } catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -311,11 +311,11 @@ class MyProfileController extends GetxController {
 
           try {
             await _myUserService.addUserPhone(phone!);
-            MessagePopup.success('label_phone_confirmation_code_was_send'.t());
+            MessagePopup.success('label_phone_confirmation_code_was_send'.td());
             _setResendPhoneTimer(true);
             s.clear();
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.t();
+            s.error.value = 'err_incorrect_input'.td();
           } on AddUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
@@ -339,7 +339,7 @@ class MyProfileController extends GetxController {
             UserBio(s.text);
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -410,7 +410,7 @@ class MyProfileController extends GetxController {
         try {
           slug = ChatDirectLinkSlug(s.text);
         } on FormatException {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (slug == myUser.value?.chatDirectLink?.slug) {
@@ -449,7 +449,7 @@ class MyProfileController extends GetxController {
         try {
           UserLogin(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -482,7 +482,7 @@ class MyProfileController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.t();
+          s.error.value = 'err_input_empty'.td();
         }
 
         if (s.error.value == null) {
@@ -493,7 +493,7 @@ class MyProfileController extends GetxController {
             showEmailCodeButton.value = false;
             s.clear();
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.t();
+            s.error.value = 'err_incorrect_input'.td();
           } on ConfirmUserEmailException catch (e) {
             showEmailCodeButton.value = false;
             s.error.value = e.toMessage();
@@ -516,7 +516,7 @@ class MyProfileController extends GetxController {
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {
-          s.error.value = 'err_input_empty'.t();
+          s.error.value = 'err_input_empty'.td();
         }
 
         if (s.error.value == null) {
@@ -527,7 +527,7 @@ class MyProfileController extends GetxController {
             showPhoneCodeButton.value = false;
             s.clear();
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.t();
+            s.error.value = 'err_incorrect_input'.td();
           } on ConfirmUserPhoneException catch (e) {
             showPhoneCodeButton.value = false;
             s.error.value = e.toMessage();
@@ -551,7 +551,7 @@ class MyProfileController extends GetxController {
         try {
           UserPassword(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
       },
     );
@@ -562,7 +562,7 @@ class MyProfileController extends GetxController {
         try {
           UserPassword(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
       },
     );
@@ -571,7 +571,7 @@ class MyProfileController extends GetxController {
         s.error.value = null;
         newPassword.error.value = null;
         if (s.text != newPassword.text && newPassword.isValidated) {
-          s.error.value = 'err_passwords_mismatch'.t();
+          s.error.value = 'err_passwords_mismatch'.td();
         }
       },
     );
@@ -599,7 +599,7 @@ class MyProfileController extends GetxController {
 
     if (myUser.value?.hasPassword == true) {
       if (!oldPassword.isValidated || oldPassword.text.isEmpty) {
-        oldPassword.error.value = 'err_current_password_empty'.t();
+        oldPassword.error.value = 'err_current_password_empty'.td();
         return;
       }
 
@@ -610,17 +610,17 @@ class MyProfileController extends GetxController {
 
     if (newPassword.error.value == null && repeatPassword.error.value == null) {
       if (!newPassword.isValidated || newPassword.text.isEmpty) {
-        newPassword.error.value = 'err_new_password_empty'.t();
+        newPassword.error.value = 'err_new_password_empty'.td();
         return;
       }
 
       if (!repeatPassword.isValidated || repeatPassword.text.isEmpty) {
-        repeatPassword.error.value = 'err_repeat_password_empty'.t();
+        repeatPassword.error.value = 'err_repeat_password_empty'.td();
         return;
       }
 
       if (repeatPassword.text != newPassword.text) {
-        repeatPassword.error.value = 'err_passwords_mismatch'.t();
+        repeatPassword.error.value = 'err_passwords_mismatch'.td();
         return;
       }
 
@@ -659,7 +659,7 @@ class MyProfileController extends GetxController {
     try {
       await _myUserService.resendEmail();
       _setResendEmailTimer(true);
-      MessagePopup.success('label_email_confirmation_code_was_send'.t());
+      MessagePopup.success('label_email_confirmation_code_was_send'.td());
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
@@ -674,7 +674,7 @@ class MyProfileController extends GetxController {
     try {
       await _myUserService.resendPhone();
       _setResendPhoneTimer(true);
-      MessagePopup.success('label_phone_confirmation_code_was_send'.t());
+      MessagePopup.success('label_phone_confirmation_code_was_send'.td());
     } on ResendUserPhoneConfirmationException catch (e) {
       email.error.value = e.toMessage();
     } catch (e) {
@@ -686,7 +686,7 @@ class MyProfileController extends GetxController {
   /// Deletes [email] address from [MyUser.emails].
   Future<void> deleteUserEmail(UserEmail email) async {
     if (await MessagePopup.alert(
-            'alert_are_you_sure_want_to_delete_email'.t()) ==
+            'alert_are_you_sure_want_to_delete_email'.td()) ==
         true) {
       emailsOnDeletion.addIf(!emailsOnDeletion.contains(email), email);
       UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
@@ -705,7 +705,7 @@ class MyProfileController extends GetxController {
   /// Deletes [phone] number from [MyUser.phones].
   Future<void> deleteUserPhone(UserPhone phone) async {
     if (await MessagePopup.alert(
-            'alert_are_you_sure_want_to_delete_phone'.t()) ==
+            'alert_are_you_sure_want_to_delete_phone'.td()) ==
         true) {
       phonesOnDeletion.addIf(!phonesOnDeletion.contains(phone), phone);
       UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
@@ -764,7 +764,7 @@ class MyProfileController extends GetxController {
   /// Deletes [ImageGalleryItem] at the [galleryIndex] from [MyUser.gallery].
   Future<void> deleteGalleryItem() async {
     try {
-      if (await MessagePopup.alert('alert_are_you_sure'.t()) == true) {
+      if (await MessagePopup.alert('alert_are_you_sure'.td()) == true) {
         _deleteGalleryTimer?.cancel();
         deleteGalleryStatus.value = RxStatus.loading();
         var galleryItem =
@@ -785,7 +785,7 @@ class MyProfileController extends GetxController {
 
   /// Deletes [myUser]'s account.
   Future<void> deleteAccount() async {
-    if (await MessagePopup.alert('alert_are_you_sure'.t()) == true) {
+    if (await MessagePopup.alert('alert_are_you_sure'.td()) == true) {
       await _myUserService.deleteMyUser();
     }
   }
@@ -861,7 +861,7 @@ class MyProfileController extends GetxController {
       ),
     );
 
-    MessagePopup.success('label_copied_to_clipboard'.t());
+    MessagePopup.success('label_copied_to_clipboard'.td());
   }
 
   /// Uploads the specified [files] to the [MyUser.gallery].
@@ -963,11 +963,11 @@ extension PresenceL10n on Presence {
   String? localizedString() {
     switch (this) {
       case Presence.present:
-        return 'label_presence_present'.t();
+        return 'label_presence_present'.td();
       case Presence.away:
-        return 'label_presence_away'.t();
+        return 'label_presence_away'.td();
       case Presence.hidden:
-        return 'label_presence_hidden'.t();
+        return 'label_presence_hidden'.td();
       case Presence.artemisUnknown:
         return null;
     }

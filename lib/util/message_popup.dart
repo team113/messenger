@@ -15,8 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/fluent/extension.dart';
 
+import '/fluent/extension.dart';
 import '/routes.dart';
 import 'localized_exception.dart';
 
@@ -28,12 +28,12 @@ class MessagePopup {
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
-        title: Text('label_error'.t()),
+        title: Text('label_error'.td()),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.t()),
+            child: Text('btn_ok'.td()),
           )
         ],
       ),
@@ -52,12 +52,12 @@ class MessagePopup {
           actions: [
             TextButton(
               key: const Key('AlertNoButton'),
-              child: Text('label_are_you_sure_no'.t()),
+              child: Text('label_are_you_sure_no'.td()),
               onPressed: () => Navigator.pop(context, false),
             ),
             TextButton(
               key: const Key('AlertYesButton'),
-              child: Text('label_are_you_sure_yes'.t()),
+              child: Text('label_are_you_sure_yes'.td()),
               onPressed: () => Navigator.pop(context, true),
             ),
           ],

@@ -18,8 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
-import 'package:messenger/fluent/localization_controller.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/user.dart';
@@ -35,6 +33,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
+import 'fluent/extension.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/chat.dart';
@@ -62,7 +61,6 @@ import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// Application's global router state.
 late RouterState router;
@@ -335,7 +333,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Unknown page view.
   Page<dynamic> get _notFoundPage => MaterialPage(
         key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.t()))),
+        child: Scaffold(body: Center(child: Text('label_unknown_page'.td()))),
       );
 
   /// [Navigator]'s pages generation based on the [_state].
@@ -563,10 +561,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<LocalizationController>()) {
-      var localizator = FluentLocalization.of(context);
-      Get.put(LocalizationController(FluentLocalization.of(context)));
-    }
     return LifecycleObserver(
       didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
       child: ContextMenuOverlay(
@@ -596,13 +590,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
         case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.t()}');
+          WebUtils.title('$prefix${'label_tab_contacts'.td()}');
           break;
         case HomeTab.chats:
-          WebUtils.title('$prefix${'label_tab_chats'.t()}');
+          WebUtils.title('$prefix${'label_tab_chats'.td()}');
           break;
         case HomeTab.menu:
-          WebUtils.title('$prefix${'label_tab_menu'.t()}');
+          WebUtils.title('$prefix${'label_tab_menu'.td()}');
           break;
       }
     } else {

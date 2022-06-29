@@ -29,9 +29,9 @@ import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/notification.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
 class ChatWorker extends DisposableService {
@@ -116,7 +116,7 @@ class ChatWorker extends DisposableService {
       if (newChat) {
         _notificationService.show(
           c.title.value,
-          body: 'label_you_were_added_to_group'.t(),
+          body: 'label_you_were_added_to_group'.td(),
           payload: '${Routes.chat}/${c.chat.value.id}',
           icon: avatarUrl,
         );
@@ -162,17 +162,18 @@ class _ChatWatchData {
                 body = msg.text?.val;
                 if (msg.attachments.isNotEmpty) {
                   body =
-                      '$body\n[${msg.attachments.length} ${'label_attachments'.t()}]';
+                      '$body\n[${msg.attachments.length} ${'label_attachments'.td()}]';
                 }
               } else if (msg.attachments.isNotEmpty) {
-                body = '[${msg.attachments.length} ${'label_attachments'.t()}]';
+                body =
+                    '[${msg.attachments.length} ${'label_attachments'.td()}]';
               }
             } else if (chat.lastItem is ChatMemberInfo) {
               // TODO: Display [ChatMemberInfo] properly.
               var msg = chat.lastItem as ChatMemberInfo;
               body = msg.action.toString();
             } else if (chat.lastItem is ChatForward) {
-              body = 'label_forwarded_message'.t();
+              body = 'label_forwarded_message'.td();
             }
 
             if (body != null) {

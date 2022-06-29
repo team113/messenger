@@ -1,9 +1,13 @@
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
+
+import '/fluent/controller.dart';
 
 class FluentLocalization {
-  final Locale locale;
+  Locale locale;
   final FluentBundle bundle;
 
   FluentLocalization(this.locale) : bundle = FluentBundle(locale.toString());
@@ -13,9 +17,9 @@ class FluentLocalization {
   }
 
   Future load() async {
+    bundle.messages.clear();
     bundle.addMessages(await rootBundle.loadString(
         'assets/translates/${locale.toString()}.ftl'.toLowerCase()));
-    bundle.messages.forEach((key, value) {});
   }
 
   String getTranslatedValue(String key,
@@ -32,15 +36,15 @@ class _FluentLocalizationsDelegate
   const _FluentLocalizationsDelegate();
   @override
   bool isSupported(Locale locale) {
-    print(locale);
-    return LocalizationsConstants.supportedLocales.contains(locale);
+    return LocalizationUtils.locales.keys
+        .any((key) => key == locale.toString());
   }
 
   @override
   Future<FluentLocalization> load(Locale locale) async {
-    FluentLocalization localization = FluentLocalization(locale);
-    await localization.load();
-    return localization;
+    LocalizationUtils.bundle = FluentLocalization(locale);
+    await LocalizationUtils.bundle.load();
+    return LocalizationUtils.bundle;
   }
 
   @override
@@ -48,12 +52,45 @@ class _FluentLocalizationsDelegate
       false;
 }
 
-class LocalizationsConstants {
+abstract class LocalizationUtils {
+  static late FluentLocalization bundle;
+
   static List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
     FluentLocalization.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
   ];
-  static List<Locale> supportedLocales = [
-    const Locale('en', 'US'),
-    const Locale('ru', 'RU')
-  ];
+
+  /// Supported languages as locales with its names.
+  static Map<String, String> languages = const {
+    'en_US': 'English',
+    'ru_RU': 'Русский',
+  };
+
+  /// Supported locales.
+  static Map<String, Locale> locales = const {
+    'en_US': Locale('en', 'US'),
+    'ru_RU': Locale('ru', 'RU'),
+  };
+
+  /// Currently selected locale.
+  static String? get chosen => Get.find<LocalizationController>()
+      .localizationService
+      .localizationSettings
+      .value!
+      .locale;
+
+  static Future<void> setLocale(String locale) async {
+    var newLocale = localeFromString(locale);
+    bundle.locale = newLocale;
+    await bundle.load();
+    Get.find<LocalizationController>().setLocale(locale);
+  }
+}
+
+Locale localeFromString(String arg) {
+  final splitted = arg.split('_');
+  var res = Locale(splitted[0], splitted[1]);
+  return res;
 }

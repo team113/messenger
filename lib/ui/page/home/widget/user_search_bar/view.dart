@@ -19,9 +19,9 @@ import 'package:get/get.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
 import '/domain/model/user.dart';
+import '/fluent/extension.dart';
 import '/ui/page/home/widget/avatar.dart';
 import 'controller.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// [FloatingSearchBar] for [User]s searching.
 class UserSearchBar extends StatelessWidget {
@@ -59,7 +59,7 @@ class UserSearchBar extends StatelessWidget {
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
         () => FloatingSearchBar(
-          hint: 'label_search'.t(),
+          hint: 'label_search'.td(),
           controller: searchController,
           scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
           transitionDuration: const Duration(milliseconds: 500),
@@ -93,7 +93,7 @@ class UserSearchBar extends StatelessWidget {
                                 ? [
                                     ListTile(
                                         title:
-                                            Text('label_search_not_found'.t()))
+                                            Text('label_search_not_found'.td()))
                                   ]
                                 : c.searchResults
                                     .map((e) => _user(e, c))
@@ -105,13 +105,13 @@ class UserSearchBar extends StatelessWidget {
                                 SizedBox(
                                   height: 100,
                                   child: Center(
-                                    child: Text('label_search_hint'.t()),
+                                    child: Text('label_search_hint'.td()),
                                   ),
                                 )
                               ]
                             : [
                                 ListTile(
-                                    title: Text('label_search_recent'.t())),
+                                    title: Text('label_search_recent'.td())),
                                 ...c.recentSearchResults
                                     .map((e) => _user(e, c))
                                     .toList()

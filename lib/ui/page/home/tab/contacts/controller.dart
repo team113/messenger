@@ -29,11 +29,11 @@ import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
+import '/fluent/extension.dart';
 import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -97,7 +97,7 @@ class ContactsTabController extends GetxController {
         try {
           name = UserName(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.t();
+          s.error.value = 'err_incorrect_input'.td();
         }
 
         if (s.error.value == null) {
@@ -151,7 +151,7 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.t()) == true) {
+    if (await MessagePopup.alert('alert_are_you_sure'.td()) == true) {
       await _contactService.deleteContact(contact.id);
     }
   }

@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -28,7 +29,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
@@ -56,7 +56,7 @@ class ContactsTabView extends StatelessWidget {
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_contacts'.t()),
+          title: Text('label_contacts'.td()),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.5),
             child: Container(
@@ -74,7 +74,7 @@ class ContactsTabView extends StatelessWidget {
             onTrailingTap: c.addToContacts,
             body: c.contactsReady.value
                 ? c.favorites.isEmpty && c.contacts.isEmpty
-                    ? Center(child: Text('label_no_contacts'.t()))
+                    ? Center(child: Text('label_no_contacts'.td()))
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
@@ -83,7 +83,7 @@ class ContactsTabView extends StatelessWidget {
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.t()),
+                                child: Text('label_favorite_contacts'.td()),
                               ),
                               ...c.favorites.entries
                                   .map((e) => _contact(e.value.value, c))
@@ -109,7 +109,7 @@ class ContactsTabView extends StatelessWidget {
         menu: ContextMenu(
           actions: [
             ContextMenuButton(
-              label: 'btn_change_contact_name'.t(),
+              label: 'btn_change_contact_name'.td(),
               onPressed: () {
                 c.contactToChangeNameOf.value = contact.id;
                 c.contactName.clear();
@@ -119,7 +119,7 @@ class ContactsTabView extends StatelessWidget {
               },
             ),
             ContextMenuButton(
-              label: 'btn_delete_from_contacts'.t(),
+              label: 'btn_delete_from_contacts'.td(),
               onPressed: () => c.deleteFromContacts(contact),
             ),
           ],

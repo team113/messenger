@@ -21,11 +21,11 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/fluent/extension.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -86,7 +86,7 @@ class CreateGroupController extends GetxController {
       status.value = RxStatus.error(e.toMessage());
     } on FormatException catch (_) {
       status.value = RxStatus.empty();
-      MessagePopup.error('err_incorrect_chat_name'.t());
+      MessagePopup.error('err_incorrect_chat_name'.td());
     } catch (e) {
       status.value = RxStatus.empty();
       MessagePopup.error(e);

@@ -18,9 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import 'controller.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.chatDirectLink] page.
 class ChatDirectLinkView extends StatelessWidget {
@@ -37,7 +37,7 @@ class ChatDirectLinkView extends StatelessWidget {
         body: Center(
           child: Obx(
             () => c.slug.value == null
-                ? Text('label_unknown_page'.t())
+                ? Text('label_unknown_page'.td())
                 : const CircularProgressIndicator(),
           ),
         ),

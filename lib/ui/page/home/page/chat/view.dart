@@ -31,6 +31,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -44,7 +45,6 @@ import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
 import 'widget/swipeable_status.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -250,7 +250,7 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                             child: Center(
                                               child: Text(
-                                                'label_unread_messages'.t(),
+                                                'label_unread_messages'.td(),
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                 ),
@@ -402,7 +402,7 @@ class _ChatViewState extends State<ChatView>
                                     ),
                                     const SizedBox(height: 5),
                                     Text(
-                                      'label_drop_here'.t(),
+                                      'label_drop_here'.td(),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -417,7 +417,7 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
-              body: Center(child: Text('label_no_chat_found'.t())),
+              body: Center(child: Text('label_no_chat_found'.td())),
             );
           } else {
             return const Scaffold(
@@ -636,25 +636,25 @@ class _ChatViewState extends State<ChatView>
                 actions: [
                   AnimatedFabAction(
                     icon: const Icon(Icons.call, color: Colors.blue),
-                    label: 'label_audio_call'.t(),
+                    label: 'label_audio_call'.td(),
                     onTap: () => c.call(false),
                     noAnimation: true,
                   ),
                   AnimatedFabAction(
                     icon: const Icon(Icons.video_call, color: Colors.blue),
-                    label: 'label_video_call'.t(),
+                    label: 'label_video_call'.td(),
                     onTap: () => c.call(true),
                     noAnimation: true,
                   ),
                   AnimatedFabAction(
                     icon: const Icon(Icons.attachment, color: Colors.blue),
-                    label: 'label_file'.t(),
+                    label: 'label_file'.td(),
                     onTap: c.send.editable.value ? c.pickFile : null,
                   ),
                   if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
                     AnimatedFabAction(
                       icon: const Icon(Icons.photo, color: Colors.blue),
-                      label: 'label_gallery'.t(),
+                      label: 'label_gallery'.td(),
                       onTap: c.send.editable.value ? c.pickMedia : null,
                     ),
                     if (PlatformUtils.isAndroid) ...[
@@ -663,7 +663,7 @@ class _ChatViewState extends State<ChatView>
                           Icons.photo_camera,
                           color: Colors.blue,
                         ),
-                        label: 'label_photo'.t(),
+                        label: 'label_photo'.td(),
                         onTap: c.pickImageFromCamera,
                       ),
                       AnimatedFabAction(
@@ -671,7 +671,7 @@ class _ChatViewState extends State<ChatView>
                           Icons.video_camera_back,
                           color: Colors.blue,
                         ),
-                        label: 'label_video'.t(),
+                        label: 'label_video'.td(),
                         onTap: c.pickVideoFromCamera,
                       ),
                     ],
@@ -681,7 +681,7 @@ class _ChatViewState extends State<ChatView>
                           Icons.camera,
                           color: Colors.blue,
                         ),
-                        label: 'label_camera'.t(),
+                        label: 'label_camera'.td(),
                         onTap: c.pickImageFromCamera,
                       ),
                   ],
@@ -697,7 +697,7 @@ class _ChatViewState extends State<ChatView>
                   onChanged: c.keepTyping,
                   key: const Key('MessageField'),
                   state: c.send,
-                  hint: 'label_send_message_hint'.t(),
+                  hint: 'label_send_message_hint'.td(),
                   minLines: 1,
                   maxLines: 6,
                   style: const TextStyle(fontSize: 17),
@@ -761,13 +761,13 @@ class _ChatViewState extends State<ChatView>
                 actions: [
                   AnimatedFabAction(
                     icon: const Icon(Icons.call, color: Colors.blue),
-                    label: 'label_audio_call'.t(),
+                    label: 'label_audio_call'.td(),
                     onTap: () => c.call(false),
                     noAnimation: true,
                   ),
                   AnimatedFabAction(
                     icon: const Icon(Icons.video_call, color: Colors.blue),
-                    label: 'label_video_call'.t(),
+                    label: 'label_video_call'.td(),
                     onTap: () => c.call(true),
                     noAnimation: true,
                   ),
@@ -782,7 +782,7 @@ class _ChatViewState extends State<ChatView>
                 child: ReactiveTextField(
                   key: const Key('MessageEditField'),
                   state: c.edit!,
-                  hint: 'label_edit_message_hint'.t(),
+                  hint: 'label_edit_message_hint'.td(),
                   minLines: 1,
                   maxLines: 6,
                   onChanged: c.keepTyping,
@@ -960,8 +960,8 @@ class _ChatViewState extends State<ChatView>
               ),
               const SizedBox(width: 2),
               Text(typings.length > 1
-                  ? 'label_typings'.t()
-                  : 'label_typing'.t()),
+                  ? 'label_typings'.td()
+                  : 'label_typing'.td()),
               const AnimatedDots(color: Colors.black)
             ],
           ),
@@ -1009,10 +1009,10 @@ class _ChatViewState extends State<ChatView>
         desc.write(item.text!.val);
         if (item.attachments.isNotEmpty) {
           desc.write(
-              ' [${item.attachments.length} ${'label_attachments'.t()}]');
+              ' [${item.attachments.length} ${'label_attachments'.td()}]');
         }
       } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.t()}]');
+        desc.write('${item.attachments.length} ${'label_attachments'.td()}]');
       }
 
       return Text(
@@ -1021,13 +1021,13 @@ class _ChatViewState extends State<ChatView>
         overflow: TextOverflow.ellipsis,
       );
     } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.t();
+      String title = 'label_chat_call_ended'.td();
       String? time;
       bool fromMe = c.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.t();
+        title = 'label_chat_call_ongoing'.td();
       } else if (item.finishReason != null) {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
@@ -1037,8 +1037,8 @@ class _ChatViewState extends State<ChatView>
             .localizedString();
       } else {
         title = item.authorId == c.me
-            ? 'label_outgoing_call'.t()
-            : 'label_incoming_call'.t();
+            ? 'label_outgoing_call'.td()
+            : 'label_incoming_call'.td();
       }
 
       return Row(
@@ -1078,7 +1078,7 @@ class _ChatViewState extends State<ChatView>
       // TODO: Implement `ChatMemberInfo`.
       return Text(item.action.toString());
     } else {
-      return Text('err_unknown'.t());
+      return Text('err_unknown'.td());
     }
   }
 
@@ -1094,10 +1094,10 @@ class _ChatViewState extends State<ChatView>
           desc.write(msg.text!.val);
           if (msg.attachments.isNotEmpty) {
             desc.write(
-                ' [${msg.attachments.length} ${'label_attachments'.t()}]');
+                ' [${msg.attachments.length} ${'label_attachments'.td()}]');
           }
         } else if (msg.attachments.isNotEmpty) {
-          desc.write('[${msg.attachments.length} ${'label_attachments'.t()}]');
+          desc.write('[${msg.attachments.length} ${'label_attachments'.td()}]');
         }
 
         return Padding(
@@ -1125,7 +1125,7 @@ class _ChatViewState extends State<ChatView>
                   onTap: () => c.animateTo(msg.id, offsetBasedOnBottom: true),
                   child: RichText(
                     text: TextSpan(
-                      text: '${'label_edit_message'.t()}\n',
+                      text: '${'label_edit_message'.td()}\n',
                       style: const TextStyle(fontSize: 13, color: Colors.blue),
                       children: [
                         TextSpan(
@@ -1202,27 +1202,27 @@ extension DateTimeToRelative on DateTime {
 
       if (months > 0) {
         if (months >= 24) {
-          date = '${months ~/ 12} ${'label_ago_years'.t()}';
+          date = '${months ~/ 12} ${'label_ago_years'.td()}';
         } else if (months >= 12) {
-          date = 'label_ago_year'.t();
+          date = 'label_ago_year'.td();
         } else if (months >= 2) {
-          date = '$months ${'label_ago_months'.t()}';
+          date = '$months ${'label_ago_months'.td()}';
         } else {
-          date = 'label_ago_month'.t();
+          date = 'label_ago_month'.td();
         }
       } else {
-        date = '${days ~/ 7} ${'label_ago_weeks'.t()}';
+        date = '${days ~/ 7} ${'label_ago_weeks'.td()}';
       }
     } else if (days >= 14) {
-      date = '${days ~/ 7} ${'label_ago_weeks'.t()}';
+      date = '${days ~/ 7} ${'label_ago_weeks'.td()}';
     } else if (days >= 7) {
-      date = 'label_ago_week'.t();
+      date = 'label_ago_week'.td();
     } else if (days >= 3) {
-      date = '$days ${'label_ago_days'.t()}';
+      date = '$days ${'label_ago_days'.td()}';
     } else if (days >= 2) {
-      date = 'label_ago_day_before_yesterday'.t();
+      date = 'label_ago_day_before_yesterday'.td();
     } else if (days >= 1) {
-      date = 'label_ago_yesterday'.t();
+      date = 'label_ago_yesterday'.td();
     }
 
     return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';

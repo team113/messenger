@@ -18,9 +18,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/fluent/extension.dart';
 
-import '/l10n/_l10n.dart';
+import '/fluent/extension.dart';
+import '/fluent/fluent_localization.dart';
+
 import '/routes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -114,19 +115,19 @@ class AuthView extends StatelessWidget {
 
             Widget language = StatefulBuilder(
               builder: (context, setState) => DropdownButton<String>(
-                value: L10n.chosen,
-                items: L10n.languages.entries
+                value: LocalizationUtils.chosen,
+                items: LocalizationUtils.languages.entries
                     .map<DropdownMenuItem<String>>(
                       (e) => DropdownMenuItem(
                         value: e.key,
                         child: Text(
-                            '${L10n.locales[e.key]!.countryCode}, ${e.value}'),
+                            '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
                       ),
                     )
                     .toList(),
-                onChanged: (d) {
-                  Get.updateLocale(L10n.locales[d!]!);
-                  setState(() => L10n.chosen = d);
+                onChanged: (d) async {
+                  await LocalizationUtils.setLocale(
+                      LocalizationUtils.locales[d!]!.toString());
                 },
                 borderRadius: BorderRadius.circular(18),
                 style: TextStyle(
@@ -144,11 +145,11 @@ class AuthView extends StatelessWidget {
               OutlinedRoundedButton(
                 key: const Key('StartChattingButton'),
                 title: Text(
-                  'btn_start_chatting'.t(),
+                  'btn_start_chatting'.td(),
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  'label_no_registration'.t(),
+                  'label_no_registration'.td(),
                   style: const TextStyle(color: Colors.white),
                 ),
                 leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -160,15 +161,15 @@ class AuthView extends StatelessWidget {
               const SizedBox(height: 10),
               OutlinedRoundedButton(
                 key: const Key('SignInButton'),
-                title: Text('btn_login'.t()),
-                subtitle: Text('label_or_register'.t()),
+                title: Text('btn_login'.td()),
+                subtitle: Text('label_or_register'.td()),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                 onPressed: router.login,
               ),
               const SizedBox(height: 10),
               if (isIosWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.t()),
+                  title: Text('btn_download'.td()),
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
@@ -178,7 +179,7 @@ class AuthView extends StatelessWidget {
                 ),
               if (isAndroidWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.t()),
+                  title: Text('btn_download'.td()),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -189,8 +190,8 @@ class AuthView extends StatelessWidget {
                 ),
               if (isDesktopWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.t()),
-                  subtitle: Text('label_application'.t()),
+                  title: Text('btn_download'.td()),
+                  subtitle: Text('label_application'.td()),
                   leading: PlatformUtils.isMacOS
                       ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
                       : (PlatformUtils.isWindows)

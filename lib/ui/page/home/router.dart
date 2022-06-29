@@ -15,11 +15,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/fluent/extension.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
@@ -152,11 +152,11 @@ class _NestedHomeView extends StatelessWidget {
 
     switch (tab) {
       case HomeTab.chats:
-        return Scaffold(body: Center(child: Text('label_choose_chat'.t())));
+        return Scaffold(body: Center(child: Text('label_choose_chat'.td())));
       case HomeTab.contacts:
-        return Scaffold(body: Center(child: Text('label_choose_contact'.t())));
+        return Scaffold(body: Center(child: Text('label_choose_contact'.td())));
       case HomeTab.menu:
-        return Scaffold(body: Center(child: Text('label_temp_plug'.t())));
+        return Scaffold(body: Center(child: Text('label_temp_plug'.td())));
     }
   }
 }

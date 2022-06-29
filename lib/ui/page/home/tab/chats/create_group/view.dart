@@ -17,11 +17,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/fluent/extension.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
 import 'controller.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// View of the group creation overlay.
 class CreateGroupView extends StatelessWidget {
@@ -76,7 +76,7 @@ class CreateGroupView extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
                             child: Row(
                               children: [
-                                Text('label_create_group'.t(), style: font17),
+                                Text('label_create_group'.td(), style: font17),
                                 const Spacer(),
                                 IconButton(
                                   hoverColor: Colors.transparent,
@@ -129,7 +129,7 @@ class CreateGroupView extends StatelessWidget {
                                     child: TextField(
                                       onChanged: (s) => c.groupChatName = s,
                                       decoration: InputDecoration(
-                                        labelText: 'label_name'.t(),
+                                        labelText: 'label_name'.td(),
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
@@ -146,9 +146,9 @@ class CreateGroupView extends StatelessWidget {
                                           padding:
                                               const EdgeInsets.only(right: 8),
                                           child: Text(
-                                            '${'label_create_group_selected'.t()}'
+                                            '${'label_create_group_selected'.td()}'
                                             ' ${c.selectedContacts.length + c.selectedUsers.length} '
-                                            '${'label_create_group_users'.t()}',
+                                            '${'label_create_group_users'.td()}',
                                             style: font13,
                                           ),
                                         ),
@@ -158,7 +158,7 @@ class CreateGroupView extends StatelessWidget {
                                                   child: Text(
                                                     c.status.value
                                                             .errorMessage ??
-                                                        'err_unknown'.t(),
+                                                        'err_unknown'.td(),
                                                     style: font13.copyWith(
                                                         color: Colors.red),
                                                   ),
@@ -172,7 +172,7 @@ class CreateGroupView extends StatelessWidget {
                                                   ? null
                                                   : c.createGroup,
                                           child: Text(
-                                            'btn_create_group'.t(),
+                                            'btn_create_group'.td(),
                                             style: c.selectedContacts.isEmpty &&
                                                     c.selectedUsers.isEmpty
                                                 ? font17.copyWith(

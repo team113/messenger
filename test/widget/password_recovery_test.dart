@@ -22,6 +22,7 @@ import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/fluent/extension.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -35,7 +36,6 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:messenger/fluent/extension.dart';
 
 import 'password_recovery_test.mocks.dart';
 
@@ -99,7 +99,7 @@ void main() async {
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_login'.t());
+    final goToLoginButton = find.text('btn_login'.td());
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);

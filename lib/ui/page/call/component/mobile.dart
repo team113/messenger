@@ -34,6 +34,7 @@ import '../widget/round_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/fluent/extension.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -44,7 +45,6 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'common.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// Returns a mobile design of a [CallView].
 Widget mobileCall(CallController c, BuildContext context) {
@@ -264,7 +264,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.t(),
+              label: 'btn_add_participant'.td(),
             ),
             const SizedBox(height: 13),
           ],
@@ -290,7 +290,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.t(),
+              label: 'btn_add_participant'.td(),
             ),
             const SizedBox(height: 13),
           ],
@@ -610,12 +610,12 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.t()
+                ? 'label_call_joining'.td()
                 : isOutgoing
-                    ? 'label_call_calling'.t()
+                    ? 'label_call_calling'.td()
                     : c.withVideo == true
-                        ? 'label_video_call'.t()
-                        : 'label_audio_call'.t();
+                        ? 'label_video_call'.td()
+                        : 'label_audio_call'.td();
 
         return _layoutButton(
           icon: Center(
@@ -631,7 +631,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                c.chat.value?.title.value ?? ('.'.t() * 3),
+                c.chat.value?.title.value ?? ('.'.td() * 3),
                 style: context.textTheme.headline4
                     ?.copyWith(color: Colors.white, fontSize: 20),
                 overflow: TextOverflow.ellipsis,
@@ -746,8 +746,8 @@ Widget _mobileVideo(
                       if (participant.source != MediaSourceKind.Display)
                         ContextMenuButton(
                           label: fit == null || fit == BoxFit.cover
-                              ? 'btn_call_do_not_cut_video'.t()
-                              : 'btn_call_cut_video'.t(),
+                              ? 'btn_call_do_not_cut_video'.td()
+                              : 'btn_call_cut_video'.td(),
                           onPressed: () {
                             c.rendererBoxFit[
                                     participant.video.value!.track.id()] =
@@ -764,14 +764,14 @@ Widget _mobileVideo(
                         ),
                       if (videos.length > 1)
                         ContextMenuButton(
-                          label: 'btn_call_center_video'.t(),
+                          label: 'btn_call_center_video'.td(),
                           onPressed: () => c.highlight(participant),
                         ),
                     ],
                     ContextMenuButton(
                       label: participant.video.value?.isEnabled == true
-                          ? 'btn_call_disable_video'.t()
-                          : 'btn_call_enable_video'.t(),
+                          ? 'btn_call_disable_video'.td()
+                          : 'btn_call_enable_video'.td(),
                       onPressed: () =>
                           c.toggleRendererEnabled(participant.video),
                     ),

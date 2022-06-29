@@ -21,9 +21,9 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/fluent/extension.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'package:messenger/fluent/extension.dart';
 
 /// View of the call overlay settings.
 class CallSettingsView extends StatefulWidget {
@@ -123,7 +123,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
               color: Colors.black,
               size: 31,
             ),
-            disabledHint: Text('label_media_no_device_available'.t()),
+            disabledHint: Text('label_media_no_device_available'.td()),
             style: context.textTheme.subtitle1?.copyWith(color: Colors.black),
             underline: const SizedBox(),
           ),
@@ -184,7 +184,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                       padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
                       child: Row(
                         children: [
-                          Text('label_media_settings'.t(), style: font17),
+                          Text('label_media_settings'.td(), style: font17),
                           const Spacer(),
                           if (PlatformUtils.isDesktop) ...[
                             _switch(
@@ -223,7 +223,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                         children: [
                           const SizedBox(height: 25),
                           row(
-                            Text('label_media_camera'.t(), style: font17),
+                            Text('label_media_camera'.td(), style: font17),
                             dropdown(
                               value: c.devices.video().firstWhereOrNull((e) =>
                                       e.deviceId() == c.videoDevice.value) ??
@@ -276,7 +276,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                           divider,
                           const SizedBox(height: 25),
                           row(
-                            Text('label_media_microphone'.t(), style: font17),
+                            Text('label_media_microphone'.td(), style: font17),
                             dropdown(
                               value: c.devices.audio().firstWhereOrNull((e) =>
                                       e.deviceId() == c.audioDevice.value) ??
@@ -289,7 +289,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                           divider,
                           const SizedBox(height: 25),
                           row(
-                            Text('label_media_output'.t(), style: font17),
+                            Text('label_media_output'.td(), style: font17),
                             dropdown(
                               value: c.devices.output().firstWhereOrNull((e) =>
                                       e.deviceId() == c.outputDevice.value) ??

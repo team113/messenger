@@ -23,10 +23,10 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/fluent/extension.dart';
 import '/provider/gql/exceptions.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import 'package:messenger/fluent/extension.dart';
 
 export 'view.dart';
 
@@ -162,7 +162,7 @@ class AddChatMemberController extends GetxController {
   void _fetchChat() async {
     chat.value = (await _chatService.get(chatId))?.chat;
     if (chat.value == null) {
-      MessagePopup.error('err_unknown_chat'.t());
+      MessagePopup.error('err_unknown_chat'.td());
       pop();
     }
   }
