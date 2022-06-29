@@ -261,3 +261,12 @@ targets:
                 name: UserVersion
                 imports:
                   - 'package:messenger/store/model/user.dart'
+      messenger|pubspec_builder:
+        enabled: true
+builders:
+  pubspec_builder:
+    import: "package:messenger/util/pubspec_builder.dart"
+    builder_factories: ["pubspecBuilder"]
+    build_extensions: {"$package$": [".g.dart"]}
+    auto_apply: dependents
+    build_to: source

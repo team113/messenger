@@ -10,6 +10,7 @@ dependencies:
   async: ^2.8.2
   audioplayers: ^1.0.0-rc.4
   badges: ^2.0.2
+  build: ^2.3.0
   callkeep: ^0.3.2
   carousel_slider: ^4.1.1
   chewie: ^1.3.2
@@ -112,7 +113,6 @@ flutter:
     - assets/images/logo/
     - assets/icons/
     - assets/audio/
-    - pubspec.yaml
 
 sentry:
   upload_native_symbols: true
