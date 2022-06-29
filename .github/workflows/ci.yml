@@ -143,6 +143,11 @@ jobs:
 
       - run: make flutter.build platform=${{ matrix.platform }}
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: doc/api
+
   dartdoc:
     runs-on: ubuntu-latest
     steps:
@@ -156,6 +161,11 @@ jobs:
       - run: make flutter.pub
 
       - run: make docs.dart clean=yes
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: doc/api
 
 
 
