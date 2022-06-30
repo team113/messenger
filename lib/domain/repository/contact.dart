@@ -60,7 +60,7 @@ abstract class AbstractContactRepository {
 
 /// Unified reactive [ChatContact] entity.
 abstract class RxChatContact {
-  /// Reactive value of a [ChatContact] this [RxChatContact] represents.
+  /// Reactive value of the [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 
   /// Reactive value of the first [User] this [ChatContact] contains.
