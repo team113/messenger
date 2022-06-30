@@ -155,9 +155,8 @@ class ContactRepository implements AbstractContactRepository {
           favorites.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(_userRepo, event.value);
-            contacts[ChatContactId(event.key)] = contact;
-            contact.init();
+            contacts[ChatContactId(event.key)] =
+                HiveRxChatContact(_userRepo, event.value)..init();
           } else {
             contact.contact.value = event.value.value;
           }
@@ -165,9 +164,8 @@ class ContactRepository implements AbstractContactRepository {
           contacts.remove(ChatContactId(event.key));
           HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
           if (contact == null) {
-            contact = HiveRxChatContact(_userRepo, event.value);
-            favorites[ChatContactId(event.key)] = contact;
-            contact.init();
+            favorites[ChatContactId(event.key)] =
+                HiveRxChatContact(_userRepo, event.value)..init();
           } else {
             contact.contact.value = event.value.value;
             contact.contact.refresh();

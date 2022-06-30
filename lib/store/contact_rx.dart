@@ -52,7 +52,7 @@ class HiveRxChatContact implements RxChatContact {
     _worker.dispose();
   }
 
-  /// Fetches the [user] from the [AbstractUserRepository], if needed.
+  /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
   void _updateUser(ChatContact c) async {
     if (user.value?.value.id != c.users.firstOrNull?.id) {
       user.value =
