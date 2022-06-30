@@ -20,7 +20,7 @@ import 'package:build/build.dart';
 import 'package:universal_io/io.dart';
 import 'package:yaml/yaml.dart';
 
-/// Returns the [PubspecBuilder].
+/// Creates a new [PubspecBuilder] with the provided [BuilderOptions].
 Builder pubspecBuilder(BuilderOptions options) {
   return PubspecBuilder(options);
 }
