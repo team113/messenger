@@ -98,13 +98,13 @@ class CallController extends GetxController {
   /// Currently dragged [Participant].
   final Rx<Participant?> draggedRenderer = Rx(null);
 
-  /// Currently dragged [Participant].
+  /// Currently dragged [Participant] that brake dough.
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
   /// [Participant]s to display in a fit view.
   RxList<Participant> primary = RxList();
 
-  /// [Participant]s to display in a panel.
+  /// [Participant]s to display in a secondary view.
   RxList<Participant> secondary = RxList();
 
   /// Indicator whether the view is mobile or desktop.
@@ -135,9 +135,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
-
-  /// Indicator whether the title bar panel is shown or not.
-  final RxBool isTitleBarShown = RxBool(false);
 
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
@@ -246,6 +243,9 @@ class CallController extends GetxController {
   /// Possible [Alignment] of secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
+  // TODO: ask in `SleepySquash` what is it do
+  final Rx<Alignment?> secondaryKeepAlignment = Rx(null);
+
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
 
@@ -284,12 +284,8 @@ class CallController extends GetxController {
   /// Starts once the [state] becomes [OngoingCallState.active].
   Timer? _durationTimer;
 
-  final GlobalKey callBlockKey = GlobalKey();
-
   /// Timer to toggle [showUi] value.
   Timer? _uiTimer;
-
-  final RxBool switchWithRecipient = RxBool(false);
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
@@ -304,12 +300,6 @@ class CallController extends GetxController {
   /// [Worker] for catching the [state] changes to start the [_durationTimer].
   late final Worker _stateWorker;
 
-  Offset draggableFeedbackOffset = const Offset(20, 20);
-
-  /// [Worker] for catching the [isSlidingPanelEnabled] changes to correct the
-  /// position of a minimized self view.
-  late final Worker _panelWorker;
-
   /// Subscription for [OngoingCall.localVideos] changes.
   late final StreamSubscription _localsSubscription;
 
@@ -322,7 +312,10 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
 
+  /// Subscription for [OngoingCall.members] changes to update title.
   StreamSubscription? _titleSubscription;
+
+  /// Subscription for [duration] changes to update title.
   StreamSubscription? _durationSubscription;
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
@@ -380,12 +373,15 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
+  /// Reactive map of the current call [RemoteMemberId]s.
   RxObsMap<RemoteMemberId, bool> get members => _currentCall.value.members;
 
   /// Indicator whether the inbound video in the current [OngoingCall] is
   /// enabled or not.
   RxBool get isRemoteVideoEnabled => _currentCall.value.isRemoteVideoEnabled;
 
+  /// Indicator whether the inbound audio in the current [OngoingCall] is
+  /// enabled or not.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   /// Buttons width and height.
@@ -437,19 +433,6 @@ class CallController extends GetxController {
         ? RxDouble(50)
         : RxDouble(size.height / 2 - height.value / 2);
 
-    _panelWorker = ever(isSlidingPanelEnabled, (bool b) {
-      // TODO(design): make it pretty
-      //double value = (isMobile && !isPopup) ? 140 : 85;
-
-      // if (secondaryBottom.value != null) {
-      //   if (b && secondaryBottom.value! < value) {
-      //     secondaryBottom.value = value;
-      //   } else if (!b && secondaryBottom.value! <= value + 10) {
-      //     secondaryBottom.value = 10;
-      //   }
-      // }
-    });
-
     void _onChat(RxChat? v) {
       chat.value = v;
 
@@ -458,6 +441,7 @@ class CallController extends GetxController {
 
       if (!isGroup) {
         secondaryAlignment.value = null;
+        secondaryKeepAlignment.value = Alignment.bottomRight;
         secondaryLeft.value = null;
         secondaryTop.value = null;
         secondaryRight.value = 10;
@@ -657,7 +641,6 @@ class CallController extends GetxController {
     _durationTimer?.cancel();
     _uiTimer?.cancel();
     _stateWorker.dispose();
-    _panelWorker.dispose();
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
     _errorsSubscription?.cancel();
@@ -797,6 +780,7 @@ class CallController extends GetxController {
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
 
+  /// Toggles inbound audio in the current [OngoingCall] on and off.
   Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
   /// Toggles the provided [renderer]'s enabled status on and off.
@@ -897,6 +881,8 @@ class CallController extends GetxController {
     }
   }
 
+  /// Unfocuses all [participant]s, which means putting them in theirs `default`
+  /// group.
   void unfocusAll() {
     if (focused.isEmpty) {
       for (Participant r in List.from(paneled, growable: false)) {

@@ -781,9 +781,7 @@ Widget _mobileVideo(
                   offstageUntilDetermined: true,
                   onSizeDetermined: () => setState(() {}),
                   fit: fit ?? BoxFit.cover,
-                  enableContextMenu: false,
                   muted: muted,
-                  withLabels: !c.minimized.value,
                   borderRadius: BorderRadius.zero,
                 ),
               );

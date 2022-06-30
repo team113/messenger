@@ -33,24 +33,15 @@ class ParticipantWidget extends StatelessWidget {
   const ParticipantWidget(
     this.participant, {
     Key? key,
-    this.enableContextMenu = true,
     this.fit,
     this.muted = false,
-    this.withLabels = true,
     this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
-    this.hovered = false,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
-    this.backgroundColor,
-    this.shadows,
-    this.labelAlignment = Alignment.bottomCenter,
-    this.backdrop = false,
     this.useCallCover = false,
-    this.allowAvatars = true,
-    this.addPadding = true,
     this.isDragging = false,
   }) : super(key: key);
 
@@ -65,9 +56,6 @@ class ParticipantWidget extends StatelessWidget {
   /// If `null`, then displays [Participant.audio] muted status.
   final bool? muted;
 
-  /// Indicator whether [muted] and label should be displayed or not.
-  final bool withLabels;
-
   /// Indicator whether [Participant.video] should take exactly the size of its
   /// renderer's stream.
   final bool respectAspectRatio;
@@ -79,17 +67,8 @@ class ParticipantWidget extends StatelessWidget {
   /// Callback, called when the [Participant.video]'s size is determined.
   final Function? onSizeDetermined;
 
-  /// Indicator whether default context menu is enabled over this widget or not.
-  ///
-  /// Only effective under the web, since only web has default context menu.
-  final bool enableContextMenu;
-
   /// Optional outline of this video.
   final Color? outline;
-
-  /// Indicator whether this [ParticipantWidget] is being hovered meaning its
-  /// label should be visible.
-  final bool hovered;
 
   /// Indicator whether [participant] change should be animated or not.
   final bool animate;
@@ -97,15 +76,10 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  final Color? backgroundColor;
-  final List<BoxShadow>? shadows;
-
-  final Alignment labelAlignment;
-
-  final bool backdrop;
+  /// Indicator whether user call cover should be used.
   final bool useCallCover;
-  final bool allowAvatars;
-  final bool addPadding;
+
+  /// Indicator whether this [ParticipantWidget] is dragged.
   final bool isDragging;
 
   @override
@@ -154,9 +128,7 @@ class ParticipantWidget extends StatelessWidget {
         }
 
         List<Widget> _background() {
-          return useCallCover &&
-                  (participant.user.value?.value.callCover != null ||
-                      !allowAvatars)
+          return useCallCover && participant.user.value?.value.callCover != null
               ? [CallCoverWidget(participant.user.value?.value.callCover)]
               : [
                   Center(
@@ -251,18 +223,17 @@ class ParticipantWidget extends StatelessWidget {
   }
 }
 
+/// [Participant] overlay.
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
     Key? key,
     this.muted = false,
-    this.withLabels = true,
     this.hovered = false,
-    this.backgroundColor,
     this.preferBackdrop = true,
   }) : super(key: key);
 
-  /// [Participant] this [ParticipantWidget] represents.
+  /// [Participant] this [ParticipantOverlayWidget] represents.
   final Participant participant;
 
   /// Indicator whether this video should display `muted` icon or not.
@@ -270,14 +241,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
   /// If `null`, then displays [Participant.audio] muted status.
   final bool? muted;
 
-  /// Indicator whether [muted] and label should be displayed or not.
-  final bool withLabels;
-
-  /// Indicator whether this [ParticipantWidget] is being hovered meaning its
-  /// label should be visible.
+  /// Indicator whether this [ParticipantOverlayWidget] is being hovered meaning
+  /// its label should be visible.
   final bool hovered;
 
-  final Color? backgroundColor;
+  /// Indicator whether should be used single color background.
   final bool preferBackdrop;
 
   @override
@@ -454,11 +422,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
   }
 }
 
+/// [Participant] decoration.
 class ParticipantDecoratorWidget extends StatelessWidget {
-  const ParticipantDecoratorWidget(this.participant, {Key? key})
-      : super(key: key);
-
-  final Participant participant;
+  const ParticipantDecoratorWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

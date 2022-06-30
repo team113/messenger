@@ -27,10 +27,16 @@ class AnimatedDelayedScale extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
+  /// [Duration] of this [AnimatedDelayedScale].
   final Duration duration;
+
+  /// Initial scale of [child].
   final double beginScale;
+
+  /// Target scale of [child] to animate.
   final double endScale;
 
+  /// Child of this [AnimatedTransition].
   final Widget child;
 
   @override
@@ -38,8 +44,7 @@ class AnimatedDelayedScale extends StatefulWidget {
 }
 
 class _AnimatedDelayedScaleState extends State<AnimatedDelayedScale> {
-  bool show = false;
-
+  /// Scale of this [_AnimatedDelayedScaleState].
   late double scale;
 
   @override

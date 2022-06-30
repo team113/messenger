@@ -41,7 +41,6 @@ class RtcVideoView extends StatefulWidget {
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
-    this.useFitAlgorithm = true,
     this.framelessBuilder,
   }) : super(key: key);
 
@@ -63,6 +62,7 @@ class RtcVideoView extends StatefulWidget {
   /// Border radius of this video.
   final BorderRadius? borderRadius;
 
+  /// Builder used when [RtcVideoRenderer]'s size is not determined.
   final Widget Function()? framelessBuilder;
 
   /// Indicator whether this video should take exactly the size of its
@@ -83,8 +83,6 @@ class RtcVideoView extends StatefulWidget {
 
   /// Optional outline of this video.
   final Color? outline;
-
-  final bool useFitAlgorithm;
 
   static BoxFit determineBoxFit(
     RtcVideoRenderer renderer,
@@ -167,6 +165,7 @@ class RtcVideoView extends StatefulWidget {
 
 /// State of a [RtcVideoView] used to rebuild itself on size determination.
 class _RtcVideoViewState extends State<RtcVideoView> {
+  /// [GlobalKey] of [VideoView].
   final GlobalKey _videoKey = GlobalKey();
 
   @override

@@ -175,10 +175,7 @@ Widget desktopCall(
 
           _possibleContainer(),
 
-          // Makes UI appear on click and handles double tap to toggle
-          // fullscreen.
-          //
-          // Also, if [showTitle] is false, allows dragging the window.
+          // Makes UI appear on click.
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
@@ -254,7 +251,6 @@ Widget desktopCall(
         }));
       } else {
         // Call is not active.
-
         content.add(Obx(() {
           RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
               c.paneled.firstOrNull?.video.value;
@@ -569,11 +565,9 @@ Widget desktopCall(
                 ? MouseRegion(
                     opaque: false,
                     onEnter: (d) {
-                      c.isTitleBarShown.value = true;
                       c.keepUi(true);
                     },
                     onExit: (d) {
-                      c.isTitleBarShown.value = false;
                       if (c.showUi.value) {
                         c.keepUi(false);
                       }
@@ -1157,7 +1151,7 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_DragData item) =>
-              ParticipantDecoratorWidget(item.participant),
+              const ParticipantDecoratorWidget(),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -1165,7 +1159,6 @@ Widget _primaryView(CallController c) {
                 participant,
                 key: ObjectKey(participant),
                 offstageUntilDetermined: true,
-                enableContextMenu: c.isTitleBarShown.value,
                 useCallCover: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
@@ -1620,7 +1613,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
               });
             },
             decoratorBuilder: (_DragData item) =>
-                ParticipantDecoratorWidget(item.participant),
+                const ParticipantDecoratorWidget(),
             itemBuilder: (_DragData data) {
               var participant = data.participant;
 
@@ -1652,11 +1645,9 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                       participant,
                       key: ObjectKey(participant),
                       offstageUntilDetermined: true,
-                      enableContextMenu: c.isTitleBarShown.value,
                       respectAspectRatio: true,
                       useCallCover: true,
                       borderRadius: BorderRadius.zero,
-                      addPadding: false,
                       isDragging: c.doughDraggedRenderer.value == participant,
                     );
                   },
@@ -1707,7 +1698,8 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                           c.secondaryRight.value = null;
                           c.secondaryBottom.value = null;
 
-                          if (c.secondaryAlignment.value != null) {
+                          if (c.secondaryAlignment.value != null ||
+                              c.secondaryKeepAlignment.value != null) {
                             c.secondaryAlignment.value = null;
 
                             if (c.minimized.value) {
@@ -1721,6 +1713,8 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                             }
                             c.applySecondaryConstraints(context);
                           }
+
+                          c.secondaryKeepAlignment.value = null;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
