@@ -15,8 +15,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
+- UI:
+    - Chat page:
+        - Missing avatars in group creation popup ([#16]).
 
 [#14]: /../../pull/14
+[#16]: /../../pull/16
 
 
 
