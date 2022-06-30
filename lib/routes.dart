@@ -560,24 +560,22 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return LifecycleObserver(
-      didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
-      child: ContextMenuOverlay(
-        child: Navigator(
-          key: navigatorKey,
-          pages: _pages,
-          onPopPage: (Route<dynamic> route, dynamic result) {
-            final bool success = route.didPop(result);
-            if (success) {
-              _state.pop();
-            }
-            return success;
-          },
+  Widget build(BuildContext context) => LifecycleObserver(
+        didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
+        child: ContextMenuOverlay(
+          child: Navigator(
+            key: navigatorKey,
+            pages: _pages,
+            onPopPage: (Route<dynamic> route, dynamic result) {
+              final bool success = route.didPop(result);
+              if (success) {
+                _state.pop();
+              }
+              return success;
+            },
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   /// Sets the browser's tab title accordingly to the [_state.tab] value.
   void _updateTabTitle() {

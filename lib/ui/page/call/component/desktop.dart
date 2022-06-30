@@ -910,7 +910,8 @@ Widget _titleBar(
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 160),
                               child: Text(
-                                c.chat.value?.title.value ?? ('.'.td() * 3),
+                                c.chat.value?.title.value ??
+                                    ('dot_symbol'.td() * 3),
                                 style: context.textTheme.bodyText1?.copyWith(
                                   fontSize: 17,
                                   color: const Color(0xFFBBBBBB),

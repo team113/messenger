@@ -845,7 +845,7 @@ class ChatController extends GetxController {
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
   String getTitle(Iterable<User> users, UserId? me) {
-    String title = '.'.td() * 3;
+    String title = 'dot_symbol'.td() * 3;
 
     switch (kind) {
       case ChatKind.monolog:
@@ -865,9 +865,9 @@ extension ChatViewExt on Chat {
           title = users
               .take(3)
               .map((u) => u.name?.val ?? u.num.val)
-              .join(', '.td());
+              .join('comma_symbol'.td());
           if (members.length > 3) {
-            title += ', '.td() + ('.'.td() * 3);
+            title += 'comma_symbol'.td() + ('dot_symbol'.td() * 3);
           }
         } else {
           title = name!.val;

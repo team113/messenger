@@ -1,3 +1,5 @@
+dot_symbol = .
+comma_symbol = ,{" "}
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this E-mail?

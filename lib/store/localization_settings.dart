@@ -53,9 +53,4 @@ class LocalizationSettingsRepository extends DisposableInterface
       }
     }
   }
-
-  @override
-  void clearCache() {
-    localizationSettings.value = null;
-  }
 }
