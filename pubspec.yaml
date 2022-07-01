@@ -76,10 +76,10 @@ dependencies:
   visibility_detector: ^0.3.3
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.3
-  yaml: ^3.1.0
 
 dev_dependencies:
   artemis: ^7.7.0-beta
+  build: ^2.3.0
   build_runner: ^2.1.10
   dartdoc: ^5.0.1
   flutter_driver:
@@ -99,6 +99,7 @@ dev_dependencies:
   mockito: ^5.1.0
   network_image_mock: ^2.1.0
   sentry_dart_plugin: ^1.0.0-beta.2
+  yaml: ^3.1.0
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
@@ -113,7 +114,6 @@ flutter:
     - assets/images/logo/
     - assets/icons/
     - assets/audio/
-    - pubspec.yaml
 
 sentry:
   upload_native_symbols: true

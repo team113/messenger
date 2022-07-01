@@ -37,6 +37,7 @@ import '/provider/hive/contact.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
+import '/store/contact_rx.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import 'event/contact.dart';
@@ -57,10 +58,10 @@ class ContactRepository implements AbstractContactRepository {
   final RxBool isReady = RxBool(false);
 
   @override
-  final RxObsMap<ChatContactId, Rx<ChatContact>> contacts = RxObsMap();
+  final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
   @override
-  final RxMap<ChatContactId, Rx<ChatContact>> favorites = RxMap();
+  final RxMap<ChatContactId, HiveRxChatContact> favorites = RxMap();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -86,10 +87,11 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> init() async {
     if (!_contactLocal.isEmpty) {
       for (HiveChatContact c in _contactLocal.contacts) {
+        HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
         if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = Rx<ChatContact>(c.value);
+          contacts[c.value.id] = entry;
         } else {
-          favorites[c.value.id] = Rx<ChatContact>(c.value);
+          favorites[c.value.id] = entry;
         }
       }
 
@@ -104,6 +106,8 @@ class ContactRepository implements AbstractContactRepository {
 
   @override
   void dispose() {
+    contacts.forEach((k, v) => v.dispose());
+    favorites.forEach((k, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.cancel();
   }
@@ -111,7 +115,7 @@ class ContactRepository implements AbstractContactRepository {
   @override
   Future<void> clearCache() => _contactLocal.clear();
 
-  // TODO: Forbid creating multiple ChatContacts with the same User?s
+  // TODO: Forbid creating multiple ChatContacts with the same User?
   @override
   Future<void> createChatContact(UserName name, UserId id) =>
       _graphQlProvider.createChatContact(
@@ -149,23 +153,22 @@ class ContactRepository implements AbstractContactRepository {
       } else {
         if (event.value?.value.favoritePosition == null) {
           favorites.remove(ChatContactId(event.key));
-          Rx<ChatContact>? contact = contacts[ChatContactId(event.key)];
+          HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
           if (contact == null) {
             contacts[ChatContactId(event.key)] =
-                Rx<ChatContact>(event.value.value);
+                HiveRxChatContact(_userRepo, event.value)..init();
           } else {
-            contact.value = event.value.value;
-            contact.refresh();
+            contact.contact.value = event.value.value;
           }
         } else {
           contacts.remove(ChatContactId(event.key));
-          Rx<ChatContact>? contact = favorites[ChatContactId(event.key)];
+          HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
           if (contact == null) {
             favorites[ChatContactId(event.key)] =
-                Rx<ChatContact>(event.value.value);
+                HiveRxChatContact(_userRepo, event.value)..init();
           } else {
-            contact.value = event.value.value;
-            contact.refresh();
+            contact.contact.value = event.value.value;
+            contact.contact.refresh();
           }
         }
       }
