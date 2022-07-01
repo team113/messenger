@@ -17,12 +17,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+/// Reactive GetX widget with key.
 class KeyedObx extends ObxWidget {
   const KeyedObx(
     this.builder, {
     Key? key,
   }) : super(key: key);
 
+  /// Builder of this [KeyedObx].
   final WidgetCallback builder;
 
   @override

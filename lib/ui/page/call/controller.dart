@@ -243,8 +243,8 @@ class CallController extends GetxController {
   /// Possible [Alignment] of secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  // TODO: ask in `SleepySquash` what is it do
-  final Rx<Alignment?> secondaryKeepAlignment = Rx(null);
+  /// Indicator whether secondary view attached to bottom right corner.
+  final RxBool secondaryKeepAlignment = RxBool(false);
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -441,7 +441,7 @@ class CallController extends GetxController {
 
       if (!isGroup) {
         secondaryAlignment.value = null;
-        secondaryKeepAlignment.value = Alignment.bottomRight;
+        secondaryKeepAlignment.value = true;
         secondaryLeft.value = null;
         secondaryTop.value = null;
         secondaryRight.value = 10;

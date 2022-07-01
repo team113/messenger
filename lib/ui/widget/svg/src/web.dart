@@ -147,6 +147,15 @@ class _AssetSvgLoader implements _SvgLoader {
         .loadString(package == null ? asset : 'packages/$package/$asset');
     return Uint8List.fromList(utf8.encode(image));
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is _AssetSvgLoader &&
+          other.asset == asset &&
+          other.package == package;
+
+  @override
+  int get hashCode => asset.hashCode;
 }
 
 /// SVG picture loader from raw bytes.

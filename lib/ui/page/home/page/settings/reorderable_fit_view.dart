@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
 
+/// Widget placing its [children] evenly on a screen.
 class ReorderableFitView<T extends Object> extends StatelessWidget {
   const ReorderableFitView({
     Key? key,
@@ -41,6 +42,7 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
+    //this.onAnimationEnd,
     this.allowDraggingLast = true,
     this.hoverColor = const Color(0x00000000),
     this.onWillAccept,
@@ -294,6 +296,7 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
   /// If `null`, then there will be no divider at all.
   final Color? dividerColor;
 
+  /// Size of a divider between [children].
   final double dividerSize;
 
   /// Callback called when some item change position.
@@ -340,6 +343,7 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
   State<_ReorderableFitView<T>> createState() => ReorderableFitViewState<T>();
 }
 
+/// State of [_ReorderableFitWrap] used to add and reorder [_items].
 class ReorderableFitViewState<T extends Object>
     extends State<_ReorderableFitView<T>> {
   /// Reorderable items of this [ReorderableFitViewState].
@@ -396,13 +400,10 @@ class ReorderableFitViewState<T extends Object>
     super.didUpdateWidget(oldWidget);
   }
 
-  /// Indicator that this [ReorderableFitViewState] is building.
-  bool _building = false;
-
   @override
   Widget build(BuildContext context) {
-    _building = true;
-
+    // Creates visual representation of the [ReorderableItem] with provided
+    // [index].
     Widget _cell(int index) {
       return Stack(
         children: [
@@ -528,7 +529,6 @@ class ReorderableFitViewState<T extends Object>
       return rows;
     }
 
-    _building = false;
     return Stack(
       key: _fitKey,
       children: [
@@ -580,7 +580,7 @@ class ReorderableFitViewState<T extends Object>
               endRect: endRect,
               onEnd: () {
                 from.entry = null;
-                if (!_building) setState(() => from.entry = null);
+                setState(() => from.entry = null);
               },
               child: widget.itemBuilder(from.item),
             );
@@ -597,7 +597,7 @@ class ReorderableFitViewState<T extends Object>
       widget.onAdded?.call(object, to);
     }
 
-    if (!_building) setState(() {});
+    setState(() {});
   }
 
   /// Plays return animation.
@@ -632,16 +632,14 @@ class ReorderableFitViewState<T extends Object>
             endRect: endRect,
             onEnd: () {
               to.entry = null;
-              if (!_building) {
-                setState(() => to.entry = null);
-              }
+              setState(() => to.entry = null);
             },
             child: widget.itemBuilder(to.item),
           );
         });
       }
 
-      if (!_building) setState(() {});
+      setState(() {});
     }
   }
 
@@ -656,6 +654,7 @@ class ReorderableFitViewState<T extends Object>
   }
 }
 
+/// Reorderable item data.
 class ReorderableItem<T> {
   ReorderableItem(this.item);
 
@@ -687,6 +686,7 @@ class ReorderableItem<T> {
       other is ReorderableItem<T> && other.item == item;
 }
 
+/// Widget makes transition animation.
 class AnimatedTransition extends StatefulWidget {
   const AnimatedTransition({
     Key? key,
@@ -724,6 +724,7 @@ class AnimatedTransition extends StatefulWidget {
   State<AnimatedTransition> createState() => _AnimatedTransitionState();
 }
 
+/// State of [AnimatedTransition] used to change [rect] with animation.
 class _AnimatedTransitionState extends State<AnimatedTransition>
     with SingleTickerProviderStateMixin {
   /// [Rect] of this [_AnimatedTransitionState] used to play animation.
@@ -762,6 +763,7 @@ class _AnimatedTransitionState extends State<AnimatedTransition>
   }
 }
 
+/// Widget handles dragging.
 class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
   const ReorderableDraggableHandle({
     Key? key,

@@ -27,6 +27,7 @@ import '/ui/page/home/page/settings/reorderable_fit_view.dart'
     show AnimatedTransition, ReorderableItem;
 import '/ui/page/home/widget/gallery_popup.dart';
 
+/// Widget placing its [children] evenly on a screen.
 class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   const ReorderableFitWrap({
     Key? key,
@@ -469,6 +470,7 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   State<_ReorderableFitWrap<T>> createState() => _ReorderableFitWrapState<T>();
 }
 
+/// State of [_ReorderableFitWrap] used to add and reorder [_items].
 class _ReorderableFitWrapState<T extends Object>
     extends State<_ReorderableFitWrap<T>> {
   /// Reorderable items of this [ReorderableFitViewState].
@@ -524,13 +526,10 @@ class _ReorderableFitWrapState<T extends Object>
     super.didUpdateWidget(oldWidget);
   }
 
-  /// Indicator that this [_ReorderableFitWrapState] is building.
-  bool _building = false;
-
   @override
   Widget build(BuildContext context) {
-    _building = true;
-
+    // Creates visual representation of the [ReorderableItem] with provided
+    // [index].
     Widget _cell(int index) {
       return Stack(
         children: [
@@ -658,7 +657,6 @@ class _ReorderableFitWrapState<T extends Object>
       return rows;
     }
 
-    _building = false;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width,
@@ -772,7 +770,7 @@ class _ReorderableFitWrapState<T extends Object>
               endRect: endRect,
               onEnd: () {
                 from.entry = null;
-                if (!_building) setState(() => from.entry = null);
+                setState(() => from.entry = null);
               },
               child: widget.itemBuilder(from.item),
             );
@@ -789,7 +787,7 @@ class _ReorderableFitWrapState<T extends Object>
       widget.onAdded?.call(object, to);
     }
 
-    if (!_building) setState(() {});
+    setState(() {});
   }
 
   /// Plays return animation.
@@ -824,16 +822,14 @@ class _ReorderableFitWrapState<T extends Object>
             endRect: endRect,
             onEnd: () {
               to.entry = null;
-              if (!_building) {
-                setState(() => to.entry = null);
-              }
+              setState(() => to.entry = null);
             },
             child: widget.itemBuilder(to.item),
           );
         });
       }
 
-      if (!_building) setState(() {});
+      setState(() {});
     }
   }
 
@@ -848,6 +844,7 @@ class _ReorderableFitWrapState<T extends Object>
   }
 }
 
+/// Widget handles dragging.
 class _ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
   const _ReorderableDraggableHandle({
     Key? key,

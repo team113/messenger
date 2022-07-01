@@ -1091,7 +1091,6 @@ Widget _primaryView(CallController c) {
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
-                            enableLongTap: false,
                             menu: ContextMenu(
                               key: ObjectKey(participant),
                               actions: [
@@ -1589,23 +1588,14 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
                         ? Container()
-                        : ContextMenuRegion(
-                            key: ObjectKey(participant),
-                            enableLongTap: false,
-                            preventContextMenu: true,
-                            menu: ContextMenu(
+                        : IgnorePointer(
+                            child: ParticipantOverlayWidget(
+                              participant,
                               key: ObjectKey(participant),
-                              actions: const [],
-                            ),
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
-                                key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
-                              ),
+                              muted: muted,
+                              hovered: isHovered,
+                              preferBackdrop:
+                                  !c.minimized.value || c.fullscreen.value,
                             ),
                           ),
                   ),
@@ -1619,7 +1609,6 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
 
               return ContextMenuRegion(
                 preventContextMenu: true,
-                enableLongTap: false,
                 menu: ContextMenu(
                   actions: [
                     if ((participant.owner != MediaOwnerKind.local ||
@@ -1699,7 +1688,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                           c.secondaryBottom.value = null;
 
                           if (c.secondaryAlignment.value != null ||
-                              c.secondaryKeepAlignment.value != null) {
+                              c.secondaryKeepAlignment.value == true) {
                             c.secondaryAlignment.value = null;
 
                             if (c.minimized.value) {
@@ -1714,7 +1703,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                             c.applySecondaryConstraints(context);
                           }
 
-                          c.secondaryKeepAlignment.value = null;
+                          c.secondaryKeepAlignment.value = false;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;

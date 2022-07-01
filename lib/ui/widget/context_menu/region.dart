@@ -29,8 +29,6 @@ class ContextMenuRegion extends StatefulWidget {
     required this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
-    this.usePointerDown = false,
-    this.enableLongTap = true,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -47,9 +45,6 @@ class ContextMenuRegion extends StatefulWidget {
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  final bool usePointerDown;
-  final bool enableLongTap;
-
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
 }
@@ -65,33 +60,22 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   @override
   Widget build(BuildContext context) => widget.enabled
       ? ContextMenuInterceptor(
-          enabled: widget.preventContextMenu,
-          child: Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) {
-              if (widget.usePointerDown) {
-                _buttons = 0;
-                if (d.buttons & kSecondaryButton != 0) {
-                  ContextMenuOverlay.of(context).show(widget.menu, d.position);
-                }
-              } else {
-                _buttons = d.buttons;
-              }
-            },
-            onPointerUp: (d) {
-              if (_buttons & kSecondaryButton != 0) {
-                ContextMenuOverlay.of(context).show(widget.menu, d.position);
-              }
-            },
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onLongPressStart: widget.enableLongTap
-                  ? (d) => ContextMenuOverlay.of(context)
-                      .show(widget.menu, d.globalPosition)
-                  : null,
-              child: widget.child,
-            ),
-          ),
-        )
+    enabled: widget.preventContextMenu,
+    child: Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (d) => _buttons = d.buttons,
+      onPointerUp: (d) {
+        if (_buttons & kSecondaryButton != 0) {
+          ContextMenuOverlay.of(context).show(widget.menu, d.position);
+        }
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onLongPressStart: (d) => ContextMenuOverlay.of(context)
+            .show(widget.menu, d.globalPosition),
+        child: widget.child,
+      ),
+    ),
+  )
       : widget.child;
 }

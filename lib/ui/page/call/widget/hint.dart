@@ -20,11 +20,12 @@ import 'package:get/get.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
-class HintWidget extends StatefulWidget {
+class HintWidget extends StatelessWidget {
   const HintWidget({
     Key? key,
     required this.text,
     this.onTap,
+    this.isError = false,
   }) : super(key: key);
 
   /// Text of a hint.
@@ -33,12 +34,9 @@ class HintWidget extends StatefulWidget {
   /// Callback, called when this hint is pressed.
   final GestureTapCallback? onTap;
 
-  @override
-  State<HintWidget> createState() => _HintWidgetState();
-}
+  /// Indicator whether this [HintWidget] representing an error.
+  final bool isError;
 
-/// State of [HintWidget].
-class _HintWidgetState extends State<HintWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -69,7 +67,7 @@ class _HintWidgetState extends State<HintWidget> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'label_hint_from_gapopa'.tr,
+                    isError ? 'label_error'.tr : 'label_hint_from_gapopa'.tr,
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xBB818181),
@@ -78,7 +76,7 @@ class _HintWidgetState extends State<HintWidget> {
                 ),
                 Center(
                   child: InkResponse(
-                    onTap: widget.onTap,
+                    onTap: onTap,
                     radius: 11,
                     child: const Icon(
                       Icons.close,
@@ -95,7 +93,7 @@ class _HintWidgetState extends State<HintWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
             child: Center(
               child: Text(
-                widget.text,
+                text,
                 style: const TextStyle(
                   fontSize: 13,
                   color: Color(0xBB818181),
