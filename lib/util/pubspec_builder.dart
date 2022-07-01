@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:async';
 
 import 'package:build/build.dart';
