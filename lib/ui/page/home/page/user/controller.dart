@@ -24,6 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
+import '/domain/repository/contact.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -91,18 +92,18 @@ class UserController extends GetxController {
     _fetchUser();
 
     inContacts = RxBool(_contactService.contacts.values
-        .any((e) => e.value.users.every((m) => m.id == id)));
+        .any((e) => e.contact.value.users.every((m) => m.id == id)));
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.value.users.every((e) => e.id == id) == true) {
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = true;
           }
           break;
 
         case OperationKind.removed:
-          if (e.value?.value.users.every((e) => e.id == id) == true) {
+          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = false;
           }
           break;
@@ -144,11 +145,11 @@ class UserController extends GetxController {
       if (await MessagePopup.alert('alert_are_you_sure'.tr) == true) {
         status.value = RxStatus.loadingMore();
         try {
-          Rx<ChatContact>? contact = _contactService.contacts.values
-              .firstWhereOrNull(
-                  (e) => e.value.users.every((m) => m.id == user?.value.id));
+          RxChatContact? contact = _contactService.contacts.values
+              .firstWhereOrNull((e) =>
+                  e.contact.value.users.every((m) => m.id == user?.value.id));
           if (contact != null) {
-            await _contactService.deleteContact(contact.value.id);
+            await _contactService.deleteContact(contact.contact.value.id);
           }
           inContacts.value = false;
         } catch (e) {

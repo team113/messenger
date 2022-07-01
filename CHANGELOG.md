@@ -15,15 +15,21 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Message and attachment sending status ([#5]).
+        - Message and attachment sending status ([#5], [#3]).
 
 ### Fixed
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
+- UI:
+    - Chat page:
+        - Missing avatars in group creation popup ([#15], [#2]).
 
+[#2]: /../../issues/2
+[#3]: /../../issues/3
 [#5]: /../../pull/5
 [#14]: /../../pull/14
+[#15]: /../../pull/15
 
 
 
