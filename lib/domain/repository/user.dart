@@ -18,7 +18,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
+import '../model/user.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -64,7 +64,7 @@ abstract class AbstractUserRepository {
 
 /// Unified reactive [User] entity.
 abstract class RxUser {
-  /// Returns reactive value of a [User] this [RxUser] represents.
+  /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
 
   /// Returns the [User.id] of this [RxUser].

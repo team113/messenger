@@ -20,6 +20,7 @@ fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
     ... on EventBlacklistRecordAdded {
       userId
       user {
+        ...User
         __typename
       }
       at
@@ -27,10 +28,11 @@ fragment BlacklistEventsVersioned on BlacklistEventsVersioned {
     ... on EventBlacklistRecordRemoved {
       userId
       user {
+        ...User
         __typename
       }
       at
     }
   }
-  blacklistVer : ver
+  myVer: ver
 }

@@ -177,11 +177,11 @@ class UserRepository implements AbstractUserRepository {
         var mixin = events as BlacklistEventsVersionedMixin;
         yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
           mixin.events.map((e) => _blacklistEvent(e)).toList(),
-          mixin.blacklistVer,
+          mixin.myVer,
         ));
       } else if (events.$$typename == 'IsBlacklisted') {
         var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(node.blacklisted, node.blacklistVer);
+        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
       }
     });
   }
@@ -229,7 +229,10 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(
-          node.userId, node.avatar.toModel(), node.at);
+        node.userId,
+        node.avatar.toModel(),
+        node.at,
+      );
     } else if (e.$$typename == 'EventUserBioDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
       return EventUserBioDeleted(node.userId, node.at);
@@ -242,7 +245,10 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(
-          node.userId, node.callCover.toModel(), node.at);
+        node.userId,
+        node.callCover.toModel(),
+        node.at,
+      );
     } else if (e.$$typename == 'EventUserCameOffline') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
@@ -257,13 +263,19 @@ class UserRepository implements AbstractUserRepository {
       return EventUserNameDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      return EventUserGalleryItemAdded(node.userId,
-          (node.galleryItem as ImageGalleryItemMixin).toModel(), node.at);
+      return EventUserGalleryItemAdded(
+        node.userId,
+        (node.galleryItem as ImageGalleryItemMixin).toModel(),
+        node.at,
+      );
     } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
       var node =
           e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
       return EventUserGalleryItemDeleted(
-          node.userId, node.galleryItemId, node.at);
+        node.userId,
+        node.galleryItemId,
+        node.at,
+      );
     } else if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
@@ -286,7 +298,11 @@ class UserRepository implements AbstractUserRepository {
     if (e.$$typename == 'EventBlacklistRecordAdded') {
       var node =
           e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
-      return EventBlacklistRecordRemoved(node.userId, node.at);
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
     } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
       var node =
           e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;

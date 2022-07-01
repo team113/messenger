@@ -63,6 +63,9 @@ abstract class RxChatContact {
   /// Reactive value of the [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 
+  /// Returns [ChatContactId] of the [contact].
+  ChatContactId get id => contact.value.id;
+
   /// Reactive value of the first [User] this [ChatContact] contains.
   Rx<Rx<User>?> get user;
 }

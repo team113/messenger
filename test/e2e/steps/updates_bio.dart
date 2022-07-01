@@ -21,9 +21,9 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Sets the [UserBio] of the provided [TestUser].
+/// Updates the [UserBio] of the provided [TestUser].
 final StepDefinitionGeneric updateBio = then2<TestUser, String, CustomWorld>(
-  RegExp(r'{user} updates (?:his|her) bio on {string}$'),
+  RegExp(r'{user} updates (?:his|her) bio with {string}$'),
   (TestUser user, String newBio, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;

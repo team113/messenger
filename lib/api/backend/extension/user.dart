@@ -86,49 +86,53 @@ extension ImageGalleryItemConversion on ImageGalleryItemMixin {
       );
 }
 
-/// Extension adding models construction from an [UserAvatar].
+/// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
+  /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
   UserAvatar toModel() => UserAvatar(
-      full: full,
-      original: original,
-      galleryItemId: galleryItemId,
-      big: big,
-      medium: medium,
-      small: small,
-      crop: crop != null
-          ? CropArea(
-              topLeft: CropPoint(
-                x: crop!.topLeft.x,
-                y: crop!.topLeft.y,
-              ),
-              bottomRight: CropPoint(
-                x: crop!.bottomRight.x,
-                y: crop!.bottomRight.y,
-              ),
-              angle: crop?.angle,
-            )
-          : null);
+        full: full,
+        original: original,
+        galleryItemId: galleryItemId,
+        big: big,
+        medium: medium,
+        small: small,
+        crop: crop != null
+            ? CropArea(
+                topLeft: CropPoint(
+                  x: crop!.topLeft.x,
+                  y: crop!.topLeft.y,
+                ),
+                bottomRight: CropPoint(
+                  x: crop!.bottomRight.x,
+                  y: crop!.bottomRight.y,
+                ),
+                angle: crop?.angle,
+              )
+            : null,
+      );
 }
 
-/// Extension adding models construction from an [UserCallCover].
+/// Extension adding models construction from an [UserCallCoverMixin].
 extension UserCallCoverConversion on UserCallCoverMixin {
+  /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
   UserCallCover toModel() => UserCallCover(
-      galleryItemId: galleryItemId,
-      full: full,
-      original: original,
-      vertical: vertical,
-      square: square,
-      crop: crop != null
-          ? CropArea(
-              topLeft: CropPoint(
-                x: crop!.topLeft.x,
-                y: crop!.topLeft.y,
-              ),
-              bottomRight: CropPoint(
-                x: crop!.bottomRight.x,
-                y: crop!.bottomRight.y,
-              ),
-              angle: crop?.angle,
-            )
-          : null);
+        galleryItemId: galleryItemId,
+        full: full,
+        original: original,
+        vertical: vertical,
+        square: square,
+        crop: crop != null
+            ? CropArea(
+                topLeft: CropPoint(
+                  x: crop!.topLeft.x,
+                  y: crop!.topLeft.y,
+                ),
+                bottomRight: CropPoint(
+                  x: crop!.bottomRight.x,
+                  y: crop!.bottomRight.y,
+                ),
+                angle: crop?.angle,
+              )
+            : null,
+      );
 }

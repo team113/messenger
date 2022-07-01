@@ -45,8 +45,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         fillField,
-        hasDialogWithMe,
         goToUserPage,
+        hasDialogWithMe,
         iAm,
         seesAs,
         sendsMessageToMe,

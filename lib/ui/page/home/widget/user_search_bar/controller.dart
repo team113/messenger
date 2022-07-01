@@ -90,7 +90,7 @@ class UserSearchBarController extends GetxController {
 
   /// Adds the provided [user] to the [recentSearchResults].
   void addToRecent(RxUser user) {
-    recentSearchResults.removeWhere((e) => e.id.val == user.id.val);
+    recentSearchResults.removeWhere((e) => e.id == user.id);
     recentSearchResults.add(user);
     if (recentSearchResults.length >= 10) {
       recentSearchResults.removeAt(0);

@@ -68,10 +68,10 @@ class ContactsTabController extends GetxController {
   final CallService _calls;
 
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
-  Map<ChatContactId, StreamSubscription>? _contactsSubscriptions;
+  final Map<ChatContactId, StreamSubscription> _userSubscription = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
-  StreamSubscription? _contactsUpdatesSubscription;
+  StreamSubscription? _contactsSubscription;
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -144,19 +144,15 @@ class ContactsTabController extends GetxController {
       },
     );
 
-    _initContactsSubscription();
+    _initUsersSubscription();
 
     super.onInit();
   }
 
   @override
   void dispose() {
-    _contactsUpdatesSubscription?.cancel();
-    if (_contactsSubscriptions != null) {
-      for (StreamSubscription subscription in _contactsSubscriptions!.values) {
-        subscription.cancel();
-      }
-    }
+    _contactsSubscription?.cancel();
+    _userSubscription.forEach((_, v) => v.cancel());
     super.dispose();
   }
 
@@ -198,47 +194,46 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Fills [_usersSubscriptions] list by [StreamSubscription]s of users that
-  /// are available in [contacts]. Then listens contacts changes and
-  /// subscribes/unsubscribes from updates
-  Future<void> _initContactsSubscription() async {
-    _contactsSubscriptions = {};
-
+  /// Maintains [StreamSubscription]s to the [RxUser.updates] of every
+  /// [RxChatContact.user] in the [contacts] list.
+  Future<void> _initUsersSubscription() async {
     await Future.forEach(
-        contacts.values.where((c) => c.contact.value.users.isNotEmpty),
-        (RxChatContact contact) async {
-      RxUser? user = await getUser(contact.contact.value.users.first.id);
-      if (user != null) {
-        _contactsSubscriptions!.putIfAbsent(
-            contact.contact.value.id, () => user.updates.listen((_) {}));
-      }
-    });
+      contacts.values.where((c) => c.contact.value.users.isNotEmpty),
+      (RxChatContact contact) async {
+        RxUser? user = await getUser(contact.contact.value.users.first.id);
+        if (user != null) {
+          _userSubscription[contact.id]?.cancel();
+          _userSubscription[contact.id] = user.updates.listen((_) {});
+        }
+      },
+    );
 
-    _contactsUpdatesSubscription = contacts.changes.listen((e) async {
+    _contactsSubscription = contacts.changes.listen((e) async {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.contact.value.users.isNotEmpty ?? false) {
-            RxUser? user = await getUser(e.value!.contact.value.users.first.id);
-            if (user != null && e.value != null) {
-              _contactsSubscriptions!.putIfAbsent(
-                  e.value!.contact.value.id, () => user.updates.listen((_) {}));
-            }
+          RxUser? user = e.value?.contact.value.users.isNotEmpty == true
+              ? await getUser(e.value!.contact.value.users.first.id)
+              : null;
+          if (user != null) {
+            _userSubscription[e.key]?.cancel();
+            _userSubscription[e.key!] = user.updates.listen((_) {});
           }
           break;
+
         case OperationKind.removed:
-          _contactsSubscriptions?[e.key]?.cancel();
-          _contactsSubscriptions?.remove(e.key);
+          _userSubscription.remove(e.key)?.cancel();
           break;
+
         case OperationKind.updated:
-          if ((e.value?.contact.value.users.isNotEmpty ?? false) &&
-              (e.value!.contact.value.users.first.id !=
-                  contacts[e.key]?.contact.value.id)) {
-            _contactsSubscriptions?[e.key]?.cancel();
-            _contactsSubscriptions?.remove(e.key);
-            RxUser? user = await getUser(e.value!.contact.value.users.first.id);
-            if (user != null && e.value != null) {
-              _contactsSubscriptions!.putIfAbsent(
-                  e.value!.contact.value.id, () => user.updates.listen((_) {}));
+          if (e.value?.contact.value.users.firstOrNull?.id !=
+              contacts[e.key]?.contact.value.id) {
+            _userSubscription.remove(e.key)?.cancel();
+            RxUser? user = e.value?.contact.value.users.isNotEmpty == true
+                ? await getUser(e.value!.contact.value.users.first.id)
+                : null;
+            if (user != null) {
+              _userSubscription[e.key]?.cancel();
+              _userSubscription[e.key!] = user.updates.listen((_) {});
             }
           }
           break;

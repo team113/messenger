@@ -114,8 +114,10 @@ class BlacklistEventsVersioned extends UserEvents {
   /// [BlacklistEvent]s themselves.
   final List<BlacklistEvent> events;
 
-  /// Version of the [MyUser]'s state updated by these [BlacklistEventsVersioned].
+  /// Version of the [MyUser]'s state updated by these
+  /// [BlacklistEventsVersioned].
   final MyUserVersion ver;
+
   @override
   UserEventsKind get kind => UserEventsKind.blacklistEvent;
 }
@@ -134,10 +136,11 @@ class EventBlacklistRecordAdded extends BlacklistEvent {
   final UserId userId;
 
   /// [User] this [BlacklistEvent] is about.
-  final User user;
+  final HiveUser user;
 
-  /// [PreciseDateTime] when this [BlacklistEvent] happened
+  /// [PreciseDateTime] when this [BlacklistEvent] happened.
   final PreciseDateTime at;
+
   @override
   BlacklistEventsKind get kind => BlacklistEventsKind.recordAdded;
 }
@@ -149,8 +152,9 @@ class EventBlacklistRecordRemoved extends BlacklistEvent {
   /// [UserId] of the [User] this [BlacklistEvent] is about.
   final UserId userId;
 
-  /// [PreciseDateTime] when this [BlacklistEvent] happened
+  /// [PreciseDateTime] when this [BlacklistEvent] happened.
   final PreciseDateTime at;
+
   @override
   BlacklistEventsKind get kind => BlacklistEventsKind.recordRemoved;
 }

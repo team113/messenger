@@ -186,9 +186,11 @@ class HiveRxUser extends RxUser {
           _userLocal.put(userEntity);
         }
         break;
+
       case UserEventsKind.blacklistEvent:
         // TODO: Handle this case.
         break;
+
       case UserEventsKind.isBlacklisted:
         // TODO: Handle this case.
         break;

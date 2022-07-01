@@ -59,7 +59,6 @@ enum WidgetKey {
   SignInButton,
   StartChattingButton,
   UsernameField,
-  UserSearchBar,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

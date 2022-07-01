@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - Store:
-    - Users subscription ([#7], [#4]).
+    - User subscription ([#7], [#4]).
 
 ### Fixed
 

@@ -147,9 +147,6 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   StreamSubscription? _typingSubscription;
 
-  /// [StreamSubscription]s to the [RxUser.updates] of the [RxChat.members].
-  List<StreamSubscription>? _usersSubscriptions;
-
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -287,7 +284,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _usersSubscriptions?.forEach((s) => s.cancel());
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
@@ -492,11 +488,6 @@ class ChatController extends GetxController {
       if (lastRead?.value.id != lastReadItem.value?.value.id) {
         _scrollToLast();
       }
-
-      _usersSubscriptions = chat?.members.values
-          .where((u) => u.user.value.id != me)
-          .map((u) => u.updates.listen((_) {}))
-          .toList();
 
       status.value = RxStatus.success();
     }
