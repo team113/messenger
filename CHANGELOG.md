@@ -14,15 +14,21 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - Store:
-    - Users subscription ([#7]).
+    - Users subscription ([#7], [#4]).
 
 ### Fixed
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
+- UI:
+    - Chat page:
+        - Missing avatars in group creation popup ([#15], [#2]).
 
+[#2]: /../../issues/2
+[#4]: /../../issues/4
 [#7]: /../../pull/7
 [#14]: /../../pull/14
+[#15]: /../../pull/15
 
 
 

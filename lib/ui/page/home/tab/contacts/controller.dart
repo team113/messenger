@@ -28,6 +28,7 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
@@ -73,11 +74,11 @@ class ContactsTabController extends GetxController {
   StreamSubscription? _contactsUpdatesSubscription;
 
   /// Returns current reactive [ChatContact]s map.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Returns the current reactive favorite [ChatContact]s map.
-  RxMap<ChatContactId, Rx<ChatContact>> get favorites =>
+  RxMap<ChatContactId, RxChatContact> get favorites =>
       _contactService.favorites;
 
   /// Indicates whether [ContactService] is ready to be used.
@@ -89,13 +90,13 @@ class ContactsTabController extends GetxController {
       onChanged: (s) async {
         s.error.value = null;
 
-        Rx<ChatContact>? contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+        RxChatContact? contact = contacts.values.firstWhereOrNull(
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
         if (contact == null) return;
 
-        if (contact.value.name.val == s.text) {
+        if (contact.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
@@ -133,10 +134,10 @@ class ContactsTabController extends GetxController {
       },
       onSubmitted: (s) {
         var contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
-        if (contact?.value.name.val == s.text) {
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
+        if (contact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
@@ -203,23 +204,24 @@ class ContactsTabController extends GetxController {
   Future<void> _initContactsSubscription() async {
     _contactsSubscriptions = {};
 
-    await Future.forEach(contacts.values.where((c) => c.value.users.isNotEmpty),
-        (Rx<ChatContact> contact) async {
-      RxUser? user = await getUser(contact.value.users.first.id);
+    await Future.forEach(
+        contacts.values.where((c) => c.contact.value.users.isNotEmpty),
+        (RxChatContact contact) async {
+      RxUser? user = await getUser(contact.contact.value.users.first.id);
       if (user != null) {
         _contactsSubscriptions!.putIfAbsent(
-            contact.value.id, () => user.updates.listen((event) {}));
+            contact.contact.value.id, () => user.updates.listen((_) {}));
       }
     });
 
     _contactsUpdatesSubscription = contacts.changes.listen((e) async {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.value.users.isNotEmpty ?? false) {
-            RxUser? user = await getUser(e.value!.value.users.first.id);
+          if (e.value?.contact.value.users.isNotEmpty ?? false) {
+            RxUser? user = await getUser(e.value!.contact.value.users.first.id);
             if (user != null && e.value != null) {
               _contactsSubscriptions!.putIfAbsent(
-                  e.value!.value.id, () => user.updates.listen((event) {}));
+                  e.value!.contact.value.id, () => user.updates.listen((_) {}));
             }
           }
           break;
@@ -228,14 +230,15 @@ class ContactsTabController extends GetxController {
           _contactsSubscriptions?.remove(e.key);
           break;
         case OperationKind.updated:
-          if ((e.value?.value.users.isNotEmpty ?? false) &&
-              (e.value!.value.users.first.id != contacts[e.key]?.value.id)) {
+          if ((e.value?.contact.value.users.isNotEmpty ?? false) &&
+              (e.value!.contact.value.users.first.id !=
+                  contacts[e.key]?.contact.value.id)) {
             _contactsSubscriptions?[e.key]?.cancel();
             _contactsSubscriptions?.remove(e.key);
-            RxUser? user = await getUser(e.value!.value.users.first.id);
+            RxUser? user = await getUser(e.value!.contact.value.users.first.id);
             if (user != null && e.value != null) {
               _contactsSubscriptions!.putIfAbsent(
-                  e.value!.value.id, () => user.updates.listen((event) {}));
+                  e.value!.contact.value.id, () => user.updates.listen((_) {}));
             }
           }
           break;

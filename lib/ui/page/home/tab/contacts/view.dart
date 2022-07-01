@@ -18,8 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
-import '/domain/repository/user.dart';
+import '/domain/repository/contact.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -85,12 +84,12 @@ class ContactsTabView extends StatelessWidget {
                                 child: Text('label_favorite_contacts'.tr),
                               ),
                               ...c.favorites.entries
-                                  .map((e) => _contact(e.value.value, c))
+                                  .map((e) => _contact(e.value, c))
                             ],
                             if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
                               ...divider,
                             ...c.contacts.entries
-                                .map((e) => _contact(e.value.value, c))
+                                .map((e) => _contact(e.value, c))
                           ],
                         ),
                       )
@@ -102,7 +101,7 @@ class ContactsTabView extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(ChatContact contact, ContactsTabController c) =>
+  Widget _contact(RxChatContact contact, ContactsTabController c) =>
       ContextMenuRegion(
         preventContextMenu: false,
         menu: ContextMenu(
@@ -110,22 +109,22 @@ class ContactsTabView extends StatelessWidget {
             ContextMenuButton(
               label: 'btn_change_contact_name'.tr,
               onPressed: () {
-                c.contactToChangeNameOf.value = contact.id;
+                c.contactToChangeNameOf.value = contact.contact.value.id;
                 c.contactName.clear();
-                c.contactName.unchecked = contact.name.val;
+                c.contactName.unchecked = contact.contact.value.name.val;
                 SchedulerBinding.instance.addPostFrameCallback(
                     (_) => c.contactName.focus.requestFocus());
               },
             ),
             ContextMenuButton(
               label: 'btn_delete_from_contacts'.tr,
-              onPressed: () => c.deleteFromContacts(contact),
+              onPressed: () => c.deleteFromContacts(contact.contact.value),
             ),
           ],
         ),
-        child: c.contactToChangeNameOf.value == contact.id
+        child: c.contactToChangeNameOf.value == contact.contact.value.id
             ? Container(
-                key: Key(contact.id.val),
+                key: Key(contact.contact.value.id.val),
                 padding: const EdgeInsets.all(3),
                 child: Row(
                   children: [
@@ -146,41 +145,34 @@ class ContactsTabView extends StatelessWidget {
                 ),
               )
             : ListTile(
-                key: Key(contact.id.val),
-                leading: contact.users.isNotEmpty
-                    ? FutureBuilder<RxUser?>(
-                        future: c.getUser(contact.users.first.id),
-                        builder: (_, u) => u.hasData
-                            ? Obx(
-                                () => AvatarWidget.fromContact(
-                                  contact,
-                                  avatar: u.data?.user.value.avatar,
-                                ),
-                              )
-                            : AvatarWidget.fromContact(contact),
-                      )
-                    : AvatarWidget.fromContact(contact),
-                title: Text(contact.name.val),
-                trailing: contact.users.isNotEmpty
+                key: Key(contact.contact.value.id.val),
+                leading: Obx(
+                  () => AvatarWidget.fromContact(
+                    contact.contact.value,
+                    avatar: contact.user.value?.value.avatar,
+                  ),
+                ),
+                title: Text(contact.contact.value.name.val),
+                trailing: contact.contact.value.users.isNotEmpty
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () =>
-                                c.startAudioCall(contact.users.first),
+                            onPressed: () => c.startAudioCall(
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.call),
                           ),
                           IconButton(
-                            onPressed: () =>
-                                c.startVideoCall(contact.users.first),
+                            onPressed: () => c.startVideoCall(
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.video_call),
                           )
                         ],
                       )
                     : null,
-                onTap: contact.users.isNotEmpty
+                onTap: contact.contact.value.users.isNotEmpty
                     // TODO: Open [Routes.contact] page when it's implemented.
-                    ? () => router.user(contact.users.first.id)
+                    ? () => router.user(contact.contact.value.users.first.id)
                     : null,
               ),
       );
