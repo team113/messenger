@@ -26,7 +26,7 @@ import '../world/custom_world.dart';
 /// - Given I am in chat with Bob
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
-  (TestUser user, context) async {
+  (TestUser user, context) => Future.sync(() {
     router.chat(context.world.sessions[user.name]!.dialog!);
-  },
+  }),
 );

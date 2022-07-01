@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:mutex/mutex.dart';
 
-/// Mocked [GraphQlProvider].
+/// Mocked [GraphQlProvider] containing [MockGraphQlClient].
 class MockGraphQlProvider extends GraphQlProvider {
   /// Mocked [GraphQlClient].
   final MockGraphQlClient _client = MockGraphQlClient();
@@ -54,12 +54,31 @@ class MockGraphQlProvider extends GraphQlProvider {
   void clearCache() => _client.clearCache();
 }
 
+/// Mocked [GraphQlClient] with an ability to add [delay] to its requests.
 class MockGraphQlClient extends GraphQlClient {
-  /// Delay of requests.
+  /// [Duration] to add to all requests simulating a delay.
   Duration? delay;
 
-  /// Indicator whether methods throws exceptions.
-  bool hasError = false;
+  /// Indicator whether requests should throw [ConnectionException]s or not.
+  ///
+  /// Intended to be used to simulate connection loss.
+  bool throwException = false;
+
+  @override
+  Future<QueryResult> query(
+    QueryOptions options, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) async {
+    if (delay != null) {
+      await Future.delayed(delay!);
+    }
+
+    if (throwException) {
+      throw const ConnectionException('Mocked');
+    }
+
+    return super.query(options, handleException);
+  }
 
   @override
   Future<QueryResult> mutate(
@@ -67,12 +86,12 @@ class MockGraphQlClient extends GraphQlClient {
     bool raw = false,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (hasError) {
-      await Future.delayed(delay!);
-      throw const ConnectionException('connectionException');
-    }
     if (delay != null) {
       await Future.delayed(delay!);
+    }
+
+    if (throwException) {
+      throw const ConnectionException('Mocked');
     }
 
     return super.mutate(options, raw: raw, onException: onException);
@@ -85,12 +104,12 @@ class MockGraphQlClient extends GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
   }) async {
-    if (hasError) {
-      await Future.delayed(delay!);
-      throw const ConnectionException('connectionException');
-    }
     if (delay != null) {
       await Future.delayed(delay!);
+    }
+
+    if (throwException) {
+      throw const ConnectionException('Mocked');
     }
 
     return super.post(

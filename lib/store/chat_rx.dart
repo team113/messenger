@@ -34,6 +34,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ConnectionException,
         NotChatMemberException,
         PostChatMessageException,
         ResubscriptionRequiredException,
@@ -104,7 +105,7 @@ class HiveRxChat implements RxChat {
     return callCover;
   }
 
-  /// List of [ChatItem]s that not sent.
+  /// List of [ChatItem]s being in [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
@@ -160,9 +161,6 @@ class HiveRxChat implements RxChat {
       if (!_local.isEmpty) {
         for (HiveChatItem i in _local.messages) {
           messages.add(Rx<ChatItem>(i.value));
-          if (i.value.status.value != SendingStatus.sent) {
-            _pending.add(i.value);
-          }
         }
       }
 
@@ -252,19 +250,16 @@ class HiveRxChat implements RxChat {
       existingDateTime: existingDateTime,
     );
 
+    // Storing the already stored [ChatMessage] is meaningless as it creates
+    // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      var index = messages.indexWhere((e) => e.value.id == existingId);
-      if (index != -1) {
-        messages[index] = message.value.obs;
-      }
-      var sendingIndex = _pending.indexWhere((e) => e.id == existingId);
-      if (sendingIndex != -1) {
-        _pending[sendingIndex] = message.value;
-      }
+      messages.firstWhere((e) => e.value.id == existingId).value =
+          message.value;
     } else {
       put(message, ignoreVersion: true);
-      _pending.add(message.value);
     }
+
+    _pending.add(message.value);
 
     try {
       if (attachments != null) {
@@ -280,7 +275,7 @@ class HiveRxChat implements RxChat {
                       put(message, ignoreVersion: true);
                     }
                   },
-                  onError: (_, __) {},
+                  onError: (_) {},
                 );
               }
             })
@@ -298,13 +293,14 @@ class HiveRxChat implements RxChat {
             put(message, ignoreVersion: true);
           }
         }
+
         await Future.wait(uploads);
       }
 
       if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
-        throw PostChatMessageException(
+        throw ConnectionException(PostChatMessageException(
           PostChatMessageErrorCode.unknownAttachment,
-        );
+        ));
       }
 
       var response = await _chatRepository.postChatMessage(
@@ -330,6 +326,7 @@ class HiveRxChat implements RxChat {
       rethrow;
     } finally {
       put(message, ignoreVersion: true);
+      _pending.remove(message.value);
     }
   }
 
@@ -751,19 +748,24 @@ class HiveRxChat implements RxChat {
               event as EventChatItemPosted;
               for (var item in event.item) {
                 if (item.value is ChatMessage && item.value.authorId == me) {
-                  ChatItem? sending = _pending.firstWhereOrNull((e) =>
-                      e is ChatMessage &&
-                      e.status.value == SendingStatus.sending &&
-                      (item.value as ChatMessage).isEquals(e));
+                  ChatItem? pending = _pending.firstWhereOrNull(
+                    (e) =>
+                        e is ChatMessage &&
+                        e.status.value == SendingStatus.sending &&
+                        (item.value as ChatMessage).isEquals(e),
+                  );
 
-                  if (sending != null &&
-                      await get(item.value.id,
-                              timestamp: item.value.timestamp) ==
+                  if (pending != null &&
+                      await get(
+                            item.value.id,
+                            timestamp: item.value.timestamp,
+                          ) ==
                           null) {
-                    remove(sending.id, sending.timestamp);
-                    _pending.remove(sending);
+                    remove(pending.id, pending.timestamp);
+                    _pending.remove(pending);
                   }
                 }
+
                 put(item);
 
                 if (item.value is ChatMemberInfo) {
@@ -829,7 +831,7 @@ class HiveRxChat implements RxChat {
 /// Extension adding an ability to insert the element based on some condition to
 /// [List].
 extension _ListInsertAfter<T> on List<T> {
-  /// Inserts the [element] after the [compare] condition becomes `true`.
+  /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
     bool done = false;
     for (var i = length - 1; i > -1 && !done; --i) {

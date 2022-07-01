@@ -110,7 +110,7 @@ class ChatMessage extends ChatItem {
   @HiveField(6)
   ChatMessageText? text;
 
-  /// ID of the [Chat] this [ChatItem] was posted in.
+  /// [PreciseDateTime] when this [ChatMessage] was edited.
   @HiveField(7)
   PreciseDateTime? editedAt;
 
@@ -118,15 +118,15 @@ class ChatMessage extends ChatItem {
   @HiveField(8)
   List<Attachment> attachments;
 
-  /// Indicates whether the [other] message has the same fields as this
-  /// [ChatMessage].
+  /// Indicates whether the [other] message shares the same values as this
+  /// [ChatMessage] except its [id] and [at].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
         repliesTo?.id == other.repliesTo?.id &&
         authorId == other.authorId &&
         chatId == other.chatId &&
         attachments.every((e) => other.attachments
-            .any((e1) => e1.size == e.size && e1.filename == e.filename));
+            .any((m) => m.size == e.size && m.filename == e.filename));
   }
 }
 

@@ -204,14 +204,13 @@ class ChatRepository implements AbstractChatRepository {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
     ChatItemId? repliesTo,
-  }) async {
-    return _graphQlProvider.postChatMessage(
-      chatId,
-      text: text,
-      attachments: attachments,
-      repliesTo: repliesTo,
-    );
-  }
+  }) =>
+      _graphQlProvider.postChatMessage(
+        chatId,
+        text: text,
+        attachments: attachments,
+        repliesTo: repliesTo,
+      );
 
   @override
   Future<void> resendChatItem(ChatItem item) async {
@@ -298,6 +297,7 @@ class ChatRepository implements AbstractChatRepository {
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
     }
+
     if (attachment.read.value?.isCompleted != false) {
       attachment.read.value = Completer();
     }

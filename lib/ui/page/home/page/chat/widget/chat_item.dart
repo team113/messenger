@@ -41,7 +41,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import 'swipeable_status.dart';
-import 'video_thumbnails/video_thumbnail.dart';
+import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {

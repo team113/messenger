@@ -28,13 +28,13 @@ import '../world/custom_world.dart';
 /// - I have Internet with delay 2 seconds
 final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
   'I have Internet with delay {int} second(s)?',
-  (int delay, context) async {
+  (int delay, context) => Future.sync(() {
     GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = delay.seconds;
-      provider.client.hasError = false;
+      provider.client.throwException = false;
     }
-  },
+  }),
 );
 
 /// Removes requests delay.
@@ -43,13 +43,13 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
 /// - I have Internet without delay
 final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   'I have Internet without delay',
-  (context) async {
+  (context) => Future.sync(() {
     GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
-      provider.client.hasError = false;
+      provider.client.throwException = false;
     }
-  },
+  }),
 );
 
 /// Replaces [GraphQlProvider] to [MockGraphQlProvider] with `hasError`: true.
@@ -58,11 +58,11 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
 /// - I do not have Internet
 final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   'I do not have Internet',
-  (context) async {
+  (context) => Future.sync(() {
     GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.hasError = true;
+      provider.client.throwException = true;
     }
-  },
+  }),
 );

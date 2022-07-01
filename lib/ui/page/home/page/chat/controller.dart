@@ -36,9 +36,9 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -64,7 +64,7 @@ class ChatController extends GetxController {
     this.id,
     this._chatService,
     this._callService,
-    this._myUserService,
+    this._authService,
     this._userService,
   );
 
@@ -167,8 +167,8 @@ class ChatController extends GetxController {
   /// [Chat]s service used to get [chat] value.
   final ChatService _chatService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
@@ -184,7 +184,7 @@ class ChatController extends GetxController {
   Worker? _messageInitializedWorker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -201,40 +201,33 @@ class ChatController extends GetxController {
   void onInit() {
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
+      onSubmitted: (s) {
         if (s.text.isNotEmpty || attachments.isNotEmpty) {
-          s.editable.value = false;
-          try {
-            _chatService
-                .sendChatMessage(
-                  chat!.chat.value.id,
-                  text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                  repliesTo: repliedMessage.value,
-                  attachments: attachments,
-                )
-                .then((_) => _playMessageSent())
-                .onError<PostChatMessageException>(
-                    (e, _) => MessagePopup.error(e))
-                .onError<UploadAttachmentException>(
-                    (e, _) => MessagePopup.error(e))
-                .onError<ConnectionException>((e, _) => MessagePopup.error(e));
+          _chatService
+              .sendChatMessage(
+                chat!.chat.value.id,
+                text: s.text.isEmpty ? null : ChatMessageText(s.text),
+                repliesTo: repliedMessage.value,
+                attachments: attachments,
+              )
+              .then((_) => _playMessageSent())
+              .onError<PostChatMessageException>(
+                  (e, _) => MessagePopup.error(e))
+              .onError<UploadAttachmentException>(
+                  (e, _) => MessagePopup.error(e))
+              .onError<ConnectionException>((e, _) {});
 
-            repliedMessage.value = null;
-            attachments.clear();
-            s.clear();
+          repliedMessage.value = null;
+          attachments.clear();
+          s.clear();
+          s.unsubmit();
 
-            _typingSubscription?.cancel();
-            _typingSubscription = null;
-            _typingTimer?.cancel();
-          } catch (e) {
-            MessagePopup.error(e);
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.unsubmit();
-            if (!PlatformUtils.isMobile) {
-              Future.delayed(Duration.zero, () => s.focus.requestFocus());
-            }
+          _typingSubscription?.cancel();
+          _typingSubscription = null;
+          _typingTimer?.cancel();
+
+          if (!PlatformUtils.isMobile) {
+            Future.delayed(Duration.zero, () => s.focus.requestFocus());
           }
         }
       },
@@ -314,15 +307,15 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Resend the specified [ChatItem] if it has status `error`.
+  /// Resends the specified [ChatItem].
   Future<void> resendItem(ChatItem item) async {
     if (item.status.value == SendingStatus.error) {
-      _chatService
+      await _chatService
           .resendChatItem(item)
           .then((_) => _playMessageSent())
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
-          .onError<ConnectionException>((e, _) => MessagePopup.error(e));
+          .onError<ConnectionException>((_, __) {});
     }
   }
 
@@ -672,10 +665,10 @@ class ChatController extends GetxController {
         if (index != -1) {
           attachments[index] = uploaded;
         }
-      } on UploadAttachmentException catch (_) {
-        //No-op.
-      } on ConnectionException catch (_) {
-        //No-op.
+      } on UploadAttachmentException catch (e) {
+        MessagePopup.error(e);
+      } on ConnectionException {
+        // No-op.
       }
     } else {
       MessagePopup.error('err_size_too_big'.tr);
