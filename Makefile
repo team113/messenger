@@ -19,11 +19,6 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
-RELEASE_BRANCH := release
-MAINLINE_BRANCH := main
-CURRENT_BRANCH := $(strip $(if $(call eq,$(CI),),\
-	$(shell git branch | grep \* | cut -d ' ' -f2),$(github.ref_name)))
-
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
@@ -55,6 +50,9 @@ gen: flutter.gen
 
 
 lint: flutter.analyze
+
+
+release: git.release
 
 
 run: flutter.run
@@ -309,57 +307,23 @@ copyright:
 
 
 
-###################
-# GitHub commands #
-###################
-
-# Prepare release notes for GitHub release.
-#
-# Usage:
-#	make github.release.notes [VERSION=<proj-version>]
-#	     [project-url=(https://github.com/team113/messenger|<github-project-url>)]
-
-github-proj-url = $(strip $(or $(project-url),\
-	https://github.com/team113/messenger))
-
-github.release.notes:
-	@echo "$(strip \
-		[Changelog]($(github-proj-url)/blob/v$(VERSION)/CHANGELOG.md#$(shell \
-			sed -n '/^## \[$(VERSION)\]/{\
-				s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1-\2/;\
-				s/[^0-9a-z-]*//g;\
-				p;\
-			}' CHANGELOG.md)) | \
-		[Milestone]($(github-proj-url)/milestone/$(shell \
-			sed -n '/^## \[$(VERSION)\]/,/Milestone/{\
-				s/.*milestone.\([0-9]*\).*/\1/p;\
-			}' CHANGELOG.md)) | \
-		[Repository]($(github-proj-url)/tree/v$(VERSION)))"
-
-
-
-
 ################
 # Git commands #
 ################
 
-# Release project version (merge to release branch and apply version tag).
+# Release project version (apply version tag and push).
 #
 # Usage:
-#	make git.release [VERSION=<proj-ver>]
+#	make git.release [ver=($(VERSION)|<proj-ver>)]
+
+git-release-tag = $(strip $(or $(ver),$(VERSION)))
 
 git.release:
-ifneq ($(CURRENT_BRANCH),$(MAINLINE_BRANCH))
-	@echo "--> Current branch is not '$(MAINLINE_BRANCH)'" && false
+ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
+	$(error "Git tag $(git-release-tag) already exists")
 endif
-	git fetch origin --tags $(RELEASE_BRANCH):$(RELEASE_BRANCH)
-ifeq ($(shell git rev-parse v$(VERSION) >/dev/null 2>&1 && echo "ok"),ok)
-	@echo "--> Tag v$(VERSION) already exists" && false
-endif
-	git fetch . $(MAINLINE_BRANCH):$(RELEASE_BRANCH)
-	git tag v$(VERSION) $(RELEASE_BRANCH)
-	git push origin $(RELEASE_BRANCH)
-	git push --tags origin $(RELEASE_BRANCH)
+	git tag $(git-release-tag) main
+	git push origin refs/tags/$(git-release-tag)
 
 
 
@@ -368,12 +332,11 @@ endif
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs fmt gen lint run test \
+.PHONY: build clean deps docs fmt gen lint release run test \
         clean.flutter \
         copyright \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
             flutter.pub flutter.run \
         git.release \
-        github.release.notes \
         test.unit
