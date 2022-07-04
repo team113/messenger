@@ -751,7 +751,7 @@ class AnimatedTransition extends StatefulWidget {
 /// State of [AnimatedTransition] used to change [rect] with animation.
 class _AnimatedTransitionState extends State<AnimatedTransition>
     with SingleTickerProviderStateMixin {
-  /// [Rect] of this [_AnimatedTransitionState] used to play animation.
+  /// [Rect] used to play animation.
   late Rect rect;
 
   @override
