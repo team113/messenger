@@ -46,8 +46,8 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
-  /// Directory name to save downloaded files in.
-  static String downloadingDirectory = 'messenger';
+  /// Directory to download files to.
+  static late String downloads;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -83,6 +83,10 @@ class Config {
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
         : (document['sentry']?['dsn'] ?? '');
+
+    downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+        : (document['downloads']?['directory'] ?? 'messenger');
 
     origin = url;
 

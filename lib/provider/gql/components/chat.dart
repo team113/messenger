@@ -712,8 +712,8 @@ abstract class ChatGraphQlMixin {
       if (e.response?.statusCode == 413) {
         throw UploadAttachmentException(UploadAttachmentErrorCode.tooBigSize);
       }
-      Log.print(
-          'UploadAttachment failed with response: ${e.response?.toString()}');
+
+      Log.print('[UploadAttachment] Failed with response: ${e.response}');
 
       rethrow;
     }

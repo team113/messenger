@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +22,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
@@ -57,16 +57,6 @@ class PlatformUtils {
   static bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
-  static Future<String> get downloadPath async {
-    String path;
-    if (PlatformUtils.isMobile) {
-      path = (await getApplicationDocumentsDirectory()).path;
-    } else {
-      path = (await getDownloadsDirectory())!.path;
-    }
-    return '$path/${Config.downloadingDirectory}';
-  }
-
   /// Returns a stream broadcasting fullscreen changes.
   static Stream<bool> get onFullscreenChange {
     if (isWeb) {
@@ -90,6 +80,19 @@ class PlatformUtils {
     // TODO: Implement for [isMobile] using the
     //       [SystemChrome.setSystemUIChangeCallback].
     return const Stream.empty();
+  }
+
+  /// Returns a path to the downloads directory.
+  static Future<String> get downloadsDirectory async {
+    String path;
+
+    if (PlatformUtils.isMobile) {
+      path = (await getApplicationDocumentsDirectory()).path;
+    } else {
+      path = (await getDownloadsDirectory())!.path;
+    }
+
+    return '$path/${Config.downloads}';
   }
 
   /// Enters fullscreen mode.
@@ -122,7 +125,7 @@ class PlatformUtils {
     }
   }
 
-  /// Downloads file by provided [url].
+  /// Downloads the file from the provided [url].
   static Future<File?> download(
     String url,
     String filename, {
@@ -136,13 +139,12 @@ class PlatformUtils {
       String name = p.basenameWithoutExtension(filename);
       String extension = p.extension(filename);
 
-      String path = await downloadPath;
+      String path = await downloadsDirectory;
 
       var file = File('$path/$filename');
-      int i = 1;
-      while (await file.exists()) {
+
+      for (int i = 1; await file.exists(); ++i) {
         file = File('$path/$name ($i)$extension');
-        i++;
       }
 
       await Dio().download(
@@ -151,6 +153,7 @@ class PlatformUtils {
         onReceiveProgress: onReceiveProgress,
         cancelToken: cancelToken,
       );
+
       return file;
     }
   }

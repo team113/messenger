@@ -115,6 +115,7 @@ final Map<String, String> enUS = {
   'err_contact_too_many': 'Contact can\'t be created with more than 20 users',
   'err_contact_unknown_chat': 'Chat with the provided ID doesn\'t exist',
   'err_contact_unknown_user': 'User with the provided ID doesn\'t exist',
+  'err_could_not_download': 'An error ocurred while downloading',
   'err_current_password_empty': 'Current password must not be empty',
   'err_dimensions_too_big': 'Dimensions too big',
   'err_email_occupied': 'E-mail address is already occupied',

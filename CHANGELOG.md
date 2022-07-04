@@ -15,13 +15,14 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Attachments downloading and sharing ([#12]).
+        - Attachments downloading and sharing ([#12], [#11]).
 
 ### Fixed
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
 
+[#11]: /../../issues/11
 [#12]: /../../pull/12
 [#14]: /../../pull/14
 

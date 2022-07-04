@@ -14,8 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/platform_utils.dart';
+import 'package:universal_io/io.dart';
+import 'package:path/path.dart' as p;
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
@@ -89,24 +93,77 @@ class FileAttachment extends Attachment {
     required int size,
   }) : super(id, original, filename, size);
 
-  /// Path to this downloaded [FileAttachment].
+  /// Path to the downloaded [FileAttachment] in the local filesystem.
   @HiveField(4)
-  String? localPath;
+  String? local;
 
-  /// [DownloadingStatus] ot this [FileAttachment].
-  Rx<DownloadingStatus> downloadingStatus =
-      Rx<DownloadingStatus>(DownloadingStatus.empty);
+  /// [DownloadingStatus] of this [FileAttachment].
+  Rx<DownloadingStatus> downloading = Rx(DownloadingStatus.empty);
 
-  /// Progress ot this [FileAttachment] downloading.
-  Rx<double> progress = Rx<double>(0.0);
+  /// Progress of this [FileAttachment] downloading.
+  RxDouble progress = RxDouble(0);
+
+  CancelToken? _token;
 
   /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading =>
-      downloadingStatus.value == DownloadingStatus.downloading;
+  bool get isDownloading => downloading.value == DownloadingStatus.downloading;
 
-  /// Indicates whether this [FileAttachment] is downloaded.
-  bool get isDownloaded =>
-      downloadingStatus.value == DownloadingStatus.downloaded;
+  // TODO(review): clean it and use in store and controller
+  Future<void> init() async {
+    if (local != null) {
+      var file = File(local!);
+      if (await file.exists() && await file.length() == size) {
+        downloading.value = DownloadingStatus.downloaded;
+        return;
+      }
+    }
+
+    String downloads = await PlatformUtils.downloadsDirectory;
+    String name = p.basenameWithoutExtension(filename);
+    String ext = p.extension(filename);
+    File file = File('$downloads/$filename');
+
+    for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+      file = File('$downloads/$name ($i)$ext');
+    }
+
+    if (await file.exists()) {
+      downloading.value = DownloadingStatus.downloaded;
+      local = file.path;
+    } else {
+      downloading.value = DownloadingStatus.empty;
+      local = null;
+    }
+  }
+
+  Future<void> download() async {
+    try {
+      downloading.value = DownloadingStatus.downloading;
+      progress.value = 0;
+
+      _token = CancelToken();
+
+      File? file = await PlatformUtils.download(
+        original.val,
+        filename,
+        onReceiveProgress: (count, total) => progress.value = count / total,
+        cancelToken: _token,
+      );
+
+      if (_token?.isCancelled == true || file == null) {
+        downloading.value = DownloadingStatus.empty;
+        local = null;
+      } else {
+        downloading.value = DownloadingStatus.downloaded;
+        local = file.path;
+      }
+    } catch (_) {
+      downloading.value = DownloadingStatus.empty;
+      local = null;
+    }
+  }
+
+  void cancelDownload() => _token?.cancel();
 }
 
 /// Unique ID of an [Attachment].
@@ -115,14 +172,14 @@ class AttachmentId extends NewType<String> {
   const AttachmentId(String val) : super(val);
 }
 
-/// Status of some downloading, e.g. [FileAttachment] downloading.
+/// Status of a [FileAttachment] downloading progress.
 enum DownloadingStatus {
+  /// Download has not yet started.
+  empty,
+
   /// Downloading in progress.
   downloading,
 
-  /// Downloading finish successfully.
+  /// Downloaded successfully.
   downloaded,
-
-  /// Downloading in not started.
-  empty
 }

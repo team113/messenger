@@ -15,7 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:gherkin/gherkin.dart';
+import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -32,12 +32,12 @@ StepDefinitionGeneric startDownloading = then2<String, TestUser, CustomWorld>(
   (name, user, context) async {
     var chatId = context.world.sessions[user.name]?.dialog;
     AbstractChatRepository chatRepo = Get.find();
-    var attachment = chatRepo.chats[chatId]!.messages
+    Attachment attachment = chatRepo.chats[chatId]!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .expand((e) => e.attachments)
         .firstWhere((e) => e.filename == name);
-    (attachment as FileAttachment).downloadingStatus.value =
+    (attachment as FileAttachment).downloading.value =
         DownloadingStatus.downloading;
   },
 );
@@ -51,12 +51,12 @@ StepDefinitionGeneric finishDownloading = then2<String, TestUser, CustomWorld>(
   (name, user, context) async {
     var chatId = context.world.sessions[user.name]?.dialog;
     AbstractChatRepository chatRepo = Get.find();
-    var attachment = chatRepo.chats[chatId]!.messages
+    Attachment attachment = chatRepo.chats[chatId]!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .expand((e) => e.attachments)
         .firstWhere((e) => e.filename == name);
-    (attachment as FileAttachment).downloadingStatus.value =
+    (attachment as FileAttachment).downloading.value =
         DownloadingStatus.downloaded;
   },
 );
