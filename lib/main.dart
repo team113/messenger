@@ -54,6 +54,7 @@ import 'util/web/web_utils.dart';
 void main() async {
   await Config.init();
   YamlMap pubspec = loadYaml(await rootBundle.loadString('pubspec.yaml'));
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
@@ -144,15 +145,15 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp.router(
-        routerDelegate: router.delegate,
-        routeInformationParser: router.parser,
-        routeInformationProvider: router.provider,
-        navigatorObservers: [SentryNavigatorObserver()],
-        onGenerateTitle: (context) => 'Gapopa',
-        theme: Themes.light(),
-        themeMode: ThemeMode.light,
-        debugShowCheckedModeBanner: false,
-        locale: localeFromString(LocalizationUtils.chosen.value));
+      routerDelegate: router.delegate,
+      routeInformationParser: router.parser,
+      routeInformationProvider: router.provider,
+      navigatorObservers: [SentryNavigatorObserver()],
+      onGenerateTitle: (context) => 'Gapopa',
+      theme: Themes.light(),
+      themeMode: ThemeMode.light,
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 

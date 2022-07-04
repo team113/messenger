@@ -7,36 +7,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/domain/model/user.dart';
+import '/domain/service/auth.dart';
+import '/provider/hive/application_settings.dart';
+import '/util/platform_utils.dart';
+
+/// Class that provides [FluentBundle] functionality.
 class FluentLocalization {
-  String locale;
+  /// [FluentBundle] class that provides functionality of translating values.
   final FluentBundle bundle;
 
-  FluentLocalization(this.locale) : bundle = FluentBundle(locale);
+  FluentLocalization(String locale) : bundle = FluentBundle(locale);
 
-  static FluentLocalization? of(BuildContext context) {
-    return Localizations.of<FluentLocalization>(context, FluentLocalization);
-  }
-
-  Future load() async {
+  /// Loads provided [locale] to the [bundle].
+  Future load({String? newLocale}) async {
     bundle.messages.clear();
-    bundle.addMessages(await rootBundle
-        .loadString('assets/translates/$locale.ftl'.toLowerCase()));
+    bundle.addMessages(await rootBundle.loadString(
+        'assets/translates/${newLocale ?? bundle.locale}.ftl'.toLowerCase()));
   }
 
+  /// Returns translated value due to loaded [bundle] locale.
   String getTranslatedValue(String key,
       {Map<String, dynamic> args = const {}}) {
     return bundle.format(key, args: args);
   }
-
-  static const LocalizationsDelegate<FluentLocalization> delegate =
-      _FluentLocalizationsDelegate();
 }
 
+/// Custom Fluent localization delegate.
 class _FluentLocalizationsDelegate
     extends LocalizationsDelegate<FluentLocalization> {
   const _FluentLocalizationsDelegate();
@@ -56,11 +54,15 @@ class _FluentLocalizationsDelegate
       false;
 }
 
+/// Class that provides functionality of manipulating of language inside app.
+/// Needs to call [init] before other operations.
 abstract class LocalizationUtils {
+  /// Class that is responsible for localization itself.
   static late FluentLocalization bundle;
 
+  /// [List] of [LocalizationsDelegate] that are available in the app.
   static List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
-    FluentLocalization.delegate,
+    const _FluentLocalizationsDelegate(),
     GlobalMaterialLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -78,31 +80,37 @@ abstract class LocalizationUtils {
     'ru_RU': Locale('ru', 'RU'),
   };
 
-  /// Currently selected locale.
+  /// Currently selected [MyUser]'s locale.
   static late Rx<String> chosen;
 
+  /// Locale that is present on auth page.
   static late Rx<String> authPageLocale;
 
+  /// Used for loading localization due to [MyUser].
   static ApplicationSettingsHiveProvider? _settingsProvider;
 
+  /// [ApplicationSettingsHiveProvider.boxEvents] subscription.
   static StreamIterator? _localSubscription;
 
-  static StreamSubscription? _authSubscription;
+  /// [StreamSubscription] for [AuthService] auth status.
+  static StreamSubscription? _authStatusSubscription;
 
+  /// [User]'s id that is subscribed for auth status changes.
   static UserId? _subscribedUserId;
 
+  /// Sets [authPageLocale].
   static Future<void> setAuthPageLocale(String newLocale) async {
-    bundle.locale = newLocale;
-    await bundle.load();
+    await bundle.load(newLocale: newLocale);
     authPageLocale.value = newLocale;
     await Get.forceAppUpdate();
   }
 
-  static Future<void> setUserLocale(String newLocale) async {
+  /// Sets selected [User]'s locale to the [Hive] storage.
+  static Future<void> setUsersLocale(String newLocale) async {
     await _settingsProvider?.setLocale(newLocale);
   }
 
-  /// Initializes dependencies for fluent localization and loads localization;
+  /// Initializes dependencies for fluent localization and loads localization.
   static Future<void> init({AuthService? auth}) async {
     authPageLocale = Rx(await getDeviceLocale());
     String? userLocale;
@@ -115,30 +123,37 @@ abstract class LocalizationUtils {
     await bundle.load();
     chosen = Rx(userLocale ?? authPageLocale.value);
     chosen.refresh();
-    _authSubscription ??= auth?.status.listen((p0) async {
+    if (userLocale == null) {
+      await setUsersLocale(authPageLocale.value);
+    }
+    if (auth?.status.value.isSuccess ?? false) {
+      _initLocalSubscription();
+    }
+    _authStatusSubscription ??= auth?.status.listen((p0) async {
       if (p0.isSuccess && auth.userId != _subscribedUserId) {
         _subscribedUserId = auth.userId;
         _settingsProvider = ApplicationSettingsHiveProvider();
         await _settingsProvider!.init(userId: auth.userId);
 
-        if ((_settingsProvider?.settings?.locale != null) &&
-            (_settingsProvider?.settings?.locale !=
-                (userLocale ?? authPageLocale.value))) {
-          userLocale = _settingsProvider!.settings!.locale!;
-          bundle.locale = userLocale!;
-          await bundle.load();
-          chosen.value = userLocale!;
+        if ((_settingsProvider?.settings?.locale !=
+            (userLocale ?? authPageLocale.value))) {
+          userLocale = _settingsProvider?.settings?.locale;
+          await bundle.load(newLocale: userLocale ?? authPageLocale.value);
+          chosen.value = userLocale ?? authPageLocale.value;
           chosen.refresh();
+          if (userLocale == null) {
+            await setUsersLocale(authPageLocale.value);
+          }
           await Get.forceAppUpdate();
         }
         _initLocalSubscription();
       } else if (p0.isEmpty) {
         await _localSubscription?.cancel();
+        authPageLocale.value = await getDeviceLocale();
         _settingsProvider = null;
         _localSubscription = null;
         _subscribedUserId = null;
-        bundle.locale = authPageLocale.value;
-        await bundle.load();
+        await bundle.load(newLocale: authPageLocale.value);
         await Get.forceAppUpdate();
       }
     });
@@ -148,21 +163,14 @@ abstract class LocalizationUtils {
     _localSubscription = StreamIterator(_settingsProvider!.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
-      if (!event.deleted) {
+      if (!event.deleted && chosen.value != event.value?.locale) {
         chosen.value = event.value?.locale ?? authPageLocale;
-        bundle.locale = chosen.value;
-        await bundle.load();
+        await bundle.load(newLocale: chosen.value);
         chosen.refresh();
         await Get.forceAppUpdate();
       }
     }
   }
-}
-
-Locale localeFromString(String arg) {
-  final splitted = arg.split('_');
-  var res = Locale(splitted[0], splitted[1]);
-  return res;
 }
 
 Future<String> getDeviceLocale() async {

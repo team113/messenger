@@ -54,7 +54,9 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
               ListTile(
-                title: language,
+                title: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 200),
+                    child: language),
               )
             ],
           ),
@@ -78,7 +80,7 @@ Widget language = StatefulBuilder(
                 )
                 .toList(),
             onChanged: (d) async {
-              await LocalizationUtils.setUserLocale(
+              await LocalizationUtils.setUsersLocale(
                   LocalizationUtils.locales[d!]!.toString());
             },
             borderRadius: BorderRadius.circular(18),
