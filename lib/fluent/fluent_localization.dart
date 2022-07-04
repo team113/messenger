@@ -114,13 +114,12 @@ abstract class LocalizationUtils {
 
   /// Initializes dependencies for fluent localization and loads localization.
   static Future<void> init({AuthService? auth}) async {
-    localization = FluentLocalization('');
     authPageLocale.value = await getDeviceLocale();
     String? userLocale;
     if (auth != null && auth.status.value.isSuccess) {
       _settingsProvider = ApplicationSettingsHiveProvider();
       await _settingsProvider!.init(userId: auth.userId);
-      userLocale = _settingsProvider!.settings?.locale ?? authPageLocale.value;
+      userLocale = _settingsProvider!.settings?.locale;
     }
     localization = FluentLocalization(userLocale ?? authPageLocale.value!);
     await localization?.load();
@@ -178,6 +177,7 @@ abstract class LocalizationUtils {
   }
 }
 
+/// Returns current device locale or default locale.
 Future<String> getDeviceLocale() async {
   if (PlatformUtils.isMobile || PlatformUtils.isLinux || PlatformUtils.isWeb) {
     return (await Devicelocale.currentLocale)?.replaceFirst('-', '_') ??

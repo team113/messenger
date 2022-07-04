@@ -70,12 +70,11 @@ void main() async {
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     var authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
-
     await authService.init();
 
-    router = RouterState(authService);
-
     await LocalizationUtils.init(auth: authService);
+
+    router = RouterState(authService);
 
     Get.put(BackgroundWorker(Get.find()));
 

@@ -28,6 +28,34 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget language = StatefulBuilder(
+        builder: (context, setState) => Obx(
+              () => DropdownButton<String>(
+                key: const Key('LocalizationDropdown'),
+                value: LocalizationUtils.chosen.value,
+                items: LocalizationUtils.languages.entries
+                    .map<DropdownMenuItem<String>>((e) {
+                  return DropdownMenuItem(
+                    key: Key('Localization_item_${e.key}'),
+                    value: e.key,
+                    child: Text(
+                      '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}',
+                    ),
+                  );
+                }).toList(),
+                onChanged: (d) async {
+                  await LocalizationUtils.setUsersLocale(
+                      LocalizationUtils.locales[d!]!.toString());
+                },
+                borderRadius: BorderRadius.circular(18),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 15,
+                ),
+                icon: const SizedBox(),
+                underline: const SizedBox(),
+              ),
+            ));
     return GetBuilder(
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
@@ -65,30 +93,3 @@ class SettingsView extends StatelessWidget {
     );
   }
 }
-
-Widget language = StatefulBuilder(
-    builder: (context, setState) => Obx(
-          () => DropdownButton<String>(
-            value: LocalizationUtils.chosen.value,
-            items: LocalizationUtils.languages.entries
-                .map<DropdownMenuItem<String>>(
-                  (e) => DropdownMenuItem(
-                    value: e.key,
-                    child: Text(
-                        '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
-                  ),
-                )
-                .toList(),
-            onChanged: (d) async {
-              await LocalizationUtils.setUsersLocale(
-                  LocalizationUtils.locales[d!]!.toString());
-            },
-            borderRadius: BorderRadius.circular(18),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: 15,
-            ),
-            icon: const SizedBox(),
-            underline: const SizedBox(),
-          ),
-        ));
