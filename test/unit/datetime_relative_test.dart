@@ -16,12 +16,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 void main() async {
   Hive.init('./test/.temp_hive/datetime_relative_unit');
-  await LocalizationUtils.init();
   test('DateTime.toRelative returns correct representations', () async {
     expect(
       DateTime(2022, 2, 17, 13, 40).toRelative(DateTime(2022, 2, 17, 13, 40)),

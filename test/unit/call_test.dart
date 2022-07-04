@@ -31,7 +31,6 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
@@ -58,9 +57,9 @@ Map<String, dynamic> _caller([String? id]) => {
     };
 
 void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
-  await LocalizationUtils.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();

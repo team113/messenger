@@ -46,7 +46,9 @@ class _FluentLocalizationsDelegate
 
   @override
   Future<FluentLocalization> load(Locale locale) async {
-    return LocalizationUtils.bundle;
+    return LocalizationUtils.localization == null
+        ? FluentLocalization('')
+        : LocalizationUtils.localization!;
   }
 
   @override
@@ -58,7 +60,7 @@ class _FluentLocalizationsDelegate
 /// Needs to call [init] before other operations.
 abstract class LocalizationUtils {
   /// Class that is responsible for localization itself.
-  static late FluentLocalization bundle;
+  static FluentLocalization? localization;
 
   /// [List] of [LocalizationsDelegate] that are available in the app.
   static List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
@@ -84,7 +86,7 @@ abstract class LocalizationUtils {
   static late Rx<String> chosen;
 
   /// Locale that is present on auth page.
-  static late Rx<String> authPageLocale;
+  static Rx<String?> authPageLocale = Rx(null);
 
   /// Used for loading localization due to [MyUser].
   static ApplicationSettingsHiveProvider? _settingsProvider;
@@ -100,7 +102,7 @@ abstract class LocalizationUtils {
 
   /// Sets [authPageLocale].
   static Future<void> setAuthPageLocale(String newLocale) async {
-    await bundle.load(newLocale: newLocale);
+    await localization?.load(newLocale: newLocale);
     authPageLocale.value = newLocale;
     await Get.forceAppUpdate();
   }
@@ -112,19 +114,20 @@ abstract class LocalizationUtils {
 
   /// Initializes dependencies for fluent localization and loads localization.
   static Future<void> init({AuthService? auth}) async {
-    authPageLocale = Rx(await getDeviceLocale());
+    localization = FluentLocalization('');
+    authPageLocale.value = await getDeviceLocale();
     String? userLocale;
     if (auth != null && auth.status.value.isSuccess) {
       _settingsProvider = ApplicationSettingsHiveProvider();
       await _settingsProvider!.init(userId: auth.userId);
       userLocale = _settingsProvider!.settings?.locale ?? authPageLocale.value;
     }
-    bundle = FluentLocalization(userLocale ?? authPageLocale.value);
-    await bundle.load();
-    chosen = Rx(userLocale ?? authPageLocale.value);
+    localization = FluentLocalization(userLocale ?? authPageLocale.value!);
+    await localization?.load();
+    chosen = Rx(userLocale ?? authPageLocale.value!);
     chosen.refresh();
     if (userLocale == null) {
-      await setUsersLocale(authPageLocale.value);
+      await setUsersLocale(authPageLocale.value!);
     }
     if (auth?.status.value.isSuccess ?? false) {
       _initLocalSubscription();
@@ -138,11 +141,12 @@ abstract class LocalizationUtils {
         if ((_settingsProvider?.settings?.locale !=
             (userLocale ?? authPageLocale.value))) {
           userLocale = _settingsProvider?.settings?.locale;
-          await bundle.load(newLocale: userLocale ?? authPageLocale.value);
-          chosen.value = userLocale ?? authPageLocale.value;
+          await localization?.load(
+              newLocale: userLocale ?? authPageLocale.value);
+          chosen.value = userLocale ?? authPageLocale.value!;
           chosen.refresh();
           if (userLocale == null) {
-            await setUsersLocale(authPageLocale.value);
+            await setUsersLocale(authPageLocale.value!);
           }
           await Get.forceAppUpdate();
         }
@@ -153,19 +157,20 @@ abstract class LocalizationUtils {
         _settingsProvider = null;
         _localSubscription = null;
         _subscribedUserId = null;
-        await bundle.load(newLocale: authPageLocale.value);
+        await localization?.load(newLocale: authPageLocale.value);
         await Get.forceAppUpdate();
       }
     });
   }
 
+  /// Initializes [ApplicationSettingsHiveProvider.boxEvents] subscription.
   static void _initLocalSubscription() async {
     _localSubscription = StreamIterator(_settingsProvider!.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
       if (!event.deleted && chosen.value != event.value?.locale) {
         chosen.value = event.value?.locale ?? authPageLocale;
-        await bundle.load(newLocale: chosen.value);
+        await localization?.load(newLocale: chosen.value);
         chosen.refresh();
         await Get.forceAppUpdate();
       }

@@ -33,7 +33,6 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/fluent/extension.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -63,7 +62,6 @@ import 'user_profile_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
-  await LocalizationUtils.init();
   var recentChats = {
     'recentChats': {'nodes': []}
   };

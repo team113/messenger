@@ -27,7 +27,6 @@ import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -48,10 +47,10 @@ import 'chat_leave_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_leave_unit');
-  await LocalizationUtils.init();
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});

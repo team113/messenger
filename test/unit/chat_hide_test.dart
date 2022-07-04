@@ -26,7 +26,6 @@ import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -64,7 +63,6 @@ void main() async {
   await myUserProvider.clear();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  await LocalizationUtils.init();
 
   var recentChats = {
     'recentChats': {

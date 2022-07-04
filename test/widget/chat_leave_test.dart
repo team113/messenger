@@ -34,7 +34,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -151,7 +150,6 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init();
   await chatItemHiveProvider.clear();
-  await LocalizationUtils.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(

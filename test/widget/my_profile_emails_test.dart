@@ -29,7 +29,6 @@ import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/fluent/extension.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -88,7 +87,6 @@ void main() async {
   await userProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
-  await LocalizationUtils.init();
 
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);

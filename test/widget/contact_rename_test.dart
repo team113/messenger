@@ -36,7 +36,6 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/fluent/extension.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -128,7 +127,6 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
-  await LocalizationUtils.init();
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});

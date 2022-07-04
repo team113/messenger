@@ -27,7 +27,6 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -49,7 +48,6 @@ import 'chat_direct_link_user_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_direct_link_user_widget');
-  await LocalizationUtils.init();
   var userData = {
     'id': '12345',
     'num': '1234567890123456',
