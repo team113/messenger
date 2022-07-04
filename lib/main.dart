@@ -24,7 +24,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
@@ -34,7 +33,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:yaml/yaml.dart';
 
 import 'config.dart';
 import 'domain/repository/auth.dart';
@@ -42,6 +40,7 @@ import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
+import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
 import 'themes.dart';
@@ -53,8 +52,6 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 void main() async {
   await Config.init();
-  YamlMap pubspec = loadYaml(await rootBundle.loadString('pubspec.yaml'));
-  WidgetsFlutterBinding.ensureInitialized();
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
@@ -63,7 +60,7 @@ void main() async {
       await windowManager.ensureInitialized();
     }
 
-    await _initHive(pubspec);
+    await _initHive();
 
     Get.put(NotificationService())
         .init(onNotificationResponse: onNotificationResponse);
@@ -100,7 +97,7 @@ void main() async {
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${pubspec['name']}@${pubspec['version']}',
+      options.release = '${Pubspec.name}@${Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
@@ -159,14 +156,12 @@ class App extends StatelessWidget {
 
 /// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
 /// the [Get]'s context.
-Future<void> _initHive([YamlMap? pubspec]) async {
+Future<void> _initHive() async {
   await Hive.initFlutter('hive');
 
   // Load and compare application version.
-  YamlMap document =
-      pubspec ?? loadYaml(await rootBundle.loadString('pubspec.yaml'));
   Box box = await Hive.openBox('version');
-  String? version = document['version'];
+  String version = Pubspec.version;
   String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.

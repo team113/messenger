@@ -105,8 +105,8 @@ class CreateGroupView extends StatelessWidget {
                                           ),
                                         ),
                                         ...c.contacts.entries
-                                            .where((e) =>
-                                                e.value.value.users.isNotEmpty)
+                                            .where((e) => e.value.contact.value
+                                                .users.isNotEmpty)
                                             .map(
                                           (e) {
                                             bool selected = c.selectedContacts

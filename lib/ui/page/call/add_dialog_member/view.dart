@@ -140,10 +140,10 @@ class AddDialogMemberView extends StatelessWidget {
                     (e) => AddUserListTile(e, () => c.unselectUser(e)),
                   ),
                   ...c.contacts.entries
-                      .where((e) => e.value.value.users.isNotEmpty)
+                      .where((e) => e.value.contact.value.users.isNotEmpty)
                       .where((e) =>
                           c.chat.value!.value.members.firstWhereOrNull((m) =>
-                              e.value.value.users
+                              e.value.contact.value.users
                                   .firstWhereOrNull((u) => u.id == m.user.id) !=
                               null) ==
                           null)
