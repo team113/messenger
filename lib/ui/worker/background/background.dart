@@ -19,9 +19,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 
 import '/domain/model/session.dart';
-import '/l10n/_l10n.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
 import '/store/model/session_data.dart';
@@ -163,8 +163,8 @@ class BackgroundWorker extends GetxService {
         });
       });
 
-      // TODO: Use [Worker] to react on [L10n.chosen] changes.
-      FlutterBackgroundService().invoke('l10n', {'locale': L10n.chosen});
+      // TODO: Use [Worker] to react on [LocalizationUtils.chosen] changes.
+      await LocalizationUtils.init();
     }
   }
 

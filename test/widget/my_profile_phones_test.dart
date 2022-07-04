@@ -30,6 +30,8 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -50,6 +52,7 @@ import 'my_profile_phones_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/my_profile_phones_widget');
+  await LocalizationUtils.init();
 
   var userData = {
     'id': '12345',
@@ -238,7 +241,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.enterText(
         find.byKey(const Key('PhoneInput')), '+380999999999');
-    expect(find.text('label_unconfirmed'), findsNothing);
+    expect(find.text('label_unconfirmed'.td()), findsNothing);
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.dragUntilVisible(find.byKey(const Key('AddPhoneButton')),
@@ -248,7 +251,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('AddPhoneButton')));
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('label_unconfirmed'), findsOneWidget);
+    expect(find.text('label_unconfirmed'.td()), findsOneWidget);
     expect(myUserService.myUser.value?.phones.unconfirmed, isNotNull);
 
     await tester.pump(const Duration(seconds: 30));

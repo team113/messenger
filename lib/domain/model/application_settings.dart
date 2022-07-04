@@ -29,4 +29,7 @@ class ApplicationSettings extends HiveObject {
   /// separate popup windows, or otherwise inside the main application.
   @HiveField(0)
   bool? enablePopups;
+
+  @HiveField(1)
+  String? locale;
 }

@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   desktop_drop
+  devicelocale
   flutter_webrtc
   medea_jason
   sentry_flutter

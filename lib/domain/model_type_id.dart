@@ -95,5 +95,4 @@ class ModelTypeId {
   static const preciseDateTime = 73;
   static const preciseDateTimeWeb = 74;
   static const applicationSettings = 75;
-  static const localeSettings = 76;
 }

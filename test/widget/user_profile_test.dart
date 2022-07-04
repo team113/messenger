@@ -32,6 +32,8 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -61,6 +63,7 @@ import 'user_profile_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
+  await LocalizationUtils.init();
   var recentChats = {
     'recentChats': {'nodes': []}
   };
@@ -343,7 +346,7 @@ void main() async {
 
     expect(find.text('user name'), findsOneWidget);
     expect(find.text('user bio'), findsOneWidget);
-    expect(find.text('label_presence_present'), findsOneWidget);
+    expect(find.text('label_presence_present'.td()), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserColumn')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));

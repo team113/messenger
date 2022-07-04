@@ -30,6 +30,7 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -51,6 +52,7 @@ import 'my_profile_gallery_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/my_profile_gallery_widget');
+  await LocalizationUtils.init();
   Config.url = 'http://testUrl.com';
   Config.port = 0;
   var userData = {

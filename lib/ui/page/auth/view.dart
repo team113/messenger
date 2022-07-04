@@ -114,28 +114,30 @@ class AuthView extends StatelessWidget {
             });
 
             Widget language = StatefulBuilder(
-              builder: (context, setState) => DropdownButton<String>(
-                value: LocalizationUtils.chosen,
-                items: LocalizationUtils.languages.entries
-                    .map<DropdownMenuItem<String>>(
-                      (e) => DropdownMenuItem(
-                        value: e.key,
-                        child: Text(
-                            '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (d) async {
-                  await LocalizationUtils.setLocale(
-                      LocalizationUtils.locales[d!]!.toString());
-                },
-                borderRadius: BorderRadius.circular(18),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 15,
+              builder: (context, setState) => Obx(
+                () => DropdownButton<String>(
+                  value: LocalizationUtils.authPageLocale.value,
+                  items: LocalizationUtils.languages.entries
+                      .map<DropdownMenuItem<String>>(
+                        (e) => DropdownMenuItem(
+                          value: e.key,
+                          child: Text(
+                              '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (d) async {
+                    await LocalizationUtils.setAuthPageLocale(
+                        LocalizationUtils.locales[d!]!.toString());
+                  },
+                  borderRadius: BorderRadius.circular(18),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 15,
+                  ),
+                  icon: const SizedBox(),
+                  underline: const SizedBox(),
                 ),
-                icon: const SizedBox(),
-                underline: const SizedBox(),
               ),
             );
 

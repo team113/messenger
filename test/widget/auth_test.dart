@@ -26,6 +26,7 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -71,6 +72,7 @@ void main() async {
   await settingsProvider.init(userId: const UserId('me'));
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init(userId: const UserId('me'));
+  await LocalizationUtils.init();
 
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {

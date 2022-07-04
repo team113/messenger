@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -65,7 +66,7 @@ import 'chat_reply_message_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
-
+  await LocalizationUtils.init();
   var userData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
     'num': '1234567890123456',

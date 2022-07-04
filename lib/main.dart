@@ -37,19 +37,13 @@ import 'package:window_manager/window_manager.dart';
 import 'package:yaml/yaml.dart';
 
 import 'config.dart';
-import 'domain/model/localization_settings.dart';
 import 'domain/repository/auth.dart';
-import 'domain/repository/localization_settings.dart';
 import 'domain/service/auth.dart';
-import 'domain/service/localization_settings.dart';
 import 'domain/service/notification.dart';
-import 'fluent/controller.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/localization_settings.dart';
 import 'provider/hive/session.dart';
 import 'routes.dart';
 import 'store/auth.dart';
-import 'store/localization_settings.dart';
 import 'themes.dart';
 import 'ui/worker/background/background.dart';
 import 'util/log.dart';
@@ -79,20 +73,11 @@ void main() async {
     var authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
 
-    await Get.put(LocalizationSettingsHiveProvider()).init();
-    Get.put<AbstractLocalizationSettingsRepository>(
-        LocalizationSettingsRepository(Get.find()));
-    Get.put<LocalizationService>(LocalizationService(Get.find()));
-    var localizationController =
-        Get.put<LocalizationController>(LocalizationController(Get.find()));
-    if (localizationController.localizationSettings.value?.locale == null) {
-      await localizationController
-          .setLocale(LocalizationUtils.locales.values.first.toString());
-    }
-
     await authService.init();
 
     router = RouterState(authService);
+
+    await LocalizationUtils.init(auth: authService);
 
     Get.put(BackgroundWorker(Get.find()));
 
@@ -158,10 +143,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      Rx<LocalizationSettings?> localizationSettings =
-          Get.find<LocalizationController>().localizationSettings;
-      return GetMaterialApp.router(
+    return GetMaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,
         routeInformationProvider: router.provider,
@@ -169,14 +151,8 @@ class App extends StatelessWidget {
         onGenerateTitle: (context) => 'Gapopa',
         theme: Themes.light(),
         themeMode: ThemeMode.light,
-        supportedLocales: LocalizationUtils.locales.values,
-        localizationsDelegates: LocalizationUtils.localizationsDelegates,
-        locale: localizationSettings.value?.locale == null
-            ? null
-            : localeFromString(localizationSettings.value!.locale!),
         debugShowCheckedModeBanner: false,
-      );
-    });
+        locale: localeFromString(LocalizationUtils.chosen.value));
   }
 }
 

@@ -35,6 +35,8 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -126,6 +128,7 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  await LocalizationUtils.init();
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -271,7 +274,7 @@ void main() async {
     await tester.longPress(find.byType(ContextMenuRegion));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.text('btn_change_contact_name'));
+    await tester.tap(find.text('btn_change_contact_name'.td()));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(

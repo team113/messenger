@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 
 import '/fluent/extension.dart';
 import '/routes.dart';
@@ -51,6 +52,9 @@ class SettingsView extends StatelessWidget {
                     }),
                   ],
                 ),
+              ),
+              ListTile(
+                title: language,
               )
             ],
           ),
@@ -59,3 +63,30 @@ class SettingsView extends StatelessWidget {
     );
   }
 }
+
+Widget language = StatefulBuilder(
+    builder: (context, setState) => Obx(
+          () => DropdownButton<String>(
+            value: LocalizationUtils.chosen.value,
+            items: LocalizationUtils.languages.entries
+                .map<DropdownMenuItem<String>>(
+                  (e) => DropdownMenuItem(
+                    value: e.key,
+                    child: Text(
+                        '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
+                  ),
+                )
+                .toList(),
+            onChanged: (d) async {
+              await LocalizationUtils.setUserLocale(
+                  LocalizationUtils.locales[d!]!.toString());
+            },
+            borderRadius: BorderRadius.circular(18),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 15,
+            ),
+            icon: const SizedBox(),
+            underline: const SizedBox(),
+          ),
+        ));

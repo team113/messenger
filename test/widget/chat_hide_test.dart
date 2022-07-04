@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -122,6 +123,7 @@ void main() async {
   AuthService authService =
       Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
   await authService.init();
+  await LocalizationUtils.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
