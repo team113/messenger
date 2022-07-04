@@ -51,7 +51,6 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: AppBar(
@@ -149,7 +148,7 @@ class ContactsTabView extends StatelessWidget {
                 key: Key(contact.contact.value.id.val),
                 leading: Obx(
                   () => Badge(
-                    showBadge: contact.user.value?.value.online == true,
+                    showBadge: contact.user.value?.user.value.online == true,
                     badgeContent: Container(
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
@@ -164,7 +163,7 @@ class ContactsTabView extends StatelessWidget {
                     elevation: 0,
                     child: AvatarWidget.fromContact(
                       contact.contact.value,
-                      avatar: contact.user.value?.value.avatar,
+                      avatar: contact.user.value?.user.value.avatar,
                     ),
                   ),
                 ),

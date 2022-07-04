@@ -32,7 +32,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -45,7 +44,6 @@ class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatRepository,
     this._contactService,
-    this._userService,
     this._calls,
   );
 
@@ -61,14 +59,15 @@ class ContactsTabController extends GetxController {
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
 
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
   final Map<ChatContactId, StreamSubscription> _userSubscription = {};
+
+  /// [Worker]'s to [RxChatContact.user] that listens [User]'s
+  ///  changing in [ChatContact].
+  final Map<ChatContactId, Worker> _userWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
@@ -174,9 +173,6 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Returns an [User] from the [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
-
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
@@ -197,45 +193,48 @@ class ContactsTabController extends GetxController {
   /// Maintains [StreamSubscription]s to the [RxUser.updates] of every
   /// [RxChatContact.user] in the [contacts] list.
   Future<void> _initUsersSubscription() async {
-    await Future.forEach(
-      contacts.values.where((c) => c.contact.value.users.isNotEmpty),
-      (RxChatContact contact) async {
-        RxUser? user = await getUser(contact.contact.value.users.first.id);
-        if (user != null) {
-          _userSubscription[contact.id]?.cancel();
-          _userSubscription[contact.id] = user.updates.listen((_) {});
+    await Future.wait(contacts.values.map((RxChatContact c) async {
+      if (c.user.value != null) {
+        _userSubscription[c.id]?.cancel();
+        _userSubscription[c.id] = c.user.value!.updates.listen((_) {});
+      }
+      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+        if (c.user.value?.id != user?.id) {
+          if (user != null) {
+            _userSubscription[c.id]?.cancel();
+            _userSubscription[c.id] = user.updates.listen((_) {});
+          } else {
+            _userSubscription.remove(c.id)?.cancel();
+          }
         }
-      },
-    );
+      });
+    }));
 
     _contactsSubscription = contacts.changes.listen((e) async {
       switch (e.op) {
         case OperationKind.added:
-          RxUser? user = e.value?.contact.value.users.isNotEmpty == true
-              ? await getUser(e.value!.contact.value.users.first.id)
-              : null;
-          if (user != null) {
+          if (e.value?.user.value != null) {
             _userSubscription[e.key]?.cancel();
-            _userSubscription[e.key!] = user.updates.listen((_) {});
+            _userSubscription[e.key!] =
+                e.value!.user.value!.updates.listen((_) {});
+            _userWorkers[e.key!] = ever(e.value!.user, (RxUser? user) {
+              if (e.value!.user.value?.id != user?.id) {
+                if (user != null) {
+                  _userSubscription[e.key]?.cancel();
+                  _userSubscription[e.key!] = user.updates.listen((_) {});
+                } else {
+                  _userSubscription.remove(e.key)?.cancel();
+                }
+              }
+            });
           }
           break;
 
         case OperationKind.removed:
           _userSubscription.remove(e.key)?.cancel();
+          _userWorkers.remove(e.key)?.dispose();
           break;
-
-        case OperationKind.updated:
-          if (e.value?.contact.value.users.firstOrNull?.id !=
-              contacts[e.key]?.contact.value.id) {
-            _userSubscription.remove(e.key)?.cancel();
-            RxUser? user = e.value?.contact.value.users.isNotEmpty == true
-                ? await getUser(e.value!.contact.value.users.first.id)
-                : null;
-            if (user != null) {
-              _userSubscription[e.key]?.cancel();
-              _userSubscription[e.key!] = user.updates.listen((_) {});
-            }
-          }
+        default:
           break;
       }
     });

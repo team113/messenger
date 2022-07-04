@@ -263,9 +263,16 @@ class UserRepository implements AbstractUserRepository {
       return EventUserNameDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
+      var image = node.galleryItem
+          as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem$ImageGalleryItem;
       return EventUserGalleryItemAdded(
         node.userId,
-        (node.galleryItem as ImageGalleryItemMixin).toModel(),
+        ImageGalleryItem(
+          original: Original(image.original),
+          square: Square(image.square),
+          id: image.id,
+          addedAt: image.addedAt,
+        ),
         node.at,
       );
     } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
