@@ -53,53 +53,53 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       MaterialPage(child: _NestedHomeView(_state.tab))
     ];
 
-    for (String route in _state.routes) {
-      if (route == Routes.me) {
+    for (RouteSettings route in _state.routes) {
+      if (route.name == Routes.me) {
         pages.add(const MaterialPage(
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
         ));
-      } else if (route.startsWith(Routes.settings)) {
+      } else if (route.name!.startsWith(Routes.settings)) {
         pages.add(const MaterialPage(
           key: ValueKey('SettingsPage'),
           name: Routes.settings,
           child: SettingsView(),
         ));
 
-        if (route == Routes.settingsMedia) {
+        if (route.name! == Routes.settingsMedia) {
           pages.add(const MaterialPage(
             key: ValueKey('MediaSettingsPage'),
             name: Routes.settingsMedia,
             child: MediaSettingsView(),
           ));
         }
-      } else if (route.startsWith('${Routes.chat}/')) {
-        String id = route
+      } else if (route.name!.startsWith('${Routes.chat}/')) {
+        String id = route.name!
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
         pages.add(MaterialPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chat}/$id',
-          child: ChatView(ChatId(id)),
+          child: ChatView(ChatId(id), trackRouter: true),
         ));
 
-        if (route.endsWith(Routes.chatInfo)) {
+        if (route.name!.endsWith(Routes.chatInfo)) {
           pages.add(MaterialPage(
             key: ValueKey('ChatInfoPage$id'),
             name: '${Routes.chat}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
           ));
         }
-      } else if (route.startsWith('${Routes.contact}/')) {
-        final id = route.replaceFirst('${Routes.contact}/', '');
+      } else if (route.name!.startsWith('${Routes.contact}/')) {
+        final id = route.name!.replaceFirst('${Routes.contact}/', '');
         pages.add(MaterialPage(
           key: ValueKey('ContactPage$id'),
           name: '${Routes.contact}/$id',
           child: ContactView(ChatContactId(id)),
         ));
-      } else if (route.startsWith('${Routes.user}/')) {
-        final id = route.replaceFirst('${Routes.user}/', '');
+      } else if (route.name!.startsWith('${Routes.user}/')) {
+        final id = route.name!.replaceFirst('${Routes.user}/', '');
         pages.add(MaterialPage(
           key: ValueKey('UserPage$id'),
           name: '${Routes.user}/$id',

@@ -54,7 +54,7 @@ class PopupCallController extends GetxController {
 
   @override
   void onInit() {
-    Uri uri = Uri.parse(router.route);
+    Uri uri = Uri.parse(router.route.name!);
 
     WebStoredCall? stored = WebUtils.getCall(chatId);
     if (stored == null || WebUtils.credentials == null) {

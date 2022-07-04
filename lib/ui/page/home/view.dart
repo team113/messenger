@@ -168,7 +168,7 @@ class _HomeViewState extends State<HomeView> {
         /// Nested navigation widget that displays [navigator] in an [Expanded]
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
-          ignoring: router.route == Routes.home && context.isMobile,
+          ignoring: router.route.name == Routes.home && context.isMobile,
           child: LayoutBuilder(
             builder: (context, constraints) => Row(
               children: [

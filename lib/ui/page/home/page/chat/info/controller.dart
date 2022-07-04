@@ -195,7 +195,8 @@ class ChatInfoController extends GetxController {
     membersOnRemoval.add(userId);
     try {
       await _chatService.removeChatMember(chatId, userId);
-      if (userId == me && router.route.startsWith('${Routes.chat}/$chatId')) {
+      if (userId == me &&
+          router.route.name!.startsWith('${Routes.chat}/$chatId')) {
         router.home();
       }
     } on RemoveChatMemberException catch (e) {

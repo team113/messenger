@@ -40,6 +40,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'forward/view.dart';
 import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
@@ -47,10 +48,14 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key}) : super(key: key);
+  const ChatView(this.id, {this.trackRouter = false, Key? key})
+      : super(key: key);
 
   /// ID of this [Chat].
   final ChatId id;
+
+  /// Indicator whether need track router arguments changes or not.
+  final bool trackRouter;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -81,6 +86,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        trackRouter: widget.trackRouter,
       ),
       tag: widget.id.val,
       builder: (c) => Obx(
@@ -228,8 +234,8 @@ class _ChatViewState extends State<ChatView>
                                     ContextMenuInterceptor(child: Container()),
                               ),
                               SafeArea(
+                                key: const Key('MessagesList'),
                                 child: FlutterListView(
-                                  key: const Key('MessagesList'),
                                   controller: c.listController,
                                   physics: c.horizontalScrollTimer.value == null
                                       ? const BouncingScrollPhysics()
@@ -282,7 +288,14 @@ class _ChatViewState extends State<ChatView>
                                             onCopy: (text) => c.copyText(text),
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
+                                            onChatForwardTap:
+                                                c.onChatForwardTap,
+                                            toggleChatForward:
+                                                c.toggleChatForward,
                                             animation: _animation,
+                                            forwardItems: c.forwardItems,
+                                            forwardMode: c.forwardMode,
+                                            onPopupClosed: c.forwardReturn,
                                             onGallery: c.calculateGallery,
                                             onEdit: () =>
                                                 c.editMessage(e.value),
@@ -513,92 +526,62 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
     return Theme(
-      data: Theme.of(context).copyWith(
-        shadowColor: const Color(0x55000000),
-        iconTheme: const IconThemeData(color: Colors.blue),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide.none,
-          ),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          hoverColor: Colors.transparent,
-          filled: true,
-          isDense: true,
-          contentPadding: EdgeInsets.fromLTRB(
-            15,
-            PlatformUtils.isDesktop ? 30 : 23,
-            15,
-            0,
-          ),
-        ),
-      ),
+      data: _themeData(context),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
           _typingUsers(c),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: c.editedMessage.value == null
-                ? [
-                    if (c.repliedMessage.value != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(height: 18, width: 2, color: Colors.blue),
-                            const SizedBox(width: 4),
-                            Flexible(child: _repliedMessage(c)),
-                            IconButton(
-                              key: const Key('CancelReplyButton'),
-                              onPressed: () => c.repliedMessage.value = null,
-                              icon: const Icon(Icons.clear, size: 18),
-                            )
-                          ],
-                        ),
-                      ),
-                    Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.only(top: 7, right: 4, left: 4),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: c.attachments
-                              .map((e) => _buildAttachment(c, e))
-                              .toList(),
-                        ),
-                      ),
+          (c.forwardMode.value == true)
+              ? _forwardMode(c, context)
+              : (c.forward.value != null)
+                  ? _sendForwardField(c, context)
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: c.editedMessage.value == null
+                          ? [
+                              if (c.repliedMessage.value != null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                          height: 18,
+                                          width: 2,
+                                          color: Colors.blue),
+                                      const SizedBox(width: 4),
+                                      Flexible(child: _repliedMessage(c)),
+                                      IconButton(
+                                        key: const Key('CancelReplyButton'),
+                                        onPressed: () =>
+                                            c.repliedMessage.value = null,
+                                        icon: const Icon(Icons.clear, size: 18),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              Container(
+                                alignment: Alignment.center,
+                                margin: const EdgeInsets.only(
+                                    top: 7, right: 4, left: 4),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: c.attachments
+                                        .map((e) => _buildAttachment(c, e))
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                              _sendField(c),
+                            ]
+                          : [
+                              _editedMessage(c),
+                              _editField(c),
+                            ],
                     ),
-                    _sendField(c),
-                  ]
-                : [
-                    _editedMessage(c),
-                    _editField(c),
-                  ],
-          ),
         ],
       ),
     );
@@ -809,6 +792,130 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
+  /// Returns a buttons to forward message to another chat or to turn off
+  /// forward mode.
+  Widget _forwardMode(ChatController c, BuildContext context) {
+    return Theme(
+      data: _themeData(context),
+      child: Container(
+        color: const Color(0xFFF6F6F6),
+        padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
+        child: SafeArea(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                key: const Key('CancelForward'),
+                child: Text('btn_cancel_forward'.tr),
+                onPressed: () {
+                  c.forwardItems.clear();
+                  c.forwardMode.value = false;
+                },
+              ),
+              Text('${'label_forward_selected'.tr}: ${c.forwardItems.length}'),
+              _button(
+                icon: Padding(
+                  key: const Key('SendForward'),
+                  padding: const EdgeInsets.only(left: 2, top: 1),
+                  child: Icon(
+                    Icons.send,
+                    size: 24,
+                    color: c.forwardItems.isEmpty ? Colors.grey : null,
+                  ),
+                ),
+                onTap: c.forwardItems.isNotEmpty
+                    ? () async {
+                        bool? result = await showDialog(
+                          context: context,
+                          builder: (_) => ChatForwardView(c.id, c.forwardItems),
+                        );
+                        c.forwardReturn(result);
+                      }
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Returns a [ReactiveTextField] to forward messages to this [Chat].
+  Widget _sendForwardField(
+    ChatController c,
+    BuildContext context,
+  ) {
+    return Theme(
+      data: _themeData(context),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _typingUsers(c),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(height: 18, width: 2, color: Colors.blue),
+                const SizedBox(width: 4),
+                Flexible(child: _forwardedMessage(c)),
+                IconButton(
+                  key: const Key('CancelForwardButton'),
+                  onPressed: () {
+                    c.forward.value = null;
+                    c.forwardItems.clear();
+                  },
+                  icon: const Icon(Icons.clear, size: 18),
+                )
+              ],
+            ),
+          ),
+          Container(
+            color: const Color(0xFFF6F6F6),
+            padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
+            child: SafeArea(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Material(
+                      elevation: 6,
+                      borderRadius: BorderRadius.circular(25),
+                      child: ReactiveTextField(
+                        onChanged: c.keepTyping,
+                        key: const Key('MessageField'),
+                        state: c.sendForward,
+                        hint: 'label_send_message_hint'.tr,
+                        minLines: 1,
+                        maxLines: 6,
+                        style: const TextStyle(fontSize: 17),
+                        type: PlatformUtils.isDesktop
+                            ? TextInputType.text
+                            : TextInputType.multiline,
+                        textInputAction: TextInputAction.send,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _button(
+                    icon: const Padding(
+                      key: Key('Send'),
+                      padding: EdgeInsets.only(left: 2, top: 1),
+                      child: Icon(Icons.send, size: 24),
+                    ),
+                    onTap: c.sendForward.submit,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Returns a visual representation of the provided [AttachmentData].
   Widget _buildAttachment(ChatController c, AttachmentData data) {
     return Container(
@@ -1008,7 +1115,7 @@ class _ChatViewState extends State<ChatView>
           desc.write(' [${item.attachments.length} ${'label_attachments'.tr}]');
         }
       } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.tr}]');
+        desc.write('[${item.attachments.length} ${'label_attachments'.tr}]');
       }
 
       return Text(
@@ -1028,9 +1135,11 @@ class _ChatViewState extends State<ChatView>
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == c.me
             ? 'label_outgoing_call'.tr
@@ -1157,6 +1266,48 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox.shrink();
   }
 
+  /// Builds a visual representation of a [ChatController.forward].
+  Widget _forwardedMessage(ChatController c) {
+    var items = c.forward.value!.forwardItems!;
+    var desc = StringBuffer();
+
+    if (items.length == 1) {
+      if (items.values.first.item is ChatMessage) {
+        ChatMessage message = (items.values.first.item as ChatMessage);
+        if (message.text != null) {
+          desc.write((items.values.first.item as ChatMessage).text);
+          if (items.values.first.quote.attachments.isNotEmpty) {
+            desc.write(
+                ' [${items.values.first.quote.attachments.length} ${'label_attachments'.tr}]');
+          }
+        } else if (items.values.first.quote.attachments.isNotEmpty) {
+          desc.write(
+              '${items.values.first.quote.attachments.length} ${'label_attachments'.tr}');
+        }
+      } else if (items.values.first.item is ChatForward) {
+        ChatMessage message =
+            ((items.values.first.item as ChatForward).item as ChatMessage);
+        if (message.text != null) {
+          desc.write(message.text);
+          if (message.attachments.isNotEmpty) {
+            desc.write(
+                ' [${message.attachments.length} ${'label_attachments'.tr}]');
+          }
+        } else if (message.attachments.isNotEmpty) {
+          desc.write('${message.attachments.length} ${'label_attachments'.tr}');
+        }
+      }
+    } else {
+      desc.write('${'label_forwarded_messages'.tr}: ${items.length}');
+    }
+
+    return Text(
+      desc.toString(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
   /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
   /// [duration].
   ///
@@ -1172,6 +1323,50 @@ class _ChatViewState extends State<ChatView>
       c.horizontalScrollTimer.value = null;
     });
   }
+
+  /// Returns theme data to customize send messages field and icon to submit
+  /// this field.
+  ThemeData _themeData(BuildContext context) => Theme.of(context).copyWith(
+        shadowColor: const Color(0x55000000),
+        iconTheme: const IconThemeData(color: Colors.blue),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: BorderSide.none,
+          ),
+          focusColor: Colors.white,
+          fillColor: Colors.white,
+          hoverColor: Colors.transparent,
+          filled: true,
+          isDense: true,
+          contentPadding: EdgeInsets.fromLTRB(
+            15,
+            PlatformUtils.isDesktop ? 30 : 23,
+            15,
+            0,
+          ),
+        ),
+      );
 }
 
 /// Extension adding an ability to get text represented [DateTime] relative to

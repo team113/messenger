@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
+import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -122,19 +123,24 @@ class RouterState extends ChangeNotifier {
   final AuthService _auth;
 
   /// Routes history stack.
-  List<String> _routes = [];
+  List<RouteSettings> _routes = [];
 
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
   /// Current route (last in the [routes] history).
-  String get route => _routes.lastOrNull == null ? Routes.home : _routes.last;
+  RouteSettings get route => _routes.lastOrNull == null
+      ? const RouteSettings(name: Routes.home)
+      : _routes.last;
 
   /// Route history stack.
-  List<String> get routes => List.unmodifiable(_routes);
+  List<RouteSettings> get routes => List.unmodifiable(_routes);
 
   /// Current [Routes.home] tab.
   HomeTab get tab => _tab;
+
+  /// Returns `router.arguments`.
+  RouterObject? get arguments => route.arguments as RouterObject?;
 
   /// Changes selected [tab] to the provided one.
   set tab(HomeTab to) {
@@ -147,20 +153,34 @@ class RouterState extends ChangeNotifier {
   /// Sets the current [route] to [to] if guard allows it.
   ///
   /// Clears the whole [routes] stack.
-  void go(String to) {
-    _routes = [_guarded(to)];
+  void go(String to, {RouterObject? arguments}) {
+    _routes = [_guarded(to, arguments: arguments)];
     notifyListeners();
   }
 
+  /// Clears route arguments on current route.
+  void clearArguments() =>
+      _routes.last = RouteSettings(name: _routes.last.name);
+
   /// Pushes [to] to the [routes] stack.
-  void push(String to) {
-    int pageIndex = _routes.indexWhere((e) => e == to);
+  void push(
+    String to, {
+    RouterObject? arguments,
+  }) {
+    int pageIndex = _routes.indexWhere((e) => e.name == to);
     if (pageIndex != -1) {
+      _routes.removeAt(pageIndex);
+      _routes.insert(pageIndex, _guarded(to, arguments: arguments));
       while (_routes.length - 1 > pageIndex) {
         pop();
       }
+      if (arguments != null &&
+          arguments.forwardedToChatId != arguments.forwardedFromChatId) {
+        _routes.insert(pageIndex,
+            _guarded('${Routes.chat}/${arguments.forwardedFromChatId}'));
+      }
     } else {
-      _routes.add(_guarded(to));
+      _routes.add(_guarded(to, arguments: arguments));
     }
 
     notifyListeners();
@@ -173,19 +193,22 @@ class RouterState extends ChangeNotifier {
   void pop() {
     if (_routes.isNotEmpty) {
       if (_routes.length == 1) {
-        String last = _routes.last.split('/').last;
-        _routes.last = _routes.last.replaceFirst('/$last', '');
-        if (_routes.last == '' ||
-            _routes.last == Routes.contact ||
-            _routes.last == Routes.chat ||
-            _routes.last == Routes.menu ||
-            _routes.last == Routes.user) {
-          _routes.last = Routes.home;
+        String last = _routes.last.name!.split('/').last;
+        _routes.last = RouteSettings(
+          name: _routes.last.name!.replaceFirst('/$last', ''),
+          arguments: _routes.last.arguments,
+        );
+        if (_routes.last.name == '' ||
+            _routes.last.name == Routes.contact ||
+            _routes.last.name == Routes.chat ||
+            _routes.last.name == Routes.menu ||
+            _routes.last.name == Routes.user) {
+          _routes.last = const RouteSettings(name: Routes.home);
         }
       } else {
         _routes.removeLast();
         if (_routes.isEmpty) {
-          _routes.add(Routes.home);
+          _routes.add(const RouteSettings(name: Routes.home));
         }
       }
 
@@ -198,20 +221,20 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - [Routes.login] is allowed to visit only on no auth status.
   /// - Any other page is allowed to visit only on success auth status.
-  String _guarded(String to) {
+  RouteSettings _guarded(String to, {RouterObject? arguments}) {
     switch (to) {
       case Routes.home:
       case Routes.style:
-        return to;
+        return RouteSettings(name: to, arguments: arguments);
       case Routes.login:
         if (!_auth.status.value.isSuccess) {
-          return to;
+          return RouteSettings(name: to, arguments: arguments);
         } else {
           return route;
         }
       default:
         if (_auth.status.value.isSuccess) {
-          return to;
+          return RouteSettings(name: to, arguments: arguments);
         } else {
           return route;
         }
@@ -312,7 +335,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
-    _state._routes = [configuration.route];
+    _state._routes = [RouteSettings(name: configuration.route)];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }
@@ -321,7 +344,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   RouteConfiguration get currentConfiguration => RouteConfiguration(
-      _state.route, _state.tab, _state._auth.status.value.isSuccess);
+      _state.route.name!, _state.tab, _state._auth.status.value.isSuccess);
 
   @override
   void dispose() {
@@ -337,7 +360,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
-    if (_state.route == Routes.style) {
+    if (_state.route.name == Routes.style) {
       return [
         const MaterialPage(
           key: ValueKey('StylePage'),
@@ -345,8 +368,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
-      String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+    } else if (_state.route.name!.startsWith(Routes.chatDirectLink)) {
+      String slug =
+          _state.route.name!.replaceFirst('${Routes.chatDirectLink}/', '');
       return [
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),
@@ -354,8 +378,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: ChatDirectLinkView(slug),
         )
       ];
-    } else if (_state.route.startsWith('${Routes.call}/')) {
-      Uri uri = Uri.parse(_state.route);
+    } else if (_state.route.name!.startsWith('${Routes.call}/')) {
+      Uri uri = Uri.parse(_state.route.name!);
       ChatId id = ChatId(uri.path.replaceFirst('${Routes.call}/', ''));
 
       return [
@@ -537,19 +561,19 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
-    if (_state.route == Routes.login) {
+    if (_state.route.name! == Routes.login) {
       pages.add(const MaterialPage(
         key: ValueKey('LoginPage'),
         name: Routes.login,
         child: LoginView(),
       ));
-    } else if (_state.route.startsWith(Routes.chat) ||
-        _state.route.startsWith(Routes.contact) ||
-        _state.route.startsWith(Routes.user) ||
-        _state.route == Routes.me ||
-        _state.route == Routes.settings ||
-        _state.route == Routes.settingsMedia ||
-        _state.route == Routes.home) {
+    } else if (_state.route.name!.startsWith(Routes.chat) ||
+        _state.route.name!.startsWith(Routes.contact) ||
+        _state.route.name!.startsWith(Routes.user) ||
+        _state.route.name! == Routes.me ||
+        _state.route.name! == Routes.settings ||
+        _state.route.name! == Routes.settingsMedia ||
+        _state.route.name! == Routes.home) {
       _updateTabTitle();
     } else {
       pages.add(_notFoundPage);
@@ -637,8 +661,9 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.chat] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void chat(ChatId id, {bool push = false}) =>
-      push ? this.push('${Routes.chat}/$id') : go('${Routes.chat}/$id');
+  void chat(ChatId id, {bool push = false, RouterObject? arguments}) => push
+      ? this.push('${Routes.chat}/$id', arguments: arguments)
+      : go('${Routes.chat}/$id', arguments: arguments);
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
@@ -658,4 +683,26 @@ extension AppLifecycleStateExtension on AppLifecycleState {
         return false;
     }
   }
+}
+
+/// Wrapper around data that could be put in `router.arguments`.
+class RouterObject {
+  RouterObject({
+    this.forwardItems,
+    this.forwardedFromChatId,
+    this.forwardedToChatId,
+    this.animateToChatItemId,
+  });
+
+  /// Map of [ChatItemQuote]s.
+  Map<ChatItemId, ChatItemQuote>? forwardItems;
+
+  /// ID of [Chat] from messages will forward.
+  ChatId? forwardedFromChatId;
+
+  /// ID of [Chat] where messages will forward.
+  ChatId? forwardedToChatId;
+
+  /// ID of [Chat] from messages will forward.
+  ChatItemId? animateToChatItemId;
 }

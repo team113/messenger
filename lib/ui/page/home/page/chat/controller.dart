@@ -63,8 +63,9 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._myUserService,
-    this._userService,
-  );
+    this._userService, {
+    this.trackRouter = false,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
@@ -97,7 +98,7 @@ class ChatController extends GetxController {
   /// - `status.isLoading`, meaning [chat] is being fetched from the service.
   /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
   /// - `status.isSuccess`, meaning [chat] is successfully fetched.
-  Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
   /// State of a send message field.
   late final TextFieldState send;
@@ -119,7 +120,7 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// Attachments to be attached to a message.
-  RxList<AttachmentData> attachments = RxList<AttachmentData>();
+  final RxList<AttachmentData> attachments = RxList<AttachmentData>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -181,6 +182,22 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// State of a send forwarded messages field.
+  late final TextFieldState sendForward;
+
+  /// Indicator whether forward mode is turned on or not.
+  final RxBool forwardMode = RxBool(false);
+
+  /// Indicator whether need track router arguments changes or not.
+  final bool trackRouter;
+
+  /// Data which will be forwarded.
+  final Rx<RouterObject?> forward = Rx<RouterObject?>(null);
+
+  /// Map of forwarded items.
+  final RxMap<ChatItemId, ChatItemQuote> forwardItems =
+      RxMap<ChatItemId, ChatItemQuote>({});
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _myUserService.myUser.value?.id;
 
@@ -197,6 +214,8 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    router.addListener(_routeListener);
+
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
@@ -270,6 +289,39 @@ class ChatController extends GetxController {
       },
     );
 
+    sendForward = TextFieldState(
+      onChanged: (s) => s.error.value = null,
+      onSubmitted: (s) async {
+        if (s.editable.value == false) return;
+        s.status.value = RxStatus.loading();
+        s.editable.value = false;
+        try {
+          await _chatService.forwardChatItems(
+            forward.value!.forwardedFromChatId!,
+            id,
+            forward.value!.forwardItems!.values
+                .map((e) => e)
+                .sortedBy((e) => e.item.at)
+                .toList(),
+            text: (s.text.isEmpty) ? null : ChatMessageText(s.text),
+          );
+          forward.value = null;
+          forwardItems.clear();
+          s.clear();
+        } on PostChatMessageException catch (e) {
+          MessagePopup.error(e);
+          s.status.value = RxStatus.error();
+        } catch (e) {
+          MessagePopup.error(e);
+          s.status.value = RxStatus.error();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+          s.status.value = RxStatus.empty();
+        }
+      },
+    );
+
     super.onInit();
   }
 
@@ -296,6 +348,7 @@ class ChatController extends GetxController {
         .whereNotNull()
         .forEach(AudioCache.instance.clear);
 
+    router.removeListener(_routeListener);
     super.onClose();
   }
 
@@ -488,6 +541,16 @@ class ChatController extends GetxController {
         _scrollToLast();
       }
 
+      if (router.arguments != null) {
+        if (router.arguments!.forwardItems != null &&
+            router.arguments!.forwardedToChatId == id) {
+          forward.value = router.arguments!;
+        } else if (router.arguments!.animateToChatItemId != null) {
+          animateTo(router.arguments!.animateToChatItemId!,
+              offsetBasedOnBottom: true);
+        }
+      }
+
       status.value = RxStatus.success();
     }
   }
@@ -508,6 +571,69 @@ class ChatController extends GetxController {
         rethrow;
       }
     }
+  }
+
+  /// Add [ChatItem] to forward messages list or remove it.
+  void toggleChatForward(ChatItem item) {
+    if (!forwardItems.keys.contains(item.id)) {
+      if (forwardItems.length >= 100) {
+        MessagePopup.error('err_maximum_number_of_forwarded_items'.tr);
+      } else {
+        List<AttachmentId> attachments = [];
+        if (item is ChatMessage) {
+          for (Attachment element in (item).attachments) {
+            attachments.add(element.id);
+          }
+        } else if (item is ChatForward) {
+          if (item.item is ChatMessage) {
+            for (Attachment attach in (item.item as ChatMessage).attachments) {
+              attachments.add(attach.id);
+            }
+          }
+        }
+        forwardItems[item.id] = ChatItemQuote(
+          item: item,
+          withText: true,
+          attachments: attachments,
+        );
+      }
+    } else {
+      forwardItems.remove(item.id);
+    }
+  }
+
+  /// Animate to tapped [ChatForward] or navigate to chat of this [ChatForward].
+  Future<void> onChatForwardTap(ChatItem message) async {
+    if (message.chatId == id) {
+      animateTo.call(message.id, offsetBasedOnBottom: true);
+    } else {
+      RxChat? chat = await _chatService.get(message.chatId);
+      if (chat != null) {
+        router.clearArguments();
+        router.chat(
+          message.chatId,
+          arguments: RouterObject(animateToChatItemId: message.id),
+          push: true,
+        );
+      }
+    }
+  }
+
+  /// Handles data received from messages forward popup.
+  void forwardReturn(bool? result) {
+    if (result == true) {
+      Map<ChatItemId, ChatItemQuote> toForward = {};
+      toForward.addAll(forwardItems);
+      forward.value = RouterObject(
+        forwardItems: toForward,
+        forwardedToChatId: id,
+        forwardedFromChatId: id,
+      );
+    } else if (result == false) {
+      forward.value = null;
+    }
+    forwardMode.value = false;
+    forwardItems.clear();
   }
 
   /// Animates [listController] to a [ChatItem] identified by the provided [id].
@@ -837,6 +963,21 @@ class ChatController extends GetxController {
         _scrollToLast();
       }
     });
+  }
+
+  /// Listen changes of routers arguments to animate to specified [ChatItemId].
+  void _routeListener() {
+    if (trackRouter && router.arguments != null) {
+      if (router.arguments!.forwardItems != null &&
+          router.arguments!.forwardedToChatId == id) {
+        forward.value = router.arguments!;
+      } else if (router.arguments!.animateToChatItemId != null) {
+        animateTo(
+          router.arguments!.animateToChatItemId!,
+          offsetBasedOnBottom: true,
+        );
+      }
+    }
   }
 }
 

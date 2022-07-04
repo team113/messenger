@@ -909,4 +909,54 @@ abstract class ChatGraphQlMixin {
     return (EditChatMessageText$Mutation.fromJson(result.data!)
         .editChatMessageText as ChatEventsVersionedMixin?);
   }
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] argument is specified then the forwarded [ChatItem]s will be
+  /// followed with a posted [ChatMessage] containing that text.
+  ///
+  /// The maximum number of forwarded [ChatItem]s at once is 100.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatItemPosted] ([ChatForward] and optionally [ChatMessage]).
+  ///
+  /// ### Non-idempotent
+  ///
+  /// Each time posts a new [ChatForward].
+  Future<ChatEventsVersionedMixin?> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuoteInput> items, {
+    ChatMessageText? text,
+  }) async {
+    var variables = ForwardChatItemsArguments(
+      from: from,
+      to: to,
+      items: items,
+      text: text,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ForwardChatItems',
+        document: ForwardChatItemsMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ForwardChatItemsException((ForwardChatItems$Mutation
+                      .fromJson(data)
+                  .forwardChatItems
+              as ForwardChatItems$Mutation$ForwardChatItems$ForwardChatItemsError)
+          .code),
+    );
+    return ForwardChatItems$Mutation.fromJson(result.data!).forwardChatItems
+        as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
+  }
 }
