@@ -25,10 +25,10 @@ import '/util/obs/obs.dart';
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
   /// Returns reactive observable map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts;
+  RxObsMap<ChatContactId, RxChatContact> get contacts;
 
   /// Returns reactive map of favorite [ChatContact]s.
-  RxMap<ChatContactId, Rx<ChatContact>> get favorites;
+  RxMap<ChatContactId, RxChatContact> get favorites;
 
   /// Indicates whether this repository was initialized and [contacts] can be
   /// used.
@@ -56,4 +56,13 @@ abstract class AbstractContactRepository {
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
+}
+
+/// Unified reactive [ChatContact] entity.
+abstract class RxChatContact {
+  /// Reactive value of the [ChatContact] this [RxChatContact] represents.
+  Rx<ChatContact> get contact;
+
+  /// Reactive value of the first [User] this [ChatContact] contains.
+  Rx<Rx<User>?> get user;
 }
