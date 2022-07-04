@@ -302,45 +302,34 @@ class OngoingCall {
             switch (e.kind()) {
               case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
                 _errors.add('Failed to acquire local audio: $e');
-
                 await _room?.disableAudio();
                 audioState.value = LocalTrackState.disabled;
-
                 break;
+
               case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
                 _errors.add('Failed to acquire local video: $e');
-
                 await setVideoEnabled(false);
-
                 break;
+
               case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
                 _errors.add('Failed to initiate screen capture: $e');
-
                 await setScreenShareEnabled(false);
-
                 break;
+
               default:
-                _errors.add('Local media acquisition error: $e');
+                _errors.add('Failed to get media: $e');
+                await _room?.disableAudio();
+                await setVideoEnabled(false);
+                await setScreenShareEnabled(false);
+                audioState.value = LocalTrackState.disabled;
+                audioDevice.value = null;
+                videoState.value = LocalTrackState.disabled;
+                videoDevice.value = null;
+                screenShareState.value = LocalTrackState.disabled;
                 return;
             }
-
-            if (audioState.value == LocalTrackState.enabled ||
-                audioState.value == LocalTrackState.enabling) {
-              await _room?.enableAudio();
-              audioState.value = LocalTrackState.enabled;
-            }
-            if (videoState.value == LocalTrackState.enabled ||
-                videoState.value == LocalTrackState.enabling) {
-              videoState.value == LocalTrackState.disabled;
-              await setVideoEnabled(true);
-            }
-            if (screenShareState.value == LocalTrackState.enabled ||
-                screenShareState.value == LocalTrackState.enabling) {
-              screenShareState.value == LocalTrackState.disabled;
-              await setScreenShareEnabled(true);
-            }
           } catch (e) {
-            _errors.add('Local media acquisition error: $e');
+            _errors.add('$e');
           }
         }
       });
@@ -623,6 +612,13 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
+            if (_tracks
+                .where((e) =>
+                    e.kind() == MediaKind.Audio &&
+                    e.mediaSourceKind() == MediaSourceKind.Device)
+                .isEmpty) {
+              await _room?.enableAudio();
+            }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
@@ -867,7 +863,8 @@ class OngoingCall {
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
 
-      Future<void> tryGetLocalTracks() async {
+      // Initializes local tracks recursively until no error is thrown.
+      Future<void> getLocalTracks() async {
         try {
           tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
             audio: audioState.value == LocalTrackState.enabling,
@@ -882,17 +879,20 @@ class OngoingCall {
             case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
               audioDevice.value = null;
               audioState.value = LocalTrackState.disabled;
-              await tryGetLocalTracks();
+              await getLocalTracks();
               break;
+
             case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
               videoDevice.value = null;
               videoState.value = LocalTrackState.disabled;
-              await tryGetLocalTracks();
+              await getLocalTracks();
               break;
+
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
               screenShareState.value = LocalTrackState.disabled;
-              await tryGetLocalTracks();
+              await getLocalTracks();
               break;
+
             default:
               rethrow;
           }
@@ -900,10 +900,8 @@ class OngoingCall {
       }
 
       try {
-        await tryGetLocalTracks();
+        await getLocalTracks();
       } catch (e) {
-        // TODO: Handle media acquisition exceptions.
-
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;

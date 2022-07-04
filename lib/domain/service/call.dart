@@ -320,7 +320,7 @@ class CallService extends DisposableService {
                     c.chatId,
                     me,
                     call: c,
-                    withAudio: true,
+                    withAudio: false,
                     withVideo: c.withVideo &&
                         c.caller?.id == me &&
                         c.conversationStartedAt == null,
@@ -349,7 +349,7 @@ class CallService extends DisposableService {
                   e.call.chatId,
                   me,
                   call: e.call,
-                  withAudio: true,
+                  withAudio: false,
                   withVideo: false,
                   withScreen: false,
                   mediaSettings: media.value,

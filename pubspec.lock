@@ -546,7 +546,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f50e113c43044dc72875fb8b5ec168068559455e
+      resolved-ref: "3d090894e962bb3d41b9f27e80d4b81180e3a62f"
       url: "https://github.com/instrumentisto/flutter-webrtc.git"
     source: git
     version: "0.8.0-dev"
@@ -854,7 +854,7 @@ packages:
     description:
       path: flutter
       ref: HEAD
-      resolved-ref: "942b98fea7d42a423616e44852cfa1fac99b071b"
+      resolved-ref: "3d7d1ff1232fa7a78753b0c4a5925df60d987eab"
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
