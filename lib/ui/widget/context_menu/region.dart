@@ -60,22 +60,22 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   @override
   Widget build(BuildContext context) => widget.enabled
       ? ContextMenuInterceptor(
-    enabled: widget.preventContextMenu,
-    child: Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: (d) => _buttons = d.buttons,
-      onPointerUp: (d) {
-        if (_buttons & kSecondaryButton != 0) {
-          ContextMenuOverlay.of(context).show(widget.menu, d.position);
-        }
-      },
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onLongPressStart: (d) => ContextMenuOverlay.of(context)
-            .show(widget.menu, d.globalPosition),
-        child: widget.child,
-      ),
-    ),
-  )
+          enabled: widget.preventContextMenu,
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (d) => _buttons = d.buttons,
+            onPointerUp: (d) {
+              if (_buttons & kSecondaryButton != 0) {
+                ContextMenuOverlay.of(context).show(widget.menu, d.position);
+              }
+            },
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onLongPressStart: (d) => ContextMenuOverlay.of(context)
+                  .show(widget.menu, d.globalPosition),
+              child: widget.child,
+            ),
+          ),
+        )
       : widget.child;
 }

@@ -42,7 +42,6 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    //this.onAnimationEnd,
     this.allowDraggingLast = true,
     this.hoverColor = const Color(0x00000000),
     this.onWillAccept,
@@ -92,7 +91,7 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
   /// Callback called when dragging is end.
   final Function(T)? onDragEnd;
 
-  /// Callback called when dragging is completed.
+  /// Callback called when the draggable is being accepted by [DragTarget].
   final Function(T)? onDragCompleted;
 
   /// Callback called when the draggable is dropped without being accepted by a
@@ -314,7 +313,7 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
   /// Callback called when dragging is end.
   final Function(T)? onDragEnd;
 
-  /// Callback called when dragging is completed.
+  /// Callback called when the draggable is being accepted by [DragTarget].
   final Function(T)? onDragCompleted;
 
   /// Callback called when the draggable is dropped without being accepted by a
@@ -343,7 +342,7 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
   State<_ReorderableFitView<T>> createState() => ReorderableFitViewState<T>();
 }
 
-/// State of [_ReorderableFitWrap] used to add and reorder [_items].
+/// State of [_ReorderableFitView] used to add and reorder [_items].
 class ReorderableFitViewState<T extends Object>
     extends State<_ReorderableFitView<T>> {
   /// Reorderable items of this [ReorderableFitViewState].
@@ -405,19 +404,46 @@ class ReorderableFitViewState<T extends Object>
     // Creates visual representation of the [ReorderableItem] with provided
     // [index].
     Widget _cell(int index) {
+      var item = _items[index];
       return Stack(
         children: [
           if (widget.decoratorBuilder != null)
-            widget.decoratorBuilder!.call(_items[index].item),
+            widget.decoratorBuilder!.call(item.item),
           KeyedSubtree(
-            key: _items[index].key,
-            child: _items[index].entry != null
+            key: item.key,
+            child: item.entry != null
                 ? Container()
                 : ReorderableDraggableHandle(
-                    state: this,
-                    index: index,
+                    item: item.item,
+                    itemBuilder: widget.itemBuilder,
+                    sharedKey: item.sharedKey,
+                    enabled:
+                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
+                            (widget.allowDraggingLast || _items.length != 1),
                     useLongDraggable: widget.useLongDraggable,
-                    enabled: widget.allowDraggingLast || _items.length != 1,
+                    onDragEnd: (d) {
+                      widget.onDragEnd?.call(item.item);
+                      _animateReturn(item, d);
+                    },
+                    onDragStarted: () {
+                      item.dragStartedRect = item.key.globalPaintBounds;
+                      widget.onDragStarted?.call(item.item);
+                    },
+                    onDragCompleted: () =>
+                        widget.onDragCompleted?.call(item.item),
+                    onDraggableCanceled: (d) {
+                      widget.onDraggableCanceled?.call(item.item);
+                      _animateReturn(item, d);
+                    },
+                    onDoughBreak: () {
+                      widget.onDoughBreak?.call(item.item);
+                      _audioPlayer?.play(
+                        AssetSource('audio/pop.mp3'),
+                        volume: 0.3,
+                        position: Duration.zero,
+                        mode: PlayerMode.lowLatency,
+                      );
+                    },
                   ),
           ),
           Row(
@@ -579,7 +605,6 @@ class ReorderableFitViewState<T extends Object>
               beginRect: beginRect,
               endRect: endRect,
               onEnd: () {
-                from.entry = null;
                 setState(() => from.entry = null);
               },
               child: widget.itemBuilder(from.item),
@@ -631,7 +656,6 @@ class ReorderableFitViewState<T extends Object>
             beginRect: beginRect,
             endRect: endRect,
             onEnd: () {
-              to.entry = null;
               setState(() => to.entry = null);
             },
             child: widget.itemBuilder(to.item),
@@ -763,21 +787,46 @@ class _AnimatedTransitionState extends State<AnimatedTransition>
   }
 }
 
-/// Widget handles dragging.
+/// Widget represented reorderable item.
 class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
   const ReorderableDraggableHandle({
     Key? key,
-    required this.state,
-    required this.index,
+    required this.item,
+    required this.sharedKey,
+    required this.itemBuilder,
+    this.onDragEnd,
+    this.onDragStarted,
+    this.onDragCompleted,
+    this.onDraggableCanceled,
+    this.onDoughBreak,
     this.useLongDraggable = false,
     this.enabled = true,
   }) : super(key: key);
 
-  /// State of [ReorderableFitView].
-  final ReorderableFitViewState<T> state;
+  /// Reorderable item data.
+  final T item;
 
-  /// Index of this [ReorderableDraggableHandle]
-  final int index;
+  /// [UniqueKey] of this [ReorderableDraggableHandle].
+  final UniqueKey sharedKey;
+
+  /// Builder to create reorderable items.
+  final Widget Function(T) itemBuilder;
+
+  /// Callback called when dragging is end.
+  final Function(Offset)? onDragEnd;
+
+  /// Callback called when dragging is started.
+  final VoidCallback? onDragStarted;
+
+  /// Callback called when the draggable is being accepted by [DragTarget].
+  final VoidCallback? onDragCompleted;
+
+  /// Callback called when the draggable is dropped without being accepted by a
+  /// [DragTarget].
+  final Function(Offset)? onDraggableCanceled;
+
+  /// Callback called when dough is break.
+  final VoidCallback? onDoughBreak;
 
   /// Indicator whether dragging starts on long press.
   final bool useLongDraggable;
@@ -798,49 +847,34 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          var item = state.widget.itemBuilder(state._items[index].item);
+          var widget = itemBuilder(item);
           return DraggableDough<T>(
-            data: state._items[index].item,
+            data: item,
             longPress: useLongDraggable,
-            maxSimultaneousDrags: !enabled ||
-                    state._items.map((e) => e.entry).whereNotNull().isNotEmpty
-                ? 0
-                : 1,
+            maxSimultaneousDrags: enabled ? 1 : 0,
             onDragEnd: (d) {
-              // TODO: animation.
-              state.widget.onDragEnd?.call(state._items[index].item);
-              state._animateReturn(state._items[index], d.offset);
+              if (!d.wasAccepted) {
+                onDragEnd?.call(d.offset);
+              }
             },
-            onDragStarted: () {
-              state._items[index].dragStartedRect =
-                  state._items[index].key.globalPaintBounds;
-              state.widget.onDragStarted?.call(state._items[index].item);
-            },
-            onDragCompleted: () =>
-                state.widget.onDragCompleted?.call(state._items[index].item),
-            onDraggableCanceled: (_, d) {
-              state.widget.onDraggableCanceled?.call(state._items[index].item);
-              state._animateReturn(state._items[index], d);
-            },
+            onDragStarted: onDragStarted,
+            onDragCompleted: onDragCompleted,
+            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
             onDoughBreak: () {
-              state.widget.onDoughBreak?.call(state._items[index].item);
-              state._audioPlayer?.play(
-                AssetSource('audio/pop.mp3'),
-                volume: 0.3,
-                position: Duration.zero,
-                mode: PlayerMode.lowLatency,
-              );
+              if (enabled) {
+                onDoughBreak?.call();
+              }
             },
             feedback: SizedBox(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
               child: KeyedSubtree(
-                key: state._items[index].sharedKey,
-                child: item,
+                key: sharedKey,
+                child: widget,
               ),
             ),
             childWhenDragging: KeyedSubtree(
-              key: state._items[index].sharedKey,
+              key: sharedKey,
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -848,8 +882,8 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
               ),
             ),
             child: KeyedSubtree(
-              key: state._items[index].sharedKey,
-              child: item,
+              key: sharedKey,
+              child: widget,
             ),
           );
         },

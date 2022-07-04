@@ -151,8 +151,8 @@ class _AssetSvgLoader implements _SvgLoader {
   @override
   bool operator ==(Object other) =>
       other is _AssetSvgLoader &&
-          other.asset == asset &&
-          other.package == package;
+      other.asset == asset &&
+      other.package == package;
 
   @override
   int get hashCode => asset.hashCode;

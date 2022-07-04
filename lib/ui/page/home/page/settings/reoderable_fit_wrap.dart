@@ -18,13 +18,12 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
-import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/call/widget/fit_wrap.dart';
 import '/ui/page/home/page/settings/reorderable_fit_view.dart'
-    show AnimatedTransition, ReorderableItem;
+    show AnimatedTransition, ReorderableDraggableHandle, ReorderableItem;
 import '/ui/page/home/widget/gallery_popup.dart';
 
 /// Widget placing its [children] evenly on a screen.
@@ -96,7 +95,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   /// Callback called when dragging is end.
   final Function(T)? onDragEnd;
 
-  /// Callback called when dragging is completed.
+  /// Callback called when the draggable is being accepted by [DragTarget].
   final Function(T)? onDragCompleted;
 
   /// Callback called when the draggable is dropped without being accepted by a
@@ -417,7 +416,7 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   /// Callback called when dragging is end.
   final Function(T)? onDragEnd;
 
-  /// Callback called when dragging is completed.
+  /// Callback called when the draggable is being accepted by [DragTarget].
   final Function(T)? onDragCompleted;
 
   /// Callback called when the draggable is dropped without being accepted by a
@@ -542,10 +541,36 @@ class _ReorderableFitWrapState<T extends Object>
                     width: widget.wrapSize,
                     height: widget.wrapSize,
                   )
-                : _ReorderableDraggableHandle(
-                    state: this,
-                    index: index,
-                    useLongPress: widget.useLongPress,
+                : ReorderableDraggableHandle(
+                    item: _items[index].item,
+                    itemBuilder: widget.itemBuilder,
+                    useLongDraggable: widget.useLongPress,
+                    sharedKey: _items[index].sharedKey,
+                    enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
+                    onDragEnd: (d) {
+                      widget.onDragEnd?.call(_items[index].item);
+                      _animateReturn(_items[index], d);
+                    },
+                    onDragStarted: () {
+                      _items[index].dragStartedRect =
+                          _items[index].key.globalPaintBounds;
+                      widget.onDragStarted?.call(_items[index].item);
+                    },
+                    onDragCompleted: () =>
+                        widget.onDragCompleted?.call(_items[index].item),
+                    onDraggableCanceled: (d) {
+                      widget.onDraggableCanceled?.call(_items[index].item);
+                      _animateReturn(_items[index], d);
+                    },
+                    onDoughBreak: () {
+                      widget.onDoughBreak?.call(_items[index].item);
+                      _audioPlayer?.play(
+                        AssetSource('audio/pop.mp3'),
+                        volume: 0.3,
+                        position: Duration.zero,
+                        mode: PlayerMode.lowLatency,
+                      );
+                    },
                   ),
           ),
           Row(
@@ -821,7 +846,6 @@ class _ReorderableFitWrapState<T extends Object>
             beginRect: beginRect,
             endRect: endRect,
             onEnd: () {
-              to.entry = null;
               setState(() => to.entry = null);
             },
             child: widget.itemBuilder(to.item),
@@ -841,96 +865,5 @@ class _ReorderableFitWrapState<T extends Object>
     } on MissingPluginException {
       _audioPlayer = null;
     }
-  }
-}
-
-/// Widget handles dragging.
-class _ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
-  const _ReorderableDraggableHandle({
-    Key? key,
-    required this.state,
-    required this.index,
-    this.useLongPress = false,
-  }) : super(key: key);
-
-  /// State of [_ReorderableFitWrap].
-  final _ReorderableFitWrapState<T> state;
-
-  /// Index of this [_ReorderableDraggableHandle]
-  final int index;
-
-  /// Indicator whether dragging starts on long press.
-  final bool useLongPress;
-
-  @override
-  Widget build(BuildContext context) {
-    return DoughRecipe(
-      data: DoughRecipeData(
-        adhesion: 4,
-        viscosity: 2000,
-        draggablePrefs: DraggableDoughPrefs(
-          breakDistance: 50,
-          useHapticsOnBreak: true,
-        ),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          var item = state.widget.itemBuilder(state._items[index].item);
-          return DraggableDough<T>(
-            data: state._items[index].item,
-            longPress: useLongPress,
-            maxSimultaneousDrags:
-                state._items.map((e) => e.entry).whereNotNull().isNotEmpty
-                    ? 0
-                    : 1,
-            onDragEnd: (d) {
-              // TODO: animation.
-              state.widget.onDragEnd?.call(state._items[index].item);
-              state._animateReturn(state._items[index], d.offset);
-            },
-            onDragStarted: () {
-              state._items[index].dragStartedRect =
-                  state._items[index].key.globalPaintBounds;
-              state.widget.onDragStarted?.call(state._items[index].item);
-            },
-            onDragCompleted: () =>
-                state.widget.onDragCompleted?.call(state._items[index].item),
-            onDraggableCanceled: (_, d) {
-              state.widget.onDraggableCanceled?.call(state._items[index].item);
-              state._animateReturn(state._items[index], d);
-            },
-            onDoughBreak: () {
-              state.widget.onDoughBreak?.call(state._items[index].item);
-              state._audioPlayer?.play(
-                AssetSource('audio/pop.mp3'),
-                volume: 0.5,
-                position: Duration.zero,
-                mode: PlayerMode.lowLatency,
-              );
-            },
-            feedback: SizedBox(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: KeyedSubtree(
-                key: state._items[index].sharedKey,
-                child: item,
-              ),
-            ),
-            childWhenDragging: KeyedSubtree(
-              key: state._items[index].sharedKey,
-              child: Container(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                color: Colors.transparent,
-              ),
-            ),
-            child: KeyedSubtree(
-              key: state._items[index].sharedKey,
-              child: item,
-            ),
-          );
-        },
-      ),
-    );
   }
 }
