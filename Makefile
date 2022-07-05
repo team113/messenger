@@ -19,6 +19,7 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
+VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d'"'))
@@ -49,6 +50,9 @@ gen: flutter.gen
 
 
 lint: flutter.analyze
+
+
+release: git.release
 
 
 run: flutter.run
@@ -85,7 +89,8 @@ endif
 # Build Flutter project from sources.
 #
 # Usage:
-#	make flutter.build [platform=(apk|web|linux|macos|windows)]
+#	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
+#	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 
@@ -98,6 +103,8 @@ ifeq ($(platform),macos)
 	$(error Dockerized macOS build is not supported)
 else ifeq ($(platform),windows)
 	$(error Dockerized Windows build is not supported)
+else ifeq ($(platform),ios)
+	$(error Dockerized iOS build is not supported)
 else
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
@@ -113,7 +120,10 @@ else
 #          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
-		$(if $(call eq,$(or $(platform),apk),apk),--split-debug-info=symbols,) \
+		$(if $(call eq,$(or $(platform),apk),apk),\
+		    --split-debug-info=symbols \
+		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
+		) \
 		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
@@ -297,14 +307,36 @@ copyright:
 
 
 
+################
+# Git commands #
+################
+
+# Release project version (apply version tag and push).
+#
+# Usage:
+#	make git.release [ver=($(VERSION)|<proj-ver>)]
+
+git-release-tag = $(strip $(or $(ver),$(VERSION)))
+
+git.release:
+ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
+	$(error "Git tag $(git-release-tag) already exists")
+endif
+	git tag $(git-release-tag) main
+	git push origin refs/tags/$(git-release-tag)
+
+
+
+
 ##################
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs fmt gen lint run test \
+.PHONY: build clean deps docs fmt gen lint release run test \
         clean.flutter \
         copyright \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
             flutter.pub flutter.run \
+        git.release \
         test.unit
