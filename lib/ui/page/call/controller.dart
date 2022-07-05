@@ -31,12 +31,10 @@ import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
-import '/provider/gql/exceptions.dart' show RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/context_menu/overlay.dart';
-import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -55,7 +53,7 @@ class CallController extends GetxController {
     this.isPopup = false,
   });
 
-  /// TODO(design): improve
+  // TODO(design): improve
   /// Indicator whether the call opened in separate window.
   final bool isPopup;
 
@@ -158,9 +156,6 @@ class CallController extends GetxController {
 
   /// [Participant] that is hovered right now.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
-
-  /// List of [UserId]s that are being removed from the [chat].
-  final RxList<UserId> membersOnRemoval = RxList([]);
 
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
@@ -383,10 +378,6 @@ class CallController extends GetxController {
   /// Indicator whether the inbound audio in the current [OngoingCall] is
   /// enabled or not.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
-
-  /// Buttons width and height.
-  RxDouble buttonSize = RxDouble(48);
-
   @override
   void onInit() {
     super.onInit();
@@ -424,7 +415,6 @@ class CallController extends GetxController {
         size.height * _maxHeight,
       ),
     );
-
     height = RxDouble(width.value);
     left = size.width - width.value - 50 > 0
         ? RxDouble(size.width - width.value - 50)
@@ -959,24 +949,6 @@ class CallController extends GetxController {
     }
 
     return Future.value();
-  }
-
-  /// Removes [User] identified by the provided [userId] from the [chat].
-  Future<void> removeChatMember(UserId userId) async {
-    membersOnRemoval.add(userId);
-    try {
-      await _chatService.removeChatMember(chatId, userId);
-      if (userId == me && router.route.startsWith('${Routes.chat}/$chatId')) {
-        router.home();
-      }
-    } on RemoveChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      membersOnRemoval.remove(userId);
-    }
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].

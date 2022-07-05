@@ -35,6 +35,7 @@ import '../widget/hint.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/routes.dart';
@@ -69,6 +70,7 @@ Widget desktopCall(
 
       // Active call.
       if (c.state.value == OngoingCallState.active) {
+        // Secondary view possible alignment.
         Widget _possibleContainer() {
           return Obx(() {
             Alignment? alignment = c.possibleSecondaryAlignment.value;
@@ -321,6 +323,7 @@ Widget desktopCall(
                         onTap: () {
                           c.errorTimeout.value = 0;
                         },
+                        isError: true,
                       ),
                     ),
                   ),
@@ -1168,7 +1171,7 @@ Widget _primaryView(CallController c) {
               );
             });
           },
-          children: c.primary.map((e) => _DragData(e)).toList(),
+          children: c.primary.map((e) => _DragData(e, c.chatId)).toList(),
         ),
         IgnorePointer(
           child: Obx(() {
@@ -1643,7 +1646,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                 ),
               );
             },
-            children: c.secondary.map((e) => _DragData(e)).toList(),
+            children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
           ),
 
           // Discards the pointer when hovered over videos.
@@ -1930,7 +1933,7 @@ Widget _secondaryTarget(CallController c) {
     return AnimatedSwitcher(
       key: const Key('SecondaryTargetAnimatedSwitcher'),
       duration: 200.milliseconds,
-      child: c.secondary.isEmpty
+      child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
           ? Align(
               alignment: secondaryAxis == Axis.horizontal
                   ? Alignment.centerRight
@@ -1942,84 +1945,96 @@ Widget _secondaryTarget(CallController c) {
                 height: secondaryAxis == Axis.horizontal
                     ? double.infinity
                     : panelSize / 1.6,
-                child: DragTarget<_DragData>(onAccept: (_DragData d) {
-                  if (secondaryAxis == Axis.horizontal) {
-                    c.secondaryAlignment.value = Alignment.centerRight;
-                  } else {
-                    c.secondaryAlignment.value = Alignment.topCenter;
-                  }
-                  c.unfocus(d.participant);
-                }, builder: (context, candidate, rejected) {
-                  return Obx(() {
-                    return IgnorePointer(
-                      child: AnimatedSwitcher(
-                        key: const Key('SecondaryTargetAnimatedSwitcher'),
-                        duration: 200.milliseconds,
-                        child: c.primaryDrags.value >= 1
-                            ? Container(
-                                decoration: const BoxDecoration(
-                                  boxShadow: [
-                                    CustomBoxShadow(
-                                      color: Color(0x33000000),
-                                      blurRadius: 8,
-                                      blurStyle: BlurStyle.outer,
-                                    )
-                                  ],
-                                ),
-                                child: ConditionalBackdropFilter(
-                                  child: Container(
-                                    color: const Color(0x30000000),
-                                    child: Center(
-                                      child: SizedBox(
-                                        width: secondaryAxis == Axis.horizontal
-                                            ? min(panelSize, 150 + 44)
-                                            : null,
-                                        height: secondaryAxis == Axis.horizontal
-                                            ? null
-                                            : min(panelSize, 150 + 44),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            AnimatedScale(
-                                              duration: const Duration(
-                                                  milliseconds: 300),
-                                              curve: Curves.ease,
-                                              scale: candidate.isNotEmpty
-                                                  ? 1.06
-                                                  : 1,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color:
-                                                      const Color(0x40000000),
-                                                  borderRadius:
-                                                      BorderRadius.circular(16),
-                                                ),
-                                                child: const Padding(
-                                                  padding: EdgeInsets.all(10),
-                                                  child: Icon(
-                                                    Icons.add_rounded,
-                                                    size: 35,
-                                                    color: Colors.white,
+                child: DragTarget<_DragData>(
+                  onWillAccept: (d) {
+                    if (d?.id == c.chatId) {
+                      return true;
+                    }
+                    return false;
+                  },
+                  onAccept: (_DragData d) {
+                    if (secondaryAxis == Axis.horizontal) {
+                      c.secondaryAlignment.value = Alignment.centerRight;
+                    } else {
+                      c.secondaryAlignment.value = Alignment.topCenter;
+                    }
+                    c.unfocus(d.participant);
+                  },
+                  builder: (context, candidate, rejected) {
+                    return Obx(() {
+                      return IgnorePointer(
+                        child: AnimatedSwitcher(
+                          key: const Key('SecondaryTargetAnimatedSwitcher'),
+                          duration: 200.milliseconds,
+                          child: c.primaryDrags.value >= 1
+                              ? Container(
+                                  decoration: const BoxDecoration(
+                                    boxShadow: [
+                                      CustomBoxShadow(
+                                        color: Color(0x33000000),
+                                        blurRadius: 8,
+                                        blurStyle: BlurStyle.outer,
+                                      )
+                                    ],
+                                  ),
+                                  child: ConditionalBackdropFilter(
+                                    child: Container(
+                                      color: const Color(0x30000000),
+                                      child: Center(
+                                        child: SizedBox(
+                                          width:
+                                              secondaryAxis == Axis.horizontal
+                                                  ? min(panelSize, 150 + 44)
+                                                  : null,
+                                          height:
+                                              secondaryAxis == Axis.horizontal
+                                                  ? null
+                                                  : min(panelSize, 150 + 44),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AnimatedScale(
+                                                duration: const Duration(
+                                                    milliseconds: 300),
+                                                curve: Curves.ease,
+                                                scale: candidate.isNotEmpty
+                                                    ? 1.06
+                                                    : 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0x40000000),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  ),
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Icon(
+                                                      Icons.add_rounded,
+                                                      size: 35,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : Container(key: UniqueKey()),
-                      ),
-                    );
-                  });
-                }),
+                                )
+                              : Container(key: UniqueKey()),
+                        ),
+                      );
+                    });
+                  },
+                ),
               ),
             )
           : Container(),
@@ -2027,11 +2042,15 @@ Widget _secondaryTarget(CallController c) {
   });
 }
 
+/// Drag data of an call [Participant].
 class _DragData {
-  const _DragData(this.participant);
+  const _DragData(this.participant, this.id);
 
   /// [Participant] to focus.
   final Participant participant;
+
+  /// [ChatId] this [_DragData] placed.
+  final ChatId id;
 
   @override
   bool operator ==(Object other) =>

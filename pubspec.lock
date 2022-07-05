@@ -361,9 +361,11 @@ packages:
   dough:
     dependency: "direct main"
     description:
-      name: dough
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "packages/dough"
+      ref: HEAD
+      resolved-ref: "1834fa7c62d42a8b306cd15895d0cec453d8fbe7"
+      url: "https://github.com/krida2000/dough"
+    source: git
     version: "1.0.3"
   email_validator:
     dependency: "direct main"

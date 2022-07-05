@@ -199,6 +199,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               child: HintWidget(
                 text: '${c.error}.',
                 onTap: () => c.errorTimeout.value = 0,
+                isError: true,
               ),
             ),
           ),

@@ -19,10 +19,10 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 
 /// Real-time WebRTC video stream representation of its [renderer].
 ///

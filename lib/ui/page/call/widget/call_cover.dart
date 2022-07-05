@@ -37,7 +37,8 @@ class CallCoverWidget extends StatelessWidget {
   /// Call cover data object.
   final UserCallCover? cover;
 
-  /// Indicator whether should be used single color background.
+  /// Indicator whether should be used single color background if [cover] is
+  /// `null`.
   final bool backdrop;
 
   /// [User] of this [CallCoverWidget].

@@ -90,20 +90,14 @@ class ParticipantWidget extends StatelessWidget {
         bool isVideoDisabled = participant.video.value?.isEnabled == false;
         bool hasVideo = participant.video.value?.isEnabled == true;
 
-        Widget _icon(Widget child) {
-          return child;
-        }
-
         List<Widget> additionally = [];
         if (isMuted) {
           additionally.add(
-            _icon(
-              Padding(
-                padding: const EdgeInsets.only(left: 1, right: 1),
-                child: SvgLoader.asset(
-                  'assets/icons/microphone_off_small.svg',
-                  height: 12,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 1, right: 1),
+              child: SvgLoader.asset(
+                'assets/icons/microphone_off_small.svg',
+                height: 12,
               ),
             ),
           );
@@ -115,13 +109,11 @@ class ParticipantWidget extends StatelessWidget {
             additionally.add(const SizedBox(width: 3));
           }
           additionally.add(
-            _icon(
-              Padding(
-                padding: const EdgeInsets.only(left: 2, right: 2),
-                child: SvgLoader.asset(
-                  'assets/icons/screen_share_small.svg',
-                  height: 12,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 2, right: 2),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
               ),
             ),
           );
@@ -257,20 +249,14 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
         bool display = hovered;
 
-        Widget _icon(Widget child) {
-          return child;
-        }
-
         List<Widget> additionally = [];
         if (isMuted) {
           additionally.add(
-            _icon(
-              Padding(
-                padding: const EdgeInsets.only(left: 1, right: 1),
-                child: SvgLoader.asset(
-                  'assets/icons/microphone_off_small.svg',
-                  height: 12,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 1, right: 1),
+              child: SvgLoader.asset(
+                'assets/icons/microphone_off_small.svg',
+                height: 12,
               ),
             ),
           );
@@ -282,13 +268,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
             additionally.add(const SizedBox(width: 3));
           }
           additionally.add(
-            _icon(
-              Padding(
-                padding: const EdgeInsets.only(left: 2, right: 2),
-                child: SvgLoader.asset(
-                  'assets/icons/screen_share_small.svg',
-                  height: 12,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 2, right: 2),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
               ),
             ),
           );
@@ -429,40 +413,30 @@ class ParticipantDecoratorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
-      key: const Key('IgnorePointer'),
       ignoring: false,
       child: Center(
-        key: const Key('Center'),
-        child: Container(
-          key: const Key('Container1'),
-          child: Stack(
-            key: const Key('Stack'),
-            alignment: Alignment.center,
-            fit: StackFit.passthrough,
-            children: [
-              const IgnorePointer(
-                child: SizedBox(
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
+        child: Stack(
+          alignment: Alignment.center,
+          fit: StackFit.passthrough,
+          children: [
+            const IgnorePointer(
+              child: SizedBox(
+                width: double.infinity,
+                height: double.infinity,
               ),
-              Positioned.fill(
-                key: const Key('ParticipantBackgroundContainer1'),
-                child: Container(
-                  key: const Key('ParticipantBackgroundContainer2'),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0x30000000),
-                      width: 0.5,
-                    ),
-                  ),
-                  child: const IgnorePointer(
-                    key: Key('ParticipantBackgroundIgnorePointer'),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color(0x30000000),
+                    width: 0.5,
                   ),
                 ),
+                child: const IgnorePointer(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -462,7 +462,7 @@ class ReorderableFitViewState<T extends Object>
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
                     widget.onWillAccept?.call(b);
-                    if (b != _items[index].item) {
+                    if (b != item.item) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -488,7 +488,7 @@ class ReorderableFitViewState<T extends Object>
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
                     widget.onWillAccept?.call(b);
-                    if (b != _items[index].item) {
+                    if (b != item.item) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -503,7 +503,7 @@ class ReorderableFitViewState<T extends Object>
             ],
           ),
           if (widget.overlayBuilder != null)
-            widget.overlayBuilder!.call(_items[index].item),
+            widget.overlayBuilder!.call(item.item),
         ],
       );
     }
@@ -852,11 +852,7 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
             data: item,
             longPress: useLongDraggable,
             maxSimultaneousDrags: enabled ? 1 : 0,
-            onDragEnd: (d) {
-              if (!d.wasAccepted) {
-                onDragEnd?.call(d.offset);
-              }
-            },
+            onDragEnd: (d) => onDragEnd?.call(d.offset),
             onDragStarted: onDragStarted,
             onDragCompleted: onDragCompleted,
             onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),

@@ -66,7 +66,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   /// Builder to create overlay.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether this [ReorderableFitWrap]'s items can handle long press.
+  /// Indicator whether dragging starts on long press.
   final bool useLongPress;
 
   /// Children widgets needed to be placed evenly on a screen.
@@ -386,8 +386,7 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   /// Builder to create overlay.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether this [_ReorderableFitWrap]'s items can handle long
-  /// press.
+  /// Indicator whether dragging starts on long press.
   final bool useLongPress;
 
   /// Children widgets needed to be placed evenly on a screen.
@@ -530,40 +529,40 @@ class _ReorderableFitWrapState<T extends Object>
     // Creates visual representation of the [ReorderableItem] with provided
     // [index].
     Widget _cell(int index) {
+      var item = _items[index];
       return Stack(
         children: [
           if (widget.decoratorBuilder != null)
-            widget.decoratorBuilder!.call(_items[index].item),
+            widget.decoratorBuilder!.call(item.item),
           KeyedSubtree(
-            key: _items[index].key,
-            child: _items[index].entry != null
+            key: item.key,
+            child: item.entry != null
                 ? SizedBox(
                     width: widget.wrapSize,
                     height: widget.wrapSize,
                   )
                 : ReorderableDraggableHandle(
-                    item: _items[index].item,
+                    item: item.item,
                     itemBuilder: widget.itemBuilder,
                     useLongDraggable: widget.useLongPress,
-                    sharedKey: _items[index].sharedKey,
+                    sharedKey: item.sharedKey,
                     enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
                     onDragEnd: (d) {
-                      widget.onDragEnd?.call(_items[index].item);
-                      _animateReturn(_items[index], d);
+                      widget.onDragEnd?.call(item.item);
+                      _animateReturn(item, d);
                     },
                     onDragStarted: () {
-                      _items[index].dragStartedRect =
-                          _items[index].key.globalPaintBounds;
-                      widget.onDragStarted?.call(_items[index].item);
+                      item.dragStartedRect = item.key.globalPaintBounds;
+                      widget.onDragStarted?.call(item.item);
                     },
                     onDragCompleted: () =>
-                        widget.onDragCompleted?.call(_items[index].item),
+                        widget.onDragCompleted?.call(item.item),
                     onDraggableCanceled: (d) {
-                      widget.onDraggableCanceled?.call(_items[index].item);
-                      _animateReturn(_items[index], d);
+                      widget.onDraggableCanceled?.call(item.item);
+                      _animateReturn(item, d);
                     },
                     onDoughBreak: () {
-                      widget.onDoughBreak?.call(_items[index].item);
+                      widget.onDoughBreak?.call(item.item);
                       _audioPlayer?.play(
                         AssetSource('audio/pop.mp3'),
                         volume: 0.3,
@@ -589,7 +588,7 @@ class _ReorderableFitWrapState<T extends Object>
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
                     widget.onWillAccept?.call(b);
-                    if (b != _items[index].item) {
+                    if (b != item.item) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -615,7 +614,7 @@ class _ReorderableFitWrapState<T extends Object>
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
                     widget.onWillAccept?.call(b);
-                    if (b != _items[index].item) {
+                    if (b != item.item) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -630,7 +629,7 @@ class _ReorderableFitWrapState<T extends Object>
             ],
           ),
           if (widget.overlayBuilder != null)
-            widget.overlayBuilder!.call(_items[index].item),
+            widget.overlayBuilder!.call(item.item),
         ],
       );
     }
