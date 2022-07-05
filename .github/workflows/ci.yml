@@ -244,11 +244,11 @@ jobs:
       - name: Parse CHANGELOG link
         id: changelog
         run: echo ::set-output
-                  name=link::https://github.com/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
       - name: Parse milestone link
         id: milestone
         run: echo ::set-output
-                  name=link::https://github.com/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
 
       - uses: actions/download-artifact@v3
         with:
@@ -276,7 +276,6 @@ jobs:
           path: .cache/dartdoc/
 
       - run: mkdir artifacts/
-
       - run: mv .cache/android/app-arm64-v8a-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
       - run: mv .cache/android/app-armeabi-v7a-release.apk
