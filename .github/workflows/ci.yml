@@ -102,6 +102,7 @@ jobs:
       matrix:
         platform:
           - apk
+          - appbundle
           # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
           #- ios
           - linux
@@ -111,10 +112,10 @@ jobs:
           - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
     runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                                  && 'macos-latest')
-                 || (matrix.platform == 'windows' && 'windows-latest')
-                 || (matrix.platform == 'linux'   && 'ubuntu-22.04')
-                                                  || 'ubuntu-latest' }}
+                                               && 'macos-latest')
+              || (matrix.platform == 'windows' && 'windows-latest')
+              || (matrix.platform == 'linux'   && 'ubuntu-22.04')
+              ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
@@ -126,22 +127,37 @@ jobs:
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
       - run: sudo apt-get install -y
-             ninja-build
-             libunwind-dev
-             libgtk-3-dev
-             libgstreamer1.0-dev
-             libgstreamer-plugins-base1.0-dev
-             libpulse-dev
+                          ninja-build
+                          libunwind-dev
+                          libgtk-3-dev
+                          libgstreamer1.0-dev
+                          libgstreamer-plugins-base1.0-dev
+                          libpulse-dev
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
         if: ${{ matrix.platform == 'linux'
-                || matrix.platform == 'macos'
-                || matrix.platform == 'windows' }}
+             || matrix.platform == 'macos'
+             || matrix.platform == 'windows' }}
 
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
+                                split-per-abi=yes
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.platform }}-${{ github.run_number }}
+          path: ${{ (matrix.platform == 'apk'
+                     && 'build/app/outputs/flutter-apk/app-*.apk')
+                 || (matrix.platform == 'appbundle'
+                     && 'build/app/outputs/bundle/release/app-release.aab')
+                 || (matrix.platform == 'linux'
+                     && 'build/linux/x64/release/bundle')
+                 || (matrix.platform == 'windows'
+                     && 'build/windows/runner/Release')
+                 ||     'build/web'}}
+          if-no-files-found: error
 
   dartdoc:
     runs-on: ubuntu-latest
@@ -156,6 +172,14 @@ jobs:
       - run: make flutter.pub
 
       - run: make docs.dart clean=yes
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dartdoc-${{ github.run_number }}
+          path: doc/api
+          if-no-files-found: error
+        if: ${{ github.ref == 'main'
+             || startsWith(github.ref, 'refs/tags/') }}
 
 
 
@@ -178,3 +202,146 @@ jobs:
       - run: make flutter.pub
 
       - run: make test.unit
+
+
+
+
+  #############
+  # Releasing #
+  #############
+
+  release-github:
+    name: Release on GitHub
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: ["build", "copyright", "dartanalyze", "dartfmt", "test-unit"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Parse application name from Git repository name
+        id: app
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.repository }}
+          regex: '^${{ github.repository_owner }}/(.+)$'
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+      - name: Verify Git tag version matches `pubspec.yaml` version
+        run: >
+          test "${{ steps.semver.outputs.group1 }}"
+            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
+
+      - name: Parse CHANGELOG link
+        id: changelog
+        run: echo ::set-output
+                  name=link::https://github.com/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+      - name: Parse milestone link
+        id: milestone
+        run: echo ::set-output
+                  name=link::https://github.com/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-apk-${{ github.run_number }}
+          path: android/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-appbundle-${{ github.run_number }}
+          path: android/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux-${{ github.run_number }}
+          path: linux/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-web-${{ github.run_number }}
+          path: web/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows-${{ github.run_number }}
+          path: windows/
+
+      - run: mkdir artifacts/
+
+      - run: mv android/app-arm64-v8a-release.apk
+                artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
+      - run: mv android/app-armeabi-v7a-release.apk
+                artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
+      - run: mv android/app-x86_64-release.apk
+                artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
+      - run: mv android/app-release.aab
+                artifacts/${{ steps.app.outputs.group1 }}-android.aab
+
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: artifacts/${{ steps.app.outputs.group1 }}-linux-x86_64.zip
+          path: linux
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: artifacts/${{ steps.app.outputs.group1 }}-web.zip
+          path: web
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: artifacts/${{ steps.app.outputs.group1 }}-windows-x86_64.zip
+          path: windows
+
+      - name: Generate SHA256 checksums
+        run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
+        working-directory: artifacts/
+      - name: Show generated SHA256 checksums
+        run: cat *.sha256sum
+        working-directory: artifacts/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.semver.outputs.group1 }}
+          body: >
+            [Changelog](${{ steps.changelog.outputs.link }}) |
+            [Milestone](${{ steps.milestone.outputs.link }})
+          files: |
+            artifacts/*.apk
+            artifacts/*.aab
+            artifacts/*.zip
+            artifacts/*.sha256sum
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+
+
+
+
+  #############
+  # Deploying #
+  #############
+
+  deploy-docs:
+    name: Deploy documentation
+    if: ${{ github.ref == 'main'
+         || startsWith(github.ref, 'refs/tags/') }}
+    needs: ["dartdoc"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+
+      - run: rm -rf ${{ (github.ref == 'main' && 'main') || 'release' }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: dartdoc-${{ github.run_number }}
+          path: ${{ (github.ref == 'main' && 'main') || 'release' }}
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          commit_message: ${{ github.event.head_commit.message }}
+          force_orphan: true
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
