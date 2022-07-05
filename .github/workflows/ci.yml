@@ -178,8 +178,8 @@ jobs:
           name: dartdoc-${{ github.run_number }}
           path: doc/api
           if-no-files-found: error
-        if: ${{ github.ref == 'main'
-             || startsWith(github.ref, 'refs/tags/') }}
+        if: ${{ github.ref == 'refs/heads/main'
+             || startsWith(github.ref, 'refs/tags/v') }}
 
 
 
@@ -212,8 +212,14 @@ jobs:
 
   release-github:
     name: Release on GitHub
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: ["build", "copyright", "dartanalyze", "dartfmt", "test-unit"]
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - test-unit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -247,47 +253,54 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-apk-${{ github.run_number }}
-          path: android/
+          path: .cache/android/
       - uses: actions/download-artifact@v3
         with:
           name: build-appbundle-${{ github.run_number }}
-          path: android/
+          path: .cache/android/
       - uses: actions/download-artifact@v3
         with:
           name: build-linux-${{ github.run_number }}
-          path: linux/
+          path: .cache/linux/
       - uses: actions/download-artifact@v3
         with:
           name: build-web-${{ github.run_number }}
-          path: web/
+          path: .cache/web/
       - uses: actions/download-artifact@v3
         with:
           name: build-windows-${{ github.run_number }}
-          path: windows/
+          path: .cache/windows/
+      - uses: actions/download-artifact@v3
+        with:
+          name: dartdoc-${{ github.run_number }}
+          path: .cache/dartdoc/
 
       - run: mkdir artifacts/
 
-      - run: mv android/app-arm64-v8a-release.apk
+      - run: mv .cache/android/app-arm64-v8a-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
-      - run: mv android/app-armeabi-v7a-release.apk
+      - run: mv .cache/android/app-armeabi-v7a-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
-      - run: mv android/app-x86_64-release.apk
+      - run: mv .cache/android/app-x86_64-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
-      - run: mv android/app-release.aab
+      - run: mv .cache/android/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
-
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: artifacts/${{ steps.app.outputs.group1 }}-linux-x86_64.zip
-          path: linux
+          path: .cache/linux
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: artifacts/${{ steps.app.outputs.group1 }}-web.zip
-          path: web
+          path: .cache/web
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: artifacts/${{ steps.app.outputs.group1 }}-windows-x86_64.zip
-          path: windows
+          path: .cache/windows
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: artifacts/${{ steps.app.outputs.group1 }}-dartdoc.zip
+          path: .cache/dartdoc
 
       - name: Generate SHA256 checksums
         run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
@@ -320,8 +333,8 @@ jobs:
 
   deploy-docs:
     name: Deploy documentation
-    if: ${{ github.ref == 'main'
-         || startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["dartdoc"]
     runs-on: ubuntu-latest
     steps:
@@ -329,12 +342,12 @@ jobs:
         with:
           ref: gh-pages
 
-      - run: rm -rf ${{ (github.ref == 'main' && 'main') || 'release' }}
+      - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
       - uses: actions/download-artifact@v3
         with:
           name: dartdoc-${{ github.run_number }}
-          path: ${{ (github.ref == 'main' && 'main') || 'release' }}
+          path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
@@ -343,5 +356,5 @@ jobs:
           commit_message: ${{ github.event.head_commit.message }}
           force_orphan: true
           keep_files: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
