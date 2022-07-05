@@ -15,24 +15,24 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 subscription UserEvents($id: UserId!, $ver: UserVersion) {
-  userEvents(id: $id, ver: $ver) {
-    __typename
-    ... on SubscriptionInitialized {
-      ok
+    userEvents(id: $id, ver: $ver) {
+        __typename
+        ... on SubscriptionInitialized {
+            ok
+        }
+        ... on User {
+            ...User
+        }
+        ... on UserEventsVersioned {
+            ...UserEventsVersioned
+        }
+        ... on BlacklistEventsVersioned {
+            ...BlacklistEventsVersioned
+        }
+        ... on IsBlacklisted {
+            blacklisted
+            myVer: ver
+        }
     }
-    ... on User {
-      ...User
-    }
-    ... on UserEventsVersioned {
-      ...UserEventsVersioned
-    }
-    ... on BlacklistEventsVersioned {
-      ...BlacklistEventsVersioned
-    }
-    ... on IsBlacklisted {
-      blacklisted
-      myVer: ver
-    }
-  }
 }
 

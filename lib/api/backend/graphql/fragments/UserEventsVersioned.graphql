@@ -23,7 +23,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
         }
         ... on EventUserAvatarUpdated {
             avatar {
-            __typename
+                __typename
                 ...UserAvatar
             }
             at
