@@ -19,13 +19,14 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/provider/gql/exceptions.dart';
+import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
@@ -56,6 +57,9 @@ class UserRepository implements AbstractUserRepository {
 
   /// [users] value.
   final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
+
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<UserId, Mutex> _locks = {};
 
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -100,20 +104,28 @@ class UserRepository implements AbstractUserRepository {
       _search(link: link);
 
   @override
-  Future<RxUser?> get(UserId id) async {
-    RxUser? user = _users[id];
-    if (user == null) {
-      var query = (await _graphQlProvider.getUser(id)).user;
-      if (query != null) {
-        HiveUser stored = query.toHive();
-        put(stored);
-        var fetched = HiveRxUser(this, _userLocal, stored);
-        users[id] = fetched;
-        user = fetched;
-      }
+  Future<RxUser?> get(UserId id) {
+    Mutex? mutex = _locks[id];
+    if (mutex == null) {
+      _locks[id] = Mutex();
+      mutex = _locks[id];
     }
 
-    return user;
+    return mutex!.protect(() async {
+      RxUser? user = _users[id];
+      if (user == null) {
+        var query = (await _graphQlProvider.getUser(id)).user;
+        if (query != null) {
+          HiveUser stored = query.toHive();
+          put(stored);
+          var fetched = HiveRxUser(this, _userLocal, stored);
+          users[id] = fetched;
+          user = fetched;
+        }
+      }
+
+      return user;
+    });
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
@@ -123,33 +135,6 @@ class UserRepository implements AbstractUserRepository {
       _galleryItemLocal.put(item);
     }
     _putUser(user);
-  }
-
-  /// Puts the provided [user] to [Hive].
-  Future<void> _putUser(HiveUser user) async {
-    var saved = _userLocal.get(user.value.id);
-    if (saved == null || saved.ver < user.ver) {
-      await _userLocal.put(user);
-    }
-  }
-
-  /// Initializes [ContactHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    _localSubscription = StreamIterator(_userLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        _users.remove(UserId(event.key));
-      } else {
-        RxUser? user = _users[UserId(event.key)];
-        if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
-        } else {
-          user.user.value = event.value.value;
-          user.user.refresh();
-        }
-      }
-    }
   }
 
   /// Returns the [Stream] of [UserEvent]s of the specified [User].
@@ -184,6 +169,33 @@ class UserRepository implements AbstractUserRepository {
         yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
       }
     });
+  }
+
+  /// Puts the provided [user] to [Hive].
+  Future<void> _putUser(HiveUser user) async {
+    var saved = _userLocal.get(user.value.id);
+    if (saved == null || saved.ver < user.ver) {
+      await _userLocal.put(user);
+    }
+  }
+
+  /// Initializes [ContactHiveProvider.boxEvents] subscription.
+  Future<void> _initLocalSubscription() async {
+    _localSubscription = StreamIterator(_userLocal.boxEvents);
+    while (await _localSubscription!.moveNext()) {
+      BoxEvent event = _localSubscription!.current;
+      if (event.deleted) {
+        _users.remove(UserId(event.key));
+      } else {
+        RxUser? user = _users[UserId(event.key)];
+        if (user == null) {
+          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
+        } else {
+          user.user.value = event.value.value;
+          user.user.refresh();
+        }
+      }
+    }
   }
 
   // TODO: Search in the local storage.
@@ -263,16 +275,9 @@ class UserRepository implements AbstractUserRepository {
       return EventUserNameDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      var image = node.galleryItem
-          as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem$ImageGalleryItem;
       return EventUserGalleryItemAdded(
         node.userId,
-        ImageGalleryItem(
-          original: Original(image.original),
-          square: Square(image.square),
-          id: image.id,
-          addedAt: image.addedAt,
-        ),
+        node.galleryItem.toModel(),
         node.at,
       );
     } else if (e.$$typename == 'EventUserGalleryItemDeleted') {

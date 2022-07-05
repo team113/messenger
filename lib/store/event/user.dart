@@ -14,9 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:messenger/store/model/my_user.dart';
-
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
@@ -24,8 +22,8 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/user.dart';
+import '/store/model/my_user.dart';
 import '/store/model/user.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {
@@ -56,6 +54,7 @@ enum UserEventsKind {
   event,
 }
 
+/// Tag representing a [BlacklistEvent] kind.
 enum BlacklistEventsKind {
   recordAdded,
   recordRemoved,
@@ -92,8 +91,8 @@ class UserEventsInitialized extends UserEvents {
   UserEventsKind get kind => UserEventsKind.initialized;
 }
 
-/// Information about some [User] being present in
-/// [MyUser]'s blacklist of the authenticated [MyUser].
+/// Information about some [User] being present in [MyUser]'s blacklist of the
+/// authenticated [MyUser].
 class UserEventsIsBlacklisted extends UserEvents {
   UserEventsIsBlacklisted(this.blacklisted, this.ver);
 
@@ -290,7 +289,7 @@ class EventUserCameOffline extends UserEvent {
   UserEventKind get kind => UserEventKind.cameOffline;
 }
 
-/// Event of an [User] coming offline.
+/// Event of an [User] coming online.
 class EventUserCameOnline extends UserEvent {
   const EventUserCameOnline(UserId userId) : super(userId);
 
@@ -342,7 +341,7 @@ class EventUserGalleryItemAdded extends UserEvent {
   /// Added `GalleryItem`.
   final ImageGalleryItem galleryItem;
 
-  /// [PreciseDateTime] when the [GalleryItem] was added to the [User]'s
+  /// [PreciseDateTime] when the `GalleryItem` was added to the [User]'s
   /// gallery.
   final PreciseDateTime at;
 
@@ -358,7 +357,7 @@ class EventUserGalleryItemDeleted extends UserEvent {
   /// ID of the deleted `GalleryItem`.
   final GalleryItemId galleryItemId;
 
-  /// [PreciseDateTime] when the [GalleryItem] was deleted from the [User]'s
+  /// [PreciseDateTime] when the `GalleryItem` was deleted from the [User]'s
   /// gallery.
   final PreciseDateTime at;
 

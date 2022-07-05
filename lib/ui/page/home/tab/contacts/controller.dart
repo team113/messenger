@@ -65,8 +65,7 @@ class ContactsTabController extends GetxController {
   /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
   final Map<ChatContactId, StreamSubscription> _userSubscription = {};
 
-  /// [Worker]'s to [RxChatContact.user] that listens [User]'s
-  ///  changing in [ChatContact].
+  /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
@@ -149,10 +148,11 @@ class ContactsTabController extends GetxController {
   }
 
   @override
-  void dispose() {
+  void onClose() {
     _contactsSubscription?.cancel();
     _userSubscription.forEach((_, v) => v.cancel());
-    super.dispose();
+    _userWorkers.forEach((_, v) => v.dispose());
+    super.onClose();
   }
 
   /// Starts an audio [ChatCall] with a [to] [User].
@@ -193,48 +193,42 @@ class ContactsTabController extends GetxController {
   /// Maintains [StreamSubscription]s to the [RxUser.updates] of every
   /// [RxChatContact.user] in the [contacts] list.
   Future<void> _initUsersSubscription() async {
-    await Future.wait(contacts.values.map((RxChatContact c) async {
+    // Subscribes to the specified [RxChatContact].
+    void _subscribe(RxChatContact c) {
+      UserId? userId = c.user.value?.id;
       if (c.user.value != null) {
         _userSubscription[c.id]?.cancel();
         _userSubscription[c.id] = c.user.value!.updates.listen((_) {});
       }
+
       _userWorkers[c.id] = ever(c.user, (RxUser? user) {
-        if (c.user.value?.id != user?.id) {
+        if (userId != user?.id) {
           if (user != null) {
             _userSubscription[c.id]?.cancel();
             _userSubscription[c.id] = user.updates.listen((_) {});
           } else {
             _userSubscription.remove(c.id)?.cancel();
           }
+
+          userId = user?.id;
         }
       });
-    }));
+    }
 
-    _contactsSubscription = contacts.changes.listen((e) async {
+    contacts.forEach((_, c) => _subscribe(c));
+    _contactsSubscription = contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.user.value != null) {
-            _userSubscription[e.key]?.cancel();
-            _userSubscription[e.key!] =
-                e.value!.user.value!.updates.listen((_) {});
-            _userWorkers[e.key!] = ever(e.value!.user, (RxUser? user) {
-              if (e.value!.user.value?.id != user?.id) {
-                if (user != null) {
-                  _userSubscription[e.key]?.cancel();
-                  _userSubscription[e.key!] = user.updates.listen((_) {});
-                } else {
-                  _userSubscription.remove(e.key)?.cancel();
-                }
-              }
-            });
-          }
+          _subscribe(e.value!);
           break;
 
         case OperationKind.removed:
           _userSubscription.remove(e.key)?.cancel();
           _userWorkers.remove(e.key)?.dispose();
           break;
-        default:
+
+        case OperationKind.updated:
+          // No-op.
           break;
       }
     });

@@ -86,6 +86,15 @@ extension ImageGalleryItemConversion on ImageGalleryItemMixin {
       );
 }
 
+/// Extension adding models construction from
+/// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+extension EventUserGalleryItemAdded$GalleryItemConversion
+    on UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
 /// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
   /// Constructs a new [UserAvatar] from this [UserAvatarMixin].

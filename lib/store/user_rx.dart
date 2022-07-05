@@ -21,7 +21,8 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
-import '/provider/gql/exceptions.dart';
+import '/provider/gql/exceptions.dart'
+    show ResubscriptionRequiredException, StaleVersionException;
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
@@ -61,9 +62,9 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
-    var ver = noVersion ? null : _userLocal.get(user.value.id)?.ver;
+    var ver = noVersion ? null : _userLocal.get(id)?.ver;
     _remoteSubscription =
-        StreamIterator(await _userRepository.userEvents(user.value.id, ver));
+        StreamIterator(await _userRepository.userEvents(id, ver));
     while (await _remoteSubscription!
         .moveNext()
         .onError<ResubscriptionRequiredException>((_, __) {
@@ -86,14 +87,14 @@ class HiveRxUser extends RxUser {
 
       case UserEventsKind.user:
         events as UserEventsUser;
-        var saved = _userLocal.get(user.value.id);
+        var saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(user.value.id);
+        var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
           return;
@@ -103,7 +104,6 @@ class HiveRxUser extends RxUser {
         for (var event in versioned.events) {
           switch (event.kind) {
             case UserEventKind.avatarDeleted:
-              event as EventUserAvatarDeleted;
               userEntity.value.avatar = null;
               break;
 
@@ -113,7 +113,6 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.bioDeleted:
-              event as EventUserBioDeleted;
               userEntity.value.bio = null;
               break;
 
@@ -133,7 +132,6 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.callCoverDeleted:
-              event as EventUserCallCoverDeleted;
               userEntity.value.callCover = null;
               break;
 
@@ -144,7 +142,8 @@ class HiveRxUser extends RxUser {
 
             case UserEventKind.galleryItemAdded:
               event as EventUserGalleryItemAdded;
-              userEntity.value.gallery?.add(event.galleryItem);
+              userEntity.value.gallery ??= [];
+              userEntity.value.gallery?.insert(0, event.galleryItem);
               break;
 
             case UserEventKind.galleryItemDeleted:
@@ -154,7 +153,6 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.nameDeleted:
-              event as EventUserNameDeleted;
               userEntity.value.name = null;
               break;
 
@@ -169,7 +167,6 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.statusDeleted:
-              event as EventUserStatusDeleted;
               userEntity.value.status = null;
               break;
 
@@ -179,10 +176,10 @@ class HiveRxUser extends RxUser {
               break;
 
             case UserEventKind.userDeleted:
-              event as EventUserDeleted;
               userEntity.value.isDeleted = true;
               break;
           }
+
           _userLocal.put(userEntity);
         }
         break;
