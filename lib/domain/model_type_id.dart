@@ -95,4 +95,8 @@ class ModelTypeId {
   static const preciseDateTime = 73;
   static const preciseDateTimeWeb = 74;
   static const applicationSettings = 75;
+  static const sendingStatus = 76;
+  static const nativeFile = 77;
+  static const localAttachment = 78;
+  static const mediaType = 79;
 }

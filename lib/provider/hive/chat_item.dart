@@ -21,7 +21,10 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
+import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import 'base.dart';
 
@@ -60,7 +63,11 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(HiveChatMemberInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
+    Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
+    Hive.maybeRegisterAdapter(MediaTypeAdapter());
+    Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
   /// Returns a list of [ChatItem]s from [Hive].
@@ -125,6 +132,32 @@ class HiveChatMessage extends HiveChatItem {
     ChatItemVersion ver,
     this.repliesToCursor,
   ) : super(value, cursor, ver);
+
+  /// Constructs a [HiveChatMessage] in a [SendingStatus.sending] state.
+  factory HiveChatMessage.sending({
+    required ChatId chatId,
+    required UserId me,
+    ChatMessageText? text,
+    ChatItem? repliesTo,
+    List<Attachment> attachments = const [],
+    ChatItemId? existingId,
+    PreciseDateTime? existingDateTime,
+  }) =>
+      HiveChatMessage(
+        ChatMessage(
+          existingId ?? ChatItemId.local(),
+          chatId,
+          me,
+          existingDateTime ?? PreciseDateTime.now(),
+          text: text,
+          repliesTo: repliesTo,
+          attachments: attachments,
+          status: SendingStatus.sending,
+        ),
+        const ChatItemsCursor(''),
+        ChatItemVersion('0'),
+        const ChatItemsCursor(''),
+      );
 
   /// Cursor of a [ChatMessage.repliesTo].
   @HiveField(3)

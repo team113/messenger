@@ -148,7 +148,7 @@ void main() async {
   await applicationSettingsProvider.init();
   var chatItemHiveProvider = ChatItemHiveProvider(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
-  await chatItemHiveProvider.init();
+  await chatItemHiveProvider.init(userId: const UserId('12'));
   await chatItemHiveProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {

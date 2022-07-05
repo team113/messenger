@@ -14,33 +14,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
-import '../parameters/keys.dart';
+import '../parameters/sending_status.dart';
+import '../world/custom_world.dart';
 
-/// Waits until the provided [WidgetKey] is present or absent.
+/// Waits until file attachment with provided status is present.
 ///
 /// Examples:
-/// - Then I wait until `WidgetKey` is absent
-/// - Then I wait until `WidgetKey` is present
-final StepDefinitionGeneric waitUntilKeyExists =
-    then2<WidgetKey, Existence, FlutterWorld>(
-  'I wait until {key} is {existence}',
-  (key, existence, context) async {
+/// - Then I wait until file status is sending
+/// - Then I wait until file status is error
+/// - Then I wait until file status is sent
+final StepDefinitionGeneric waitUntilFileStatus =
+    then1<SendingStatus, CustomWorld>(
+  'I wait until file status is {sendingStatus}',
+  (status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+        return status == SendingStatus.sending
+            ? context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage('SendingFile'),
               )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              );
+            : status == SendingStatus.error
+                ? context.world.appDriver.isPresent(
+                    context.world.appDriver.findByKeySkipOffstage('ErrorFile'),
+                  )
+                : context.world.appDriver.isPresent(
+                    context.world.appDriver.findByKeySkipOffstage('SentFile'),
+                  );
       },
     );
   },
