@@ -107,11 +107,11 @@ class UserRepository implements AbstractUserRepository {
   Future<RxUser?> get(UserId id) {
     Mutex? mutex = _locks[id];
     if (mutex == null) {
-      _locks[id] = Mutex();
-      mutex = _locks[id];
+      mutex = Mutex();
+      _locks[id] = mutex;
     }
 
-    return mutex!.protect(() async {
+    return mutex.protect(() async {
       RxUser? user = _users[id];
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
