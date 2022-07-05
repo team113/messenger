@@ -71,8 +71,14 @@ class ChatsTabView extends StatelessWidget {
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
-                          children:
-                              c.chats.map((e) => buildChatTile(c, e)).toList(),
+                          children: c.chats
+                              .map(
+                                (e) => KeyedSubtree(
+                                  key: Key('Chat_${e.chat.value.id}'),
+                                  child: buildChatTile(c, e),
+                                ),
+                              )
+                              .toList(),
                         ),
                       )
                 : const Center(child: CircularProgressIndicator()),
