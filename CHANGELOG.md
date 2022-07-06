@@ -23,6 +23,10 @@ All user visible changes to this project will be documented in this file. This p
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 
+### Changed
+
+- L10n:
+    - Replace `GetX` localization to `Fluent` localization ([#23], [#16]).
 
 
 
