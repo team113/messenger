@@ -45,7 +45,6 @@ import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_renamte_unit');

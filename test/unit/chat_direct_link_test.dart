@@ -46,7 +46,6 @@ import 'chat_direct_link_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_direct_link_unit');

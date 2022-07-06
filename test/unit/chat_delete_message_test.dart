@@ -49,7 +49,6 @@ import 'chat_delete_message_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(Get.reset);
 
   Hive.init('./test/.temp_hive/chat_delete_message_unit');

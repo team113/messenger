@@ -1,4 +1,4 @@
-Feature: Application localization is correct updates
+Feature: Application localization changes correctly
 
   Scenario: User change localization
     When I tap `StartChattingButton` button

@@ -17,10 +17,10 @@
 import '/fluent/fluent_localization.dart';
 
 /// Extension on [String] that returns translated value depended from loaded
-/// [LocalizationUtils.bundle].
+/// [FluentLocalization.bundle].
 extension Translate on String {
   /// Returns this translated [String] value depended from loaded
-  /// [LocalizationUtils.bundle]
+  /// [FluentLocalization.bundle].
   String td({Map<String, dynamic> args = const {}}) {
     return FluentLocalization.getTranslatedValue(this, args: args);
   }

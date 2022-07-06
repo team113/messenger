@@ -65,6 +65,7 @@ import 'chat_direct_link_chat_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_direct_link_widget');
+
   var userData = {
     'id': 'id',
     'num': '1234567890123456',

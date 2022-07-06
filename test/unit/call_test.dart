@@ -57,7 +57,6 @@ Map<String, dynamic> _caller([String? id]) => {
     };
 
 void main() async {
-  TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => Get.reset());
   Hive.init('./test/.temp_hive/unit_call');
 

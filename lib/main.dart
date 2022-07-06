@@ -28,7 +28,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -38,6 +37,7 @@ import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
+import 'fluent/fluent_localization.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
 import 'pubspec.g.dart';

@@ -65,6 +65,7 @@ import 'chat_delete_message_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_delete_message_widget');
+
   var userData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
     'num': '1234567890123456',

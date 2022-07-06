@@ -59,7 +59,6 @@ enum WidgetKey {
   RecoveryNextTile,
   RepeatPasswordField,
   SettingsButton,
-  SettingsPage,
   SignInButton,
   StartChattingButton,
   UsernameField,

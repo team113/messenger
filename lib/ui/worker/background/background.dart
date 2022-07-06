@@ -19,9 +19,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 
 import '/domain/model/session.dart';
+import '/fluent/fluent_localization.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
 import '/store/model/session_data.dart';

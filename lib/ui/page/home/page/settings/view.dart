@@ -16,9 +16,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/fluent/fluent_localization.dart';
 
 import '/fluent/extension.dart';
+import '/fluent/fluent_localization.dart';
 import '/routes.dart';
 import 'controller.dart';
 
@@ -31,7 +31,7 @@ class SettingsView extends StatelessWidget {
     return GetBuilder(
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
-        /// Dropdown widget where user can choose preferred language language.
+        /// Dropdown widget where user can choose preferred language.
         Widget language = StatefulBuilder(
             builder: (context, setState) => Obx(
                   () => DropdownButton<String>(
