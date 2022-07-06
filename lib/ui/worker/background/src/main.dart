@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
@@ -25,6 +26,7 @@ import 'package:flutter_background_service_ios/flutter_background_service_ios.da
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:path_provider_ios/path_provider_ios.dart';
@@ -35,6 +37,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/fluent/extension.dart';
+import '/fluent/fluent_localization.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
@@ -124,7 +127,7 @@ class _BackgroundService {
   /// [_renewSession] on the main application connection loss.
   bool _renewFulfilled = true;
 
-  /// Chosen [L10n] locale.
+  /// Chosen [FluentLocalization] locale.
   String? _chosenLocale;
 
   /// Initializes this [_BackgroundService].
@@ -148,6 +151,8 @@ class _BackgroundService {
     };
 
     _resetConnectionTimer();
+
+    await _initFluent();
     _initService();
 
     // Start a [Timer] fetching the [_credentials] from the [Hive] in case
@@ -265,6 +270,11 @@ class _BackgroundService {
       }
     });
 
+    _service.on('l10n').listen((event) {
+      _resetConnectionTimer();
+      _initFluent(event!['locale']);
+    });
+
     _service.on('ka').listen((_) {
       _resetConnectionTimer();
     });
@@ -356,6 +366,21 @@ class _BackgroundService {
     }
 
     return _notificationPlugin!;
+  }
+
+  /// Initializes the [FluentLocalization] of the provided [locale].
+  Future<void> _initFluent([String? locale]) async {
+    if ((locale ?? 'en_US') != _chosenLocale) {
+      /// TODO: Should only be called if not persisted.
+      locale ??= Platform.localeName.replaceAll('-', '_');
+      if (!FluentLocalization.locales.containsKey(locale)) {
+        locale = 'en_US';
+      }
+      FluentLocalization.bundle = FluentBundle(locale);
+      FluentLocalization.chosen.value = locale;
+      _chosenLocale = locale;
+      await FluentLocalization.load();
+    }
   }
 
   /// Displays an incoming call notification for the provided [chatId] with the

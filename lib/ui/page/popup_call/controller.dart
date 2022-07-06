@@ -22,7 +22,9 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
+import '/fluent/fluent_localization.dart';
 import '/routes.dart';
 import '/util/web/web_utils.dart';
 
@@ -30,13 +32,16 @@ export 'view.dart';
 
 /// Controller of the [Routes.call] page.
 class PopupCallController extends GetxController {
-  PopupCallController(this.chatId, this._calls);
+  PopupCallController(this.chatId, this._calls, this._settingsRepository);
 
   /// ID of a [Chat] this [call] is taking place in.
   final ChatId chatId;
 
   /// Reactive [OngoingCall] this [PopupCallController] represents.
   late final Rx<OngoingCall> call;
+
+  /// Settings repository used to update locale.
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [CallService] maintaining the [call].
   final CallService _calls;
@@ -94,6 +99,14 @@ class PopupCallController extends GetxController {
         _tryToConnect();
       }
     });
+
+    final String? locale =
+        _settingsRepository.applicationSettings.value?.locale;
+    if (locale != null) {
+      FluentLocalization.setLocale(locale);
+    } else {
+      _settingsRepository.setLocale(FluentLocalization.chosen.value!);
+    }
 
     _tryToConnect();
     super.onInit();

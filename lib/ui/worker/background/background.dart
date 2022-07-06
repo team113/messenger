@@ -55,6 +55,9 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
+  /// [Worker] reacting on the [FluentLocalization.chosen] changes.
+  Worker? _localizationWorker;
+
   @override
   void onInit() {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
@@ -163,8 +166,13 @@ class BackgroundWorker extends GetxService {
         });
       });
 
-      // TODO: Use [Worker] to react on [LocalizationUtils.chosen] changes.
-      await LocalizationUtils.init();
+      FlutterBackgroundService()
+          .invoke('l10n', {'locale': FluentLocalization.chosen.value});
+      _localizationWorker =
+          ever(FluentLocalization.chosen, (String? newLocale) {
+        FlutterBackgroundService()
+            .invoke('l10n', {'locale': FluentLocalization.chosen.value});
+      });
     }
   }
 
@@ -174,6 +182,8 @@ class BackgroundWorker extends GetxService {
     _keepAliveTimer = null;
     _lifecycleWorker?.dispose();
     _lifecycleWorker = null;
+    _localizationWorker?.dispose();
+    _localizationWorker = null;
 
     for (var e in _onDataReceived) {
       e.cancel();

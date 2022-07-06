@@ -28,37 +28,36 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget language = StatefulBuilder(
-        builder: (context, setState) => Obx(
-              () => DropdownButton<String>(
-                key: const Key('LocalizationDropdown'),
-                value: LocalizationUtils.chosen.value,
-                items: LocalizationUtils.languages.entries
-                    .map<DropdownMenuItem<String>>((e) {
-                  return DropdownMenuItem(
-                    key: Key('Localization_item_${e.key}'),
-                    value: e.key,
-                    child: Text(
-                      '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}',
-                    ),
-                  );
-                }).toList(),
-                onChanged: (d) async {
-                  await LocalizationUtils.setUsersLocale(
-                      LocalizationUtils.locales[d!]!.toString());
-                },
-                borderRadius: BorderRadius.circular(18),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 15,
-                ),
-                icon: const SizedBox(),
-                underline: const SizedBox(),
-              ),
-            ));
     return GetBuilder(
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
+        /// Dropdown widget where user can choose preferred language language.
+        Widget language = StatefulBuilder(
+            builder: (context, setState) => Obx(
+                  () => DropdownButton<String>(
+                    key: const Key('LocalizationDropdown'),
+                    value: FluentLocalization.chosen.value,
+                    items: FluentLocalization.languages.entries
+                        .map<DropdownMenuItem<String>>((e) {
+                      return DropdownMenuItem(
+                        key: Key('Localization_item_${e.key}'),
+                        value: e.key,
+                        child: Text(
+                          '${FluentLocalization.locales[e.key]!.countryCode}, ${e.value}',
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: c.setLocale,
+                    borderRadius: BorderRadius.circular(18),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 15,
+                    ),
+                    icon: const SizedBox(),
+                    underline: const SizedBox(),
+                  ),
+                ));
+
         return Scaffold(
           appBar: AppBar(title: Text('label_settings'.td())),
           body: ListView(

@@ -113,22 +113,24 @@ class AuthView extends StatelessWidget {
               });
             });
 
+            /// Dropdown widget where user can choose application language.
             Widget language = StatefulBuilder(
               builder: (context, setState) => Obx(
                 () => DropdownButton<String>(
-                  value: LocalizationUtils.authPageLocale.value,
-                  items: LocalizationUtils.languages.entries
-                      .map<DropdownMenuItem<String>>(
-                        (e) => DropdownMenuItem(
-                          value: e.key,
-                          child: Text(
-                              '${LocalizationUtils.locales[e.key]!.countryCode}, ${e.value}'),
-                        ),
-                      )
-                      .toList(),
+                  key: const Key('LocalizationDropdown'),
+                  value: FluentLocalization.chosen.value,
+                  items: FluentLocalization.languages.entries
+                      .map<DropdownMenuItem<String>>((e) {
+                    return DropdownMenuItem(
+                      key: Key('Localization_item_${e.key}'),
+                      value: e.key,
+                      child: Text(
+                        '${FluentLocalization.locales[e.key]!.countryCode}, ${e.value}',
+                      ),
+                    );
+                  }).toList(),
                   onChanged: (d) async {
-                    await LocalizationUtils.setAuthPageLocale(
-                        LocalizationUtils.locales[d!]!.toString());
+                    await FluentLocalization.setLocale(d!);
                   },
                   borderRadius: BorderRadius.circular(18),
                   style: TextStyle(

@@ -65,7 +65,7 @@ class _PopupCallViewState extends State<PopupCallView> {
     }
 
     return GetBuilder<PopupCallController>(
-      init: PopupCallController(widget.chatId, Get.find()),
+      init: PopupCallController(widget.chatId, Get.find(), Get.find()),
       builder: (PopupCallController c) {
         return CallView(
           c.call,

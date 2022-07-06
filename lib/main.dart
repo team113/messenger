@@ -72,8 +72,6 @@ void main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     await authService.init();
 
-    await LocalizationUtils.init(auth: authService);
-
     router = RouterState(authService);
 
     Get.put(BackgroundWorker(Get.find()));
@@ -149,6 +147,7 @@ class App extends StatelessWidget {
       theme: Themes.light(),
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: FluentLocalization.localizationsDelegates,
     );
   }
 }
