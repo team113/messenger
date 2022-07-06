@@ -90,7 +90,7 @@ final Map<String, String> enUS = {
   'btn_resend_code': 'Resend confirmation code',
   'btn_saved_messages': 'Saved messages',
   'btn_settings': 'Settings',
-  'btn_start_chatting': 'Start chatting',
+  'btn_start': 'Start',
   'btn_submit': 'Submit',
   'btn_video_call': 'Video call',
   'btn_write_message': 'Write a message',

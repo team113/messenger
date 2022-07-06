@@ -16,7 +16,10 @@
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
+import 'package:messenger/l10n/_l10n.dart';
+import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -34,11 +37,44 @@ class AuthController extends GetxController {
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
 
+  /// Index number of selected language.
+  late final RxInt selectedLanguage;
+
+  /// Prevents instant language change after the user has set
+  ///  [selectedLanguage].
+  late final Worker _languageDebounce;
+
+  SMITrigger? blink;
+
+  /// [GlobalKey] of an animated button used to share it between overlays.
+  final GlobalKey languageKey = GlobalKey();
+
   /// Timer that periodically increases [logoFrame].
   Timer? _animationTimer;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  @override
+  void onInit() {
+    selectedLanguage = RxInt(L10n.languages.keys.toList().indexOf(L10n.chosen));
+    _languageDebounce = debounce(
+      selectedLanguage,
+      (int i) {
+        L10n.chosen = L10n.languages.keys.elementAt(i);
+        Get.updateLocale(L10n.locales[L10n.chosen]!);
+      },
+      time: 500.milliseconds,
+    );
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _languageDebounce.dispose();
+    super.onClose();
+  }
 
   @override
   void onReady() => Future.delayed(const Duration(milliseconds: 500), animate);
@@ -56,6 +92,8 @@ class AuthController extends GetxController {
 
   /// Resets the [logoFrame] and starts the animation.
   void animate() {
+    blink?.fire();
+
     logoFrame.value = 1;
     _animationTimer?.cancel();
     _animationTimer = Timer.periodic(const Duration(milliseconds: 45), (t) {

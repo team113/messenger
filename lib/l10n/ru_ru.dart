@@ -91,7 +91,7 @@ final Map<String, String> ruRU = {
   'btn_resend_code': 'Отправить код ещё раз',
   'btn_saved_messages': 'Сохранённые сообщения',
   'btn_settings': 'Настройки',
-  'btn_start_chatting': 'Начать общение',
+  'btn_start': 'Начать',
   'btn_submit': 'Применить',
   'btn_your_profile': 'Ваш профиль',
   'btn_write_message': 'Написать сообщение',
