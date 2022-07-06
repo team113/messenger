@@ -174,20 +174,14 @@ class CallController extends GetxController {
   /// Indicator whether the minimized self view is being panned or not.
   final RxBool isSelfPanning = RxBool(false);
 
-  /// Indicator whether need to show hints to [CallButton]'s or not.
+  /// Indicator whether don't need to show hints to [CallButton]'s.
   final RxBool hideHint = RxBool(false);
-
-  /// Indicator whether need to show bottom ui.
-  final RxBool showBottomUi = RxBool(true);
-
-  /// Indicator whether button is dragging now.
-  final RxBool isDraggingNow = RxBool(false);
 
   /// Indicator whether the more hint is dismissed or not.
   final RxBool isMoreHintDismissed = RxBool(false);
 
-  /// Currently draggable [CallButton].
-  final Rx<CallButton?> draggableButton = Rx(null);
+  /// Currently dragged [CallButton].
+  final Rx<CallButton?> draggedButton = Rx(null);
 
   /// Buttons width and height.
   final RxDouble buttonSize = RxDouble(48);
@@ -209,10 +203,7 @@ class CallController extends GetxController {
   late final RxList<CallButton> buttons;
 
   /// [Worker] for catching the changes of [showBottomUi].
-  late final Worker _showBottomUiWorker;
-
-  /// [Timer] of bottom ui.
-  Timer? _uiBottomTimer;
+  late final Worker _showUiWorker;
 
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
@@ -467,7 +458,7 @@ class CallController extends GetxController {
       AudioCallButton(this),
     ]);
 
-    _showBottomUiWorker = ever(showBottomUi, (bool v) {
+    _showUiWorker = ever(showUi, (bool v) {
       if (displayMore.value && !v) {
         displayMore.value = false;
       }
@@ -569,8 +560,7 @@ class CallController extends GetxController {
   void onClose() {
     super.onClose();
     _durationTimer?.cancel();
-    _uiBottomTimer?.cancel();
-    _showBottomUiWorker.dispose();
+    _showUiWorker.dispose();
     _uiTimer?.cancel();
     _stateWorker.dispose();
     _panelWorker.dispose();
@@ -611,26 +601,26 @@ class CallController extends GetxController {
 
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare() async {
-    keepBottomUi();
+    keepUi();
     await _currentCall.value.toggleScreenShare();
   }
 
   /// Toggles local audio stream on and off.
   Future<void> toggleAudio() async {
-    keepBottomUi();
+    keepUi();
     await _currentCall.value.toggleAudio();
   }
 
   /// Toggles local video stream on and off.
   Future<void> toggleVideo() async {
-    keepBottomUi();
+    keepUi();
     await _currentCall.value.toggleVideo();
   }
 
   /// Changes the local video device to the next one from the
   /// [OngoingCall.devices] list.
   Future<void> switchCamera() async {
-    keepBottomUi();
+    keepUi();
 
     List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
@@ -647,7 +637,7 @@ class CallController extends GetxController {
   }
 
   Future<void> toggleSpeaker() async {
-    keepBottomUi();
+    keepUi();
 
     List<MediaDeviceInfo> outputs =
         _currentCall.value.devices.output().toList();
@@ -665,7 +655,7 @@ class CallController extends GetxController {
 
   /// Raises/lowers a hand.
   Future<void> toggleHand() async {
-    keepBottomUi();
+    keepUi();
     isHandRaised.toggle();
     _putParticipant(RemoteMemberId(me, null), handRaised: isHandRaised.value);
     await _toggleHand();
@@ -849,20 +839,6 @@ class CallController extends GetxController {
         onPanelChanged: (b) => panelUp.value = b ?? false,
       ),
     );
-  }
-
-  /// Hides or shows bottom ui.
-  void keepBottomUi([bool? enabled]) {
-    _uiBottomTimer?.cancel();
-    showBottomUi.value = isPanelOpen.value || (enabled ?? true);
-    if (state.value == OngoingCallState.active &&
-        enabled == null &&
-        !isPanelOpen.value) {
-      _uiBottomTimer = Timer(
-        const Duration(seconds: _uiDuration),
-        () => showBottomUi.value = false,
-      );
-    }
   }
 
   /// Returns a result of the [showDialog] building an [AddChatMemberView] or an

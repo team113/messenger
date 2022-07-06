@@ -65,15 +65,12 @@ class RoundFloatingButton extends StatefulWidget {
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
 }
 
-/// State of [RoundFloatingButton] used to keep the [showHint].
+/// State of [RoundFloatingButton] used to keep the [_hintEntry].
 class _RoundFloatingButtonState extends State<RoundFloatingButton> {
-  /// Indicator whether a hint should be displayed or not.
-  ///
-  /// Toggles on [InkWell] hover.
-  bool showHint = false;
-
+  /// [GlobalKey] of this [RoundFloatingButton].
   final GlobalKey _key = GlobalKey();
 
+  /// Overlay hint of this [RoundFloatingButton].
   OverlayEntry? _hintEntry;
 
   @override

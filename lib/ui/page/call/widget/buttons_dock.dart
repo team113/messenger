@@ -64,13 +64,13 @@ class ReorderableDock<T> extends StatefulWidget {
 /// State of [ReorderableDock].
 class _ReorderableDockState extends State<ReorderableDock> {
   /// Duration of animation moving button to his place on end of dragging.
-  Duration animationMovingDuration = const Duration(milliseconds: 1000);
+  Duration animationMovingDuration = const Duration(milliseconds: 500);
 
   /// List of items.
   List<DraggedItem> items = [];
 
   /// Duration of [AnimatedContainer] width changing.
-  Duration animationsDuration = 1000.milliseconds;
+  Duration animationsDuration = 500.milliseconds;
 
   /// Place where item will be placed.
   int expandBetween = -1;
@@ -173,20 +173,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: LayoutBuilder(
-                        builder: (c, constraints) => (isMovingIconNow &&
-                                expandBetween != i)
-                            ? AnimatedContainer(
-                                constraints: (e.slowHide)
-                                    ? BoxConstraints(maxWidth: 0, maxHeight: 0)
-                                    : constraints,
-                                duration: Duration(seconds: 1),
-                                child: Opacity(
-                                  opacity: (e.hide) ? 0 : 1,
-                                  child: KeyedSubtree(
-                                      key: (e.hide) ? e.reserveKey : e.key,
-                                      child: widget.itemBuilder(context, e)),
-                                ))
-                            : Draggable(
+                        builder: (c, constraints) => Draggable(
                                 dragAnchorStrategy: pointerDragAnchorStrategy,
                                 feedback: Transform.translate(
                                   offset: -Offset(constraints.maxWidth / 2,
@@ -229,31 +216,31 @@ class _ReorderableDockState extends State<ReorderableDock> {
                                   // Show animation of dragged item returns to its
                                   // start position.
                                   _showOverlay(
-                                      dragged!,
-                                      context,
-                                      Offset(
-                                        o.dx -
-                                            startDragConstraints!.maxWidth / 2,
-                                        o.dy -
-                                            startDragConstraints!.maxHeight / 2,
-                                      ),
-                                      startDragOffset!,
-                                      startDragConstraints!, () {
-                                    items[savedDraggedIndex].hide = false;
-                                    isMovingIconNow = false;
-                                    widget.onDragEnded?.call();
-                                    if (mounted) {
-                                      setState(() {});
-                                    }
-                                  });
+                                    item: dragged!,
+                                    context: context,
+                                    from: Offset(
+                                      o.dx - startDragConstraints!.maxWidth / 2,
+                                      o.dy -
+                                          startDragConstraints!.maxHeight / 2,
+                                    ),
+                                    to: startDragOffset!,
+                                    itemConstraints: startDragConstraints!,
+                                    onEnd: () {
+                                      items[savedDraggedIndex].hide = false;
+                                      isMovingIconNow = false;
+                                      widget.onDragEnded?.call();
+                                      if (mounted) {
+                                        setState(() {});
+                                      }
+                                    },
+                                  );
 
                                   // Insert dragged item to items list.
                                   items.insert(draggedIndex, dragged!);
 
                                   // Hide recently added item.
                                   items[draggedIndex].hide = true;
-
-                                  expandBetween = -1;
+                                  
                                   draggedIndex = -1;
                                   dragged = null;
                                   expandBetween = draggedIndex;
@@ -375,14 +362,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
         // Display animation of adding item.
         _showOverlay(
-          item,
-          context,
-          moveDragOffset!,
-          position,
-          startDragConstraints != null && localDragged != null
+          item: item,
+          context: context,
+          from: moveDragOffset!,
+          to: position,
+          itemConstraints: startDragConstraints != null && localDragged != null
               ? startDragConstraints!
               : widget.itemConstraints,
-          () => setState(() {
+          onEnd: () => setState(() {
             isMovingIconNow = false;
             items[whereToPlace].hide = false;
             widget.onDragEnded?.call();
@@ -476,28 +463,26 @@ class _ReorderableDockState extends State<ReorderableDock> {
         dragged = null;
 
         setState(() {});
+
         // Display animation of sliding item from old place to new place.
         _showOverlay(
-            item,
-            context,
-            startPosition!,
-            positionOnSameItem!,
-            constraintsOnSameItem!,
-            () => setState(() {
-                  items[whereToPlace].hide = false;
-                  widget.onDragEnded?.call();
-                  isMovingIconNow = false;
-                  expandBetween2 = -1;
-                  items.removeAt(i);
-                }), someFunction: () async {
-          // await Future.delayed(Duration.zero).then((value) => setState(() {
-          //       expandBetween2 = -1;
-          //     }));
-          // setState(() {
-          // expandBetween2 = -10;
-          print('lllllllllllll');
-          // });
-        });
+          item: item,
+          context: context,
+          from: startPosition!,
+          to: positionOnSameItem!,
+          itemConstraints: constraintsOnSameItem!,
+          onEnd: () => setState(() {
+            items[whereToPlace].hide = false;
+            widget.onDragEnded?.call();
+            isMovingIconNow = false;
+            //expandBetween2 = -1;
+            // if(whereToPlace < i) {
+            //   items.removeAt(i + 1);
+            // } else {
+            //   items.removeAt(i);
+            // }
+          }),
+        );
       });
     }
 
@@ -515,15 +500,15 @@ class _ReorderableDockState extends State<ReorderableDock> {
     Offset position = box.localToGlobal(Offset.zero);
 
     // Calculate int number where new item will be placed.
-    int intToPlace = ((d.offset.dx -
+    int indexToPlace = ((d.offset.dx -
                 position.dx -
                 (box.size.width / (items.length + 1)).ceil()) /
             (box.size.width / (items.length + 1)).ceil())
         .ceil();
-    if (intToPlace > items.length) {
-      intToPlace = items.length;
-    } else if (intToPlace < 0) {
-      intToPlace = 0;
+    if (indexToPlace > items.length) {
+      indexToPlace = items.length;
+    } else if (indexToPlace < 0) {
+      indexToPlace = 0;
     }
 
     // Save last drag Offset.
@@ -545,17 +530,17 @@ class _ReorderableDockState extends State<ReorderableDock> {
         e.updateCurrentPosition();
       }
     }
-    int sameItemId =
+    int sameItemIndex =
         items.indexWhere((e) => e.item.toString() == d.data.item.toString());
-    if (sameItemId >= 0) {
-      int sameItemNewId = intToPlace;
-      if (sameItemId < sameItemNewId) sameItemNewId--;
+    if (sameItemIndex >= 0) {
+      int sameItemNewIndex = indexToPlace;
+      if (sameItemIndex < sameItemNewIndex) sameItemNewIndex--;
 
-      positionOnSameItem = items[sameItemNewId].position;
-      constraintsOnSameItem = items[sameItemNewId].constraints;
+      positionOnSameItem = items[sameItemNewIndex].position;
+      constraintsOnSameItem = items[sameItemNewIndex].constraints;
     }
 
-    expandBetween = intToPlace;
+    expandBetween = indexToPlace;
 
     setState(() {});
   }
@@ -572,15 +557,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
   }
 
   /// Shows item overlay.
-  void _showOverlay(
-    DraggedItem item,
-    BuildContext context,
-    Offset from,
-    Offset to,
-    BoxConstraints itemConstraints,
-    Function onEnd, {
+  void _showOverlay({
+    required DraggedItem item,
+    required BuildContext context,
+    required Offset from,
+    required Offset to,
+    required BoxConstraints itemConstraints,
+    required Function onEnd,
     BoxConstraints? endConstraints,
-    Function? someFunction,
   }) async {
     overlayEntry = OverlayEntry(
       builder: (context) => _OverlayBlock(
@@ -599,7 +583,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
     overlays.add(overlayEntry);
 
     Overlay.of(context)!.insert(overlayEntry);
-    await someFunction?.call();
   }
 }
 

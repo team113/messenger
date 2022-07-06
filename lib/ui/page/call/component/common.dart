@@ -54,13 +54,13 @@ abstract class CallButton {
   }) =>
       Obx(
         () => IgnorePointer(
-          ignoring: c.draggableButton.value != null,
+          ignoring: c.draggedButton.value != null,
           child: RoundFloatingButton(
             onPressed: onPressed,
             color: color ?? const Color.fromARGB(122, 78, 90, 120),
             scale: !small ? 1 : (c.buttonSize.value / 60),
             hint: (small &&
-                    c.draggableButton.value == null &&
+                    c.draggedButton.value == null &&
                     c.hideHint.value == false)
                 ? hint
                 : null,

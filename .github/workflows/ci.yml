@@ -125,14 +125,13 @@ jobs:
 
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y --allow-downgrades
+      - run: sudo apt-get install -y
              ninja-build
              libunwind-dev
              libgtk-3-dev
              libgstreamer1.0-dev
              libgstreamer-plugins-base1.0-dev
              libpulse-dev
-             libudev1=249.11-0ubuntu3
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop

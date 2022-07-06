@@ -196,44 +196,6 @@ Widget desktopCall(
             ],
           ),
 
-          // Makes UI appear on click and handles double tap to toggle
-          // fullscreen.
-          //
-          // Also, if [showTitle] is false, allows dragging the window.
-          Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) {
-              if ((d.kind != PointerDeviceKind.mouse &&
-                      d.kind != PointerDeviceKind.stylus) ||
-                  !c.handleLmb.value) {
-                c.downPosition = d.localPosition;
-                c.downButtons = d.buttons;
-              }
-            },
-            onPointerUp: (d) {
-              if (c.downButtons & kPrimaryButton != 0 &&
-                  (d.localPosition.distanceSquared -
-                              c.downPosition.distanceSquared)
-                          .abs() <=
-                      1500) {
-                if (c.primaryDrags.value == 0 && c.secondaryDrags.value == 0) {
-                  if (c.state.value == OngoingCallState.active) {
-                    if (c.displayMore.value) {
-                      c.displayMore.value = false;
-                      c.keepUi(false);
-                    } else {
-                      if (!c.showBottomUi.value) {
-                        c.keepUi();
-                      } else {
-                        c.keepUi(false);
-                      }
-                    }
-                  }
-                }
-              }
-            },
-          ),
-
           // Empty drop zone if [secondary] is empty.
           Container(
             child: secondaryWidgets.isEmpty
@@ -424,8 +386,8 @@ Widget desktopCall(
           bool isDocked = c.state.value == OngoingCallState.active ||
               c.state.value == OngoingCallState.joining;
 
-          bool showBottomUi = (c.showBottomUi.isTrue ||
-              c.isDraggingNow.isTrue ||
+          bool showBottomUi = (c.showUi.isTrue ||
+              c.draggedButton.value != null ||
               c.state.value != OngoingCallState.active ||
               (c.state.value == OngoingCallState.active &&
                   c.locals.isEmpty &&
@@ -615,15 +577,15 @@ Widget desktopCall(
                                         ),
                                         data: DraggedItem(e),
                                         onDragStarted: () {
-                                          c.draggableButton.value = e;
+                                          c.draggedButton.value = e;
                                           c.hideHint.value = true;
                                         },
                                         onDragCompleted: () =>
-                                            c.draggableButton.value = null,
+                                            c.draggedButton.value = null,
                                         onDragEnd: (_) =>
-                                            c.draggableButton.value = null,
+                                            c.draggedButton.value = null,
                                         onDraggableCanceled: (_, __) {
-                                          c.draggableButton.value = null;
+                                          c.draggedButton.value = null;
                                           c.hideHint.value = false;
                                         },
                                         maxSimultaneousDrags:
@@ -662,7 +624,8 @@ Widget desktopCall(
           child: Obx(() {
             bool isDocked = c.state.value == OngoingCallState.active ||
                 c.state.value == OngoingCallState.joining;
-            bool displayMore = (c.displayMore.value || c.isDraggingNow.value);
+            bool displayMore =
+                (c.displayMore.value || c.draggedButton.value != null);
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -725,7 +688,7 @@ Widget desktopCall(
                         c.displayMore.value = false;
                         c.keepUi(false);
                       } else {
-                        if (!c.showBottomUi.value) {
+                        if (c.showUi.isFalse) {
                           c.keepUi();
                         } else {
                           c.keepUi(false);
@@ -760,11 +723,11 @@ Widget desktopCall(
                       c.secondaryDrags.value == 0
                   ? MouseRegion(
                       opaque: false,
-                      onEnter: (d) => c.keepBottomUi(true),
-                      onHover: (d) => c.keepBottomUi(true),
+                      onEnter: (d) => c.keepUi(true),
+                      onHover: (d) => c.keepUi(true),
                       onExit: (d) {
-                        if (c.showBottomUi.value) {
-                          c.keepBottomUi(false);
+                        if (c.showUi.value) {
+                          c.keepUi(false);
                         }
                       },
                     )
