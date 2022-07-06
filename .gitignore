@@ -3,7 +3,9 @@
 /*.iml
 .DS_Store
 
+# CI related
 /.cache/
+/artifacts/
 
 # Flutter/Dart/Pub related
 **/doc/api/
