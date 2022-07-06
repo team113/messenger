@@ -126,9 +126,6 @@ class _BackgroundService {
   /// [_renewSession] on the main application connection loss.
   bool _renewFulfilled = true;
 
-  /// Chosen [FluentLocalization] locale.
-  String? _chosenLocale;
-
   /// Initializes this [_BackgroundService].
   Future<void> init() async {
     if (_service is AndroidServiceInstance) {
@@ -369,7 +366,7 @@ class _BackgroundService {
 
   /// Initializes the [FluentLocalization] of the provided [locale].
   Future<void> _initFluent([String? locale]) async {
-    if ((locale ?? 'en_US') != _chosenLocale) {
+    if ((locale ?? 'en_US') != FluentLocalization.chosen.value) {
       /// TODO: Should only be called if not persisted.
       locale ??= Platform.localeName.replaceAll('-', '_');
       if (!FluentLocalization.locales.containsKey(locale)) {
@@ -377,7 +374,6 @@ class _BackgroundService {
       }
       FluentLocalization.bundle = FluentBundle(locale);
       FluentLocalization.chosen.value = locale;
-      _chosenLocale = locale;
       await FluentLocalization.load();
     }
   }

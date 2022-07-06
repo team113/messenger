@@ -31,8 +31,6 @@ class FluentLocalization {
   /// Currently selected [MyUser]'s locale.
   static Rx<String?> chosen = Rx(null);
 
-  /// Changes current locale and loads it.
-
   /// [List] of [LocalizationsDelegate] that are available in the app.
   static List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
     const _FluentLocalizationsDelegate(),
@@ -60,6 +58,7 @@ class FluentLocalization {
         .loadString('assets/translates/${chosen.value}.ftl'.toLowerCase()));
   }
 
+  /// Changes current locale and loads it.
   static Future<void> setLocale(String locale) async {
     if (chosen.value != locale) {
       chosen.value = locale;
