@@ -19,14 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
 
-[#2]: /../../issues/2
-[#14]: /../../pull/14
-[#15]: /../../pull/15
-
 ### Changed
 
 - L10n:
     - Replace `GetX` localization to `Fluent` localization ([#23], [#16]).
+
+[#2]: /../../issues/2
+[#14]: /../../pull/14
+[#15]: /../../pull/15
+[#23]: /../../pull/23
+
+
 
 
 
