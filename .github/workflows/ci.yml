@@ -28,6 +28,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
+      - docker
       - pubspec
       - test-unit
     runs-on: ubuntu-latest
