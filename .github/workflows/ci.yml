@@ -181,6 +181,31 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main'
              || startsWith(github.ref, 'refs/tags/v') }}
 
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+      - uses: docker/setup-buildx-action@v2
+
+      - run: make flutter.pub
+      - run: make docker.build debug=no no-cache=yes
+                  tag=build-${{ github.run_number }}
+
+      - run: make docker.tar to-file=image.tar
+                  tags=build-${{ github.run_number }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+          path: image.tar
+          retention-days: 1
+
 
 
 
@@ -322,6 +347,75 @@ jobs:
             artifacts/*.sha256sum
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+
+  release-docker:
+    name: Release Docker image
+    needs: ["docker"]
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: nekoui
+      REPOS: ghcr.io/sleepysquash
+      TAGS: ${{ (startsWith(github.ref, 'refs/tags/v') && 'latest,@versions')
+             || 'edge' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-buildx-action@v2
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+      - run: make docker.untar from-file=image.tar
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ contains(env.REPOS, 'ghcr.io') }}
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ contains(env.TAGS, '@versions') }}
+      - name: Form Docker version tags
+        id: versions
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            let versions = '${{ steps.semver.outputs.group1 }}';
+            if ('${{ steps.semver.outputs.group2 }}' !== '') {
+              if ('${{ steps.semver.outputs.group1 }}' !==
+                  '${{ steps.semver.outputs.group2 }}') {
+                versions += ',${{ steps.semver.outputs.group2 }}';
+              }
+              if ('${{ steps.semver.outputs.group3 }}' !== '') {
+                versions += ',${{ steps.semver.outputs.group3 }}';
+                if ('${{ steps.semver.outputs.group4 }}' !== '') {
+                  versions += ',${{ steps.semver.outputs.group4 }}';
+                }
+              }
+            }
+            return versions;
+        if: ${{ contains(env.TAGS, '@versions') }}
+      - name: Prepare final image tags
+        id: tags
+        uses: bluwy/substitute-string-action@v1
+        with:
+          _input-text: ${{ env.TAGS }}
+          "@versions": ${{ steps.versions.outputs.result }}
+
+      - run: make docker.tag tags=${{ steps.tags.outputs.result }}
+                  image=${{ env.IMAGE }} of=build-${{ github.run_number }}
+                  repos=${{ env.REPOS }}
+      - run: make docker.push tags=${{ steps.tags.outputs.result }}
+                  image=${{ env.IMAGE }} repos=${{ env.REPOS }}
 
 
 

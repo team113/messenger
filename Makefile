@@ -19,6 +19,9 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
+IMAGE_REPO := $(strip $(shell grep 'IMAGE_REPO=' .env | cut -d '=' -f2))
+IMAGE_NAME := $(strip $(shell grep 'IMAGE_NAME=' .env | cut -d '=' -f2))
+
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
@@ -307,6 +310,150 @@ copyright:
 
 
 
+###################
+# Docker commands #
+###################
+
+docker-env = $(strip $(if $(call eq,$(minikube),yes),\
+	$(subst export,,$(shell minikube docker-env | cut -d '\#' -f1)),))
+
+# Authenticate to GitHub Container Registry.
+#
+# Note that Personal Access Token (PAT) might be required to be passed as a
+# password.
+#
+# Usage:
+#	make docker.auth [user=<github-username>] [pass-stdin=(no|yes)]
+#	                 [minikube=(no|yes)]
+
+docker.auth:
+	$(docker-env) $(if $(call eq,$(token),),,CR_PAT=$(token)) \
+	docker login ghcr.io \
+		$(if $(call eq,$(user),),,-u $(user)) \
+		$(if $(call eq,$(pass-stdin),yes),--password-stdin,)
+
+
+# Build project Docker image.
+#
+# Usage:
+#	make docker.build [tag=(dev|<tag>)]
+#	                  [no-cache=(no|yes)]
+#	                  [minikube=(no|yes)]
+
+docker.build:
+ifeq ($(wildcard build/web),)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+	$(docker-env) \
+	docker build --network=host --force-rm \
+		$(if $(call eq,$(no-cache),yes),--no-cache --pull,) \
+		-t $(IMAGE_REPO)/$(IMAGE_NAME):$(or $(tag),dev) .
+
+
+# Pull project Docker images from Container Registry.
+#
+# Usage:
+#	make docker.pull [repos=($(IMAGE_REPO)|<prefix-1>[,<prefix-2>...])]
+#	                 [tags=(@all|<t1>[,<t2>...])]
+#	                 [minikube=(no|yes)]
+
+docker-pull-repos = $(or $(repos),$(IMAGE_REPO))
+docker-pull-tags = $(or $(tags),@all)
+
+docker.pull:
+ifeq ($(docker-pull-tags),@all)
+	$(foreach repo,$(subst $(comma), ,$(docker-pull-repos)),\
+		$(call docker.pull.do,$(repo)/$(IMAGE_NAME) --all-tags))
+else
+	$(foreach tag,$(subst $(comma), ,$(docker-pull-tags)),\
+		$(foreach repo,$(subst $(comma), ,$(docker-pull-repos)),\
+			$(call docker.pull.do,$(repo)/$(IMAGE_NAME):$(tag))))
+endif
+define docker.pull.do
+	$(eval image-full := $(strip $(1)))
+	$(docker-env) \
+	docker pull $(image-full)
+endef
+
+
+# Push project Docker images to Container Registry.
+#
+# Usage:
+#	make docker.push [repos=($(IMAGE_REPO)|<prefix-1>[,<prefix-2>...])]
+#	                 [tags=(dev|<t1>[,<t2>...])]
+#	                 [minikube=(no|yes)]
+
+docker-push-repos = $(or $(repos),$(IMAGE_REPO))
+docker-push-tags = $(or $(tags),dev)
+
+docker.push:
+	$(foreach tag,$(subst $(comma), ,$(docker-push-tags)),\
+		$(foreach repo,$(subst $(comma), ,$(docker-push-repos)),\
+			$(call docker.push.do,$(repo)/$(IMAGE_NAME):$(tag))))
+define docker.push.do
+	$(eval image-full := $(strip $(1)))
+	$(docker-env) \
+	docker push $(image-full)
+endef
+
+
+# Tag project Docker image with given tags.
+#
+# Usage:
+#	make docker.tag [of=(dev|<tag>)]
+#	                [repos=($(IMAGE_REPO)|<prefix-1>[,<prefix-2>...])]
+#	                [tags=(dev|<t1>[,<t2>...])]
+#	                [minikube=(no|yes)]
+
+docker-tag-of := $(or $(of),dev)
+docker-tag-with := $(or $(tags),dev)
+docker-tag-repos = $(or $(repos),$(IMAGE_REPO))
+
+docker.tag:
+	$(foreach tag,$(subst $(comma), ,$(docker-tag-with)),\
+		$(foreach repo,$(subst $(comma), ,$(docker-tag-repos)),\
+			$(call docker.tag.do,$(repo),$(tag))))
+define docker.tag.do
+	$(eval repo := $(strip $(1)))
+	$(eval tag := $(strip $(2)))
+	$(docker-env) \
+	docker tag $(IMAGE_REPO)/$(IMAGE_NAME):$(if $(call eq,$(of),),dev,$(of)) \
+	           $(repo)/$(IMAGE_NAME):$(tag)
+endef
+
+
+# Save project Docker images to a tarball file.
+#
+# Usage:
+#	make docker.tar [to-file=(.cache/image.tar|<file-path>)]
+#	                [tags=(dev|<t1>[,<t2>...])]
+#	                [minikube=(no|yes)]
+
+docker-tar-file = $(or $(to-file),.cache/image.tar)
+docker-tar-tags = $(or $(tags),dev)
+
+docker.tar:
+	@mkdir -p $(dir $(docker-tar-file))
+	$(docker-env) \
+	docker save -o $(docker-tar-file) \
+		$(foreach tag,$(subst $(comma), ,$(docker-tar-tags)),\
+			$(IMAGE_REPO)/$(IMAGE_NAME):$(tag))
+
+
+# Load project Docker images from a tarball file.
+#
+# Usage:
+#	make docker.untar [from-file=(.cache/image.tar|<file-path>)]
+#		[minikube=(no|yes)]
+
+docker.untar:
+	$(docker-env) \
+	docker load -i $(or $(from-file),.cache/image.tar)
+
+
+
+
 ################
 # Git commands #
 ################
@@ -335,6 +482,8 @@ endif
 .PHONY: build clean deps docs fmt gen lint release run test \
         clean.flutter \
         copyright \
+		docker.auth docker.build docker.pull docker.push docker.tag docker.tar \
+		    docker.untar \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
             flutter.pub flutter.run \
