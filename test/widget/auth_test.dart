@@ -95,7 +95,6 @@ void main() async {
     router.provider = MockedPlatformRouteInformationProvider();
 
     await tester.pumpWidget(const App());
-    await tester.pump();
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 

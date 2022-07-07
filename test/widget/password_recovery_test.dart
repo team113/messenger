@@ -94,7 +94,6 @@ void main() async {
         .thenAnswer((_) => Future.value());
 
     await tester.pumpWidget(const App());
-    await tester.pump();
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 

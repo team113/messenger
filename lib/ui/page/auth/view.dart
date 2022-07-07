@@ -47,11 +47,11 @@ class AuthView extends StatelessWidget {
             context.textTheme.caption?.copyWith(color: Colors.black);
         final Color primary = Theme.of(context).colorScheme.primary;
 
-        /// Header part of the page.
-        ///
-        /// All frames of the animation are drawn in offstage in order to
-        /// load all the images ahead of animation to reduce the possible
-        /// flickering.
+        // Header part of the page.
+        //
+        // All frames of the animation are drawn in offstage in order to
+        // load all the images ahead of animation to reduce the possible
+        // flickering.
         List<Widget> header = [
           ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
               .map((e) => Offstage(child: SvgLoader.asset(e)))
@@ -80,10 +80,10 @@ class AuthView extends StatelessWidget {
 
         const double height = 250;
 
-        /// Animated logo widget.
+        // Animated logo widget.
         Widget logo = LayoutBuilder(builder: (context, constraints) {
           Widget placeholder = SizedBox(
-            height: constraints.maxHeight > height
+            height: constraints.maxHeight > 250
                 ? height
                 : constraints.maxHeight <= 140
                     ? 140
@@ -104,7 +104,7 @@ class AuthView extends StatelessWidget {
                           child: RiveAnimation.asset(
                             'assets/images/logo/logo.riv',
                             onInit: (a) {
-                              final machine =
+                              final StateMachineController? machine =
                                   StateMachineController.fromArtboard(
                                       a, 'Machine');
                               a.addController(machine!);
@@ -129,7 +129,7 @@ class AuthView extends StatelessWidget {
               ));
         });
 
-        /// Dropdown widget where user can choose application language.
+        // Language selection dropdown.
         Widget language = CupertinoButton(
           key: c.languageKey,
           child: Text(
@@ -145,7 +145,7 @@ class AuthView extends StatelessWidget {
           },
         );
 
-        /// Footer part of the page.
+        // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
@@ -160,9 +160,7 @@ class AuthView extends StatelessWidget {
                 width: 25 * 0.7,
               ),
             ),
-            onPressed: () async {
-              await c.register();
-            },
+            onPressed: c.register,
             // color: Colors.red,
             color: const Color(0xFF63B4FF),
           ),

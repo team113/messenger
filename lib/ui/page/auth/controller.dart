@@ -40,15 +40,15 @@ class AuthController extends GetxController {
   /// Index number of selected language.
   late final RxInt selectedLanguage;
 
-  /// Prevents instant language change after the user has set
-  ///  [selectedLanguage].
-  late final Worker _languageDebounce;
-
   /// A trigger of blink logo animation.
   SMITrigger? blink;
 
   /// [GlobalKey] of an animated button used to share it between overlays.
   final GlobalKey languageKey = GlobalKey();
+
+  /// Prevents instant language change after the user has set
+  ///  [selectedLanguage].
+  late final Worker _languageDebounce;
 
   /// Timer that periodically increases [logoFrame].
   Timer? _animationTimer;
