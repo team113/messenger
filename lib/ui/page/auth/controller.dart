@@ -18,10 +18,10 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
-import 'package:messenger/l10n/_l10n.dart';
 import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
+import '/l10n/_l10n.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
 
@@ -44,6 +44,7 @@ class AuthController extends GetxController {
   ///  [selectedLanguage].
   late final Worker _languageDebounce;
 
+  /// A trigger of blink logo animation.
   SMITrigger? blink;
 
   /// [GlobalKey] of an animated button used to share it between overlays.
@@ -72,6 +73,8 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
+    _animationTimer?.cancel();
+    blink?.controller.dispose();
     _languageDebounce.dispose();
     super.onClose();
   }
