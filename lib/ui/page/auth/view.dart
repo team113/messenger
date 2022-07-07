@@ -391,8 +391,8 @@ class AuthView extends StatelessWidget {
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                           colors: [
-                                            Color(0xFFFFFFFF),
-                                            Color(0x00FFFFFF),
+                                            Colors.black,
+                                            Colors.white,
                                           ],
                                         ),
                                       ),
@@ -411,8 +411,8 @@ class AuthView extends StatelessWidget {
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                           colors: [
-                                            Color(0x00FFFFFF),
-                                            Color(0xFFFFFFFF),
+                                            Colors.black,
+                                            Colors.white,
                                           ],
                                         ),
                                       ),
@@ -504,7 +504,7 @@ class AuthView extends StatelessWidget {
                                       e.value,
                                       style: thin?.copyWith(
                                         fontSize: 15,
-                                        color: const Color(0xFF000000),
+                                        color: Colors.black,
                                       ),
                                     ),
                                     const Spacer(),
@@ -513,7 +513,7 @@ class AuthView extends StatelessWidget {
                                           .toUpperCase(),
                                       style: thin?.copyWith(
                                         fontSize: 15,
-                                        color: const Color(0xFF000000),
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ],
@@ -532,8 +532,8 @@ class AuthView extends StatelessWidget {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0xFFFFFFFF),
-                                  Color(0x00FFFFFF),
+                                  Colors.black,
+                                  Colors.white,
                                 ],
                               ),
                             ),
@@ -549,8 +549,8 @@ class AuthView extends StatelessWidget {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
+                                  Colors.black,
+                                  Colors.white,
                                 ],
                               ),
                             ),
