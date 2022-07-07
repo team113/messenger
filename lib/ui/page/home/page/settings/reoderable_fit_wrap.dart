@@ -483,6 +483,9 @@ class _ReorderableFitWrapState<T extends Object>
   /// [AudioPlayer] playing a pop sound.
   AudioPlayer? _audioPlayer;
 
+  /// Reorderable item that break dough.
+  ReorderableItem<T>? _doughDragged;
+
   @override
   void initState() {
     _items = widget.children.map((e) => ReorderableItem(e)).toList();
@@ -549,7 +552,10 @@ class _ReorderableFitWrapState<T extends Object>
                     enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
-                      _animateReturn(item, d);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
                     },
                     onDragStarted: () {
                       item.dragStartedRect = item.key.globalPaintBounds;
@@ -559,9 +565,13 @@ class _ReorderableFitWrapState<T extends Object>
                         widget.onDragCompleted?.call(item.item),
                     onDraggableCanceled: (d) {
                       widget.onDraggableCanceled?.call(item.item);
-                      _animateReturn(item, d);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
                     },
                     onDoughBreak: () {
+                      _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
                       _audioPlayer?.play(
                         AssetSource('audio/pop.mp3'),

@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
-
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/participant.dart';
@@ -178,6 +177,8 @@ Widget desktopCall(
           _possibleContainer(),
 
           // Makes UI appear on click.
+          //
+          // Also, if [showTitle] is false, allows dragging the window.
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
@@ -1013,7 +1014,12 @@ Widget _primaryView(CallController c) {
         ReorderableFitView<_DragData>(
           key: const Key('PrimaryFitView'),
           onAdded: (d, i) => c.focus(d.participant),
-          onWillAccept: (b) => c.primaryTargets.value = 1,
+          onWillAccept: (b) {
+            if (c.draggedRenderer.value?.user.value?.value.id != c.me ||
+                c.draggedRenderer.value?.source != MediaSourceKind.Display) {
+              c.primaryTargets.value = 1;
+            }
+          },
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;

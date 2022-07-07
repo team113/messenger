@@ -684,13 +684,6 @@ class CallController extends GetxController {
   Future<void> toggleVideo() async {
     keepUi();
     await _currentCall.value.toggleVideo();
-
-    // TODO: Make it happen.
-    if (_currentCall.value.videoState.value.isEnabled()) {
-      if (!speakerSwitched.value) {
-        speakerSwitched.value = true;
-      }
-    }
   }
 
   /// Changes the local video device to the next one from the
@@ -1315,13 +1308,21 @@ class Participant {
   /// Reactive audio renderer of this [Participant].
   late final Rx<RtcAudioRenderer?> audio;
 
+  /// [GlobalKey] of this [Participant] video view.
   final GlobalKey videoKey = GlobalKey();
 }
 
 extension SecondaryResize on CallController {
+  /// Minimal height of secondary view.
   static const double _minSHeight = 100;
+
+  /// Minimal width of secondary view.
   static const double _minSWidth = 100;
+
+  /// Maximal height of secondary view in percent.
   static const double _maxSHeight = 0.95;
+
+  /// Maximal width of secondary view in percent.
   static const double _maxSWidth = 0.95;
 
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
