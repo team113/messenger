@@ -352,13 +352,19 @@ jobs:
 
   release-docker:
     name: Release Docker image
-    needs: ["docker"]
+    needs:
+      - docker
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - test-unit
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     env:
-      IMAGE: nekoui
-      REPOS: ghcr.io/sleepysquash
+      IMAGE: messenger
+      REPOS: ghcr.io/team113
       TAGS: ${{ (startsWith(github.ref, 'refs/tags/v') && 'latest,@versions')
              || 'edge' }}
     steps:
