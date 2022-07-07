@@ -1197,31 +1197,13 @@ extension DateTimeToRelative on DateTime {
         months--;
       }
 
-      if (months > 0) {
-        if (months >= 24) {
-          date = '${months ~/ 12} ${'label_ago_years'.td}';
-        } else if (months >= 12) {
-          date = 'label_ago_year'.td;
-        } else if (months >= 2) {
-          date = '$months ${'label_ago_months'.td}';
-        } else {
-          date = 'label_ago_month'.td;
-        }
-      } else {
-        date = '${days ~/ 7} ${'label_ago_weeks'.td}';
-      }
-    } else if (days >= 14) {
-      date = '${days ~/ 7} ${'label_ago_weeks'.td}';
-    } else if (days >= 7) {
-      date = 'label_ago_week'.td;
-    } else if (days >= 3) {
-      date = '$days ${'label_ago_days'.td}';
-    } else if (days >= 2) {
-      date = 'label_ago_day_before_yesterday'.td;
-    } else if (days >= 1) {
-      date = 'label_ago_yesterday'.td;
+      date = 'label_ago'.tdp({
+        'years': months ~/ 12,
+        'months': months,
+        'weeks': days ~/ 7,
+        'days': days,
+      });
     }
-
     return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
   }
 

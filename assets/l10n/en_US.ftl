@@ -166,21 +166,31 @@ label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88,
-label_ago_day_before_yesterday = 2 days ago
-label_ago_day = day ago
-label_ago_days = days ago
-label_ago_hour = hour ago
-label_ago_hours = hours ago
-label_ago_minute = minute ago
-label_ago_minutes = minutes ago
-label_ago_month = month ago
-label_ago_months = month ago
-label_ago_recently = recently
-label_ago_week = week ago
-label_ago_weeks = weeks ago
-label_ago_year = year ago
-label_ago_years = years ago
-label_ago_yesterday = yesterday
+label_ago = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] { $hours ->
+                                    [0] { $minutes ->
+                                            [0] recently
+                                            [1] recently
+                                            *[other] {$minutes} minutes ago
+                                        }
+                                    [1] {$hours} hour ago
+                                    *[other] {$hours} hours ago
+                                }
+                            [1] {$days} day ago
+                            *[other] {$days} days ago
+                        }
+                    [1] {$weeks} week ago
+                    *[other] {$weeks} weeks ago
+                }
+            [1] {$months} month ago
+            *[other] {$months} months ago
+        }  
+    [1] {$years} year ago
+    *[other] {$years} years ago
+}
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes

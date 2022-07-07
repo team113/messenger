@@ -422,6 +422,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
+              final String? locale =
+                  settingsRepository.applicationSettings.value?.locale;
+              if (locale != null) {
+                await L10n.setLocale(locale);
+              } else {
+                await settingsRepository.setLocale(L10n.chosen.value!);
+              }
+
               MyUserService myUserService =
                   deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
@@ -499,6 +507,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(Get.find(), Get.find()),
             );
+
+            final String? locale =
+                settingsRepository.applicationSettings.value?.locale;
+            if (locale != null) {
+              await L10n.setLocale(locale);
+            } else {
+              await settingsRepository.setLocale(L10n.chosen.value!);
+            }
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));

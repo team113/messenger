@@ -19,9 +19,7 @@ import 'dart:async';
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:universal_io/io.dart';
 
 /// Extension adding an ability to get translated [String] from the [L10n].
 extension Translate on String {
@@ -33,7 +31,6 @@ extension Translate on String {
   String tdp(Map<String, dynamic> args) => L10n.format(this, args: args);
 }
 
-// TODO(review): refactor and add docs
 class Language {
   const Language(this.name, this.locale);
   final String name;
@@ -48,9 +45,6 @@ class L10n {
   /// [List] of [LocalizationsDelegate] that are available in the app.
   static List<LocalizationsDelegate<dynamic>> delegates = [
     const _FluentLocalizationsDelegate(),
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
   ];
 
   /// Supported [Language]s.
@@ -60,12 +54,12 @@ class L10n {
   };
 
   /// [FluentBundle] providing translation.
-  static FluentBundle? _bundle;
+  static FluentBundle _bundle = FluentBundle('');
 
   /// Loads [chosen] locale to the [_bundle].
   static Future load() async {
-    _bundle?.messages.clear();
-    _bundle?.addMessages(
+    _bundle.messages.clear();
+    _bundle.addMessages(
         await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
   }
 
@@ -74,16 +68,14 @@ class L10n {
     if (chosen.value != locale) {
       chosen.value = locale;
       await load();
-      chosen.refresh();
-      Get.forceAppUpdate();
-    } else {
-      chosen.refresh();
+      await Get.forceAppUpdate();
     }
+    chosen.refresh();
   }
 
   /// Returns translated value due to loaded [_bundle] locale.
   static String format(String key, {Map<String, dynamic> args = const {}}) {
-    return _bundle == null ? key : _bundle!.format(key, args: args);
+    return _bundle.format(key, args: args);
   }
 }
 
@@ -97,7 +89,7 @@ class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
 
   @override
   Future<L10n> load(Locale locale) async {
-    final String deviceLocale = Platform.localeName.replaceAll('-', '_');
+    final String deviceLocale = locale.toString();
     L10n._bundle = FluentBundle(deviceLocale);
     L10n.chosen.value = deviceLocale;
     await L10n.load();

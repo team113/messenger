@@ -168,21 +168,32 @@ label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
-label_ago_day_before_yesterday = позавчера
-label_ago_day = день назад
-label_ago_days = дней назад
-label_ago_hour = час назад
-label_ago_hours = часов назад
-label_ago_minute = минуту назад
-label_ago_minutes = минут назад
-label_ago_month = месяц назад
-label_ago_months = месяцев назад
-label_ago_recently = недавно
-label_ago_week = неделю назад
-label_ago_weeks = недели назад
-label_ago_year = год назад
-label_ago_years = лет назад
-label_ago_yesterday = вчера
+label_ago = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] { $hours ->
+                                    [0] { $minutes ->
+                                            [0] недавно
+                                            [1] недавно
+                                            *[other] {$minutes} минут назад
+                                        }
+                                    [1] {$hours} час назад
+                                    *[other] {$hours} часов назад
+                                }
+                            [1] {$days} день назад
+                            [2] позавчера
+                            *[other] {$days} дней назад
+                        }
+                    [1] {$weeks} неделю назад
+                    *[other] {$weeks} недели назад
+                }
+            [1] {$months} месяц назад
+            *[other] {$months} месяцев назад
+        }  
+    [1] {$years} год назад
+    *[other] {$years} лет назад
+}
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да

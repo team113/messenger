@@ -241,32 +241,13 @@ extension _DateTimeToAgo on DateTime {
     DateTime local = isUtc ? toLocal() : this;
     Duration diff = DateTime.now().difference(local);
 
-    if (diff.inDays > 730) {
-      return '${diff.inDays ~/ 365} ${'label_ago_years'.td}';
-    } else if (diff.inDays > 365) {
-      return 'label_ago_year'.td;
-    } else if (diff.inDays > 60) {
-      return '${diff.inDays ~/ 30} ${'label_ago_months'.td}';
-    } else if (diff.inDays > 30) {
-      return 'label_ago_month'.td;
-    } else if (diff.inDays > 14) {
-      return '${diff.inDays ~/ 7} ${'label_ago_weeks'.td}';
-    } else if (diff.inDays > 7) {
-      return 'label_ago_week'.td;
-    } else if (diff.inHours > 48) {
-      return '${diff.inHours ~/ 24} ${'label_ago_days'.td}';
-    } else if (diff.inHours > 24) {
-      return 'label_ago_day'.td;
-    } else if (diff.inMinutes > 120) {
-      return '${diff.inHours} ${'label_ago_hours'.td}';
-    } else if (diff.inMinutes > 60) {
-      return 'label_ago_hour'.td;
-    } else if (diff.inMinutes > 2) {
-      return '${diff.inMinutes} ${'label_ago_minutes'.td}';
-    } else if (diff.inMinutes > 1) {
-      return 'label_ago_minutes'.td;
-    } else {
-      return 'label_ago_recently'.td;
-    }
+    return 'label_ago'.tdp({
+      'years': diff.inDays ~/ 365,
+      'months': diff.inDays ~/ 30,
+      'weeks': diff.inDays ~/ 7,
+      'days': diff.inDays,
+      'hours': diff.inHours,
+      'minutes': diff.inMinutes
+    });
   }
 }

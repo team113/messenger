@@ -73,14 +73,6 @@ class HomeController extends GetxController {
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
     router.addListener(_onRouterChanged);
-
-    final String? locale =
-        _settingsRepository.applicationSettings.value?.locale;
-    if (locale != null) {
-      L10n.setLocale(locale);
-    } else {
-      _settingsRepository.setLocale(L10n.chosen.value!);
-    }
   }
 
   @override
