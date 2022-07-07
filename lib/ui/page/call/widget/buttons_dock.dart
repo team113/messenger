@@ -222,6 +222,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
                               onDraggableCanceled: (v, o) {
                                 int savedDraggedIndex = draggedIndex;
                                 isAnimated = true;
+                                setState(() {});
                                 // Show animation of dragged item returns to its
                                 // start position.
                                 _showOverlay(
@@ -369,7 +370,8 @@ class _ReorderableDockState extends State<ReorderableDock> {
         // Get position of recently added item.
         Offset position = box.localToGlobal(Offset.zero);
 
-        isAnimated = true;
+
+        setState(() => isAnimated = true);
 
         // Display animation of adding item.
         _showOverlay(
@@ -474,11 +476,10 @@ class _ReorderableDockState extends State<ReorderableDock> {
         }
       });
 
-      isAnimated = true;
-
-      dragged = null;
-
-      setState(() {});
+      setState(() {
+        isAnimated = true;
+        dragged = null;
+      });
 
       // Display animation of sliding item from old place to new place.
       _showOverlay(

@@ -223,7 +223,7 @@ class SettingsCallButton extends CallButton {
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
       _button(
-        asset: 'settings2',
+        asset: 'settings_small',
         onPressed: () => c.openSettings(context),
         minimized: minimized,
         small: small,
@@ -240,7 +240,7 @@ class AddMemberCallButton extends CallButton {
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
       _button(
-        asset: 'add_user2',
+        asset: 'add_user_small',
         onPressed: () => c.openAddMember(context),
         minimized: minimized,
         small: small,
