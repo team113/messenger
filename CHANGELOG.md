@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
+        
 ### Changed
 
 - UI:
