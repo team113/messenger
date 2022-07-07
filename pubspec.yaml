@@ -67,6 +67,7 @@ dependencies:
       ref: master
   platform_detect: ^2.0.3
   sentry_flutter: ^6.5.1
+  share_plus: ^4.0.9
   sliding_up_panel: ^2.0.0+1
   toml: ^0.12.0
   universal_io: ^2.0.4

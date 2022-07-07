@@ -78,6 +78,7 @@ final Map<String, String> ruRU = {
   'btn_edit': 'Редактировать',
   'btn_fullscreen_enter': 'Полноэкранный режим',
   'btn_fullscreen_exit': 'Выйти из полного экрана',
+  'btn_forgot_password': 'Забыли пароль?',
   'btn_generate_direct_chat_link': 'Сгенерировать',
   'btn_hide_chat': 'Скрыть чат',
   'btn_join_call': 'Присоединиться',

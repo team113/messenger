@@ -607,9 +607,6 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.auth] page.
   void auth() => go(Routes.auth);
 
-  /// Changes router location to the [Routes.login] page.
-  void login() => go(Routes.login);
-
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
 

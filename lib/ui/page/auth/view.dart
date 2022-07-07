@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/l10n/_l10n.dart';
 import '/routes.dart';
+import '/ui/page/auth/login/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -162,7 +163,7 @@ class AuthView extends StatelessWidget {
                 title: Text('btn_login'.tr),
                 subtitle: Text('label_or_register'.tr),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
-                onPressed: router.login,
+                onPressed: () => LoginView.show(context),
               ),
               const SizedBox(height: 10),
               if (isIosWeb)

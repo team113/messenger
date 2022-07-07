@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'package:flutter/material.dart';
 
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
@@ -29,6 +13,9 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color = Colors.white,
+    this.inactiveColor,
+    this.maxWidth = 250 * 0.7,
+    this.height = 60 * 0.7,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -54,6 +41,7 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// Background color of this button.
   final Color? color;
+  final Color? inactiveColor;
 
   /// Gradient to use when filling this button.
   ///
@@ -66,26 +54,38 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// This controls the size of the shadow below this button.
   final double elevation;
 
+  final double? maxWidth;
+  final double? height;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints:
-          const BoxConstraints(maxWidth: 250, minHeight: 60, maxHeight: 60),
+      constraints: BoxConstraints(
+        maxWidth: maxWidth ?? double.infinity,
+        minHeight: height ?? 0,
+        maxHeight: height ?? 0,
+      ),
       decoration: BoxDecoration(
-        color: color,
+        color: onPressed == null
+            ? (inactiveColor ?? const Color(0xFFBBBBBB))
+            : color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Material(
         color: Colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
+          hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16 * 0.7,
+              vertical: 6 * 0.7,
+            ),
             child: Stack(
               children: [
                 if (leading != null)
@@ -100,22 +100,25 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 17,
-                  ),
+                  style: Theme.of(context).textTheme.caption?.copyWith(
+                        color: Colors.black,
+                        // color: Theme.of(context).colorScheme.primary,
+                        fontSize: 24 * 0.7,
+                      ),
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: leading == null
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.only(left: 10 * 0.7),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           title ?? Container(),
-                          if (subtitle != null) const SizedBox(height: 1),
+                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 13),
+                              style: const TextStyle(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],

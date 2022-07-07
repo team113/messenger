@@ -77,6 +77,7 @@ final Map<String, String> enUS = {
   'btn_edit': 'Edit',
   'btn_fullscreen_enter': 'Fullscreen mode',
   'btn_fullscreen_exit': 'Exit fullscreen',
+  'btn_forgot_password': 'Forgot password?',
   'btn_generate_direct_chat_link': 'Generate',
   'btn_hide_chat': 'Hide chat',
   'btn_join_call': 'Join',
