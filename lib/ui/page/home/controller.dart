@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
-import '/fluent/fluent_localization.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 
 export 'view.dart';
@@ -77,9 +77,9 @@ class HomeController extends GetxController {
     final String? locale =
         _settingsRepository.applicationSettings.value?.locale;
     if (locale != null) {
-      FluentLocalization.setLocale(locale);
+      L10n.setLocale(locale);
     } else {
-      _settingsRepository.setLocale(FluentLocalization.chosen.value!);
+      _settingsRepository.setLocale(L10n.chosen.value!);
     }
   }
 

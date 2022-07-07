@@ -28,7 +28,7 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -233,12 +233,12 @@ void main() async {
     await tester.tap(emailsExpandable);
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('EmailInput')), 'test@mail.ru');
-    expect(find.text('label_unconfirmed'.td()), findsNothing);
+    expect(find.text('label_unconfirmed'.td), findsNothing);
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('addEmailButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('label_unconfirmed'.td()), findsOneWidget);
+    expect(find.text('label_unconfirmed'.td), findsOneWidget);
     expect(myUserService.myUser.value?.emails.unconfirmed, isNotNull);
 
     await tester.pump(const Duration(seconds: 30));

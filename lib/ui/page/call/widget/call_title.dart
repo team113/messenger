@@ -21,7 +21,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
@@ -80,7 +80,7 @@ class CallTitle extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            title ?? ('dot_symbol'.td() * 3),
+            title ?? ('dot_symbol'.td * 3),
             style: context.textTheme.headline4?.copyWith(color: Colors.white),
           ),
           if (state != null) const SizedBox(height: 3),

@@ -35,8 +35,7 @@ import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
-import '/fluent/extension.dart';
-import '/fluent/fluent_localization.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/session.dart';
@@ -148,7 +147,7 @@ class _BackgroundService {
 
     _resetConnectionTimer();
 
-    await _initFluent();
+    await _initL10n();
     _initService();
 
     // Start a [Timer] fetching the [_credentials] from the [Hive] in case
@@ -181,10 +180,10 @@ class _BackgroundService {
       {
         'ios': {'appName': 'Gapopa'},
         'android': {
-          'alertTitle': 'label_call_permissions_title'.td(),
-          'alertDescription': 'label_call_permissions_description'.td(),
-          'cancelButton': 'btn_dismiss'.td(),
-          'okButton': 'btn_allow'.td(),
+          'alertTitle': 'label_call_permissions_title'.td,
+          'alertDescription': 'label_call_permissions_description'.td,
+          'cancelButton': 'btn_dismiss'.td,
+          'okButton': 'btn_allow'.td,
           'foregroundService': {
             'channelId': 'com.team113.messenger',
             'channelName': 'Foreground calls service',
@@ -268,7 +267,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      _initFluent(event!['locale']);
+      _initL10n(event!['locale']);
     });
 
     _service.on('ka').listen((_) {
@@ -278,7 +277,7 @@ class _BackgroundService {
     _service.invoke('requireToken');
 
     _setForegroundNotificationInfo(
-      title: 'label_service_initialized'.td(),
+      title: 'label_service_initialized'.td,
       content: '${DateTime.now()}',
     );
   }
@@ -364,17 +363,18 @@ class _BackgroundService {
     return _notificationPlugin!;
   }
 
-  /// Initializes the [FluentLocalization] of the provided [locale].
-  Future<void> _initFluent([String? locale]) async {
-    if ((locale ?? 'en_US') != FluentLocalization.chosen.value) {
-      /// TODO: Should only be called if not persisted.
+  /// Initializes the [L10n] of the provided [locale].
+  Future<void> _initL10n([String? locale]) async {
+    if ((locale ?? 'en_US') != L10n.chosen.value) {
       locale ??= Platform.localeName.replaceAll('-', '_');
-      if (!FluentLocalization.locales.containsKey(locale)) {
+      if (!L10n.languages.containsKey(locale)) {
         locale = 'en_US';
       }
-      FluentLocalization.bundle = FluentBundle(locale);
-      FluentLocalization.chosen.value = locale;
-      await FluentLocalization.load();
+
+      // TODO(review): should be staticly initialized.
+      // L10n.bundle = FluentBundle(locale);
+      L10n.chosen.value = locale;
+      await L10n.load();
     }
   }
 
@@ -389,7 +389,7 @@ class _BackgroundService {
         _getNotificationPlugin().then((v) {
           v.show(
             Random().nextInt(1 << 31),
-            'label_incoming_call'.td(),
+            'label_incoming_call'.td,
             name,
             const NotificationDetails(
               android: AndroidNotificationDetails(
@@ -414,7 +414,7 @@ class _BackgroundService {
         switch (e.$$typename) {
           case 'SubscriptionInitialized':
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.td(),
+              title: 'label_service_connected'.td,
               content: '${DateTime.now()}',
             );
             break;
@@ -433,12 +433,12 @@ class _BackgroundService {
                   call.chatId,
                   call.caller?.name?.val ??
                       call.caller?.num.val ??
-                      ('dot_symbol'.td() * 3),
+                      ('dot_symbol'.td * 3),
                 );
               }
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.td(),
+                title: 'label_service_connected'.td,
                 content: '${DateTime.now()}',
               );
             }
@@ -452,7 +452,7 @@ class _BackgroundService {
               _incomingCalls.add(call.chatId.val);
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.td(),
+                title: 'label_service_connected'.td,
                 content: '${DateTime.now()}',
               );
 
@@ -461,7 +461,7 @@ class _BackgroundService {
                 call.chatId,
                 call.caller?.name?.val ??
                     call.caller?.num.val ??
-                    ('dot_symbol'.td() * 3),
+                    ('dot_symbol'.td * 3),
               );
             }
             break;
@@ -473,7 +473,7 @@ class _BackgroundService {
             _incomingCalls.remove(call.chatId.val);
 
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.td(),
+              title: 'label_service_connected'.td,
               content: '${DateTime.now()}',
             );
 
@@ -485,13 +485,13 @@ class _BackgroundService {
       onError: (e) {
         if (e is ResubscriptionRequiredException) {
           _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.td(),
+            title: 'label_service_reconnecting'.td,
             content: '${DateTime.now()}',
           );
           _subscribe();
         } else {
           _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.td(),
+            title: 'label_service_encountered_error'.td,
             content: e,
           );
           throw e;

@@ -23,7 +23,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
@@ -46,7 +46,7 @@ class ChatsTabView extends StatelessWidget {
       builder: (ChatsTabController c) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('label_chats'.td()),
+            title: Text('label_chats'.td),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(0.5),
               child: Container(
@@ -67,7 +67,7 @@ class ChatsTabView extends StatelessWidget {
           body: Obx(
             () => c.chatsReady.value
                 ? c.chats.isEmpty
-                    ? Center(child: Text('label_no_chats'.td()))
+                    ? Center(child: Text('label_no_chats'.td))
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
@@ -111,8 +111,8 @@ class ChatsTabView extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     Text(typings.length > 1
-                        ? 'label_typings'.td()
-                        : 'label_typing'.td()),
+                        ? 'label_typings'.td
+                        : 'label_typing'.td),
                     const AnimatedDots(color: Colors.black)
                   ],
                 ),
@@ -121,14 +121,14 @@ class ChatsTabView extends StatelessWidget {
           } else if (chat.lastItem != null) {
             if (chat.lastItem is ChatCall) {
               var item = chat.lastItem as ChatCall;
-              String description = 'label_chat_call_ended'.td();
+              String description = 'label_chat_call_ended'.td;
               if (item.finishedAt == null && item.finishReason == null) {
                 subtitle = [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
                       onPressed: () => c.joinCall(chat.id),
-                      child: Text('btn_chat_join_call'.td()),
+                      child: Text('btn_chat_join_call'.td),
                     ),
                   ),
                 ];
@@ -150,18 +150,18 @@ class ChatsTabView extends StatelessWidget {
               var desc = StringBuffer();
 
               if (!chat.isGroup && item.authorId == c.me) {
-                desc.write('${'label_you'.td()}: ');
+                desc.write('${'label_you'.td}: ');
               }
 
               if (item.text != null) {
                 desc.write(item.text!.val);
                 if (item.attachments.isNotEmpty) {
                   desc.write(
-                      ' [${item.attachments.length} ${'label_attachments'.td()}]');
+                      ' [${item.attachments.length} ${'label_attachments'.td}]');
                 }
               } else if (item.attachments.isNotEmpty) {
                 desc.write(
-                    '[${item.attachments.length} ${'label_attachments'.td()}]');
+                    '[${item.attachments.length} ${'label_attachments'.td}]');
               }
 
               subtitle = [
@@ -197,7 +197,7 @@ class ChatsTabView extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => c.joinCall(chat.id),
                   child: Text(
-                    'btn_chat_join_call'.td(),
+                    'btn_chat_join_call'.td,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -214,13 +214,13 @@ class ChatsTabView extends StatelessWidget {
             actions: [
               ContextMenuButton(
                 key: const Key('ButtonHideChat'),
-                label: 'btn_hide_chat'.td(),
+                label: 'btn_hide_chat'.td,
                 onPressed: () => c.hideChat(chat.id),
               ),
               if (chat.isGroup)
                 ContextMenuButton(
                   key: const Key('ButtonLeaveChat'),
-                  label: 'btn_leave_chat'.td(),
+                  label: 'btn_leave_chat'.td,
                   onPressed: () => c.leaveChat(chat.id),
                 ),
             ],

@@ -24,7 +24,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
-import '/fluent/fluent_localization.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/web/web_utils.dart';
 
@@ -103,9 +103,9 @@ class PopupCallController extends GetxController {
     final String? locale =
         _settingsRepository.applicationSettings.value?.locale;
     if (locale != null) {
-      FluentLocalization.setLocale(locale);
+      L10n.setLocale(locale);
     } else {
-      _settingsRepository.setLocale(FluentLocalization.chosen.value!);
+      _settingsRepository.setLocale(L10n.chosen.value!);
     }
 
     _tryToConnect();

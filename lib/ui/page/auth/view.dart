@@ -19,9 +19,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/fluent/extension.dart';
-import '/fluent/fluent_localization.dart';
-
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -118,20 +116,18 @@ class AuthView extends StatelessWidget {
               builder: (context, setState) => Obx(
                 () => DropdownButton<String>(
                   key: const Key('LocalizationDropdown'),
-                  value: FluentLocalization.chosen.value,
-                  items: FluentLocalization.languages.entries
-                      .map<DropdownMenuItem<String>>((e) {
+                  value: L10n.chosen.value,
+                  items:
+                      L10n.languages.entries.map<DropdownMenuItem<String>>((e) {
                     return DropdownMenuItem(
-                      key: Key('Localization_item_${e.key}'),
+                      key: Key(e.key),
                       value: e.key,
                       child: Text(
-                        '${FluentLocalization.locales[e.key]!.countryCode}, ${e.value}',
+                        '${e.value.locale.countryCode}, ${e.value.name}',
                       ),
                     );
                   }).toList(),
-                  onChanged: (d) async {
-                    await FluentLocalization.setLocale(d!);
-                  },
+                  onChanged: (d) => L10n.setLocale(d!),
                   borderRadius: BorderRadius.circular(18),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
@@ -149,11 +145,11 @@ class AuthView extends StatelessWidget {
               OutlinedRoundedButton(
                 key: const Key('StartChattingButton'),
                 title: Text(
-                  'btn_start_chatting'.td(),
+                  'btn_start_chatting'.td,
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  'label_no_registration'.td(),
+                  'label_no_registration'.td,
                   style: const TextStyle(color: Colors.white),
                 ),
                 leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -165,15 +161,15 @@ class AuthView extends StatelessWidget {
               const SizedBox(height: 10),
               OutlinedRoundedButton(
                 key: const Key('SignInButton'),
-                title: Text('btn_login'.td()),
-                subtitle: Text('label_or_register'.td()),
+                title: Text('btn_login'.td),
+                subtitle: Text('label_or_register'.td),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                 onPressed: router.login,
               ),
               const SizedBox(height: 10),
               if (isIosWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td()),
+                  title: Text('btn_download'.td),
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
@@ -183,7 +179,7 @@ class AuthView extends StatelessWidget {
                 ),
               if (isAndroidWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td()),
+                  title: Text('btn_download'.td),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -194,8 +190,8 @@ class AuthView extends StatelessWidget {
                 ),
               if (isDesktopWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td()),
-                  subtitle: Text('label_application'.td()),
+                  title: Text('btn_download'.td),
+                  subtitle: Text('label_application'.td),
                   leading: PlatformUtils.isMacOS
                       ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
                       : (PlatformUtils.isWindows)

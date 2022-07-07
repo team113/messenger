@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
@@ -152,11 +152,11 @@ class _NestedHomeView extends StatelessWidget {
 
     switch (tab) {
       case HomeTab.chats:
-        return Scaffold(body: Center(child: Text('label_choose_chat'.td())));
+        return Scaffold(body: Center(child: Text('label_choose_chat'.td)));
       case HomeTab.contacts:
-        return Scaffold(body: Center(child: Text('label_choose_contact'.td())));
+        return Scaffold(body: Center(child: Text('label_choose_contact'.td)));
       case HomeTab.menu:
-        return Scaffold(body: Center(child: Text('label_temp_plug'.td())));
+        return Scaffold(body: Center(child: Text('label_temp_plug'.td)));
     }
   }
 }

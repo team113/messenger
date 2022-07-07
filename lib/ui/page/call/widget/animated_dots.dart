@@ -18,7 +18,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedDots extends StatefulWidget {
@@ -69,7 +69,7 @@ class _AnimatedDotsState extends State<AnimatedDots> {
     return SizedBox(
       width: 13,
       child: Text(
-        'dot_symbol'.td() * _count,
+        'dot_symbol'.td * _count,
         style: TextStyle(color: widget.color),
       ),
     );

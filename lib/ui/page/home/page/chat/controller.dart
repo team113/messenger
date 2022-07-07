@@ -39,7 +39,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         DeleteChatForwardException,
@@ -348,7 +348,7 @@ class ChatController extends GetxController {
   /// Starts the editing of the specified [item], if allowed.
   void editMessage(ChatItem item) {
     if (!item.isEditable(chat!.chat.value, me!)) {
-      MessagePopup.error('err_uneditable_message'.td());
+      MessagePopup.error('err_uneditable_message'.td);
       return;
     }
 
@@ -629,7 +629,7 @@ class ChatController extends GetxController {
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    MessagePopup.success('label_copied_to_clipboard'.td());
+    MessagePopup.success('label_copied_to_clipboard'.td);
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -845,11 +845,11 @@ class ChatController extends GetxController {
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
   String getTitle(Iterable<User> users, UserId? me) {
-    String title = 'dot_symbol'.td() * 3;
+    String title = 'dot_symbol'.td * 3;
 
     switch (kind) {
       case ChatKind.monolog:
-        title = 'label_chat_monolog'.td();
+        title = 'label_chat_monolog'.td;
         break;
 
       case ChatKind.dialog:
@@ -865,9 +865,9 @@ extension ChatViewExt on Chat {
           title = users
               .take(3)
               .map((u) => u.name?.val ?? u.num.val)
-              .join('comma_symbol'.td());
+              .join('comma_symbol'.td);
           if (members.length > 3) {
-            title += 'comma_symbol'.td() + ('dot_symbol'.td() * 3);
+            title += 'comma_symbol'.td + ('dot_symbol'.td * 3);
           }
         } else {
           title = name!.val;
@@ -892,7 +892,7 @@ extension ChatViewExt on Chat {
         return partner?.getStatus();
 
       case ChatKind.group:
-        return '${members.length} ${'label_subtitle_participants'.td()}';
+        return '${members.length} ${'label_subtitle_participants'.td}';
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
@@ -923,22 +923,22 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
     switch (this) {
       case ChatCallFinishReason.dropped:
         return fromMe == true
-            ? 'label_chat_call_unanswered'.td()
-            : 'label_chat_call_missed'.td();
+            ? 'label_chat_call_unanswered'.td
+            : 'label_chat_call_missed'.td;
       case ChatCallFinishReason.declined:
-        return 'label_chat_call_declined'.td();
+        return 'label_chat_call_declined'.td;
       case ChatCallFinishReason.unanswered:
         return fromMe == true
-            ? 'label_chat_call_unanswered'.td()
-            : 'label_chat_call_missed'.td();
+            ? 'label_chat_call_unanswered'.td
+            : 'label_chat_call_missed'.td;
       case ChatCallFinishReason.memberLeft:
-        return 'label_chat_call_ended'.td();
+        return 'label_chat_call_ended'.td;
       case ChatCallFinishReason.memberLostConnection:
-        return 'label_chat_call_ended'.td();
+        return 'label_chat_call_ended'.td;
       case ChatCallFinishReason.serverDecision:
-        return 'label_chat_call_ended'.td();
+        return 'label_chat_call_ended'.td;
       case ChatCallFinishReason.moved:
-        return 'label_chat_call_moved'.td();
+        return 'label_chat_call_moved'.td;
       case ChatCallFinishReason.artemisUnknown:
         return null;
     }

@@ -37,7 +37,7 @@ import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
-import 'fluent/fluent_localization.dart';
+import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
@@ -146,8 +146,8 @@ class App extends StatelessWidget {
       onGenerateTitle: (context) => 'Gapopa',
       theme: Themes.light(),
       themeMode: ThemeMode.light,
+      localizationsDelegates: L10n.delegates,
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: FluentLocalization.localizationsDelegates,
     );
   }
 }

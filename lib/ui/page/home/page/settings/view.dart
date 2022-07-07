@@ -17,8 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/fluent/extension.dart';
-import '/fluent/fluent_localization.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'controller.dart';
 
@@ -31,45 +30,18 @@ class SettingsView extends StatelessWidget {
     return GetBuilder(
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
-        /// Dropdown widget where user can choose preferred language.
-        Widget language = StatefulBuilder(
-            builder: (context, setState) => Obx(
-                  () => DropdownButton<String>(
-                    key: const Key('LocalizationDropdown'),
-                    value: FluentLocalization.chosen.value,
-                    items: FluentLocalization.languages.entries
-                        .map<DropdownMenuItem<String>>((e) {
-                      return DropdownMenuItem(
-                        key: Key('Localization_item_${e.key}'),
-                        value: e.key,
-                        child: Text(
-                          '${FluentLocalization.locales[e.key]!.countryCode}, ${e.value}',
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: c.setLocale,
-                    borderRadius: BorderRadius.circular(18),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 15,
-                    ),
-                    icon: const SizedBox(),
-                    underline: const SizedBox(),
-                  ),
-                ));
-
         return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.td())),
+          appBar: AppBar(title: Text('label_settings'.td)),
           body: ListView(
             children: [
               ListTile(
-                title: Text('btn_media_settings'.td()),
+                title: Text('btn_media_settings'.td),
                 onTap: router.settingsMedia,
               ),
               ListTile(
                 title: Row(
                   children: [
-                    Text('label_enable_popup_calls'.td()),
+                    Text('label_enable_popup_calls'.td),
                     const SizedBox(width: 10),
                     Obx(() {
                       return Switch(
@@ -82,8 +54,34 @@ class SettingsView extends StatelessWidget {
               ),
               ListTile(
                 title: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 200),
-                    child: language),
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: StatefulBuilder(
+                    builder: (context, setState) => Obx(
+                      () => DropdownButton<String>(
+                        key: const Key('LocalizationDropdown'),
+                        value: L10n.chosen.value,
+                        items: L10n.languages.entries
+                            .map<DropdownMenuItem<String>>((e) {
+                          return DropdownMenuItem(
+                            key: Key(e.key),
+                            value: e.key,
+                            child: Text(
+                              '${e.value.locale.countryCode}, ${e.value.name}',
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: c.setLocale,
+                        borderRadius: BorderRadius.circular(18),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 15,
+                        ),
+                        icon: const SizedBox(),
+                        underline: const SizedBox(),
+                      ),
+                    ),
+                  ),
+                ),
               )
             ],
           ),

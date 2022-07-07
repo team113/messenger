@@ -23,39 +23,50 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:universal_io/io.dart';
 
-/// Class that provides [FluentBundle] functionality.
-class FluentLocalization {
-  /// [FluentBundle] class that provides functionality of translating values.
-  static FluentBundle? bundle;
+/// Extension adding an ability to get translated [String] from the [L10n].
+extension Translate on String {
+  /// Returns a value identified by this [String] from the [L10n].
+  String get td => L10n.format(this);
 
-  /// Currently selected [MyUser]'s locale.
+  /// Returns a value identified by this [String] from the [L10n]
+  /// with the provided [args].
+  String tdp(Map<String, dynamic> args) => L10n.format(this, args: args);
+}
+
+// TODO(review): refactor and add docs
+class Language {
+  const Language(this.name, this.locale);
+  final String name;
+  final Locale locale;
+}
+
+/// Class that provides [FluentBundle] functionality.
+class L10n {
+  /// Currently selected language.
   static Rx<String?> chosen = Rx(null);
 
   /// [List] of [LocalizationsDelegate] that are available in the app.
-  static List<LocalizationsDelegate<dynamic>> localizationsDelegates = [
+  static List<LocalizationsDelegate<dynamic>> delegates = [
     const _FluentLocalizationsDelegate(),
     GlobalMaterialLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
   ];
 
-  /// Supported languages as locales with its names.
-  static Map<String, String> languages = const {
-    'en_US': 'English',
-    'ru_RU': 'Русский',
+  /// Supported [Language]s.
+  static Map<String, Language> languages = const {
+    'en_US': Language('English', Locale('en', 'US')),
+    'ru_RU': Language('Русский', Locale('ru', 'RU')),
   };
 
-  /// Supported locales.
-  static Map<String, Locale> locales = const {
-    'en_US': Locale('en', 'US'),
-    'ru_RU': Locale('ru', 'RU'),
-  };
+  /// [FluentBundle] providing translation.
+  static FluentBundle? _bundle;
 
-  /// Loads [chosen] locale to the [bundle].
+  /// Loads [chosen] locale to the [_bundle].
   static Future load() async {
-    bundle?.messages.clear();
-    bundle?.addMessages(await rootBundle
-        .loadString('assets/translates/${chosen.value}.ftl'.toLowerCase()));
+    _bundle?.messages.clear();
+    _bundle?.addMessages(
+        await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
   }
 
   /// Changes current locale and loads it.
@@ -70,33 +81,29 @@ class FluentLocalization {
     }
   }
 
-  /// Returns translated value due to loaded [bundle] locale.
-  static String getTranslatedValue(String key,
-      {Map<String, dynamic> args = const {}}) {
-    return bundle == null ? key : bundle!.format(key, args: args);
+  /// Returns translated value due to loaded [_bundle] locale.
+  static String format(String key, {Map<String, dynamic> args = const {}}) {
+    return _bundle == null ? key : _bundle!.format(key, args: args);
   }
 }
 
-/// Custom Fluent localization delegate.
-class _FluentLocalizationsDelegate
-    extends LocalizationsDelegate<FluentLocalization> {
+/// Custom `Fluent` [LocalizationsDelegate].
+class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
   const _FluentLocalizationsDelegate();
   @override
   bool isSupported(Locale locale) {
-    return FluentLocalization.locales.keys
-        .any((key) => key == locale.toString());
+    return L10n.languages.keys.any((k) => k == locale.toString());
   }
 
   @override
-  Future<FluentLocalization> load(Locale locale) async {
+  Future<L10n> load(Locale locale) async {
     final String deviceLocale = Platform.localeName.replaceAll('-', '_');
-    FluentLocalization.bundle = FluentBundle(deviceLocale);
-    FluentLocalization.chosen.value = deviceLocale;
-    await FluentLocalization.load();
-    return FluentLocalization();
+    L10n._bundle = FluentBundle(deviceLocale);
+    L10n.chosen.value = deviceLocale;
+    await L10n.load();
+    return L10n();
   }
 
   @override
-  bool shouldReload(covariant LocalizationsDelegate<FluentLocalization> old) =>
-      false;
+  bool shouldReload(covariant LocalizationsDelegate<L10n> old) => false;
 }

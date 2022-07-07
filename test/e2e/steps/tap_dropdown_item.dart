@@ -20,50 +20,34 @@ import 'package:gherkin/gherkin.dart';
 
 import '../parameters/keys.dart';
 
-/// Taps dropdown with provided [dropdownKey] and then item with [menuItemKey].
+/// Taps the provided [WidgetKey] item within the specified by its [WidgetKey]
+/// dropdown.
 final tapDropdownItem = given2<WidgetKey, WidgetKey, FlutterWorld>(
-    RegExp(r'I tap (?:a|an|the) {key} within (?:a|an|the) {key} dropdown'),
-    (menuItemKey, dropdownKey, context) async {
+    RegExp(r'I tap {key} within {key} dropdown'),
+    (item, dropdown, context) async {
   await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findBy(dropdownKey.name, FindType.key);
+  var finder = context.world.appDriver.findBy(dropdown.name, FindType.key);
 
-  await context.world.appDriver.scrollIntoView(
-    finder,
-  );
+  await context.world.appDriver.scrollIntoView(finder);
   await context.world.appDriver.waitForAppToSettle();
-  await context.world.appDriver.tap(
-    finder,
-    timeout: context.configuration.timeout,
-  );
+  await context.world.appDriver
+      .tap(finder, timeout: context.configuration.timeout);
   await context.world.appDriver.waitForAppToSettle();
 
-  {
-    final timeout =
-        context.configuration.timeout ?? const Duration(seconds: 20);
+  finder =
+      (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last;
+  final timeout = context.configuration.timeout ?? const Duration(seconds: 20);
+  final isPresent =
+      await context.world.appDriver.isPresent(finder, timeout: timeout * .2);
 
-    final finder = (context.world.appDriver
-            .findBy(menuItemKey.name, FindType.key) as Finder)
-        .last;
-
-    final isPresent = await context.world.appDriver.isPresent(
-      finder,
-      timeout: timeout * .2,
+  if (!isPresent) {
+    await context.world.appDriver.scrollUntilVisible(
+      (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last,
+      dy: -100.0,
+      timeout: timeout * .9,
     );
-
-    if (!isPresent) {
-      await context.world.appDriver.scrollUntilVisible(
-        (context.world.appDriver.findBy(menuItemKey.name, FindType.key)
-                as Finder)
-            .last,
-        dy: -100.0,
-        timeout: timeout * .9,
-      );
-    }
-
-    await context.world.appDriver.tap(
-      finder,
-      timeout: timeout,
-    );
-    await context.world.appDriver.waitForAppToSettle();
   }
+
+  await context.world.appDriver.tap(finder, timeout: timeout);
+  await context.world.appDriver.waitForAppToSettle();
 });

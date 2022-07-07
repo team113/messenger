@@ -30,7 +30,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(0)
   bool? enablePopups;
 
-  /// Preferred [MyUser]'s language of the application.
+  /// Language to use in the application.
   @HiveField(1)
   String? locale;
 }

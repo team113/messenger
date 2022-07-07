@@ -33,7 +33,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
-import 'fluent/extension.dart';
+import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/chat.dart';
@@ -333,7 +333,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Unknown page view.
   Page<dynamic> get _notFoundPage => MaterialPage(
         key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.td()))),
+        child: Scaffold(body: Center(child: Text('label_unknown_page'.td))),
       );
 
   /// [Navigator]'s pages generation based on the [_state].
@@ -588,13 +588,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
         case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.td()}');
+          WebUtils.title('$prefix${'label_tab_contacts'.td}');
           break;
         case HomeTab.chats:
-          WebUtils.title('$prefix${'label_tab_chats'.td()}');
+          WebUtils.title('$prefix${'label_tab_chats'.td}');
           break;
         case HomeTab.menu:
-          WebUtils.title('$prefix${'label_tab_menu'.td()}');
+          WebUtils.title('$prefix${'label_tab_menu'.td}');
           break;
       }
     } else {

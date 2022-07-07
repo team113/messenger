@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 import '../widget/caption.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
-import '/fluent/extension.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/auth/widget/outlined_rounded_button.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -87,11 +87,11 @@ class ElementStyleTabView extends StatelessWidget {
                 asset: 'assets/icons/start.svg',
                 child: OutlinedRoundedButton(
                   title: Text(
-                    'Start chatting'.td(),
+                    'Start chatting'.td,
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    'no registration'.td(),
+                    'no registration'.td,
                     style: const TextStyle(color: Colors.white),
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -264,7 +264,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/add_user.svg',
                                     'add_user.svg',
                                   ),
-                                  hint: 'btn_add_participant'.td(),
+                                  hint: 'btn_add_participant'.td,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
@@ -280,7 +280,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/settings.svg',
                                     'settings.svg',
                                   ),
-                                  hint: 'btn_call_settings'.td(),
+                                  hint: 'btn_call_settings'.td,
                                   child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
                                     color: const Color(0xFFBBBBBB),
@@ -707,34 +707,34 @@ class ElementStyleTabView extends StatelessWidget {
                   actions: [
                     AnimatedFabAction(
                       icon: const Icon(Icons.call, color: Colors.blue),
-                      label: 'label_audio_call'.td(),
+                      label: 'label_audio_call'.td,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.video_call, color: Colors.blue),
-                      label: 'label_video_call'.td(),
+                      label: 'label_video_call'.td,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.person, color: Colors.blue),
-                      label: 'label_contact'.td(),
+                      label: 'label_contact'.td,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.attachment, color: Colors.blue),
-                      label: 'label_file'.td(),
+                      label: 'label_file'.td,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.photo, color: Colors.blue),
-                      label: 'label_photo'.td(),
+                      label: 'label_photo'.td,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.camera, color: Colors.blue),
-                      label: 'label_camera'.td(),
+                      label: 'label_camera'.td,
                       onTap: () {},
                     ),
                   ],

@@ -25,7 +25,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
-import 'package:messenger/fluent/extension.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -100,7 +100,7 @@ void main() async {
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_login'.td());
+    final goToLoginButton = find.text('btn_login'.td);
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);

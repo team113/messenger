@@ -171,16 +171,17 @@ Application has nested `Router`s (e.g. one in the [`GetMaterialApp`] and one nes
 
 ### l10n (localization)
 
-Application uses [`Fluent`] localization that is placed under `fluent/` directory. Any newly added language should be named as a `languagecode_COUNTRYCODE` locale (i.e. `en_US`, `ru_RU`, etc).
+Application uses [`Fluent`] localization that is placed under `l10n/` directory. Any newly added language should be named as a `languagecode_COUNTRYCODE` locale (i.e. `en_US`, `ru_RU`, etc).
 
 Adding a new language means:
-1. Adding language's dictionary as a new `.ftl` file in `assets/translates` folder.
+1. Adding language's dictionary as a new `.ftl` file in `assets/l10n` folder.
 2. Adding language to the `languages` mapping.
 3. Adding language to the `locales` mapping.
   
-Using l10n is as easy as adding `.td()` to the string literal:
+Using l10n is as easy as adding `.td` or `.tdp(...)` to the string literal:
 ```dart
-Text('Hello, world'.td());
+Text('Hello, world'.td);
+Text('Hello, world'.tdp(arguments));
 ```
 
 

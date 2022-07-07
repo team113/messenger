@@ -21,12 +21,14 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- L10n:
-    - Replace `GetX` localization to `Fluent` localization ([#23], [#16]).
+- UI:
+    - L10n:
+        - Use `Fluent` localization ([#23], [#16]).
 
 [#2]: /../../issues/2
 [#14]: /../../pull/14
 [#15]: /../../pull/15
+[#16]: /../../issues/16
 [#23]: /../../pull/23
 
 

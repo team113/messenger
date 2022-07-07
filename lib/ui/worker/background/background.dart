@@ -21,7 +21,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
-import '/fluent/fluent_localization.dart';
+import '/l10n/l10n.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
 import '/store/model/session_data.dart';
@@ -55,7 +55,7 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
-  /// [Worker] reacting on the [FluentLocalization.chosen] changes.
+  /// [Worker] reacting on the [L10n.chosen] changes.
   Worker? _localizationWorker;
 
   @override
@@ -166,12 +166,9 @@ class BackgroundWorker extends GetxService {
         });
       });
 
-      FlutterBackgroundService()
-          .invoke('l10n', {'locale': FluentLocalization.chosen.value});
-      _localizationWorker =
-          ever(FluentLocalization.chosen, (String? newLocale) {
-        FlutterBackgroundService()
-            .invoke('l10n', {'locale': FluentLocalization.chosen.value});
+      FlutterBackgroundService().invoke('l10n', {'locale': L10n.chosen.value});
+      _localizationWorker = ever(L10n.chosen, (String? locale) {
+        FlutterBackgroundService().invoke('l10n', {'locale': locale});
       });
     }
   }
