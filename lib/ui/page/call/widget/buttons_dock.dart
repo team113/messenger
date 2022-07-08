@@ -437,11 +437,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
       // Get Offset position of same item.
       startPosition = box.localToGlobal(Offset.zero);
 
-      // Add GlobalKey's to item and item's divider.
-      item.key = GlobalKey();
-      item.dividerKey = GlobalKey();
-      item.reserveKey = GlobalKey();
-
       // Remove same item.
       items.removeAt(i);
 
