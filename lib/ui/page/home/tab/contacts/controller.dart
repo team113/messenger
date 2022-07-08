@@ -26,6 +26,7 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
@@ -64,11 +65,11 @@ class ContactsTabController extends GetxController {
   final CallService _calls;
 
   /// Returns current reactive [ChatContact]s map.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Returns the current reactive favorite [ChatContact]s map.
-  RxMap<ChatContactId, Rx<ChatContact>> get favorites =>
+  RxMap<ChatContactId, RxChatContact> get favorites =>
       _contactService.favorites;
 
   /// Indicates whether [ContactService] is ready to be used.
@@ -80,13 +81,13 @@ class ContactsTabController extends GetxController {
       onChanged: (s) async {
         s.error.value = null;
 
-        Rx<ChatContact>? contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+        RxChatContact? contact = contacts.values.firstWhereOrNull(
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
         if (contact == null) return;
 
-        if (contact.value.name.val == s.text) {
+        if (contact.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
@@ -124,10 +125,10 @@ class ContactsTabController extends GetxController {
       },
       onSubmitted: (s) {
         var contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
-        if (contact?.value.name.val == s.text) {
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
+        if (contact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
