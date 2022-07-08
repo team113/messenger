@@ -62,8 +62,8 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// [StreamSubscription]s to the [RxUser.updates] of the [ChatContact.users].
-  final Map<ChatContactId, StreamSubscription> _userSubscription = {};
+  /// [List] of [ChatContactId] whose [User]'s updates are listening.
+  final List<ChatContactId> _subscribedContacts = [];
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
@@ -150,7 +150,9 @@ class ContactsTabController extends GetxController {
   @override
   void onClose() {
     _contactsSubscription?.cancel();
-    _userSubscription.forEach((_, v) => v.cancel());
+    for (var id in _subscribedContacts) {
+      _unsubscribe(id);
+    }
     _userWorkers.forEach((_, v) => v.dispose());
     super.onClose();
   }
@@ -190,31 +192,41 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Unsubscribes from the specified [RxChatContact].
+  void _unsubscribe(ChatContactId? id) {
+    if (_subscribedContacts.contains(id)) {
+      _subscribedContacts.remove(id);
+      contacts[id]?.user.value?.stopUpdates();
+    }
+  }
+
+  /// Subscribes to the specified [RxChatContact].
+  void _subscribe(RxChatContact c) {
+    UserId? userId = c.user.value?.id;
+    if (c.user.value != null) {
+      _unsubscribe(c.id);
+      _subscribedContacts.add(c.id);
+      contacts[c.id]?.user.value?.listenUpdates();
+    }
+
+    _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+      if (userId != user?.id) {
+        if (user != null) {
+          _unsubscribe(c.id);
+          _subscribedContacts.add(c.id);
+          contacts[c.id]?.user.value?.listenUpdates();
+        } else {
+          _unsubscribe(c.id);
+        }
+
+        userId = user?.id;
+      }
+    });
+  }
+
   /// Maintains [StreamSubscription]s to the [RxUser.updates] of every
   /// [RxChatContact.user] in the [contacts] list.
   Future<void> _initUsersSubscription() async {
-    // Subscribes to the specified [RxChatContact].
-    void _subscribe(RxChatContact c) {
-      UserId? userId = c.user.value?.id;
-      if (c.user.value != null) {
-        _userSubscription[c.id]?.cancel();
-        _userSubscription[c.id] = c.user.value!.updates.listen((_) {});
-      }
-
-      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
-        if (userId != user?.id) {
-          if (user != null) {
-            _userSubscription[c.id]?.cancel();
-            _userSubscription[c.id] = user.updates.listen((_) {});
-          } else {
-            _userSubscription.remove(c.id)?.cancel();
-          }
-
-          userId = user?.id;
-        }
-      });
-    }
-
     contacts.forEach((_, c) => _subscribe(c));
     _contactsSubscription = contacts.changes.listen((e) {
       switch (e.op) {
@@ -223,7 +235,7 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.removed:
-          _userSubscription.remove(e.key)?.cancel();
+          _unsubscribe(e.key);
           _userWorkers.remove(e.key)?.dispose();
           break;
 

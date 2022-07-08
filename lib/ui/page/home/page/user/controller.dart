@@ -85,9 +85,6 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
-  /// [StreamSubscription] to the [RxUser.updates] of this [user].
-  StreamSubscription? _userSubscription;
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -123,7 +120,7 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
-    _userSubscription?.cancel();
+    user?.stopUpdates();
     _contactsSubscription?.cancel();
     super.onClose();
   }
@@ -193,7 +190,7 @@ class UserController extends GetxController {
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
-      _userSubscription = user?.updates.listen((_) {});
+      user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);

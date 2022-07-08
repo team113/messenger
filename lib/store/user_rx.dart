@@ -47,18 +47,30 @@ class HiveRxUser extends RxUser {
   /// [StreamController] invoking [_initRemoteSubscription] on its
   /// [StreamController.onListen] callback and canceling it on
   /// [StreamController.onCancel].
-  late final StreamController _updatesController = StreamController.broadcast(
-    onListen: _initRemoteSubscription,
-    onCancel: _remoteSubscription?.cancel,
-  );
 
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamIterator<UserEvents>? _remoteSubscription;
 
+  /// Count of listeners that are listening this [User]'s updates.
+  int _listenersCount = 0;
+
   @override
-  Stream get updates => _updatesController.stream;
+  void listenUpdates() {
+    _listenersCount++;
+    if (_listenersCount == 1) {
+      _initRemoteSubscription();
+    }
+  }
+
+  @override
+  void stopUpdates() {
+    _listenersCount--;
+    if (_listenersCount == 0) {
+      _remoteSubscription?.cancel();
+    }
+  }
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription({bool noVersion = false}) async {
