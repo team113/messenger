@@ -23,14 +23,13 @@ import 'package:get/get.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 
 export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser, this._settingsRepository);
+  HomeController(this._auth, this._myUser);
 
   /// Maximum screen's width in pixels until side bar will be expanding.
   static double maxSideBarExpandWidth = 860;
@@ -49,9 +48,6 @@ class HomeController extends GetxController {
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
-
-  /// Settings repository used to update [User]'s locale.
-  final AbstractSettingsRepository _settingsRepository;
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;

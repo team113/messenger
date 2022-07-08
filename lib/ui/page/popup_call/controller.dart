@@ -24,7 +24,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/web/web_utils.dart';
 
@@ -32,16 +31,13 @@ export 'view.dart';
 
 /// Controller of the [Routes.call] page.
 class PopupCallController extends GetxController {
-  PopupCallController(this.chatId, this._calls, this._settingsRepository);
+  PopupCallController(this.chatId, this._calls);
 
   /// ID of a [Chat] this [call] is taking place in.
   final ChatId chatId;
 
   /// Reactive [OngoingCall] this [PopupCallController] represents.
   late final Rx<OngoingCall> call;
-
-  /// Settings repository used to update locale.
-  final AbstractSettingsRepository _settingsRepository;
 
   /// [CallService] maintaining the [call].
   final CallService _calls;

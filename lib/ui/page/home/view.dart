@@ -85,7 +85,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return GetBuilder(
-      init: HomeController(Get.find(), Get.find(), Get.find()),
+      init: HomeController(Get.find(), Get.find()),
       builder: (HomeController c) {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
