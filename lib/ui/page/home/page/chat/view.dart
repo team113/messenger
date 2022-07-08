@@ -1190,20 +1190,22 @@ extension DateTimeToRelative on DateTime {
         '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
     String date = '';
 
+    int months = 0;
     if (days >= 28) {
-      int months =
+      months =
           relative.month + relative.year * 12 - local.month - local.year * 12;
       if (relative.day < local.day) {
         months--;
       }
-
-      date = 'label_ago'.tdp({
-        'years': months ~/ 12,
-        'months': months,
-        'weeks': days ~/ 7,
-        'days': days,
-      });
     }
+    date = days > 0
+        ? 'label_ago'.tdp({
+            'years': months ~/ 12,
+            'months': months,
+            'weeks': days ~/ 7,
+            'days': days,
+          })
+        : '';
     return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
   }
 

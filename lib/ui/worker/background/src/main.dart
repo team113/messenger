@@ -371,8 +371,6 @@ class _BackgroundService {
         locale = 'en_US';
       }
 
-      // TODO(review): should be staticly initialized.
-      // L10n.bundle = FluentBundle(locale);
       L10n.chosen.value = locale;
       await L10n.load();
     }

@@ -54,9 +54,9 @@ class L10n {
   };
 
   /// [FluentBundle] providing translation.
-  static FluentBundle _bundle = FluentBundle('');
+  static final FluentBundle _bundle = FluentBundle('en_US');
 
-  /// Loads [chosen] locale to the [_bundle].
+  /// Loads [chosen] locale.
   static Future load() async {
     _bundle.messages.clear();
     _bundle.addMessages(
@@ -73,10 +73,9 @@ class L10n {
     chosen.refresh();
   }
 
-  /// Returns translated value due to loaded [_bundle] locale.
-  static String format(String key, {Map<String, dynamic> args = const {}}) {
-    return _bundle.format(key, args: args);
-  }
+  /// Returns translated value due to loaded locale.
+  static String format(String key, {Map<String, dynamic> args = const {}}) =>
+      _bundle.format(key, args: args);
 }
 
 /// Custom `Fluent` [LocalizationsDelegate].
@@ -90,7 +89,6 @@ class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
   @override
   Future<L10n> load(Locale locale) async {
     final String deviceLocale = locale.toString();
-    L10n._bundle = FluentBundle(deviceLocale);
     L10n.chosen.value = deviceLocale;
     await L10n.load();
     return L10n();
