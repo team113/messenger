@@ -121,7 +121,7 @@ class BlacklistEventsVersioned extends UserEvents {
   UserEventsKind get kind => UserEventsKind.blacklistEvent;
 }
 
-/// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
+/// Event of an [User] being added or removed to/from [MyUser]'s blacklist.
 abstract class BlacklistEvent {
   /// [BlacklistEventsKind] of this event.
   BlacklistEventsKind get kind;

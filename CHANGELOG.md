@@ -13,8 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- Store:
-    - User subscription ([#7], [#4]).
+- UI:
+    - User information auto-updating on changes ([#7], [#4]).
 
 ### Fixed
 
