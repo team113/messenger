@@ -31,6 +31,7 @@ extension Translate on String {
   String tdp(Map<String, dynamic> args) => L10n.format(this, args: args);
 }
 
+/// [Language] entity that is available in the app.
 class Language {
   const Language(this.name, this.locale);
   final String name;

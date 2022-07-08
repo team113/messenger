@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/routes.dart';
 import '/util/web/web_utils.dart';

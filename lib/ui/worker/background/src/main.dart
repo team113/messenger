@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:callkeep/callkeep.dart';
-import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
