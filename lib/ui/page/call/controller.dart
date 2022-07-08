@@ -192,17 +192,13 @@ class CallController extends GetxController {
   /// Indicator whether need to display more panel.
   final RxBool displayMore = RxBool(false);
 
-  /// Indicator whether more panel was displayed before user start dragging
-  /// buttons.
-  final RxBool morePanelBeforeStartDrag = RxBool(false);
-
   /// List of top panel [CallButton]'s.
   late final RxList<CallButton> panel;
 
   /// List of bottom panel [CallButton]'s.
   late final RxList<CallButton> buttons;
 
-  /// [Worker] for catching the changes of [showBottomUi].
+  /// [Worker] for catching the changes of [showUi].
   late final Worker _showUiWorker;
 
   /// [AnimationController] of a [MinimizableView] used to change the

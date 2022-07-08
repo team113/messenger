@@ -21,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
+
 /// Item builder function.
 typedef ButtonsDockBuilderFunction = Function(
   BuildContext context,
@@ -31,11 +33,13 @@ typedef ButtonsDockBuilderFunction = Function(
 class ReorderableDock<T> extends StatefulWidget {
   const ReorderableDock({
     required this.items,
-    required this.onReorder,
     required this.itemBuilder,
     required this.itemConstraints,
+    required this.chatId,
+    required this.onReorder,
     this.onDragStarted,
     this.onDragEnded,
+    this.onLeave,
     Key? key,
   }) : super(key: key);
 
@@ -45,17 +49,23 @@ class ReorderableDock<T> extends StatefulWidget {
   /// Builder building the [items].
   final ButtonsDockBuilderFunction itemBuilder;
 
+  /// [BoxConstraints] of item.
+  final BoxConstraints itemConstraints;
+
+  /// [ChatId] this [ReorderableDock] displayed.
+  final ChatId chatId;
+
   /// Callback, called when the [items] were reordered.
   final Function(List)? onReorder;
 
   /// Callback, called when any drag of [items] is started.
-  final Function()? onDragStarted;
+  final Function(DraggedItem)? onDragStarted;
 
   /// Callback, called when any drag of [items] is ended.
   final Function()? onDragEnded;
 
-  /// [BoxConstraints] of item.
-  final BoxConstraints itemConstraints;
+  /// Callback, called when any dragged item leave this [ReorderableDock].
+  final Function()? onLeave;
 
   @override
   State<ReorderableDock> createState() => _ReorderableDockState();
@@ -108,9 +118,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
   /// List of overlays.
   List<OverlayEntry> overlays = [];
 
-  /// Overlay item used in animations.
-  late OverlayEntry overlayEntry;
-
   /// Returns item width.
   double get itemWidth => (items.first.key.currentState == null ||
           items.first.key.currentState?.mounted == false ||
@@ -120,7 +127,8 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
   @override
   void initState() {
-    items = widget.items.map((e) => DraggedItem(e)).toList();
+    items =
+        widget.items.map((e) => DraggedItem(e, chatId: widget.chatId)).toList();
     super.initState();
   }
 
@@ -199,7 +207,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
                                   ?.call(items.map((e) => e.item).toList()),
                               onDragStarted: () {
                                 _resetAnimations();
-                                widget.onDragStarted?.call();
+                                widget.onDragStarted?.call(items[i]);
 
                                 // Get RenderBox of dragged item.
                                 RenderBox box = items[i]
@@ -222,7 +230,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
                               onDraggableCanceled: (v, o) {
                                 int savedDraggedIndex = draggedIndex;
                                 isAnimated = true;
-                                setState(() {});
                                 // Show animation of dragged item returns to its
                                 // start position.
                                 _showOverlay(
@@ -303,7 +310,15 @@ class _ReorderableDockState extends State<ReorderableDock> {
       key: dragZone,
       onAccept: _onAccept,
       onMove: _onMove,
-      onLeave: (a) => setState(() => expandBetween = -1),
+      onLeave: (DraggedItem? e) {
+        if (e?.chatId == widget.chatId) {
+          widget.onLeave?.call();
+          setState(() => expandBetween = -1);
+        }
+      },
+      onWillAccept: (DraggedItem? e) {
+        return e?.chatId == widget.chatId;
+      },
       builder: _builder,
     );
   }
@@ -325,7 +340,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
       // Insert item to item's list.
       items.insert(expandBetween, item);
 
-      // Save expandBetween integer.
+      // Save place where item will be added.
       int whereToPlace = expandBetween;
 
       // Reset expandBetween.
@@ -350,7 +365,8 @@ class _ReorderableDockState extends State<ReorderableDock> {
       items[whereToPlace].hide = true;
 
       // Reset animations.
-      setState(_resetAnimations);
+      _resetAnimations();
+      setState(() {});
 
       // Remove OverlayEntry with item from Overlay.
       overlayEntry.remove();
@@ -361,6 +377,8 @@ class _ReorderableDockState extends State<ReorderableDock> {
       // Post frame callBack to display animation of adding item to items
       // list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() => isAnimated = true);
+
         // Get RenderBox of recently added item.
         RenderBox box = items[whereToPlace]
             .reserveKey
@@ -369,9 +387,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
         // Get position of recently added item.
         Offset position = box.localToGlobal(Offset.zero);
-
-
-        setState(() => isAnimated = true);
 
         // Display animation of adding item.
         _showOverlay(
@@ -396,7 +411,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
     // Otherwise the provided [item] is already in the list.
     else {
-      // Get integer position of same item.
+      // Get position of same item.
       int i =
           items.indexWhere((e) => e.item.toString() == item.item.toString());
       if (i == expandBetween || i + 1 == expandBetween) {
@@ -442,7 +457,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
       // Remove same item.
       items.removeAt(i);
 
-      // Save integer number of place where item will be added.
+      // Save place where item will be added.
       int whereToPlace = expandBetween;
       if (whereToPlace > i) {
         whereToPlace--;
@@ -465,21 +480,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
       // Remove OverlayEntry from Overlay.
       overlayEntry.remove();
 
-      setState(() {});
+      if (whereToPlace < i) {
+        compressBetween = i + 1;
+      } else {
+        compressBetween = i;
+      }
 
-      // Remove same item.
-      setState(() {
-        if (whereToPlace < i) {
-          compressBetween = i + 1;
-        } else {
-          compressBetween = i;
-        }
-      });
-
-      setState(() {
-        isAnimated = true;
-        dragged = null;
-      });
+      isAnimated = true;
+      dragged = null;
 
       // Display animation of sliding item from old place to new place.
       _showOverlay(
@@ -502,8 +510,11 @@ class _ReorderableDockState extends State<ReorderableDock> {
     setState(() {});
   }
 
-  /// Calculates the position to drop the provided item at, if any.
+  /// Calculates the position to drop the provided item at.
   void _onMove(DragTargetDetails<DraggedItem> d) {
+    if (d.data.chatId != widget.chatId) {
+      return;
+    }
     // Get RenderBox of drag&drop zone.
     RenderBox box = dragZone.currentContext!.findRenderObject() as RenderBox;
 
@@ -558,11 +569,10 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
   /// Resets items animations.
   void _resetAnimations() {
-    Duration oldAnimationsDuration = animationsDuration;
     animationsDuration = Duration.zero;
     SchedulerBinding.instance.addPostFrameCallback(
       (_) => Future.delayed(
-          Duration.zero, () => animationsDuration = oldAnimationsDuration),
+          Duration.zero, () => animationsDuration = 150.milliseconds),
     );
   }
 
@@ -576,37 +586,41 @@ class _ReorderableDockState extends State<ReorderableDock> {
     required Function onEnd,
     BoxConstraints? endConstraints,
   }) async {
-    overlayEntry = OverlayEntry(
+    var overlayEntry = OverlayEntry(
       builder: (context) => _OverlayBlock(
-        widget.itemBuilder,
-        item,
-        from,
-        to,
-        itemConstraints,
-        animationMovingDuration,
-        overlayEntry,
-        onEnd,
+        itemBuilder: widget.itemBuilder,
+        item: item,
+        from: from,
+        to: to,
+        itemConstraints: itemConstraints,
+        animationDuration: animationMovingDuration,
         endConstraints: endConstraints,
       ),
     );
 
     overlays.add(overlayEntry);
-
     Overlay.of(context)!.insert(overlayEntry);
+
+    await Future.delayed(animationMovingDuration);
+
+    overlayEntry.remove();
+    overlays.remove(overlayEntry);
+    onEnd();
   }
 }
 
 /// Dragged item class.
 class DraggedItem<T> {
-  DraggedItem(this.item);
+  DraggedItem(this.item, {required this.chatId});
 
   /// Dragged item.
   T item;
 
+  /// [ChatId] this item placed.
+  ChatId chatId;
+
   /// [GlobalKey] of item.
   GlobalKey key = GlobalKey();
-
-  bool slowHide = false;
 
   /// [GlobalKey] reserve key of item.
   GlobalKey reserveKey = GlobalKey();
@@ -635,17 +649,16 @@ class DraggedItem<T> {
 
 /// Overlay block of item.
 class _OverlayBlock extends StatefulWidget {
-  const _OverlayBlock(
-    this.itemBuilder,
-    this.item,
-    this.from,
-    this.to,
-    this.itemConstraints,
-    this.animationDuration,
-    this.overlay,
-    this.onEnd, {
+  const _OverlayBlock({
+    Key? key,
+    required this.itemBuilder,
+    required this.item,
+    required this.from,
+    required this.to,
+    required this.itemConstraints,
+    required this.animationDuration,
     this.endConstraints,
-  });
+  }) : super(key: key);
 
   /// [DraggedItem] of this overlay.
   final DraggedItem item;
@@ -668,17 +681,11 @@ class _OverlayBlock extends StatefulWidget {
   /// Duration of animation.
   final Duration animationDuration;
 
-  /// Overlay of this block.
-  final OverlayEntry overlay;
-
-  /// Callback called when animation is ended.
-  final Function onEnd;
-
   @override
   State<_OverlayBlock> createState() => _OverlayBlockState();
 }
 
-/// State of [_OverlayBlock].
+/// State of [_OverlayBlock], used to play animation.
 class _OverlayBlockState extends State<_OverlayBlock> {
   /// Offset of this widget.
   late Offset offset = widget.from;
@@ -704,10 +711,6 @@ class _OverlayBlockState extends State<_OverlayBlock> {
         left: offset.dx,
         top: offset.dy,
         curve: Curves.ease,
-        onEnd: () {
-          widget.onEnd.call();
-          widget.overlay.remove();
-        },
         child: AnimatedContainer(
           duration: widget.animationDuration,
           constraints: constraints,

@@ -428,7 +428,7 @@ Widget desktopCall(
                   ? AnimatedSlider(
                       key: const Key('DockedPanelPadding'),
                       isOpen: showBottomUi,
-                      duration: const Duration(milliseconds: 400),
+                      duration: 400.milliseconds,
                       translate: false,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -470,28 +470,27 @@ Widget desktopCall(
                                     duration: const Duration(milliseconds: 150),
                                     child: ReorderableDock<CallButton>(
                                       items: c.buttons,
-                                      onReorder: (buttons) {
-                                        c.buttons.clear();
-                                        c.buttons
-                                            .addAll(buttons.cast<CallButton>());
-                                      },
-                                      onDragStarted: () {
-                                        // c.morePanelBeforeStartDrag.value =
-                                        //     c.displayMore.value;
-                                        c.displayMore.value = true;
-                                        c.hideHint.value = true;
-                                      },
-                                      onDragEnded: () {
-                                        c.hideHint.value = false;
-                                        // c.displayMore.value =
-                                        //     c.morePanelBeforeStartDrag.value;
-                                      },
                                       itemConstraints: BoxConstraints(
                                         maxWidth: c.buttonSize.value,
                                         maxHeight: c.buttonSize.value,
                                       ),
                                       itemBuilder: (context, item) => item.item
                                           .build(context, true, small: true),
+                                      chatId: c.chatId,
+                                      onReorder: (buttons) {
+                                        c.buttons.clear();
+                                        c.buttons
+                                            .addAll(buttons.cast<CallButton>());
+                                      },
+                                      onDragStarted: (b) {
+                                        c.draggedButton.value = b.item as CallButton;
+                                        c.hideHint.value = true;
+                                      },
+                                      onDragEnded: () {
+                                        c.hideHint.value = false;
+                                        c.draggedButton.value = null;
+                                      },
+                                      onLeave: () => c.displayMore.value = true,
                                     ),
                                   ),
                                 ),
@@ -536,9 +535,9 @@ Widget desktopCall(
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: candidate.isEmpty
-                        ? const Color(0x9D165084)
-                        : const Color.fromARGB(47, 34, 128, 209),
+                    color: candidate.any((e) => e?.chatId == c.chatId)
+                        ? const Color.fromARGB(47, 34, 128, 209)
+                        : const Color(0x9D165084),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -575,7 +574,7 @@ Widget desktopCall(
                                             ),
                                           ),
                                         ),
-                                        data: DraggedItem(e),
+                                        data: DraggedItem(e, chatId: c.chatId),
                                         onDragStarted: () {
                                           c.draggedButton.value = e;
                                           c.hideHint.value = true;
@@ -625,7 +624,7 @@ Widget desktopCall(
             bool isDocked = c.state.value == OngoingCallState.active ||
                 c.state.value == OngoingCallState.joining;
             bool displayMore =
-                (c.displayMore.value || c.draggedButton.value != null);
+                (c.displayMore.value);
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -654,11 +653,13 @@ Widget desktopCall(
                           onAccept: (DraggedItem data) {
                             c.buttons.remove(data.item);
                             c.hideHint.value = false;
+                            c.draggedButton.value = null;
                           },
-                          onWillAccept: (a) =>
-                              (a != null && (a.item as CallButton).isRemovable)
-                                  ? true
-                                  : false,
+                          onWillAccept: (a) => (a != null &&
+                                  a.chatId == c.chatId &&
+                                  (a.item as CallButton).isRemovable)
+                              ? true
+                              : false,
                           builder: _builder,
                         )
                       ],
