@@ -74,7 +74,7 @@ class ReorderableDock<T> extends StatefulWidget {
 /// State of [ReorderableDock].
 class _ReorderableDockState extends State<ReorderableDock> {
   /// Duration of animation moving button to his place on end of dragging.
-  Duration animationMovingDuration = const Duration(milliseconds: 150);
+  Duration movingAnimationDuration = const Duration(milliseconds: 150);
 
   /// List of items.
   List<DraggedItem> items = [];
@@ -173,7 +173,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
                   AnimatedWidth(
                     beginWidth: widget.itemConstraints.maxWidth,
                     endWidth: 0,
-                    duration: animationMovingDuration,
+                    duration: movingAnimationDuration,
                   ),
                 Flexible(
                   flex: expandBetween == 0 && expandBetween == i ? 1 : 0,
@@ -292,7 +292,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
                 AnimatedWidth(
                   beginWidth: widget.itemConstraints.maxWidth,
                   endWidth: 0,
-                  duration: animationMovingDuration,
+                  duration: movingAnimationDuration,
                 ),
               Flexible(
                 flex: 1,
@@ -351,9 +351,14 @@ class _ReorderableDockState extends State<ReorderableDock> {
         builder: (context) => Positioned(
           left: moveDragOffset!.dx,
           top: moveDragOffset!.dy,
-          child: KeyedSubtree(
-            key: item.key,
-            child: widget.itemBuilder(context, item),
+          child: Container(
+            constraints: startDragConstraints != null
+                ? startDragConstraints!
+                : widget.itemConstraints,
+            child: KeyedSubtree(
+              key: item.key,
+              child: widget.itemBuilder(context, item),
+            ),
           ),
         ),
       );
@@ -368,15 +373,15 @@ class _ReorderableDockState extends State<ReorderableDock> {
       _resetAnimations();
       setState(() {});
 
-      // Remove OverlayEntry with item from Overlay.
-      overlayEntry.remove();
-
       // Save dragged item.
       var localDragged = dragged;
 
       // Post frame callBack to display animation of adding item to items
       // list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Remove OverlayEntry with item from Overlay.
+        overlayEntry.remove();
+
         setState(() => isAnimated = true);
 
         // Get RenderBox of recently added item.
@@ -420,7 +425,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
         _resetAnimations();
       }
 
-      OverlayEntry? overlayEntry;
       Offset? startPosition;
 
       // Get RenderBox of same item.
@@ -432,22 +436,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
 
       // Get Offset position of same item.
       startPosition = box.localToGlobal(Offset.zero);
-
-      // OverlayEntry with item that will be showed until animation
-      // started.
-      overlayEntry = OverlayEntry(
-          builder: (context) => Positioned(
-                left: startPosition!.dx,
-                top: startPosition.dy,
-                child: Opacity(
-                  key: item.key,
-                  opacity: 1,
-                  child: widget.itemBuilder(context, item),
-                ),
-              ));
-
-      // Add OverlayEntry to Overlay.
-      overlayState!.insert(overlayEntry);
 
       // Add GlobalKey's to item and item's divider.
       item.key = GlobalKey();
@@ -476,9 +464,6 @@ class _ReorderableDockState extends State<ReorderableDock> {
         items[whereToPlace].hide = true;
       }
       expandBetween = -1;
-
-      // Remove OverlayEntry from Overlay.
-      overlayEntry.remove();
 
       if (whereToPlace < i) {
         compressBetween = i + 1;
@@ -593,7 +578,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
         from: from,
         to: to,
         itemConstraints: itemConstraints,
-        animationDuration: animationMovingDuration,
+        animationDuration: movingAnimationDuration,
         endConstraints: endConstraints,
       ),
     );
@@ -601,7 +586,7 @@ class _ReorderableDockState extends State<ReorderableDock> {
     overlays.add(overlayEntry);
     Overlay.of(context)!.insert(overlayEntry);
 
-    await Future.delayed(animationMovingDuration);
+    await Future.delayed(movingAnimationDuration);
 
     overlayEntry.remove();
     overlays.remove(overlayEntry);

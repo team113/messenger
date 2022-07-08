@@ -483,7 +483,8 @@ Widget desktopCall(
                                             .addAll(buttons.cast<CallButton>());
                                       },
                                       onDragStarted: (b) {
-                                        c.draggedButton.value = b.item as CallButton;
+                                        c.draggedButton.value =
+                                            b.item as CallButton;
                                         c.hideHint.value = true;
                                       },
                                       onDragEnded: () {
@@ -554,7 +555,9 @@ Widget desktopCall(
                           runSpacing: 21,
                           children: c.panel
                               .map(
-                                (e) => SizedBox(
+                                (e) {
+                                  var data = DraggedItem(e, chatId: c.chatId);
+                                  return SizedBox(
                                   width: 100,
                                   height: 100,
                                   child: Column(
@@ -567,14 +570,17 @@ Widget desktopCall(
                                           child: SizedBox(
                                             height: c.buttonSize.value,
                                             width: c.buttonSize.value,
-                                            child: e.build(
-                                              context,
-                                              true,
-                                              small: true,
+                                            child: KeyedSubtree(
+                                              key: data.key,
+                                              child: e.build(
+                                                context,
+                                                true,
+                                                small: true,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        data: DraggedItem(e, chatId: c.chatId),
+                                        data: data,
                                         onDragStarted: () {
                                           c.draggedButton.value = e;
                                           c.hideHint.value = true;
@@ -604,7 +610,8 @@ Widget desktopCall(
                                       )
                                     ],
                                   ),
-                                ),
+                                );
+                                },
                               )
                               .toList(),
                         ),
@@ -623,8 +630,7 @@ Widget desktopCall(
           child: Obx(() {
             bool isDocked = c.state.value == OngoingCallState.active ||
                 c.state.value == OngoingCallState.joining;
-            bool displayMore =
-                (c.displayMore.value);
+            bool displayMore = c.displayMore.value;
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -713,26 +719,33 @@ Widget desktopCall(
 
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
+          bool enabled = !c.isSelfPanning.value &&
+              !c.displayMore.value &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
           return Align(
             alignment: Alignment.bottomCenter,
             child: SizedBox(
               height: 100,
               width: double.infinity,
-              child: !c.isSelfPanning.value &&
-                      !c.displayMore.value &&
-                      c.primaryDrags.value == 0 &&
-                      c.secondaryDrags.value == 0
-                  ? MouseRegion(
-                      opaque: false,
-                      onEnter: (d) => c.keepUi(true),
-                      onHover: (d) => c.keepUi(true),
-                      onExit: (d) {
-                        if (c.showUi.value) {
-                          c.keepUi(false);
-                        }
-                      },
-                    )
-                  : Container(),
+              child: MouseRegion(
+                opaque: false,
+                onEnter: (d) {
+                  if (enabled) {
+                    c.keepUi(true);
+                  }
+                },
+                onHover: (d) {
+                  if (enabled) {
+                    c.keepUi(true);
+                  }
+                },
+                onExit: (d) {
+                  if (c.showUi.value && enabled) {
+                    c.keepUi(false);
+                  }
+                },
+              ),
             ),
           );
         }),
