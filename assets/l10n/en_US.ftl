@@ -245,8 +245,8 @@ label_direct_chat_link_in_chat_description = Users who came via a direct
     - send messages to group chat,
     - make calls
 label_drop_here = 
-Drop here
-to upload
+    Drop here
+    to upload
 label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
