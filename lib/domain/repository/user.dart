@@ -70,11 +70,11 @@ abstract class RxUser {
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
 
-  /// Increments counter of [User]'s updates listeners and starts listening the
-  /// updates if needed.
+  /// Notifies this [RxUser] that some listener wants to receive this [User]'s
+  /// updates.
   void listenUpdates();
 
-  /// Decrements counter of [User]'s updates listeners and stops listening
-  /// the updates if needed.
+  /// Notifies this [RxUser] that some listener wants to stop receiving of this
+  /// [User]'s updates.
   void stopUpdates();
 }
