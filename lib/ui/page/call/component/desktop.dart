@@ -553,67 +553,65 @@ Widget desktopCall(
                           alignment: WrapAlignment.center,
                           spacing: 4,
                           runSpacing: 21,
-                          children: c.panel
-                              .map(
-                                (e) {
-                                  var data = DraggedItem(e, chatId: c.chatId);
-                                  return SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: Column(
-                                    children: [
-                                      Draggable(
-                                        feedback: Transform.translate(
-                                          offset: Offset(
-                                              c.buttonSize.value / 2 * -1,
-                                              c.buttonSize.value / 2 * -1),
-                                          child: SizedBox(
-                                            height: c.buttonSize.value,
-                                            width: c.buttonSize.value,
-                                            child: KeyedSubtree(
-                                              key: data.key,
-                                              child: e.build(
-                                                context,
-                                                true,
-                                                small: true,
-                                              ),
+                          children: c.panel.map(
+                            (e) {
+                              var data = DraggedItem(e, chatId: c.chatId);
+                              return SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: Column(
+                                  children: [
+                                    Draggable(
+                                      feedback: Transform.translate(
+                                        offset: Offset(
+                                            c.buttonSize.value / 2 * -1,
+                                            c.buttonSize.value / 2 * -1),
+                                        child: SizedBox(
+                                          height: c.buttonSize.value,
+                                          width: c.buttonSize.value,
+                                          child: KeyedSubtree(
+                                            key: data.key,
+                                            child: e.build(
+                                              context,
+                                              true,
+                                              small: true,
                                             ),
                                           ),
                                         ),
-                                        data: data,
-                                        onDragStarted: () {
-                                          c.draggedButton.value = e;
-                                          c.hideHint.value = true;
-                                        },
-                                        onDragCompleted: () =>
-                                            c.draggedButton.value = null,
-                                        onDragEnd: (_) =>
-                                            c.draggedButton.value = null,
-                                        onDraggableCanceled: (_, __) {
-                                          c.draggedButton.value = null;
-                                          c.hideHint.value = false;
-                                        },
-                                        maxSimultaneousDrags:
-                                            e.isRemovable ? null : 0,
-                                        dragAnchorStrategy:
-                                            pointerDragAnchorStrategy,
-                                        child: e.build(context, false),
                                       ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        e.hint,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.white,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      )
-                                    ],
-                                  ),
-                                );
-                                },
-                              )
-                              .toList(),
+                                      data: data,
+                                      onDragStarted: () {
+                                        c.draggedButton.value = e;
+                                        c.hideHint.value = true;
+                                      },
+                                      onDragCompleted: () =>
+                                          c.draggedButton.value = null,
+                                      onDragEnd: (_) =>
+                                          c.draggedButton.value = null,
+                                      onDraggableCanceled: (_, __) {
+                                        c.draggedButton.value = null;
+                                        c.hideHint.value = false;
+                                      },
+                                      maxSimultaneousDrags:
+                                          e.isRemovable ? null : 0,
+                                      dragAnchorStrategy:
+                                          pointerDragAnchorStrategy,
+                                      child: e.build(context, false),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      e.hint,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.white,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              );
+                            },
+                          ).toList(),
                         ),
                         const SizedBox(height: 20),
                       ],
