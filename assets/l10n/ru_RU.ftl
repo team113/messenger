@@ -9,9 +9,9 @@ alert_are_you_sure_want_to_log_out =
     Вы действительно хотите выйти из аккаунта?
     Ваши активные звонки будут завершены.
 alert_popup_permissions_button = Открыть настройки
-alert_popup_permissions_description = Вы не сможете принимать звонки, пока 
+alert_popup_permissions_description = Вы не сможете принимать звонки, пока
     приложение свёрнуто, без следующих разрешений:
-    
+
     - Экран блокировки;
 
     - Отображать всплывающие окна, когда запущено в фоновом режиме;
@@ -26,10 +26,10 @@ btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
 btn_back = Назад
 btn_blacklist = Добавить в черный список
-btn_call_answer_with_audio = 
+btn_call_answer_with_audio =
     Ответить
     только аудио
-btn_call_answer_with_video = 
+btn_call_answer_with_video =
     Ответить
     с видео
 btn_call_audio_off = Выключить микрофон
@@ -40,7 +40,7 @@ btn_call_cut_video = Обрезать видео
 btn_call_decline = Отклонить
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
-btn_call_drop_video_here = 
+btn_call_drop_video_here =
     Перенесите любое
     видео сюда
 btn_call_enable_video = Включить видео
@@ -94,12 +94,12 @@ err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
 err_call_monolog = Вы не можете позвонить себе
 err_call_not_found = Данный звонок не найден
-err_call_popup_was_blocked = 
+err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята
-err_code_limit_exceed = Превышен лимит отправок кодов восстановления. 
+err_code_limit_exceed = Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
 err_contact_not_group = Чат с указанным ID не является группой
 err_contact_too_many =
@@ -190,7 +190,7 @@ label_ago = { $years ->
                 }
             [1] месяц назад
             *[other] {$months} месяцев назад
-        }  
+        }
     [1] год назад
     *[other] {$years} лет назад
 }
@@ -232,24 +232,24 @@ label_current_password = Текущий пароль
 label_delete_for_all = Удалить для всех
 label_delivered = Доставлено
 label_direct_chat_link = Прямая ссылка на чат
-label_direct_chat_link_description = Пользователи, пришедшие по прямой 
-    ссылке на чат, добавляются в Ваш список чатов автоматически. 
+label_direct_chat_link_description = Пользователи, пришедшие по прямой
+    ссылке на чат, добавляются в Ваш список чатов автоматически.
     Они имеют возможность, независимо от настроек конфиденциальности:
 
     - просматривать Ваш профиль,
     - отправлять Вам сообщения,
     - совершать звонки
 
-    После удаления чата, созданного по прямой ссылке на чат, 
+    После удаления чата, созданного по прямой ссылке на чат,
     применяются Ваши настройки конфиденциальности
-label_direct_chat_link_in_chat_description = Пользователи, пришедшие по 
-    прямой ссылке на чат, добавляются в список участников чата 
+label_direct_chat_link_in_chat_description = Пользователи, пришедшие по
+    прямой ссылке на чат, добавляются в список участников чата
     автоматически. Они имеют возможность =
 
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,
     - совершать звонки
-label_drop_here = 
+label_drop_here =
     Перетащите сюда,
     чтобы прикрепить
 label_duration_hour_short = ч

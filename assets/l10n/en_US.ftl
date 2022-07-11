@@ -5,13 +5,13 @@ alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this E-mail?
 alert_are_you_sure_want_to_delete_phone =
  Are you sure you want to delete this phone number?
-alert_are_you_sure_want_to_log_out = 
+alert_are_you_sure_want_to_log_out =
     Are you sure you want to log out?
     Your active calls will be ended.
 alert_popup_permissions_button = Open settings
-alert_popup_permissions_description = 
-    You will not be able to accept calls 
-    while the app is in background if the following permissions are 
+alert_popup_permissions_description =
+    You will not be able to accept calls
+    while the app is in background if the following permissions are
     disabled:
 
     - Show on Lock screen;
@@ -27,10 +27,10 @@ btn_allow = Allow
 btn_audio_call = Audio call
 btn_back = Back
 btn_blacklist = Add to blacklist
-btn_call_answer_with_audio = 
+btn_call_answer_with_audio =
     Answer
     audio only
-btn_call_answer_with_video = 
+btn_call_answer_with_video =
     Answer
     with video
 btn_call_audio_off = Mute
@@ -38,10 +38,10 @@ btn_call_audio_on = Unmute
 btn_call_cancel = Cancel call
 btn_call_center_video = Center video
 btn_call_cut_video = Cut video
-btn_call_decline = Decline 
+btn_call_decline = Decline
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
-btn_call_drop_video_here = 
+btn_call_drop_video_here =
     Drop any
     video here
 btn_call_enable_video = Enable video
@@ -95,7 +95,7 @@ err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
 err_call_monolog = You can\t call yourself
 err_call_not_found = Call not found
-err_call_popup_was_blocked = 
+err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
 err_chat_contact_not_owner = Access to contact denied
@@ -187,7 +187,7 @@ label_ago = { $years ->
                 }
             [1] month ago
             *[other] {$months} months ago
-        }  
+        }
     [1] year ago
     *[other] {$years} years ago
 }
@@ -229,22 +229,22 @@ label_current_password = Current password
 label_delete_for_all = Delete for all
 label_delivered = Delivered
 label_direct_chat_link = Direct chat link
-label_direct_chat_link_description = Users who came via a direct link to 
-    the chat are automatically added to your chat list. Regardless of your 
+label_direct_chat_link_description = Users who came via a direct link to
+    the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
     - visit your profile,
     - send you messages,
     - make calls
 
-    After the chat created by this link is deleted, your privacy 
+    After the chat created by this link is deleted, your privacy
     settings are respected.
-label_direct_chat_link_in_chat_description = Users who came via a direct 
+label_direct_chat_link_in_chat_description = Users who came via a direct
     link to the chat are automatically added to chat members. They can:
 
     - visit group profile,
     - send messages to group chat,
     - make calls
-label_drop_here = 
+label_drop_here =
     Drop here
     to upload
 label_duration_hour_short = h
@@ -328,4 +328,4 @@ label_unread_messages = Unread messages
 label_video = Video
 label_video_call = Video call
 label_you = You
-  label_you_were_added_to_group = You were added to the group
+label_you_were_added_to_group = You were added to the group

@@ -21,24 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-/// Extension adding an ability to get translated [String] from the [L10n].
-extension Translate on String {
-  /// Returns a value identified by this [String] from the [L10n].
-  String get td => L10n.format(this);
-
-  /// Returns a value identified by this [String] from the [L10n]
-  /// with the provided [args].
-  String tdp(Map<String, dynamic> args) => L10n.format(this, args: args);
-}
-
-/// [Language] entity that is available in the app.
-class Language {
-  const Language(this.name, this.locale);
-  final String name;
-  final Locale locale;
-}
-
-/// Class that provides [FluentBundle] functionality.
+/// Localization of this application.
 class L10n {
   /// Currently selected language.
   static Rx<String?> chosen = Rx(null);
@@ -58,7 +41,7 @@ class L10n {
   static final FluentBundle _bundle = FluentBundle('en_US');
 
   /// Loads [chosen] locale.
-  static Future load() async {
+  static Future<void> load() async {
     _bundle.messages.clear();
     _bundle.addMessages(
         await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
@@ -75,13 +58,31 @@ class L10n {
   }
 
   /// Returns translated value due to loaded locale.
-  static String format(String key, {Map<String, dynamic> args = const {}}) =>
+  static String _format(String key, {Map<String, dynamic> args = const {}}) =>
       _bundle.format(key, args: args);
+}
+
+/// [Language] entity that is available in the app.
+class Language {
+  const Language(this.name, this.locale);
+  final String name;
+  final Locale locale;
+}
+
+/// Extension adding an ability to get translated [String] from the [L10n].
+extension L10nExtension on String {
+  /// Returns a value identified by this [String] from the [L10n].
+  String get td => L10n._format(this);
+
+  /// Returns a value identified by this [String] from the [L10n] with the
+  /// provided [args].
+  String tdp(Map<String, dynamic> args) => L10n._format(this, args: args);
 }
 
 /// Custom `Fluent` [LocalizationsDelegate].
 class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
   const _FluentLocalizationsDelegate();
+
   @override
   bool isSupported(Locale locale) {
     return L10n.languages.keys.any((k) => k == locale.toString());

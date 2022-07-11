@@ -1198,14 +1198,16 @@ extension DateTimeToRelative on DateTime {
         months--;
       }
     }
-    date = days > 0
-        ? 'label_ago'.tdp({
-            'years': months ~/ 12,
-            'months': months,
-            'weeks': days ~/ 7,
-            'days': days,
-          })
-        : '';
+
+    if (days > 0) {
+      date = 'label_ago'.tdp({
+        'years': months ~/ 12,
+        'months': months,
+        'weeks': days ~/ 7,
+        'days': days,
+      });
+    }
+
     return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
   }
 

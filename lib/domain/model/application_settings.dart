@@ -23,14 +23,14 @@ part 'application_settings.g.dart';
 /// Overall application settings used by the whole app.
 @HiveType(typeId: ModelTypeId.applicationSettings)
 class ApplicationSettings extends HiveObject {
-  ApplicationSettings({this.enablePopups});
+  ApplicationSettings({this.enablePopups, this.locale});
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
   /// separate popup windows, or otherwise inside the main application.
   @HiveField(0)
   bool? enablePopups;
 
-  /// Language to use in the application.
+  /// Preferred language to use in the application.
   @HiveField(1)
   String? locale;
 }

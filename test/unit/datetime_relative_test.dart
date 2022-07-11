@@ -22,7 +22,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   L10n.chosen.value = 'en_US';
   await L10n.load();
-  test('DateTime.toRelative returns correct representations', () async {
+  test('DateTime.toRelative returns correct representations', () {
     expect(
       DateTime(2022, 2, 17, 13, 40).toRelative(DateTime(2022, 2, 17, 13, 40)),
       '13:40',

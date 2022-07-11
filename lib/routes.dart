@@ -18,6 +18,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/worker/settings.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/user.dart';
@@ -379,6 +380,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   .put(ApplicationSettingsHiveProvider())
                   .init(userId: me);
 
+              AbstractSettingsRepository settingsRepository =
+                  deps.put<AbstractSettingsRepository>(
+                SettingsRepository(Get.find(), Get.find()),
+              );
+
+              // Should be initialized before any [L10n]-dependant entities.
+              await deps.put(SettingsWorker(settingsRepository)).init();
+
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository = UserRepository(
                 graphQlProvider,
@@ -404,10 +413,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
-              AbstractSettingsRepository settingsRepository =
-                  deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find()),
-              );
               AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(CallRepository(
                 graphQlProvider,
@@ -421,14 +426,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
-
-              final String? locale =
-                  settingsRepository.applicationSettings.value?.locale;
-              if (locale != null) {
-                await L10n.setLocale(locale);
-              } else {
-                await settingsRepository.setLocale(L10n.chosen.value!);
-              }
 
               MyUserService myUserService =
                   deps.put(MyUserService(Get.find(), myUserRepository));
@@ -464,6 +461,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await deps.put(ContactHiveProvider()).init(userId: me);
             await deps.put(MediaSettingsHiveProvider()).init(userId: me);
             await deps.put(ApplicationSettingsHiveProvider()).init(userId: me);
+
+            AbstractSettingsRepository settingsRepository =
+                deps.put<AbstractSettingsRepository>(
+              SettingsRepository(Get.find(), Get.find()),
+            );
+
+            // Should be initialized before any [L10n]-dependant entities.
+            await deps.put(SettingsWorker(settingsRepository)).init();
 
             GraphQlProvider graphQlProvider = Get.find();
             UserRepository userRepository = UserRepository(
@@ -503,18 +508,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-            AbstractSettingsRepository settingsRepository =
-                deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find()),
-            );
-
-            final String? locale =
-                settingsRepository.applicationSettings.value?.locale;
-            if (locale != null) {
-              await L10n.setLocale(locale);
-            } else {
-              await settingsRepository.setLocale(L10n.chosen.value!);
-            }
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
@@ -540,7 +533,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             ));
 
-            deps.put(MyUserWorker(Get.find()));
+            deps.put(MyUserWorker(myUserService));
 
             return deps;
           },
