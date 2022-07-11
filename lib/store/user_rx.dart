@@ -46,25 +46,26 @@ class HiveRxUser extends RxUser {
 
   /// [UserRepository.userEvents] subscription.
   ///
-  /// May be uninitialized since connection establishment may fail.
+  /// May be uninitialized if [_listeners] counter is equal to zero.
   StreamIterator<UserEvents>? _remoteSubscription;
 
-  /// Count of listeners that are listening this [User]'s updates.
-  int _listenersCount = 0;
+  /// Reference counter for [_remoteSubscription]'s actuality.
+  ///
+  /// [_remoteSubscription] is up only if this counter is greater than zero.
+  int _listeners = 0;
 
   @override
   void listenUpdates() {
-    _listenersCount++;
-    if (_listenersCount == 1) {
+    if (_listeners++ == 0) {
       _initRemoteSubscription();
     }
   }
 
   @override
   void stopUpdates() {
-    _listenersCount--;
-    if (_listenersCount == 0) {
+    if (--_listeners == 0) {
       _remoteSubscription?.cancel();
+      _remoteSubscription = null;
     }
   }
 

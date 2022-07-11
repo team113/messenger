@@ -139,18 +139,16 @@ class ContactsTabController extends GetxController {
       },
     );
 
-    _initUsersSubscription();
+    _initUsersUpdates();
 
     super.onInit();
   }
 
   @override
   void onClose() {
+    contacts.forEach((_, c) => c.user.value?.stopUpdates());
     _contactsSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
-    contacts.forEach((_, c) {
-      c.user.value?.stopUpdates();
-    });
     super.onClose();
   }
 
@@ -189,38 +187,30 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Initializes receiving of updates of every [RxChatContact.user] in the
-  ///  [contacts] list.
-  void _initUsersSubscription() {
-    // Subscribes to the specified [RxChatContact].
-    void _subscribe(RxChatContact c) {
-      UserId? userId = c.user.value?.id;
-      if (c.user.value != null) {
-        contacts[c.id]?.user.value?.listenUpdates();
-      }
-
+  /// Maintains an interest in updates of every [RxChatContact.user] in the
+  /// [contacts] list.
+  void _initUsersUpdates() {
+    /// States an interest in updates of the specified [RxChatContact.user].
+    void _listen(RxChatContact c) {
+      RxUser? rxUser = c.user.value?..listenUpdates();
       _userWorkers[c.id] = ever(c.user, (RxUser? user) {
-        if (userId != user?.id) {
-          if (user != null) {
-            contacts[c.id]?.user.value?.listenUpdates();
-          } else {
-            contacts[c.id]?.user.value?.stopUpdates();
-          }
-          userId = user?.id;
+        if (rxUser?.id != user?.id) {
+          rxUser?.stopUpdates();
+          rxUser = user?..listenUpdates();
         }
       });
     }
 
-    contacts.forEach((_, c) => _subscribe(c));
+    contacts.forEach((_, c) => _listen(c));
     _contactsSubscription = contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _subscribe(e.value!);
+          _listen(e.value!);
           break;
 
         case OperationKind.removed:
-          _userWorkers.remove(e.key)?.dispose();
           e.value?.user.value?.stopUpdates();
+          _userWorkers.remove(e.key)?.dispose();
           break;
 
         case OperationKind.updated:
