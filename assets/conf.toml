@@ -18,6 +18,7 @@
 #
 # Default:
 #   port = 80
+port = 82
 
 # GraphQL API endpoint of HTTP backend server.
 #
@@ -38,6 +39,7 @@
 #
 # Default:
 #   port = 80
+port = 82
 
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.

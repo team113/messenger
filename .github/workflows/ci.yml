@@ -181,6 +181,31 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main'
              || startsWith(github.ref, 'refs/tags/v') }}
 
+    docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+      - uses: docker/setup-buildx-action@v2
+
+      - run: make flutter.pub
+      - run: make docker.build debug=no no-cache=yes
+                  tag=build-${{ github.run_number }}
+
+      - run: make docker.tar to-file=image.tar
+                  tags=build-${{ github.run_number }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+          path: image.tar
+          retention-days: 1
+
 
 
 
@@ -203,6 +228,28 @@ jobs:
 
       - run: make test.unit
 
+
+  test-e2e:
+    name: E2E tests
+    needs: ["docker"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: $FLUTTER_VER
+          channel: stable
+          cache: true
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: docker-${{ github.run_number }}
+      - run: make docker.untar from-file=image.tar
+
+      - run: make flutter.pub
+
+      - run: make test.e2e start-app=yes device=web-server dockerized=yes
+             tag=docker-${{ github.run_number }}
 
 
 

@@ -34,13 +34,16 @@ FLUTTER_VER ?= $(strip \
 build: flutter.build
 
 
-clean: clean.flutter
+clean: clean.e2e clean.flutter
 
 
 deps: flutter.pub
 
 
 docs: docs.dart
+
+
+e2e: test.e2e
 
 
 fmt: flutter.fmt
@@ -219,6 +222,43 @@ endif
 # Testing commands #
 ####################
 
+# Run Flutter E2E tests.
+#
+# Usage:
+#	make test.e2e [( [start-app=no]
+#	               | start-app=yes [TAG=(dev|<docker-tag>)]
+#	                               [no-cache=(no|yes)]
+#	                               [pull=(no|yes)] )]
+#	              [device=(chrome|web-server|macos|linux|windows|<device-id>)]
+#	              [dockerized=(no|yes)]
+#	              [gen=(no|yes)]
+
+test.e2e:
+ifeq ($(if $(call eq,$(gen),yes),,$(wildcard test/e2e/*.g.dart)),)
+	@make flutter.gen overwrite=yes dockerized=$(dockerized)
+endif
+ifeq ($(start-app),yes)
+	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
+	                background=yes log=no
+	while ! timeout 1 bash -c "echo > /dev/tcp/localhost/4444"; do sleep 1; done
+	docker logs -f socmob-webdriver-chrome &
+endif
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+	           --network=container:socmob-mobile \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make test.e2e dockerized=no start-app=no gen=no device=$(device)
+else
+	flutter drive --headless -d $(or $(device),chrome) \
+		--web-renderer html --web-port 50000 \
+		--driver=test_driver/integration_test_driver.dart \
+		--target=test/e2e/suite.dart
+endif
+ifeq ($(start-app),yes)
+	@make docker.down
+endif
+
 # Run Flutter unit tests.
 #
 # Usage:
@@ -277,6 +317,15 @@ endif
 # Cleaning commands #
 #####################
 
+# Clean E2E tests generated cache.
+#
+# Usage:
+#	make clean.e2e
+
+clean.e2e:
+	rm -rf .dart_tool/build/generated/messenger/integration_test \
+	       test/e2e/gherkin/reports/
+
 clean.flutter: flutter.clean
 
 
@@ -307,6 +356,60 @@ copyright:
 
 
 
+
+# Stop Docker Compose development environment and remove all related containers.
+#
+# Usage:
+#	make docker.down
+
+docker.down:
+	docker compose down --rmi=local -v
+
+
+# Run Docker Compose development environment.
+#
+# Usage:
+#	make docker.up [pull=(no|yes)] [no-cache=(no|yes)]
+#	               [tag=(dev|<tag>)]
+#	               [rebuild=(no|yes)]
+#	               [( [rebuild=no]
+#	                | rebuild=yes [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
+#	                              [dockerized=(no|yes)] )]
+#	               [( [background=no]
+#	                | background=yes [log=(no|yes)] )]
+
+docker.up: docker.down
+ifeq ($(pull),yes)
+	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
+	docker-compose pull --parallel --ignore-pull-failures
+endif
+ifeq ($(no-cache),yes)
+	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
+endif
+ifeq ($(rebuild),yes)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+ifeq ($(wildcard build/web),)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+ifeq ($(wildcard .cache/minio),)
+	@mkdir -p .cache/minio/data/
+	@chown -R 1001:1001 .cache/minio/
+endif
+	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
+	docker-compose up \
+		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
+ifeq ($(background),yes)
+ifeq ($(log),yes)
+	docker-compose logs -f
+endif
+endif
+
+
+
+
 ################
 # Git commands #
 ################
@@ -333,7 +436,7 @@ endif
 ##################
 
 .PHONY: build clean deps docs fmt gen lint release run test \
-        clean.flutter \
+        clean.e2e clean.flutter \
         copyright \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
