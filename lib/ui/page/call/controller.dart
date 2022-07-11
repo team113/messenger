@@ -108,6 +108,9 @@ class CallController extends GetxController {
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
+  /// Secondary view overlay.
+  OverlayEntry? addToSecondaryEntry;
+
   /// Count of a currently happening drags of the secondary videos used to
   /// determine if any drag happened at all.
   final RxInt secondaryDrags = RxInt(0);

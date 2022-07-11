@@ -183,20 +183,119 @@ Widget screenButton(CallController c, [double? scale]) => Obx(
 
 /// [RoundFloatingButton] raising a hand.
 Widget handButton(CallController c, [double? scale]) => Obx(
-      () => RoundFloatingButton(
-        hint: c.isHandRaised.value
-            ? 'btn_call_hand_down'.tr
-            : 'btn_call_hand_up'.tr,
-        onPressed: c.toggleHand,
+      () => _hinted(
+        RoundFloatingButton(
+          onPressed: c.toggleHand,
+          scale: scale ?? 1,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        hint: c.isHandRaised.value ? 'btn_call_hand_down'.tr : 'btn_call_hand_up'.tr,
+      ),
+    );
+
+/// [RoundFloatingButton] adding new participants.
+Widget addParticipantButton(CallController c, BuildContext context,
+        [double? scale]) =>
+    _hinted(
+      RoundFloatingButton(
+        onPressed: () => c.openAddMember(context),
         scale: scale ?? 1,
         children: [
-          SvgLoader.asset(
-            'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
+          SizedBox(
             width: 60,
+            height: 60,
+            child: SvgLoader.asset(
+              'assets/icons/add_user_small.svg',
+              width: 22,
+            ),
           )
         ],
       ),
+      hint: 'btn_add_participant_two_lines'.tr,
     );
+
+/// [RoundFloatingButton] disabling remote video.
+Widget disableVideo(CallController c, [double? scale]) => Obx(
+      () => _hinted(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteVideos,
+          scale: scale ?? 1,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        hint: c.isRemoteVideoEnabled.value
+            ? 'btn_call_remote_video_off'.tr
+            : 'btn_call_remote_video_on'.tr,
+      ),
+    );
+
+/// [RoundFloatingButton] disabling remote audio.
+Widget disableAudio(CallController c, [double? scale]) => Obx(
+      () => _hinted(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteAudios,
+          scale: scale ?? 1,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        hint: c.isRemoteAudioEnabled.value
+            ? 'btn_call_remote_audio_off'.tr
+            : 'btn_call_remote_audio_on'.tr,
+      ),
+    );
+
+/// Returns [child] with provided [hint] widget bellow.
+Widget hintedButton(Widget child, Widget hint) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      child,
+      const SizedBox(height: 6),
+      DefaultTextStyle(
+        style: const TextStyle(
+          fontSize: 11,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+        child: hint,
+      ),
+    ],
+  );
+}
+
+/// Returns [child] with provided [hint] text bellow.
+Widget _hinted(Widget child, {String? hint}) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      child,
+      if (hint != null) ...[
+        const SizedBox(height: 6),
+        Text(
+          hint,
+          style: const TextStyle(
+            fontSize: 11,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ],
+  );
+}
 
 /// Title call information.
 Widget callTitle(CallController c) => Obx(

@@ -852,7 +852,7 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
         viscosity: 2000,
         draggablePrefs: DraggableDoughPrefs(
           breakDistance: 50,
-          useHapticsOnBreak: true,
+          useHapticsOnBreak: false,
         ),
       ),
       child: LayoutBuilder(
