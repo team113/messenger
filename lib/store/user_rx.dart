@@ -44,10 +44,6 @@ class HiveRxUser extends RxUser {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
-  /// [StreamController] invoking [_initRemoteSubscription] on its
-  /// [StreamController.onListen] callback and canceling it on
-  /// [StreamController.onCancel].
-
   /// [UserRepository.userEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.

@@ -148,6 +148,9 @@ class ContactsTabController extends GetxController {
   void onClose() {
     _contactsSubscription?.cancel();
     _userWorkers.forEach((_, v) => v.dispose());
+    contacts.forEach((_, c) {
+      c.user.value?.stopUpdates();
+    });
     super.onClose();
   }
 
