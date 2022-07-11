@@ -482,10 +482,10 @@ endif
 .PHONY: build clean deps docs fmt gen lint release run test \
         clean.flutter \
         copyright \
-		docker.auth docker.build docker.pull docker.push docker.tag docker.tar \
-		    docker.untar \
+        docker.auth docker.build docker.pull docker.push docker.tag docker.tar \
+        docker.untar \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-            flutter.pub flutter.run \
+        flutter.pub flutter.run \
         git.release \
         test.unit

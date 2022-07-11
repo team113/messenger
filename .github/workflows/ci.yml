@@ -127,14 +127,13 @@ jobs:
 
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y --allow-downgrades
+      - run: sudo apt-get install -y
                           ninja-build
                           libunwind-dev
                           libgtk-3-dev
                           libgstreamer1.0-dev
                           libgstreamer-plugins-base1.0-dev
                           libpulse-dev
-                          libudev1=249.11-0ubuntu3
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
@@ -184,7 +183,7 @@ jobs:
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    name: Docker image
+    needs: ["build"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -201,7 +200,6 @@ jobs:
 
       - run: make docker.tar to-file=image.tar
                   tags=build-${{ github.run_number }}
-
       - uses: actions/upload-artifact@v3
         with:
           name: docker-${{ github.run_number }}
@@ -246,6 +244,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
+      - release-docker
       - test-unit
     runs-on: ubuntu-latest
     steps:
@@ -352,15 +351,15 @@ jobs:
 
   release-docker:
     name: Release Docker image
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs:
-      - docker
       - copyright
       - dartanalyze
       - dartdoc
       - dartfmt
+      - docker
       - test-unit
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     env:
       IMAGE: messenger
