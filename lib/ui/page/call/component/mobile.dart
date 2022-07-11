@@ -39,9 +39,9 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/fit_wrap.dart';
+import '/ui/page/call/widget/reorderable_fit_view.dart';
+import '/ui/page/call/widget/reorderable_fit_wrap.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/settings/reoderable_fit_wrap.dart';
-import '/ui/page/home/page/settings/reorderable_fit_view.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
@@ -577,7 +577,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         if(animation.value != 0) {
           c.keepUi(false);
         }
-        c.minimized.value = animation.value > 0.5;
+        c.minimized.value = animation.value == 1;
         if (c.minimized.value) {
           c.hoveredRenderer.value = null;
         }
@@ -934,9 +934,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                 width: width,
                 height: height,
                 child: Obx(() {
-                  if (c.secondaryAlignment.value == null &&
-                      !(c.secondary.length == 1 &&
-                          c.draggedRenderer.value != null)) {
+                  if (c.secondaryAlignment.value == null) {
                     return IgnorePointer(
                       child: Stack(
                         children: [

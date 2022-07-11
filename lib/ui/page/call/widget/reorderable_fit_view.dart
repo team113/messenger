@@ -852,7 +852,7 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
         viscosity: 2000,
         draggablePrefs: DraggableDoughPrefs(
           breakDistance: 50,
-          useHapticsOnBreak: false,
+          useHapticsOnBreak: true,
         ),
       ),
       child: LayoutBuilder(
@@ -863,7 +863,10 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
             longPress: useLongDraggable,
             maxSimultaneousDrags: enabled ? 1 : 0,
             onDragEnd: (d) => onDragEnd?.call(d.offset),
-            onDragStarted: onDragStarted,
+            onDragStarted: () {
+              onDragStarted?.call();
+              HapticFeedback.lightImpact();
+            },
             onDragCompleted: onDragCompleted,
             onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
             onDoughBreak: () {
