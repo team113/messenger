@@ -26,21 +26,21 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
-import '../widget/participant.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/fit_view.dart';
 import '../widget/fit_wrap.dart';
 import '../widget/hint.dart';
+import '../widget/participant.dart';
+import '../widget/reorderable_fit_view.dart';
+import '../widget/reorderable_fit_wrap.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/themes.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/settings/reoderable_fit_wrap.dart';
-import '/ui/page/home/page/settings/reorderable_fit_view.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -101,76 +101,60 @@ Widget desktopCall(
         }
 
         content.addAll([
-          // Call's primary and secondary views.
+          // Call's primary view.
           Column(
             children: [
-              Obx(
-                () => Container(
-                  child: c.secondary.isNotEmpty &&
-                          c.secondaryAlignment.value == Alignment.topCenter
-                      ? SizedBox(
-                          height: c.secondaryHeight.value,
-                          width: double.infinity,
-                        )
-                      : null,
-                ),
-              ),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: c.secondary.isNotEmpty &&
+                            c.secondaryAlignment.value == Alignment.topCenter
+                        ? c.secondaryHeight.value
+                        : 0,
+                  )),
               Expanded(
                 child: Row(
                   children: [
-                    Obx(
-                      () => Container(
-                        child: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerLeft
-                            ? SizedBox(
-                                height: double.infinity,
-                                width: c.secondaryWidth.value,
-                              )
-                            : null,
-                      ),
-                    ),
+                    Obx(() => SizedBox(
+                          height: double.infinity,
+                          width: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerLeft
+                              ? c.secondaryWidth.value
+                              : 0,
+                        )),
                     Expanded(
                       child: Stack(
                         children: [
                           _primaryView(c),
-                          Obx(() {
-                            return MouseRegion(
+                          Obx(
+                            () => MouseRegion(
                               opaque: false,
                               cursor: c.isCursorHidden.value
                                   ? SystemMouseCursors.none
                                   : SystemMouseCursors.basic,
-                            );
-                          }),
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Obx(
-                      () => Container(
-                        child: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? SizedBox(
-                                height: double.infinity,
-                                width: c.secondaryWidth.value,
-                              )
-                            : null,
-                      ),
-                    ),
+                    Obx(() => SizedBox(
+                          height: double.infinity,
+                          width: c.secondary.isNotEmpty &&
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerRight
+                              ? c.secondaryWidth.value
+                              : 0,
+                        )),
                   ],
                 ),
               ),
-              Obx(
-                () => Container(
-                  child: c.secondary.isNotEmpty &&
-                          c.secondaryAlignment.value == Alignment.bottomCenter
-                      ? SizedBox(
-                          height: c.secondaryHeight.value,
-                          width: double.infinity,
-                        )
-                      : null,
-                ),
-              ),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: c.secondary.isNotEmpty &&
+                            c.secondaryAlignment.value == Alignment.bottomCenter
+                        ? c.secondaryHeight.value
+                        : 0,
+                  )),
             ],
           ),
 
@@ -178,7 +162,7 @@ Widget desktopCall(
 
           // Makes UI appear on click.
           //
-          // Also, if [showTitle] is false, allows dragging the window.
+          // Also, if [showTitle] is `false`, allows dragging the window.
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
@@ -209,7 +193,7 @@ Widget desktopCall(
           ),
 
           // Secondary panel itself.
-          _floatingSecondaryView(c, context),
+          _secondaryView(c, context),
 
           // Empty drop zone if [secondary] is empty.
           _secondaryTarget(c),
@@ -577,7 +561,7 @@ Widget desktopCall(
                       }
                     },
                   )
-                : Container(),
+                : null,
           );
         }),
 
@@ -896,10 +880,7 @@ Widget _titleBar(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(
-                        c.chat.value,
-                        radius: 8,
-                      ),
+                      AvatarWidget.fromRxChat(c.chat.value, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
                         child: ConstrainedBox(
@@ -934,7 +915,6 @@ Widget _titleBar(
               child: Container(
                 height: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 90),
-                // TODO(design): cut the long texts
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -980,7 +960,7 @@ Widget _titleBar(
       );
     });
 
-/// [FitView] of a [primary] widgets.
+/// [FitView] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
     List<Participant> primary = List.from(c.primary);
@@ -1219,8 +1199,8 @@ Widget _primaryView(CallController c) {
   });
 }
 
-/// [FitWrap] of a [secondary] widgets.
-Widget _floatingSecondaryView(CallController c, BuildContext context) {
+/// [FitWrap] of the [CallController.secondary] participants.
+Widget _secondaryView(CallController c, BuildContext context) {
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
@@ -1638,17 +1618,15 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                   ],
                 ),
                 child: Obx(
-                  () {
-                    return ParticipantWidget(
-                      participant,
-                      key: ObjectKey(participant),
-                      offstageUntilDetermined: true,
-                      respectAspectRatio: true,
-                      useCallCover: true,
-                      borderRadius: BorderRadius.zero,
-                      isDragging: c.doughDraggedRenderer.value == participant,
-                    );
-                  },
+                  () => ParticipantWidget(
+                    participant,
+                    key: ObjectKey(participant),
+                    offstageUntilDetermined: true,
+                    respectAspectRatio: true,
+                    useCallCover: true,
+                    borderRadius: BorderRadius.zero,
+                    isDragging: c.doughDraggedRenderer.value == participant,
+                  ),
                 ),
               );
             },

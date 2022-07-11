@@ -18,35 +18,39 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// Widget makes scale animation.
+/// [AnimatedScale] with an optional delay.
 class AnimatedDelayedScale extends StatefulWidget {
   const AnimatedDelayedScale({
     Key? key,
-    required this.beginScale,
-    required this.endScale,
-    required this.duration,
+    this.delay = Duration.zero,
+    this.beginScale = 0,
+    this.endScale = 1,
+    this.duration = const Duration(milliseconds: 300),
     required this.child,
   }) : super(key: key);
 
-  /// [Duration] of scale animation.
+  /// [Duration] of a delay.
+  final Duration delay;
+
+  /// [Duration] over which to animate the scaling.
   final Duration duration;
 
   /// Initial scale of [child].
   final double beginScale;
 
-  /// Target scale of [child] to animate.
+  /// Target scale of [child].
   final double endScale;
 
-  /// Child [Widget] ot animate.
+  /// [Widget] to scale.
   final Widget child;
 
   @override
   State<AnimatedDelayedScale> createState() => _AnimatedDelayedScaleState();
 }
 
-/// State of a [AnimatedDelayedScale] used to keep [scale] values.
+/// State of an [AnimatedDelayedScale] maintaining the [scale].
 class _AnimatedDelayedScaleState extends State<AnimatedDelayedScale> {
-  /// Scale of this [AnimatedDelayedScale].
+  /// Current scale value.
   late double scale;
 
   @override
@@ -54,8 +58,7 @@ class _AnimatedDelayedScaleState extends State<AnimatedDelayedScale> {
     super.initState();
 
     scale = widget.beginScale;
-
-    Future.delayed(Duration.zero, () {
+    Future.delayed(widget.delay, () {
       if (mounted) {
         setState(() => scale = widget.endScale);
       }

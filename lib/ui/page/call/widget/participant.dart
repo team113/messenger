@@ -25,7 +25,6 @@ import '/ui/page/call/widget/call_cover.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/obx.dart';
 import 'video_view.dart';
 
 /// [Participant] visual representation.
@@ -76,7 +75,8 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether user call cover should be used.
+  /// Indicator whether [UserCallCover] should be used when no video is
+  /// available.
   final bool useCallCover;
 
   /// Indicator whether this [ParticipantWidget] is dragged.
@@ -84,117 +84,108 @@ class ParticipantWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return KeyedObx(
-      () {
-        bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-        bool isVideoDisabled = participant.video.value?.isEnabled == false;
-        bool hasVideo = participant.video.value?.isEnabled == true;
+    return Obx(() {
+      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
+      bool isVideoDisabled = participant.video.value?.isEnabled == false;
+      bool hasVideo = participant.video.value?.isEnabled == true;
 
-        List<Widget> additionally = [];
-        if (isMuted) {
-          additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 1, right: 1),
-              child: SvgLoader.asset(
-                'assets/icons/microphone_off_small.svg',
-                height: 12,
-              ),
+      List<Widget> additionally = [];
+
+      if (isMuted) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 1, right: 1),
+            child: SvgLoader.asset(
+              'assets/icons/microphone_off_small.svg',
+              height: 12,
             ),
-          );
-        }
+          ),
+        );
+      }
 
-        if (isVideoDisabled ||
-            participant.video.value?.source == MediaSourceKind.Display) {
-          if (additionally.isNotEmpty) {
-            additionally.add(const SizedBox(width: 3));
-          }
-          additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 2, right: 2),
-              child: SvgLoader.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
+      if (isVideoDisabled ||
+          participant.video.value?.source == MediaSourceKind.Display) {
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 3));
+        }
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            child: SvgLoader.asset(
+              'assets/icons/screen_share_small.svg',
+              height: 12,
             ),
-          );
-        }
+          ),
+        );
+      }
 
-        List<Widget> _background() {
-          return useCallCover && participant.user.value?.value.callCover != null
-              ? [CallCoverWidget(participant.user.value?.value.callCover)]
-              : [
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: AnimatedContainer(
-                        key: const Key('AnimatedContainerAvatar'),
-                        duration: 150.milliseconds,
-                        curve: Curves.ease,
-                        width: isDragging ? 180 : 120,
-                        height: isDragging ? 180 : 120,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(90),
-                          boxShadow: isDragging
-                              ? [
-                                  const CustomBoxShadow(
-                                    color: Color(0x44000000),
-                                    blurRadius: 8,
-                                    blurStyle: BlurStyle.outer,
-                                  ),
-                                ]
-                              : null,
-                        ),
-                        child: AvatarWidget.fromUser(
-                          participant.user.value?.value,
-                          radius: isDragging ? 90 : 60,
-                        ),
+      // [Widget]s to display in background when no video is available.
+      List<Widget> _background() {
+        return useCallCover && participant.user.value?.value.callCover != null
+            ? [CallCoverWidget(participant.user.value?.value.callCover)]
+            : [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AnimatedContainer(
+                      key: const Key('AnimatedContainerAvatar'),
+                      duration: 150.milliseconds,
+                      curve: Curves.ease,
+                      width: isDragging ? 180 : 120,
+                      height: isDragging ? 180 : 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(90),
+                        boxShadow: isDragging
+                            ? [
+                                const CustomBoxShadow(
+                                  color: Color(0x44000000),
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: AvatarWidget.fromUser(
+                        participant.user.value?.value,
+                        radius: isDragging ? 90 : 60,
                       ),
                     ),
                   ),
-                ];
-        }
+                ),
+              ];
+      }
 
-        return Stack(
-          children: [
-            if (!hasVideo) ..._background(),
-            AnimatedSwitcher(
-              key: const Key('AnimatedSwitcher'),
-              duration: animate
-                  ? const Duration(milliseconds: 200)
-                  : const Duration(seconds: 1),
-              child: !hasVideo
-                  ? Container()
-                  : Center(
-                      child: RtcVideoView(
-                        participant.video.value!,
-                        key: participant.videoKey,
-                        mirror: participant.owner == MediaOwnerKind.local &&
-                            participant.source == MediaSourceKind.Device,
-                        fit: fit,
-                        borderRadius: borderRadius ?? BorderRadius.circular(10),
-                        outline: outline,
-                        onSizeDetermined: onSizeDetermined,
-                        enableContextMenu: false,
-                        respectAspectRatio: respectAspectRatio,
-                        offstageUntilDetermined: offstageUntilDetermined,
-                        framelessBuilder: () {
-                          return Stack(
-                            children: [
-                              ..._background(),
-                            ],
-                          );
-                        },
-                      ),
+      return Stack(
+        children: [
+          if (!hasVideo) ..._background(),
+          AnimatedSwitcher(
+            key: const Key('AnimatedSwitcher'),
+            duration: animate
+                ? const Duration(milliseconds: 200)
+                : const Duration(seconds: 1),
+            child: !hasVideo
+                ? Container()
+                : Center(
+                    child: RtcVideoView(
+                      participant.video.value!,
+                      key: participant.videoKey,
+                      mirror: participant.owner == MediaOwnerKind.local &&
+                          participant.source == MediaSourceKind.Device,
+                      fit: fit,
+                      borderRadius: borderRadius ?? BorderRadius.circular(10),
+                      outline: outline,
+                      onSizeDetermined: onSizeDetermined,
+                      enableContextMenu: false,
+                      respectAspectRatio: respectAspectRatio,
+                      offstageUntilDetermined: offstageUntilDetermined,
+                      framelessBuilder: () => Stack(children: _background()),
                     ),
-            ),
-            Positioned.fill(
-              child: _handRaisedIcon(participant.handRaised.value),
-            ),
-          ],
-        );
-      },
-      key: const Key('Participant'),
-    );
+                  ),
+          ),
+          Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
+        ],
+      );
+    });
   }
 
   /// Returns a raised hand animated icon.
@@ -215,7 +206,7 @@ class ParticipantWidget extends StatelessWidget {
   }
 }
 
-/// [Participant] overlay.
+/// [Participant] overlay displaying its muted and video icons.
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {
@@ -237,207 +228,166 @@ class ParticipantOverlayWidget extends StatelessWidget {
   /// its label should be visible.
   final bool hovered;
 
-  /// Indicator whether should be used single color background.
+  /// Indicator whether [ConditionalBackdropFilter] should be enabled.
   final bool preferBackdrop;
 
   @override
   Widget build(BuildContext context) {
-    return KeyedObx(
-      () {
-        bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-        bool isVideoDisabled = participant.video.value?.isEnabled == false;
+    return Obx(() {
+      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
+      bool isVideoDisabled = participant.video.value?.isEnabled == false;
 
-        bool display = hovered;
+      List<Widget> additionally = [];
 
-        List<Widget> additionally = [];
-        if (isMuted) {
-          additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 1, right: 1),
-              child: SvgLoader.asset(
-                'assets/icons/microphone_off_small.svg',
-                height: 12,
-              ),
-            ),
-          );
-        }
-
-        if (isVideoDisabled ||
-            participant.video.value?.source == MediaSourceKind.Display) {
-          if (additionally.isNotEmpty) {
-            additionally.add(const SizedBox(width: 3));
-          }
-          additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 2, right: 2),
-              child: SvgLoader.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
-            ),
-          );
-        }
-
-        return IgnorePointer(
-          key: const Key('IgnorePointer'),
-          ignoring: false,
-          child: Center(
-            key: const Key('Center'),
-            child: Container(
-              key: const Key('Container1'),
-              child: Stack(
-                key: const Key('Stack'),
-                alignment: Alignment.center,
-                children: [
-                  const IgnorePointer(
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
-                  ),
-                  Positioned.fill(
-                    key: const Key('Align'),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8, left: 8),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: display || additionally.isNotEmpty
-                              ? Container(
-                                  key: const Key('AnimatedSwitcherLabel'),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    boxShadow: const [
-                                      CustomBoxShadow(
-                                        color: Color(0x22000000),
-                                        blurRadius: 8,
-                                        blurStyle: BlurStyle.outer,
-                                      )
-                                    ],
-                                  ),
-                                  child: ConditionalBackdropFilter(
-                                    condition: preferBackdrop,
-                                    borderRadius: BorderRadius.circular(30),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: preferBackdrop
-                                            ? const Color(0x4D165084)
-                                            : const Color.fromARGB(
-                                                189, 31, 60, 93),
-                                      ),
-                                      padding: EdgeInsets.only(
-                                        left: 6,
-                                        right: additionally.length >= 2 ? 6 : 6,
-                                        top: 4,
-                                        bottom: 4,
-                                      ),
-                                      height: 28,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          ...additionally,
-                                          if (additionally.isNotEmpty &&
-                                              display)
-                                            const SizedBox(width: 3),
-                                          Flexible(
-                                            child: AnimatedSize(
-                                              duration: 150.milliseconds,
-                                              child: display
-                                                  ? Container(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                        left: 3,
-                                                        right: 3,
-                                                      ),
-                                                      child: Text(
-                                                        participant
-                                                                .user
-                                                                .value
-                                                                ?.value
-                                                                .name
-                                                                ?.val ??
-                                                            participant
-                                                                .user
-                                                                .value
-                                                                ?.value
-                                                                .num
-                                                                .val ??
-                                                            '...',
-                                                        style: context
-                                                            .theme
-                                                            .outlinedButtonTheme
-                                                            .style!
-                                                            .textStyle!
-                                                            .resolve({
-                                                          MaterialState.disabled
-                                                        })!.copyWith(
-                                                          fontSize: 15,
-                                                          color: const Color(
-                                                              0xFFFFFFFF),
-                                                        ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    )
-                                                  : const SizedBox(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : null,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      if (isMuted) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 1, right: 1),
+            child: SvgLoader.asset(
+              'assets/icons/microphone_off_small.svg',
+              height: 12,
             ),
           ),
         );
-      },
-      key: const Key('Participant'),
-    );
+      }
+
+      if (isVideoDisabled ||
+          participant.video.value?.source == MediaSourceKind.Display) {
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 3));
+        }
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            child: SvgLoader.asset(
+              'assets/icons/screen_share_small.svg',
+              height: 12,
+            ),
+          ),
+        );
+      }
+
+      return Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const SizedBox(width: double.infinity, height: double.infinity),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8, left: 8),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 150),
+                    child: hovered || additionally.isNotEmpty
+                        ? Container(
+                            key: const Key('AnimatedSwitcherLabel'),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: const [
+                                CustomBoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer,
+                                )
+                              ],
+                            ),
+                            child: ConditionalBackdropFilter(
+                              condition: preferBackdrop,
+                              borderRadius: BorderRadius.circular(30),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  color: preferBackdrop
+                                      ? const Color(0x4D165084)
+                                      : const Color(0xBB1F3C5D),
+                                ),
+                                padding: EdgeInsets.only(
+                                  left: 6,
+                                  right: additionally.length >= 2 ? 6 : 6,
+                                  top: 4,
+                                  bottom: 4,
+                                ),
+                                height: 28,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ...additionally,
+                                    if (additionally.isNotEmpty && hovered)
+                                      const SizedBox(width: 3),
+                                    Flexible(
+                                      child: AnimatedSize(
+                                        duration: 150.milliseconds,
+                                        child: hovered
+                                            ? Container(
+                                                padding: const EdgeInsets.only(
+                                                  left: 3,
+                                                  right: 3,
+                                                ),
+                                                child: Text(
+                                                  participant.user.value?.value
+                                                          .name?.val ??
+                                                      participant.user.value
+                                                          ?.value.num.val ??
+                                                      '...',
+                                                  style: context
+                                                      .theme
+                                                      .outlinedButtonTheme
+                                                      .style!
+                                                      .textStyle!
+                                                      .resolve({
+                                                    MaterialState.disabled
+                                                  })!.copyWith(
+                                                    fontSize: 15,
+                                                    color:
+                                                        const Color(0xFFFFFFFF),
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              )
+                                            : const SizedBox(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
-/// [Participant] decoration.
+/// [Participant] background decoration containing a border.
 class ParticipantDecoratorWidget extends StatelessWidget {
   const ParticipantDecoratorWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      ignoring: false,
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          fit: StackFit.passthrough,
-          children: [
-            const IgnorePointer(
-              child: SizedBox(
-                width: double.infinity,
-                height: double.infinity,
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        fit: StackFit.passthrough,
+        children: [
+          const SizedBox(width: double.infinity, height: double.infinity),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0x30000000), width: 0.5),
               ),
+              child: const IgnorePointer(),
             ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0x30000000),
-                    width: 0.5,
-                  ),
-                ),
-                child: const IgnorePointer(),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

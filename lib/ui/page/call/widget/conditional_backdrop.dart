@@ -69,7 +69,6 @@ class ConditionalBackdropFilter extends StatelessWidget {
       }
 
       return ClipRect(
-        clipBehavior: Clip.antiAlias,
         child: BackdropFilter(
           filter: filter,
           blendMode: BlendMode.src,

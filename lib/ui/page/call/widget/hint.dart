@@ -34,7 +34,7 @@ class HintWidget extends StatelessWidget {
   /// Callback, called when this hint is pressed.
   final GestureTapCallback? onTap;
 
-  /// Indicator whether this [HintWidget] representing an error.
+  /// Indicator whether this [HintWidget] represents an error.
   final bool isError;
 
   @override

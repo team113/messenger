@@ -15,10 +15,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]);
-    - Update call design on desktop ([#26]).
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
+    - Media panel:
+        - Redesign desktop interface ([#26]).
 
 [#2]: /../../issues/2
 [#14]: /../../pull/14

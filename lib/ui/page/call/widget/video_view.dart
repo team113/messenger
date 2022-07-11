@@ -84,6 +84,7 @@ class RtcVideoView extends StatefulWidget {
   /// Optional outline of this video.
   final Color? outline;
 
+  /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
     RtcVideoRenderer renderer,
     BoxConstraints constraints,
@@ -165,7 +166,7 @@ class RtcVideoView extends StatefulWidget {
 
 /// State of a [RtcVideoView] used to rebuild itself on size determination.
 class _RtcVideoViewState extends State<RtcVideoView> {
-  /// [GlobalKey] of [VideoView].
+  /// [GlobalKey] of a [VideoView].
   final GlobalKey _videoKey = GlobalKey();
 
   @override
