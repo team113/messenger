@@ -34,6 +34,7 @@ import '../widget/round_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -271,14 +272,14 @@ Widget mobileCall(CallController c, BuildContext context) {
             const SizedBox(height: 5),
             ...c.chat.value!.chat.value.members
                 .map(
-                  (e) => FutureBuilder<Rx<User>?>(
+                  (e) => FutureBuilder<RxUser?>(
                     future: c.getUser(e.user.id),
                     builder: (context, snapshot) {
                       if (snapshot.data == null) {
                         return _userButton(c, context, e.user);
                       } else {
                         return Obx(() =>
-                            _userButton(c, context, snapshot.data!.value));
+                            _userButton(c, context, snapshot.data!.user.value));
                       }
                     },
                   ),

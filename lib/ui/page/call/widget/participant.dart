@@ -109,7 +109,7 @@ class ParticipantWidget extends StatelessWidget {
                             height: double.infinity,
                           ),
                           AvatarWidget.fromUser(
-                            participant.user.value?.value,
+                            participant.user.value?.user.value,
                             radius: 30,
                           ),
                           Positioned(
@@ -180,10 +180,10 @@ class ParticipantWidget extends StatelessWidget {
                                       padding: EdgeInsets.only(
                                           left: isMuted ? 6 : 1),
                                       child: Text(
-                                        participant
-                                                .user.value?.value.name?.val ??
-                                            participant
-                                                .user.value?.value.num.val ??
+                                        participant.user.value?.user.value.name
+                                                ?.val ??
+                                            participant.user.value?.user.value
+                                                .num.val ??
                                             '...',
                                         style: context.theme.outlinedButtonTheme
                                             .style!.textStyle!

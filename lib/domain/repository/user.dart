@@ -23,7 +23,7 @@ import '../model/user.dart';
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
   /// Returns reactive map of [User]s.
-  RxMap<UserId, Rx<User>> get users;
+  RxMap<UserId, RxUser> get users;
 
   /// Indicates whether this repository was initialized and [users] can be
   /// used.
@@ -41,23 +41,38 @@ abstract class AbstractUserRepository {
   /// Searches [User]s by the provided [UserNum].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByNum(UserNum num);
+  Future<List<RxUser>> searchByNum(UserNum num);
 
   /// Searches [User]s by the provided [UserLogin].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByLogin(UserLogin login);
+  Future<List<RxUser>> searchByLogin(UserLogin login);
 
   /// Searches [User]s by the provided [UserName].
   ///
   /// This is a fuzzy search.
-  Future<List<Rx<User>>> searchByName(UserName name);
+  Future<List<RxUser>> searchByName(UserName name);
 
   /// Searches [User]s by the provided [ChatDirectLinkSlug].
   ///
   /// This is an exact match search.
-  Future<List<Rx<User>>> searchByLink(ChatDirectLinkSlug link);
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
 
   /// Returns an [User] by the provided [id].
-  Future<Rx<User>?> get(UserId id);
+  Future<RxUser?> get(UserId id);
+}
+
+/// Unified reactive [User] entity.
+abstract class RxUser {
+  /// Returns reactive value of the [User] this [RxUser] represents.
+  Rx<User> get user;
+
+  /// Returns the [User.id] of this [RxUser].
+  UserId get id => user.value.id;
+
+  /// States that this [user] should get its updates.
+  void listenUpdates();
+
+  /// States that updates of this [user] are no longer required.
+  void stopUpdates();
 }
