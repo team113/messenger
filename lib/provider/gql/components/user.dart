@@ -345,6 +345,71 @@ abstract class UserGraphQlMixin {
     );
   }
 
+  /// Subscribes to [UserEvent]s of the specified [User].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`, or immediately completes (without emitting
+  /// anything) if such [User] doesn't exist.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// [User] will be emitted after `SubscriptionInitialized` and before any
+  /// other [UserEvent]s (and won't be emitted ever again until this
+  /// subscription completes). This allows to skip doing [getUser] before
+  /// establishing this subscription.
+  ///
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via [getUser];
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// [User]).
+  ///
+  /// ### Completion
+  ///
+  /// Finite.
+  ///
+  /// Completes without re-subscription necessity when:
+  /// - The specified [User] is deleted (emits [EventUserDeleted] and
+  /// completes).
+  /// - The specified [User] doesn't exist (emits nothing, completes immediately
+  /// after being established).
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - An error occurs on the server (error is emitted).
+  /// - The server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// This subscription could emit the same [EventUserDeleted] multiple times,
+  /// so a client side is expected to handle it idempotently considering the
+  /// [UserVersion].
+  Future<Stream<QueryResult>> userEvents(UserId id, UserVersion? ver) {
+    var variables = UserEventsArguments(id: id, ver: ver);
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'UserEvents',
+        document: UserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+  }
+
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
   ///

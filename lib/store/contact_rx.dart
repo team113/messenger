@@ -19,13 +19,12 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/contact.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/contact.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
-class HiveRxChatContact implements RxChatContact {
+class HiveRxChatContact extends RxChatContact {
   HiveRxChatContact(this._userRepository, HiveChatContact hiveChatContact)
       : contact = Rx<ChatContact>(hiveChatContact.value);
 
@@ -33,7 +32,7 @@ class HiveRxChatContact implements RxChatContact {
   final Rx<ChatContact> contact;
 
   @override
-  final Rx<Rx<User>?> user = Rx(null);
+  final Rx<RxUser?> user = Rx(null);
 
   /// [AbstractUserRepository] fetching and updating the [user].
   final AbstractUserRepository _userRepository;
@@ -54,7 +53,7 @@ class HiveRxChatContact implements RxChatContact {
 
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
   void _updateUser(ChatContact c) async {
-    if (user.value?.value.id != c.users.firstOrNull?.id) {
+    if (user.value?.id != c.users.firstOrNull?.id) {
       user.value =
           c.users.isEmpty ? null : await _userRepository.get(c.users.first.id);
     }

@@ -17,6 +17,7 @@
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/user.dart';
 
 export 'view.dart';
@@ -26,10 +27,10 @@ class UserSearchBarController extends GetxController {
   UserSearchBarController(this._userService);
 
   /// [User]s search results.
-  final RxList<Rx<User>> searchResults = RxList<Rx<User>>([]);
+  final RxList<RxUser> searchResults = RxList<RxUser>([]);
 
   /// Recently searched [User]s.
-  final RxList<Rx<User>> recentSearchResults = RxList<Rx<User>>([]);
+  final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
 
   /// Status of the search.
   ///
@@ -88,8 +89,8 @@ class UserSearchBarController extends GetxController {
   }
 
   /// Adds the provided [user] to the [recentSearchResults].
-  void addToRecent(Rx<User> user) {
-    recentSearchResults.removeWhere((e) => e.value.id.val == user.value.id.val);
+  void addToRecent(RxUser user) {
+    recentSearchResults.removeWhere((e) => e.id == user.id);
     recentSearchResults.add(user);
     if (recentSearchResults.length >= 10) {
       recentSearchResults.removeAt(0);

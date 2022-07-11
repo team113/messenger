@@ -15,14 +15,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
@@ -70,8 +71,14 @@ class ChatsTabView extends StatelessWidget {
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
-                          children:
-                              c.chats.map((e) => buildChatTile(c, e)).toList(),
+                          children: c.chats
+                              .map(
+                                (e) => KeyedSubtree(
+                                  key: Key('Chat_${e.chat.value.id}'),
+                                  child: buildChatTile(c, e),
+                                ),
+                              )
+                              .toList(),
                         ),
                       )
                 : const Center(child: CircularProgressIndicator()),
@@ -167,12 +174,12 @@ class ChatsTabView extends StatelessWidget {
                 if (chat.isGroup)
                   Padding(
                     padding: const EdgeInsets.only(right: 5),
-                    child: FutureBuilder<Rx<User>?>(
+                    child: FutureBuilder<RxUser?>(
                       future: c.getUser(item.authorId),
                       builder: (_, snapshot) => snapshot.data != null
                           ? Obx(
                               () => AvatarWidget.fromUser(
-                                snapshot.data!.value,
+                                snapshot.data!.user.value,
                                 radius: 10,
                               ),
                             )
@@ -225,7 +232,30 @@ class ChatsTabView extends StatelessWidget {
             ],
           ),
           child: ListTile(
-            leading: AvatarWidget.fromRxChat(rxChat),
+            leading: Obx(
+              () => Badge(
+                showBadge: rxChat.chat.value.isDialog &&
+                    rxChat.members.values
+                            .firstWhereOrNull((e) => e.id != c.me)
+                            ?.user
+                            .value
+                            .online ==
+                        true,
+                badgeContent: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  padding: const EdgeInsets.all(5),
+                ),
+                padding: const EdgeInsets.all(2),
+                badgeColor: Colors.white,
+                animationType: BadgeAnimationType.scale,
+                position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+                elevation: 0,
+                child: AvatarWidget.fromRxChat(rxChat),
+              ),
+            ),
             title: Text(
               rxChat.title.value,
               overflow: TextOverflow.ellipsis,
