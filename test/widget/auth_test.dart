@@ -125,7 +125,6 @@ void main() async {
     await tester.pumpAndSettle();
 
     await tester.tap(loginTile);
-    await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.pump(const Duration(seconds: 5));
 
     await tester.runAsync(() {

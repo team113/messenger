@@ -118,7 +118,6 @@ flutter:
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
-    - assets/fonts/
 
 sentry:
   upload_native_symbols: true
