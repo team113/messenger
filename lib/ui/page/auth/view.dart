@@ -18,13 +18,12 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/auth/selector/view.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/l10n/_l10n.dart';
 import '/routes.dart';
+import '/ui/widget/selector/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -130,7 +129,7 @@ class AuthView extends StatelessWidget {
               ));
         });
 
-        // Language selection dropdown.
+        // Language selection popup.
         Widget language = CupertinoButton(
             key: c.languageKey,
             child: Text(
@@ -138,7 +137,14 @@ class AuthView extends StatelessWidget {
               style: thin?.copyWith(fontSize: 13, color: primary),
             ),
             onPressed: () async {
-              await Selector.show(context, c.languageKey, {});
+              await Selector.show(context, c.languageKey, L10n.languages,
+                  initialValue: L10n.chosen,
+                  trails: L10n.locales
+                      .map((key, value) => MapEntry(key, value.languageCode)),
+                  onSelect: (i) {
+                L10n.chosen = L10n.languages.keys.elementAt(i);
+                Get.updateLocale(L10n.locales[L10n.chosen]!);
+              });
             });
 
         // Footer part of the page.
@@ -157,7 +163,6 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: c.register,
-            // color: Colors.red,
             color: const Color(0xFF63B4FF),
           ),
           const SizedBox(height: 15),
