@@ -787,7 +787,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 }
 
+/// Extension adding getting global [RenderObject.paintBounds] from the
+/// [GlobalKey].
 extension GlobalKeyExtension on GlobalKey {
+  /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
+  /// [Object] this [GlobalKey] represents.
   Rect? get globalPaintBounds {
     final renderObject = currentContext?.findRenderObject();
     final matrix = renderObject?.getTransformTo(null);

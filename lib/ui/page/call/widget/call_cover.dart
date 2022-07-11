@@ -19,29 +19,21 @@ import 'package:flutter/material.dart';
 import '/config.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [UserCallCover].
 ///
-/// Builds a background on `null` [cover].
+/// Displays an [UserAvatar] if [cover] is `null`.
+///
+/// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(
-    this.cover, {
-    Key? key,
-    this.backdrop = false,
-    this.user,
-  }) : super(key: key);
+  const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
 
   /// Call cover data object.
   final UserCallCover? cover;
 
-  /// Indicator whether should be used single color background if [cover] is
-  /// `null`.
-  final bool backdrop;
-
-  /// [User] of this [CallCoverWidget].
+  /// [User] this [UserCallCover] belongs to.
   final User? user;
 
   @override
@@ -49,18 +41,12 @@ class CallCoverWidget extends StatelessWidget {
     return Stack(
       children: [
         cover == null
-            ? backdrop
-                ? Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: const Color.fromARGB(255, 25, 37, 55),
-                  )
-                : SvgLoader.asset(
-                    'assets/images/background_dark.svg',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  )
+            ? SvgLoader.asset(
+                'assets/images/background_dark.svg',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              )
             : Stack(
                 children: [
                   Image.network(
@@ -83,13 +69,6 @@ class CallCoverWidget extends StatelessWidget {
               child: AvatarWidget.fromUser(user, radius: 60),
             ),
           ),
-        Container(
-          margin: const EdgeInsets.all(0),
-          child: ConditionalBackdropFilter(
-            condition: backdrop,
-            child: Container(),
-          ),
-        ),
       ],
     );
   }

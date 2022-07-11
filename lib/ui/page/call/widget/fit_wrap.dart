@@ -17,9 +17,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '/ui/page/call/widget/fit_view.dart';
+
+import 'fit_view.dart';
 
 /// Places [children] into a shrinkable [Wrap].
+///
+/// Uses [FitView], if there's not enough space for the [Wrap].
 class FitWrap extends StatelessWidget {
   const FitWrap({
     Key? key,
@@ -39,7 +42,7 @@ class FitWrap extends StatelessWidget {
   /// Maximum size in pixels of a [Wrap]ped [children].
   final double maxSize;
 
-  /// Space between [children].
+  /// Spacing between [children].
   final double spacing;
 
   /// Alignment of the [children].
@@ -73,6 +76,8 @@ class FitWrap extends StatelessWidget {
     return size;
   }
 
+  /// Indicates whether a [FitView] would be used with the provided [maxSize],
+  /// [constraints], [axis] and [length].
   static bool useFitView({
     required double maxSize,
     required Size constraints,

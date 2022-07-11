@@ -53,8 +53,7 @@ class CallController extends GetxController {
     this.isPopup = false,
   });
 
-  // TODO(design): improve
-  /// Indicator whether the call opened in separate window.
+  /// Indicator whether this call should be considered as a popup.
   final bool isPopup;
 
   /// Duration of the current ongoing call.
@@ -256,6 +255,18 @@ class CallController extends GetxController {
   /// Min height of the minimized view in pixels.
   static const double _minHeight = 500;
 
+  /// Minimal height of secondary view.
+  static const double _minSHeight = 100;
+
+  /// Minimal width of secondary view.
+  static const double _minSWidth = 100;
+
+  /// Maximal height of secondary view in percent.
+  static const double _maxSHeight = 0.95;
+
+  /// Maximal width of secondary view in percent.
+  static const double _maxSWidth = 0.95;
+
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
 
@@ -381,6 +392,7 @@ class CallController extends GetxController {
   /// Indicator whether the inbound audio in the current [OngoingCall] is
   /// enabled or not.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
+
   @override
   void onInit() {
     super.onInit();
@@ -867,8 +879,8 @@ class CallController extends GetxController {
     }
   }
 
-  /// Unfocuses all [participant]s, which means putting them in theirs `default`
-  /// group.
+  /// Unfocuses all [Participant]s, which means putting them in theirs `default`
+  /// groups.
   void unfocusAll() {
     if (focused.isEmpty) {
       for (Participant r in List.from(paneled, growable: false)) {
@@ -980,6 +992,49 @@ class CallController extends GetxController {
     }
   }
 
+  /// Applies constraints to the [width], [height], [left] and [top].
+  void applySecondaryConstraints(BuildContext context) {
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft) {
+      secondaryLeft.value = size.width / 2;
+    } else if (secondaryAlignment.value == Alignment.topCenter ||
+        secondaryAlignment.value == Alignment.bottomCenter) {
+      secondaryTop.value = size.height / 2;
+    }
+
+    secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
+    secondaryHeight.value = _applySHeight(context, secondaryHeight.value);
+    secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
+    secondaryTop.value = _applySTop(context, secondaryTop.value);
+
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft) {
+      secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
+    } else if (secondaryAlignment.value == Alignment.topCenter ||
+        secondaryAlignment.value == Alignment.bottomCenter) {
+      secondaryHeight.value = min(secondaryHeight.value, size.height / 2);
+    }
+
+    possibleSecondaryAlignment.value = null;
+    if (secondaryDragged.value) {
+      if (secondaryLeft.value != null) {
+        if (secondaryLeft.value! <= 0) {
+          possibleSecondaryAlignment.value = Alignment.centerLeft;
+        } else if (secondaryLeft.value! >= size.width - secondaryWidth.value) {
+          possibleSecondaryAlignment.value = Alignment.centerRight;
+        }
+      }
+
+      if (secondaryTop.value != null) {
+        if (secondaryTop.value! <= 0) {
+          possibleSecondaryAlignment.value = Alignment.topCenter;
+        } else if (secondaryTop.value! >= size.height - secondaryHeight.value) {
+          possibleSecondaryAlignment.value = Alignment.bottomCenter;
+        }
+      }
+    }
+  }
+
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
@@ -1040,6 +1095,128 @@ class CallController extends GetxController {
     applySecondaryConstraints(context);
   }
 
+  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
+  void resizeSecondary(BuildContext context,
+      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+    if (secondaryLeft.value == null || secondaryTop.value == null) {
+      return;
+    }
+
+    switch (x) {
+      case ScaleModeX.left:
+        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        if (secondaryWidth.value - dx == width) {
+          double? left = _applySLeft(
+            context,
+            secondaryLeft.value! + (secondaryWidth.value - width),
+          );
+
+          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
+            secondaryLeft.value = left;
+            secondaryWidth.value = width;
+          } else if (left == size.width - secondaryWidth.value) {
+            secondaryLeft.value = size.width - width;
+            secondaryWidth.value = width;
+          }
+        }
+        break;
+      case ScaleModeX.right:
+        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        if (secondaryWidth.value - dx == width) {
+          double right = secondaryLeft.value! + width;
+          if (right < size.width) {
+            secondaryWidth.value = width;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    switch (y) {
+      case ScaleModeY.top:
+        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        if (secondaryHeight.value - dy == height) {
+          double? top = _applySTop(
+            context,
+            secondaryTop.value! + (secondaryHeight.value - height),
+          );
+
+          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
+            secondaryTop.value = top;
+            secondaryHeight.value = height;
+          } else if (top == size.height - secondaryHeight.value) {
+            secondaryTop.value = size.height - height;
+            secondaryHeight.value = height;
+          }
+        }
+        break;
+      case ScaleModeY.bottom:
+        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        if (secondaryHeight.value - dy == height) {
+          double bottom = secondaryTop.value! + height;
+          if (bottom < size.height) {
+            secondaryHeight.value = height;
+          }
+        }
+        break;
+      default:
+        break;
+    }
+
+    applySecondaryConstraints(context);
+  }
+
+  /// Returns corrected according to constraints [width] value.
+  double _applySWidth(BuildContext context, double width) {
+    if (_minSWidth > size.width * _maxSWidth) {
+      return size.width * _maxSWidth;
+    } else if (width > size.width * _maxSWidth) {
+      return (size.width * _maxSWidth);
+    } else if (width < _minSWidth) {
+      return _minSWidth;
+    }
+    return width;
+  }
+
+  /// Returns corrected according to constraints [height] value.
+  double _applySHeight(BuildContext context, double height) {
+    if (_minSHeight > size.height * _maxSHeight) {
+      return size.height * _maxSHeight;
+    } else if (height > size.height * _maxSHeight) {
+      return size.height * _maxSHeight;
+    } else if (height < _minSHeight) {
+      return _minSHeight;
+    }
+    return height;
+  }
+
+  /// Returns corrected according to constraints [left] value.
+  double? _applySLeft(BuildContext context, double? left) {
+    if (left != null) {
+      if (left + secondaryWidth.value > size.width) {
+        return size.width - secondaryWidth.value;
+      } else if (left < 0) {
+        return 0;
+      }
+    }
+
+    return left;
+  }
+
+  /// Returns corrected according to constraints [top] value.
+  double? _applySTop(BuildContext context, double? top) {
+    if (top != null) {
+      if (top + secondaryHeight.value > size.height) {
+        return size.height - secondaryHeight.value;
+      } else if (top < 0) {
+        return 0;
+      }
+    }
+
+    return top;
+  }
+
   /// Returns corrected according to constraints [width] value.
   double _applyWidth(BuildContext context, double width) {
     if (_minWidth > context.mediaQuerySize.width * _maxWidth) {
@@ -1085,8 +1262,7 @@ class CallController extends GetxController {
   }
 
   /// Puts [participant] from its `default` group to [list].
-  void _putVideoTo(Participant participant, RxList<Participant> list,
-      {int? at}) {
+  void _putVideoTo(Participant participant, RxList<Participant> list) {
     if (participant.owner == MediaOwnerKind.local &&
         participant.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
@@ -1097,12 +1273,7 @@ class CallController extends GetxController {
     remotes.remove(participant);
     focused.remove(participant);
     paneled.remove(participant);
-
-    if (at != null && at < list.length) {
-      list.insert(at, participant);
-    } else {
-      list.add(participant);
-    }
+    list.add(participant);
   }
 
   /// Puts [participant] from [list] to its `default` group.
@@ -1311,185 +1482,6 @@ class Participant {
   /// Reactive audio renderer of this [Participant].
   late final Rx<RtcAudioRenderer?> audio;
 
-  /// [GlobalKey] of this [Participant] video view.
+  /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
-}
-
-extension SecondaryResize on CallController {
-  /// Minimal height of secondary view.
-  static const double _minSHeight = 100;
-
-  /// Minimal width of secondary view.
-  static const double _minSWidth = 100;
-
-  /// Maximal height of secondary view in percent.
-  static const double _maxSHeight = 0.95;
-
-  /// Maximal width of secondary view in percent.
-  static const double _maxSWidth = 0.95;
-
-  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
-  void resizeSecondary(BuildContext context,
-      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    if (secondaryLeft.value == null || secondaryTop.value == null) {
-      return;
-    }
-
-    switch (x) {
-      case ScaleModeX.left:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double? left = _applySLeft(
-            context,
-            secondaryLeft.value! + (secondaryWidth.value - width),
-          );
-
-          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
-            secondaryLeft.value = left;
-            secondaryWidth.value = width;
-          } else if (left == size.width - secondaryWidth.value) {
-            secondaryLeft.value = size.width - width;
-            secondaryWidth.value = width;
-          }
-        }
-        break;
-      case ScaleModeX.right:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
-        if (secondaryWidth.value - dx == width) {
-          double right = secondaryLeft.value! + width;
-          if (right < size.width) {
-            secondaryWidth.value = width;
-          }
-        }
-        break;
-      default:
-        break;
-    }
-
-    switch (y) {
-      case ScaleModeY.top:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double? top = _applySTop(
-            context,
-            secondaryTop.value! + (secondaryHeight.value - height),
-          );
-
-          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
-            secondaryTop.value = top;
-            secondaryHeight.value = height;
-          } else if (top == size.height - secondaryHeight.value) {
-            secondaryTop.value = size.height - height;
-            secondaryHeight.value = height;
-          }
-        }
-        break;
-      case ScaleModeY.bottom:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
-        if (secondaryHeight.value - dy == height) {
-          double bottom = secondaryTop.value! + height;
-          if (bottom < size.height) {
-            secondaryHeight.value = height;
-          }
-        }
-        break;
-      default:
-        break;
-    }
-
-    applySecondaryConstraints(context);
-  }
-
-  /// Returns corrected according to constraints [width] value.
-  double _applySWidth(BuildContext context, double width) {
-    if (_minSWidth > size.width * _maxSWidth) {
-      return size.width * _maxSWidth;
-    } else if (width > size.width * _maxSWidth) {
-      return (size.width * _maxSWidth);
-    } else if (width < _minSWidth) {
-      return _minSWidth;
-    }
-    return width;
-  }
-
-  /// Returns corrected according to constraints [height] value.
-  double _applySHeight(BuildContext context, double height) {
-    if (_minSHeight > size.height * _maxSHeight) {
-      return size.height * _maxSHeight;
-    } else if (height > size.height * _maxSHeight) {
-      return size.height * _maxSHeight;
-    } else if (height < _minSHeight) {
-      return _minSHeight;
-    }
-    return height;
-  }
-
-  /// Returns corrected according to constraints [left] value.
-  double? _applySLeft(BuildContext context, double? left) {
-    if (left != null) {
-      if (left + secondaryWidth.value > size.width) {
-        return size.width - secondaryWidth.value;
-      } else if (left < 0) {
-        return 0;
-      }
-    }
-
-    return left;
-  }
-
-  /// Returns corrected according to constraints [top] value.
-  double? _applySTop(BuildContext context, double? top) {
-    if (top != null) {
-      if (top + secondaryHeight.value > size.height) {
-        return size.height - secondaryHeight.value;
-      } else if (top < 0) {
-        return 0;
-      }
-    }
-
-    return top;
-  }
-
-  /// Applies constraints to the [width], [height], [left] and [top].
-  void applySecondaryConstraints(BuildContext context) {
-    if (secondaryAlignment.value == Alignment.centerRight ||
-        secondaryAlignment.value == Alignment.centerLeft) {
-      secondaryLeft.value = size.width / 2;
-    } else if (secondaryAlignment.value == Alignment.topCenter ||
-        secondaryAlignment.value == Alignment.bottomCenter) {
-      secondaryTop.value = size.height / 2;
-    }
-
-    secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
-    secondaryHeight.value = _applySHeight(context, secondaryHeight.value);
-    secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
-    secondaryTop.value = _applySTop(context, secondaryTop.value);
-
-    if (secondaryAlignment.value == Alignment.centerRight ||
-        secondaryAlignment.value == Alignment.centerLeft) {
-      secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
-    } else if (secondaryAlignment.value == Alignment.topCenter ||
-        secondaryAlignment.value == Alignment.bottomCenter) {
-      secondaryHeight.value = min(secondaryHeight.value, size.height / 2);
-    }
-
-    possibleSecondaryAlignment.value = null;
-    if (secondaryDragged.value) {
-      if (secondaryLeft.value != null) {
-        if (secondaryLeft.value! <= 0) {
-          possibleSecondaryAlignment.value = Alignment.centerLeft;
-        } else if (secondaryLeft.value! >= size.width - secondaryWidth.value) {
-          possibleSecondaryAlignment.value = Alignment.centerRight;
-        }
-      }
-
-      if (secondaryTop.value != null) {
-        if (secondaryTop.value! <= 0) {
-          possibleSecondaryAlignment.value = Alignment.topCenter;
-        } else if (secondaryTop.value! >= size.height - secondaryHeight.value) {
-          possibleSecondaryAlignment.value = Alignment.bottomCenter;
-        }
-      }
-    }
-  }
 }

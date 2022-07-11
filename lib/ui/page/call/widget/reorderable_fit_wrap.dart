@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/call/widget/fit_wrap.dart';
-import '/ui/page/home/page/settings/reorderable_fit_view.dart'
+import 'reorderable_fit_view.dart'
     show AnimatedTransition, ReorderableDraggableHandle, ReorderableItem;
 import '/ui/page/home/widget/gallery_popup.dart';
 
