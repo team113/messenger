@@ -187,14 +187,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
       - uses: docker/setup-buildx-action@v2
 
-      - run: make flutter.pub
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-web-${{ github.run_number }}
+          path: build/web/
+
       - run: make docker.build debug=no no-cache=yes
                   tag=build-${{ github.run_number }}
 
