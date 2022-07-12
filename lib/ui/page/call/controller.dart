@@ -375,7 +375,7 @@ class CallController extends GetxController {
   Size get size {
     if (!fullscreen.value && minimized.value) {
       return Size(width.value, height.value - 30);
-    } else if (PlatformUtils.isMobile) {
+    } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       var padding = router.context!.mediaQueryPadding;
       var size = router.context!.mediaQuerySize;
       return Size(size.width, size.height - padding.bottom - padding.top);

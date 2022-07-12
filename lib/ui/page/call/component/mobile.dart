@@ -107,7 +107,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 c.secondaryLeft.value = d.globalPosition.dx - c.left.value;
                 c.secondaryTop.value = d.globalPosition.dy - 35 - c.top.value;
               } else {
-                if (PlatformUtils.isMobile) {
+                if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
                   var size = c.size;
                   c.secondaryLeft.value =
                       size.width - c.secondaryWidth.value - right;

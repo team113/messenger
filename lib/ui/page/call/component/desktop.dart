@@ -1671,6 +1671,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryDragged.value = true;
+                          var right = c.secondaryRight.value ?? 0;
+                          var bottom = c.secondaryBottom.value ?? 0;
                           c.secondaryRight.value = null;
                           c.secondaryBottom.value = null;
 
@@ -1679,10 +1681,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryAlignment.value = null;
 
                             if (c.minimized.value) {
-                              c.secondaryLeft.value =
-                                  d.globalPosition.dx - c.left.value;
-                              c.secondaryTop.value =
-                                  d.globalPosition.dy - 35 - c.top.value;
+                              var size = c.size;
+                              c.secondaryLeft.value = size.width - c.secondaryWidth.value - right;
+                              c.secondaryTop.value = size.height - c.secondaryHeight.value - bottom;
                             } else {
                               c.secondaryLeft.value = d.globalPosition.dx;
                               c.secondaryTop.value = d.globalPosition.dy - 15;
