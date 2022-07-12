@@ -37,6 +37,5 @@ class SettingsController extends GetxController {
   /// Sets the [ApplicationSettings.locale] value.
   Future<void> setLocale(String? locale) async {
     await _settingsRepo.setLocale(locale!);
-    await L10n.setLocale(locale);
   }
 }

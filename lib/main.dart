@@ -147,6 +147,19 @@ class App extends StatelessWidget {
       theme: Themes.light(),
       themeMode: ThemeMode.light,
       localizationsDelegates: L10n.delegates,
+      supportedLocales:
+          L10n.languages.values.map((language) => language.locale),
+      localeListResolutionCallback: (locales, supported) {
+        if (locales == null) return L10n.languages.values.first.locale;
+        for (var loc in locales) {
+          for (var supp in supported) {
+            if (supp.languageCode == loc.languageCode) {
+              return supp;
+            }
+          }
+        }
+        return L10n.languages.values.first.locale;
+      },
       debugShowCheckedModeBanner: false,
     );
   }

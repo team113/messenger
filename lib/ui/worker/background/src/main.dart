@@ -369,9 +369,7 @@ class _BackgroundService {
       if (!L10n.languages.containsKey(locale)) {
         locale = 'en_US';
       }
-
-      L10n.chosen.value = locale;
-      await L10n.load();
+      await L10n.setLocale(locale);
     }
   }
 

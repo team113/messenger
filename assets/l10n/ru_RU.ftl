@@ -176,22 +176,28 @@ label_ago = { $years ->
                                     [0] { $minutes ->
                                             [0] недавно
                                             [1] недавно
+                                            [few] {$minutes} минуты назад
                                             *[other] {$minutes} минут назад
                                         }
                                     [1] час назад
+                                    [few] {$hours} часа назад
                                     *[other] {$hours} часов назад
                                 }
                             [1] вчера
                             [2] позавчера
+                            [few] {$days} дня назад
                             *[other] {$days} дней назад
                         }
                     [1] неделю назад
-                    *[other] {$weeks} недели назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель назад
                 }
             [1] месяц назад
+            [few] {$months} месяца назад
             *[other] {$months} месяцев назад
         }
     [1] год назад
+    [few] {$years} года назад
     *[other] {$years} лет назад
 }
 label_application = приложение

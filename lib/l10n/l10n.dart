@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:fluent/fluent.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -29,6 +30,8 @@ class L10n {
   /// [List] of [LocalizationsDelegate] that are available in the app.
   static List<LocalizationsDelegate<dynamic>> delegates = [
     const _FluentLocalizationsDelegate(),
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
   ];
 
   /// Supported [Language]s.
@@ -38,21 +41,17 @@ class L10n {
   };
 
   /// [FluentBundle] providing translation.
-  static final FluentBundle _bundle = FluentBundle('en_US');
-
-  /// Loads [chosen] locale.
-  static Future<void> load() async {
-    _bundle.messages.clear();
-    _bundle.addMessages(
-        await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
-  }
+  static FluentBundle _bundle = FluentBundle('');
 
   /// Changes current locale and loads it.
-  static Future<void> setLocale(String locale) async {
-    if (chosen.value != locale) {
+  static Future<void> setLocale(String locale,
+      {bool forceUpdateApp = true}) async {
+    if (chosen.value != locale && languages.containsKey(locale)) {
       chosen.value = locale;
-      await load();
-      await Get.forceAppUpdate();
+      _bundle = FluentBundle(locale.toString());
+      _bundle.addMessages(
+          await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
+      if (forceUpdateApp) await Get.forceAppUpdate();
     }
     chosen.refresh();
   }
@@ -64,9 +63,10 @@ class L10n {
 
 /// [Language] entity that is available in the app.
 class Language {
-  const Language(this.name, this.locale);
   final String name;
   final Locale locale;
+
+  const Language(this.name, this.locale);
 }
 
 /// Extension adding an ability to get translated [String] from the [L10n].
@@ -85,14 +85,13 @@ class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
 
   @override
   bool isSupported(Locale locale) {
-    return L10n.languages.keys.any((k) => k == locale.toString());
+    return L10n.languages.values
+        .any((l) => l.locale.languageCode == locale.languageCode);
   }
 
   @override
   Future<L10n> load(Locale locale) async {
-    final String deviceLocale = locale.toString();
-    L10n.chosen.value = deviceLocale;
-    await L10n.load();
+    await L10n.setLocale(locale.toString(), forceUpdateApp: false);
     return L10n();
   }
 

@@ -24,8 +24,11 @@ import '/l10n/l10n.dart';
 class SettingsWorker extends DisposableService {
   SettingsWorker(this._settingsRepository);
 
+  /// Uses for listening of [ApplicationSettings.locale] changes.
   final AbstractSettingsRepository _settingsRepository;
 
+  /// Listens [ApplicationSettings.locale] changes and sets locale dependent to
+  ///  it.
   Worker? _worker;
 
   @override
