@@ -25,6 +25,7 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -49,7 +50,7 @@ class UserController extends GetxController {
   final UserId id;
 
   /// Reactive [User] itself.
-  Rx<User>? user;
+  RxUser? user;
 
   /// Status of the [user] fetching.
   ///
@@ -119,6 +120,7 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
+    user?.stopUpdates();
     _contactsSubscription?.cancel();
     super.onClose();
   }
@@ -128,7 +130,7 @@ class UserController extends GetxController {
     if (!inContacts.value) {
       status.value = RxStatus.loadingMore();
       try {
-        await _contactService.createChatContact(user!.value);
+        await _contactService.createChatContact(user!.user.value);
         inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
@@ -146,8 +148,8 @@ class UserController extends GetxController {
         status.value = RxStatus.loadingMore();
         try {
           RxChatContact? contact = _contactService.contacts.values
-              .firstWhereOrNull((e) =>
-                  e.contact.value.users.every((m) => m.id == user?.value.id));
+              .firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id));
           if (contact != null) {
             await _contactService.deleteContact(contact.contact.value.id);
           }
@@ -167,15 +169,15 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = user?.user.value.dialog;
+    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
     router.chat(dialog.id, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = user?.user.value.dialog;
+    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
 
     try {
       await _callService.call(dialog.id, withVideo: withVideo);
@@ -188,6 +190,7 @@ class UserController extends GetxController {
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
+      user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);

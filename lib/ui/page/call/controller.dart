@@ -28,6 +28,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
@@ -957,7 +958,7 @@ class CallController extends GetxController {
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {
@@ -1448,7 +1449,7 @@ class Participant {
   Participant(
     this.id,
     this.owner, {
-    Rx<User>? user,
+    RxUser? user,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
@@ -1462,7 +1463,7 @@ class Participant {
   final RemoteMemberId id;
 
   /// [User] this [Participant] represents.
-  final Rx<Rx<User>?> user;
+  final Rx<RxUser?> user;
 
   /// Indicator whether this [Participant] raised a hand.
   final Rx<bool> handRaised;

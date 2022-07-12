@@ -121,8 +121,9 @@ class ParticipantWidget extends StatelessWidget {
 
       // [Widget]s to display in background when no video is available.
       List<Widget> _background() {
-        return useCallCover && participant.user.value?.value.callCover != null
-            ? [CallCoverWidget(participant.user.value?.value.callCover)]
+        return useCallCover &&
+                participant.user.value?.user.value.callCover != null
+            ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
             : [
                 Center(
                   child: Padding(
@@ -146,7 +147,7 @@ class ParticipantWidget extends StatelessWidget {
                             : null,
                       ),
                       child: AvatarWidget.fromUser(
-                        participant.user.value?.value,
+                        participant.user.value?.user.value,
                         radius: isDragging ? 90 : 60,
                       ),
                     ),
@@ -325,10 +326,15 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                                   right: 3,
                                                 ),
                                                 child: Text(
-                                                  participant.user.value?.value
-                                                          .name?.val ??
-                                                      participant.user.value
-                                                          ?.value.num.val ??
+                                                  participant.user.value?.user
+                                                          .value.name?.val ??
+                                                      participant
+                                                          .user
+                                                          .value
+                                                          ?.user
+                                                          .value
+                                                          .num
+                                                          .val ??
                                                       '...',
                                                   style: context
                                                       .theme

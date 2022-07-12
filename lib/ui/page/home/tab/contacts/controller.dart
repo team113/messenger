@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
@@ -27,9 +29,9 @@ import '/domain/repository/call.dart'
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -42,7 +44,6 @@ class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatRepository,
     this._contactService,
-    this._userService,
     this._calls,
   );
 
@@ -58,11 +59,14 @@ class ContactsTabController extends GetxController {
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
 
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
   /// Call service used to start a [ChatCall].
   final CallService _calls;
+
+  /// [Worker]s to [RxChatContact.user] reacting on its changes.
+  final Map<ChatContactId, Worker> _userWorkers = {};
+
+  /// [StreamSubscription]s to the [contacts] updates.
+  StreamSubscription? _contactsSubscription;
 
   /// Returns current reactive [ChatContact]s map.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -135,7 +139,17 @@ class ContactsTabController extends GetxController {
       },
     );
 
+    _initUsersUpdates();
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    contacts.forEach((_, c) => c.user.value?.stopUpdates());
+    _contactsSubscription?.cancel();
+    _userWorkers.forEach((_, v) => v.dispose());
+    super.onClose();
   }
 
   /// Starts an audio [ChatCall] with a [to] [User].
@@ -156,9 +170,6 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Returns an [User] from the [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
-
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
@@ -174,5 +185,38 @@ class ContactsTabController extends GetxController {
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
+  }
+
+  /// Maintains an interest in updates of every [RxChatContact.user] in the
+  /// [contacts] list.
+  void _initUsersUpdates() {
+    /// States an interest in updates of the specified [RxChatContact.user].
+    void _listen(RxChatContact c) {
+      RxUser? rxUser = c.user.value?..listenUpdates();
+      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+        if (rxUser?.id != user?.id) {
+          rxUser?.stopUpdates();
+          rxUser = user?..listenUpdates();
+        }
+      });
+    }
+
+    contacts.forEach((_, c) => _listen(c));
+    _contactsSubscription = contacts.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          _listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          _userWorkers.remove(e.key)?.dispose();
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
   }
 }

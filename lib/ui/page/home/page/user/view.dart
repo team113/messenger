@@ -73,7 +73,8 @@ class UserView extends StatelessWidget {
                               children: [
                                 const SizedBox(height: 10),
                                 _name(c, context),
-                                if (c.user?.value.bio != null) _bio(c, context),
+                                if (c.user?.user.value.bio != null)
+                                  _bio(c, context),
                                 const Divider(thickness: 2),
                                 _presence(c, context),
                                 _num(c, context),
@@ -121,7 +122,7 @@ class UserView extends StatelessWidget {
   /// Returns a [CarouselGallery] of the [User.gallery].
   Widget _gallery(UserController c) => Obx(
         () => CarouselGallery(
-          items: c.user?.value.gallery,
+          items: c.user?.user.value.gallery,
           index: c.galleryIndex.value,
           onChanged: (i) => c.galleryIndex.value = i,
         ),
@@ -134,7 +135,7 @@ class UserView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AvatarWidget.fromUser(c.user?.value, radius: 29),
+            AvatarWidget.fromUser(c.user?.user.value, radius: 29),
             const SizedBox(width: 20),
             Expanded(
               child: Column(
@@ -142,7 +143,7 @@ class UserView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SelectableText(
-                    '${c.user?.value.name?.val ?? c.user?.value.num.val}',
+                    '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
                     style: const TextStyle(fontSize: 24),
                   ),
                   _onlineStatus(c),
@@ -155,7 +156,7 @@ class UserView extends StatelessWidget {
 
   /// Returns an online status subtitle of the [User] this [UserView] is about.
   Widget _onlineStatus(UserController c) {
-    final subtitle = c.user?.value.getStatus();
+    final subtitle = c.user?.user.value.getStatus();
     if (subtitle != null) {
       return Text(
         subtitle,
@@ -166,25 +167,27 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.bio] text.
-  Widget _bio(UserController c, BuildContext context) => ListTile(
-        key: const Key('UserBio'),
-        leading: _centered(const Icon(Icons.article)),
-        title: SelectableText(
-          '${c.user?.value.bio?.val}',
-          style: const TextStyle(fontSize: 17),
-        ),
-        subtitle: Text(
-          'label_biography'.tr,
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-      );
+  Widget _bio(UserController c, BuildContext context) => Obx(() {
+        return ListTile(
+          key: const Key('UserBio'),
+          leading: _centered(const Icon(Icons.article)),
+          title: SelectableText(
+            '${c.user?.user.value.bio?.val}',
+            style: const TextStyle(fontSize: 17),
+          ),
+          subtitle: Text(
+            'label_biography'.tr,
+            style: const TextStyle(color: Color(0xFF888888)),
+          ),
+        );
+      });
 
   /// Returns a [User.num] copyable field.
   Widget _num(UserController c, BuildContext context) => ListTile(
         key: const Key('UserNum'),
         leading: _centered(const Icon(Icons.fingerprint)),
         title: Text(
-          c.user!.value.num.val.replaceAllMapped(
+          c.user!.user.value.num.val.replaceAllMapped(
             RegExp(r'.{4}'),
             (match) => '${match.group(0)} ',
           ),
@@ -194,7 +197,7 @@ class UserView extends StatelessWidget {
           style: const TextStyle(color: Color(0xFF888888)),
         ),
         trailing: _centered(const Icon(Icons.copy)),
-        onTap: () => _copy(c.user!.value.num.val),
+        onTap: () => _copy(c.user!.user.value.num.val),
       );
 
   /// Returns a [User.presence] text.
@@ -202,7 +205,7 @@ class UserView extends StatelessWidget {
         key: const Key('UserPresence'),
         leading: _centered(const Icon(Icons.info)),
         title: Text(Presence.values
-            .firstWhere((e) => e.index == c.user?.value.presenceIndex)
+            .firstWhere((e) => e.index == c.user?.user.value.presenceIndex)
             .localizedString()
             .toString()),
         subtitle: Text(
