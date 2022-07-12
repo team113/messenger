@@ -28,8 +28,6 @@ dependencies:
   flutter_background_service_ios: ^2.0.0
   flutter_list_view: ^1.1.12
   flutter_local_notifications: ^10.0.0-dev.13
-  flutter_localizations:
-    sdk: flutter
   flutter_svg: ^1.0.3
   flutter_web_plugins:
     sdk: flutter

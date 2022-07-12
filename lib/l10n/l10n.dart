@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:fluent/fluent.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -27,13 +26,6 @@ class L10n {
   /// Currently selected language.
   static Rx<String?> chosen = Rx(null);
 
-  /// [List] of [LocalizationsDelegate] that are available in the app.
-  static List<LocalizationsDelegate<dynamic>> delegates = [
-    const _FluentLocalizationsDelegate(),
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ];
-
   /// Supported [Language]s.
   static Map<String, Language> languages = const {
     'en_US': Language('English', Locale('en', 'US')),
@@ -42,6 +34,23 @@ class L10n {
 
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
+
+  /// Initializes this [L10n] due to preferred locale of user's platform.
+  static Future<void> ensureInitialized() async {
+    final List<Locale> preferredLocales =
+        WidgetsBinding.instance.window.locales;
+    final List<Locale> supported =
+        languages.values.map((lang) => lang.locale).toList();
+    for (var loc in preferredLocales) {
+      for (var supp in supported) {
+        if (supp.languageCode == loc.languageCode) {
+          await setLocale(supp.toString(), forceUpdateApp: false);
+          return;
+        }
+      }
+    }
+    await setLocale('en_US');
+  }
 
   /// Changes current locale and loads it.
   static Future<void> setLocale(String locale,
@@ -77,24 +86,4 @@ extension L10nExtension on String {
   /// Returns a value identified by this [String] from the [L10n] with the
   /// provided [args].
   String tdp(Map<String, dynamic> args) => L10n._format(this, args: args);
-}
-
-/// Custom `Fluent` [LocalizationsDelegate].
-class _FluentLocalizationsDelegate extends LocalizationsDelegate<L10n> {
-  const _FluentLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) {
-    return L10n.languages.values
-        .any((l) => l.locale.languageCode == locale.languageCode);
-  }
-
-  @override
-  Future<L10n> load(Locale locale) async {
-    await L10n.setLocale(locale.toString(), forceUpdateApp: false);
-    return L10n();
-  }
-
-  @override
-  bool shouldReload(covariant LocalizationsDelegate<L10n> old) => false;
 }
