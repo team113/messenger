@@ -183,18 +183,18 @@ Widget screenButton(CallController c, [double? scale]) => Obx(
 
 /// [RoundFloatingButton] raising a hand.
 Widget handButton(CallController c, [double? scale]) => Obx(
-      () => _hinted(
-        RoundFloatingButton(
-          onPressed: c.toggleHand,
-          scale: scale ?? 1,
-          children: [
-            SvgLoader.asset(
-              'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
-              width: 60,
-            )
-          ],
-        ),
-        hint: c.isHandRaised.value ? 'btn_call_hand_down'.tr : 'btn_call_hand_up'.tr,
+      () => RoundFloatingButton(
+        onPressed: c.toggleHand,
+        hint: c.isHandRaised.value
+            ? 'btn_call_hand_down'.tr
+            : 'btn_call_hand_up'.tr,
+        scale: scale ?? 1,
+        children: [
+          SvgLoader.asset(
+            'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
+            width: 60,
+          )
+        ],
       ),
     );
 
@@ -211,7 +211,7 @@ Widget addParticipantButton(CallController c, BuildContext context,
             height: 60,
             child: SvgLoader.asset(
               'assets/icons/add_user_small.svg',
-              width: 22,
+              width: 60,
             ),
           )
         ],

@@ -94,6 +94,8 @@ Widget mobileCall(CallController c, BuildContext context) {
         return GestureDetector(
           onPanStart: (d) {
             c.secondaryDragged.value = true;
+            var right = c.secondaryRight.value ?? 0;
+            var bottom = c.secondaryBottom.value ?? 0;
             c.secondaryRight.value = null;
             c.secondaryBottom.value = null;
 
@@ -105,8 +107,16 @@ Widget mobileCall(CallController c, BuildContext context) {
                 c.secondaryLeft.value = d.globalPosition.dx - c.left.value;
                 c.secondaryTop.value = d.globalPosition.dy - 35 - c.top.value;
               } else {
-                c.secondaryLeft.value = d.globalPosition.dx;
-                c.secondaryTop.value = d.globalPosition.dy - 15;
+                if (PlatformUtils.isMobile) {
+                  var size = c.size;
+                  c.secondaryLeft.value =
+                      size.width - c.secondaryWidth.value - right;
+                  c.secondaryTop.value =
+                      size.height - c.secondaryHeight.value - bottom;
+                } else {
+                  c.secondaryLeft.value = d.globalPosition.dx;
+                  c.secondaryTop.value = d.globalPosition.dy - 15;
+                }
               }
               c.applySecondaryConstraints(context);
             }
@@ -125,9 +135,6 @@ Widget mobileCall(CallController c, BuildContext context) {
           child: _floatingSecondaryView(c, context),
         );
       }),
-
-      // Empty drop zone if [secondary] is empty.
-      _secondaryTarget(c),
     ]);
   } else {
     // Call is not active.
@@ -320,7 +327,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 right: 10,
                 top: c.size.height * 0.05,
               ),
-              child: callTitle(c), // TODO: check that it is needed
+              child: callTitle(c),
             ),
           ),
         );
@@ -372,7 +379,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
-                              child: Text('btn_call_switch_camera_two_lines'.tr),
+                              child:
+                                  Text('btn_call_switch_camera_two_lines'.tr),
                             ),
                           )
                         : hintedButton(
@@ -380,7 +388,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
-                              child: Text('btn_call_toggle_speaker_two_lines'.tr),
+                              child:
+                                  Text('btn_call_toggle_speaker_two_lines'.tr),
                             ),
                           ),
                   ),
@@ -424,7 +433,18 @@ Widget mobileCall(CallController c, BuildContext context) {
             _buttons(
               [
                 _padding(addParticipantButton(c, context)),
-                _padding(handButton(c)),
+                _padding(
+                  hintedButton(
+                    handButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(c.isHandRaised.value
+                          ? 'btn_call_hand_down'.tr
+                          : 'btn_call_hand_up'.tr),
+                    ),
+                  ),
+                ),
                 _padding(disableAudio(c)),
                 _padding(disableVideo(c)),
               ],
@@ -574,7 +594,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     onInit: (animation) {
       c.minimizedAnimation = animation;
       animation.addListener(() {
-        if(animation.value != 0) {
+        if (animation.value != 0) {
           c.keepUi(false);
         }
         c.minimized.value = animation.value == 1;
@@ -929,30 +949,26 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
             right: right,
             top: top,
             bottom: bottom,
-            child: IgnorePointer(
-              child: SizedBox(
-                width: width,
-                height: height,
-                child: Obx(() {
-                  if (c.secondaryAlignment.value == null) {
-                    return IgnorePointer(
-                      child: Stack(
-                        children: [
-                          SvgLoader.asset(
-                            'assets/images/background_dark.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                          Container(color: const Color(0x11FFFFFF)),
-                        ],
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Obx(() {
+                if (c.secondaryAlignment.value == null) {
+                  return Stack(
+                    children: [
+                      SvgLoader.asset(
+                        'assets/images/background_dark.svg',
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
                       ),
-                    );
-                  }
+                      Container(color: const Color(0x11FFFFFF)),
+                    ],
+                  );
+                }
 
-                  return Container();
-                }),
-              ),
+                return Container();
+              }),
             ),
           ),
 
@@ -1075,6 +1091,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
             ),
           ),
 
+          // Displays `add` icon if secondary view is hovered.
           Positioned(
             left: left,
             right: right,
@@ -1129,109 +1146,6 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
   );
 }
 
-/// [DragTarget] of an empty [_secondaryView].
-Widget _secondaryTarget(CallController c) {
-  return Obx(() {
-    // Pre-calculate the [FitWrap]'s size.
-    double panelSize = max(
-      FitWrap.calculateSize(
-        maxSize: c.size.shortestSide / 4,
-        constraints: Size(c.size.width, c.size.height - 45),
-        axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
-        length: c.secondary.length,
-      ),
-      130,
-    );
-
-    return AnimatedSwitcher(
-      key: const Key('SecondaryTargetAnimatedSwitcher'),
-      duration: 200.milliseconds,
-      child: c.secondary.isEmpty
-          ? Align(
-              alignment: Alignment.bottomRight,
-              child: DragTarget<_DragData>(
-                onAccept: (_DragData d) {
-                  c.secondaryAlignment.value = null;
-                  c.secondaryKeepAlignment.value = true;
-                  c.secondaryLeft.value = null;
-                  c.secondaryTop.value = null;
-                  c.secondaryRight.value = 10;
-                  c.secondaryBottom.value = 10;
-
-                  c.unfocus(d.participant);
-                },
-                builder: (context, candidate, rejected) {
-                  return Obx(() {
-                    return IgnorePointer(
-                      child: Container(
-                        width: panelSize,
-                        height: panelSize,
-                        padding: const EdgeInsets.all(8),
-                        child: AnimatedSwitcher(
-                          key: const Key('SecondaryTargetAnimatedSwitcher'),
-                          duration: 200.milliseconds,
-                          child: c.primaryDrags.value >= 1
-                              ? Opacity(
-                                  opacity: 0,
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      boxShadow: [
-                                        CustomBoxShadow(
-                                          color: Color(0x33000000),
-                                          blurRadius: 8,
-                                          blurStyle: BlurStyle.outer,
-                                        )
-                                      ],
-                                    ),
-                                    child: ConditionalBackdropFilter(
-                                      child: Container(
-                                        color: const Color(0x30000000),
-                                        child: Center(
-                                          child: AnimatedScale(
-                                            duration: const Duration(
-                                                milliseconds: 300),
-                                            curve: Curves.ease,
-                                            scale:
-                                                candidate.isNotEmpty ? 1.06 : 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: const Color(0x40000000),
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              ),
-                                              child: const Padding(
-                                                padding: EdgeInsets.all(10),
-                                                child: Icon(
-                                                  Icons.add_rounded,
-                                                  size: 35,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(key: UniqueKey()),
-                        ),
-                      ),
-                    );
-                  });
-                },
-                onWillAccept: (b) {
-                  c.secondaryTargets.value = 1;
-                  return true;
-                },
-                onLeave: (b) => c.secondaryTargets.value = 0,
-              ),
-            )
-          : Container(),
-    );
-  });
-}
-
 /// Shows [SecondaryOverlayEntry].
 void populateSecondaryEntry(BuildContext context, CallController c) {
   c.addToSecondaryEntry = OverlayEntry(builder: (context) {
@@ -1241,7 +1155,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   Overlay.of(context)?.insert(c.addToSecondaryEntry!);
 }
 
-/// Secondary view overlay displaying add icon.
+/// [DragTarget] of an empty [_secondaryView].
 class SecondaryOverlayEntry extends StatefulWidget {
   const SecondaryOverlayEntry(this.c, {Key? key}) : super(key: key);
 
@@ -1251,20 +1165,19 @@ class SecondaryOverlayEntry extends StatefulWidget {
   State<SecondaryOverlayEntry> createState() => _SecondaryOverlayEntryState();
 }
 
-/// State of an [SecondaryOverlayEntry] maintaining the [scale].
+/// State of an [SecondaryOverlayEntry] maintaining the [hovered].
 class _SecondaryOverlayEntryState extends State<SecondaryOverlayEntry> {
   /// [StreamSubscription] to the [CallController.secondaryTargets].
   StreamSubscription? _subscription;
 
-  /// Indicator whether secondary view is hovered by some call participant.
+  /// Indicator whether this [SecondaryOverlayEntry] is hovered by some call
+  /// participant.
   bool hovered = false;
 
   @override
   void initState() {
     hovered = widget.c.secondaryTargets.value != 0;
-    print('widget.c.secondaryTargets: ${widget.c.secondaryTargets.value}');
     _subscription = widget.c.secondaryTargets.listen((p) {
-      print('widget.c.secondaryTargets: ${widget.c.secondaryTargets.value}');
       Future.delayed(Duration.zero, () {
         setState(() => hovered = widget.c.secondaryTargets.value != 0);
       });
@@ -1281,6 +1194,9 @@ class _SecondaryOverlayEntryState extends State<SecondaryOverlayEntry> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.c.secondary.isNotEmpty) {
+      return Container();
+    }
     Axis secondaryAxis = widget.c.size.width >= widget.c.size.height
         ? Axis.horizontal
         : Axis.vertical;
@@ -1302,77 +1218,98 @@ class _SecondaryOverlayEntryState extends State<SecondaryOverlayEntry> {
       key: const Key('SecondaryTargetAnimatedSwitcher'),
       duration: 200.milliseconds,
       delay: Duration.zero,
-      child: Align(
-        alignment: secondaryAxis == Axis.horizontal
-            ? Alignment.centerRight
-            : Alignment.bottomCenter,
-        child: SizedBox(
-          width: secondaryAxis == Axis.horizontal ? panelSize : double.infinity,
-          height:
-              secondaryAxis == Axis.horizontal ? double.infinity : panelSize,
-          child: IgnorePointer(
-            child: AnimatedSwitcher(
-              key: const Key('SecondaryTargetAnimatedSwitcher'),
-              duration: 200.milliseconds,
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  width: panelSize,
-                  height: panelSize,
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    boxShadow: [
-                      CustomBoxShadow(
-                        color: Color(0x33000000),
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
-                      )
-                    ],
-                  ),
-                  child: ConditionalBackdropFilter(
+      child: SafeArea(
+        child: Align(
+          alignment: secondaryAxis == Axis.horizontal
+              ? Alignment.centerRight
+              : Alignment.bottomCenter,
+          child: DragTarget<_DragData>(
+            onAccept: (_DragData d) {
+              widget.c.secondaryAlignment.value = null;
+              widget.c.secondaryKeepAlignment.value = true;
+              widget.c.secondaryLeft.value = null;
+              widget.c.secondaryTop.value = null;
+              widget.c.secondaryRight.value = 10;
+              widget.c.secondaryBottom.value = 10;
+              widget.c.secondaryTargets.value = 0;
+
+              widget.c.unfocus(d.participant);
+            },
+            onWillAccept: (b) {
+              widget.c.secondaryTargets.value = 1;
+              return true;
+            },
+            onLeave: (b) => widget.c.secondaryTargets.value = 0,
+            builder: (context, candidate, rejected) {
+              return SizedBox(
+                width: secondaryAxis == Axis.horizontal
+                    ? panelSize
+                    : double.infinity,
+                height: secondaryAxis == Axis.horizontal
+                    ? double.infinity
+                    : panelSize,
+                child: IgnorePointer(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
                     child: Container(
-                      color: const Color(0x30000000),
-                      child: Center(
-                        child: SizedBox(
-                          width: secondaryAxis == Axis.horizontal
-                              ? min(panelSize, 150 + 44)
-                              : null,
-                          height: secondaryAxis == Axis.horizontal
-                              ? null
-                              : min(panelSize, 150 + 44),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedScale(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.ease,
-                                scale: hovered ? 1.06 : 1,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x40000000),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Icon(
-                                      Icons.add_rounded,
-                                      size: 35,
-                                      color: Colors.white,
+                      width: panelSize,
+                      height: panelSize,
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        boxShadow: [
+                          CustomBoxShadow(
+                            color: Color(0x33000000),
+                            blurRadius: 8,
+                            blurStyle: BlurStyle.outer,
+                          )
+                        ],
+                      ),
+                      child: ConditionalBackdropFilter(
+                        child: Container(
+                          color: const Color(0x30000000),
+                          child: Center(
+                            child: SizedBox(
+                              width: secondaryAxis == Axis.horizontal
+                                  ? min(panelSize, 150 + 44)
+                                  : null,
+                              height: secondaryAxis == Axis.horizontal
+                                  ? null
+                                  : min(panelSize, 150 + 44),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  AnimatedScale(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.ease,
+                                    scale: hovered ? 1.06 : 1,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x40000000),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Icon(
+                                          Icons.add_rounded,
+                                          size: 35,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

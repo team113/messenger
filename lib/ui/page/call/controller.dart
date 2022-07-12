@@ -217,16 +217,16 @@ class CallController extends GetxController {
   static const Color endColor = Color(0x7FFF0000);
 
   /// Left coordinate of secondary view.
-  final RxnDouble secondaryLeft = RxnDouble(0);
+  final RxnDouble secondaryLeft = RxnDouble(null);
 
   /// Top coordinate of secondary view.
-  final RxnDouble secondaryTop = RxnDouble(0);
+  final RxnDouble secondaryTop = RxnDouble(null);
 
   /// Right coordinate of secondary view.
-  final RxnDouble secondaryRight = RxnDouble(null);
+  final RxnDouble secondaryRight = RxnDouble(10);
 
   /// Bottom coordinate of secondary view.
-  final RxnDouble secondaryBottom = RxnDouble(null);
+  final RxnDouble secondaryBottom = RxnDouble(10);
 
   /// Width of secondary view.
   late final RxDouble secondaryWidth;
@@ -235,13 +235,13 @@ class CallController extends GetxController {
   late final RxDouble secondaryHeight;
 
   /// [Alignment] of secondary view.
-  final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
+  final Rx<Alignment?> secondaryAlignment = Rx(null);
 
   /// Possible [Alignment] of secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   /// Indicator whether secondary view attached to bottom right corner.
-  final RxBool secondaryKeepAlignment = RxBool(false);
+  final RxBool secondaryKeepAlignment = RxBool(true);
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -372,9 +372,17 @@ class CallController extends GetxController {
       _currentCall.value.caller?.num.val;
 
   /// Returns actual size of the call view.
-  Size get size => !fullscreen.value && minimized.value
-      ? Size(width.value, height.value - 30)
-      : router.context!.mediaQuerySize;
+  Size get size {
+    if (!fullscreen.value && minimized.value) {
+      return Size(width.value, height.value - 30);
+    } else if (PlatformUtils.isMobile) {
+      var padding = router.context!.mediaQueryPadding;
+      var size = router.context!.mediaQuerySize;
+      return Size(size.width, size.height - padding.bottom - padding.top);
+    } else {
+      return router.context!.mediaQuerySize;
+    }
+  }
 
   /// Indicates whether the [chat] is a dialog.
   bool get isDialog => chat.value?.chat.value.isDialog ?? false;

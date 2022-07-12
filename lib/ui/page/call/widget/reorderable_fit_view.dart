@@ -798,7 +798,7 @@ class _AnimatedTransitionState extends State<AnimatedTransition>
 }
 
 /// Widget represented reorderable item.
-class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
+class ReorderableDraggableHandle<T extends Object> extends StatefulWidget {
   const ReorderableDraggableHandle({
     Key? key,
     required this.item,
@@ -845,6 +845,17 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<ReorderableDraggableHandle<T>> createState() =>
+      _ReorderableDraggableHandleState<T>();
+}
+
+/// State of an [ReorderableDraggableHandle] maintaining the [isDragged].
+class _ReorderableDraggableHandleState<T extends Object>
+    extends State<ReorderableDraggableHandle<T>> {
+  /// Indicator whether dragging is started.
+  bool isDragged = false;
+
+  @override
   Widget build(BuildContext context) {
     return DoughRecipe(
       data: DoughRecipeData(
@@ -852,38 +863,43 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
         viscosity: 2000,
         draggablePrefs: DraggableDoughPrefs(
           breakDistance: 50,
-          useHapticsOnBreak: true,
+          useHapticsOnBreak: false,
         ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          var widget = itemBuilder(item);
+          var child = widget.itemBuilder(widget.item);
           return DraggableDough<T>(
-            data: item,
-            longPress: useLongDraggable,
-            maxSimultaneousDrags: enabled ? 1 : 0,
-            onDragEnd: (d) => onDragEnd?.call(d.offset),
-            onDragStarted: () {
-              onDragStarted?.call();
-              HapticFeedback.lightImpact();
+            data: widget.item,
+            longPress: widget.useLongDraggable,
+            maxSimultaneousDrags: widget.enabled ? 1 : 0,
+            onDragEnd: (d) {
+              widget.onDragEnd?.call(d.offset);
+              isDragged = false;
             },
-            onDragCompleted: onDragCompleted,
-            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
+            onDragStarted: () {
+              widget.onDragStarted?.call();
+              HapticFeedback.lightImpact();
+              isDragged = true;
+            },
+            onDragCompleted: widget.onDragCompleted,
+            onDraggableCanceled: (_, d) => widget.onDraggableCanceled?.call(d),
             onDoughBreak: () {
-              if (enabled) {
-                onDoughBreak?.call();
+              if (widget.enabled && isDragged) {
+                widget.onDoughBreak?.call();
+                HapticFeedback.lightImpact();
               }
             },
             feedback: SizedBox(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
               child: KeyedSubtree(
-                key: sharedKey,
-                child: widget,
+                key: widget.sharedKey,
+                child: child,
               ),
             ),
             childWhenDragging: KeyedSubtree(
-              key: sharedKey,
+              key: widget.sharedKey,
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -891,8 +907,8 @@ class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
               ),
             ),
             child: KeyedSubtree(
-              key: sharedKey,
-              child: widget,
+              key: widget.sharedKey,
+              child: child,
             ),
           );
         },
