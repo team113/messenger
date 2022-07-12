@@ -17,6 +17,7 @@
 import '../schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/crop_area.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
@@ -82,5 +83,65 @@ extension ImageGalleryItemConversion on ImageGalleryItemMixin {
         id: id,
         original: Original(original),
         square: Square(square),
+      );
+}
+
+/// Extension adding models construction from
+/// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+extension EventUserGalleryItemAdded$GalleryItemConversion
+    on UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [UserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
+/// Extension adding models construction from an [UserAvatarMixin].
+extension UserAvatarConversion on UserAvatarMixin {
+  /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
+  UserAvatar toModel() => UserAvatar(
+        full: full,
+        original: original,
+        galleryItemId: galleryItemId,
+        big: big,
+        medium: medium,
+        small: small,
+        crop: crop != null
+            ? CropArea(
+                topLeft: CropPoint(
+                  x: crop!.topLeft.x,
+                  y: crop!.topLeft.y,
+                ),
+                bottomRight: CropPoint(
+                  x: crop!.bottomRight.x,
+                  y: crop!.bottomRight.y,
+                ),
+                angle: crop?.angle,
+              )
+            : null,
+      );
+}
+
+/// Extension adding models construction from an [UserCallCoverMixin].
+extension UserCallCoverConversion on UserCallCoverMixin {
+  /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
+  UserCallCover toModel() => UserCallCover(
+        galleryItemId: galleryItemId,
+        full: full,
+        original: original,
+        vertical: vertical,
+        square: square,
+        crop: crop != null
+            ? CropArea(
+                topLeft: CropPoint(
+                  x: crop!.topLeft.x,
+                  y: crop!.topLeft.y,
+                ),
+                bottomRight: CropPoint(
+                  x: crop!.bottomRight.x,
+                  y: crop!.bottomRight.y,
+                ),
+                angle: crop?.angle,
+              )
+            : null,
       );
 }

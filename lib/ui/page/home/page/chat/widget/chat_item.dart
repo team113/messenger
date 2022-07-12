@@ -32,6 +32,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -71,7 +72,7 @@ class ChatItemWidget extends StatefulWidget {
   final UserId me;
 
   /// [User] posted this [item].
-  final Rx<User>? user;
+  final RxUser? user;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -577,7 +578,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 onTap: () =>
                     router.user(widget.item.value.authorId, push: true),
                 child: AvatarWidget.fromUser(
-                  widget.user?.value ??
+                  widget.user?.user.value ??
                       widget.chat.value!.getUser(widget.item.value.authorId),
                   radius: 15,
                 ),

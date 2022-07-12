@@ -49,6 +49,7 @@ import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/contact.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -196,6 +197,11 @@ void main() async {
 
     when(graphQlProvider.myUserEvents(null))
         .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+
+    when(graphQlProvider.userEvents(
+      const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
+      UserVersion('1'),
+    )).thenAnswer((realInvocation) => Future.value(const Stream.empty()));
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
