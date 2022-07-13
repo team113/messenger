@@ -31,7 +31,6 @@ import '../widget/fit_view.dart';
 import '../widget/fit_wrap.dart';
 import '../widget/hint.dart';
 import '../widget/participant.dart';
-import '../widget/reorderable_fit_view.dart';
 import '../widget/reorderable_fit_wrap.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
@@ -985,12 +984,18 @@ Widget _primaryView(CallController c) {
       children: [
         ReorderableFitWrap<_DragData>(
           key: const Key('PrimaryFitView'),
+          showDragTargetWhenEmpty: true,
           onAdded: (d, i) => c.focus(d.participant),
-          onWillAccept: (b) {
-            if (c.draggedRenderer.value?.user.value?.user.value.id != c.me ||
-                c.draggedRenderer.value?.source != MediaSourceKind.Display) {
-              c.primaryTargets.value = 1;
+          onWillAccept: (d) {
+            if (d?.id == c.chatId) {
+              if (c.draggedRenderer.value?.user.value?.user.value.id != c.me ||
+                  c.draggedRenderer.value?.source != MediaSourceKind.Display) {
+                c.primaryTargets.value = 1;
+              }
+              return true;
             }
+            return false;
+
           },
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
@@ -1494,7 +1499,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
           ReorderableFitWrap<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
-            onWillAccept: (b) => c.secondaryTargets.value = 1,
+            onWillAccept: (d) {
+              if (d?.id == c.chatId) {
+                c.secondaryTargets.value = 1;
+                return true;
+              }
+              return false;
+            },
             onLeave: (b) => c.secondaryTargets.value = 0,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;

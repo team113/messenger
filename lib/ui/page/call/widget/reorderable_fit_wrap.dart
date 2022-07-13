@@ -56,6 +56,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     this.onLeave,
     this.onOffset,
     this.useLongPress = false,
+    this.showDragTargetWhenEmpty = false,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -70,6 +71,9 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   /// Indicator whether a [LongPressDraggable] should be used instead of a
   /// [Draggable].
   final bool useLongPress;
+
+  /// Indicator whether [DragTarget] showed when [children] is empty.
+  final bool showDragTargetWhenEmpty;
 
   /// Children widgets needed to be placed in a [Wrap].
   final List<T> children;
@@ -104,7 +108,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   final Function(T)? onDraggableCanceled;
 
   /// Callback, called when some [DragTarget] may accept the dragged item.
-  final void Function(T?)? onWillAccept;
+  final bool Function(T?)? onWillAccept;
 
   /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(T?)? onLeave;
@@ -195,7 +199,23 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) {
-      return Container();
+      if (showDragTargetWhenEmpty) {
+        return DragTarget<T>(
+          onAccept: (o) => onAdded?.call(o, 0),
+          onWillAccept: (b) {
+            return onWillAccept?.call(b) ?? true;
+          },
+          onLeave: onLeave,
+          builder: ((_, __, ___) {
+            return SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+            );
+          }),
+        );
+      } else {
+        return Container();
+      }
     }
 
     return ConstrainedBox(
@@ -430,7 +450,7 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   final Function(T)? onDraggableCanceled;
 
   /// Callback, called when some [DragTarget] may accept the dragged item.
-  final void Function(T?)? onWillAccept;
+  final bool Function(T?)? onWillAccept;
 
   /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(T?)? onLeave;
@@ -604,8 +624,8 @@ class _ReorderableFitWrapState<T extends Object>
                   },
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
-                    widget.onWillAccept?.call(b);
-                    if (b != item.item) {
+                    if (b != item.item &&
+                        (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -630,8 +650,8 @@ class _ReorderableFitWrapState<T extends Object>
                   },
                   onLeave: widget.onLeave,
                   onWillAccept: (b) {
-                    widget.onWillAccept?.call(b);
-                    if (b != item.item) {
+                    if (b != item.item &&
+                        (widget.onWillAccept?.call(b) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
@@ -716,10 +736,9 @@ class _ReorderableFitWrapState<T extends Object>
               child: DragTarget<T>(
                 onAccept: (o) => _onAccept(o, _items.length, _items.length),
                 onLeave: widget.onLeave,
-                onWillAccept: (o) {
-                  widget.onWillAccept?.call(o);
-                  return !_items.contains(o);
-                },
+                onWillAccept: (o) =>
+                    !_items.contains(o) &&
+                    (widget.onWillAccept?.call(o) ?? true),
                 builder: (context, candidates, rejected) {
                   return IgnorePointer(
                     ignoring: candidates.isNotEmpty && rejected.isEmpty,
@@ -812,7 +831,6 @@ class _ReorderableFitWrapState<T extends Object>
               beginRect: beginRect,
               endRect: endRect,
               onEnd: () {
-                from.entry = null;
                 setState(() => from.entry = null);
               },
               child: widget.itemBuilder(from.item),
