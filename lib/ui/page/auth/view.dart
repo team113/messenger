@@ -127,7 +127,7 @@ class AuthView extends StatelessWidget {
                       ),
                     );
                   }).toList(),
-                  onChanged: (d) => L10n.setLocale(d!),
+                  onChanged: (d) => L10n.chosen.value = d!,
                   borderRadius: BorderRadius.circular(18),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,

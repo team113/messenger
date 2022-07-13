@@ -52,6 +52,7 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 void main() async {
   await Config.init();
+  await L10n.ensureInitialized();
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
@@ -59,7 +60,6 @@ void main() async {
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
     }
-    await L10n.ensureInitialized();
     await _initHive();
 
     Get.put(NotificationService())

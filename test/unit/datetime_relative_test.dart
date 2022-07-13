@@ -20,7 +20,7 @@ import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await L10n.setLocale('en_US', forceUpdateApp: false);
+  await L10n.ensureInitialized(locale: 'en_US');
   test('DateTime.toRelative returns correct representations', () {
     expect(
       DateTime(2022, 2, 17, 13, 40).toRelative(DateTime(2022, 2, 17, 13, 40)),

@@ -364,13 +364,7 @@ class _BackgroundService {
 
   /// Initializes the [L10n] of the provided [locale].
   Future<void> _initL10n([String? locale]) async {
-    if ((locale ?? 'en_US') != L10n.chosen.value) {
-      locale ??= Platform.localeName.replaceAll('-', '_');
-      if (!L10n.languages.containsKey(locale)) {
-        locale = 'en_US';
-      }
-      await L10n.setLocale(locale);
-    }
+    await L10n.ensureInitialized(locale: locale ?? 'en_US');
   }
 
   /// Displays an incoming call notification for the provided [chatId] with the

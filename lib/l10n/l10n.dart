@@ -20,11 +20,12 @@ import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 /// Localization of this application.
 class L10n {
   /// Currently selected language.
-  static Rx<String?> chosen = Rx(null);
+  static late Rx<String> chosen;
 
   /// Supported [Language]s.
   static Map<String, Language> languages = const {
@@ -33,36 +34,47 @@ class L10n {
   };
 
   /// [FluentBundle] providing translation.
-  static FluentBundle _bundle = FluentBundle('');
+  static late FluentBundle _bundle;
+
+  /// Loads new locale every time when [chosen] was changed.
+  static Worker? _languageWorker;
+
+  /// Protects from async localization changes.
+  static final Mutex _mutex = Mutex();
 
   /// Initializes this [L10n] due to preferred locale of user's platform.
-  static Future<void> ensureInitialized() async {
-    final List<Locale> preferredLocales =
-        WidgetsBinding.instance.window.locales;
-    final List<Locale> supported =
-        languages.values.map((lang) => lang.locale).toList();
-    for (var loc in preferredLocales) {
-      for (var supp in supported) {
-        if (supp.languageCode == loc.languageCode) {
-          await setLocale(supp.toString(), forceUpdateApp: false);
-          return;
+  static Future<void> ensureInitialized({String? locale}) async {
+    if (locale != null) {
+      await _setLocale(locale);
+    } else {
+      final preferred = WidgetsBinding.instance.window.locales;
+      final supported = languages.values.map((lang) => lang.locale);
+      for (var loc in preferred) {
+        for (var supp in supported) {
+          if (supp.languageCode == loc.languageCode) {
+            chosen = Rx(supp.toString());
+            await _setLocale(supp.toString());
+            return;
+          }
         }
       }
+      await _setLocale('en_US');
     }
-    await setLocale('en_US');
+    _languageWorker = ever(chosen, (String value) async {
+      await _setLocale(value);
+    });
   }
 
   /// Changes current locale and loads it.
-  static Future<void> setLocale(String locale,
-      {bool forceUpdateApp = true}) async {
-    if (chosen.value != locale && languages.containsKey(locale)) {
-      chosen.value = locale;
-      _bundle = FluentBundle(locale.toString());
-      _bundle.addMessages(
-          await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
-      if (forceUpdateApp) await Get.forceAppUpdate();
-    }
-    chosen.refresh();
+  static Future<void> _setLocale(String locale) async {
+    await _mutex.protect(() async {
+      if (languages.containsKey(locale)) {
+        _bundle = FluentBundle(locale.toString());
+        _bundle.addMessages(
+            await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
+        await Get.forceAppUpdate();
+      }
+    });
   }
 
   /// Returns translated value due to loaded locale.
