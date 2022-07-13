@@ -46,6 +46,11 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
+  /// Bool that indicates of displaying of infinite animations in the app.
+  ///
+  /// Useful in e2e tests.
+  static bool disableInfiniteAnimations = false;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
