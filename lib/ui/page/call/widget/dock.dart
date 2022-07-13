@@ -30,8 +30,8 @@ typedef ButtonsDockBuilderFunction = Function(
 );
 
 /// Buttons dock in call.
-class ReorderableDock<T> extends StatefulWidget {
-  const ReorderableDock({
+class Dock<T> extends StatefulWidget {
+  const Dock({
     required this.items,
     required this.itemBuilder,
     required this.itemConstraints,
@@ -43,7 +43,7 @@ class ReorderableDock<T> extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  /// Items this [ReorderableDock] reorders.
+  /// Items this [Dock] reorders.
   final List<T> items;
 
   /// Builder building the [items].
@@ -52,7 +52,7 @@ class ReorderableDock<T> extends StatefulWidget {
   /// [BoxConstraints] of item.
   final BoxConstraints itemConstraints;
 
-  /// [ChatId] this [ReorderableDock] displayed.
+  /// [ChatId] this [Dock] displayed.
   final ChatId chatId;
 
   /// Callback, called when the [items] were reordered.
@@ -64,15 +64,15 @@ class ReorderableDock<T> extends StatefulWidget {
   /// Callback, called when any drag of [items] is ended.
   final Function()? onDragEnded;
 
-  /// Callback, called when any dragged item leave this [ReorderableDock].
+  /// Callback, called when any dragged item leave this [Dock].
   final Function()? onLeave;
 
   @override
-  State<ReorderableDock> createState() => _ReorderableDockState();
+  State<Dock> createState() => _DockState();
 }
 
-/// State of [ReorderableDock].
-class _ReorderableDockState extends State<ReorderableDock> {
+/// State of [Dock].
+class _DockState extends State<Dock> {
   /// Duration of animation moving button to his place on end of dragging.
   Duration movingAnimationDuration = const Duration(milliseconds: 150);
 

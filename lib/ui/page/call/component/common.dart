@@ -33,8 +33,8 @@ abstract class CallButton {
   /// Indicates that this button must be hide or not.
   bool hide = false;
 
-  /// Indicates whether this [CallButton] can be removed from the
-  /// [ReorderableDock] it's placed in, if any.
+  /// Indicates whether this [CallButton] can be removed from the [Dock] it's
+  /// placed in, if any.
   bool get isRemovable => true;
 
   /// Returns a text-represented hint for this [CallButton].

@@ -26,7 +26,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed.dart';
-import '../widget/buttons_dock.dart';
+import '../widget/dock.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/fit_view.dart';
@@ -468,7 +468,7 @@ Widget desktopCall(
                                       horizontal: 5,
                                     ),
                                     duration: const Duration(milliseconds: 150),
-                                    child: ReorderableDock<CallButton>(
+                                    child: Dock<CallButton>(
                                       items: c.buttons,
                                       itemConstraints: BoxConstraints(
                                         maxWidth: c.buttonSize.value,
