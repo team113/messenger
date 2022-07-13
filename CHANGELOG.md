@@ -12,9 +12,15 @@ All user visible changes to this project will be documented in this file. This p
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
 
 ### Added
+
 - UI:
-    - Calls: 
-        - Call bottom panel customizing ([#9], [#11]).
+    - User information auto-updating on changes ([#7], [#4]).
+
+### Changed
+
+- UI:
+    - Media panel: 
+        - Button dock re-engineered ([#9], [#11]).
 
 ### Fixed
 
@@ -25,8 +31,13 @@ All user visible changes to this project will be documented in this file. This p
         - Missing avatars in group creation popup ([#15], [#2]).
 
 [#2]: /../../issues/2
+<<<<<<< HEAD
 [#11]: /../../issues/11
 [#9]: /../../pull/9
+=======
+[#4]: /../../issues/4
+[#7]: /../../pull/7
+>>>>>>> origin/main
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 
