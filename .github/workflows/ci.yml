@@ -197,7 +197,7 @@ jobs:
         working-directory: artifacts/
         if: ${{ runner.os == 'Windows' }}
       - name: Show generated SHA256 checksums
-        run: type ${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip.sha256sum
+        run: type *.sha256sum
         working-directory: artifacts/
         if: ${{ runner.os == 'Windows' }}
 
