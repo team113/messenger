@@ -380,7 +380,7 @@ class CallController extends GetxController {
       var size = router.context!.mediaQuerySize;
       return Size(size.width, size.height - padding.bottom - padding.top);
     } else {
-      if(fullscreen.isTrue && !isPopup) {
+      if (fullscreen.isTrue && !isPopup) {
         var size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - 30);
       } else {
