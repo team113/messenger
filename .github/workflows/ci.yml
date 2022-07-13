@@ -192,7 +192,7 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
 
       - name: Generate SHA256 checksums
-        run: forfiles /M *.zip /C "cmd /c certutil -hashfile @fname > @fname.sha256sum"
+        run: forfiles /M *.zip /C "cmd /c certutil -hashfile @file > @file.sha256sum"
         working-directory: artifacts/
         if: ${{ runner.os == 'Windows' }}
       - name: Show generated SHA256 checksums
