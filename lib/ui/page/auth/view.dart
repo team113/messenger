@@ -94,42 +94,41 @@ class AuthView extends StatelessWidget {
 
           return ConstrainedBox(
               constraints: const BoxConstraints(maxHeight: 350),
-              child: !Config.disableInfiniteAnimations
-                  ? AnimatedSize(
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 200),
-                      child: SizedBox(
-                        height: constraints.maxHeight >= height ? height : 140,
-                        child: constraints.maxHeight >= height
-                            ? Container(
-                                key: const ValueKey('logo'),
-                                child: RiveAnimation.asset(
-                                  'assets/images/logo/logo.riv',
-                                  onInit: (a) {
-                                    final StateMachineController? machine =
-                                        StateMachineController.fromArtboard(
-                                            a, 'Machine');
-                                    a.addController(machine!);
-                                    c.blink = machine.findInput<bool>('blink')
-                                        as SMITrigger?;
+              child: AnimatedSize(
+                curve: Curves.ease,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: constraints.maxHeight >= height ? height : 140,
+                  child: constraints.maxHeight >= height &&
+                          !Config.disableInfiniteAnimations
+                      ? Container(
+                          key: const ValueKey('logo'),
+                          child: RiveAnimation.asset(
+                            'assets/images/logo/logo.riv',
+                            onInit: (a) {
+                              final StateMachineController? machine =
+                                  StateMachineController.fromArtboard(
+                                      a, 'Machine');
+                              a.addController(machine!);
+                              c.blink = machine.findInput<bool>('blink')
+                                  as SMITrigger?;
 
-                                    Future.delayed(
-                                      const Duration(milliseconds: 500),
-                                      c.animate,
-                                    );
-                                  },
-                                ),
-                              )
-                            : Obx(() {
-                                return SvgLoader.asset(
-                                  'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                  placeholderBuilder: (context) => placeholder,
-                                  height: 140,
-                                );
-                              }),
-                      ),
-                    )
-                  : const SizedBox.shrink());
+                              Future.delayed(
+                                const Duration(milliseconds: 500),
+                                c.animate,
+                              );
+                            },
+                          ),
+                        )
+                      : Obx(() {
+                          return SvgLoader.asset(
+                            'assets/images/logo/head000${c.logoFrame.value}.svg',
+                            placeholderBuilder: (context) => placeholder,
+                            height: 140,
+                          );
+                        }),
+                ),
+              ));
         });
 
         // Language selection popup.
