@@ -50,6 +50,7 @@ class CallOverlayView extends StatelessWidget {
                                 child: CallView(
                                   e.call,
                                   key: e.key,
+                                  edgeInsets: MediaQuery.of(context).padding,
                                 ),
                               ),
                       ),

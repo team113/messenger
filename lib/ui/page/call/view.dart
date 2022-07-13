@@ -29,6 +29,7 @@ class CallView extends StatelessWidget {
     this._call, {
     Key? key,
     this.isPopup = false,
+    this.edgeInsets,
   }) : super(key: key);
 
   /// Current [OngoingCall].
@@ -36,6 +37,9 @@ class CallView extends StatelessWidget {
 
   /// Indicator whether this [CallView] is in a popup.
   final bool isPopup;
+
+  /// [EdgeInsets] safe area padding.
+  final EdgeInsets? edgeInsets;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,7 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         isPopup: isPopup,
+        edgeInsets: edgeInsets,
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {

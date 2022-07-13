@@ -851,7 +851,7 @@ Widget _titleBar(
       return Container(
         key: const ValueKey('TitleBar'),
         color: const Color.fromARGB(255, 22, 38, 54),
-        height: 30,
+        height: c.titleBarHeight,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -1649,6 +1649,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           // Sliding from top draggable title bar.
           Positioned(
+            key: c.secondaryKey,
             left: left,
             right: right,
             top: top,
@@ -1669,33 +1670,57 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           ? MouseCursor.defer
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
+                        key: c.gestureDetectorKey,
                         onPanStart: (d) {
+                          Offset block = (c.gestureDetectorKey.currentContext
+                              ?.findRenderObject() as RenderBox)
+                              .localToGlobal(Offset.zero);
+
+                          if (c.secondaryAlignment.value ==
+                              Alignment.centerRight ||
+                              c.secondaryAlignment.value ==
+                                  Alignment.centerLeft ||
+                              c.secondaryAlignment.value == null) {
+                            c.panDragDifference.value = Offset(
+                              d.globalPosition.dx - block.dx,
+                              d.globalPosition.dy - block.dy,
+                            );
+                          } else if (c.secondaryAlignment.value ==
+                              Alignment.bottomCenter ||
+                              c.secondaryAlignment.value ==
+                                  Alignment.topCenter) {
+                            c.panDragDifference.value = Offset(
+                              c.secondaryWidth.value / 2,
+                              d.globalPosition.dy - block.dy,
+                            );
+                          }
+
                           c.secondaryDragged.value = true;
-                          var right = c.secondaryRight.value ?? 0;
-                          var bottom = c.secondaryBottom.value ?? 0;
-                          c.secondaryRight.value = null;
-                          c.secondaryBottom.value = null;
+                          // var right = c.secondaryRight.value ?? 0;
+                          // var bottom = c.secondaryBottom.value ?? 0;
 
                           if (c.secondaryAlignment.value != null ||
                               c.secondaryKeepAlignment.value == true) {
                             c.secondaryAlignment.value = null;
 
-                            var size = c.size;
-                            c.secondaryLeft.value =
-                                size.width - c.secondaryWidth.value - right;
-                            c.secondaryTop.value =
-                                size.height - c.secondaryHeight.value - bottom;
-                            c.applySecondaryConstraints(context);
+                            // var size = c.size;
+                            // c.secondaryLeft.value =
+                            //     size.width - c.secondaryWidth.value - right;
+                            // c.secondaryTop.value =
+                            //     size.height - c.secondaryHeight.value - bottom;
+                            // c.applySecondaryConstraints(context);
                           }
+                          c.replaceSecondaryWidget(c, d.globalPosition);
 
                           c.secondaryKeepAlignment.value = false;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
-                          c.secondaryLeft.value =
-                              c.secondaryLeft.value! + d.delta.dx;
-                          c.secondaryTop.value =
-                              c.secondaryTop.value! + d.delta.dy;
+                          // c.secondaryLeft.value =
+                          //     c.secondaryLeft.value! + d.delta.dx;
+                          // c.secondaryTop.value =
+                          //     c.secondaryTop.value! + d.delta.dy;
+                          c.replaceSecondaryWidget(c, d.globalPosition);
                           c.applySecondaryConstraints(context);
                         },
                         onPanEnd: (d) {

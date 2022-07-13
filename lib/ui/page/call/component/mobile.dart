@@ -94,20 +94,34 @@ Widget mobileCall(CallController c, BuildContext context) {
         return GestureDetector(
           onPanStart: (d) {
             c.secondaryDragged.value = true;
-            var right = c.secondaryRight.value ?? 0;
-            var bottom = c.secondaryBottom.value ?? 0;
-            c.secondaryRight.value = null;
-            c.secondaryBottom.value = null;
+            // var right = c.secondaryRight.value ?? 0;
+            // var bottom = c.secondaryBottom.value ?? 0;
+            // c.secondaryRight.value = null;
+            // c.secondaryBottom.value = null;
+
+            Offset block =
+            (c.secondaryKey.currentContext?.findRenderObject() as RenderBox)
+                .localToGlobal(Offset.zero);
+
+            c.panDragDifference.value = Offset(
+              d.globalPosition.dx - block.dx,
+              d.globalPosition.dy -
+                  block.dy -
+                  ((c.edgeInsets == null)
+                      ? 0
+                      : c.edgeInsets!.top + c.edgeInsets!.bottom),
+            );
 
             if (c.secondaryAlignment.value != null ||
                 c.secondaryKeepAlignment.isTrue) {
               c.secondaryAlignment.value = null;
 
-              var size = c.size;
-              c.secondaryLeft.value =
-                  size.width - c.secondaryWidth.value - right;
-              c.secondaryTop.value =
-                  size.height - c.secondaryHeight.value - bottom;
+              // var size = c.size;
+              // c.secondaryLeft.value =
+              //     size.width - c.secondaryWidth.value - right;
+              // c.secondaryTop.value =
+              //     size.height - c.secondaryHeight.value - bottom;
+              c.replaceSecondaryWidget(c, d.globalPosition);
               c.applySecondaryConstraints(context);
             }
 
@@ -120,6 +134,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             c.secondaryDragged.value = true;
             c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
             c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
+            c.replaceSecondaryWidget(c, d.globalPosition);
             c.applySecondaryConstraints(context);
           },
           child: _floatingSecondaryView(c, context),
