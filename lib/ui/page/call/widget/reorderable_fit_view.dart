@@ -18,14 +18,14 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
-import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'reorderable_common.dart';
 
-/// Widget placing its [children] evenly on a screen.
+/// Widget placing its [children] evenly on a screen with an ability to reorder
+/// them.
 class ReorderableFitView<T extends Object> extends StatelessWidget {
   const ReorderableFitView({
     Key? key,
@@ -47,20 +47,21 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
     this.onWillAccept,
     this.onLeave,
     this.onOffset,
-    this.useLongDraggable = false,
+    this.useLongPress = false,
   }) : super(key: key);
 
-  /// Builder to create reorderable items.
+  /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  /// Builder to create decoration.
+  /// Builder decorating the provided item.
   final Widget Function(T data)? decoratorBuilder;
 
-  /// Builder to create overlay.
+  /// Builder creating overlay of the provided item.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether dragging starts on long press.
-  final bool useLongDraggable;
+  /// Indicator whether a [LongPressDraggable] should be used instead of a
+  /// [Draggable].
+  final bool useLongPress;
 
   /// Children widgets needed to be placed evenly on a screen.
   final List<T> children;
@@ -70,44 +71,43 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
   /// If `null`, then there will be no divider at all.
   final Color? dividerColor;
 
-  /// Size of a divider between [children].
+  /// Size of the divider between [children].
   final double dividerSize;
 
-  /// Indicator whether dragging allowed when only one item present.
+  /// Indicator dragging should be allowed when [children] have only one child.
   final bool allowDraggingLast;
 
-  /// Callback called when some item change position.
+  /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
 
-  /// Callback called when new item is added.
+  /// Callback, called when a new item is added.
   final Function(T, int)? onAdded;
 
-  /// Callback called when dragging is started.
+  /// Callback, called when item dragging is started.
   final Function(T)? onDragStarted;
 
-  /// Callback called when dough is break.
+  /// Callback, called when an item breaks its dough.
   final void Function(T)? onDoughBreak;
 
-  /// Callback called when dragging is end.
+  /// Callback, called when item dragging is ended.
   final Function(T)? onDragEnd;
 
-  /// Callback called when the draggable is being accepted by [DragTarget].
+  /// Callback, called when an item is accepted by some [DragTarget].
   final Function(T)? onDragCompleted;
 
-  /// Callback called when the draggable is dropped without being accepted by a
-  /// [DragTarget].
+  /// Callback, called item dragging is canceled.
   final Function(T)? onDraggableCanceled;
 
-  /// Callback called before accept new item.
+  /// Callback, called when some [DragTarget] may accept the dragged item.
   final void Function(T?)? onWillAccept;
 
-  /// Callback called when an item leave dropping area.
+  /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(T?)? onLeave;
 
-  /// Returns offset.
+  /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Color when this [ReorderableFitView] hovered by some item.
+  /// Hover color of the [DragTarget].
   final Color hoverColor;
 
   @override
@@ -120,7 +120,7 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
           return true;
         },
         onLeave: onLeave,
-        builder: ((context, candidates, rejected) {
+        builder: ((_, __, ___) {
           return SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -242,14 +242,14 @@ class ReorderableFitView<T extends Object> extends StatelessWidget {
         onLeave: onLeave,
         onWillAccept: onWillAccept,
         onOffset: onOffset,
-        useLongDraggable: useLongDraggable,
+        useLongPress: useLongPress,
         allowDraggingLast: allowDraggingLast,
       );
     });
   }
 }
 
-/// Widget placing its [children] evenly on a screen.
+/// Stateful component of the [ReorderableFitView].
 class _ReorderableFitView<T extends Object> extends StatefulWidget {
   const _ReorderableFitView({
     Key? key,
@@ -271,21 +271,22 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
     this.onLeave,
     this.onWillAccept,
     this.onOffset,
-    this.useLongDraggable = false,
+    this.useLongPress = false,
     this.allowDraggingLast = true,
   }) : super(key: key);
 
-  /// Builder to create reorderable items.
+  /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  /// Builder to create decoration.
+  /// Builder decorating the provided item.
   final Widget Function(T data)? decoratorBuilder;
 
-  /// Builder to create overlay.
+  /// Builder creating overlay of the provided item.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether dragging starts on long press.
-  final bool useLongDraggable;
+  /// Indicator whether a [LongPressDraggable] should be used instead of a
+  /// [Draggable].
+  final bool useLongPress;
 
   /// Children widgets needed to be placed evenly on a screen.
   final List<T> children;
@@ -295,69 +296,68 @@ class _ReorderableFitView<T extends Object> extends StatefulWidget {
   /// If `null`, then there will be no divider at all.
   final Color? dividerColor;
 
-  /// Size of a divider between [children].
+  /// Size of the divider between [children].
   final double dividerSize;
 
-  /// Callback called when some item change position.
-  final Function(T, int)? onReorder;
-
-  /// Callback called when new item is added.
-  final Function(T, int)? onAdded;
-
-  /// Callback called when dragging is started.
-  final Function(T)? onDragStarted;
-
-  /// Callback called when dough is break.
-  final void Function(T)? onDoughBreak;
-
-  /// Callback called when dragging is end.
-  final Function(T)? onDragEnd;
-
-  /// Callback called when the draggable is being accepted by [DragTarget].
-  final Function(T)? onDragCompleted;
-
-  /// Callback called when the draggable is dropped without being accepted by a
-  /// [DragTarget].
-  final Function(T)? onDraggableCanceled;
-
-  /// Callback called before accept new item.
-  final void Function(T?)? onWillAccept;
-
-  /// Callback called when an item leave dropping area.
-  final void Function(T?)? onLeave;
-
-  /// Returns offset.
-  final Offset Function()? onOffset;
-
-  /// Indicator whether dragging allowed when only one item present.
+  /// Indicator dragging should be allowed when [children] have only one child.
   final bool allowDraggingLast;
 
-  /// Color when this [_ReorderableFitView] hovered by some item.
+  /// Callback, called when an item is reordered.
+  final Function(T, int)? onReorder;
+
+  /// Callback, called when a new item is added.
+  final Function(T, int)? onAdded;
+
+  /// Callback, called when item dragging is started.
+  final Function(T)? onDragStarted;
+
+  /// Callback, called when an item breaks its dough.
+  final void Function(T)? onDoughBreak;
+
+  /// Callback, called when item dragging is ended.
+  final Function(T)? onDragEnd;
+
+  /// Callback, called when an item is accepted by some [DragTarget].
+  final Function(T)? onDragCompleted;
+
+  /// Callback, called item dragging is canceled.
+  final Function(T)? onDraggableCanceled;
+
+  /// Callback, called when some [DragTarget] may accept the dragged item.
+  final void Function(T?)? onWillAccept;
+
+  /// Callback, called when a dragged item leaves some [DragTarget].
+  final void Function(T?)? onLeave;
+
+  /// Callback, specifying an [Offset] of this view.
+  final Offset Function()? onOffset;
+
+  /// Hover color of the [DragTarget].
   final Color hoverColor;
 
-  /// Max count of columns.
+  /// Number of [Column]s to place the [children] onto.
   final int mColumns;
 
   @override
-  State<_ReorderableFitView<T>> createState() => ReorderableFitViewState<T>();
+  State<_ReorderableFitView<T>> createState() => _ReorderableFitViewState<T>();
 }
 
-/// State of [_ReorderableFitView] used to add and reorder [_items].
-class ReorderableFitViewState<T extends Object>
+/// State of a [_ReorderableFitView] maintaining the reorderable [_items] list.
+class _ReorderableFitViewState<T extends Object>
     extends State<_ReorderableFitView<T>> {
-  /// Reorderable items of this [ReorderableFitViewState].
-  List<ReorderableItem<T>> _items = [];
+  /// [ReorderableItem]s of this [_ReorderableFitView].
+  late final List<ReorderableItem<T>> _items;
 
-  /// Positions of [_items].
+  /// Positions to place new [ReorderableItem]s in [_items].
   final Map<int, int> _positions = {};
 
-  /// [GlobalKey] of this [ReorderableFitViewState].
+  /// [GlobalKey] of this [_ReorderableFitView].
   final GlobalKey _fitKey = GlobalKey();
 
   /// [AudioPlayer] playing a pop sound.
   AudioPlayer? _audioPlayer;
 
-  /// Reorderable item that break dough.
+  /// [ReorderableItem] being dragged that has already broke its dough.
   ReorderableItem<T>? _doughDragged;
 
   @override
@@ -378,7 +378,6 @@ class ReorderableFitViewState<T extends Object>
   }
 
   @override
-  // ignore: library_private_types_in_public_api
   void didUpdateWidget(covariant _ReorderableFitView<T> oldWidget) {
     for (var r in List<ReorderableItem<T>>.from(_items, growable: false)) {
       if (!widget.children.contains(r.item)) {
@@ -404,7 +403,7 @@ class ReorderableFitViewState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    // Creates visual representation of the [ReorderableItem] with provided
+    // Creates a visual representation of the [ReorderableItem] with provided
     // [index].
     Widget _cell(int index) {
       var item = _items[index];
@@ -423,7 +422,7 @@ class ReorderableFitViewState<T extends Object>
                     enabled:
                         _items.map((e) => e.entry).whereNotNull().isEmpty &&
                             (widget.allowDraggingLast || _items.length != 1),
-                    useLongDraggable: widget.useLongDraggable,
+                    useLongPress: widget.useLongPress,
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
                       if (_doughDragged != null) {
@@ -569,6 +568,8 @@ class ReorderableFitViewState<T extends Object>
       key: _fitKey,
       children: [
         Column(children: _createRows()),
+
+        // Pseudo-[Overlay].
         ..._items.map((e) => e.entry).whereNotNull().map(
               (e) => IgnorePointer(
                 child: SizedBox(
@@ -582,14 +583,14 @@ class ReorderableFitViewState<T extends Object>
     );
   }
 
-  /// Adds provided [object] to items.
+  /// Adds the provided [object] to the [_items].
   void _onAccept(T object, int i, int to) {
     _positions[object.hashCode] = to;
     widget.onAdded?.call(object, to);
   }
 
-  /// Checks if [object] already in [_items] and if `false` adds it otherwise
-  /// reorder [_items].
+  /// Reorders the [object] from [i] into [to] position, if [_items] contains
+  /// the item, otherwise just marks its position.
   void _onWillAccept(T object, int i, int to) {
     int index = _items.indexWhere((e) => e.item == object);
     if (index != -1) {
@@ -635,7 +636,7 @@ class ReorderableFitViewState<T extends Object>
     setState(() {});
   }
 
-  /// Plays return animation.
+  /// Constructs a returning [OverlayEntry] animation of the [to] item.
   void _animateReturn(ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
@@ -685,215 +686,5 @@ class ReorderableFitViewState<T extends Object>
     } on MissingPluginException {
       _audioPlayer = null;
     }
-  }
-}
-
-/// Reorderable item data.
-class ReorderableItem<T> {
-  ReorderableItem(this.item);
-
-  /// Reorderable item.
-  final T item;
-
-  /// [GlobalKey] of this [ReorderableItem].
-  final GlobalKey key = GlobalKey();
-
-  /// [UniqueKey] of this [ReorderableItem].
-  final UniqueKey sharedKey = UniqueKey();
-
-  /// Global key of [_AnimatedTransitionState].
-  // ignore: library_private_types_in_public_api
-  final GlobalKey<_AnimatedTransitionState> entryKey =
-      GlobalKey<_AnimatedTransitionState>();
-
-  /// [OverlayEntry] of this [ReorderableItem].
-  OverlayEntry? entry;
-
-  /// [Rect] to return if dragging canceled.
-  Rect? dragStartedRect;
-
-  @override
-  int get hashCode => item.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is ReorderableItem<T> && other.item == item;
-}
-
-/// Widget makes transition animation.
-class AnimatedTransition extends StatefulWidget {
-  const AnimatedTransition({
-    Key? key,
-    required this.beginRect,
-    required this.endRect,
-    required this.child,
-    this.duration = const Duration(milliseconds: 200),
-    this.onEnd,
-    this.onDispose,
-    this.curve,
-  }) : super(key: key);
-
-  /// Initial [Rect].
-  final Rect beginRect;
-
-  /// Target [Rect] to animate.
-  final Rect endRect;
-
-  /// [Duration] of animation.
-  final Duration duration;
-
-  /// Callback called when animation completed.
-  final VoidCallback? onEnd;
-
-  /// Child of this [AnimatedTransition].
-  final Widget child;
-
-  /// Callback called when this [AnimatedTransition] disposing.
-  final VoidCallback? onDispose;
-
-  /// [Curve] of this [AnimatedTransition].
-  final Curve? curve;
-
-  @override
-  State<AnimatedTransition> createState() => _AnimatedTransitionState();
-}
-
-/// State of [AnimatedTransition] used to change [rect] with animation.
-class _AnimatedTransitionState extends State<AnimatedTransition>
-    with SingleTickerProviderStateMixin {
-  /// [Rect] used to play animation.
-  late Rect rect;
-
-  @override
-  void initState() {
-    rect = widget.beginRect;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => rect = widget.endRect);
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    widget.onDispose?.call();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedPositioned.fromRect(
-          rect: rect,
-          duration: widget.duration,
-          curve: widget.curve ?? Curves.linear,
-          onEnd: widget.onEnd,
-          child: widget.child,
-        ),
-      ],
-    );
-  }
-}
-
-/// Widget represented reorderable item.
-class ReorderableDraggableHandle<T extends Object> extends StatelessWidget {
-  const ReorderableDraggableHandle({
-    Key? key,
-    required this.item,
-    required this.sharedKey,
-    required this.itemBuilder,
-    this.onDragEnd,
-    this.onDragStarted,
-    this.onDragCompleted,
-    this.onDraggableCanceled,
-    this.onDoughBreak,
-    this.useLongDraggable = false,
-    this.enabled = true,
-  }) : super(key: key);
-
-  /// Reorderable item data.
-  final T item;
-
-  /// [UniqueKey] of this [ReorderableDraggableHandle].
-  final UniqueKey sharedKey;
-
-  /// Builder to create reorderable items.
-  final Widget Function(T) itemBuilder;
-
-  /// Callback called when dragging is end.
-  final Function(Offset)? onDragEnd;
-
-  /// Callback called when dragging is started.
-  final VoidCallback? onDragStarted;
-
-  /// Callback called when the draggable is being accepted by [DragTarget].
-  final VoidCallback? onDragCompleted;
-
-  /// Callback called when the draggable is dropped without being accepted by a
-  /// [DragTarget].
-  final Function(Offset)? onDraggableCanceled;
-
-  /// Callback called when dough is break.
-  final VoidCallback? onDoughBreak;
-
-  /// Indicator whether dragging starts on long press.
-  final bool useLongDraggable;
-
-  /// Indicator whether dragging is enabled.
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return DoughRecipe(
-      data: DoughRecipeData(
-        adhesion: 4,
-        viscosity: 2000,
-        draggablePrefs: DraggableDoughPrefs(
-          breakDistance: 50,
-          useHapticsOnBreak: true,
-        ),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          var widget = itemBuilder(item);
-          return DraggableDough<T>(
-            data: item,
-            longPress: useLongDraggable,
-            maxSimultaneousDrags: enabled ? 1 : 0,
-            onDragEnd: (d) => onDragEnd?.call(d.offset),
-            onDragStarted: onDragStarted,
-            onDragCompleted: onDragCompleted,
-            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
-            onDoughBreak: () {
-              if (enabled) {
-                onDoughBreak?.call();
-              }
-            },
-            feedback: SizedBox(
-              width: constraints.maxWidth,
-              height: constraints.maxHeight,
-              child: KeyedSubtree(
-                key: sharedKey,
-                child: widget,
-              ),
-            ),
-            childWhenDragging: KeyedSubtree(
-              key: sharedKey,
-              child: Container(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                color: Colors.transparent,
-              ),
-            ),
-            child: KeyedSubtree(
-              key: sharedKey,
-              child: widget,
-            ),
-          );
-        },
-      ),
-    );
   }
 }

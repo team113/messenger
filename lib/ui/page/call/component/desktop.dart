@@ -47,14 +47,11 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
-Widget desktopCall(
-  CallController c,
-  BuildContext context, {
-  bool isPopup = false,
-}) {
+Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
@@ -581,7 +578,7 @@ Widget desktopCall(
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isPopup)
+            if (!WebUtils.isPopup)
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onPanUpdate: (d) {
@@ -601,7 +598,7 @@ Widget desktopCall(
                       )
                     ],
                   ),
-                  child: _titleBar(context, c, isPopup),
+                  child: _titleBar(context, c),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
@@ -821,12 +818,7 @@ Widget desktopCall(
 
 /// Title bar of the call containing information about the call and control
 /// buttons.
-Widget _titleBar(
-  BuildContext context,
-  CallController c, [
-  bool isPopup = false,
-]) =>
-    Obx(() {
+Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       bool isOutgoing =
           (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
       String state = c.state.value == OngoingCallState.active
@@ -868,7 +860,7 @@ Widget _titleBar(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: c.size.width / 2),
                 child: InkWell(
-                  onTap: isPopup
+                  onTap: WebUtils.isPopup
                       ? null
                       : () {
                           router.chat(c.chatId);
@@ -991,11 +983,11 @@ Widget _primaryView(CallController c) {
 
     return Stack(
       children: [
-        ReorderableFitView<_DragData>(
+        ReorderableFitWrap<_DragData>(
           key: const Key('PrimaryFitView'),
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (b) {
-            if (c.draggedRenderer.value?.user.value?.value.id != c.me ||
+            if (c.draggedRenderer.value?.user.value?.user.value.id != c.me ||
                 c.draggedRenderer.value?.source != MediaSourceKind.Display) {
               c.primaryTargets.value = 1;
             }
@@ -1010,7 +1002,7 @@ Widget _primaryView(CallController c) {
           onOffset: () {
             if (c.minimized.value && !c.fullscreen.value) {
               return Offset(-c.left.value, -c.top.value - 30);
-            } else if (!c.isPopup) {
+            } else if (!WebUtils.isPopup) {
               return const Offset(0, -30);
             }
 
@@ -1153,7 +1145,7 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.refresh,
                 fit:
                     c.rendererBoxFit[participant.video.value?.track.id() ?? ''],
-                isDragging: c.doughDraggedRenderer.value == participant,
+                expanded: c.doughDraggedRenderer.value == participant,
               );
             });
           },
@@ -1524,7 +1516,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onOffset: () {
               if (c.minimized.value && !c.fullscreen.value) {
                 return Offset(-c.left.value, -c.top.value - 30);
-              } else if (!c.isPopup) {
+              } else if (!WebUtils.isPopup) {
                 return const Offset(0, -30);
               }
 
@@ -1625,7 +1617,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     respectAspectRatio: true,
                     useCallCover: true,
                     borderRadius: BorderRadius.zero,
-                    isDragging: c.doughDraggedRenderer.value == participant,
+                    expanded: c.doughDraggedRenderer.value == participant,
                   ),
                 ),
               );

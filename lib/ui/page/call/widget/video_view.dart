@@ -62,7 +62,7 @@ class RtcVideoView extends StatefulWidget {
   /// Border radius of this video.
   final BorderRadius? borderRadius;
 
-  /// Builder used when [RtcVideoRenderer]'s size is not determined.
+  /// Builder building the background when the video's size is not determined.
   final Widget Function()? framelessBuilder;
 
   /// Indicator whether this video should take exactly the size of its
@@ -258,8 +258,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           fit = widget.fit;
         }
 
-        // Calculate the default [BoxFit] if there's no explicit fit and this
-        // renderer's stream is from camera.
+        // Calculate the default [BoxFit] if there's no explicit fit.
         fit ??= RtcVideoView.determineBoxFit(renderer, constraints, context);
 
         return Stack(

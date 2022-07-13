@@ -16,15 +16,18 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
 
+### Changed
+- UI:
+    - Media panel:
+        - Redesign desktop interface ([#26]).
+
 ### Fixed
 
 - Android:
-    - [ConnectionService] displaying call when application is in foreground ([#14]);
+    - [ConnectionService] displaying call when application is in foreground ([#14]).
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
-    - Media panel:
-        - Redesign desktop interface ([#26]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4

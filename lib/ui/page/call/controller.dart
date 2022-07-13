@@ -50,12 +50,8 @@ class CallController extends GetxController {
     this._currentCall,
     this._calls,
     this._chatService,
-    this._userService, {
-    this.isPopup = false,
-  });
-
-  /// Indicator whether this call should be considered as a popup.
-  final bool isPopup;
+    this._userService,
+  );
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -87,22 +83,22 @@ class CallController extends GetxController {
   /// [Participant] that should be highlighted over the others.
   final Rx<Participant?> highlighted = Rx(null);
 
-  /// Indicator that secondary view is hovered by some participant view.
+  /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
-  /// Indicator that secondary view is dragged.
+  /// Indicator whether the secondary view is being dragged.
   final RxBool secondaryDragged = RxBool(false);
 
-  /// Currently dragged [Participant].
+  /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
 
-  /// Currently dragged [Participant] that brake dough.
+  /// [Participant] being dragged currently with its dough broke.
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
-  /// [Participant]s to display in a fit view.
+  /// [Participant]s to display in the fit view.
   RxList<Participant> primary = RxList();
 
-  /// [Participant]s to display in a secondary view.
+  /// [Participant]s to display in the secondary view.
   RxList<Participant> secondary = RxList();
 
   /// Indicator whether the view is mobile or desktop.
@@ -116,10 +112,10 @@ class CallController extends GetxController {
   /// determine if any drag happened at all and to display secondary view hint.
   final RxInt primaryDrags = RxInt(0);
 
-  /// Count of a currently active targets to drop [secondaryDrags].
+  /// Count of [Participant]s to be accepted into the fit view.
   final RxInt primaryTargets = RxInt(0);
 
-  /// Count of a currently active targets to drop [primaryDrags].
+  /// Count of [Participant]s to be accepted into the secondary view.
   final RxInt secondaryTargets = RxInt(0);
 
   /// Indicator whether the camera was switched or not.
@@ -214,31 +210,33 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
-  /// Left coordinate of secondary view.
+  /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
-  /// Top coordinate of secondary view.
+  /// Secondary view current top position.
   final RxnDouble secondaryTop = RxnDouble(0);
 
-  /// Right coordinate of secondary view.
+  /// Secondary view current right position.
   final RxnDouble secondaryRight = RxnDouble(null);
 
-  /// Bottom coordinate of secondary view.
+  /// Secondary view current bottom position.
   final RxnDouble secondaryBottom = RxnDouble(null);
 
-  /// Width of secondary view.
+  /// Secondary view current width.
   late final RxDouble secondaryWidth;
 
-  /// Height of secondary view.
+  /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
   /// [Alignment] of secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
 
-  /// Possible [Alignment] of secondary view.
+  /// [Alignment] that might become the [secondaryAlignment] if dropped.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// Indicator whether secondary view attached to bottom right corner.
+  // TODO: Temporary solution.
+  /// Indicator whether secondary view should be attached to
+  /// the [Alignment.bottomRight] part of the screen.
   final RxBool secondaryKeepAlignment = RxBool(false);
 
   /// Max width of the minimized view in percentage of the screen width.
@@ -253,17 +251,17 @@ class CallController extends GetxController {
   /// Min height of the minimized view in pixels.
   static const double _minHeight = 500;
 
-  /// Minimal height of secondary view.
-  static const double _minSHeight = 100;
+  /// Max width of secondary view in percentage of the call width.
+  static const double _maxSWidth = 0.95;
 
-  /// Minimal width of secondary view.
-  static const double _minSWidth = 100;
-
-  /// Maximal height of secondary view in percent.
+  /// Max height of secondary view in percentage of the call height.
   static const double _maxSHeight = 0.95;
 
-  /// Maximal width of secondary view in percent.
-  static const double _maxSWidth = 0.95;
+  /// Min width of secondary view in pixels.
+  static const double _minSWidth = 100;
+
+  /// Min height of secondary view in pixels.
+  static const double _minSHeight = 100;
 
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
@@ -319,10 +317,10 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
 
-  /// Subscription for [OngoingCall.members] changes to update title.
+  /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
 
-  /// Subscription for [duration] changes to update title.
+  /// Subscription for [duration] changes updating the title.
   StreamSubscription? _durationSubscription;
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
@@ -388,7 +386,7 @@ class CallController extends GetxController {
   RxBool get isRemoteVideoEnabled => _currentCall.value.isRemoteVideoEnabled;
 
   /// Indicator whether the inbound audio in the current [OngoingCall] is
-  /// enabled or not.
+  /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   @override
@@ -407,7 +405,7 @@ class CallController extends GetxController {
       secondaryHeight = RxDouble(200);
     }
 
-    if (isPopup) {
+    if (WebUtils.isPopup) {
       isSlidingPanelEnabled.value = true;
       selfBottom.value = 85;
     }
@@ -442,6 +440,7 @@ class CallController extends GetxController {
       _putParticipant(RemoteMemberId(me, null));
       _insureCorrectGrouping();
 
+      // TODO: Temporary solution.
       if (!isGroup) {
         secondaryAlignment.value = null;
         secondaryKeepAlignment.value = true;
@@ -451,7 +450,11 @@ class CallController extends GetxController {
         secondaryBottom.value = 10;
       }
 
-      if (isPopup) {
+      // Update the [WebUtils.title] if this call in a popup.
+      if (WebUtils.isPopup) {
+        _titleSubscription?.cancel();
+        _durationSubscription?.cancel();
+
         if (v != null) {
           void _updateTitle() {
             switch (state.value) {
@@ -485,27 +488,25 @@ class CallController extends GetxController {
                 break;
 
               case OngoingCallState.ended:
+                // No-op.
                 break;
             }
           }
 
           _updateTitle();
 
-          _titleSubscription?.cancel();
           _titleSubscription =
               _currentCall.value.members.listen((_) => _updateTitle());
-          _durationSubscription?.cancel();
           _durationSubscription = duration.listen((_) => _updateTitle());
         }
       }
     }
 
+    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(_onChat),
     );
-
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
@@ -735,6 +736,8 @@ class CallController extends GetxController {
         await _currentCall.value.setOutputDevice(deviceId);
       }
     } else {
+      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      //       switching.
       speakerSwitched.toggle();
     }
   }
@@ -990,7 +993,8 @@ class CallController extends GetxController {
     }
   }
 
-  /// Applies constraints to the [width], [height], [left] and [top].
+  /// Applies constraints to the [secondaryWidth], [secondaryHeight],
+  /// [secondaryLeft] and [secondaryTop].
   void applySecondaryConstraints(BuildContext context) {
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
@@ -1005,6 +1009,7 @@ class CallController extends GetxController {
     secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
     secondaryTop.value = _applySTop(context, secondaryTop.value);
 
+    // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
       secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
@@ -1013,6 +1018,7 @@ class CallController extends GetxController {
       secondaryHeight.value = min(secondaryHeight.value, size.height / 2);
     }
 
+    // Determine the [possibleSecondaryAlignment].
     possibleSecondaryAlignment.value = null;
     if (secondaryDragged.value) {
       if (secondaryLeft.value != null) {
@@ -1093,7 +1099,7 @@ class CallController extends GetxController {
     applySecondaryConstraints(context);
   }
 
-  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
+  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     if (secondaryLeft.value == null || secondaryTop.value == null) {
@@ -1118,6 +1124,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeX.right:
         double width = _applySWidth(context, secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
@@ -1127,6 +1134,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }
@@ -1149,6 +1157,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeY.bottom:
         double height = _applySHeight(context, secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
@@ -1158,6 +1167,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }

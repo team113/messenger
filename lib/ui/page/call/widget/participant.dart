@@ -21,10 +21,10 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/call_cover.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
+import 'call_cover.dart';
+import 'conditional_backdrop.dart';
 import 'video_view.dart';
 
 /// [Participant] visual representation.
@@ -41,7 +41,7 @@ class ParticipantWidget extends StatelessWidget {
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
     this.useCallCover = false,
-    this.isDragging = false,
+    this.expanded = false,
   }) : super(key: key);
 
   /// [Participant] this [ParticipantWidget] represents.
@@ -79,8 +79,8 @@ class ParticipantWidget extends StatelessWidget {
   /// available.
   final bool useCallCover;
 
-  /// Indicator whether this [ParticipantWidget] is dragged.
-  final bool isDragging;
+  /// Indicator whether this [ParticipantWidget] should be a bit expanded.
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
@@ -132,11 +132,11 @@ class ParticipantWidget extends StatelessWidget {
                       key: const Key('AnimatedContainerAvatar'),
                       duration: 150.milliseconds,
                       curve: Curves.ease,
-                      width: isDragging ? 180 : 120,
-                      height: isDragging ? 180 : 120,
+                      width: expanded ? 180 : 120,
+                      height: expanded ? 180 : 120,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(90),
-                        boxShadow: isDragging
+                        boxShadow: expanded
                             ? [
                                 const CustomBoxShadow(
                                   color: Color(0x44000000),
@@ -148,7 +148,7 @@ class ParticipantWidget extends StatelessWidget {
                       ),
                       child: AvatarWidget.fromUser(
                         participant.user.value?.user.value,
-                        radius: isDragging ? 90 : 60,
+                        radius: expanded ? 90 : 60,
                       ),
                     ),
                   ),
@@ -207,7 +207,7 @@ class ParticipantWidget extends StatelessWidget {
   }
 }
 
-/// [Participant] overlay displaying its muted and video icons.
+/// [Participant] overlay displaying its muted and video status icons.
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {

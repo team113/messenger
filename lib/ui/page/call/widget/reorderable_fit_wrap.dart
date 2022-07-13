@@ -22,11 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/call/widget/fit_wrap.dart';
-import 'reorderable_fit_view.dart'
-    show AnimatedTransition, ReorderableDraggableHandle, ReorderableItem;
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'reorderable_common.dart';
 
-/// Widget placing its [children] evenly on a screen.
+/// Places [children] into a shrinkable [Wrap] with an ability to reorder them.
+///
+/// Uses [ReorderableFitView], if there's not enough space for the [Wrap].
 class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   const ReorderableFitWrap({
     Key? key,
@@ -57,19 +58,20 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     this.useLongPress = false,
   }) : super(key: key);
 
-  /// Builder to create reorderable items.
+  /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  /// Builder to create decoration.
+  /// Builder decorating the provided item.
   final Widget Function(T data)? decoratorBuilder;
 
-  /// Builder to create overlay.
+  /// Builder creating overlay of the provided item.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether dragging starts on long press.
+  /// Indicator whether a [LongPressDraggable] should be used instead of a
+  /// [Draggable].
   final bool useLongPress;
 
-  /// Children widgets needed to be placed evenly on a screen.
+  /// Children widgets needed to be placed in a [Wrap].
   final List<T> children;
 
   /// Color of a divider between [children].
@@ -80,63 +82,64 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
-  /// Callback called when some item change position.
+  /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
 
-  /// Callback called when new item is added.
+  /// Callback, called when a new item is added.
   final Function(T, int)? onAdded;
 
-  /// Callback called when dragging is started.
+  /// Callback, called when item dragging is started.
   final Function(T)? onDragStarted;
 
-  /// Callback called when dough is break.
+  /// Callback, called when an item breaks its dough.
   final void Function(T)? onDoughBreak;
 
-  /// Callback called when dragging is end.
+  /// Callback, called when item dragging is ended.
   final Function(T)? onDragEnd;
 
-  /// Callback called when the draggable is being accepted by [DragTarget].
+  /// Callback, called when an item is accepted by some [DragTarget].
   final Function(T)? onDragCompleted;
 
-  /// Callback called when the draggable is dropped without being accepted by a
-  /// [DragTarget].
+  /// Callback, called item dragging is canceled.
   final Function(T)? onDraggableCanceled;
 
-  /// Callback called before accept new item.
+  /// Callback, called when some [DragTarget] may accept the dragged item.
   final void Function(T?)? onWillAccept;
 
-  /// Callback called when an item leave dropping area.
+  /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(T?)? onLeave;
 
-  /// Returns offset.
+  /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Distance to left edge.
+  /// Left position of this view.
   final double? left;
 
-  /// Distance to right edge.
+  /// Right position of this view.
   final double? right;
 
-  /// Distance to top edge.
+  /// Top position of this view.
   final double? top;
 
-  /// Distance to bottom edge.
+  /// Bottom position of this view.
   final double? bottom;
 
-  /// Width of this [ReorderableFitWrap].
+  /// Width of this view to occupy.
   final double? width;
 
-  /// Width of this [ReorderableFitWrap].
+  /// Width of this view to occupy.
   final double? height;
 
-  /// Color when this [ReorderableFitWrap] hovered by some item.
-  final Color hoverColor;
-
   /// [Axis] of a [Wrap].
+  ///
+  /// If `null`, then [Column]s and [Row]s will be used instead of a [Wrap].
   final Axis? wrapAxis;
 
-  /// Returns calculated size of a [FitWrap] with [maxSize], [constraints],
-  /// [axis] and children [length].
+  /// Hover color of the [DragTarget].
+  final Color hoverColor;
+
+  /// Calculates size of a [FitWrap] with [maxSize], [constraints], [axis] and
+  /// its children [length].
   static double calculateSize({
     required double maxSize,
     required Size constraints,
@@ -163,13 +166,18 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     return size;
   }
 
-  /// Indicates whether this [ReorderableFitWrap] should use fit view.
+  /// Indicates whether this [ReorderableFitWrap] should use the
+  /// [ReorderableFitView] instead.
   static bool useFitView({
     required double maxSize,
     required Size constraints,
-    required Axis axis,
+    required Axis? axis,
     required int length,
   }) {
+    if (axis == null) {
+      return true;
+    }
+
     var size = min(
       maxSize,
       axis == Axis.horizontal
@@ -200,17 +208,16 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
         double rHeight = height ?? constraints.maxHeight;
 
         double wrapMaxSize = wrapAxis == Axis.horizontal ? rWidth : rHeight;
-        bool fitView = wrapAxis == null
-            ? true
-            : useFitView(
-                maxSize: wrapMaxSize,
-                constraints: Size(rWidth, rHeight),
-                length: children.length,
-                axis: wrapAxis!,
-              );
+        bool fitView = useFitView(
+          maxSize: wrapMaxSize,
+          constraints: Size(rWidth, rHeight),
+          length: children.length,
+          axis: wrapAxis,
+        );
 
         // Number of columns.
         int mColumns = 0;
+
         double? wrapSize;
 
         if (fitView) {
@@ -343,7 +350,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   }
 }
 
-/// Widget placing its [children] evenly on a screen.
+/// Stateful component of the [ReorderableFitWrap].
 class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   const _ReorderableFitWrap({
     Key? key,
@@ -377,16 +384,17 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
   }) : super(key: key);
 
-  /// Builder to create reorderable items.
+  /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
-  /// Builder to create decorations.
+  /// Builder decorating the provided item.
   final Widget Function(T data)? decoratorBuilder;
 
-  /// Builder to create overlay.
+  /// Builder creating overlay of the provided item.
   final Widget Function(T data)? overlayBuilder;
 
-  /// Indicator whether dragging starts on long press.
+  /// Indicator whether a [LongPressDraggable] should be used instead of a
+  /// [Draggable].
   final bool useLongPress;
 
   /// Children widgets needed to be placed evenly on a screen.
@@ -400,59 +408,58 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   /// Size of a divider between [children].
   final double dividerSize;
 
-  /// Callback called when some item change position.
+  /// Callback, called when an item is reordered.
   final Function(T, int)? onReorder;
 
-  /// Callback called when new item is added.
+  /// Callback, called when a new item is added.
   final Function(T, int)? onAdded;
 
-  /// Callback called when dragging is started.
+  /// Callback, called when item dragging is started.
   final Function(T)? onDragStarted;
 
-  /// Callback called when dough is break.
+  /// Callback, called when an item breaks its dough.
   final void Function(T)? onDoughBreak;
 
-  /// Callback called when dragging is end.
+  /// Callback, called when item dragging is ended.
   final Function(T)? onDragEnd;
 
-  /// Callback called when the draggable is being accepted by [DragTarget].
+  /// Callback, called when an item is accepted by some [DragTarget].
   final Function(T)? onDragCompleted;
 
-  /// Callback called when the draggable is dropped without being accepted by a
-  /// [DragTarget].
+  /// Callback, called item dragging is canceled.
   final Function(T)? onDraggableCanceled;
 
-  /// Callback called before accept new item.
+  /// Callback, called when some [DragTarget] may accept the dragged item.
   final void Function(T?)? onWillAccept;
 
-  /// Callback called when an item leave dropping area.
+  /// Callback, called when a dragged item leaves some [DragTarget].
   final void Function(T?)? onLeave;
 
-  /// Returns offset.
+  /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Color when this [_ReorderableFitWrap] hovered by some item.
+  /// Hover color of the [DragTarget].
   final Color hoverColor;
 
-  /// Distance to left edge.
+  /// Left position of this view.
   final double? left;
 
-  /// Distance to right edge.
+  /// Right position of this view.
   final double? right;
 
-  /// Distance to top edge.
+  /// Top position of this view.
   final double? top;
 
-  /// Distance to bottom edge.
+  /// Bottom position of this view.
   final double? bottom;
 
-  /// Width of this [_ReorderableFitWrap].
+  /// Width of this view to occupy.
   final double? width;
 
-  /// Width of this [_ReorderableFitWrap].
+  /// Width of this view to occupy.
   final double? height;
 
-  /// Max count of columns.
+  /// Number of [Column]s to place the [children] onto.
   final int mColumns;
 
   /// Size of wrap of this [_ReorderableFitWrap].
@@ -461,29 +468,29 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   /// Axis direction of wrap.
   final Axis? wrapAxis;
 
-  /// Indicator whether this [_ReorderableFitWrap] use [Wrap].
+  /// Indicator whether this [_ReorderableFitWrap] should use [Wrap].
   final bool useWrap;
 
   @override
   State<_ReorderableFitWrap<T>> createState() => _ReorderableFitWrapState<T>();
 }
 
-/// State of [_ReorderableFitWrap] used to add and reorder [_items].
+/// State of a [_ReorderableFitWrap] maintaining the reorderable [_items] list.
 class _ReorderableFitWrapState<T extends Object>
     extends State<_ReorderableFitWrap<T>> {
-  /// Reorderable items of this [ReorderableFitViewState].
+  /// [ReorderableItem]s of this [_ReorderableFitWrap].
   List<ReorderableItem<T>> _items = [];
 
   ///  Positions of [_items].
   final Map<int, int> _positions = {};
 
-  /// [GlobalKey] of this [_ReorderableFitWrapState].
+  /// [GlobalKey] of this [_ReorderableFitWrap].
   final GlobalKey _fitKey = GlobalKey();
 
   /// [AudioPlayer] playing a pop sound.
   AudioPlayer? _audioPlayer;
 
-  /// Reorderable item that break dough.
+  /// [ReorderableItem] being dragged that has already broke its dough.
   ReorderableItem<T>? _doughDragged;
 
   @override
@@ -547,7 +554,7 @@ class _ReorderableFitWrapState<T extends Object>
                 : ReorderableDraggableHandle(
                     item: item.item,
                     itemBuilder: widget.itemBuilder,
-                    useLongDraggable: widget.useLongPress,
+                    useLongPress: widget.useLongPress,
                     sharedKey: item.sharedKey,
                     enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
                     onDragEnd: (d) {
@@ -756,6 +763,8 @@ class _ReorderableFitWrapState<T extends Object>
                   : Column(children: _createRows()),
             ),
           ),
+
+          // Pseudo-[Overlay].
           ..._items.map((e) => e.entry).whereNotNull().map(
                 (e) => IgnorePointer(
                   child: SizedBox(
@@ -770,14 +779,14 @@ class _ReorderableFitWrapState<T extends Object>
     );
   }
 
-  /// Adds provided [object] to items.
+  /// Adds the provided [object] to the [_items].
   void _onAccept(T object, int i, int to) {
     _positions[object.hashCode] = to;
     widget.onAdded?.call(object, to);
   }
 
-  /// Checks if [object] already in [_items] and if `false` adds it otherwise
-  /// reorder [_items].
+  /// Reorders the [object] from [i] into [to] position, if [_items] contains
+  /// the item, otherwise just marks its position.
   void _onWillAccept(T object, int i, int to) {
     int index = _items.indexWhere((e) => e.item == object);
     if (index != -1) {
@@ -824,7 +833,7 @@ class _ReorderableFitWrapState<T extends Object>
     setState(() {});
   }
 
-  /// Plays return animation.
+  /// Constructs a returning [OverlayEntry] animation of the [to] item.
   void _animateReturn(ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
