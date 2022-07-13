@@ -185,21 +185,21 @@ jobs:
       - name: Generate SHA256 checksums
         run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
         working-directory: artifacts/
-        if: ${{ matrix.platform != 'windows' }}
+        if: ${{ runner.os != 'Windows' }}
       - name: Show generated SHA256 checksums
         run: cat *.sha256sum
         working-directory: artifacts/
-        if: ${{ matrix.platform != 'windows' }}
+        if: ${{ runner.os != 'Windows' }}
 
       - name: Generate SHA256 checksums
         run: certutil -hashfile ${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
                               > ${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip.sha256sum
         working-directory: artifacts/
-        if: ${{ matrix.platform == 'windows' }}
+        if: ${{ runner.os == 'Windows' }}
       - name: Show generated SHA256 checksums
         run: type ${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip.sha256sum
         working-directory: artifacts/
-        if: ${{ matrix.platform == 'windows' }}
+        if: ${{ runner.os == 'Windows' }}
 
       - uses: actions/upload-artifact@v3
         with:
