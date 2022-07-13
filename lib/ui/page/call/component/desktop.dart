@@ -1676,9 +1676,22 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           c.secondaryRight.value = null;
                           c.secondaryBottom.value = null;
 
-                          if (c.secondaryAlignment.value != null ||
-                              c.secondaryKeepAlignment.value == true) {
+                          if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
+
+                            if (c.minimized.value) {
+                              c.secondaryLeft.value =
+                                  d.globalPosition.dx - c.left.value;
+                              c.secondaryTop.value =
+                                  d.globalPosition.dy - 35 - c.top.value;
+                            } else {
+                              c.secondaryLeft.value = d.globalPosition.dx;
+                              c.secondaryTop.value = d.globalPosition.dy - 15;
+                            }
+                          }
+
+                          if (c.secondaryKeepAlignment.value == true) {
+                            c.secondaryKeepAlignment.value = false;
 
                             var size = c.size;
                             c.secondaryLeft.value =
@@ -1687,8 +1700,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 size.height - c.secondaryHeight.value - bottom;
                             c.applySecondaryConstraints(context);
                           }
-
-                          c.secondaryKeepAlignment.value = false;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
