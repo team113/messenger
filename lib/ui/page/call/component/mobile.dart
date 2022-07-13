@@ -393,6 +393,21 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ),
                           ),
                   ),
+                if (PlatformUtils.isDesktop)
+                  _padding(hintedButton(
+                    screenButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(
+                        c.screenShareState.value == LocalTrackState.enabled ||
+                                c.screenShareState.value ==
+                                    LocalTrackState.enabling
+                            ? 'Выключить\nдемонстрацию'.tr
+                            : 'Включить\nдемонстрацию'.tr,
+                      ),
+                    ),
+                  )),
                 _padding(hintedButton(
                   audioButton(c),
                   AnimatedOpacity(
@@ -1317,6 +1332,7 @@ class _SecondaryOverlayEntryState extends State<SecondaryOverlayEntry> {
   }
 }
 
+/// Drag data of an call [Participant].
 class _DragData {
   const _DragData(this.participant);
 

@@ -40,7 +40,7 @@ class AnimatedDelayed extends StatefulWidget {
   State<AnimatedDelayed> createState() => _AnimatedDelayedState();
 }
 
-/// State of an [AnimatedDelayedScale] maintaining the [show].
+/// State of an [AnimatedDelayed] maintaining the [show].
 class _AnimatedDelayedState extends State<AnimatedDelayed> {
   /// Current show value.
   bool show = false;

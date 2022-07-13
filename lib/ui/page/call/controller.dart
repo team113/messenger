@@ -107,7 +107,7 @@ class CallController extends GetxController {
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
-  /// Secondary view overlay.
+  /// Drag target of an empty secondary view.
   OverlayEntry? addToSecondaryEntry;
 
   /// Count of a currently happening drags of the secondary videos used to
