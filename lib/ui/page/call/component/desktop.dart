@@ -995,7 +995,6 @@ Widget _primaryView(CallController c) {
               return true;
             }
             return false;
-
           },
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
