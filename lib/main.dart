@@ -147,6 +147,7 @@ class App extends StatelessWidget {
       theme: Themes.light(),
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
+      onDispose: L10n.dispose,
     );
   }
 }

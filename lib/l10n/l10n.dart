@@ -66,6 +66,11 @@ class L10n {
     });
   }
 
+  /// Disposes this [L10n] object.
+  static void dispose() {
+    _languageWorker?.dispose();
+  }
+
   /// Changes current locale and loads it.
   static Future<void> _setLocale(String locale,
       {bool forceAppUpdate = true}) async {
