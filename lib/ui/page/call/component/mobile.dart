@@ -103,21 +103,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                 c.secondaryKeepAlignment.isTrue) {
               c.secondaryAlignment.value = null;
 
-              if (c.minimized.value) {
-                c.secondaryLeft.value = d.globalPosition.dx - c.left.value;
-                c.secondaryTop.value = d.globalPosition.dy - 35 - c.top.value;
-              } else {
-                if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-                  var size = c.size;
-                  c.secondaryLeft.value =
-                      size.width - c.secondaryWidth.value - right;
-                  c.secondaryTop.value =
-                      size.height - c.secondaryHeight.value - bottom;
-                } else {
-                  c.secondaryLeft.value = d.globalPosition.dx;
-                  c.secondaryTop.value = d.globalPosition.dy - 15;
-                }
-              }
+              var size = c.size;
+              c.secondaryLeft.value =
+                  size.width - c.secondaryWidth.value - right;
+              c.secondaryTop.value =
+                  size.height - c.secondaryHeight.value - bottom;
               c.applySecondaryConstraints(context);
             }
 

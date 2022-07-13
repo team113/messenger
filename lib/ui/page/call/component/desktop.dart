@@ -1680,14 +1680,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               c.secondaryKeepAlignment.value == true) {
                             c.secondaryAlignment.value = null;
 
-                            if (c.minimized.value) {
-                              var size = c.size;
-                              c.secondaryLeft.value = size.width - c.secondaryWidth.value - right;
-                              c.secondaryTop.value = size.height - c.secondaryHeight.value - bottom;
-                            } else {
-                              c.secondaryLeft.value = d.globalPosition.dx;
-                              c.secondaryTop.value = d.globalPosition.dy - 15;
-                            }
+                            var size = c.size;
+                            c.secondaryLeft.value =
+                                size.width - c.secondaryWidth.value - right;
+                            c.secondaryTop.value =
+                                size.height - c.secondaryHeight.value - bottom;
                             c.applySecondaryConstraints(context);
                           }
 
