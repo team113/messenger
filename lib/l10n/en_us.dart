@@ -263,7 +263,7 @@ final Map<String, String> enUS = {
   'label_hidden': 'Status is hidden',
   'label_hide_for_me': 'Delete for me',
   'label_hint_drag_n_drop_buttons':
-      'Add and remove elements of the control panel through drag-and-drop.',
+      'Add and remove elements of the control panel by drag-and-drop.',
   'label_hint_drag_n_drop_video': 'Hint: you can drag and drop video windows.',
   'label_incoming_call': 'Incoming call',
   'label_last_seen': 'Last seen',

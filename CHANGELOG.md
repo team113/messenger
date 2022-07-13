@@ -31,13 +31,10 @@ All user visible changes to this project will be documented in this file. This p
         - Missing avatars in group creation popup ([#15], [#2]).
 
 [#2]: /../../issues/2
-<<<<<<< HEAD
-[#11]: /../../issues/11
-[#9]: /../../pull/9
-=======
 [#4]: /../../issues/4
 [#7]: /../../pull/7
->>>>>>> origin/main
+[#9]: /../../pull/9
+[#11]: /../../issues/11
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 
