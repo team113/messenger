@@ -34,7 +34,7 @@ class L10n {
   };
 
   /// [FluentBundle] providing translation.
-  static late FluentBundle _bundle;
+  static FluentBundle _bundle = FluentBundle('');
 
   /// Loads new locale every time when [chosen] was changed.
   static Worker? _languageWorker;
@@ -45,7 +45,8 @@ class L10n {
   /// Initializes this [L10n] due to preferred locale of user's platform.
   static Future<void> ensureInitialized({String? locale}) async {
     if (locale != null) {
-      await _setLocale(locale);
+      chosen = Rx(locale.toString());
+      await _setLocale(locale, forceAppUpdate: false);
     } else {
       final preferred = WidgetsBinding.instance.window.locales;
       final supported = languages.values.map((lang) => lang.locale);
@@ -53,12 +54,12 @@ class L10n {
         for (var supp in supported) {
           if (supp.languageCode == loc.languageCode) {
             chosen = Rx(supp.toString());
-            await _setLocale(supp.toString());
+            await _setLocale(supp.toString(), forceAppUpdate: false);
             return;
           }
         }
       }
-      await _setLocale('en_US');
+      await _setLocale('en_US', forceAppUpdate: false);
     }
     _languageWorker = ever(chosen, (String value) async {
       await _setLocale(value);
@@ -66,13 +67,16 @@ class L10n {
   }
 
   /// Changes current locale and loads it.
-  static Future<void> _setLocale(String locale) async {
+  static Future<void> _setLocale(String locale,
+      {bool forceAppUpdate = true}) async {
     await _mutex.protect(() async {
       if (languages.containsKey(locale)) {
         _bundle = FluentBundle(locale.toString());
         _bundle.addMessages(
             await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
-        await Get.forceAppUpdate();
+        if (forceAppUpdate) {
+          await Get.forceAppUpdate();
+        }
       }
     });
   }
