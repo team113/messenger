@@ -240,6 +240,8 @@ abstract class Selector {
                             child: Stack(
                               children: [
                                 CupertinoPicker(
+                                  scrollController: FixedExtentScrollController(
+                                      initialItem: c.selected.value),
                                   magnification: 1,
                                   squeeze: 1,
                                   looping: true,
@@ -253,9 +255,7 @@ abstract class Selector {
                                         color: Color(0x3363B4FF)),
                                   ),
                                   onSelectedItemChanged: (int i) {
-                                    if (!PlatformUtils.isIOS) {
-                                      HapticFeedback.selectionClick();
-                                    }
+                                    HapticFeedback.selectionClick();
                                     c.selected.value = i;
                                   },
                                   children: items.entries
