@@ -19,7 +19,6 @@ FROM nginx:stable-alpine
 
 
 COPY --chown=nobody:nobody build/web/ /var/www/public/
-COPY --chown=nobody:nobody artifacts/ /var/www/public/artifacts/
 
 
 WORKDIR /var/www/public

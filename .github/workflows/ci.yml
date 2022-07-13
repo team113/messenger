@@ -154,21 +154,6 @@ jobs:
           regex: '^${{ github.repository_owner }}/(.+)$'
 
       - run: mkdir artifacts/
-      - uses: thedoctor0/zip-release@0.6.2
-        with:
-          filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'macos'
-                         && 'build/macos/Build/Products/Release/messenger.app')
-                     || (matrix.platform == 'linux'
-                         && 'build/linux/x64/release/bundle')
-                     || (matrix.platform == 'windows'
-                         && 'build/windows/runner/Release')
-                     ||     'build/web'}}
-        if: ${{ matrix.platform == 'web'
-            || matrix.platform == 'windows'
-            || matrix.platform == 'linux'
-            || matrix.platform == 'macos' }}
-
       - run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
                 artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
         if: ${{ matrix.platform == 'apk' }}
@@ -181,30 +166,38 @@ jobs:
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
+          directory: ${{ (matrix.platform == 'linux'
+                          && 'build/linux/x64/release/bundle')
+                      || (matrix.platform == 'macos'
+                          && 'build/macos/Build/Products/Release/messenger.app')
+                      || (matrix.platform == 'windows'
+                          && 'build/windows/runner/Release')
+                      ||     'build/web'}}
+        if: ${{ matrix.platform == 'linux'
+             || matrix.platform == 'macos'
+             || matrix.platform == 'web'
+             || matrix.platform == 'windows' }}
 
       - name: Generate SHA256 checksums
-        run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
+        run: ${{ (runner.os == 'Windows'
+                  && 'forfiles /M *.zip /C "cmd /c sha256sum @file > @file.sha256sum"')
+              ||     'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
         working-directory: artifacts/
-        if: ${{ runner.os != 'Windows' }}
       - name: Show generated SHA256 checksums
-        run: cat *.sha256sum
+        run: ${{ (runner.os == 'Windows'
+                  && 'type *.sha256sum')
+              ||     'cat *.sha256sum' }}
         working-directory: artifacts/
-        if: ${{ runner.os != 'Windows' }}
-
-      - name: Generate SHA256 checksums
-        run: forfiles /M *.zip /C "cmd /c certutil -hashfile @file > @file.sha256sum"
-        working-directory: artifacts/
-        if: ${{ runner.os == 'Windows' }}
-      - name: Show generated SHA256 checksums
-        run: type *.sha256sum
-        working-directory: artifacts/
-        if: ${{ runner.os == 'Windows' }}
 
       - uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
           if-no-files-found: error
+          retention-days: 1
 
   dartdoc:
     runs-on: ubuntu-latest
@@ -235,38 +228,40 @@ jobs:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
 
-      - run: mkdir artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: artifacts
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: artifacts
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: artifacts
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: artifacts
-
       - uses: actions/download-artifact@v3
         with:
           name: build-web-${{ github.run_number }}
-      - run: mkdir -p build/web
-      - run: unzip *.zip -d build/web
+      - run: mkdir -p build/web/
+      - run: unzip *.zip -d build/web/
+
+      - run: mkdir -p build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-apk-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-appbundle-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows-${{ github.run_number }}
+          path: build/web/artifacts/
+
       - run: make docker.build debug=no no-cache=yes
                   tag=build-${{ github.run_number }}
 
-      - run: make docker.tar to-file=image.tar
+      - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
       - uses: actions/upload-artifact@v3
         with:
           name: docker-${{ github.run_number }}
-          path: image.tar
+          path: .cache/image.tar
+          if-no-files-found: error
           retention-days: 1
 
 
@@ -333,27 +328,26 @@ jobs:
         run: echo ::set-output
                   name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
 
-      - run: mkdir artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-apk-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-appbundle-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-linux-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-web-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-windows-${{ github.run_number }}
-          path: artifacts
+          path: artifacts/
 
       - uses: actions/download-artifact@v3
         with:
@@ -362,11 +356,12 @@ jobs:
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: artifacts/docs.zip
-          path: .cache/dartdoc
+          path: .cache/dartdoc/
       - name: Generate dartdoc SHA256 checksum
         run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
         working-directory: artifacts/
-      - name: Show generated SHA256 checksums
+
+      - name: Show artifacts SHA256 checksums
         run: cat *.sha256sum
         working-directory: artifacts/
 
