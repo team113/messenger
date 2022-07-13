@@ -341,6 +341,9 @@ docker.auth:
 #	                  [minikube=(no|yes)]
 
 docker.build:
+ifeq ($(wildcard artifacts),)
+	mkdir artifacts
+endif
 ifeq ($(wildcard build/web),)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
 	                    dockerized=$(dockerized)
