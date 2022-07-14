@@ -75,12 +75,12 @@ class L10n {
     }
   }
 
-  /// Returns translated value due to loaded locale.
+  /// Returns a translated value of the provided [key] from the [_bundle].
   static String _format(String key, {Map<String, dynamic> args = const {}}) =>
       _bundle.format(key, args: args);
 }
 
-/// [Language] entity that is available in the app.
+/// Language entity with its [Locale].
 class Language {
   const Language(this.name, this.locale);
 

@@ -1,5 +1,5 @@
-dot_symbol = .
-comma_symbol = ,{" "}
+dot = .
+comma_space = ,{" "}
 alert_are_you_sure = Вы уверены?
 alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?

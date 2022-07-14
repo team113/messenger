@@ -417,7 +417,7 @@ class _BackgroundService {
                   call.chatId,
                   call.caller?.name?.val ??
                       call.caller?.num.val ??
-                      ('dot_symbol'.td * 3),
+                      ('dot'.td * 3),
                 );
               }
 
@@ -445,7 +445,7 @@ class _BackgroundService {
                 call.chatId,
                 call.caller?.name?.val ??
                     call.caller?.num.val ??
-                    ('dot_symbol'.td * 3),
+                    ('dot'.td * 3),
               );
             }
             break;

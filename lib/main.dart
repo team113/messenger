@@ -72,7 +72,6 @@ void main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     await authService.init();
 
-    /// TODO: Should only be called if not persisted.
     await L10n.init();
 
     router = RouterState(authService);

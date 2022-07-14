@@ -69,7 +69,7 @@ class _AnimatedDotsState extends State<AnimatedDots> {
     return SizedBox(
       width: 13,
       child: Text(
-        'dot_symbol'.td * _count,
+        'dot'.td * _count,
         style: TextStyle(color: widget.color),
       ),
     );
