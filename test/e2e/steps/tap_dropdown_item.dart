@@ -38,14 +38,15 @@ final tapDropdownItem = given2<WidgetKey, WidgetKey, FlutterWorld>(
       (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last;
   final timeout = context.configuration.timeout ?? const Duration(seconds: 20);
   final isPresent =
-      await context.world.appDriver.isPresent(finder, timeout: timeout * .2);
+      await context.world.appDriver.isPresent(finder, timeout: timeout);
 
   if (!isPresent) {
     await context.world.appDriver.scrollUntilVisible(
       (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last,
-      dy: -100.0,
-      timeout: timeout * .9,
+      dy: -5.0,
+      timeout: timeout,
     );
+    await context.world.appDriver.waitForAppToSettle();
   }
 
   await context.world.appDriver.tap(finder, timeout: timeout);

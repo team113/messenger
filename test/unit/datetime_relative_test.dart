@@ -18,11 +18,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
-void main() async {
+void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await L10n.init();
 
-  test('DateTime.toRelative returns correct representations', () {
+  test('DateTime.toRelative returns correct representations', () async {
+    await L10n.init(L10n.languages.first);
+
     expect(
       DateTime(2022, 2, 17, 13, 40).toRelative(DateTime(2022, 2, 17, 13, 40)),
       '13:40',

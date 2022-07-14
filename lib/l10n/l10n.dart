@@ -20,7 +20,6 @@ import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:mutex/mutex.dart';
 
 /// Localization of this application.
 class L10n {
@@ -38,11 +37,9 @@ class L10n {
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
 
-  /// Protects from async localization changes.
-  static final Mutex _mutex = Mutex();
-
-  /// Initializes this [L10n] with a default [Locale] of the device.
-  static Future<void> init({Language? lang}) async {
+  /// Initializes this [L10n] with a default [Locale] of the device, or
+  /// optionally with the provided [lang].
+  static Future<void> init([Language? lang]) async {
     if (lang == null) {
       List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
       for (int i = 0; i < locales.length && chosen.value == null; ++i) {
@@ -52,7 +49,7 @@ class L10n {
         }
       }
     } else {
-      await set(lang);
+      await set(lang, refresh: false);
     }
 
     if (chosen.value == null) {
@@ -61,20 +58,18 @@ class L10n {
   }
 
   /// Sets the [chosen] language to the provided [lang].
-  static Future<void> set(Language? lang, {bool refresh = true}) {
+  static Future<void> set(Language? lang, {bool refresh = true}) async {
     if (lang == chosen.value || lang == null) {
-      return Future.value();
+      return;
     }
 
     if (languages.contains(lang)) {
       chosen.value = lang;
-      return _mutex.protect(() async {
-        _bundle = FluentBundle(lang.toString())
-          ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
-        if (refresh) {
-          await Get.forceAppUpdate();
-        }
-      });
+      _bundle = FluentBundle(lang.toString())
+        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
+      if (refresh) {
+        await Get.forceAppUpdate();
+      }
     } else {
       throw ArgumentError.value(lang);
     }

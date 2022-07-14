@@ -58,12 +58,13 @@ class SettingsView extends StatelessWidget {
                   child: StatefulBuilder(
                     builder: (context, setState) => Obx(
                       () => DropdownButton<Language>(
-                        key: const Key('LocalizationDropdown'),
+                        key: const Key('LanguageDropdown'),
                         value: L10n.chosen.value,
                         items:
                             L10n.languages.map<DropdownMenuItem<Language>>((e) {
                           return DropdownMenuItem(
-                            key: Key(e.toString()),
+                            key: Key(
+                                'Language_${e.locale.languageCode}${e.locale.countryCode}'),
                             value: e,
                             child: Text('${e.locale.countryCode}, ${e.name}'),
                           );

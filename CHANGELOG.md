@@ -18,11 +18,6 @@ All user visible changes to this project will be documented in this file. This p
     - Menu:
         - Language selection ([#23]).
 
-### Changed
-
-- UI:
-    - Use `Fluent` localization ([#23], [#16]).
-
 ### Fixed
 
 - Android:
