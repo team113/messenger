@@ -27,7 +27,7 @@ import 'reorderable_common.dart';
 
 /// Places [children] into a shrinkable [Wrap] with an ability to reorder them.
 ///
-/// Uses [ReorderableFitView], if there's not enough space for the [Wrap].
+/// Uses [Column]s and [Row]s, if there's not enough space for the [Wrap].
 class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   const ReorderableFitWrap({
     Key? key,
@@ -571,7 +571,7 @@ class _ReorderableFitWrapState<T extends Object>
                     width: widget.wrapSize,
                     height: widget.wrapSize,
                   )
-                : ReorderableDraggableHandle(
+                : ReorderableDraggableHandle<T>(
                     item: item.item,
                     itemBuilder: widget.itemBuilder,
                     useLongPress: widget.useLongPress,
