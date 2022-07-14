@@ -176,19 +176,19 @@ label_ago = { $years ->
                                             [1] recently
                                             *[other] {$minutes} minutes ago
                                         }
-                                    [1] hour ago
+                                    [1] an hour ago
                                     *[other] {$hours} hours ago
                                 }
                             [1] yesterday
                             *[other] {$days} days ago
                         }
-                    [1] week ago
+                    [1] a week ago
                     *[other] {$weeks} weeks ago
                 }
-            [1] month ago
+            [1] a month ago
             *[other] {$months} months ago
         }
-    [1] year ago
+    [1] an year ago
     *[other] {$years} years ago
 }
 label_application = application
