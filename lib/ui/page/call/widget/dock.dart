@@ -27,13 +27,13 @@ typedef ButtonsDockBuilderFunction = Function(
   DraggedItem item,
 );
 
-/// Buttons dock in call.
+/// Dock reordering it's [items].
 class Dock<T> extends StatefulWidget {
   const Dock({
     required this.items,
     required this.itemBuilder,
-    required this.itemConstraints,
     required this.onReorder,
+    this.itemSize = 48,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -47,8 +47,8 @@ class Dock<T> extends StatefulWidget {
   /// Builder building the [items].
   final ButtonsDockBuilderFunction itemBuilder;
 
-  /// [BoxConstraints] of item.
-  final BoxConstraints itemConstraints;
+  /// Max size of [items].
+  final double itemSize;
 
   /// Callback, called when the [items] were reordered.
   final Function(List)? onReorder;
@@ -62,15 +62,15 @@ class Dock<T> extends StatefulWidget {
   /// Callback, called when any dragged item leave this [Dock].
   final Function()? onLeave;
 
-  /// Called to determine whether this widget is interested in receiving a
-  /// given piece of data being dragged over this drag target.
+  /// Callback, called to determine whether this widget is interested in
+  /// receiving a given piece of data being dragged over drag target.
   final bool Function(T)? onWillAccept;
 
   @override
   State<Dock<T>> createState() => _DockState<T>();
 }
 
-/// State of [Dock].
+/// State of [Dock] used to handle reordering.
 class _DockState<T> extends State<Dock<T>> {
   /// Duration of animation moving button to his place on end of dragging.
   Duration movingAnimationDuration = const Duration(milliseconds: 150);
@@ -114,20 +114,24 @@ class _DockState<T> extends State<Dock<T>> {
   /// Indicator whether some item is animated.
   bool isAnimated = false;
 
-  /// List of overlays.
+  /// List of currently displayed overlays.
   List<OverlayEntry> overlays = [];
 
   /// Returns item width.
-  double get itemWidth => (items.first.key.currentState == null ||
+  double get itemWidth => items.isEmpty ||
+          items.first.key.currentState == null ||
           items.first.key.currentState?.mounted == false ||
-          items.first.key.currentContext?.size == null)
-      ? widget.itemConstraints.maxWidth
+          items.first.key.currentContext?.size == null
+      ? widget.itemSize
       : items.first.key.currentContext!.size!.width;
+
+  /// [BoxConstraints] of item.
+  BoxConstraints get itemConstraints =>
+      BoxConstraints(maxHeight: itemWidth, maxWidth: itemWidth);
 
   @override
   void initState() {
-    items =
-        widget.items.map((e) => DraggedItem(e)).toList();
+    items = widget.items.map((e) => DraggedItem(e)).toList();
     super.initState();
   }
 
@@ -164,13 +168,13 @@ class _DockState<T> extends State<Dock<T>> {
                   duration: animationsDuration,
                   width: expandBetween == 0 && expandBetween == i
                       ? startDragConstraints == null
-                          ? widget.itemConstraints.maxWidth
+                          ? itemConstraints.maxWidth
                           : startDragConstraints!.maxWidth
                       : 0,
                 ),
                 if (compressBetween == 0 && compressBetween == i)
                   AnimatedWidth(
-                    beginWidth: widget.itemConstraints.maxWidth,
+                    beginWidth: itemConstraints.maxWidth,
                     endWidth: 0,
                     duration: movingAnimationDuration,
                   ),
@@ -184,7 +188,7 @@ class _DockState<T> extends State<Dock<T>> {
               Flexible(
                 flex: 5,
                 child: Container(
-                  constraints: widget.itemConstraints,
+                  constraints: itemConstraints,
                   child: AspectRatio(
                     aspectRatio: 1,
                     child: LayoutBuilder(
@@ -283,13 +287,13 @@ class _DockState<T> extends State<Dock<T>> {
                 duration: animationsDuration,
                 width: expandBetween - 1 == i
                     ? startDragConstraints == null
-                        ? widget.itemConstraints.maxWidth
+                        ? itemConstraints.maxWidth
                         : startDragConstraints!.maxWidth
                     : 0,
               ),
               if (compressBetween - 1 == i)
                 AnimatedWidth(
-                  beginWidth: widget.itemConstraints.maxWidth,
+                  beginWidth: itemConstraints.maxWidth,
                   endWidth: 0,
                   duration: movingAnimationDuration,
                 ),
@@ -316,7 +320,9 @@ class _DockState<T> extends State<Dock<T>> {
         }
       },
       onWillAccept: (e) {
-        return e == null || (widget.onWillAccept?.call(e.item) ?? true); //e?.chatId == widget.chatId;
+        return e == null ||
+            (widget.onWillAccept?.call(e.item) ??
+                true); //e?.chatId == widget.chatId;
       },
       builder: _builder,
     );
@@ -353,7 +359,7 @@ class _DockState<T> extends State<Dock<T>> {
           child: Container(
             constraints: startDragConstraints != null
                 ? startDragConstraints!
-                : widget.itemConstraints,
+                : itemConstraints,
             child: KeyedSubtree(
               key: item.key,
               child: widget.itemBuilder(context, item),
@@ -364,6 +370,7 @@ class _DockState<T> extends State<Dock<T>> {
 
       // Insert OverlayEntry to Overlay to display him.
       overlayState?.insert(overlayEntry);
+      overlays.add(overlayEntry);
 
       // Hide added item.
       items[whereToPlace].hide = true;
@@ -380,6 +387,7 @@ class _DockState<T> extends State<Dock<T>> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Remove OverlayEntry with item from Overlay.
         overlayEntry.remove();
+        overlays.remove(overlayEntry);
 
         setState(() => isAnimated = true);
 
@@ -400,7 +408,7 @@ class _DockState<T> extends State<Dock<T>> {
           to: position,
           itemConstraints: startDragConstraints != null && localDragged != null
               ? startDragConstraints!
-              : widget.itemConstraints,
+              : itemConstraints,
           onEnd: () => setState(() {
             isAnimated = false;
             items[whereToPlace].hide = false;
@@ -588,7 +596,7 @@ class _DockState<T> extends State<Dock<T>> {
   }
 }
 
-/// Dragged item class.
+/// Dragged item data.
 class DraggedItem<T> {
   DraggedItem(this.item);
 

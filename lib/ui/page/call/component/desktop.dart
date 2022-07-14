@@ -470,10 +470,7 @@ Widget desktopCall(
                                     duration: const Duration(milliseconds: 150),
                                     child: Dock<CallButton>(
                                       items: c.buttons,
-                                      itemConstraints: BoxConstraints(
-                                        maxWidth: c.buttonSize.value,
-                                        maxHeight: c.buttonSize.value,
-                                      ),
+                                      itemSize: c.buttonSize.value,
                                       itemBuilder: (context, item) => item.item
                                           .build(context, true, small: true),
                                       onReorder: (buttons) {
