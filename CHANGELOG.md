@@ -15,6 +15,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
+    - Menu:
+        - Language selection ([#23]).
 
 ### Fixed
 
@@ -29,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 [#7]: /../../pull/7
 [#14]: /../../pull/14
 [#15]: /../../pull/15
+[#23]: /../../pull/23
 
 
 
