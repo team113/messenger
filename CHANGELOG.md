@@ -36,6 +36,5 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
 [Semantic Versioning 2.0.0]: https://semver.org
