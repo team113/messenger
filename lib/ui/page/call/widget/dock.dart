@@ -21,8 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
-
 /// Item builder function.
 typedef ButtonsDockBuilderFunction = Function(
   BuildContext context,
@@ -35,11 +33,11 @@ class Dock<T> extends StatefulWidget {
     required this.items,
     required this.itemBuilder,
     required this.itemConstraints,
-    required this.chatId,
     required this.onReorder,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
+    this.onWillAccept,
     Key? key,
   }) : super(key: key);
 
@@ -51,9 +49,6 @@ class Dock<T> extends StatefulWidget {
 
   /// [BoxConstraints] of item.
   final BoxConstraints itemConstraints;
-
-  /// [ChatId] this [Dock] displayed.
-  final ChatId chatId;
 
   /// Callback, called when the [items] were reordered.
   final Function(List)? onReorder;
@@ -67,12 +62,16 @@ class Dock<T> extends StatefulWidget {
   /// Callback, called when any dragged item leave this [Dock].
   final Function()? onLeave;
 
+  /// Called to determine whether this widget is interested in receiving a
+  /// given piece of data being dragged over this drag target.
+  final bool Function(T)? onWillAccept;
+
   @override
-  State<Dock> createState() => _DockState();
+  State<Dock<T>> createState() => _DockState<T>();
 }
 
 /// State of [Dock].
-class _DockState extends State<Dock> {
+class _DockState<T> extends State<Dock<T>> {
   /// Duration of animation moving button to his place on end of dragging.
   Duration movingAnimationDuration = const Duration(milliseconds: 150);
 
@@ -128,7 +127,7 @@ class _DockState extends State<Dock> {
   @override
   void initState() {
     items =
-        widget.items.map((e) => DraggedItem(e, chatId: widget.chatId)).toList();
+        widget.items.map((e) => DraggedItem(e)).toList();
     super.initState();
   }
 
@@ -306,25 +305,25 @@ class _DockState extends State<Dock> {
       );
     }
 
-    return DragTarget(
+    return DragTarget<DraggedItem<T>>(
       key: dragZone,
       onAccept: _onAccept,
       onMove: _onMove,
-      onLeave: (DraggedItem? e) {
-        if (e?.chatId == widget.chatId) {
+      onLeave: (e) {
+        if (e == null || (widget.onWillAccept?.call(e.item) ?? true)) {
           widget.onLeave?.call();
           setState(() => expandBetween = -1);
         }
       },
-      onWillAccept: (DraggedItem? e) {
-        return e?.chatId == widget.chatId;
+      onWillAccept: (e) {
+        return e == null || (widget.onWillAccept?.call(e.item) ?? true); //e?.chatId == widget.chatId;
       },
       builder: _builder,
     );
   }
 
   /// Adds the provided [item] to the [items] list and animates the addition.
-  void _onAccept(DraggedItem item) {
+  void _onAccept(DraggedItem<T> item) {
     OverlayState? overlayState = Overlay.of(context);
 
     if (expandBetween > items.length) {
@@ -491,8 +490,8 @@ class _DockState extends State<Dock> {
   }
 
   /// Calculates the position to drop the provided item at.
-  void _onMove(DragTargetDetails<DraggedItem> d) {
-    if (d.data.chatId != widget.chatId) {
+  void _onMove(DragTargetDetails<DraggedItem<T>> d) {
+    if (widget.onWillAccept?.call(d.data.item) == false) {
       return;
     }
     // Get RenderBox of drag&drop zone.
@@ -591,13 +590,10 @@ class _DockState extends State<Dock> {
 
 /// Dragged item class.
 class DraggedItem<T> {
-  DraggedItem(this.item, {required this.chatId});
+  DraggedItem(this.item);
 
   /// Dragged item.
   T item;
-
-  /// [ChatId] this item placed.
-  ChatId chatId;
 
   /// [GlobalKey] of item.
   GlobalKey key = GlobalKey();

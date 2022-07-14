@@ -20,15 +20,19 @@ import 'package:get/get.dart';
 import '../controller.dart';
 import '../widget/call_title.dart';
 import '../widget/round_button.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Button used in call's bottom panel.
 abstract class CallButton {
-  CallButton(this.c);
+  CallButton(this.c) : chatId = c.chatId;
 
   /// CallController of this button.
   final CallController c;
+
+  /// [ChatId] this button placed.
+  final ChatId chatId;
 
   /// Indicates that this button must be hide or not.
   bool hide = false;

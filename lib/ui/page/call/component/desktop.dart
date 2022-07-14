@@ -476,7 +476,6 @@ Widget desktopCall(
                                       ),
                                       itemBuilder: (context, item) => item.item
                                           .build(context, true, small: true),
-                                      chatId: c.chatId,
                                       onReorder: (buttons) {
                                         c.buttons.clear();
                                         c.buttons
@@ -492,6 +491,7 @@ Widget desktopCall(
                                         c.draggedButton.value = null;
                                       },
                                       onLeave: () => c.displayMore.value = true,
+                                      onWillAccept: (d) => d.chatId == c.chatId,
                                     ),
                                   ),
                                 ),
@@ -513,7 +513,7 @@ Widget desktopCall(
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,
-          List<DraggedItem?> candidate,
+          List<DraggedItem<CallButton>?> candidate,
           List<dynamic> rejected,
         ) {
           return Container(
@@ -536,7 +536,7 @@ Widget desktopCall(
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.chatId == c.chatId)
+                    color: candidate.any((e) => e?.item.chatId == c.chatId)
                         ? const Color.fromARGB(47, 34, 128, 209)
                         : const Color(0x9D165084),
                     borderRadius: BorderRadius.circular(30),
@@ -555,7 +555,7 @@ Widget desktopCall(
                           runSpacing: 21,
                           children: c.panel.map(
                             (e) {
-                              var data = DraggedItem(e, chatId: c.chatId);
+                              var data = DraggedItem(e);
                               return SizedBox(
                                 width: 100,
                                 height: 100,
@@ -653,15 +653,15 @@ Widget desktopCall(
                                 ),
                         ),
                         const IgnorePointer(child: SizedBox(height: 30)),
-                        DragTarget<DraggedItem>(
+                        DragTarget<DraggedItem<CallButton>>(
                           onAccept: (DraggedItem data) {
                             c.buttons.remove(data.item);
                             c.hideHint.value = false;
                             c.draggedButton.value = null;
                           },
                           onWillAccept: (a) => (a != null &&
-                                  a.chatId == c.chatId &&
-                                  (a.item as CallButton).isRemovable)
+                                  a.item.chatId == c.chatId &&
+                                  a.item.isRemovable)
                               ? true
                               : false,
                           builder: _builder,
