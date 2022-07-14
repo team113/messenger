@@ -1,5 +1,3 @@
-dot = .
-comma_space = ,{" "}
 alert_are_you_sure = Вы уверены?
 alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
@@ -87,6 +85,8 @@ btn_submit = Применить
 btn_your_profile = Ваш профиль
 btn_write_message = Написать сообщение
 btn_video_call = Видеозвонок
+comma_space = ,{" "}
+dot = .
 err_account_not_found = Указанный аккаунт не найден
 err_blacklisted = Пользователь в чёрном списке
 err_call_already_exists = Звонок уже активен

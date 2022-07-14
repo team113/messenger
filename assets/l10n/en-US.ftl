@@ -1,5 +1,3 @@
-dot = .
-comma_space = ,{" "}
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this E-mail?
@@ -88,6 +86,8 @@ btn_submit = Submit
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
+comma_space = ,{" "}
+dot = .
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
