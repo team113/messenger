@@ -555,10 +555,20 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool isNotEmpty = locals.isNotEmpty || remotes.isNotEmpty;
           paneled.removeWhere((m) => m.id == e.key);
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
+          print('locals.isEmpty: ${locals.isEmpty}');
+          print('focused.isEmpty: ${focused.isEmpty}');
+          print('remotes.isEmpty: ${remotes.isEmpty}');
+          if (isNotEmpty &&
+              locals.isEmpty &&
+              remotes.isEmpty &&
+              focused.isEmpty) {
+            unfocusAll();
+          }
           _insureCorrectGrouping();
 
           if (highlighted.value?.id == e.key) {
@@ -871,6 +881,11 @@ class CallController extends GetxController {
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
+      if (focused.isEmpty) {
+        for (var p in [...remotes, ...locals]) {
+          _putVideoTo(p, paneled);
+        }
+      }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
