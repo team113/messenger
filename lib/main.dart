@@ -52,7 +52,6 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 void main() async {
   await Config.init();
-  await L10n.ensureInitialized();
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
@@ -60,6 +59,7 @@ void main() async {
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
     }
+
     await _initHive();
 
     Get.put(NotificationService())
@@ -71,6 +71,9 @@ void main() async {
     var authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     await authService.init();
+
+    /// TODO: Should only be called if not persisted.
+    await L10n.init();
 
     router = RouterState(authService);
 
@@ -147,7 +150,6 @@ class App extends StatelessWidget {
       theme: Themes.light(),
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
-      onDispose: L10n.dispose,
     );
   }
 }

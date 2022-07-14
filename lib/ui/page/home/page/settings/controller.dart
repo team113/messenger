@@ -18,6 +18,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 
 /// Controller of the [Routes.settings] page.
 class SettingsController extends GetxController {
@@ -34,7 +35,6 @@ class SettingsController extends GetxController {
       _settingsRepo.setPopupsEnabled(enabled);
 
   /// Sets the [ApplicationSettings.locale] value.
-  Future<void> setLocale(String? locale) async {
-    await _settingsRepo.setLocale(locale!);
-  }
+  Future<void> setLocale(Language? locale) =>
+      _settingsRepo.setLocale(locale!.toString());
 }

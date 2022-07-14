@@ -42,9 +42,9 @@ class SettingsWorker extends DisposableService {
   Future<void> init() async {
     String? locale = _settingsRepository.applicationSettings.value?.locale;
     if (locale == null) {
-      _settingsRepository.setLocale(L10n.chosen.value);
+      _settingsRepository.setLocale(L10n.chosen.value!.toString());
     } else {
-      L10n.chosen.value = locale;
+      await L10n.set(Language.from(locale));
     }
 
     _worker = ever(
@@ -52,7 +52,7 @@ class SettingsWorker extends DisposableService {
       (ApplicationSettings? settings) {
         if (locale != settings?.locale) {
           locale = settings?.locale;
-          L10n.chosen.value = locale ?? 'en_US';
+          L10n.set(Language.from(locale) ?? L10n.languages.first);
         }
       },
     );

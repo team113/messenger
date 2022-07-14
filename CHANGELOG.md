@@ -15,6 +15,13 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
+    - Menu:
+        - Language selection ([#23]).
+
+### Changed
+
+- UI:
+    - Use `Fluent` localization ([#23], [#16]).
 
 ### Fixed
 
@@ -23,12 +30,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
-
-### Changed
-
-- UI:
-    - L10n:
-        - Use `Fluent` localization ([#23], [#16]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4

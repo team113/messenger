@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/worker/settings.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/user.dart';
@@ -60,6 +59,7 @@ import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
+import 'ui/worker/settings.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -370,22 +370,23 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ScopedDependencies deps = ScopedDependencies();
               UserId me = _state._auth.userId!;
 
-              await deps.put(MyUserHiveProvider()).init(userId: me);
-              await deps.put(ChatHiveProvider()).init(userId: me);
-              await deps.put(GalleryItemHiveProvider()).init(userId: me);
-              await deps.put(UserHiveProvider()).init(userId: me);
-              await deps.put(ContactHiveProvider()).init(userId: me);
-              await deps.put(MediaSettingsHiveProvider()).init(userId: me);
-              await deps
-                  .put(ApplicationSettingsHiveProvider())
-                  .init(userId: me);
+              await Future.wait([
+                deps.put(MyUserHiveProvider()).init(userId: me),
+                deps.put(ChatHiveProvider()).init(userId: me),
+                deps.put(GalleryItemHiveProvider()).init(userId: me),
+                deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(ContactHiveProvider()).init(userId: me),
+                deps.put(MediaSettingsHiveProvider()).init(userId: me),
+                deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+              ]);
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
                 SettingsRepository(Get.find(), Get.find()),
               );
 
-              // Should be initialized before any [L10n]-dependant entities.
+              // Should be initialized before any [L10n]-dependant entities as
+              // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
 
               GraphQlProvider graphQlProvider = Get.find();
@@ -454,20 +455,23 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ScopedDependencies deps = ScopedDependencies();
             UserId me = _state._auth.userId!;
 
-            await deps.put(MyUserHiveProvider()).init(userId: me);
-            await deps.put(ChatHiveProvider()).init(userId: me);
-            await deps.put(GalleryItemHiveProvider()).init(userId: me);
-            await deps.put(UserHiveProvider()).init(userId: me);
-            await deps.put(ContactHiveProvider()).init(userId: me);
-            await deps.put(MediaSettingsHiveProvider()).init(userId: me);
-            await deps.put(ApplicationSettingsHiveProvider()).init(userId: me);
+            await Future.wait([
+              deps.put(MyUserHiveProvider()).init(userId: me),
+              deps.put(ChatHiveProvider()).init(userId: me),
+              deps.put(GalleryItemHiveProvider()).init(userId: me),
+              deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(ContactHiveProvider()).init(userId: me),
+              deps.put(MediaSettingsHiveProvider()).init(userId: me),
+              deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+            ]);
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(Get.find(), Get.find()),
             );
 
-            // Should be initialized before any [L10n]-dependant entities.
+            // Should be initialized before any [L10n]-dependant entities as
+            // it sets the stored [Language] from the [SettingsRepository].
             await deps.put(SettingsWorker(settingsRepository)).init();
 
             GraphQlProvider graphQlProvider = Get.find();

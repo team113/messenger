@@ -146,7 +146,7 @@ class _BackgroundService {
 
     _resetConnectionTimer();
 
-    await _initL10n();
+    await L10n.init();
     _initService();
 
     // Start a [Timer] fetching the [_credentials] from the [Hive] in case
@@ -266,7 +266,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      _initL10n(event!['locale']);
+      L10n.set(Language.from(event!['locale']));
     });
 
     _service.on('ka').listen((_) {
@@ -360,11 +360,6 @@ class _BackgroundService {
     }
 
     return _notificationPlugin!;
-  }
-
-  /// Initializes the [L10n] of the provided [locale].
-  Future<void> _initL10n([String? locale]) async {
-    await L10n.ensureInitialized(locale: locale ?? 'en_US');
   }
 
   /// Displays an incoming call notification for the provided [chatId] with the

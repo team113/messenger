@@ -48,7 +48,8 @@ import '../mock/route_information_provider.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await L10n.ensureInitialized(locale: 'en_US');
+  await L10n.init();
+
   Hive.init('./test/.temp_hive/auth_widget');
 
   var sessionProvider = SessionDataHiveProvider();

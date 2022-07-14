@@ -167,7 +167,7 @@ class BackgroundWorker extends GetxService {
       });
 
       FlutterBackgroundService().invoke('l10n', {'locale': L10n.chosen.value});
-      _localizationWorker = ever(L10n.chosen, (String? locale) {
+      _localizationWorker = ever(L10n.chosen, (Language? locale) {
         FlutterBackgroundService().invoke('l10n', {'locale': locale});
       });
     }

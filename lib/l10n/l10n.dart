@@ -24,66 +24,60 @@ import 'package:mutex/mutex.dart';
 
 /// Localization of this application.
 class L10n {
-  /// Currently selected language.
-  static late Rx<String> chosen;
+  /// Currently selected [Language].
+  static final Rx<Language?> chosen = Rx(null);
 
   /// Supported [Language]s.
-  static Map<String, Language> languages = const {
-    'en_US': Language('English', Locale('en', 'US')),
-    'ru_RU': Language('Русский', Locale('ru', 'RU')),
-  };
+  ///
+  /// First [Language] in the list is guaranteed to be English.
+  static List<Language> languages = const [
+    Language('English', Locale('en', 'US')),
+    Language('Русский', Locale('ru', 'RU')),
+  ];
 
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
 
-  /// Loads new locale every time when [chosen] was changed.
-  static Worker? _languageWorker;
-
   /// Protects from async localization changes.
   static final Mutex _mutex = Mutex();
 
-  /// Initializes this [L10n] due to preferred locale of user's platform.
-  static Future<void> ensureInitialized({String? locale}) async {
-    if (locale != null) {
-      chosen = Rx(locale.toString());
-      await _setLocale(locale, forceAppUpdate: false);
-    } else {
-      final preferred = WidgetsBinding.instance.window.locales;
-      final supported = languages.values.map((lang) => lang.locale);
-      for (var loc in preferred) {
-        for (var supp in supported) {
-          if (supp.languageCode == loc.languageCode) {
-            chosen = Rx(supp.toString());
-            await _setLocale(supp.toString(), forceAppUpdate: false);
-            return;
-          }
+  /// Initializes this [L10n] with a default [Locale] of the device.
+  static Future<void> init({Language? lang}) async {
+    if (lang == null) {
+      List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
+      for (int i = 0; i < locales.length && chosen.value == null; ++i) {
+        Language? language = Language.from(locales[i].toLanguageTag());
+        if (language != null) {
+          await set(language, refresh: false);
         }
       }
-      await _setLocale('en_US', forceAppUpdate: false);
+    } else {
+      await set(lang);
     }
-    _languageWorker = ever(chosen, (String value) async {
-      await _setLocale(value);
-    });
+
+    if (chosen.value == null) {
+      await set(languages.first, refresh: false);
+    }
   }
 
-  /// Disposes this [L10n] object.
-  static void dispose() {
-    _languageWorker?.dispose();
-  }
+  /// Sets the [chosen] language to the provided [lang].
+  static Future<void> set(Language? lang, {bool refresh = true}) {
+    if (lang == chosen.value || lang == null) {
+      return Future.value();
+    }
 
-  /// Changes current locale and loads it.
-  static Future<void> _setLocale(String locale,
-      {bool forceAppUpdate = true}) async {
-    await _mutex.protect(() async {
-      if (languages.containsKey(locale)) {
-        _bundle = FluentBundle(locale.toString());
-        _bundle.addMessages(
-            await rootBundle.loadString('assets/l10n/${chosen.value}.ftl'));
-        if (forceAppUpdate) {
+    if (languages.contains(lang)) {
+      chosen.value = lang;
+      return _mutex.protect(() async {
+        _bundle = FluentBundle(lang.toString())
+          ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
+        if (refresh) {
           await Get.forceAppUpdate();
         }
-      }
-    });
+      });
+    } else {
+      throw ArgumentError.value(lang);
+    }
   }
 
   /// Returns translated value due to loaded locale.
@@ -93,10 +87,22 @@ class L10n {
 
 /// [Language] entity that is available in the app.
 class Language {
+  const Language(this.name, this.locale);
+
+  /// Localized local name of this [Language].
   final String name;
+
+  /// [Locale] this [Language] has.
   final Locale locale;
 
-  const Language(this.name, this.locale);
+  /// Returns a [Language] identified by its [tag] from the [L10n.languages], if
+  /// any.
+  static Language? from(String? tag) {
+    return L10n.languages.firstWhereOrNull((e) => e.toString() == tag);
+  }
+
+  @override
+  String toString() => locale.toLanguageTag();
 }
 
 /// Extension adding an ability to get translated [String] from the [L10n].
