@@ -101,12 +101,12 @@ void main() {
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 2, 24)),
-      'Week ago, 00:00',
+      'A week ago, 00:00',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 2)),
-      'Week ago, 00:00',
+      'A week ago, 00:00',
     );
 
     expect(
@@ -116,32 +116,32 @@ void main() {
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 17)),
-      'Month ago, 00:00',
+      'A month ago, 00:00',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 31)),
-      'Month ago, 00:00',
+      'A month ago, 00:00',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 1)),
-      'Month ago, 00:00',
+      'A month ago, 00:00',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 16)),
-      'Month ago, 00:00',
+      'A month ago, 00:00',
     );
 
     expect(
       DateTime(2021, 12, 24, 18, 09).toRelative(DateTime(2022, 2, 17, 15, 43)),
-      'Month ago, 18:09',
+      'A month ago, 18:09',
     );
 
     expect(
       DateTime(2022, 1, 18, 15, 16).toRelative(DateTime(2022, 2, 18, 10, 21)),
-      'Month ago, 15:16',
+      'A month ago, 15:16',
     );
 
     expect(
@@ -166,17 +166,17 @@ void main() {
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2023, 2, 17)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
       DateTime(2022, 3).toRelative(DateTime(2023, 3)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
       DateTime(2022).toRelative(DateTime(2023)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
@@ -186,17 +186,17 @@ void main() {
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2023, 12, 13)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2024, 12, 12)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2024, 12, 12)),
-      'Year ago, 00:00',
+      'An year ago, 00:00',
     );
 
     expect(
