@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
 
+### Added
+
+- UI:
+    - User information auto-updating on changes ([#7], [#4]).
+
 ### Fixed
 
 - Android:
@@ -26,6 +31,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesign `Auth` page ([#29]).
 
 [#2]: /../../issues/2
+[#4]: /../../issues/4
+[#7]: /../../pull/7
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 [#29]: /../../pull/29
