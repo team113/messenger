@@ -55,29 +55,27 @@ class SettingsView extends StatelessWidget {
               ListTile(
                 title: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 200),
-                  child: StatefulBuilder(
-                    builder: (context, setState) => Obx(
-                      () => DropdownButton<Language>(
-                        key: const Key('LanguageDropdown'),
-                        value: L10n.chosen.value,
-                        items:
-                            L10n.languages.map<DropdownMenuItem<Language>>((e) {
-                          return DropdownMenuItem(
-                            key: Key(
-                                'Language_${e.locale.languageCode}${e.locale.countryCode}'),
-                            value: e,
-                            child: Text('${e.locale.countryCode}, ${e.name}'),
-                          );
-                        }).toList(),
-                        onChanged: c.setLocale,
-                        borderRadius: BorderRadius.circular(18),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 15,
-                        ),
-                        icon: const SizedBox(),
-                        underline: const SizedBox(),
+                  child: Obx(
+                    () => DropdownButton<Language>(
+                      key: const Key('LanguageDropdown'),
+                      value: L10n.chosen.value,
+                      items:
+                          L10n.languages.map<DropdownMenuItem<Language>>((e) {
+                        return DropdownMenuItem(
+                          key: Key(
+                              'Language_${e.locale.languageCode}${e.locale.countryCode}'),
+                          value: e,
+                          child: Text('${e.locale.countryCode}, ${e.name}'),
+                        );
+                      }).toList(),
+                      onChanged: c.setLocale,
+                      borderRadius: BorderRadius.circular(18),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 15,
                       ),
+                      icon: const SizedBox(),
+                      underline: const SizedBox(),
                     ),
                   ),
                 ),

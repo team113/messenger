@@ -21,21 +21,17 @@ import '/domain/repository/settings.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 
+/// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
+/// changes.
 class SettingsWorker extends DisposableService {
   SettingsWorker(this._settingsRepository);
 
-  /// Uses for listening of [ApplicationSettings.locale] changes.
+  /// [AbstractSettingsRepository] storing the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Listens [ApplicationSettings.locale] changes and sets locale dependent to
-  ///  it.
+  /// [Worker] updating the [L10n] on
+  /// [AbstractSettingsRepository.applicationSettings] changes.
   Worker? _worker;
-
-  @override
-  void onClose() {
-    _worker?.dispose();
-    super.onClose();
-  }
 
   /// Initializes this [SettingsWorker] and bootstraps the
   /// [ApplicationSettings.locale], if needed.
@@ -56,5 +52,11 @@ class SettingsWorker extends DisposableService {
         }
       },
     );
+  }
+
+  @override
+  void onClose() {
+    _worker?.dispose();
+    super.onClose();
   }
 }
