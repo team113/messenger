@@ -170,8 +170,8 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     return size;
   }
 
-  /// Indicates whether this [ReorderableFitWrap] should use the
-  /// [ReorderableFitView] instead.
+  /// Indicates whether this [ReorderableFitWrap] should use the [Column]s and
+  /// [Row]s instead.
   static bool useFitView({
     required double maxSize,
     required Size constraints,
