@@ -60,7 +60,7 @@ class UserSearchBar extends StatelessWidget {
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
         () => FloatingSearchBar(
-          hint: 'label_search'.td,
+          hint: 'label_search'.l10n,
           controller: searchController,
           scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
           transitionDuration: const Duration(milliseconds: 500),
@@ -94,7 +94,7 @@ class UserSearchBar extends StatelessWidget {
                                 ? [
                                     ListTile(
                                         title:
-                                            Text('label_search_not_found'.td))
+                                            Text('label_search_not_found'.l10n))
                                   ]
                                 : c.searchResults
                                     .map((e) => _user(e, c))
@@ -106,12 +106,13 @@ class UserSearchBar extends StatelessWidget {
                                 SizedBox(
                                   height: 100,
                                   child: Center(
-                                    child: Text('label_search_hint'.td),
+                                    child: Text('label_search_hint'.l10n),
                                   ),
                                 )
                               ]
                             : [
-                                ListTile(title: Text('label_search_recent'.td)),
+                                ListTile(
+                                    title: Text('label_search_recent'.l10n)),
                                 ...c.recentSearchResults
                                     .map((e) => _user(e, c))
                                     .toList()

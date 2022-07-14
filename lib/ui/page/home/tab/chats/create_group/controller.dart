@@ -88,7 +88,7 @@ class CreateGroupController extends GetxController {
       status.value = RxStatus.error(e.toMessage());
     } on FormatException catch (_) {
       status.value = RxStatus.empty();
-      MessagePopup.error('err_incorrect_chat_name'.td);
+      MessagePopup.error('err_incorrect_chat_name'.l10n);
     } catch (e) {
       status.value = RxStatus.empty();
       MessagePopup.error(e);

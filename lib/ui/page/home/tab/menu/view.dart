@@ -43,7 +43,7 @@ class MenuTabView extends StatelessWidget {
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
       builder: (MenuTabController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_menu'.td),
+          title: Text('label_menu'.l10n),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.5),
             child: Container(
@@ -58,21 +58,22 @@ class MenuTabView extends StatelessWidget {
               const SizedBox(height: 10),
               ListTile(
                 key: const Key('MyProfileButton'),
-                title: Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.td),
+                title:
+                    Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.l10n),
                 leading: AvatarWidget.fromMyUser(c.myUser.value),
                 onTap: router.me,
               ),
               ...divider,
               ListTile(
                 key: const Key('SettingsButton'),
-                title: Text('btn_settings'.td),
+                title: Text('btn_settings'.l10n),
                 leading: const Icon(Icons.settings),
                 onTap: router.settings,
               ),
               ...divider,
               ListTile(
                 key: const Key('LogoutButton'),
-                title: Text('btn_logout'.td),
+                title: Text('btn_logout'.l10n),
                 leading: const Icon(Icons.logout),
                 onTap: () async {
                   if (await c.confirmLogout()) {

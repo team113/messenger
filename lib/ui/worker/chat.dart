@@ -116,7 +116,7 @@ class ChatWorker extends DisposableService {
       if (newChat) {
         _notificationService.show(
           c.title.value,
-          body: 'label_you_were_added_to_group'.td,
+          body: 'label_you_were_added_to_group'.l10n,
           payload: '${Routes.chat}/${c.chat.value.id}',
           icon: avatarUrl,
         );
@@ -162,17 +162,18 @@ class _ChatWatchData {
                 body = msg.text?.val;
                 if (msg.attachments.isNotEmpty) {
                   body =
-                      '$body\n[${msg.attachments.length} ${'label_attachments'.td}]';
+                      '$body\n[${msg.attachments.length} ${'label_attachments'.l10n}]';
                 }
               } else if (msg.attachments.isNotEmpty) {
-                body = '[${msg.attachments.length} ${'label_attachments'.td}]';
+                body =
+                    '[${msg.attachments.length} ${'label_attachments'.l10n}]';
               }
             } else if (chat.lastItem is ChatMemberInfo) {
               // TODO: Display [ChatMemberInfo] properly.
               var msg = chat.lastItem as ChatMemberInfo;
               body = msg.action.toString();
             } else if (chat.lastItem is ChatForward) {
-              body = 'label_forwarded_message'.td;
+              body = 'label_forwarded_message'.l10n;
             }
 
             if (body != null) {

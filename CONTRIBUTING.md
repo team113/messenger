@@ -171,16 +171,16 @@ Application has nested `Router`s (e.g. one in the [`GetMaterialApp`] and one nes
 
 ### l10n (localization)
 
-Application uses [Fluent] localization that is placed under `l10n/` directory. Any newly added language should be named as a `languagecode-COUNTRYCODE` locale (i.e. `en-US`, `ru-RU`, etc).
+Application uses [Fluent] localization that is placed under `assets/l10n/` directory. Any newly added `.ftl` file should be named with a [valid Unicode BCP47 Locale Identifier][2] (i.e. `en-US`, `ru-RU`, etc).
 
 Adding a new language means:
-1. Adding language's dictionary as a new `.ftl` file in `assets/l10n` folder.
+1. Adding language's dictionary as a new `.ftl` file to `assets/l10n/` directory.
 2. Adding language to the `languages` mapping.
   
-Using l10n is as easy as adding `.td` or `.tdp(...)` to the string literal:
+Using localization is as easy as adding `.l10n` or `.l10nfmt(...)` to the string literal:
 ```dart
-Text('Hello, world'.td);
-Text('Hello, world'.tdp(arguments));
+Text('Hello, world'.l10n);
+Text('Hello, world'.l10nfmt(arguments));
 ```
 
 
@@ -305,7 +305,7 @@ class UserBio {
 [dartfmt]: https://dart.dev/tools/dart-format
 [Docker]: https://www.docker.com
 [Effective Dart]: https://dart.dev/guides/language/effective-dart
-[Fluent]: https://projectfluent.org/
+[Fluent]: https://projectfluent.org
 [Flutter]: https://flutter.dev
 
 [`GetMaterialApp`]:https://pub.dev/documentation/get_navigation/latest/get_navigation/GetMaterialApp-class.html
@@ -316,3 +316,4 @@ class UserBio {
 [`StatelessWidget`]: https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html
 
 [1]: https://flutter.dev/docs/get-started/install
+[2]: https://api.flutter.dev/flutter/dart-ui/Locale/toLanguageTag.html

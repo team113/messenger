@@ -140,11 +140,11 @@ class AuthView extends StatelessWidget {
               OutlinedRoundedButton(
                 key: const Key('StartChattingButton'),
                 title: Text(
-                  'btn_start_chatting'.td,
+                  'btn_start_chatting'.l10n,
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  'label_no_registration'.td,
+                  'label_no_registration'.l10n,
                   style: const TextStyle(color: Colors.white),
                 ),
                 leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -156,15 +156,15 @@ class AuthView extends StatelessWidget {
               const SizedBox(height: 10),
               OutlinedRoundedButton(
                 key: const Key('SignInButton'),
-                title: Text('btn_login'.td),
-                subtitle: Text('label_or_register'.td),
+                title: Text('btn_login'.l10n),
+                subtitle: Text('label_or_register'.l10n),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                 onPressed: router.login,
               ),
               const SizedBox(height: 10),
               if (isIosWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td),
+                  title: Text('btn_download'.l10n),
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
@@ -174,7 +174,7 @@ class AuthView extends StatelessWidget {
                 ),
               if (isAndroidWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td),
+                  title: Text('btn_download'.l10n),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -185,8 +185,8 @@ class AuthView extends StatelessWidget {
                 ),
               if (isDesktopWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.td),
-                  subtitle: Text('label_application'.td),
+                  title: Text('btn_download'.l10n),
+                  subtitle: Text('label_application'.l10n),
                   leading: PlatformUtils.isMacOS
                       ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
                       : (PlatformUtils.isWindows)

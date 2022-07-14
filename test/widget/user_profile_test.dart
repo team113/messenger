@@ -350,7 +350,7 @@ void main() async {
 
     expect(find.text('user name'), findsOneWidget);
     expect(find.text('user bio'), findsOneWidget);
-    expect(find.text('label_presence_present'.td), findsOneWidget);
+    expect(find.text('label_presence_present'.l10n), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserColumn')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));

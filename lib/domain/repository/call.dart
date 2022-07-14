@@ -107,7 +107,7 @@ class CallAlreadyExistsException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_already_exists'.td;
+  String toMessage() => 'err_call_already_exists'.l10n;
 }
 
 /// Cannot join an [OngoingCall] as it doesn't exist on the client-side.
@@ -115,7 +115,7 @@ class CallDoesNotExistException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_not_found'.td;
+  String toMessage() => 'err_call_not_found'.l10n;
 }
 
 /// Cannot join or start an [OngoingCall] as the authenticated [MyUser] has
@@ -124,12 +124,12 @@ class CallAlreadyJoinedException
     with LocalizedExceptionMixin
     implements Exception {
   @override
-  String toMessage() => 'err_call_already_joined'.td;
+  String toMessage() => 'err_call_already_joined'.l10n;
 }
 
 /// Cannot join or start an [OngoingCall] as it's maintained in a separate
 /// popup window.
 class CallIsInPopupException with LocalizedExceptionMixin implements Exception {
   @override
-  String toMessage() => 'err_call_is_in_popup'.td;
+  String toMessage() => 'err_call_is_in_popup'.l10n;
 }

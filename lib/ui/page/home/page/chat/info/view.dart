@@ -68,7 +68,7 @@ class ChatInfoView extends StatelessWidget {
                                   padding:
                                       const EdgeInsets.fromLTRB(8, 10, 8, 0),
                                   child: Text(
-                                    'label_chat_members'.td,
+                                    'label_chat_members'.l10n,
                                     style: const TextStyle(fontSize: 17),
                                   ),
                                 ),
@@ -86,7 +86,7 @@ class ChatInfoView extends StatelessWidget {
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
-              body: Center(child: Text('label_no_chat_found'.td)),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
             return const Scaffold(
@@ -119,8 +119,8 @@ class ChatInfoView extends StatelessWidget {
                   suffix: Icons.edit,
                   label: c.chat?.chat.value.name == null
                       ? c.chat?.title.value
-                      : 'label_name'.td,
-                  hint: 'label_name_hint'.td,
+                      : 'label_name'.l10n,
+                  hint: 'label_name_hint'.l10n,
                 ),
               )
             ],
@@ -134,7 +134,7 @@ class ChatInfoView extends StatelessWidget {
           key: const Key('ChatDirectLinkExpandable'),
           header: ListTile(
             leading: const Icon(Icons.link),
-            title: Text('label_direct_chat_link'.td),
+            title: Text('label_direct_chat_link'.l10n),
           ),
           collapsed: Container(),
           expanded: Padding(
@@ -142,7 +142,7 @@ class ChatInfoView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('label_direct_chat_link_in_chat_description'.td),
+                Text('label_direct_chat_link_in_chat_description'.l10n),
                 const SizedBox(height: 10),
                 _padding(
                   ReactiveTextField(
@@ -150,7 +150,7 @@ class ChatInfoView extends StatelessWidget {
                     enabled: true,
                     state: c.link,
                     prefixText: '${Config.origin}${Routes.chatDirectLink}/',
-                    label: 'label_direct_chat_link'.td,
+                    label: 'label_direct_chat_link'.l10n,
                     suffix: Icons.copy,
                     onSuffixPressed: c.chat?.chat.value.directLink == null
                         ? null
@@ -160,7 +160,7 @@ class ChatInfoView extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '${'label_transition_count'.td}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}',
+                      '${'label_transition_count'.l10n}: ${c.chat?.chat.value.directLink?.usageCount ?? 0}',
                     ),
                     Expanded(
                       child: Row(
@@ -175,7 +175,7 @@ class ChatInfoView extends StatelessWidget {
                                     ? null
                                     : c.deleteLink,
                                 child: Text(
-                                  'btn_delete_direct_chat_link'.td,
+                                  'btn_delete_direct_chat_link'.l10n,
                                   style: context.textTheme.bodyText1!.copyWith(
                                     color: Colors.grey,
                                     fontSize: 16,
@@ -193,8 +193,8 @@ class ChatInfoView extends StatelessWidget {
                                   : null,
                               child: Text(
                                 c.link.isEmpty.value
-                                    ? 'btn_generate_direct_chat_link'.td
-                                    : 'btn_submit'.td,
+                                    ? 'btn_generate_direct_chat_link'.l10n
+                                    : 'btn_submit'.l10n,
                                 style: context.textTheme.bodyText1!.copyWith(
                                   color: Colors.grey,
                                   fontSize: 16,
@@ -233,7 +233,7 @@ class ChatInfoView extends StatelessWidget {
             ),
             ListTile(
               key: const Key('AddMemberButton'),
-              title: Text('btn_add_participant'.td),
+              title: Text('btn_add_participant'.l10n),
               leading: CircleAvatar(
                 child: SvgLoader.asset(
                   'assets/icons/add_user.svg',

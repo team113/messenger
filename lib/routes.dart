@@ -334,7 +334,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Unknown page view.
   Page<dynamic> get _notFoundPage => MaterialPage(
         key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.td))),
+        child: Scaffold(body: Center(child: Text('label_unknown_page'.l10n))),
       );
 
   /// [Navigator]'s pages generation based on the [_state].
@@ -601,13 +601,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
         case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.td}');
+          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
           break;
         case HomeTab.chats:
-          WebUtils.title('$prefix${'label_tab_chats'.td}');
+          WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
         case HomeTab.menu:
-          WebUtils.title('$prefix${'label_tab_menu'.td}');
+          WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
       }
     } else {

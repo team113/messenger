@@ -39,7 +39,7 @@ class ContactView extends StatelessWidget {
           title: Text('Contact $id'),
           elevation: 0,
         ),
-        body: Center(child: Text('Contact with tag: $id'.td)),
+        body: Center(child: Text('Contact with tag: $id'.l10n)),
       ),
     );
   }

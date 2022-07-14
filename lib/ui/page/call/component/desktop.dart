@@ -269,7 +269,7 @@ Widget desktopCall(
                   width: 240,
                   height: 110,
                   child: HintWidget(
-                    text: 'label_hint_drag_n_drop_video'.td,
+                    text: 'label_hint_drag_n_drop_video'.l10n,
                     onTap: c.isHintDismissed.toggle,
                   ),
                 ),
@@ -532,7 +532,7 @@ Widget desktopCall(
               padding: const EdgeInsets.only(top: 8, right: 8),
               child: TooltipButton(
                 verticalOffset: 8,
-                hint: 'btn_call_settings'.td,
+                hint: 'btn_call_settings'.l10n,
                 onTap: () => c.openSettings(context),
                 child: SvgLoader.asset(
                   'assets/icons/settings.svg',
@@ -864,12 +864,12 @@ Widget _titleBar(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.td
+                ? 'label_call_joining'.l10n
                 : isOutgoing
-                    ? 'label_call_calling'.td
+                    ? 'label_call_calling'.l10n
                     : c.withVideo == true
-                        ? 'label_video_call'.td
-                        : 'label_audio_call'.td;
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
 
         return Container(
           key: const ValueKey('TitleBar'),
@@ -910,7 +910,7 @@ Widget _titleBar(
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 160),
                               child: Text(
-                                c.chat.value?.title.value ?? ('dot'.td * 3),
+                                c.chat.value?.title.value ?? ('dot'.l10n * 3),
                                 style: context.textTheme.bodyText1?.copyWith(
                                   fontSize: 17,
                                   color: const Color(0xFFBBBBBB),
@@ -972,8 +972,8 @@ Widget _titleBar(
                           TooltipButton(
                             onTap: c.toggleRemoteVideos,
                             hint: c.isRemoteVideoEnabled.value
-                                ? 'btn_call_disable_video'.td
-                                : 'btn_call_enable_video'.td,
+                                ? 'btn_call_disable_video'.l10n
+                                : 'btn_call_enable_video'.l10n,
                             child: Icon(
                               c.isRemoteVideoEnabled.value
                                   ? Icons.videocam
@@ -985,7 +985,7 @@ Widget _titleBar(
                           const SizedBox(width: 12),
                           TooltipButton(
                             onTap: () => c.openAddMember(context),
-                            hint: 'btn_add_participant'.td,
+                            hint: 'btn_add_participant'.l10n,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 2),
                               child: SvgLoader.asset(
@@ -999,7 +999,7 @@ Widget _titleBar(
                         ],
                         TooltipButton(
                           onTap: () => c.openSettings(context),
-                          hint: 'btn_call_settings'.td,
+                          hint: 'btn_call_settings'.l10n,
                           child: SvgLoader.asset(
                             'assets/icons/settings.svg',
                             color: const Color(0xFFBBBBBB),
@@ -1010,8 +1010,8 @@ Widget _titleBar(
                         TooltipButton(
                           onTap: c.toggleFullscreen,
                           hint: c.fullscreen.value
-                              ? 'btn_fullscreen_exit'.td
-                              : 'btn_fullscreen_enter'.td,
+                              ? 'btn_fullscreen_exit'.l10n
+                              : 'btn_fullscreen_enter'.l10n,
                           child: SvgLoader.asset(
                             'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                             width: 14,
@@ -1169,8 +1169,8 @@ Widget _primaryVideo(
                         if (participant.source == MediaSourceKind.Device)
                           ContextMenuButton(
                             label: fit == null || fit == BoxFit.cover
-                                ? 'btn_call_do_not_cut_video'.td
-                                : 'btn_call_cut_video'.td,
+                                ? 'btn_call_do_not_cut_video'.l10n
+                                : 'btn_call_cut_video'.l10n,
                             onPressed: () {
                               c.rendererBoxFit[
                                       participant.video.value!.track.id()] =
@@ -1187,14 +1187,14 @@ Widget _primaryVideo(
                           ),
                         if (mayDragVideo)
                           ContextMenuButton(
-                            label: 'btn_call_center_video'.td,
+                            label: 'btn_call_center_video'.l10n,
                             onPressed: () => c.center(participant),
                           ),
                       ],
                       ContextMenuButton(
                         label: participant.video.value?.isEnabled == true
-                            ? 'btn_call_disable_video'.td
-                            : 'btn_call_enable_video'.td,
+                            ? 'btn_call_disable_video'.l10n
+                            : 'btn_call_enable_video'.l10n,
                         onPressed: () =>
                             c.toggleRendererEnabled(participant.video),
                       ),
@@ -1297,13 +1297,13 @@ Widget _secondaryVideo(
                           participant.source != MediaSourceKind.Display) &&
                       participant.video.value?.isEnabled == true)
                     ContextMenuButton(
-                      label: 'btn_call_center_video'.td,
+                      label: 'btn_call_center_video'.l10n,
                       onPressed: () => c.center(participant),
                     ),
                   ContextMenuButton(
                     label: participant.video.value?.isEnabled == true
-                        ? 'btn_call_disable_video'.td
-                        : 'btn_call_enable_video'.td,
+                        ? 'btn_call_disable_video'.l10n
+                        : 'btn_call_enable_video'.l10n,
                     onPressed: () => c.toggleRendererEnabled(participant.video),
                   )
                 ],
@@ -1492,7 +1492,7 @@ Widget _secondaryTarget(
                                 ),
                           const SizedBox(height: 5),
                           Text(
-                            'btn_call_drop_video_here'.td,
+                            'btn_call_drop_video_here'.l10n,
                             style: context.textTheme.subtitle1?.copyWith(
                               color: const Color(0xFFBBBBBB),
                             ),

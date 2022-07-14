@@ -37,7 +37,7 @@ class ChatDirectLinkView extends StatelessWidget {
         body: Center(
           child: Obx(
             () => c.slug.value == null
-                ? Text('label_unknown_page'.td)
+                ? Text('label_unknown_page'.l10n)
                 : const CircularProgressIndicator(),
           ),
         ),

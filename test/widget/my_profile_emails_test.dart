@@ -233,12 +233,12 @@ void main() async {
     await tester.tap(emailsExpandable);
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('EmailInput')), 'test@mail.ru');
-    expect(find.text('label_unconfirmed'.td), findsNothing);
+    expect(find.text('label_unconfirmed'.l10n), findsNothing);
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('addEmailButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('label_unconfirmed'.td), findsOneWidget);
+    expect(find.text('label_unconfirmed'.l10n), findsOneWidget);
     expect(myUserService.myUser.value?.emails.unconfirmed, isNotNull);
 
     await tester.pump(const Duration(seconds: 30));

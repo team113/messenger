@@ -179,10 +179,10 @@ class _BackgroundService {
       {
         'ios': {'appName': 'Gapopa'},
         'android': {
-          'alertTitle': 'label_call_permissions_title'.td,
-          'alertDescription': 'label_call_permissions_description'.td,
-          'cancelButton': 'btn_dismiss'.td,
-          'okButton': 'btn_allow'.td,
+          'alertTitle': 'label_call_permissions_title'.l10n,
+          'alertDescription': 'label_call_permissions_description'.l10n,
+          'cancelButton': 'btn_dismiss'.l10n,
+          'okButton': 'btn_allow'.l10n,
           'foregroundService': {
             'channelId': 'com.team113.messenger',
             'channelName': 'Foreground calls service',
@@ -276,7 +276,7 @@ class _BackgroundService {
     _service.invoke('requireToken');
 
     _setForegroundNotificationInfo(
-      title: 'label_service_initialized'.td,
+      title: 'label_service_initialized'.l10n,
       content: '${DateTime.now()}',
     );
   }
@@ -373,7 +373,7 @@ class _BackgroundService {
         _getNotificationPlugin().then((v) {
           v.show(
             Random().nextInt(1 << 31),
-            'label_incoming_call'.td,
+            'label_incoming_call'.l10n,
             name,
             const NotificationDetails(
               android: AndroidNotificationDetails(
@@ -398,7 +398,7 @@ class _BackgroundService {
         switch (e.$$typename) {
           case 'SubscriptionInitialized':
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.td,
+              title: 'label_service_connected'.l10n,
               content: '${DateTime.now()}',
             );
             break;
@@ -417,12 +417,12 @@ class _BackgroundService {
                   call.chatId,
                   call.caller?.name?.val ??
                       call.caller?.num.val ??
-                      ('dot'.td * 3),
+                      ('dot'.l10n * 3),
                 );
               }
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.td,
+                title: 'label_service_connected'.l10n,
                 content: '${DateTime.now()}',
               );
             }
@@ -436,7 +436,7 @@ class _BackgroundService {
               _incomingCalls.add(call.chatId.val);
 
               _setForegroundNotificationInfo(
-                title: 'label_service_connected'.td,
+                title: 'label_service_connected'.l10n,
                 content: '${DateTime.now()}',
               );
 
@@ -445,7 +445,7 @@ class _BackgroundService {
                 call.chatId,
                 call.caller?.name?.val ??
                     call.caller?.num.val ??
-                    ('dot'.td * 3),
+                    ('dot'.l10n * 3),
               );
             }
             break;
@@ -457,7 +457,7 @@ class _BackgroundService {
             _incomingCalls.remove(call.chatId.val);
 
             _setForegroundNotificationInfo(
-              title: 'label_service_connected'.td,
+              title: 'label_service_connected'.l10n,
               content: '${DateTime.now()}',
             );
 
@@ -469,13 +469,13 @@ class _BackgroundService {
       onError: (e) {
         if (e is ResubscriptionRequiredException) {
           _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.td,
+            title: 'label_service_reconnecting'.l10n,
             content: '${DateTime.now()}',
           );
           _subscribe();
         } else {
           _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.td,
+            title: 'label_service_encountered_error'.l10n,
             content: e,
           );
           throw e;

@@ -170,8 +170,8 @@ class CallWorker extends DisposableService {
                   }
 
                   _notificationService.show(
-                    title ?? 'label_incoming_call'.td,
-                    body: title == null ? null : 'label_incoming_call'.td,
+                    title ?? 'label_incoming_call'.l10n,
+                    body: title == null ? null : 'label_incoming_call'.l10n,
                     payload: '${Routes.chat}/${c.chatId}',
                     icon: avatarUrl,
                     playSound: false,
@@ -208,10 +208,10 @@ class CallWorker extends DisposableService {
           {
             'ios': {'appName': 'Gapopa'},
             'android': {
-              'alertTitle': 'label_call_permissions_title'.td,
-              'alertDescription': 'label_call_permissions_description'.td,
-              'cancelButton': 'btn_dismiss'.td,
-              'okButton': 'btn_allow'.td,
+              'alertTitle': 'label_call_permissions_title'.l10n,
+              'alertDescription': 'label_call_permissions_description'.l10n,
+              'cancelButton': 'btn_dismiss'.l10n,
+              'okButton': 'btn_allow'.l10n,
               'foregroundService': {
                 'channelId': 'com.team113.messenger',
                 'channelName': 'Foreground calls service',
@@ -230,8 +230,8 @@ class CallWorker extends DisposableService {
                 barrierDismissible: false,
                 context: router.context!,
                 builder: (context) => AlertDialog(
-                  title: Text('alert_popup_permissions_title'.td),
-                  content: Text('alert_popup_permissions_description'.td),
+                  title: Text('alert_popup_permissions_title'.l10n),
+                  content: Text('alert_popup_permissions_description'.l10n),
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -239,7 +239,7 @@ class CallWorker extends DisposableService {
                           Navigator.of(context).pop();
                         });
                       },
-                      child: Text('alert_popup_permissions_button'.td),
+                      child: Text('alert_popup_permissions_button'.l10n),
                     ),
                   ],
                 ),

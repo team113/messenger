@@ -50,7 +50,7 @@ class MenuTabController extends GetxController {
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
     if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
-      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.td) !=
+      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
           true) {
         return false;
       }

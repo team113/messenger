@@ -106,7 +106,7 @@ class CallOverlayController extends GetxController {
               }
             } else {
               Future.delayed(Duration.zero, () {
-                ongoingCall.addError('err_call_popup_was_blocked'.td);
+                ongoingCall.addError('err_call_popup_was_blocked'.l10n);
               });
             }
           }

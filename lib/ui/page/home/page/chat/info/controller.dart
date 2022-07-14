@@ -103,7 +103,7 @@ class ChatInfoController extends GetxController {
           name = s.text.isEmpty ? null : ChatName(s.text);
         } on FormatException catch (_) {
           s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.td;
+          s.error.value = 'err_incorrect_input'.l10n;
           s.unsubmit();
           return;
         }
@@ -144,7 +144,7 @@ class ChatInfoController extends GetxController {
         try {
           slug = ChatDirectLinkSlug(s.text);
         } on FormatException {
-          s.error.value = 'err_incorrect_input'.td;
+          s.error.value = 'err_incorrect_input'.l10n;
         }
 
         if (slug == chat?.chat.value.directLink?.slug) {
@@ -280,7 +280,7 @@ class ChatInfoController extends GetxController {
       ),
     );
 
-    MessagePopup.success('label_copied_to_clipboard'.td);
+    MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Fetches the [chat].

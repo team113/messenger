@@ -251,7 +251,7 @@ Widget _gallery(MyProfileController c) {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            'label_drop_here'.td,
+                            'label_drop_here'.l10n,
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -281,8 +281,8 @@ Widget _name(MyProfileController c) => Obx(
                 state: c.name,
                 style: const TextStyle(fontSize: 20),
                 suffix: Icons.edit,
-                label: 'label_name'.td,
-                hint: 'label_name_hint'.td,
+                label: 'label_name'.l10n,
+                hint: 'label_name_hint'.l10n,
               ),
             )
           ],
@@ -296,8 +296,8 @@ Widget _bio(MyProfileController c) => _padding(
         key: const Key('BioField'),
         state: c.bio,
         suffix: Icons.edit,
-        label: 'label_biography'.td,
-        hint: 'label_biography_hint'.td,
+        label: 'label_biography'.l10n,
+        hint: 'label_biography_hint'.l10n,
       ),
     );
 
@@ -307,7 +307,7 @@ Widget _presence(MyProfileController c) => _padding(
         key: const Key('PresenceDropdown'),
         icon: Icons.info,
         state: c.presence,
-        label: 'label_presence'.td,
+        label: 'label_presence'.l10n,
       ),
     );
 
@@ -317,7 +317,7 @@ Widget _num(MyProfileController c) => _padding(
         key: const Key('NumCopyable'),
         state: c.num,
         icon: Icons.person,
-        label: 'label_num'.td,
+        label: 'label_num'.l10n,
         copy: c.myUser.value?.num.val,
       ),
     );
@@ -328,7 +328,7 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
         key: const Key('ChatDirectLinkExpandable'),
         header: ListTile(
           leading: const Icon(Icons.link),
-          title: Text('label_direct_chat_link'.td),
+          title: Text('label_direct_chat_link'.l10n),
         ),
         collapsed: Container(),
         expanded: Padding(
@@ -336,14 +336,14 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('label_direct_chat_link_description'.td),
+              Text('label_direct_chat_link_description'.l10n),
               const SizedBox(height: 10),
               _padding(
                 ReactiveTextField(
                   key: const Key('DirectChatLinkTextField'),
                   state: c.link,
                   prefixText: '${Config.origin}${Routes.chatDirectLink}/',
-                  label: 'label_direct_chat_link'.td,
+                  label: 'label_direct_chat_link'.l10n,
                   suffix: Icons.copy,
                   onSuffixPressed: c.myUser.value?.chatDirectLink == null
                       ? null
@@ -353,7 +353,7 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
               Row(
                 children: [
                   Text(
-                    '${'label_transition_count'.td}: ${c.myUser.value?.chatDirectLink?.usageCount ?? 0}',
+                    '${'label_transition_count'.l10n}: ${c.myUser.value?.chatDirectLink?.usageCount ?? 0}',
                     textAlign: TextAlign.start,
                   ),
                   Expanded(
@@ -368,7 +368,7 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
                               key: const Key('RemoveChatDirectLink'),
                               onPressed:
                                   c.link.editable.value ? c.deleteLink : null,
-                              label: 'btn_delete_direct_chat_link'.td,
+                              label: 'btn_delete_direct_chat_link'.l10n,
                             ),
                           ),
                         Flexible(
@@ -381,8 +381,8 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
                                     : c.link.submit
                                 : null,
                             label: c.link.isEmpty.value
-                                ? 'btn_generate_direct_chat_link'.td
-                                : 'btn_submit'.td,
+                                ? 'btn_generate_direct_chat_link'.l10n
+                                : 'btn_submit'.l10n,
                           ),
                         ),
                       ],
@@ -403,8 +403,8 @@ Widget _login(MyProfileController c) => _padding(
         icon: Icons.person,
         state: c.login,
         suffix: Icons.edit,
-        label: 'label_login'.td,
-        hint: 'label_login_hint'.td,
+        label: 'label_login'.l10n,
+        hint: 'label_login_hint'.l10n,
       ),
     );
 
@@ -413,7 +413,7 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
       key: const Key('PhonesExpandable'),
       header: ListTile(
         leading: const Icon(Icons.phone),
-        title: Text('label_phones'.td),
+        title: Text('label_phones'.l10n),
       ),
       collapsed: Container(),
       expanded: Padding(
@@ -447,7 +447,7 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                     icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   title: Text(c.myUser.value!.phones.unconfirmed!.val),
-                  subtitle: Text('label_unconfirmed'.td),
+                  subtitle: Text('label_unconfirmed'.l10n),
                   dense: true,
                 ),
               _dense(
@@ -458,8 +458,8 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                         state: c.phone,
                         type: TextInputType.phone,
                         dense: true,
-                        label: 'label_add_number'.td,
-                        hint: 'label_add_number_hint'.td,
+                        label: 'label_add_number'.l10n,
+                        hint: 'label_add_number_hint'.l10n,
                       )
                     : ReactiveTextField(
                         key: const Key('PhoneCodeInput'),
@@ -467,8 +467,8 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                         state: c.phoneCode,
                         type: TextInputType.number,
                         dense: true,
-                        label: 'label_enter_confirmation_code'.td,
-                        hint: 'label_enter_confirmation_code_hint'.td,
+                        label: 'label_enter_confirmation_code'.l10n,
+                        hint: 'label_enter_confirmation_code_hint'.l10n,
                         onChanged: () => c.showPhoneCodeButton.value =
                             c.phoneCode.text.isNotEmpty,
                       ),
@@ -482,7 +482,7 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                       context,
                       key: const Key('AddPhoneButton'),
                       onPressed: c.phone.submit,
-                      label: 'btn_add'.td,
+                      label: 'btn_add'.l10n,
                     ),
                     const SizedBox(width: 12),
                   ],
@@ -497,7 +497,7 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                             context,
                             key: const Key('ConfirmPhoneCodeButton'),
                             onPressed: c.phoneCode.submit,
-                            label: 'btn_confirm'.td,
+                            label: 'btn_confirm'.l10n,
                           )
                         : _textButton(
                             context,
@@ -506,8 +506,8 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                                 ? c.resendPhone
                                 : null,
                             label: c.resendPhoneTimeout.value == 0
-                                ? 'btn_resend_code'.td
-                                : '${'btn_resend_code'.td} (${c.resendPhoneTimeout.value})',
+                                ? 'btn_resend_code'.l10n
+                                : '${'btn_resend_code'.l10n} (${c.resendPhoneTimeout.value})',
                           ),
                     const SizedBox(width: 12),
                   ],
@@ -523,7 +523,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
       key: const Key('EmailsExpandable'),
       header: ListTile(
         leading: const Icon(Icons.email),
-        title: Text('label_emails'.td),
+        title: Text('label_emails'.l10n),
       ),
       collapsed: Container(),
       expanded: Padding(
@@ -560,7 +560,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                     icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   title: Text(c.myUser.value!.emails.unconfirmed!.val),
-                  subtitle: Text('label_unconfirmed'.td),
+                  subtitle: Text('label_unconfirmed'.l10n),
                   dense: true,
                 ),
               _dense(
@@ -571,8 +571,8 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                         state: c.email,
                         type: TextInputType.emailAddress,
                         dense: true,
-                        label: 'label_add_email'.td,
-                        hint: 'label_add_email_hint'.td,
+                        label: 'label_add_email'.l10n,
+                        hint: 'label_add_email_hint'.l10n,
                       )
                     : ReactiveTextField(
                         key: const Key('EmailCodeInput'),
@@ -580,8 +580,8 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                         state: c.emailCode,
                         type: TextInputType.number,
                         dense: true,
-                        label: 'label_enter_confirmation_code'.td,
-                        hint: 'label_enter_confirmation_code_hint'.td,
+                        label: 'label_enter_confirmation_code'.l10n,
+                        hint: 'label_enter_confirmation_code_hint'.l10n,
                         onChanged: () => c.showEmailCodeButton.value =
                             c.emailCode.text.isNotEmpty,
                       ),
@@ -595,7 +595,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                       context,
                       key: const Key('addEmailButton'),
                       onPressed: c.email.submit,
-                      label: 'btn_add'.td,
+                      label: 'btn_add'.l10n,
                     ),
                     const SizedBox(width: 12),
                   ],
@@ -610,7 +610,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                             context,
                             key: const Key('ConfirmEmailCode'),
                             onPressed: c.emailCode.submit,
-                            label: 'btn_confirm'.td,
+                            label: 'btn_confirm'.l10n,
                           )
                         : _textButton(
                             context,
@@ -619,8 +619,8 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                                 ? c.resendEmail
                                 : null,
                             label: c.resendEmailTimeout.value == 0
-                                ? 'btn_resend_code'.td
-                                : '${'btn_resend_code'.td} (${c.resendEmailTimeout.value})',
+                                ? 'btn_resend_code'.l10n
+                                : '${'btn_resend_code'.l10n} (${c.resendEmailTimeout.value})',
                           ),
                     const SizedBox(width: 12),
                   ],
@@ -637,7 +637,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
         key: const Key('PasswordExpandable'),
         header: ListTile(
           leading: const Icon(Icons.password),
-          title: Text('label_password'.td),
+          title: Text('label_password'.l10n),
         ),
         collapsed: Container(),
         expanded: Padding(
@@ -649,7 +649,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
                   ReactiveTextField(
                     key: const Key('CurrentPasswordField'),
                     state: c.oldPassword,
-                    label: 'label_current_password'.td,
+                    label: 'label_current_password'.l10n,
                     obscure: true,
                   ),
                 ),
@@ -657,7 +657,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
                 ReactiveTextField(
                   key: const Key('NewPasswordField'),
                   state: c.newPassword,
-                  label: 'label_new_password'.td,
+                  label: 'label_new_password'.l10n,
                   obscure: true,
                 ),
               ),
@@ -665,7 +665,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
                 ReactiveTextField(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
-                  label: 'label_repeat_password'.td,
+                  label: 'label_repeat_password'.l10n,
                   obscure: true,
                 ),
               ),
@@ -681,7 +681,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
                     ),
                   ),
                   child: Text(
-                    'btn_change_password'.td,
+                    'btn_change_password'.l10n,
                     style: TextStyle(
                       fontSize: 20,
                       color: context.theme.colorScheme.background,
@@ -699,7 +699,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
 Widget _monolog(MyProfileController c) => ListTile(
       key: const Key('MonologButton'),
       leading: const Icon(Icons.message),
-      title: Text('btn_saved_messages'.td),
+      title: Text('btn_saved_messages'.l10n),
       onTap: () => throw UnimplementedError(),
     );
 
@@ -708,7 +708,7 @@ Widget _deleteAccount(MyProfileController c) => ListTile(
       key: const Key('DeleteAccountButton'),
       leading: const Icon(Icons.delete, color: Colors.red),
       title: Text(
-        'btn_delete_account'.td,
+        'btn_delete_account'.l10n,
         style: const TextStyle(color: Colors.red),
       ),
       onTap: c.deleteAccount,

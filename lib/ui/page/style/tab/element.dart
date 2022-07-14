@@ -87,11 +87,11 @@ class ElementStyleTabView extends StatelessWidget {
                 asset: 'assets/icons/start.svg',
                 child: OutlinedRoundedButton(
                   title: Text(
-                    'Start chatting'.td,
+                    'Start chatting'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    'no registration'.td,
+                    'no registration'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -264,7 +264,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/add_user.svg',
                                     'add_user.svg',
                                   ),
-                                  hint: 'btn_add_participant'.td,
+                                  hint: 'btn_add_participant'.l10n,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
@@ -280,7 +280,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/settings.svg',
                                     'settings.svg',
                                   ),
-                                  hint: 'btn_call_settings'.td,
+                                  hint: 'btn_call_settings'.l10n,
                                   child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
                                     color: const Color(0xFFBBBBBB),
@@ -707,34 +707,34 @@ class ElementStyleTabView extends StatelessWidget {
                   actions: [
                     AnimatedFabAction(
                       icon: const Icon(Icons.call, color: Colors.blue),
-                      label: 'label_audio_call'.td,
+                      label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.video_call, color: Colors.blue),
-                      label: 'label_video_call'.td,
+                      label: 'label_video_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.person, color: Colors.blue),
-                      label: 'label_contact'.td,
+                      label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.attachment, color: Colors.blue),
-                      label: 'label_file'.td,
+                      label: 'label_file'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.photo, color: Colors.blue),
-                      label: 'label_photo'.td,
+                      label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.camera, color: Colors.blue),
-                      label: 'label_camera'.td,
+                      label: 'label_camera'.l10n,
                       onTap: () {},
                     ),
                   ],

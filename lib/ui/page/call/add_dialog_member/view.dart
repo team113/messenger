@@ -93,7 +93,7 @@ class AddDialogMemberView extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Text(
-                                    'label_add_chat_member'.td,
+                                    'label_add_chat_member'.l10n,
                                     style: font17,
                                   ),
                                   const Spacer(),
@@ -171,9 +171,9 @@ class AddDialogMemberView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        '${'label_create_group_selected'.td}'
+                        '${'label_create_group_selected'.l10n}'
                         ' ${c.selectedContacts.length + c.selectedUsers.length} '
-                        '${'label_create_group_users'.td}',
+                        '${'label_create_group_users'.l10n}',
                         style: font13,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -184,7 +184,7 @@ class AddDialogMemberView extends StatelessWidget {
                       ? Expanded(
                           child: Center(
                             child: Text(
-                              c.status.value.errorMessage ?? 'err_unknown'.td,
+                              c.status.value.errorMessage ?? 'err_unknown'.l10n,
                               style: font13.copyWith(color: Colors.red),
                             ),
                           ),
@@ -197,7 +197,7 @@ class AddDialogMemberView extends StatelessWidget {
                             ? null
                             : c.transformDialogCallIntoGroupCall,
                     child: Text(
-                      'btn_add_participant'.td,
+                      'btn_add_participant'.l10n,
                       style:
                           c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
                               ? font17.copyWith(color: Colors.grey)

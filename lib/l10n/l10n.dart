@@ -37,8 +37,8 @@ class L10n {
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
 
-  /// Initializes this [L10n] with a default [Locale] of the device, or
-  /// optionally with the provided [lang].
+  /// Initializes this [L10n] with the default [Locale] of the device, or
+  /// optionally with the provided [Language].
   static Future<void> init([Language? lang]) async {
     if (lang == null) {
       List<Locale> locales = WidgetsBinding.instance.platformDispatcher.locales;
@@ -57,7 +57,7 @@ class L10n {
     }
   }
 
-  /// Sets the [chosen] language to the provided [lang].
+  /// Sets the [chosen] language to the provided [Language].
   static Future<void> set(Language? lang, {bool refresh = true}) async {
     if (lang == chosen.value || lang == null) {
       return;
@@ -75,19 +75,19 @@ class L10n {
     }
   }
 
-  /// Returns a translated value of the provided [key] from the [_bundle].
+  /// Returns the translated value of the provided [key] from the [_bundle].
   static String _format(String key, {Map<String, dynamic> args = const {}}) =>
       _bundle.format(key, args: args);
 }
 
-/// Language entity with its [Locale].
+/// Language entity along with its [Locale].
 class Language {
   const Language(this.name, this.locale);
 
   /// Localized local name of this [Language].
   final String name;
 
-  /// [Locale] this [Language] has.
+  /// [Locale] of this [Language].
   final Locale locale;
 
   /// Returns a [Language] identified by its [tag] from the [L10n.languages], if
@@ -100,12 +100,13 @@ class Language {
   String toString() => locale.toLanguageTag();
 }
 
-/// Extension adding an ability to get translated [String] from the [L10n].
+/// Extension adding an ability to get a translated [String] in the current
+/// [L10n].
 extension L10nExtension on String {
-  /// Returns a value identified by this [String] from the [L10n].
-  String get td => L10n._format(this);
+  /// Returns a value identified by this [String] from the current [L10n].
+  String get l10n => L10n._format(this);
 
-  /// Returns a value identified by this [String] from the [L10n] with the
-  /// provided [args].
-  String tdp(Map<String, dynamic> args) => L10n._format(this, args: args);
+  /// Returns a value identified by this [String] from the current [L10n] with
+  /// the provided [args].
+  String l10nfmt(Map<String, dynamic> args) => L10n._format(this, args: args);
 }

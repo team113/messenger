@@ -265,7 +265,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.td,
+              label: 'btn_add_participant'.l10n,
             ),
             const SizedBox(height: 13),
           ],
@@ -291,7 +291,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.td,
+              label: 'btn_add_participant'.l10n,
             ),
             const SizedBox(height: 13),
           ],
@@ -611,12 +611,12 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.td
+                ? 'label_call_joining'.l10n
                 : isOutgoing
-                    ? 'label_call_calling'.td
+                    ? 'label_call_calling'.l10n
                     : c.withVideo == true
-                        ? 'label_video_call'.td
-                        : 'label_audio_call'.td;
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
 
         return _layoutButton(
           icon: Center(
@@ -632,7 +632,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                c.chat.value?.title.value ?? ('dot'.td * 3),
+                c.chat.value?.title.value ?? ('dot'.l10n * 3),
                 style: context.textTheme.headline4
                     ?.copyWith(color: Colors.white, fontSize: 20),
                 overflow: TextOverflow.ellipsis,
@@ -747,8 +747,8 @@ Widget _mobileVideo(
                       if (participant.source != MediaSourceKind.Display)
                         ContextMenuButton(
                           label: fit == null || fit == BoxFit.cover
-                              ? 'btn_call_do_not_cut_video'.td
-                              : 'btn_call_cut_video'.td,
+                              ? 'btn_call_do_not_cut_video'.l10n
+                              : 'btn_call_cut_video'.l10n,
                           onPressed: () {
                             c.rendererBoxFit[
                                     participant.video.value!.track.id()] =
@@ -765,14 +765,14 @@ Widget _mobileVideo(
                         ),
                       if (videos.length > 1)
                         ContextMenuButton(
-                          label: 'btn_call_center_video'.td,
+                          label: 'btn_call_center_video'.l10n,
                           onPressed: () => c.highlight(participant),
                         ),
                     ],
                     ContextMenuButton(
                       label: participant.video.value?.isEnabled == true
-                          ? 'btn_call_disable_video'.td
-                          : 'btn_call_enable_video'.td,
+                          ? 'btn_call_disable_video'.l10n
+                          : 'btn_call_enable_video'.l10n,
                       onPressed: () =>
                           c.toggleRendererEnabled(participant.video),
                     ),

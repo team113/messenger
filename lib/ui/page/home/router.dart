@@ -152,11 +152,11 @@ class _NestedHomeView extends StatelessWidget {
 
     switch (tab) {
       case HomeTab.chats:
-        return Scaffold(body: Center(child: Text('label_choose_chat'.td)));
+        return Scaffold(body: Center(child: Text('label_choose_chat'.l10n)));
       case HomeTab.contacts:
-        return Scaffold(body: Center(child: Text('label_choose_contact'.td)));
+        return Scaffold(body: Center(child: Text('label_choose_contact'.l10n)));
       case HomeTab.menu:
-        return Scaffold(body: Center(child: Text('label_temp_plug'.td)));
+        return Scaffold(body: Center(child: Text('label_temp_plug'.l10n)));
     }
   }
 }

@@ -82,7 +82,7 @@ class MediaSettingsView extends StatelessWidget {
               color: Colors.black,
               size: 31,
             ),
-            disabledHint: Text('label_media_no_device_available'.td),
+            disabledHint: Text('label_media_no_device_available'.l10n),
             style: context.textTheme.subtitle1?.copyWith(color: Colors.black),
             underline: const SizedBox(),
           ),
@@ -92,7 +92,7 @@ class MediaSettingsView extends StatelessWidget {
       init: MediaSettingsController(Get.find()),
       builder: (MediaSettingsController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_media_settings'.td),
+          title: Text('label_media_settings'.l10n),
           elevation: 0,
         ),
         body: Obx(
@@ -100,7 +100,7 @@ class MediaSettingsView extends StatelessWidget {
             children: [
               const SizedBox(height: 25),
               row(
-                Text('label_media_camera'.td, style: font17),
+                Text('label_media_camera'.l10n, style: font17),
                 dropdown(
                   value: c.devices.video().firstWhereOrNull(
                           (e) => e.deviceId() == c.camera.value) ??
@@ -151,7 +151,7 @@ class MediaSettingsView extends StatelessWidget {
               divider,
               const SizedBox(height: 25),
               row(
-                Text('label_media_microphone'.td, style: font17),
+                Text('label_media_microphone'.l10n, style: font17),
                 dropdown(
                   value: c.devices.audio().firstWhereOrNull(
                           (e) => e.deviceId() == c.mic.value) ??
@@ -164,7 +164,7 @@ class MediaSettingsView extends StatelessWidget {
               divider,
               const SizedBox(height: 25),
               row(
-                Text('label_media_output'.td, style: font17),
+                Text('label_media_output'.l10n, style: font17),
                 dropdown(
                   value: c.devices.output().firstWhereOrNull(
                           (e) => e.deviceId() == c.output.value) ??

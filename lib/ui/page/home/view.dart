@@ -135,19 +135,19 @@ class _HomeViewState extends State<HomeView> {
                         CustomNavigationBarItem(
                           key: const Key('ContactsButton'),
                           icon: FontAwesomeIcons.solidCircleUser,
-                          label: 'label_tab_contacts'.td,
+                          label: 'label_tab_contacts'.l10n,
                         ),
                         CustomNavigationBarItem(
                             key: const Key('ChatsButton'),
                             icon: FontAwesomeIcons.solidComment,
-                            label: 'label_tab_chats'.td,
+                            label: 'label_tab_chats'.l10n,
                             badge: c.unreadChatsCount.value == 0
                                 ? null
                                 : '${c.unreadChatsCount.value}'),
                         CustomNavigationBarItem(
                           key: const Key('MenuButton'),
                           icon: FontAwesomeIcons.bars,
-                          label: 'label_tab_menu'.td,
+                          label: 'label_tab_menu'.l10n,
                         ),
                       ],
                       currentIndex: router.tab.index,

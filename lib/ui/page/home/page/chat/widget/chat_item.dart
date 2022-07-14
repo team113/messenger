@@ -182,7 +182,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    return _rounded(context, Text('label_forwarded_message'.td));
+    return _rounded(context, Text('label_forwarded_message'.l10n));
   }
 
   /// Renders [widget.item] as [ChatMessage].
@@ -368,11 +368,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool fromMe = widget.me == message.authorId;
     bool isMissed = false;
 
-    String title = 'label_chat_call_ended'.td;
+    String title = 'label_chat_call_ended'.l10n;
     String? time;
 
     if (isOngoing) {
-      title = 'label_chat_call_ongoing'.td;
+      title = 'label_chat_call_ongoing'.l10n;
       time = message.conversationStartedAt!.val
           .difference(DateTime.now())
           .localizedString();
@@ -388,8 +388,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     } else {
       title = message.authorId == widget.me
-          ? 'label_outgoing_call'.td
-          : 'label_incoming_call'.td;
+          ? 'label_outgoing_call'.l10n
+          : 'label_incoming_call'.l10n;
     }
 
     subtitle = [
@@ -459,10 +459,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (item.text != null) {
         desc.write(item.text!.val);
         if (item.attachments.isNotEmpty) {
-          desc.write(' [${item.attachments.length} ${'label_attachments'.td}]');
+          desc.write(
+              ' [${item.attachments.length} ${'label_attachments'.l10n}]');
         }
       } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.td}]');
+        desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
       }
 
       return Text(
@@ -471,13 +472,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         overflow: TextOverflow.ellipsis,
       );
     } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.td;
+      String title = 'label_chat_call_ended'.l10n;
       String? time;
       bool fromMe = widget.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.td;
+        title = 'label_chat_call_ongoing'.l10n;
       } else if (item.finishReason != null) {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
@@ -487,8 +488,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .localizedString();
       } else {
         title = item.authorId == widget.me
-            ? 'label_outgoing_call'.td
-            : 'label_incoming_call'.td;
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
       }
 
       return Row(
@@ -529,7 +530,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       return const Text('Forwarded message');
     }
 
-    return Text('err_unknown'.td);
+    return Text('err_unknown'.l10n);
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -615,12 +616,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.td,
+                                label: 'btn_copy_text'.l10n,
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             ContextMenuButton(
                               key: const Key('ReplyButton'),
-                              label: 'btn_reply'.td,
+                              label: 'btn_reply'.l10n,
                               onPressed: () => widget.onReply?.call(),
                             ),
                             if (widget.item.value is ChatMessage &&
@@ -631,7 +632,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     !isRead))
                               ContextMenuButton(
                                 key: const Key('EditButton'),
-                                label: 'btn_edit'.td,
+                                label: 'btn_edit'.l10n,
                                 onPressed: () => widget.onEdit?.call(),
                               ),
                             if (widget.item.value.authorId == widget.me &&
@@ -641,12 +642,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     widget.item.value is ChatForward))
                               ContextMenuButton(
                                 key: const Key('DeleteForAll'),
-                                label: 'label_delete_for_all'.td,
+                                label: 'label_delete_for_all'.l10n,
                                 onPressed: () => widget.onDelete?.call(),
                               ),
                             ContextMenuButton(
                               key: const Key('HideForMe'),
-                              label: 'label_hide_for_me'.td,
+                              label: 'label_hide_for_me'.l10n,
                               onPressed: () => widget.onHide?.call(),
                             ),
                           ],
@@ -707,14 +708,14 @@ extension LocalizedDurationExtension on Duration {
     var seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
-    String result = '$seconds ${'label_duration_second_short'.td}';
+    String result = '$seconds ${'label_duration_second_short'.l10n}';
 
     if (minutes != 0) {
-      result = '$minutes ${'label_duration_minute_short'.td} $result';
+      result = '$minutes ${'label_duration_minute_short'.l10n} $result';
     }
 
     if (hours != 0) {
-      result = '$hours ${'label_duration_hour_short'.td} $result';
+      result = '$hours ${'label_duration_hour_short'.l10n} $result';
     }
 
     return result;

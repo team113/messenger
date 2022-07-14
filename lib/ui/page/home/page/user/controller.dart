@@ -145,7 +145,7 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.td) == true) {
+      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
           RxChatContact? contact = _contactService.contacts.values
@@ -209,24 +209,24 @@ extension UserViewExt on User {
     switch (presence) {
       case Presence.present:
         if (online) {
-          return 'label_online'.td;
+          return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.td} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.td;
+          return 'label_offline'.l10n;
         }
 
       case Presence.away:
         if (online) {
-          return 'label_away'.td;
+          return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.td} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.td;
+          return 'label_offline'.l10n;
         }
 
       case Presence.hidden:
-        return 'label_hidden'.td;
+        return 'label_hidden'.l10n;
 
       case Presence.artemisUnknown:
         return null;
@@ -244,7 +244,7 @@ extension _DateTimeToAgo on DateTime {
     DateTime local = isUtc ? toLocal() : this;
     Duration diff = DateTime.now().difference(local);
 
-    return 'label_ago'.tdp({
+    return 'label_ago'.l10nfmt({
       'years': diff.inDays ~/ 365,
       'months': diff.inDays ~/ 30,
       'weeks': diff.inDays ~/ 7,

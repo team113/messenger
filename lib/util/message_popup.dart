@@ -28,12 +28,12 @@ class MessagePopup {
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
-        title: Text('label_error'.td),
+        title: Text('label_error'.l10n),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.td),
+            child: Text('btn_ok'.l10n),
           )
         ],
       ),
@@ -52,12 +52,12 @@ class MessagePopup {
           actions: [
             TextButton(
               key: const Key('AlertNoButton'),
-              child: Text('label_are_you_sure_no'.td),
+              child: Text('label_are_you_sure_no'.l10n),
               onPressed: () => Navigator.pop(context, false),
             ),
             TextButton(
               key: const Key('AlertYesButton'),
-              child: Text('label_are_you_sure_yes'.td),
+              child: Text('label_are_you_sure_yes'.l10n),
               onPressed: () => Navigator.pop(context, true),
             ),
           ],

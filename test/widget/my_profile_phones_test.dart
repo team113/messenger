@@ -239,7 +239,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.enterText(
         find.byKey(const Key('PhoneInput')), '+380999999999');
-    expect(find.text('label_unconfirmed'.td), findsNothing);
+    expect(find.text('label_unconfirmed'.l10n), findsNothing);
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.dragUntilVisible(find.byKey(const Key('AddPhoneButton')),
@@ -249,7 +249,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('AddPhoneButton')));
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('label_unconfirmed'.td), findsOneWidget);
+    expect(find.text('label_unconfirmed'.l10n), findsOneWidget);
     expect(myUserService.myUser.value?.phones.unconfirmed, isNotNull);
 
     await tester.pump(const Duration(seconds: 30));

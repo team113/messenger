@@ -1,3 +1,19 @@
+# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+# more details.
+#
+# You should have received a copy of the GNU Affero General Public License v3.0
+# along with this program. If not, see
+# <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 alert_are_you_sure = Вы уверены?
 alert_are_you_sure_want_to_delete_email =
     Вы действительно хотите удалить этот E-mail?
@@ -7,7 +23,8 @@ alert_are_you_sure_want_to_log_out =
     Вы действительно хотите выйти из аккаунта?
     Ваши активные звонки будут завершены.
 alert_popup_permissions_button = Открыть настройки
-alert_popup_permissions_description = Вы не сможете принимать звонки, пока
+alert_popup_permissions_description =
+    Вы не сможете принимать звонки, пока
     приложение свёрнуто, без следующих разрешений:
 
     - Экран блокировки;
@@ -99,11 +116,11 @@ err_call_popup_was_blocked =
     Разрешите всплывающие окна, чтобы отображать в них звонки
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята
-err_code_limit_exceed = Превышен лимит отправок кодов восстановления.
+err_code_limit_exceed =
+    Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
 err_contact_not_group = Чат с указанным ID не является группой
-err_contact_too_many =
-    Контакт не может быть создан с более чем 20 пользователями
+err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
 err_contact_unknown_user = Пользователь с указанным ID не существует
 err_current_password_empty = Текущий пароль не должен быть пустым
@@ -238,7 +255,8 @@ label_current_password = Текущий пароль
 label_delete_for_all = Удалить для всех
 label_delivered = Доставлено
 label_direct_chat_link = Прямая ссылка на чат
-label_direct_chat_link_description = Пользователи, пришедшие по прямой
+label_direct_chat_link_description =
+    Пользователи, пришедшие по прямой
     ссылке на чат, добавляются в Ваш список чатов автоматически.
     Они имеют возможность, независимо от настроек конфиденциальности:
 
@@ -248,9 +266,10 @@ label_direct_chat_link_description = Пользователи, пришедши�
 
     После удаления чата, созданного по прямой ссылке на чат,
     применяются Ваши настройки конфиденциальности
-label_direct_chat_link_in_chat_description = Пользователи, пришедшие по
+label_direct_chat_link_in_chat_description =
+    Пользователи, пришедшие по
     прямой ссылке на чат, добавляются в список участников чата
-    автоматически. Они имеют возможность =
+    автоматически. Они имеют возможность:
 
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,

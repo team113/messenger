@@ -164,7 +164,7 @@ class AddChatMemberController extends GetxController {
   void _fetchChat() async {
     chat.value = (await _chatService.get(chatId))?.chat;
     if (chat.value == null) {
-      MessagePopup.error('err_unknown_chat'.td);
+      MessagePopup.error('err_unknown_chat'.l10n);
       pop();
     }
   }

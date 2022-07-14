@@ -99,7 +99,7 @@ void main() async {
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_login'.td);
+    final goToLoginButton = find.text('btn_login'.l10n);
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);

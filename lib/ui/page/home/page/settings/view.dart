@@ -31,17 +31,17 @@ class SettingsView extends StatelessWidget {
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
         return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.td)),
+          appBar: AppBar(title: Text('label_settings'.l10n)),
           body: ListView(
             children: [
               ListTile(
-                title: Text('btn_media_settings'.td),
+                title: Text('btn_media_settings'.l10n),
                 onTap: router.settingsMedia,
               ),
               ListTile(
                 title: Row(
                   children: [
-                    Text('label_enable_popup_calls'.td),
+                    Text('label_enable_popup_calls'.l10n),
                     const SizedBox(width: 10),
                     Obx(() {
                       return Switch(

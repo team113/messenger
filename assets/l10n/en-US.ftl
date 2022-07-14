@@ -1,8 +1,24 @@
+# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+# more details.
+#
+# You should have received a copy of the GNU Affero General Public License v3.0
+# along with this program. If not, see
+# <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
     Are you sure you want to delete this E-mail?
 alert_are_you_sure_want_to_delete_phone =
- Are you sure you want to delete this phone number?
+    Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out =
     Are you sure you want to log out?
     Your active calls will be ended.
@@ -229,7 +245,8 @@ label_current_password = Current password
 label_delete_for_all = Delete for all
 label_delivered = Delivered
 label_direct_chat_link = Direct chat link
-label_direct_chat_link_description = Users who came via a direct link to
+label_direct_chat_link_description =
+    Users who came via a direct link to
     the chat are automatically added to your chat list. Regardless of your
     privacy settings they can:
     - visit your profile,
@@ -238,7 +255,8 @@ label_direct_chat_link_description = Users who came via a direct link to
 
     After the chat created by this link is deleted, your privacy
     settings are respected.
-label_direct_chat_link_in_chat_description = Users who came via a direct
+label_direct_chat_link_in_chat_description =
+    Users who came via a direct
     link to the chat are automatically added to chat members. They can:
 
     - visit group profile,
