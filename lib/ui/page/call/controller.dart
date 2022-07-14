@@ -560,9 +560,6 @@ class CallController extends GetxController {
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
-          print('locals.isEmpty: ${locals.isEmpty}');
-          print('focused.isEmpty: ${focused.isEmpty}');
-          print('remotes.isEmpty: ${remotes.isEmpty}');
           if (isNotEmpty &&
               locals.isEmpty &&
               remotes.isEmpty &&
