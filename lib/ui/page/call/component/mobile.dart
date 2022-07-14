@@ -121,7 +121,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               //     size.width - c.secondaryWidth.value - right;
               // c.secondaryTop.value =
               //     size.height - c.secondaryHeight.value - bottom;
-              c.replaceSecondaryWidget(c, d.globalPosition);
+              c.applySecondaryCoordinates(d.globalPosition);
               c.applySecondaryConstraints(context);
             }
 
@@ -134,7 +134,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             c.secondaryDragged.value = true;
             c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
             c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
-            c.replaceSecondaryWidget(c, d.globalPosition);
+            c.applySecondaryCoordinates(d.globalPosition);
             c.applySecondaryConstraints(context);
           },
           child: _floatingSecondaryView(c, context),

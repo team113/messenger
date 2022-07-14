@@ -256,7 +256,7 @@ class CallController extends GetxController {
   /// Height of title bar.
   final double titleBarHeight = 30;
 
-  /// [EdgeInsets] safe area padding of [CallOverlayView].
+  /// [EdgeInsets] safe area padding of secondary view.
   final EdgeInsets? edgeInsets;
 
   /// Secondary temporary left position.
@@ -755,108 +755,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Replaces secondary video.
-  void replaceSecondaryWidget(CallController c, Offset offset) {
-    double left, top;
-    Map<Alignment, double> points = {};
-    var box = (c.secondaryKey.currentContext!.findRenderObject() as RenderBox);
-    if (c.fullscreen.isTrue) {
-      left = offset.dx - c.panDragDifference.value!.dx;
-      top = offset.dy -
-          ((c.isPopup) ? 0 : c.titleBarHeight) -
-          c.panDragDifference.value!.dy;
-    } else if (c.isPopup) {
-      left = offset.dx - c.panDragDifference.value!.dx;
-      top = offset.dy - c.panDragDifference.value!.dy;
-    } else {
-      left = offset.dx -
-          ((PlatformUtils.isMobile) ? 0 : c.left.value) -
-          c.panDragDifference.value!.dx;
-      top = offset.dy -
-          c.top.value -
-          c.titleBarHeight -
-          c.panDragDifference.value!.dy;
-    }
-
-    if (left < 0) {
-      left = 0;
-    }
-    if (top < 0) {
-      top = 0;
-    }
-
-    points[Alignment.topLeft] = Point(
-      left,
-      top,
-    ).distanceTo(
-      const Point(0, 0),
-    );
-    points[Alignment.bottomRight] = Point(
-      left + box.size.width,
-      top + box.size.height,
-    ).distanceTo(
-      Point(c.size.width, c.size.height),
-    );
-    points[Alignment.bottomLeft] = Point(
-      left,
-      top + box.size.height,
-    ).distanceTo(
-      Point(0, c.size.height),
-    );
-    points[Alignment.topRight] = Point(
-      left + box.size.width,
-      top,
-    ).distanceTo(
-      Point(c.size.width, 0),
-    );
-
-    Alignment align = Map.fromEntries(points.entries.toList()
-      ..sort((e1, e2) => e1.value.compareTo(e2.value)))
-        .keys
-        .first;
-
-    c.secondaryTop.value = null;
-    c.secondaryLeft.value = null;
-    c.secondaryRight.value = null;
-    c.secondaryBottom.value = null;
-
-    if (align == Alignment.topLeft) {
-      c.secondaryTop.value = top - ((edgeInsets == null) ? 0 : edgeInsets!.top);
-      c.secondaryLeft.value = left;
-    } else if (align == Alignment.topRight) {
-      c.secondaryTop.value = top - ((edgeInsets == null) ? 0 : edgeInsets!.top);
-      if (c.secondaryWidth.value + left <= c.size.width) {
-        c.secondaryRight.value = c.size.width - left - c.secondaryWidth.value;
-      } else {
-        c.secondaryRight.value = 0;
-      }
-    } else if (align == Alignment.bottomLeft) {
-      c.secondaryLeft.value = left;
-      if (top + c.secondaryHeight.value <= c.size.height) {
-        c.secondaryBottom.value = c.size.height -
-            top -
-            c.secondaryHeight.value -
-            ((edgeInsets == null) ? 0 : edgeInsets!.bottom);
-      } else {
-        c.secondaryBottom.value = 0;
-      }
-    } else if (align == Alignment.bottomRight) {
-      if (top + c.secondaryHeight.value <= c.size.height) {
-        c.secondaryBottom.value = c.size.height -
-            top -
-            c.secondaryHeight.value -
-            ((edgeInsets == null) ? 0 : edgeInsets!.bottom);
-      } else {
-        c.secondaryBottom.value = 0;
-      }
-      if (c.secondaryWidth.value + left <= c.size.width) {
-        c.secondaryRight.value = c.size.width - left - c.secondaryWidth.value;
-      } else {
-        c.secondaryRight.value = 0;
-      }
-    }
-  }
-
+  /// Toggles speaker on and off.
   Future<void> toggleSpeaker() async {
     keepUi();
 
@@ -1129,6 +1028,108 @@ class CallController extends GetxController {
     }
   }
 
+  void updateSecondaryAttach() {
+    Map<Alignment, double> points = {};
+    points[Alignment.topLeft] = Point(
+      secondaryLeft.value!,
+      secondaryTop.value!,
+    ).distanceTo(
+      const Point(0, 0),
+    );
+    points[Alignment.bottomRight] = Point(
+      secondaryLeft.value! + secondaryWidth.value,
+      secondaryTop.value! + secondaryHeight.value,
+    ).distanceTo(
+      Point(size.width, size.height),
+    );
+    points[Alignment.bottomLeft] = Point(
+      secondaryLeft.value!,
+      secondaryTop.value! + secondaryHeight.value,
+    ).distanceTo(
+      Point(0, size.height),
+    );
+    points[Alignment.topRight] = Point(
+      secondaryLeft.value! + secondaryWidth.value,
+      secondaryTop.value!,
+    ).distanceTo(
+      Point(size.width, 0),
+    );
+
+    Alignment align = Map.fromEntries(points.entries.toList()
+          ..sort((e1, e2) => e1.value.compareTo(e2.value)))
+        .keys
+        .first;
+
+    var top = secondaryTop.value!;
+    var left = secondaryLeft.value!;
+    secondaryTop.value = null;
+    secondaryLeft.value = null;
+    secondaryRight.value = null;
+    secondaryBottom.value = null;
+
+    if (align == Alignment.topLeft) {
+      secondaryTop.value = top - ((edgeInsets == null) ? 0 : edgeInsets!.top);
+      secondaryLeft.value = left;
+    } else if (align == Alignment.topRight) {
+      secondaryTop.value = top - ((edgeInsets == null) ? 0 : edgeInsets!.top);
+      if (secondaryWidth.value + left <= size.width) {
+        secondaryRight.value = size.width - left - secondaryWidth.value;
+      } else {
+        secondaryRight.value = 0;
+      }
+    } else if (align == Alignment.bottomLeft) {
+      secondaryLeft.value = left;
+      if (top + secondaryHeight.value <= size.height) {
+        secondaryBottom.value = size.height -
+            top -
+            secondaryHeight.value -
+            ((edgeInsets == null) ? 0 : edgeInsets!.bottom);
+      } else {
+        secondaryBottom.value = 0;
+      }
+    } else if (align == Alignment.bottomRight) {
+      if (top + secondaryHeight.value <= size.height) {
+        secondaryBottom.value = size.height -
+            top -
+            secondaryHeight.value -
+            ((edgeInsets == null) ? 0 : edgeInsets!.bottom);
+      } else {
+        secondaryBottom.value = 0;
+      }
+      if (secondaryWidth.value + left <= size.width) {
+        secondaryRight.value = size.width - left - secondaryWidth.value;
+      } else {
+        secondaryRight.value = 0;
+      }
+    }
+  }
+
+  /// Applies secondary coordinates.
+  void applySecondaryCoordinates(Offset offset) {
+    if (fullscreen.isTrue) {
+      secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
+      secondaryTop.value = offset.dy -
+          ((isPopup) ? 0 : titleBarHeight) -
+          panDragDifference.value!.dy;
+    } else if (isPopup) {
+      secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
+      secondaryTop.value = offset.dy - panDragDifference.value!.dy;
+    } else {
+      secondaryLeft.value = offset.dx -
+          ((PlatformUtils.isMobile) ? 0 : left.value) -
+          panDragDifference.value!.dx;
+      secondaryTop.value =
+          offset.dy - top.value - titleBarHeight - panDragDifference.value!.dy;
+    }
+
+    if (secondaryLeft.value! < 0) {
+      secondaryLeft.value = 0;
+    }
+    if (secondaryTop.value! < 0) {
+      secondaryTop.value = 0;
+    }
+  }
+
   /// Applies constraints to the [width], [height], [left] and [top].
   void applySecondaryConstraints(BuildContext context) {
     secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
@@ -1161,13 +1162,13 @@ class CallController extends GetxController {
     double localTop = (secondaryTop.value != null)
         ? secondaryTop.value!
         : (secondaryBottom.value != null)
-        ? (size.height - secondaryBottom.value! - secondaryHeight.value)
-        : 0;
+            ? (size.height - secondaryBottom.value! - secondaryHeight.value)
+            : 0;
     double localLeft = (secondaryLeft.value != null)
         ? secondaryLeft.value!
         : (secondaryRight.value != null)
-        ? size.width - secondaryRight.value! - secondaryWidth.value
-        : 0;
+            ? size.width - secondaryRight.value! - secondaryWidth.value
+            : 0;
 
     possibleSecondaryAlignment.value = null;
     if (secondaryDragged.value) {

@@ -1673,11 +1673,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         key: c.gestureDetectorKey,
                         onPanStart: (d) {
                           Offset block = (c.gestureDetectorKey.currentContext
-                              ?.findRenderObject() as RenderBox)
+                                  ?.findRenderObject() as RenderBox)
                               .localToGlobal(Offset.zero);
 
                           if (c.secondaryAlignment.value ==
-                              Alignment.centerRight ||
+                                  Alignment.centerRight ||
                               c.secondaryAlignment.value ==
                                   Alignment.centerLeft ||
                               c.secondaryAlignment.value == null) {
@@ -1686,7 +1686,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               d.globalPosition.dy - block.dy,
                             );
                           } else if (c.secondaryAlignment.value ==
-                              Alignment.bottomCenter ||
+                                  Alignment.bottomCenter ||
                               c.secondaryAlignment.value ==
                                   Alignment.topCenter) {
                             c.panDragDifference.value = Offset(
@@ -1696,21 +1696,22 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           }
 
                           c.secondaryDragged.value = true;
-                          // var right = c.secondaryRight.value ?? 0;
-                          // var bottom = c.secondaryBottom.value ?? 0;
+                          var right = c.secondaryRight.value ?? 0;
+                          var bottom = c.secondaryBottom.value ?? 0;
+                          c.secondaryRight.value = null;
+                          c.secondaryBottom.value = null;
 
-                          if (c.secondaryAlignment.value != null ||
-                              c.secondaryKeepAlignment.value == true) {
+                          if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
-
-                            // var size = c.size;
-                            // c.secondaryLeft.value =
-                            //     size.width - c.secondaryWidth.value - right;
-                            // c.secondaryTop.value =
-                            //     size.height - c.secondaryHeight.value - bottom;
-                            // c.applySecondaryConstraints(context);
+                            c.applySecondaryCoordinates(d.globalPosition);
+                          } else {
+                            var size = c.size;
+                            c.secondaryLeft.value = c.secondaryLeft.value ??
+                                size.width - c.secondaryWidth.value - right;
+                            c.secondaryTop.value = c.secondaryTop.value ??
+                                size.height - c.secondaryHeight.value - bottom;
+                            c.applySecondaryConstraints(context);
                           }
-                          c.replaceSecondaryWidget(c, d.globalPosition);
 
                           c.secondaryKeepAlignment.value = false;
                         },
@@ -1720,7 +1721,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           //     c.secondaryLeft.value! + d.delta.dx;
                           // c.secondaryTop.value =
                           //     c.secondaryTop.value! + d.delta.dy;
-                          c.replaceSecondaryWidget(c, d.globalPosition);
+                          c.applySecondaryCoordinates(d.globalPosition);
                           c.applySecondaryConstraints(context);
                         },
                         onPanEnd: (d) {
@@ -1730,6 +1731,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 c.possibleSecondaryAlignment.value;
                             c.possibleSecondaryAlignment.value = null;
                             c.applySecondaryConstraints(context);
+                          } else {
+                            c.updateSecondaryAttach();
                           }
                         },
                         child: AnimatedOpacity(
