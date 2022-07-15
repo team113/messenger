@@ -1205,7 +1205,7 @@ class CallController extends GetxController {
     applySecondaryConstraints(context);
   }
 
-  /// Returns corrected according to constraints [width] value.
+  /// Returns corrected according to secondary constraints [width] value.
   double _applySWidth(BuildContext context, double width) {
     if (_minSWidth > size.width * _maxSWidth) {
       return size.width * _maxSWidth;
@@ -1217,7 +1217,7 @@ class CallController extends GetxController {
     return width;
   }
 
-  /// Returns corrected according to constraints [height] value.
+  /// Returns corrected according to secondary constraints [height] value.
   double _applySHeight(BuildContext context, double height) {
     if (_minSHeight > size.height * _maxSHeight) {
       return size.height * _maxSHeight;
@@ -1229,7 +1229,7 @@ class CallController extends GetxController {
     return height;
   }
 
-  /// Returns corrected according to constraints [left] value.
+  /// Returns corrected according to secondary constraints [left] value.
   double? _applySLeft(BuildContext context, double? left) {
     if (left != null) {
       if (left + secondaryWidth.value > size.width) {
@@ -1242,7 +1242,7 @@ class CallController extends GetxController {
     return left;
   }
 
-  /// Returns corrected according to constraints [top] value.
+  /// Returns corrected according to secondary constraints [top] value.
   double? _applySTop(BuildContext context, double? top) {
     if (top != null) {
       if (top + secondaryHeight.value > size.height) {

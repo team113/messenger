@@ -26,9 +26,13 @@ import 'package:flutter/services.dart';
 import '/ui/page/call/widget/fit_wrap.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 
-/// Places [children] into a shrinkable [Wrap] with an ability to reorder them.
+/// Places [children] evenly on a screen with an ability to reorder them.
 ///
-/// Uses [Column]s and [Row]s, if there's not enough space for the [Wrap].
+/// Layout depends on the provided [axis].
+///
+/// [left] or [right], [top] or [bottom], [width] and [height] should be
+/// specified only if this [ReorderableFit] should take a portion of the screen.
+/// Otherwise the whole available space will be occupied.
 class ReorderableFit<T extends Object> extends StatelessWidget {
   const ReorderableFit({
     Key? key,
@@ -46,7 +50,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragCompleted,
     this.onDraggableCanceled,
     this.hoverColor = const Color(0x00000000),
-    this.wrapAxis,
+    this.axis,
     this.left,
     this.right,
     this.top,
@@ -57,7 +61,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onLeave,
     this.onOffset,
     this.useLongPress = false,
-    this.emptyTarget = false,
+    this.allowEmptyTarget = false,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -73,9 +77,9 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// [Draggable].
   final bool useLongPress;
 
-  /// Indicator whether [DragTarget] still should be enabled when [children] are
+  /// Indicator whether the [DragTarget] should be allowed when [children] are
   /// empty.
-  final bool emptyTarget;
+  final bool allowEmptyTarget;
 
   /// Children widgets needed to be placed in a [Wrap].
   final List<T> children;
@@ -136,16 +140,17 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// Width of this view to occupy.
   final double? height;
 
-  /// [Axis] of a [Wrap].
+  /// [Axis] to place [children] along.
   ///
-  /// If `null`, then [Column]s and [Row]s will be used instead of a [Wrap].
-  final Axis? wrapAxis;
+  /// If not-`null`, [Wrap] is preferred to be used unless there's not enough
+  /// space for all the [children] to be placed along this [Axis].
+  final Axis? axis;
 
   /// Hover color of the [DragTarget].
   final Color hoverColor;
 
-  /// Calculates size of a [FitWrap] with [maxSize], [constraints], [axis] and
-  /// its children [length].
+  /// Returns calculated size of a [ReorderableFit] in its [Wrap] form with
+  /// [maxSize], [constraints], [axis] and children [length].
   static double calculateSize({
     required double maxSize,
     required Size constraints,
@@ -172,8 +177,8 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     return size;
   }
 
-  /// Indicates whether this [ReorderableFit] should use the [Column]s and
-  /// [Row]s instead.
+  /// Indicates whether this [ReorderableFit] should place its [children]
+  /// evenly, or use a [Wrap] otherwise.
   static bool useFitView({
     required double maxSize,
     required Size constraints,
@@ -201,7 +206,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) {
-      if (emptyTarget) {
+      if (allowEmptyTarget) {
         return DragTarget<T>(
           onAccept: (o) => onAdded?.call(o, 0),
           onWillAccept: (b) => onWillAccept?.call(b) ?? true,
@@ -227,12 +232,12 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         double rWidth = width ?? constraints.maxWidth;
         double rHeight = height ?? constraints.maxHeight;
 
-        double wrapMaxSize = wrapAxis == Axis.horizontal ? rWidth : rHeight;
+        double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
         bool fitView = useFitView(
           maxSize: wrapMaxSize,
           constraints: Size(rWidth, rHeight),
           length: children.length,
-          axis: wrapAxis,
+          axis: axis,
         );
 
         // Number of columns.
@@ -326,12 +331,12 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           }
         }
 
-        if (wrapAxis != null) {
+        if (axis != null) {
           wrapSize = calculateSize(
             maxSize: wrapMaxSize,
             constraints: Size(rWidth, rHeight),
             length: children.length,
-            axis: wrapAxis!,
+            axis: axis!,
           );
         }
 
@@ -353,7 +358,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onDraggableCanceled: onDraggableCanceled,
           hoverColor: hoverColor,
           useWrap: !fitView,
-          wrapAxis: wrapAxis,
+          axis: axis,
           left: left,
           right: right,
           top: top,
@@ -390,7 +395,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onDraggableCanceled,
     this.hoverColor = const Color(0x00000000),
     this.wrapSize,
-    this.wrapAxis = Axis.horizontal,
+    this.axis,
     this.width,
     this.height,
     this.left,
@@ -485,10 +490,10 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Size of a [Wrap] of this [_ReorderableFit].
   final double? wrapSize;
 
-  /// Axis direction of a [Wrap].
-  final Axis? wrapAxis;
+  /// [Axis] to place the [children] along.
+  final Axis? axis;
 
-  /// Indicator whether this [_ReorderableFit] should use [Wrap].
+  /// Indicator whether this [_ReorderableFit] should use a [Wrap].
   final bool useWrap;
 
   @override
@@ -555,7 +560,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // Creates visual representation of the [_ReorderableItem] with provided
+    // Returns a visual representation of the [_ReorderableItem] with provided
     // [index].
     Widget _cell(int index) {
       var item = _items[index];
@@ -746,10 +751,10 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   return IgnorePointer(
                     ignoring: candidates.isNotEmpty && rejected.isEmpty,
                     child: SizedBox(
-                      width: widget.wrapAxis == Axis.horizontal
+                      width: widget.axis == Axis.horizontal
                           ? widget.wrapSize
                           : MediaQuery.of(context).size.width,
-                      height: widget.wrapAxis == Axis.horizontal
+                      height: widget.axis == Axis.horizontal
                           ? MediaQuery.of(context).size.height
                           : widget.wrapSize,
                     ),
@@ -767,7 +772,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               height: widget.height,
               child: widget.useWrap
                   ? Wrap(
-                      direction: widget.wrapAxis ?? Axis.horizontal,
+                      direction: widget.axis ?? Axis.horizontal,
                       alignment: WrapAlignment.start,
                       runAlignment: WrapAlignment.start,
                       spacing: 0,

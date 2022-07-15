@@ -156,8 +156,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           _possibleContainer(),
 
           // Makes UI appear on click.
-          //
-          // Also, if [showTitle] is `false`, allows dragging the window.
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
@@ -959,7 +957,7 @@ Widget _primaryView(CallController c) {
       children: [
         ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
-          emptyTarget: true,
+          allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
             if (d?.chatId == c.chatId) {
@@ -1497,7 +1495,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onDragEnd: _onDragEnded,
             onDragCompleted: _onDragEnded,
             onDraggableCanceled: _onDragEnded,
-            wrapAxis: axis,
+            axis: axis,
             width: width,
             height: height,
             left: left,
