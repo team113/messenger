@@ -75,7 +75,7 @@ class ParticipantWidget extends StatelessWidget {
   /// Border radius of [Participant.video].
   final BorderRadius? borderRadius;
 
-  /// Indicator whether [UserCallCover] should be used when no video is
+  /// Indicator whether an [UserCallCover] should be used when no video is
   /// available.
   final bool useCallCover;
 

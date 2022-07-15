@@ -230,7 +230,7 @@ class CallController extends GetxController {
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
-  /// [Alignment] of secondary view.
+  /// [Alignment] of the secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
 
   /// [Alignment] that might become the [secondaryAlignment] serving as a hint
@@ -238,7 +238,7 @@ class CallController extends GetxController {
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   // TODO: Temporary solution.
-  /// Indicator whether secondary view should be attached to the
+  /// Indicator whether the secondary view should be attached to the
   /// [Alignment.bottomRight] part of the screen.
   final RxBool secondaryKeepAlignment = RxBool(false);
 
@@ -254,16 +254,16 @@ class CallController extends GetxController {
   /// Min height of the minimized view in pixels.
   static const double _minHeight = 500;
 
-  /// Max width of secondary view in percentage of the call width.
+  /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.95;
 
-  /// Max height of secondary view in percentage of the call height.
+  /// Max height of the secondary view in percentage of the call height.
   static const double _maxSHeight = 0.95;
 
-  /// Min width of secondary view in pixels.
+  /// Min width of the secondary view in pixels.
   static const double _minSWidth = 100;
 
-  /// Min height of secondary view in pixels.
+  /// Min height of the secondary view in pixels.
   static const double _minSHeight = 100;
 
   /// Duration of UI being opened in seconds.

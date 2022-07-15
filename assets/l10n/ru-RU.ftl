@@ -230,14 +230,15 @@ label_call_joining = Подключение
 label_call_permissions_description =
     Необходим для отображения звонков напрямую в телефоне
 label_call_permissions_title = Добавьте аккаунт для вызова
-label_call_title = {$title} | {$state ->
+label_call_title =
+    {$title} | {$state ->
         [joining] Подключение...
         [active] {$members} из {$allMembers} | {$duration}
-       *[other] {$type ->
+        *[other] {$type ->
             [video] Видеозвонок
             [audio] Аудиозвонок
             *[other] Звоним...
-       }
+        }
     }
 label_camera = Камера
 label_chat_call_declined = Отклонённый звонок

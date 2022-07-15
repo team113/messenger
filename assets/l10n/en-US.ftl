@@ -220,14 +220,15 @@ label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
 label_call_permissions_title = Add phone account
-label_call_title = {$title} | {$state ->
+label_call_title =
+    {$title} | {$state ->
         [joining] Joining...
         [active] {$members} of {$allMembers} | {$duration}
-       *[other] {$type ->
+        *[other] {$type ->
             [video] Video call
             [audio] Audio call
             *[other] Calling...
-       }
+        }
     }
 label_camera = Camera
 label_chat_call_declined = Declined call
@@ -292,7 +293,8 @@ label_gallery = Gallery
 label_hidden = Status is hidden
 label_hide_for_me = Delete for me
 label_hint_from_gapopa = Hint from Gapopa
-label_hint_drag_n_drop_video = Just drag to:
+label_hint_drag_n_drop_video =
+    Just drag to:
 
     • change the size or position of the video;
 

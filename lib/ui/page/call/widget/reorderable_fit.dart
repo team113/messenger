@@ -25,13 +25,13 @@ import 'package:flutter/services.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
 
-/// Places [children] evenly on a screen with an ability to reorder them.
+/// Placing [children] evenly on a screen with an ability to reorder them.
 ///
 /// Layout depends on the provided [axis].
 ///
 /// [left] or [right], [top] or [bottom], [width] and [height] should be
 /// specified only if this [ReorderableFit] should take a portion of the screen.
-/// Otherwise the whole available space will be occupied.
+/// Otherwise, the whole available space will be occupied.
 class ReorderableFit<T extends Object> extends StatelessWidget {
   const ReorderableFit({
     Key? key,
@@ -374,7 +374,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   }
 }
 
-/// Stateful component of the [ReorderableFit].
+/// Stateful component of a [ReorderableFit].
 class _ReorderableFit<T extends Object> extends StatefulWidget {
   const _ReorderableFit({
     Key? key,
@@ -504,7 +504,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   /// [_ReorderableItem]s of this [_ReorderableFit].
   late final List<_ReorderableItem<T>> _items;
 
-  ///  Positions of [_items].
+  /// Positions of [_items].
   final Map<int, int> _positions = {};
 
   /// [GlobalKey] of this [_ReorderableFit].
@@ -559,8 +559,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // Returns a visual representation of the [_ReorderableItem] with provided
-    // [index].
+    /// Returns a visual representation of the [_ReorderableItem] with provided
+    /// [index].
     Widget _cell(int index) {
       var item = _items[index];
       return Stack(
@@ -678,7 +678,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       );
     }
 
-    // Creates a column of a row at [rowIndex] index.
+    /// Creates a column of a row at [rowIndex] index.
     List<Widget> _createColumn(int rowIndex) {
       final List<Widget> column = [];
 
@@ -703,7 +703,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       return column;
     }
 
-    // Creates a row of a [_createColumn]s.
+    /// Creates a row of a [_createColumn]s.
     List<Widget> _createRows() {
       final List<Widget> rows = [];
       final rowCount = (_items.length / widget.mColumns).ceil();
@@ -1078,7 +1078,7 @@ class _AnimatedTransition extends StatefulWidget {
   State<_AnimatedTransition> createState() => _AnimatedTransitionState();
 }
 
-/// State of [_AnimatedTransition] changing the [rect].
+/// State of an [_AnimatedTransition] changing the [rect].
 class _AnimatedTransitionState extends State<_AnimatedTransition>
     with SingleTickerProviderStateMixin {
   /// [Rect] that [_AnimatedTransition.child] occupies.

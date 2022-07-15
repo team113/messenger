@@ -2011,7 +2011,7 @@ Widget _secondaryTarget(CallController c) {
   });
 }
 
-/// [Draggable] data consisting of the [participant] and its [chatId].
+/// [Draggable] data consisting of a [participant] and its [chatId].
 class _DragData {
   const _DragData(this.participant, this.chatId);
 

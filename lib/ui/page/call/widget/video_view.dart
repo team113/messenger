@@ -166,7 +166,7 @@ class RtcVideoView extends StatefulWidget {
 
 /// State of a [RtcVideoView] used to rebuild itself on size determination.
 class _RtcVideoViewState extends State<RtcVideoView> {
-  /// [GlobalKey] of a [VideoView].
+  /// [GlobalKey] of the [VideoView].
   final GlobalKey _videoKey = GlobalKey();
 
   @override
