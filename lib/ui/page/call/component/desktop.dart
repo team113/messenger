@@ -1695,20 +1695,21 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           }
 
                           c.secondaryDragged.value = true;
-                          var right = c.secondaryRight.value ?? 0;
-                          var bottom = c.secondaryBottom.value ?? 0;
-                          c.secondaryRight.value = null;
-                          c.secondaryBottom.value = null;
 
                           if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
                             c.updateSecondaryCoordinates(d.globalPosition);
                           } else {
                             var size = c.size;
-                            c.secondaryLeft.value ??=
-                                size.width - c.secondaryWidth.value - right;
-                            c.secondaryTop.value ??=
-                                size.height - c.secondaryHeight.value - bottom;
+                            c.secondaryLeft.value ??= size.width -
+                                c.secondaryWidth.value -
+                                (c.secondaryRight.value ?? 0);
+                            c.secondaryTop.value ??= size.height -
+                                c.secondaryHeight.value -
+                                (c.secondaryBottom.value ?? 0);
+                            c.secondaryRight.value = null;
+                            c.secondaryBottom.value = null;
+
                             c.applySecondaryConstraints(context);
                           }
                         },

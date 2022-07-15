@@ -94,10 +94,6 @@ Widget mobileCall(CallController c, BuildContext context) {
         return GestureDetector(
           onPanStart: (d) {
             c.secondaryDragged.value = true;
-            var right = c.secondaryRight.value ?? 0;
-            var bottom = c.secondaryBottom.value ?? 0;
-            c.secondaryRight.value = null;
-            c.secondaryBottom.value = null;
 
             Offset block =
                 (c.secondaryKey.currentContext?.findRenderObject() as RenderBox)
@@ -109,10 +105,15 @@ Widget mobileCall(CallController c, BuildContext context) {
             );
 
             var size = c.size;
-            c.secondaryLeft.value ??=
-                size.width - c.secondaryWidth.value - right;
-            c.secondaryTop.value ??=
-                size.height - c.secondaryHeight.value - bottom;
+            c.secondaryLeft.value ??= size.width -
+                c.secondaryWidth.value -
+                (c.secondaryRight.value ?? 0);
+            c.secondaryTop.value ??= size.height -
+                c.secondaryHeight.value -
+                (c.secondaryBottom.value ?? 0);
+            c.secondaryRight.value = null;
+            c.secondaryBottom.value = null;
+
             c.applySecondaryConstraints(context);
           },
           onPanDown: (d) => c.secondaryDragged.value = true,
