@@ -14,19 +14,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: MyUser's online status is correctly updated
+Feature: Application localization changes correctly
 
-  Scenario: Bob sees Alice changing her online status
+  Scenario: User changes localization
     Given I am Alice
-    And user Bob
+    And I wait until `HomeView` is present
 
-    Then I wait until `HomeView` is present
-    And Bob sees Alice as online
+    Then I tap `MenuButton` button
+    And I tap `SettingsButton` button
 
-    When I tap `MenuButton` button
-    And I tap `LogoutButton` button
-    Then I wait until `AuthView` is present
-    And Bob sees Alice as offline
+    Then I tap `Language_enUS` within `LanguageDropdown` dropdown
+    And I wait until text "Settings" is present
 
-    When I sign in as Alice
-    Then Bob sees Alice as online
+    Then I tap `Language_ruRU` within `LanguageDropdown` dropdown
+    And I wait until text "Настройки" is present

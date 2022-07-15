@@ -37,6 +37,7 @@ import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -223,7 +224,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       child: SizedBox(
                         width: 320,
                         child: HintWidget(
-                          text: 'label_hint_drag_n_drop_video'.tr,
+                          text: 'label_hint_drag_n_drop_video'.l10n,
                           onTap: c.isHintDismissed.toggle,
                         ),
                       ),
@@ -492,7 +493,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 padding: const EdgeInsets.only(top: 8, right: 8),
                 child: TooltipButton(
                   verticalOffset: 8,
-                  hint: 'btn_call_settings'.tr,
+                  hint: 'btn_call_settings'.l10n,
                   onTap: () => c.openSettings(context),
                   child: SvgLoader.asset(
                     'assets/icons/settings.svg',
@@ -823,20 +824,20 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       String state = c.state.value == OngoingCallState.active
           ? c.duration.value.hhMmSs()
           : c.state.value == OngoingCallState.joining
-              ? 'label_call_joining'.tr
+              ? 'label_call_joining'.l10n
               : isOutgoing
-                  ? 'label_call_calling'.tr
+                  ? 'label_call_calling'.l10n
                   : c.withVideo == true
-                      ? 'label_video_call'.tr
-                      : 'label_audio_call'.tr;
+                      ? 'label_video_call'.l10n
+                      : 'label_audio_call'.l10n;
 
-      String title = c.chat.value?.title.value ?? ('.'.tr * 3);
+      String title = c.chat.value?.title.value ?? ('dot'.l10n * 3);
 
       String? subtitle;
       if (c.isGroup) {
         var actualMembers = c.members.keys.map((k) => k.userId).toSet();
         subtitle =
-            ' | ${1 + actualMembers.length} ${'label_of'.tr} ${c.chat.value?.members.length}';
+            ' | ${1 + actualMembers.length} ${'label_of'.l10n} ${c.chat.value?.members.length}';
       }
 
       return Container(
@@ -934,8 +935,8 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                     TooltipButton(
                       onTap: c.toggleFullscreen,
                       hint: c.fullscreen.value
-                          ? 'btn_fullscreen_exit'.tr
-                          : 'btn_fullscreen_enter'.tr,
+                          ? 'btn_fullscreen_exit'.l10n
+                          : 'btn_fullscreen_enter'.l10n,
                       child: SvgLoader.asset(
                         'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
@@ -1085,8 +1086,8 @@ Widget _primaryView(CallController c) {
                                       MediaSourceKind.Device)
                                     ContextMenuButton(
                                       label: fit == null || fit == BoxFit.cover
-                                          ? 'btn_call_do_not_cut_video'.tr
-                                          : 'btn_call_cut_video'.tr,
+                                          ? 'btn_call_do_not_cut_video'.l10n
+                                          : 'btn_call_cut_video'.l10n,
                                       onPressed: () {
                                         c.rendererBoxFit[participant
                                                 .video.value!.track
@@ -1103,7 +1104,7 @@ Widget _primaryView(CallController c) {
                                       },
                                     ),
                                   ContextMenuButton(
-                                    label: 'btn_call_center_video'.tr,
+                                    label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
@@ -1111,8 +1112,8 @@ Widget _primaryView(CallController c) {
                                   ContextMenuButton(
                                     label: participant.video.value?.isEnabled ==
                                             true
-                                        ? 'btn_call_disable_video'.tr
-                                        : 'btn_call_enable_video'.tr,
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
                                     onPressed: () => c.toggleRendererEnabled(
                                         participant.video),
                                   ),
@@ -1606,14 +1607,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             participant.source != MediaSourceKind.Display) &&
                         participant.video.value?.isEnabled == true)
                       ContextMenuButton(
-                        label: 'btn_call_center_video'.tr,
+                        label: 'btn_call_center_video'.l10n,
                         onPressed: () => c.center(participant),
                       ),
                     if (participant.video.value != null)
                       ContextMenuButton(
                         label: participant.video.value?.isEnabled == true
-                            ? 'btn_call_disable_video'.tr
-                            : 'btn_call_enable_video'.tr,
+                            ? 'btn_call_disable_video'.l10n
+                            : 'btn_call_enable_video'.l10n,
                         onPressed: () =>
                             c.toggleRendererEnabled(participant.video),
                       )
