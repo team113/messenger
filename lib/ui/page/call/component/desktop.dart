@@ -1705,11 +1705,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryTop.value ??= size.height -
                                 c.secondaryHeight.value -
                                 (c.secondaryBottom.value ?? 0);
-                            c.secondaryRight.value = null;
-                            c.secondaryBottom.value = null;
-
                             c.applySecondaryConstraints(context);
                           }
+
+                          c.secondaryRight.value = null;
+                          c.secondaryBottom.value = null;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
