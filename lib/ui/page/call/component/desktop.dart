@@ -389,11 +389,13 @@ Widget desktopCall(
                 Padding(
                   padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
                   child: AnimatedSlider(
+                    animationStream: c.bottomAnimationStream,
                     isOpen: c.state.value != OngoingCallState.active ||
                         c.showUi.value,
                     duration: const Duration(milliseconds: 400),
                     translate: false,
                     child: Stack(
+                      key: c.animatedSliderButtonsPanelKey,
                       alignment: Alignment.center,
                       children: [
                         // Draw a blurred dock with the invisible [_activeButtons]
@@ -1669,6 +1671,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
+                          c.showUiBeforeDragging.value = c.showUi.value;
+                          c.showUi.value = false;
                           Offset block = (c.secondaryKey.currentContext
                                   ?.findRenderObject() as RenderBox)
                               .localToGlobal(Offset.zero);
@@ -1712,11 +1716,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           c.secondaryBottom.value = null;
                         },
                         onPanUpdate: (d) {
+                          c.selfVideoWasReplacedByBottomBar.value = false;
                           c.secondaryDragged.value = true;
                           c.updateSecondaryCoordinates(d.globalPosition);
                           c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {
+                          c.showUi.value = c.showUiBeforeDragging.value;
                           c.secondaryDragged.value = false;
                           if (c.possibleSecondaryAlignment.value != null) {
                             c.secondaryAlignment.value =

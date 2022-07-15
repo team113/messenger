@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Widget doing a slide transition of its child every time [isOpen] changes.
@@ -29,6 +31,7 @@ class AnimatedSlider extends StatefulWidget {
     this.beginOffset = const Offset(0.0, 1.55),
     this.endOffset = const Offset(0.0, 0.0),
     this.translate = true,
+    this.animationStream,
   }) : super(key: key);
 
   /// Widget to animate on [isOpen] changes.
@@ -59,6 +62,9 @@ class AnimatedSlider extends StatefulWidget {
   /// [SlideTransition] or not.
   final bool translate;
 
+  /// [StreamController] listening changes of animation.
+  final StreamController? animationStream;
+
   @override
   State<AnimatedSlider> createState() => _AnimatedSliderState();
 }
@@ -78,12 +84,23 @@ class _AnimatedSliderState extends State<AnimatedSlider>
       duration: widget.duration,
       reverseDuration: widget.reverseDuration,
     );
+    if (widget.animationStream != null) {
+      animation.addListener(_animationListener);
+    }
   }
 
   @override
   void dispose() {
-    animation.dispose();
+    animation.dispose();if
+    (widget.animationStream != null) {
+      animation.removeListener(_animationListener);
+    }
     super.dispose();
+  }
+
+  /// Listens changes of animation.
+  void _animationListener() {
+    widget.animationStream?.add(null);
   }
 
   @override
@@ -95,6 +112,9 @@ class _AnimatedSliderState extends State<AnimatedSlider>
       } else {
         animation.reverse(from: animation.value);
       }
+    }
+    if (widget.animationStream != null) {
+      _animationListener();
     }
   }
 

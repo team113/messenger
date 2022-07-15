@@ -93,6 +93,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         return GestureDetector(
           onPanStart: (d) {
+            c.showUiBeforeDragging.value = c.showUi.value;
+            c.showUi.value = false;
             c.secondaryDragged.value = true;
 
             Offset block =
@@ -118,6 +120,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           },
           onPanDown: (d) => c.secondaryDragged.value = true,
           onPanEnd: (d) {
+            c.showUi.value = c.showUiBeforeDragging.value;
             c.secondaryDragged.value = false;
             c.updateSecondaryAttach();
           },
@@ -474,6 +477,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining
               ? AnimatedSlider(
+                  animationStream: c.bottomAnimationStream,
                   beginOffset: Offset(
                     0,
                     130 + MediaQuery.of(context).padding.bottom,
@@ -499,6 +503,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         topRight: Radius.circular(10),
                       ),
                       panel: ConditionalBackdropFilter(
+                        key: c.animatedSliderButtonsPanelKey,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),

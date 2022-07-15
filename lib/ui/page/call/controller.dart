@@ -228,11 +228,30 @@ class CallController extends GetxController {
   /// Possible [Alignment] of secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// Offset of pan drag difference.
-  final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
+  /// Global key of animated slider buttons panel.
+  final GlobalKey animatedSliderButtonsPanelKey = GlobalKey();
 
   /// Global key of secondary video.
   final GlobalKey secondaryKey = GlobalKey();
+
+  /// [StreamController] of showing bottom animation stream.
+  final StreamController bottomAnimationStream = StreamController();
+
+  /// Offset of pan drag delta self video.
+  final Rx<Offset?> panDragDelta = Rx<Offset?>(null);
+
+  /// Offset of pan drag difference.
+  final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
+
+  /// Indicator whether self video was replaced by bottom bar or not.
+  final RxBool selfVideoWasReplacedByBottomBar = RxBool(false);
+
+  /// Initial top position of video before changing position by bottom bar.
+  final RxDouble selfVideoTopBeforeChangingByBottomBar = RxDouble(0);
+
+  /// Indicator whether [showBottomUi] was true when secondary video was start
+  /// dragged or not.
+  final RxBool showUiBeforeDragging = RxBool(false);
 
   /// Height of title bar.
   final double titleBarHeight = 30;
@@ -403,6 +422,8 @@ class CallController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    bottomAnimationStream.stream.listen(recountSelfVideoPosition);
 
     _currentCall.value.init(_chatService.me);
 
@@ -651,6 +672,7 @@ class CallController extends GetxController {
   @override
   void onClose() {
     super.onClose();
+    bottomAnimationStream.close();
     _durationTimer?.cancel();
     _uiTimer?.cancel();
     _stateWorker.dispose();
@@ -977,6 +999,75 @@ class CallController extends GetxController {
     height.value = _applyHeight(context, height.value);
     left.value = _applyLeft(context, left.value);
     top.value = _applyTop(context, top.value);
+  }
+
+  /// Recounts self video position.
+  void recountSelfVideoPosition(_) {
+    if (animatedSliderButtonsPanelKey.currentContext?.findRenderObject() !=
+        null) {
+      var box = (animatedSliderButtonsPanelKey.currentContext!
+          .findRenderObject() as RenderBox);
+      Offset position = box.localToGlobal(Offset.zero);
+      if (!isPopup && fullscreen.isTrue && PlatformUtils.isDesktop) {
+        position = Offset(position.dx, position.dy - titleBarHeight);
+      } else if (PlatformUtils.isMobile) {
+        position = Offset(position.dx, position.dy);
+      }
+      double start = 0, end = 0;
+      if (!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop) {
+        start = position.dx - left.value;
+        end = position.dx + box.size.width - left.value;
+      } else {
+        start = position.dx;
+        end = position.dx + box.size.width;
+      }
+      if ((PlatformUtils.isMobile && isPanelOpen.isFalse) ||
+          PlatformUtils.isDesktop) {
+        if (position.dy <
+            secondaryTop.value! +
+                secondaryHeight.value +
+                ((isPopup || PlatformUtils.isMobile)
+                    ? 0
+                    : ((fullscreen.isTrue) ? 0 : titleBarHeight + top.value))) {
+          if ((start < secondaryLeft.value! && end > secondaryLeft.value!) ||
+              (start < secondaryLeft.value! + secondaryWidth.value &&
+                  end > secondaryLeft.value! + secondaryWidth.value)) {
+            if (selfVideoTopBeforeChangingByBottomBar.value == 0) {
+              selfVideoTopBeforeChangingByBottomBar.value = secondaryTop.value!;
+            }
+            selfVideoWasReplacedByBottomBar.value = true;
+            secondaryTop.value = position.dy -
+                ((!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop)
+                    ? titleBarHeight + top.value + secondaryHeight.value
+                    : secondaryHeight.value);
+          }
+        } else {
+          if (selfVideoWasReplacedByBottomBar.value &&
+              selfVideoTopBeforeChangingByBottomBar.value > 0) {
+            if (selfVideoTopBeforeChangingByBottomBar.value >
+                secondaryTop.value!) {
+              double newValue = position.dy -
+                  ((!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop)
+                      ? top.value + secondaryHeight.value + titleBarHeight
+                      : secondaryHeight.value);
+              if (PlatformUtils.isMobile) {
+                secondaryTop.value = newValue;
+              } else if (newValue +
+                  secondaryHeight.value -
+                  ((!isPopup && fullscreen.isFalse)
+                      ? top.value - titleBarHeight
+                      : 0) <
+                  size.height) {
+                secondaryTop.value = newValue;
+              }
+            } else {
+              secondaryTop.value = selfVideoTopBeforeChangingByBottomBar.value;
+              selfVideoTopBeforeChangingByBottomBar.value = 0;
+            }
+          }
+        }
+      }
+    }
   }
 
   /// Attaches secondary view to nearest corner.
