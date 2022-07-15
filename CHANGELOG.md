@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Attaching secondary view to nearest corner ([#34], [#33]).
+
 ### Fixed
 
 - Android:
@@ -27,6 +33,8 @@ All user visible changes to this project will be documented in this file. This p
 [#15]: /../../pull/15
 [#26]: /../../pull/26
 [#31]: /../../pull/31
+[#33]: /../../issues/33
+[#34]: /../../pull/34
 
 
 
