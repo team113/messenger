@@ -19,7 +19,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/l10n/_l10n.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/auth/login/view.dart';
 import '/ui/widget/svg/svg.dart';
@@ -112,22 +112,19 @@ class AuthView extends StatelessWidget {
               });
             });
 
-            Widget language = StatefulBuilder(
-              builder: (context, setState) => DropdownButton<String>(
-                value: L10n.chosen,
-                items: L10n.languages.entries
-                    .map<DropdownMenuItem<String>>(
-                      (e) => DropdownMenuItem(
-                        value: e.key,
-                        child: Text(
-                            '${L10n.locales[e.key]!.countryCode}, ${e.value}'),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (d) {
-                  Get.updateLocale(L10n.locales[d!]!);
-                  setState(() => L10n.chosen = d);
-                },
+            /// Dropdown widget where user can choose application language.
+            Widget language = Obx(
+              () => DropdownButton<Language>(
+                key: const Key('LocalizationDropdown'),
+                value: L10n.chosen.value,
+                items: L10n.languages.map<DropdownMenuItem<Language>>((e) {
+                  return DropdownMenuItem(
+                    key: Key(e.toString()),
+                    value: e,
+                    child: Text('${e.locale.countryCode}, ${e.name}'),
+                  );
+                }).toList(),
+                onChanged: (d) => L10n.set(d!),
                 borderRadius: BorderRadius.circular(18),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
@@ -144,11 +141,11 @@ class AuthView extends StatelessWidget {
               OutlinedRoundedButton(
                 key: const Key('StartChattingButton'),
                 title: Text(
-                  'btn_start_chatting'.tr,
+                  'btn_start_chatting'.l10n,
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  'label_no_registration'.tr,
+                  'label_no_registration'.l10n,
                   style: const TextStyle(color: Colors.white),
                 ),
                 leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -160,15 +157,15 @@ class AuthView extends StatelessWidget {
               const SizedBox(height: 10),
               OutlinedRoundedButton(
                 key: const Key('SignInButton'),
-                title: Text('btn_login'.tr),
-                subtitle: Text('label_or_register'.tr),
+                title: Text('btn_login'.l10n),
+                subtitle: Text('label_or_register'.l10n),
                 leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
                 onPressed: () => LoginView.show(context),
               ),
               const SizedBox(height: 10),
               if (isIosWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
+                  title: Text('btn_download'.l10n),
                   subtitle: const Text('App Store'),
                   leading: Padding(
                     padding: const EdgeInsets.only(bottom: 3),
@@ -178,7 +175,7 @@ class AuthView extends StatelessWidget {
                 ),
               if (isAndroidWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
+                  title: Text('btn_download'.l10n),
                   subtitle: const Text('Google Play'),
                   leading: Padding(
                     padding: const EdgeInsets.only(left: 2),
@@ -189,8 +186,8 @@ class AuthView extends StatelessWidget {
                 ),
               if (isDesktopWeb)
                 OutlinedRoundedButton(
-                  title: Text('btn_download'.tr),
-                  subtitle: Text('label_application'.tr),
+                  title: Text('btn_download'.l10n),
+                  subtitle: Text('label_application'.l10n),
                   leading: PlatformUtils.isMacOS
                       ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
                       : (PlatformUtils.isWindows)

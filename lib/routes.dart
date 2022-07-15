@@ -33,6 +33,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/user.dart';
+import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/chat.dart';
@@ -57,6 +58,7 @@ import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
+import 'ui/worker/settings.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
 
@@ -323,7 +325,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Unknown page view.
   Page<dynamic> get _notFoundPage => MaterialPage(
         key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.tr))),
+        child: Scaffold(body: Center(child: Text('label_unknown_page'.l10n))),
       );
 
   /// [Navigator]'s pages generation based on the [_state].
@@ -359,15 +361,24 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ScopedDependencies deps = ScopedDependencies();
               UserId me = _state._auth.userId!;
 
-              await deps.put(MyUserHiveProvider()).init(userId: me);
-              await deps.put(ChatHiveProvider()).init(userId: me);
-              await deps.put(GalleryItemHiveProvider()).init(userId: me);
-              await deps.put(UserHiveProvider()).init(userId: me);
-              await deps.put(ContactHiveProvider()).init(userId: me);
-              await deps.put(MediaSettingsHiveProvider()).init(userId: me);
-              await deps
-                  .put(ApplicationSettingsHiveProvider())
-                  .init(userId: me);
+              await Future.wait([
+                deps.put(MyUserHiveProvider()).init(userId: me),
+                deps.put(ChatHiveProvider()).init(userId: me),
+                deps.put(GalleryItemHiveProvider()).init(userId: me),
+                deps.put(UserHiveProvider()).init(userId: me),
+                deps.put(ContactHiveProvider()).init(userId: me),
+                deps.put(MediaSettingsHiveProvider()).init(userId: me),
+                deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+              ]);
+
+              AbstractSettingsRepository settingsRepository =
+                  deps.put<AbstractSettingsRepository>(
+                SettingsRepository(Get.find(), Get.find()),
+              );
+
+              // Should be initialized before any [L10n]-dependant entities as
+              // it sets the stored [Language] from the [SettingsRepository].
+              await deps.put(SettingsWorker(settingsRepository)).init();
 
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository = UserRepository(
@@ -393,10 +404,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   userRepository,
                   Get.find(),
                 ),
-              );
-              AbstractSettingsRepository settingsRepository =
-                  deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find()),
               );
               AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(CallRepository(
@@ -439,13 +446,24 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ScopedDependencies deps = ScopedDependencies();
             UserId me = _state._auth.userId!;
 
-            await deps.put(MyUserHiveProvider()).init(userId: me);
-            await deps.put(ChatHiveProvider()).init(userId: me);
-            await deps.put(GalleryItemHiveProvider()).init(userId: me);
-            await deps.put(UserHiveProvider()).init(userId: me);
-            await deps.put(ContactHiveProvider()).init(userId: me);
-            await deps.put(MediaSettingsHiveProvider()).init(userId: me);
-            await deps.put(ApplicationSettingsHiveProvider()).init(userId: me);
+            await Future.wait([
+              deps.put(MyUserHiveProvider()).init(userId: me),
+              deps.put(ChatHiveProvider()).init(userId: me),
+              deps.put(GalleryItemHiveProvider()).init(userId: me),
+              deps.put(UserHiveProvider()).init(userId: me),
+              deps.put(ContactHiveProvider()).init(userId: me),
+              deps.put(MediaSettingsHiveProvider()).init(userId: me),
+              deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+            ]);
+
+            AbstractSettingsRepository settingsRepository =
+                deps.put<AbstractSettingsRepository>(
+              SettingsRepository(Get.find(), Get.find()),
+            );
+
+            // Should be initialized before any [L10n]-dependant entities as
+            // it sets the stored [Language] from the [SettingsRepository].
+            await deps.put(SettingsWorker(settingsRepository)).init();
 
             GraphQlProvider graphQlProvider = Get.find();
             UserRepository userRepository = UserRepository(
@@ -485,10 +503,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-            AbstractSettingsRepository settingsRepository =
-                deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find()),
-            );
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
@@ -514,7 +528,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             ));
 
-            deps.put(MyUserWorker(Get.find()));
+            deps.put(MyUserWorker(myUserService));
 
             return deps;
           },
@@ -572,13 +586,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
         case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.tr}');
+          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
           break;
         case HomeTab.chats:
-          WebUtils.title('$prefix${'label_tab_chats'.tr}');
+          WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
         case HomeTab.menu:
-          WebUtils.title('$prefix${'label_tab_menu'.tr}');
+          WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
       }
     } else {

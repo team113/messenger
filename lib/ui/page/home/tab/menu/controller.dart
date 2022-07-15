@@ -24,6 +24,7 @@ import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 
@@ -53,7 +54,7 @@ class MenuTabController extends GetxController {
     bool value = true;
 
     if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
-      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.tr) !=
+      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
           true) {
         value = false;
       }

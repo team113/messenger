@@ -19,6 +19,8 @@ dependencies:
   email_validator: ^2.0.1
   expandable: ^5.0.1
   file_picker: ^4.5.1
+  fluent:
+    git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
   flutter_background_service: ^2.0.0
@@ -109,11 +111,12 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
+    - assets/audio/
     - assets/conf.toml
+    - assets/icons/
     - assets/images/
     - assets/images/logo/
-    - assets/icons/
-    - assets/audio/
+    - assets/l10n/
 
 sentry:
   upload_native_symbols: true
