@@ -94,47 +94,38 @@ Widget mobileCall(CallController c, BuildContext context) {
         return GestureDetector(
           onPanStart: (d) {
             c.secondaryDragged.value = true;
-            // var right = c.secondaryRight.value ?? 0;
-            // var bottom = c.secondaryBottom.value ?? 0;
-            // c.secondaryRight.value = null;
-            // c.secondaryBottom.value = null;
+            var right = c.secondaryRight.value ?? 0;
+            var bottom = c.secondaryBottom.value ?? 0;
+            c.secondaryRight.value = null;
+            c.secondaryBottom.value = null;
 
             Offset block =
-            (c.secondaryKey.currentContext?.findRenderObject() as RenderBox)
-                .localToGlobal(Offset.zero);
+                (c.secondaryKey.currentContext?.findRenderObject() as RenderBox)
+                    .localToGlobal(Offset.zero);
 
             c.panDragDifference.value = Offset(
               d.globalPosition.dx - block.dx,
-              d.globalPosition.dy -
-                  block.dy -
-                  ((c.edgeInsets == null)
-                      ? 0
-                      : c.edgeInsets!.top + c.edgeInsets!.bottom),
+              d.globalPosition.dy - block.dy,
             );
 
-            if (c.secondaryAlignment.value != null ||
-                c.secondaryKeepAlignment.isTrue) {
-              c.secondaryAlignment.value = null;
-
-              // var size = c.size;
-              // c.secondaryLeft.value =
-              //     size.width - c.secondaryWidth.value - right;
-              // c.secondaryTop.value =
-              //     size.height - c.secondaryHeight.value - bottom;
-              c.applySecondaryCoordinates(d.globalPosition);
-              c.applySecondaryConstraints(context);
-            }
-
-            c.secondaryKeepAlignment.value = false;
+            var size = c.size;
+            c.secondaryLeft.value ??=
+                size.width - c.secondaryWidth.value - right;
+            c.secondaryTop.value ??=
+                size.height - c.secondaryHeight.value - bottom;
+            c.applySecondaryConstraints(context);
           },
           onPanDown: (d) => c.secondaryDragged.value = true,
-          onPanEnd: (d) => c.secondaryDragged.value = false,
+          onPanEnd: (d) {
+            c.secondaryDragged.value = false;
+            c.updateSecondaryAttach();
+          },
           onPanCancel: () => c.secondaryDragged.value = false,
           onPanUpdate: (d) {
             c.secondaryDragged.value = true;
             c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
             c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
-            c.applySecondaryCoordinates(d.globalPosition);
+            c.updateSecondaryCoordinates(d.globalPosition);
             c.applySecondaryConstraints(context);
           },
           child: _floatingSecondaryView(c, context),
@@ -935,6 +926,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
         fit: StackFit.expand,
         children: [
           Positioned(
+            key: c.secondaryKey,
             left: left,
             right: right,
             top: top,
@@ -1246,7 +1238,6 @@ class _SecondaryOverlayEntryState extends State<SecondaryOverlayEntry> {
           child: DragTarget<_DragData>(
             onAccept: (_DragData d) {
               widget.c.secondaryAlignment.value = null;
-              widget.c.secondaryKeepAlignment.value = true;
               widget.c.secondaryLeft.value = null;
               widget.c.secondaryTop.value = null;
               widget.c.secondaryRight.value = 10;

@@ -1670,9 +1670,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           ? MouseCursor.defer
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
-                        key: c.gestureDetectorKey,
                         onPanStart: (d) {
-                          Offset block = (c.gestureDetectorKey.currentContext
+                          Offset block = (c.secondaryKey.currentContext
                                   ?.findRenderObject() as RenderBox)
                               .localToGlobal(Offset.zero);
 
@@ -1703,25 +1702,19 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
                           if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
-                            c.applySecondaryCoordinates(d.globalPosition);
+                            c.updateSecondaryCoordinates(d.globalPosition);
                           } else {
                             var size = c.size;
-                            c.secondaryLeft.value = c.secondaryLeft.value ??
+                            c.secondaryLeft.value ??=
                                 size.width - c.secondaryWidth.value - right;
-                            c.secondaryTop.value = c.secondaryTop.value ??
+                            c.secondaryTop.value ??=
                                 size.height - c.secondaryHeight.value - bottom;
                             c.applySecondaryConstraints(context);
                           }
-
-                          c.secondaryKeepAlignment.value = false;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
-                          // c.secondaryLeft.value =
-                          //     c.secondaryLeft.value! + d.delta.dx;
-                          // c.secondaryTop.value =
-                          //     c.secondaryTop.value! + d.delta.dy;
-                          c.applySecondaryCoordinates(d.globalPosition);
+                          c.updateSecondaryCoordinates(d.globalPosition);
                           c.applySecondaryConstraints(context);
                         },
                         onPanEnd: (d) {
