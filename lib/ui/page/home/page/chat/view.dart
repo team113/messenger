@@ -29,8 +29,8 @@ import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -264,7 +264,7 @@ class _ChatViewState extends State<ChatView>
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
                                         ),
-                                        child: FutureBuilder<Rx<User>?>(
+                                        child: FutureBuilder<RxUser?>(
                                           future: c.getUser(e.value.authorId),
                                           builder: (_, u) => ChatItemWidget(
                                             key: Key(e.value.id.val),
@@ -451,18 +451,19 @@ class _ChatViewState extends State<ChatView>
           var partner =
               chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
           if (partner != null) {
-            return FutureBuilder<Rx<User>?>(
+            return FutureBuilder<RxUser?>(
               future: c.getUser(partner.user.id),
               builder: (_, snapshot) {
-                var subtitle = c.chat!.chat.value.getSubtitle(
-                  partner: snapshot.data?.value,
-                );
+                if (snapshot.data != null) {
+                  return Obx(() {
+                    var subtitle = c.chat!.chat.value
+                        .getSubtitle(partner: snapshot.data!.user.value);
 
-                if (subtitle != null) {
-                  return Text(
-                    subtitle,
-                    style: style,
-                  );
+                    return Text(
+                      subtitle ?? '',
+                      style: style,
+                    );
+                  });
                 }
 
                 return Container();
