@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart' show kCupertinoModalBarrierColor;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/auth/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/popup/popup.dart';
 import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
 
@@ -11,99 +10,8 @@ class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
 
   static Future<T?> show<T>(BuildContext context) {
-    if (context.isMobile) {
-      return showModalBottomSheet(
-        context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ),
-        ),
-        builder: (context) {
-          return SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    width: 60,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCCCCCC),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 360),
-                      child: const LoginView(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
-          );
-        },
-      );
-    } else {
-      return showDialog(
-        context: context,
-        barrierColor: kCupertinoModalBarrierColor,
-        builder: (context) => Stack(
-          children: [
-            Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 520),
-                padding: const EdgeInsets.fromLTRB(
-                  10,
-                  10,
-                  10,
-                  10,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
-                        InkResponse(
-                          onTap: Navigator.of(context).pop,
-                          radius: 11,
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Color(0xBB818181),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 400),
-                      child: const Center(child: LoginView()),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+    return Popup.show(context, const LoginView(),
+        contentMaxWidth: 400, layoutMaxWidth: 520);
   }
 
   @override
@@ -117,62 +25,91 @@ class LoginView extends StatelessWidget {
       builder: (LoginController c) {
         return Obx(() {
           List<Widget> children;
-
-          if (c.displayAccess.value) {
+          if (c.showNewPasswordSection.value) {
             children = [
               Center(
                 child: Text(
-                  'Восстановление доступа',
+                  'Задайте новый пароль для входа в аккаунт',
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
-              const SizedBox(height: 25),
-              const SizedBox(height: 32),
+              const SizedBox(height: 57),
+              ReactiveTextField(
+                key: const Key('PasswordField'),
+                state: c.newPassword,
+                label: 'label_new_password'.tr,
+                obscure: true,
+              ),
+              const SizedBox(height: 16),
+              ReactiveTextField(
+                key: const Key('RepeatPasswordField'),
+                state: c.repeatPassword,
+                label: 'label_repeat_password'.tr,
+                obscure: true,
+              ),
+              const SizedBox(height: 58),
+              loginPopupButtons(
+                  mainButtonTitle: 'btn_next'.tr,
+                  onMainButtonPressed: c.resetUserPassword,
+                  secondaryButtonTitle: 'btn_back'.tr,
+                  onSecondaryButtonPressed: c.showNewPasswordSection.toggle),
+              const SizedBox(height: 16),
+            ];
+          } else if (c.showCodeSection.value) {
+            children = [
+              Center(
+                child: Text(
+                  'Код подтверждения был выслан на ваш e-mail. Пожалуйста, введите его ниже.',
+                  style: thin?.copyWith(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 57),
+              ReactiveTextField(
+                key: const Key('RecoveryCodeField'),
+                state: c.recoveryCode,
+                label: 'label_recovery_code'.tr,
+                type: TextInputType.number,
+              ),
+              const SizedBox(height: 58),
+              loginPopupButtons(
+                  mainButtonTitle: 'btn_next'.tr,
+                  onMainButtonPressed: c.recoveryCode.submit,
+                  secondaryButtonTitle: 'btn_back'.tr,
+                  onSecondaryButtonPressed: c.showCodeSection.toggle),
+              const SizedBox(height: 16),
+            ];
+          } else if (c.displayAccess.value) {
+            children = [
+              Center(
+                child: Text(
+                  'label_recover_account'.tr,
+                  style: thin?.copyWith(fontSize: 18),
+                ),
+              ),
+              const SizedBox(height: 57),
               ReactiveTextField(
                 key: const Key('RecoveryField'),
                 state: c.recovery,
                 label: 'label_sign_in_input'.tr,
-                onChanged: () {},
               ),
-              const SizedBox(height: 16),
-              const SizedBox(height: 10),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      maxWidth: null,
-                      title: Text('Назад'.tr),
-                      onPressed: c.displayAccess.toggle,
-                      color: const Color(0xFFEEEEEE),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      maxWidth: null,
-                      title: Text(
-                        'Далее'.tr,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      onPressed: c.recoverAccess,
-                      color: const Color(0xFF63B4FF),
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox(height: 58),
+              loginPopupButtons(
+                  mainButtonTitle: 'btn_next'.tr,
+                  onMainButtonPressed: c.recovery.submit,
+                  secondaryButtonTitle: 'btn_back'.tr,
+                  onSecondaryButtonPressed: c.displayAccess.toggle),
               const SizedBox(height: 16),
             ];
           } else {
             children = [
               Center(
                 child: Text(
-                  'Вход',
+                  'label_entrance'.tr,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
-              const SizedBox(height: 32),
-              const SizedBox(height: 25),
+              const SizedBox(height: 57),
               ReactiveTextField(
                 key: const Key('UsernameField'),
                 state: c.login,
@@ -186,37 +123,17 @@ class LoginView extends StatelessWidget {
                 state: c.password,
                 label: 'label_password'.tr,
               ),
-              const SizedBox(height: 10),
-              const SizedBox(height: 10),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      maxWidth: null,
-                      title: Text(
-                        'btn_login'.tr,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      onPressed: c.signIn,
-                      color: const Color(0xFF63B4FF),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      maxWidth: null,
-                      title: Text('btn_forgot_password'.tr),
-                      onPressed: () {
-                        c.recovery.unchecked = c.login.text;
-                        c.recovery.error.value = null;
-                        c.displayAccess.toggle();
-                      },
-                      color: const Color(0xFFEEEEEE),
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox(height: 52),
+              loginPopupButtons(
+                  isRightMainButton: false,
+                  mainButtonTitle: 'btn_login'.tr,
+                  secondaryButtonTitle: 'btn_forgot_password'.tr,
+                  onMainButtonPressed: c.signIn,
+                  onSecondaryButtonPressed: () {
+                    c.recovery.unchecked = c.login.text;
+                    c.recovery.error.value = null;
+                    c.displayAccess.toggle();
+                  }),
               const SizedBox(height: 16),
             ];
           }
@@ -241,4 +158,40 @@ class LoginView extends StatelessWidget {
       },
     );
   }
+}
+
+Widget loginPopupButtons(
+    {bool isRightMainButton = true,
+    String mainButtonTitle = '',
+    String secondaryButtonTitle = '',
+    VoidCallback? onMainButtonPressed,
+    VoidCallback? onSecondaryButtonPressed,
+    Color mainButtonColor = const Color(0xFF63B4FF),
+    Color secondaryButtonColor = const Color(0xFFEEEEEE),
+    Color mainButtonTextColor = Colors.white}) {
+  var elements = [
+    Expanded(
+      child: OutlinedRoundedButton(
+        maxWidth: null,
+        title: Text(secondaryButtonTitle),
+        onPressed: onSecondaryButtonPressed,
+        color: secondaryButtonColor,
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: OutlinedRoundedButton(
+        maxWidth: null,
+        title: Text(
+          mainButtonTitle,
+          style: TextStyle(color: mainButtonTextColor),
+        ),
+        onPressed: onMainButtonPressed,
+        color: const Color(0xFF63B4FF),
+      ),
+    ),
+  ];
+  return Row(
+    children: isRightMainButton ? elements : elements.reversed.toList(),
+  );
 }

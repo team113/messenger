@@ -17,6 +17,8 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/tab/menu/confirm/view.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
@@ -48,14 +50,22 @@ class MenuTabController extends GetxController {
   ///
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
+    bool value = true;
+
     if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
       if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.tr) !=
           true) {
-        return false;
+        value = false;
       }
     }
 
-    return Future.sync(() => true);
+    if (_myUserService.myUser.value?.hasPassword != true) {
+      if (await ConfirmLogoutView.show(router.context!) != true) {
+        value = false;
+      }
+    }
+
+    return value;
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.

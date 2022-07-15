@@ -19,6 +19,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/ui/page/introduction/view.dart';
 
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -75,6 +77,19 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
+
+    if (_myUser.myUser.value != null) {
+      _displayNotice(_myUser.myUser.value!);
+    } else {
+      Worker? worker;
+      worker = ever(_myUser.myUser, (MyUser? myUser) {
+        if (myUser != null && worker != null) {
+          _displayNotice(myUser);
+          worker?.dispose();
+          worker = null;
+        }
+      });
+    }
   }
 
   @override
@@ -82,6 +97,12 @@ class HomeController extends GetxController {
     super.onClose();
     router.removeListener(_onRouterChanged);
     _myUserSubscription.cancel();
+  }
+
+  void _displayNotice(MyUser myUser) {
+    if (!myUser.hasPassword) {
+      IntroductionView.show(router.context!);
+    }
   }
 
   /// Refreshes the controller on [router] change.

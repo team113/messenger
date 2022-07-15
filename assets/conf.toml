@@ -3,6 +3,7 @@
 #
 # Default:
 #   remote = true
+remote = false
 
 [server.http]
 # URL address of HTTP backend server.
@@ -11,6 +12,9 @@
 #
 # Default:
 #   url = "http://localhost"
+url = "https://gapopa.net"
+# url = "https://new-design-preview.mob.soc.rev.t11913.org"
+# url = "http://192.168.50.101"
 
 # Port of HTTP backend server.
 #
@@ -18,6 +22,7 @@
 #
 # Default:
 #   port = 80
+port = 443
 
 # GraphQL API endpoint of HTTP backend server.
 #
@@ -31,6 +36,9 @@
 #
 # Default:
 #   url = "ws://localhost"
+url = "wss://gapopa.net"
+# url = "wss://new-design-preview.mob.soc.rev.t11913.org"
+# url = "ws://192.168.50.101"
 
 # Port of WebSocket backend server.
 #
@@ -38,9 +46,11 @@
 #
 # Default:
 #   port = 80
+port = 443
 
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
 # Default:
 #   dsn = ""
+dsn = "https://9dd7dcb7fae5474ea195fbe571fe646a@o1092682.ingest.sentry.io/6111266"

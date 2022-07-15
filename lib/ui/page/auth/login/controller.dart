@@ -19,6 +19,8 @@ import '/ui/widget/text_field.dart';
 class LoginController extends GetxController {
   LoginController(this._auth);
 
+  /// [RxBool] which indicating of displaying password recovery popup against
+  /// sign in.
   final RxBool displayAccess = RxBool(false);
 
   /// [TextFieldState] of a login text input.
@@ -75,7 +77,6 @@ class LoginController extends GetxController {
     login = TextFieldState(
       onChanged: (s) => s.error.value = null,
       onSubmitted: (s) {
-        // check();
         password.focus.requestFocus();
       },
     );
@@ -199,19 +200,16 @@ class LoginController extends GetxController {
 
         case CreateSessionErrorCode.artemisUnknown:
           password.unsubmit();
-          password.error.value =
-              'Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.';
+          password.error.value = 'err_data_transfer'.tr;
           rethrow;
       }
     } on ConnectionException {
       password.unsubmit();
-      password.error.value =
-          'Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.';
+      password.error.value = 'err_data_transfer'.tr;
       // No-op.
     } catch (e) {
       password.unsubmit();
-      password.error.value =
-          'Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.';
+      password.error.value = 'err_data_transfer'.tr;
       // MessagePopup.error(e);
       rethrow;
     }
@@ -311,6 +309,7 @@ class LoginController extends GetxController {
         code: ConfirmationCode(recoveryCode.text.toLowerCase()),
       );
       success = true;
+      showNewPasswordSection.value = true;
     } on FormatException {
       recoveryCode.error.value = 'err_incorrect_input'.tr;
     } on ArgumentError {
@@ -377,7 +376,6 @@ class LoginController extends GetxController {
     newPassword.editable.value = false;
     repeatPassword.editable.value = false;
     repeatPassword.status.value = RxStatus.loading();
-
     try {
       await _auth.resetUserPassword(
         login: _recoveryLogin,
