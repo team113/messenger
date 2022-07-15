@@ -22,6 +22,7 @@ import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
+import '/l10n/l10n.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
@@ -134,19 +135,19 @@ class _HomeViewState extends State<HomeView> {
                         CustomNavigationBarItem(
                           key: const Key('ContactsButton'),
                           icon: FontAwesomeIcons.solidCircleUser,
-                          label: 'label_tab_contacts'.tr,
+                          label: 'label_tab_contacts'.l10n,
                         ),
                         CustomNavigationBarItem(
                             key: const Key('ChatsButton'),
                             icon: FontAwesomeIcons.solidComment,
-                            label: 'label_tab_chats'.tr,
+                            label: 'label_tab_chats'.l10n,
                             badge: c.unreadChatsCount.value == 0
                                 ? null
                                 : '${c.unreadChatsCount.value}'),
                         CustomNavigationBarItem(
                           key: const Key('MenuButton'),
                           icon: FontAwesomeIcons.bars,
-                          label: 'label_tab_menu'.tr,
+                          label: 'label_tab_menu'.l10n,
                         ),
                       ],
                       currentIndex: router.tab.index,

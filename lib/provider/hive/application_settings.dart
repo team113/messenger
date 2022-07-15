@@ -43,4 +43,8 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setPopupsEnabled(bool enabled) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..enablePopups = enabled);
+
+  /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
+  Future<void> setLocale(String locale) async =>
+      await putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
 }

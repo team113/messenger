@@ -22,6 +22,7 @@ import '../widget/call_title.dart';
 import '../widget/round_button.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Button used in call's bottom panel.
@@ -311,7 +312,7 @@ class DisableRemoteAudioCallButton extends CallButton {
 /// [RoundFloatingButton] accepting a call without video.
 Widget acceptAudioButton(CallController c) => RoundFloatingButton(
       onPressed: () => c.join(withVideo: false),
-      text: 'btn_call_answer_with_audio'.tr,
+      text: 'btn_call_answer_with_audio'.l10n,
       color: CallController.acceptColor,
       withBlur: true,
       children: [
@@ -329,7 +330,7 @@ Widget acceptAudioButton(CallController c) => RoundFloatingButton(
 /// [RoundFloatingButton] accepting a call with video.
 Widget acceptVideoButton(CallController c) => RoundFloatingButton(
       onPressed: () => c.join(withVideo: true),
-      text: 'btn_call_answer_with_video'.tr,
+      text: 'btn_call_answer_with_video'.l10n,
       color: CallController.acceptColor,
       withBlur: true,
       children: [SvgLoader.asset('assets/icons/video_on.svg', width: 60)],
@@ -338,7 +339,7 @@ Widget acceptVideoButton(CallController c) => RoundFloatingButton(
 /// [RoundFloatingButton] declining a call.
 Widget declineButton(CallController c) => RoundFloatingButton(
       onPressed: c.decline,
-      text: 'btn_call_decline'.tr,
+      text: 'btn_call_decline'.l10n,
       color: CallController.endColor,
       withBlur: true,
       children: [SvgLoader.asset('assets/icons/call_end.svg', width: 60)],
@@ -346,7 +347,7 @@ Widget declineButton(CallController c) => RoundFloatingButton(
 
 /// [RoundFloatingButton] dropping a call.
 Widget dropButton(CallController c, [double? scale]) => RoundFloatingButton(
-      hint: 'btn_call_end'.tr,
+      hint: 'btn_call_end'.l10n,
       onPressed: c.drop,
       color: CallController.endColor,
       scale: scale ?? 1,
@@ -355,7 +356,7 @@ Widget dropButton(CallController c, [double? scale]) => RoundFloatingButton(
 
 /// [RoundFloatingButton] canceling an outgoing call.
 Widget cancelButton(CallController c) => RoundFloatingButton(
-      hint: 'btn_call_cancel'.tr,
+      hint: 'btn_call_cancel'.l10n,
       onPressed: c.drop,
       color: CallController.endColor,
       withBlur: true,
@@ -367,7 +368,7 @@ Widget videoButton(CallController c, [double? scale]) => Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
-        hint: isVideo ? 'btn_call_video_off'.tr : 'btn_call_video_on'.tr,
+        hint: isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n,
         onPressed: c.toggleVideo,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -386,7 +387,7 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
-        hint: isAudio ? 'btn_call_audio_off'.tr : 'btn_call_audio_on'.tr,
+        hint: isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n,
         onPressed: c.toggleAudio,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -402,7 +403,7 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
 
 /// [RoundFloatingButton] switching a speaker output.
 Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
-      hint: 'btn_call_toggle_speaker'.tr,
+      hint: 'btn_call_toggle_speaker'.l10n,
       onPressed: c.toggleSpeaker,
       scale: scale ?? 1,
       withBlur: c.state.value != OngoingCallState.active &&
@@ -418,7 +419,7 @@ Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
 /// [RoundFloatingButton] switching a local video stream.
 Widget switchButton(CallController c, [double? scale]) => Obx(
       () => RoundFloatingButton(
-        hint: 'btn_call_switch_camera'.tr,
+        hint: 'btn_call_switch_camera'.l10n,
         onPressed: c.switchCamera,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -441,8 +442,9 @@ Widget screenButton(CallController c, [double? scale]) => Obx(
           alignment: Alignment.center,
           children: [
             RoundFloatingButton(
-              hint:
-                  isScreen ? 'btn_call_screen_off'.tr : 'btn_call_screen_on'.tr,
+              hint: isScreen
+                  ? 'btn_call_screen_off'.l10n
+                  : 'btn_call_screen_on'.l10n,
               onPressed: c.toggleScreenShare,
               scale: scale ?? 1,
               children: [
@@ -471,12 +473,12 @@ Widget callTitle(CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.toString().split('.').first.padLeft(8, '0')
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.tr
+                ? 'label_call_joining'.l10n
                 : isOutgoing
-                    ? 'label_call_calling'.tr
+                    ? 'label_call_calling'.l10n
                     : c.withVideo == true
-                        ? 'label_video_call'.tr
-                        : 'label_audio_call'.tr;
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
         return CallTitle(
           c.me,
           chat: c.chat.value?.chat.value,

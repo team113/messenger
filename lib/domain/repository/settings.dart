@@ -41,4 +41,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.enablePopups] value.
   Future<void> setPopupsEnabled(bool enabled);
+
+  /// Sets the [ApplicationSettings.locale] value.
+  Future<void> setLocale(String locale);
 }
