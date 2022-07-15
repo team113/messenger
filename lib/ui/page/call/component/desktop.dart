@@ -547,9 +547,7 @@ Widget desktopCall(
           return SizedBox(
             height: anyHintIsDisplayed || c.secondaryHovered.value ? 110 : 45,
             width: double.infinity,
-            child: !c.isSelfPanning.value &&
-                    c.primaryDrags.value == 0 &&
-                    c.secondaryDrags.value == 0
+            child: c.primaryDrags.value == 0 && c.secondaryDrags.value == 0
                 ? MouseRegion(
                     opaque: false,
                     onEnter: (d) {

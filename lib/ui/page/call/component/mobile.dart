@@ -596,11 +596,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     ),
   );
 
-  if (c.minimized.value) {
-    c.applyConstraints(context);
-  } else {
-    c.applySelfConstraints(context);
-  }
+  c.applyConstraints(context);
 
   return MinimizableView(
     onInit: (animation) {

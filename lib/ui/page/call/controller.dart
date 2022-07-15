@@ -191,18 +191,6 @@ class CallController extends GetxController {
   /// Minimized view current left position.
   late final RxDouble left;
 
-  /// [GlobalKey] of a self view used in [applySelfConstraints].
-  final GlobalKey selfKey = GlobalKey();
-
-  /// Minimized self view right offset.
-  final Rx<double> selfRight = Rx<double>(10);
-
-  /// Minimized self view bottom offset.
-  final Rx<double> selfBottom = Rx<double>(10);
-
-  /// Indicator whether the minimized self view is being panned or not.
-  final RxBool isSelfPanning = RxBool(false);
-
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
@@ -430,7 +418,6 @@ class CallController extends GetxController {
 
     if (isPopup) {
       isSlidingPanelEnabled.value = true;
-      selfBottom.value = 85;
     }
 
     fullscreen = RxBool(false);
@@ -987,28 +974,6 @@ class CallController extends GetxController {
     height.value = _applyHeight(context, height.value);
     left.value = _applyLeft(context, left.value);
     top.value = _applyTop(context, top.value);
-  }
-
-  /// Applies constraints to the [selfRight] and [selfBottom].
-  void applySelfConstraints(BuildContext context) {
-    final keyContext = selfKey.currentContext;
-    if (keyContext != null) {
-      final box = keyContext.findRenderObject() as RenderBox;
-
-      if (selfRight.value < 0) {
-        selfRight.value = 0;
-      } else if (selfRight.value > size.width - box.size.width) {
-        selfRight.value = size.width - box.size.width;
-      }
-
-      if (selfBottom.value < 0) {
-        selfBottom.value = 0;
-      } else if (selfBottom.value >
-          size.height - box.size.height - padding.bottom - padding.top) {
-        selfBottom.value =
-            size.height - box.size.height - padding.bottom - padding.top;
-      }
-    }
   }
 
   /// Attaches secondary view to nearest corner.
