@@ -1714,7 +1714,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     ),
                                   ),
                                   InkResponse(
-                                    onTap: isAnyDrag ? null : c.unfocusAll,
+                                    onTap: isAnyDrag ? null : c.focusAll,
                                     child: SvgLoader.asset(
                                       'assets/icons/close.svg',
                                       height: 10.25,

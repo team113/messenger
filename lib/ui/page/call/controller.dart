@@ -98,10 +98,10 @@ class CallController extends GetxController {
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
   /// [Participant]s to display in the fit view.
-  RxList<Participant> primary = RxList();
+  final RxList<Participant> primary = RxList();
 
   /// [Participant]s to display in the secondary view.
-  RxList<Participant> secondary = RxList();
+  final RxList<Participant> secondary = RxList();
 
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
@@ -233,7 +233,8 @@ class CallController extends GetxController {
   /// [Alignment] of secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
 
-  /// [Alignment] that might become the [secondaryAlignment] if dropped.
+  /// [Alignment] that might become the [secondaryAlignment] serving as a hint
+  /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   // TODO: Temporary solution.
@@ -452,7 +453,7 @@ class CallController extends GetxController {
         secondaryBottom.value = 10;
       }
 
-      // Update the [WebUtils.title] if this call in a popup.
+      // Update the [WebUtils.title] if this call is in a popup.
       if (WebUtils.isPopup) {
         _titleSubscription?.cancel();
         _durationSubscription?.cancel();
@@ -566,10 +567,10 @@ class CallController extends GetxController {
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
-          if (wasNotEmpty && primary.isEmpty) {
-            unfocusAll();
-          }
           _insureCorrectGrouping();
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
+          }
 
           if (highlighted.value?.id == e.key) {
             highlighted.value = null;
@@ -616,10 +617,11 @@ class CallController extends GetxController {
           bool wasNotEmpty = primary.isNotEmpty;
           rendererBoxFit.remove(e.element.track.id);
           _removeParticipant(e.element.memberId, video: e.element);
-          if (wasNotEmpty && primary.isEmpty) {
-            unfocusAll();
-          }
           _insureCorrectGrouping();
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
+          }
+
           Future.delayed(1.seconds, e.element.inner.dispose);
           break;
 
@@ -885,6 +887,9 @@ class CallController extends GetxController {
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
+      if (focused.isEmpty) {
+        unfocusAll();
+      }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
@@ -894,18 +899,29 @@ class CallController extends GetxController {
     }
   }
 
-  /// Unfocuses all [Participant]s, which means putting them in theirs `default`
+  /// [focus]es all [Participant]s, which means putting them in theirs `default`
   /// groups.
-  void unfocusAll() {
-    if (focused.isEmpty) {
-      for (Participant r in List.from(paneled, growable: false)) {
-        focus(r);
-      }
-    } else {
-      for (Participant r in List.from(focused, growable: false)) {
-        unfocus(r);
-      }
+  void focusAll() {
+    for (Participant r in List.from(paneled, growable: false)) {
+      _putVideoFrom(r, paneled);
     }
+
+    for (Participant r in List.from(focused, growable: false)) {
+      _putVideoFrom(r, focused);
+    }
+
+    _insureCorrectGrouping();
+  }
+
+  /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
+  /// group.
+  void unfocusAll() {
+    for (Participant r
+        in List.from([...focused, ...locals, ...remotes], growable: false)) {
+      _putVideoTo(r, paneled);
+    }
+
+    _insureCorrectGrouping();
   }
 
   /// Highlights the [participant].
