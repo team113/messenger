@@ -607,7 +607,7 @@ Widget desktopCall(
         ),
       );
 
-      c.applySecondaryConstraints(context);
+      c.applySecondaryConstraints();
 
       if (c.minimized.value && !c.fullscreen.value) {
         // Applies constraints on every rebuild.
@@ -1705,7 +1705,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryTop.value ??= size.height -
                                 c.secondaryHeight.value -
                                 (c.secondaryBottom.value ?? 0);
-                            c.applySecondaryConstraints(context);
+                            c.applySecondaryConstraints();
                           }
 
                           c.secondaryRight.value = null;
@@ -1714,7 +1714,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
                           c.updateSecondaryCoordinates(d.globalPosition);
-                          c.applySecondaryConstraints(context);
+                          c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {
                           c.secondaryDragged.value = false;
@@ -1722,7 +1722,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryAlignment.value =
                                 c.possibleSecondaryAlignment.value;
                             c.possibleSecondaryAlignment.value = null;
-                            c.applySecondaryConstraints(context);
+                            c.applySecondaryConstraints();
                           } else {
                             c.updateSecondaryAttach();
                           }

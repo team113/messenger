@@ -546,7 +546,10 @@ class CallController extends GetxController {
     });
 
     _onFullscreenChange = PlatformUtils.onFullscreenChange
-        .listen((bool v) => fullscreen.value = v);
+        .listen((bool v) {
+          fullscreen.value = v;
+          applySecondaryConstraints();
+        });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
       error.value = e;
@@ -1083,7 +1086,7 @@ class CallController extends GetxController {
 
   /// Applies constraints to the [secondaryWidth], [secondaryHeight],
   /// [secondaryLeft] and [secondaryTop].
-  void applySecondaryConstraints(BuildContext context) {
+  void applySecondaryConstraints() {
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
       secondaryLeft.value = size.width / 2;
@@ -1092,10 +1095,10 @@ class CallController extends GetxController {
       secondaryTop.value = size.height / 2;
     }
 
-    secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
-    secondaryHeight.value = _applySHeight(context, secondaryHeight.value);
-    secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
-    secondaryTop.value = _applySTop(context, secondaryTop.value);
+    secondaryWidth.value = _applySWidth(secondaryWidth.value);
+    secondaryHeight.value = _applySHeight(secondaryHeight.value);
+    secondaryLeft.value = _applySLeft(secondaryLeft.value);
+    secondaryTop.value = _applySTop(secondaryTop.value);
 
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
@@ -1183,7 +1186,7 @@ class CallController extends GetxController {
     }
 
     updateSecondaryAttach();
-    applySecondaryConstraints(context);
+    applySecondaryConstraints();
   }
 
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
@@ -1196,10 +1199,9 @@ class CallController extends GetxController {
 
     switch (x) {
       case ScaleModeX.left:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
           double? left = _applySLeft(
-            context,
             secondaryLeft.value! + (secondaryWidth.value - width),
           );
 
@@ -1213,7 +1215,7 @@ class CallController extends GetxController {
         }
         break;
       case ScaleModeX.right:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
           double right = secondaryLeft.value! + width;
           if (right < size.width) {
@@ -1227,10 +1229,9 @@ class CallController extends GetxController {
 
     switch (y) {
       case ScaleModeY.top:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
           double? top = _applySTop(
-            context,
             secondaryTop.value! + (secondaryHeight.value - height),
           );
 
@@ -1244,7 +1245,7 @@ class CallController extends GetxController {
         }
         break;
       case ScaleModeY.bottom:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
           double bottom = secondaryTop.value! + height;
           if (bottom < size.height) {
@@ -1256,12 +1257,12 @@ class CallController extends GetxController {
         break;
     }
 
-    applySecondaryConstraints(context);
+    applySecondaryConstraints();
     updateSecondaryAttach();
   }
 
   /// Returns corrected according to constraints [width] value.
-  double _applySWidth(BuildContext context, double width) {
+  double _applySWidth(double width) {
     if (_minSWidth > size.width * _maxSWidth) {
       return size.width * _maxSWidth;
     } else if (width > size.width * _maxSWidth) {
@@ -1273,7 +1274,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to constraints [height] value.
-  double _applySHeight(BuildContext context, double height) {
+  double _applySHeight(double height) {
     if (_minSHeight > size.height * _maxSHeight) {
       return size.height * _maxSHeight;
     } else if (height > size.height * _maxSHeight) {
@@ -1285,7 +1286,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to constraints [left] value.
-  double? _applySLeft(BuildContext context, double? left) {
+  double? _applySLeft(double? left) {
     if (left != null) {
       if (left + secondaryWidth.value > size.width) {
         return size.width - secondaryWidth.value;
@@ -1298,7 +1299,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to constraints [top] value.
-  double? _applySTop(BuildContext context, double? top) {
+  double? _applySTop(double? top) {
     if (top != null) {
       if (top + secondaryHeight.value > size.height) {
         return size.height - secondaryHeight.value;

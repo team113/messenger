@@ -114,7 +114,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             c.secondaryRight.value = null;
             c.secondaryBottom.value = null;
 
-            c.applySecondaryConstraints(context);
+            c.applySecondaryConstraints();
           },
           onPanDown: (d) => c.secondaryDragged.value = true,
           onPanEnd: (d) {
@@ -127,7 +127,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
             c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
             c.updateSecondaryCoordinates(d.globalPosition);
-            c.applySecondaryConstraints(context);
+            c.applySecondaryConstraints();
           },
           child: _floatingSecondaryView(c, context),
         );
