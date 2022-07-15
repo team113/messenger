@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Redesign desktop interface ([#26]).
+        - Redesigned desktop interface ([#26]).
 
 ### Fixed
 

@@ -79,7 +79,8 @@ class ParticipantWidget extends StatelessWidget {
   /// available.
   final bool useCallCover;
 
-  /// Indicator whether this [ParticipantWidget] should be a bit expanded.
+  /// Indicator whether this [ParticipantWidget] should have its background
+  /// expanded.
   final bool expanded;
 
   @override
@@ -207,7 +208,7 @@ class ParticipantWidget extends StatelessWidget {
   }
 }
 
-/// [Participant] overlay displaying its muted and video status icons.
+/// [Participant] overlay displaying its `muted` and `video status` icons.
 class ParticipantOverlayWidget extends StatelessWidget {
   const ParticipantOverlayWidget(
     this.participant, {

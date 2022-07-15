@@ -56,13 +56,12 @@ btn_call_decline = Отклонить
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
 btn_call_drop_video_here =
-    Перенесите любое
-    видео сюда
+    Добавить видео в отдельную панель можно простым перетаскиванием
 btn_call_enable_video = Включить видео
 btn_call_end = Закончить
 btn_call_hand_down = Опустить руку
 btn_call_hand_up = Поднять руку
-btn_call_screen_off = Закончить демонстрацию
+btn_call_screen_off = Завершить демонстрацию экрана
 btn_call_screen_on = Демонстрация экрана
 btn_call_settings = Настройки
 btn_call_switch_camera = Переключить камеру
@@ -231,6 +230,15 @@ label_call_joining = Подключение
 label_call_permissions_description =
     Необходим для отображения звонков напрямую в телефоне
 label_call_permissions_title = Добавьте аккаунт для вызова
+label_call_title = {$title} | {$state ->
+        [joining] Подключение...
+        [active] {$members} из {$allMembers} | {$duration}
+       *[other] {$type ->
+            [video] Видео звонок
+            [audio] Аудио звонок
+            *[other] Звоним...
+       }
+    }
 label_camera = Камера
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_dropped = Отменённый звонок
@@ -295,8 +303,15 @@ label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_hidden = Статус скрыт
 label_hide_for_me = Удалить для меня
+label_hint_from_gapopa = Подсказка от Gapopa
 label_hint_drag_n_drop_video =
-    Подсказка = Вы можете перетаскивать видео окна.
+    Просто перетащите, чтобы:
+
+    • изменить размер или расположение видео;
+
+    • прикрепить одно или несколько видео к любой из сторон;
+
+    • вынести одно или несколько видео в отдельную панель.
 label_incoming_call = Входящий звонок
 label_last_seen = Был(а)
 label_login = Логин

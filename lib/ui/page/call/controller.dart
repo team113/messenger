@@ -33,6 +33,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -93,7 +94,7 @@ class CallController extends GetxController {
   /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
 
-  /// [Participant] being dragged currently with its dough broke.
+  /// [Participant] being dragged currently with its dough broken.
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
   /// [Participant]s to display in the fit view.
@@ -236,8 +237,8 @@ class CallController extends GetxController {
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   // TODO: Temporary solution.
-  /// Indicator whether secondary view should be attached to
-  /// the [Alignment.bottomRight] part of the screen.
+  /// Indicator whether secondary view should be attached to the
+  /// [Alignment.bottomRight] part of the screen.
   final RxBool secondaryKeepAlignment = RxBool(false);
 
   /// Max width of the minimized view in percentage of the screen width.
@@ -458,6 +459,11 @@ class CallController extends GetxController {
 
         if (v != null) {
           void _updateTitle() {
+            final Map<String, String> args = {
+              'title': v.title.value,
+              'state': state.value.name,
+            };
+
             switch (state.value) {
               case OngoingCallState.local:
               case OngoingCallState.pending:
@@ -465,33 +471,32 @@ class CallController extends GetxController {
                     (outgoing || state.value == OngoingCallState.local) &&
                         !started;
                 if (isOutgoing) {
-                  WebUtils.title(
-                      '${v.title.value} | ${'label_call_calling'.tr}${'.'.tr * 3}');
+                  args['type'] = 'outgoing';
                 } else if (withVideo) {
-                  WebUtils.title('${v.title.value} | ${'label_video_call'.tr}');
+                  args['type'] = 'video';
                 } else {
-                  WebUtils.title('${v.title.value} | ${'label_audio_call'.tr}');
+                  args['type'] = 'audio';
                 }
-                break;
-
-              case OngoingCallState.joining:
-                WebUtils.title(
-                    '${v.title.value} | ${'label_call_joining'.tr}${'.'.tr * 3}');
                 break;
 
               case OngoingCallState.active:
                 var actualMembers = _currentCall.value.members.keys
                     .map((k) => k.userId)
                     .toSet();
-                WebUtils.title(
-                  '\u205f​​​ \u205f​​​${v.title.value} | ${1 + actualMembers.length} ${'label_of'.tr} ${v.chat.value.members.length} | ${duration.value.hhMmSs()} \u205f​​​ \u205f​​​',
-                );
+                args['members'] = '${actualMembers.length + 1}';
+                args['allMembers'] = '${v.chat.value.members.length}';
+                args['duration'] = duration.value.hhMmSs();
                 break;
 
+              case OngoingCallState.joining:
               case OngoingCallState.ended:
                 // No-op.
                 break;
             }
+
+            WebUtils.title(
+              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
+            );
           }
 
           _updateTitle();
@@ -556,15 +561,12 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
-          bool isNotEmpty = locals.isNotEmpty || remotes.isNotEmpty;
+          bool wasNotEmpty = primary.isNotEmpty;
           paneled.removeWhere((m) => m.id == e.key);
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
-          if (isNotEmpty &&
-              locals.isEmpty &&
-              remotes.isEmpty &&
-              focused.isEmpty) {
+          if (wasNotEmpty && primary.isEmpty) {
             unfocusAll();
           }
           _insureCorrectGrouping();
@@ -611,8 +613,12 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool wasNotEmpty = primary.isNotEmpty;
           rendererBoxFit.remove(e.element.track.id);
           _removeParticipant(e.element.memberId, video: e.element);
+          if (wasNotEmpty && primary.isEmpty) {
+            unfocusAll();
+          }
           _insureCorrectGrouping();
           Future.delayed(1.seconds, e.element.inner.dispose);
           break;
@@ -879,11 +885,6 @@ class CallController extends GetxController {
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
-      if (focused.isEmpty) {
-        for (var p in [...remotes, ...locals]) {
-          _putVideoTo(p, paneled);
-        }
-      }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {

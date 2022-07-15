@@ -27,11 +27,9 @@ import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/fit_view.dart';
-import '../widget/fit_wrap.dart';
 import '../widget/hint.dart';
 import '../widget/participant.dart';
-import '../widget/reorderable_fit_wrap.dart';
+import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
@@ -376,8 +374,8 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Obx(
-          () => Center(
+        Obx(() {
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -424,8 +422,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        }),
         // Bottom [MouseRegion] that toggles UI on hover.
         Align(
           alignment: Alignment.bottomCenter,
@@ -549,9 +547,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     c.secondaryDrags.value == 0
                 ? MouseRegion(
                     opaque: false,
-                    onEnter: (d) {
-                      c.keepUi(true);
-                    },
+                    onEnter: (d) => c.keepUi(true),
                     onExit: (d) {
                       if (c.showUi.value) {
                         c.keepUi(false);
@@ -819,30 +815,42 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      bool isOutgoing =
-          (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
-      String state = c.state.value == OngoingCallState.active
-          ? c.duration.value.hhMmSs()
-          : c.state.value == OngoingCallState.joining
-              ? 'label_call_joining'.l10n
-              : isOutgoing
-                  ? 'label_call_calling'.l10n
-                  : c.withVideo == true
-                      ? 'label_video_call'.l10n
-                      : 'label_audio_call'.l10n;
+      final Map<String, String> args = {
+        'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
+        'state': c.state.value.name,
+      };
 
-      String title = c.chat.value?.title.value ?? ('dot'.l10n * 3);
+      switch (c.state.value) {
+        case OngoingCallState.local:
+        case OngoingCallState.pending:
+          bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+          if (isOutgoing) {
+            args['type'] = 'outgoing';
+          } else if (c.withVideo) {
+            args['type'] = 'video';
+          } else {
+            args['type'] = 'audio';
+          }
+          break;
 
-      String? subtitle;
-      if (c.isGroup) {
-        var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-        subtitle =
-            ' | ${1 + actualMembers.length} ${'label_of'.l10n} ${c.chat.value?.members.length}';
+        case OngoingCallState.active:
+          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
+          args['members'] = '${actualMembers.length + 1}';
+          args['allMembers'] = '${c.chat.value?.members.length}';
+          args['duration'] = c.duration.value.hhMmSs();
+          break;
+
+        case OngoingCallState.joining:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       return Container(
         key: const ValueKey('TitleBar'),
-        color: const Color.fromARGB(255, 22, 38, 54),
+        color: const Color(0xFF162636),
         height: 30,
         child: Stack(
           alignment: Alignment.center,
@@ -854,7 +862,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
             ),
 
             // Left part of the title bar that displays the recipient or
-            // the caller and its avatar.
+            // the caller, its avatar and the call's state.
             Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
@@ -875,51 +883,17 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       AvatarWidget.fromRxChat(c.chat.value, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 110),
-                          child: Text(
-                            title,
-                            style: context.textTheme.bodyText1?.copyWith(
-                              fontSize: 13,
-                              color: const Color(0xFFFFFFFF),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle,
+                        child: Text(
+                          'label_call_title'.l10nfmt(args),
                           style: context.textTheme.bodyText1?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
                     ],
                   ),
-                ),
-              ),
-            ),
-
-            // Center part of the title bar that displays the call state.
-            IgnorePointer(
-              child: Container(
-                height: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 90),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      state,
-                      style: context.textTheme.bodyText1?.copyWith(
-                        fontSize: 13,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -952,7 +926,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       );
     });
 
-/// [FitView] of the [CallController.primary] participants.
+/// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
     List<Participant> primary = List.from(c.primary);
@@ -983,18 +957,20 @@ Widget _primaryView(CallController c) {
 
     return Stack(
       children: [
-        ReorderableFitWrap<_DragData>(
+        ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
-          showDragTargetWhenEmpty: true,
+          emptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
-            if (d?.id == c.chatId) {
-              if (c.draggedRenderer.value?.user.value?.user.value.id != c.me ||
-                  c.draggedRenderer.value?.source != MediaSourceKind.Display) {
+            if (d?.chatId == c.chatId) {
+              if (d?.participant.user.value?.id != c.me ||
+                  d?.participant.source != MediaSourceKind.Display) {
                 c.primaryTargets.value = 1;
               }
+
               return true;
             }
+
             return false;
           },
           onLeave: (b) => c.primaryTargets.value = 0,
@@ -1135,8 +1111,7 @@ Widget _primaryView(CallController c) {
               });
             });
           },
-          decoratorBuilder: (_DragData item) =>
-              const ParticipantDecoratorWidget(),
+          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -1169,10 +1144,14 @@ Widget _primaryView(CallController c) {
                           beginScale: 1,
                           endScale: 1.06,
                           child: ConditionalBackdropFilter(
+                            condition: !c.minimized.value || c.fullscreen.value,
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0x40000000),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: !c.minimized.value || c.fullscreen.value
+                                    ? const Color(0x40000000)
+                                    : const Color(0x90000000),
                               ),
                               child: const Padding(
                                 padding: EdgeInsets.all(16),
@@ -1196,7 +1175,7 @@ Widget _primaryView(CallController c) {
   });
 }
 
-/// [FitWrap] of the [CallController.secondary] participants.
+/// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -1496,14 +1475,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
-          ReorderableFitWrap<_DragData>(
+          ReorderableFit<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
             onWillAccept: (d) {
-              if (d?.id == c.chatId) {
+              if (d?.chatId == c.chatId) {
                 c.secondaryTargets.value = 1;
                 return true;
               }
+
               return false;
             },
             onLeave: (b) => c.secondaryTargets.value = 0,
@@ -1580,14 +1560,40 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
                         ? Container()
-                        : IgnorePointer(
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
+                        : ContextMenuRegion(
+                            key: ObjectKey(participant),
+                            preventContextMenu: true,
+                            menu: ContextMenu(
+                              actions: [
+                                if ((participant.owner !=
+                                            MediaOwnerKind.local ||
+                                        participant.source !=
+                                            MediaSourceKind.Display) &&
+                                    participant.video.value?.isEnabled == true)
+                                  ContextMenuButton(
+                                    label: 'btn_call_center_video'.l10n,
+                                    onPressed: () => c.center(participant),
+                                  ),
+                                if (participant.video.value != null)
+                                  ContextMenuButton(
+                                    label: participant.video.value?.isEnabled ==
+                                            true
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () => c.toggleRendererEnabled(
+                                        participant.video),
+                                  )
+                              ],
+                            ),
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
                             ),
                           ),
                   ),
@@ -1598,38 +1604,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 const ParticipantDecoratorWidget(),
             itemBuilder: (_DragData data) {
               var participant = data.participant;
-
-              return ContextMenuRegion(
-                preventContextMenu: true,
-                menu: ContextMenu(
-                  actions: [
-                    if ((participant.owner != MediaOwnerKind.local ||
-                            participant.source != MediaSourceKind.Display) &&
-                        participant.video.value?.isEnabled == true)
-                      ContextMenuButton(
-                        label: 'btn_call_center_video'.l10n,
-                        onPressed: () => c.center(participant),
-                      ),
-                    if (participant.video.value != null)
-                      ContextMenuButton(
-                        label: participant.video.value?.isEnabled == true
-                            ? 'btn_call_disable_video'.l10n
-                            : 'btn_call_enable_video'.l10n,
-                        onPressed: () =>
-                            c.toggleRendererEnabled(participant.video),
-                      )
-                  ],
-                ),
-                child: Obx(
-                  () => ParticipantWidget(
-                    participant,
-                    key: ObjectKey(participant),
-                    offstageUntilDetermined: true,
-                    respectAspectRatio: true,
-                    useCallCover: true,
-                    borderRadius: BorderRadius.zero,
-                    expanded: c.doughDraggedRenderer.value == participant,
-                  ),
+              return Obx(
+                () => ParticipantWidget(
+                  participant,
+                  key: ObjectKey(participant),
+                  offstageUntilDetermined: true,
+                  respectAspectRatio: true,
+                  useCallCover: true,
+                  borderRadius: BorderRadius.zero,
+                  expanded: c.doughDraggedRenderer.value == participant,
                 ),
               );
             },
@@ -1799,10 +1782,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 beginScale: 1,
                                 endScale: 1.06,
                                 child: ConditionalBackdropFilter(
+                                  condition:
+                                      !c.minimized.value || c.fullscreen.value,
                                   borderRadius: BorderRadius.circular(16),
                                   child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0x40000000),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: !c.minimized.value ||
+                                              c.fullscreen.value
+                                          ? const Color(0x40000000)
+                                          : const Color(0x90000000),
                                     ),
                                     child: const Padding(
                                       padding: EdgeInsets.all(16),
@@ -1906,9 +1895,9 @@ Widget _secondaryTarget(CallController c) {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
 
-    // Pre-calculate the [FitWrap]'s size.
+    // Pre-calculate the [ReorderableFit]'s size.
     double panelSize = max(
-      FitWrap.calculateSize(
+      ReorderableFit.calculateSize(
         maxSize: c.size.shortestSide / 4,
         constraints: Size(c.size.width, c.size.height - 45),
         axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
@@ -1933,12 +1922,7 @@ Widget _secondaryTarget(CallController c) {
                     ? double.infinity
                     : panelSize / 1.6,
                 child: DragTarget<_DragData>(
-                  onWillAccept: (d) {
-                    if (d?.id == c.chatId) {
-                      return true;
-                    }
-                    return false;
-                  },
+                  onWillAccept: (d) => d?.chatId == c.chatId,
                   onAccept: (_DragData d) {
                     if (secondaryAxis == Axis.horizontal) {
                       c.secondaryAlignment.value = Alignment.centerRight;
@@ -2029,19 +2013,21 @@ Widget _secondaryTarget(CallController c) {
   });
 }
 
-/// Drag data of an call [Participant].
+/// [Draggable] data consisting of the [participant] and its [chatId].
 class _DragData {
-  const _DragData(this.participant, this.id);
+  const _DragData(this.participant, this.chatId);
 
-  /// [Participant] to focus.
+  /// [Participant] this [_DragData] represents.
   final Participant participant;
 
-  /// [ChatId] this [_DragData] placed.
-  final ChatId id;
+  /// [ChatId] of the [CallView] this [participant] takes place in.
+  final ChatId chatId;
 
   @override
   bool operator ==(Object other) =>
-      other is _DragData && participant == other.participant;
+      other is _DragData &&
+      participant == other.participant &&
+      chatId == other.chatId;
 
   @override
   int get hashCode => participant.hashCode;

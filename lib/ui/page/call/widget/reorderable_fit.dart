@@ -18,18 +18,19 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
+import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/call/widget/fit_wrap.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import 'reorderable_common.dart';
 
 /// Places [children] into a shrinkable [Wrap] with an ability to reorder them.
 ///
 /// Uses [Column]s and [Row]s, if there's not enough space for the [Wrap].
-class ReorderableFitWrap<T extends Object> extends StatelessWidget {
-  const ReorderableFitWrap({
+class ReorderableFit<T extends Object> extends StatelessWidget {
+  const ReorderableFit({
     Key? key,
     required this.children,
     required this.itemBuilder,
@@ -56,7 +57,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     this.onLeave,
     this.onOffset,
     this.useLongPress = false,
-    this.showDragTargetWhenEmpty = false,
+    this.emptyTarget = false,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -72,8 +73,9 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   /// [Draggable].
   final bool useLongPress;
 
-  /// Indicator whether [DragTarget] showed when [children] is empty.
-  final bool showDragTargetWhenEmpty;
+  /// Indicator whether [DragTarget] still should be enabled when [children] are
+  /// empty.
+  final bool emptyTarget;
 
   /// Children widgets needed to be placed in a [Wrap].
   final List<T> children;
@@ -170,7 +172,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
     return size;
   }
 
-  /// Indicates whether this [ReorderableFitWrap] should use the [Column]s and
+  /// Indicates whether this [ReorderableFit] should use the [Column]s and
   /// [Row]s instead.
   static bool useFitView({
     required double maxSize,
@@ -199,12 +201,10 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) {
-      if (showDragTargetWhenEmpty) {
+      if (emptyTarget) {
         return DragTarget<T>(
           onAccept: (o) => onAdded?.call(o, 0),
-          onWillAccept: (b) {
-            return onWillAccept?.call(b) ?? true;
-          },
+          onWillAccept: (b) => onWillAccept?.call(b) ?? true,
           onLeave: onLeave,
           builder: ((_, __, ___) {
             return SizedBox(
@@ -335,7 +335,7 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
           );
         }
 
-        return _ReorderableFitWrap<T>(
+        return _ReorderableFit<T>(
           children: children,
           itemBuilder: itemBuilder,
           decoratorBuilder: decoratorBuilder,
@@ -370,9 +370,9 @@ class ReorderableFitWrap<T extends Object> extends StatelessWidget {
   }
 }
 
-/// Stateful component of the [ReorderableFitWrap].
-class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
-  const _ReorderableFitWrap({
+/// Stateful component of the [ReorderableFit].
+class _ReorderableFit<T extends Object> extends StatefulWidget {
+  const _ReorderableFit({
     Key? key,
     required this.children,
     required this.itemBuilder,
@@ -482,40 +482,39 @@ class _ReorderableFitWrap<T extends Object> extends StatefulWidget {
   /// Number of [Column]s to place the [children] onto.
   final int mColumns;
 
-  /// Size of wrap of this [_ReorderableFitWrap].
+  /// Size of a [Wrap] of this [_ReorderableFit].
   final double? wrapSize;
 
-  /// Axis direction of wrap.
+  /// Axis direction of a [Wrap].
   final Axis? wrapAxis;
 
-  /// Indicator whether this [_ReorderableFitWrap] should use [Wrap].
+  /// Indicator whether this [_ReorderableFit] should use [Wrap].
   final bool useWrap;
 
   @override
-  State<_ReorderableFitWrap<T>> createState() => _ReorderableFitWrapState<T>();
+  State<_ReorderableFit<T>> createState() => _ReorderableFitState<T>();
 }
 
-/// State of a [_ReorderableFitWrap] maintaining the reorderable [_items] list.
-class _ReorderableFitWrapState<T extends Object>
-    extends State<_ReorderableFitWrap<T>> {
-  /// [ReorderableItem]s of this [_ReorderableFitWrap].
-  List<ReorderableItem<T>> _items = [];
+/// State of a [_ReorderableFit] maintaining the reorderable [_items] list.
+class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
+  /// [_ReorderableItem]s of this [_ReorderableFit].
+  List<_ReorderableItem<T>> _items = [];
 
   ///  Positions of [_items].
   final Map<int, int> _positions = {};
 
-  /// [GlobalKey] of this [_ReorderableFitWrap].
+  /// [GlobalKey] of this [_ReorderableFit].
   final GlobalKey _fitKey = GlobalKey();
 
   /// [AudioPlayer] playing a pop sound.
   AudioPlayer? _audioPlayer;
 
-  /// [ReorderableItem] being dragged that has already broke its dough.
-  ReorderableItem<T>? _doughDragged;
+  /// [_ReorderableItem] being dragged that has already broke its dough.
+  _ReorderableItem<T>? _doughDragged;
 
   @override
   void initState() {
-    _items = widget.children.map((e) => ReorderableItem(e)).toList();
+    _items = widget.children.map((e) => _ReorderableItem(e)).toList();
     _initAudio();
     super.initState();
   }
@@ -531,8 +530,8 @@ class _ReorderableFitWrapState<T extends Object>
   }
 
   @override
-  void didUpdateWidget(covariant _ReorderableFitWrap<T> oldWidget) {
-    for (var r in List<ReorderableItem<T>>.from(_items, growable: false)) {
+  void didUpdateWidget(covariant _ReorderableFit<T> oldWidget) {
+    for (var r in List<_ReorderableItem<T>>.from(_items, growable: false)) {
       if (!widget.children.contains(r.item)) {
         _items.remove(r);
         _positions.remove(r.hashCode);
@@ -543,10 +542,10 @@ class _ReorderableFitWrapState<T extends Object>
       if (!_items.any((e) => e.hashCode == r.hashCode)) {
         int? index = _positions[r.hashCode];
         if (index != null && index < _items.length) {
-          _items.insert(index, ReorderableItem(r));
+          _items.insert(index, _ReorderableItem(r));
           _positions.remove(r.hashCode);
         } else {
-          _items.add(ReorderableItem(r));
+          _items.add(_ReorderableItem(r));
         }
       }
     }
@@ -556,7 +555,7 @@ class _ReorderableFitWrapState<T extends Object>
 
   @override
   Widget build(BuildContext context) {
-    // Creates visual representation of the [ReorderableItem] with provided
+    // Creates visual representation of the [_ReorderableItem] with provided
     // [index].
     Widget _cell(int index) {
       var item = _items[index];
@@ -571,7 +570,7 @@ class _ReorderableFitWrapState<T extends Object>
                     width: widget.wrapSize,
                     height: widget.wrapSize,
                   )
-                : ReorderableDraggableHandle<T>(
+                : _ReorderableDraggable<T>(
                     item: item.item,
                     itemBuilder: widget.itemBuilder,
                     useLongPress: widget.useLongPress,
@@ -630,8 +629,10 @@ class _ReorderableFitWrapState<T extends Object>
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
                       }
+
                       return true;
                     }
+
                     return false;
                   },
                   onAccept: (o) => _onAccept(o, index, index),
@@ -656,8 +657,10 @@ class _ReorderableFitWrapState<T extends Object>
                       if (i != -1) {
                         _onWillAccept(b!, index, i);
                       }
+
                       return true;
                     }
+
                     return false;
                   },
                   onAccept: (o) => _onAccept(o, index, index + 1),
@@ -826,7 +829,7 @@ class _ReorderableFitWrapState<T extends Object>
           });
         } else {
           from.entry = OverlayEntry(builder: (context) {
-            return AnimatedTransition(
+            return _AnimatedTransition(
               key: from.entryKey,
               beginRect: beginRect,
               endRect: endRect,
@@ -852,7 +855,7 @@ class _ReorderableFitWrapState<T extends Object>
   }
 
   /// Constructs a returning [OverlayEntry] animation of the [to] item.
-  void _animateReturn(ReorderableItem<T> to, Offset d) {
+  void _animateReturn(_ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
     var beginRect = to.dragStartedRect ?? to.key.globalPaintBounds!;
@@ -876,7 +879,7 @@ class _ReorderableFitWrapState<T extends Object>
         });
       } else {
         to.entry = OverlayEntry(builder: (context) {
-          return AnimatedTransition(
+          return _AnimatedTransition(
             key: to.entryKey,
             curve: Curves.linearToEaseOut,
             beginRect: beginRect,
@@ -901,5 +904,206 @@ class _ReorderableFitWrapState<T extends Object>
     } on MissingPluginException {
       _audioPlayer = null;
     }
+  }
+}
+
+/// [_ReorderableItem] wrapped in a [DraggableDough].
+class _ReorderableDraggable<T extends Object> extends StatelessWidget {
+  const _ReorderableDraggable({
+    Key? key,
+    required this.item,
+    required this.sharedKey,
+    required this.itemBuilder,
+    this.onDragEnd,
+    this.onDragStarted,
+    this.onDragCompleted,
+    this.onDraggableCanceled,
+    this.onDoughBreak,
+    this.useLongPress = false,
+    this.enabled = true,
+  }) : super(key: key);
+
+  /// Item stored in this [_ReorderableDraggable].
+  final T item;
+
+  /// [UniqueKey] of this [_ReorderableDraggable].
+  final UniqueKey sharedKey;
+
+  /// Builder building the [item].
+  final Widget Function(T) itemBuilder;
+
+  /// Callback, called when [item] dragging is started.
+  final VoidCallback? onDragStarted;
+
+  /// Callback, called when [item] dragging is ended.
+  final Function(Offset)? onDragEnd;
+
+  /// Callback, called when the dragged [item] is accepted by some [DragTarget].
+  final VoidCallback? onDragCompleted;
+
+  /// Callback, called when [item] dragging is canceled.
+  final Function(Offset)? onDraggableCanceled;
+
+  /// Callback, called when [item] breaks its dough.
+  final VoidCallback? onDoughBreak;
+
+  /// Indicator whether a [LongPressDraggable] should be used instead of a
+  /// [Draggable].
+  final bool useLongPress;
+
+  /// Indicator whether dragging is allowed.
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return DoughRecipe(
+      data: DoughRecipeData(
+        adhesion: 4,
+        viscosity: 2000,
+        draggablePrefs: DraggableDoughPrefs(
+          breakDistance: 50,
+          useHapticsOnBreak: true,
+        ),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          var widget = itemBuilder(item);
+          return DraggableDough<T>(
+            data: item,
+            longPress: useLongPress,
+            maxSimultaneousDrags: enabled ? 1 : 0,
+            onDragEnd: (d) => onDragEnd?.call(d.offset),
+            onDragStarted: onDragStarted,
+            onDragCompleted: onDragCompleted,
+            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
+            onDoughBreak: () {
+              if (enabled) {
+                onDoughBreak?.call();
+              }
+            },
+            feedback: SizedBox(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              child: KeyedSubtree(
+                key: sharedKey,
+                child: widget,
+              ),
+            ),
+            childWhenDragging: KeyedSubtree(
+              key: sharedKey,
+              child: Container(
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+                color: Colors.transparent,
+              ),
+            ),
+            child: KeyedSubtree(
+              key: sharedKey,
+              child: widget,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Data of an [Object] used in a [_ReorderableFit] to be reordered around.
+class _ReorderableItem<T> {
+  _ReorderableItem(this.item);
+
+  /// Reorderable [Object] itself.
+  final T item;
+
+  /// [GlobalKey] of this [_ReorderableItem] representing the global position of
+  /// this [item].
+  final GlobalKey key = GlobalKey();
+
+  /// [UniqueKey] of this [_ReorderableItem] representing the position in a
+  /// [_ReorderableFit] of this [item].
+  final UniqueKey sharedKey = UniqueKey();
+
+  /// [GlobalKey] of the [entry].
+  final GlobalKey<_AnimatedTransitionState> entryKey =
+      GlobalKey<_AnimatedTransitionState>();
+
+  /// [OverlayEntry] of this [_ReorderableItem] used to animate the [item]
+  /// changing its position.
+  OverlayEntry? entry;
+
+  /// [Rect] of this [item] at the moment when a drag started, used to animate
+  /// this [item] returning back.
+  Rect? dragStartedRect;
+
+  @override
+  int get hashCode => item.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ReorderableItem<T> && other.item == item;
+}
+
+/// Animated transform of the provided [child] from the [beginRect] to the
+/// [endRect].
+class _AnimatedTransition extends StatefulWidget {
+  const _AnimatedTransition({
+    Key? key,
+    required this.beginRect,
+    required this.endRect,
+    required this.child,
+    this.onEnd,
+    this.curve,
+  }) : super(key: key);
+
+  /// Initial [Rect] this [child] takes.
+  final Rect beginRect;
+
+  /// Target [Rect] to animate this [child] to.
+  final Rect endRect;
+
+  /// Callback, called when animation ends.
+  final VoidCallback? onEnd;
+
+  /// [Widget] to transform around.
+  final Widget child;
+
+  /// [Curve] of animation.
+  final Curve? curve;
+
+  @override
+  State<_AnimatedTransition> createState() => _AnimatedTransitionState();
+}
+
+/// State of [_AnimatedTransition] changing the [rect].
+class _AnimatedTransitionState extends State<_AnimatedTransition>
+    with SingleTickerProviderStateMixin {
+  /// [Rect] that [_AnimatedTransition.child] occupies.
+  late Rect rect;
+
+  @override
+  void initState() {
+    rect = widget.beginRect;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => rect = widget.endRect);
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        AnimatedPositioned.fromRect(
+          rect: rect,
+          duration: const Duration(milliseconds: 200),
+          curve: widget.curve ?? Curves.linear,
+          onEnd: widget.onEnd,
+          child: widget.child,
+        ),
+      ],
+    );
   }
 }

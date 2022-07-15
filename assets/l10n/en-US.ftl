@@ -56,13 +56,12 @@ btn_call_decline = Decline
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
-    Drop any
-    video here
+    You can add a video to a separate panel by simply dragging and dropping
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_hand_down = Hand down
 btn_call_hand_up = Hand up
-btn_call_screen_off = Stop sharing
+btn_call_screen_off = Stop screen sharing
 btn_call_screen_on = Share screen
 btn_call_settings = Settings
 btn_call_switch_camera = Switch camera
@@ -221,6 +220,15 @@ label_call_joining = Joining
 label_call_permissions_description =
     Required to display calls in your phone natively
 label_call_permissions_title = Add phone account
+label_call_title = {$title} | {$state ->
+        [joining] Joining...
+        [active] {$members} of {$allMembers} | {$duration}
+       *[other] {$type ->
+            [video] Video call
+            [audio] Audio call
+            *[other] Calling...
+       }
+    }
 label_camera = Camera
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
@@ -283,7 +291,14 @@ label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden
 label_hide_for_me = Delete for me
-label_hint_drag_n_drop_video = Hint: you can drag and drop video windows.
+label_hint_from_gapopa = Hint from Gapopa
+label_hint_drag_n_drop_video = Just drag to:
+
+    • change the size or position of the video;
+
+    • attach one or more videos to any side;
+
+    • move one or more videos to a separate panel.
 label_incoming_call = Incoming call
 label_last_seen = Last seen
 label_login = Login
