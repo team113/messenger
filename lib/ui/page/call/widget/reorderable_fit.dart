@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
-import '/ui/page/call/widget/fit_wrap.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 
 /// Places [children] evenly on a screen with an ability to reorder them.
