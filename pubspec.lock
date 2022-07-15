@@ -358,6 +358,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.6"
+  dough:
+    dependency: "direct main"
+    description:
+      path: "packages/dough"
+      ref: HEAD
+      resolved-ref: "1834fa7c62d42a8b306cd15895d0cec453d8fbe7"
+      url: "https://github.com/krida2000/dough"
+    source: git
+    version: "1.0.3"
   email_validator:
     dependency: "direct main"
     description:
@@ -1184,6 +1193,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.3"
+  sensors:
+    dependency: transitive
+    description:
+      name: sensors
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   sentry:
     dependency: transitive
     description:

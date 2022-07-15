@@ -184,7 +184,7 @@ class AvatarWidget extends StatelessWidget {
   /// Integer that determining the gradient color of the avatar.
   final int? color;
 
-  /// Opacity of this widget.
+  /// Opacity of this [AvatarWidget].
   final double opacity;
 
   /// Avatar color swatches.
@@ -228,7 +228,7 @@ class AvatarWidget extends StatelessWidget {
           );
   }
 
-  /// Returns an actual interface of this widget.
+  /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
@@ -276,7 +276,7 @@ class AvatarWidget extends StatelessWidget {
                   child: Text(
                     (title ?? '??').initials(),
                     style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (constraints.maxWidth / 40.0),
+                          fontSize: 15 * (maxWidth / 40.0),
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),

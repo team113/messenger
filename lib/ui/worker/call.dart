@@ -282,6 +282,7 @@ class CallWorker extends DisposableService {
       await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer?.play(
         AssetSource('audio/$asset'),
+        position: Duration.zero,
         mode: PlayerMode.lowLatency,
       );
     }, (e, _) {
@@ -298,6 +299,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
+    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
+    await _audioPlayer?.stop();
     await _audioPlayer?.release();
   }
 

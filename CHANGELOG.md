@@ -18,6 +18,12 @@ All user visible changes to this project will be documented in this file. This p
     - Menu:
         - Language selection ([#23]).
 
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned desktop interface ([#26]).
+
 ### Fixed
 
 - Android:
@@ -32,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 [#23]: /../../pull/23
+[#26]: /../../pull/26
 
 
 

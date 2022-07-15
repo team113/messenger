@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -32,12 +33,15 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/call/add_dialog_member/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
+import 'add_dialog_member/view.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -81,16 +85,40 @@ class CallController extends GetxController {
   /// [Participant] that should be highlighted over the others.
   final Rx<Participant?> highlighted = Rx(null);
 
+  /// Indicator whether the secondary view is being hovered.
+  final RxBool secondaryHovered = RxBool(false);
+
+  /// Indicator whether the secondary view is being dragged.
+  final RxBool secondaryDragged = RxBool(false);
+
+  /// [Participant] being dragged currently.
+  final Rx<Participant?> draggedRenderer = Rx(null);
+
+  /// [Participant] being dragged currently with its dough broken.
+  final Rx<Participant?> doughDraggedRenderer = Rx(null);
+
+  /// [Participant]s to display in the fit view.
+  final RxList<Participant> primary = RxList();
+
+  /// [Participant]s to display in the secondary view.
+  final RxList<Participant> secondary = RxList();
+
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
   /// Count of a currently happening drags of the secondary videos used to
   /// determine if any drag happened at all.
-  RxInt secondaryDrags = RxInt(0);
+  final RxInt secondaryDrags = RxInt(0);
 
   /// Count of a currently happening drags of the primary videos used to
   /// determine if any drag happened at all and to display secondary view hint.
   final RxInt primaryDrags = RxInt(0);
+
+  /// Count of [Participant]s to be accepted into the fit view.
+  final RxInt primaryTargets = RxInt(0);
+
+  /// Count of [Participant]s to be accepted into the secondary view.
+  final RxInt secondaryTargets = RxInt(0);
 
   /// Indicator whether the camera was switched or not.
   final RxBool cameraSwitched = RxBool(false);
@@ -103,9 +131,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
-
-  /// Indicator whether the title bar panel is shown or not.
-  final RxBool isTitleBarShown = RxBool(false);
 
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
@@ -187,6 +212,36 @@ class CallController extends GetxController {
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
+  /// Secondary view current left position.
+  final RxnDouble secondaryLeft = RxnDouble(0);
+
+  /// Secondary view current top position.
+  final RxnDouble secondaryTop = RxnDouble(0);
+
+  /// Secondary view current right position.
+  final RxnDouble secondaryRight = RxnDouble(null);
+
+  /// Secondary view current bottom position.
+  final RxnDouble secondaryBottom = RxnDouble(null);
+
+  /// Secondary view current width.
+  late final RxDouble secondaryWidth;
+
+  /// Secondary view current height.
+  late final RxDouble secondaryHeight;
+
+  /// [Alignment] of the secondary view.
+  final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
+
+  /// [Alignment] that might become the [secondaryAlignment] serving as a hint
+  /// while dragging the secondary view.
+  final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
+
+  // TODO: Temporary solution.
+  /// Indicator whether the secondary view should be attached to the
+  /// [Alignment.bottomRight] part of the screen.
+  final RxBool secondaryKeepAlignment = RxBool(false);
+
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
 
@@ -198,6 +253,18 @@ class CallController extends GetxController {
 
   /// Min height of the minimized view in pixels.
   static const double _minHeight = 500;
+
+  /// Max width of the secondary view in percentage of the call width.
+  static const double _maxSWidth = 0.95;
+
+  /// Max height of the secondary view in percentage of the call height.
+  static const double _maxSHeight = 0.95;
+
+  /// Min width of the secondary view in pixels.
+  static const double _minSWidth = 100;
+
+  /// Min height of the secondary view in pixels.
+  static const double _minSHeight = 100;
 
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
@@ -236,14 +303,10 @@ class CallController extends GetxController {
   StreamSubscription? _errorsSubscription;
 
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
-  final Map<String, BoxFit?> rendererBoxFit = <String, BoxFit?>{};
+  final RxMap<String, BoxFit?> rendererBoxFit = RxMap<String, BoxFit?>();
 
   /// [Worker] for catching the [state] changes to start the [_durationTimer].
   late final Worker _stateWorker;
-
-  /// [Worker] for catching the [isSlidingPanelEnabled] changes to correct the
-  /// position of a minimized self view.
-  late final Worker _panelWorker;
 
   /// Subscription for [OngoingCall.localVideos] changes.
   late final StreamSubscription _localsSubscription;
@@ -256,6 +319,12 @@ class CallController extends GetxController {
 
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
+
+  /// Subscription for [OngoingCall.members] changes updating the title.
+  StreamSubscription? _titleSubscription;
+
+  /// Subscription for [duration] changes updating the title.
+  StreamSubscription? _durationSubscription;
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
@@ -303,7 +372,7 @@ class CallController extends GetxController {
 
   /// Returns actual size of the call view.
   Size get size => !fullscreen.value && minimized.value
-      ? Size(width.value, height.value)
+      ? Size(width.value, height.value - 30)
       : router.context!.mediaQuerySize;
 
   /// Indicates whether the [chat] is a dialog.
@@ -312,9 +381,16 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
+  /// Reactive map of the current call [RemoteMemberId]s.
+  RxObsMap<RemoteMemberId, bool> get members => _currentCall.value.members;
+
   /// Indicator whether the inbound video in the current [OngoingCall] is
   /// enabled or not.
   RxBool get isRemoteVideoEnabled => _currentCall.value.isRemoteVideoEnabled;
+
+  /// Indicator whether the inbound audio in the current [OngoingCall] is
+  /// enabled.
+  RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   @override
   void onInit() {
@@ -323,6 +399,19 @@ class CallController extends GetxController {
     _currentCall.value.init(_chatService.me);
 
     Size size = router.context!.mediaQuerySize;
+
+    if (router.context!.isMobile) {
+      secondaryWidth = RxDouble(150);
+      secondaryHeight = RxDouble(151);
+    } else {
+      secondaryWidth = RxDouble(200);
+      secondaryHeight = RxDouble(200);
+    }
+
+    if (WebUtils.isPopup) {
+      isSlidingPanelEnabled.value = true;
+      selfBottom.value = 85;
+    }
 
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile);
@@ -348,21 +437,82 @@ class CallController extends GetxController {
         ? RxDouble(50)
         : RxDouble(size.height / 2 - height.value / 2);
 
-    _panelWorker = ever(isSlidingPanelEnabled, (bool b) {
-      if (b && selfBottom.value < 140) {
-        selfBottom.value = 140;
-      } else if (!b && selfBottom.value <= 150) {
-        selfBottom.value = 10;
+    void _onChat(RxChat? v) {
+      chat.value = v;
+
+      _putParticipant(RemoteMemberId(me, null));
+      _insureCorrectGrouping();
+
+      // TODO: Temporary solution.
+      if (!isGroup) {
+        secondaryAlignment.value = null;
+        secondaryKeepAlignment.value = true;
+        secondaryLeft.value = null;
+        secondaryTop.value = null;
+        secondaryRight.value = 10;
+        secondaryBottom.value = 10;
       }
-    });
 
-    _chatService
-        .get(_currentCall.value.chatId.value)
-        .then((v) => chat.value = v);
+      // Update the [WebUtils.title] if this call is in a popup.
+      if (WebUtils.isPopup) {
+        _titleSubscription?.cancel();
+        _durationSubscription?.cancel();
 
+        if (v != null) {
+          void _updateTitle() {
+            final Map<String, String> args = {
+              'title': v.title.value,
+              'state': state.value.name,
+            };
+
+            switch (state.value) {
+              case OngoingCallState.local:
+              case OngoingCallState.pending:
+                bool isOutgoing =
+                    (outgoing || state.value == OngoingCallState.local) &&
+                        !started;
+                if (isOutgoing) {
+                  args['type'] = 'outgoing';
+                } else if (withVideo) {
+                  args['type'] = 'video';
+                } else {
+                  args['type'] = 'audio';
+                }
+                break;
+
+              case OngoingCallState.active:
+                var actualMembers = _currentCall.value.members.keys
+                    .map((k) => k.userId)
+                    .toSet();
+                args['members'] = '${actualMembers.length + 1}';
+                args['allMembers'] = '${v.chat.value.members.length}';
+                args['duration'] = duration.value.hhMmSs();
+                break;
+
+              case OngoingCallState.joining:
+              case OngoingCallState.ended:
+                // No-op.
+                break;
+            }
+
+            WebUtils.title(
+              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
+            );
+          }
+
+          _updateTitle();
+
+          _titleSubscription =
+              _currentCall.value.members.listen((_) => _updateTitle());
+          _durationSubscription = duration.listen((_) => _updateTitle());
+        }
+      }
+    }
+
+    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then((v) => chat.value = v),
+      (ChatId id) => _chatService.get(id).then(_onChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -392,6 +542,8 @@ class CallController extends GetxController {
 
         keepUi();
       }
+
+      refresh();
     });
 
     _onFullscreenChange = PlatformUtils.onFullscreenChange
@@ -402,8 +554,6 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
-    _putParticipant(RemoteMemberId(me, null), handRaised: false);
-
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
@@ -412,11 +562,15 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool wasNotEmpty = primary.isNotEmpty;
           paneled.removeWhere((m) => m.id == e.key);
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
           _insureCorrectGrouping();
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
+          }
 
           if (highlighted.value?.id == e.key) {
             highlighted.value = null;
@@ -460,9 +614,14 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool wasNotEmpty = primary.isNotEmpty;
           rendererBoxFit.remove(e.element.track.id);
           _removeParticipant(e.element.memberId, video: e.element);
           _insureCorrectGrouping();
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
+          }
+
           Future.delayed(1.seconds, e.element.inner.dispose);
           break;
 
@@ -502,10 +661,11 @@ class CallController extends GetxController {
     _durationTimer?.cancel();
     _uiTimer?.cancel();
     _stateWorker.dispose();
-    _panelWorker.dispose();
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
     _errorsSubscription?.cancel();
+    _titleSubscription?.cancel();
+    _durationSubscription?.cancel();
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
@@ -578,17 +738,23 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     keepUi();
 
-    List<MediaDeviceInfo> outputs =
-        _currentCall.value.devices.output().toList();
-    if (outputs.length > 1) {
-      int selected = _currentCall.value.outputDevice.value == null
-          ? 0
-          : outputs.indexWhere(
-              (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
-      selected += 1;
-      var deviceId = outputs[(selected) % outputs.length].deviceId();
-      speakerSwitched.value = deviceId == 'speakerphone';
-      await _currentCall.value.setOutputDevice(deviceId);
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+      List<MediaDeviceInfo> outputs =
+          _currentCall.value.devices.output().toList();
+      if (outputs.length > 1) {
+        int selected = _currentCall.value.outputDevice.value == null
+            ? 0
+            : outputs.indexWhere(
+                (e) => e.deviceId() == _currentCall.value.outputDevice.value!);
+        selected += 1;
+        var deviceId = outputs[(selected) % outputs.length].deviceId();
+        speakerSwitched.value = deviceId == 'speakerphone';
+        await _currentCall.value.setOutputDevice(deviceId);
+      }
+    } else {
+      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      //       switching.
+      speakerSwitched.toggle();
     }
   }
 
@@ -628,6 +794,9 @@ class CallController extends GetxController {
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
+
+  /// Toggles inbound audio in the current [OngoingCall] on and off.
+  Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
   /// Toggles the provided [renderer]'s enabled status on and off.
   Future<void> toggleRendererEnabled(Rx<RtcVideoRenderer?> renderer) async {
@@ -718,6 +887,9 @@ class CallController extends GetxController {
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
+      if (focused.isEmpty) {
+        unfocusAll();
+      }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
@@ -725,6 +897,31 @@ class CallController extends GetxController {
         _insureCorrectGrouping();
       }
     }
+  }
+
+  /// [focus]es all [Participant]s, which means putting them in theirs `default`
+  /// groups.
+  void focusAll() {
+    for (Participant r in List.from(paneled, growable: false)) {
+      _putVideoFrom(r, paneled);
+    }
+
+    for (Participant r in List.from(focused, growable: false)) {
+      _putVideoFrom(r, focused);
+    }
+
+    _insureCorrectGrouping();
+  }
+
+  /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
+  /// group.
+  void unfocusAll() {
+    for (Participant r
+        in List.from([...focused, ...locals, ...remotes], growable: false)) {
+      _putVideoTo(r, paneled);
+    }
+
+    _insureCorrectGrouping();
   }
 
   /// Highlights the [participant].
@@ -826,6 +1023,52 @@ class CallController extends GetxController {
     }
   }
 
+  /// Applies constraints to the [secondaryWidth], [secondaryHeight],
+  /// [secondaryLeft] and [secondaryTop].
+  void applySecondaryConstraints(BuildContext context) {
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft) {
+      secondaryLeft.value = size.width / 2;
+    } else if (secondaryAlignment.value == Alignment.topCenter ||
+        secondaryAlignment.value == Alignment.bottomCenter) {
+      secondaryTop.value = size.height / 2;
+    }
+
+    secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
+    secondaryHeight.value = _applySHeight(context, secondaryHeight.value);
+    secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
+    secondaryTop.value = _applySTop(context, secondaryTop.value);
+
+    // Limit the width and height if docked.
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft) {
+      secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
+    } else if (secondaryAlignment.value == Alignment.topCenter ||
+        secondaryAlignment.value == Alignment.bottomCenter) {
+      secondaryHeight.value = min(secondaryHeight.value, size.height / 2);
+    }
+
+    // Determine the [possibleSecondaryAlignment].
+    possibleSecondaryAlignment.value = null;
+    if (secondaryDragged.value) {
+      if (secondaryLeft.value != null) {
+        if (secondaryLeft.value! <= 0) {
+          possibleSecondaryAlignment.value = Alignment.centerLeft;
+        } else if (secondaryLeft.value! >= size.width - secondaryWidth.value) {
+          possibleSecondaryAlignment.value = Alignment.centerRight;
+        }
+      }
+
+      if (secondaryTop.value != null) {
+        if (secondaryTop.value! <= 0) {
+          possibleSecondaryAlignment.value = Alignment.topCenter;
+        } else if (secondaryTop.value! >= size.height - secondaryHeight.value) {
+          possibleSecondaryAlignment.value = Alignment.bottomCenter;
+        }
+      }
+    }
+  }
+
   /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
@@ -882,6 +1125,134 @@ class CallController extends GetxController {
       default:
         break;
     }
+
+    applySecondaryConstraints(context);
+  }
+
+  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
+  void resizeSecondary(BuildContext context,
+      {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
+    if (secondaryLeft.value == null || secondaryTop.value == null) {
+      return;
+    }
+
+    switch (x) {
+      case ScaleModeX.left:
+        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        if (secondaryWidth.value - dx == width) {
+          double? left = _applySLeft(
+            context,
+            secondaryLeft.value! + (secondaryWidth.value - width),
+          );
+
+          if (secondaryLeft.value! + (secondaryWidth.value - width) == left) {
+            secondaryLeft.value = left;
+            secondaryWidth.value = width;
+          } else if (left == size.width - secondaryWidth.value) {
+            secondaryLeft.value = size.width - width;
+            secondaryWidth.value = width;
+          }
+        }
+        break;
+
+      case ScaleModeX.right:
+        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        if (secondaryWidth.value - dx == width) {
+          double right = secondaryLeft.value! + width;
+          if (right < size.width) {
+            secondaryWidth.value = width;
+          }
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    switch (y) {
+      case ScaleModeY.top:
+        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        if (secondaryHeight.value - dy == height) {
+          double? top = _applySTop(
+            context,
+            secondaryTop.value! + (secondaryHeight.value - height),
+          );
+
+          if (secondaryTop.value! + (secondaryHeight.value - height) == top) {
+            secondaryTop.value = top;
+            secondaryHeight.value = height;
+          } else if (top == size.height - secondaryHeight.value) {
+            secondaryTop.value = size.height - height;
+            secondaryHeight.value = height;
+          }
+        }
+        break;
+
+      case ScaleModeY.bottom:
+        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        if (secondaryHeight.value - dy == height) {
+          double bottom = secondaryTop.value! + height;
+          if (bottom < size.height) {
+            secondaryHeight.value = height;
+          }
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    applySecondaryConstraints(context);
+  }
+
+  /// Returns corrected according to secondary constraints [width] value.
+  double _applySWidth(BuildContext context, double width) {
+    if (_minSWidth > size.width * _maxSWidth) {
+      return size.width * _maxSWidth;
+    } else if (width > size.width * _maxSWidth) {
+      return (size.width * _maxSWidth);
+    } else if (width < _minSWidth) {
+      return _minSWidth;
+    }
+    return width;
+  }
+
+  /// Returns corrected according to secondary constraints [height] value.
+  double _applySHeight(BuildContext context, double height) {
+    if (_minSHeight > size.height * _maxSHeight) {
+      return size.height * _maxSHeight;
+    } else if (height > size.height * _maxSHeight) {
+      return size.height * _maxSHeight;
+    } else if (height < _minSHeight) {
+      return _minSHeight;
+    }
+    return height;
+  }
+
+  /// Returns corrected according to secondary constraints [left] value.
+  double? _applySLeft(BuildContext context, double? left) {
+    if (left != null) {
+      if (left + secondaryWidth.value > size.width) {
+        return size.width - secondaryWidth.value;
+      } else if (left < 0) {
+        return 0;
+      }
+    }
+
+    return left;
+  }
+
+  /// Returns corrected according to secondary constraints [top] value.
+  double? _applySTop(BuildContext context, double? top) {
+    if (top != null) {
+      if (top + secondaryHeight.value > size.height) {
+        return size.height - secondaryHeight.value;
+      } else if (top < 0) {
+        return 0;
+      }
+    }
+
+    return top;
   }
 
   /// Returns corrected according to constraints [width] value.
@@ -975,21 +1346,16 @@ class CallController extends GetxController {
           _putVideoFrom(r, focused);
         }
       }
-
-      // If every [RtcVideoRenderer] is in panel, then put everyone outside of
-      // it.
-      else if (paneled.isNotEmpty && focused.isEmpty) {
-        List<Participant> copy = List.from(paneled, growable: false);
-        for (Participant r in copy) {
-          _putVideoFrom(r, paneled);
-        }
-      }
     }
 
     locals.refresh();
     remotes.refresh();
     paneled.refresh();
     focused.refresh();
+
+    primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
+    secondary.value =
+        focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
   }
 
   /// Returns all [Participant]s identified by an [id].
@@ -1043,14 +1409,18 @@ class CallController extends GetxController {
 
       switch (owner) {
         case MediaOwnerKind.local:
-          switch (participant.source) {
-            case MediaSourceKind.Device:
-              locals.add(participant);
-              break;
+          if (isGroup) {
+            switch (participant.source) {
+              case MediaSourceKind.Device:
+                locals.add(participant);
+                break;
 
-            case MediaSourceKind.Display:
-              paneled.add(participant);
-              break;
+              case MediaSourceKind.Display:
+                paneled.add(participant);
+                break;
+            }
+          } else {
+            paneled.add(participant);
           }
           break;
 
@@ -1149,4 +1519,7 @@ class Participant {
 
   /// Reactive audio renderer of this [Participant].
   late final Rx<RtcAudioRenderer?> audio;
+
+  /// [GlobalKey] of this [Participant]'s [VideoView].
+  final GlobalKey videoKey = GlobalKey();
 }

@@ -28,7 +28,12 @@ class ConditionalBackdropFilter extends StatelessWidget {
     ImageFilter? filter,
     this.borderRadius,
   }) : super(key: key) {
-    this.filter = filter ?? ImageFilter.blur(sigmaX: 10, sigmaY: 10);
+    this.filter = filter ??
+        ImageFilter.blur(
+          sigmaX: 10,
+          sigmaY: 10,
+          tileMode: TileMode.mirror,
+        );
   }
 
   /// [Widget] to apply [BackdropFilter] to.
@@ -55,11 +60,21 @@ class ConditionalBackdropFilter extends StatelessWidget {
       if (borderRadius != null) {
         return ClipRRect(
           borderRadius: borderRadius,
-          child: BackdropFilter(filter: filter, child: child),
+          child: BackdropFilter(
+            filter: filter,
+            blendMode: BlendMode.src,
+            child: child,
+          ),
         );
       }
 
-      return ClipRect(child: BackdropFilter(filter: filter, child: child));
+      return ClipRect(
+        child: BackdropFilter(
+          filter: filter,
+          blendMode: BlendMode.src,
+          child: child,
+        ),
+      );
     }
 
     return child;
