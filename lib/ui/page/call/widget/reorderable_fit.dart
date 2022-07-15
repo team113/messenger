@@ -502,7 +502,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
 /// State of a [_ReorderableFit] maintaining the reorderable [_items] list.
 class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   /// [_ReorderableItem]s of this [_ReorderableFit].
-  List<_ReorderableItem<T>> _items = [];
+  late final List<_ReorderableItem<T>> _items;
 
   ///  Positions of [_items].
   final Map<int, int> _positions = {};

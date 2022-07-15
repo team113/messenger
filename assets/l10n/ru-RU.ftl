@@ -234,8 +234,8 @@ label_call_title = {$title} | {$state ->
         [joining] Подключение...
         [active] {$members} из {$allMembers} | {$duration}
        *[other] {$type ->
-            [video] Видео звонок
-            [audio] Аудио звонок
+            [video] Видеозвонок
+            [audio] Аудиозвонок
             *[other] Звоним...
        }
     }
