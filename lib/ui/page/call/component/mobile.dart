@@ -701,7 +701,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
 
             case OngoingCallState.joining:
             case OngoingCallState.ended:
-            // No-op.
+              // No-op.
               break;
           }
           subtitle = 'label_call_title'.l10nfmt(args);

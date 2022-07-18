@@ -328,8 +328,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                                   right: 3,
                                                 ),
                                                 child: Text(
-                                                  participant.user.value?.user
-                                                          .value.name?.val ??
+                                                  participant.user.value
+                                                          ?.user.value.name?.val ??
                                                       participant
                                                           .user
                                                           .value

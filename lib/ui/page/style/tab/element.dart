@@ -264,7 +264,8 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/add_user.svg',
                                     'add_user.svg',
                                   ),
-                                  hint: 'btn_add_participant'.l10nfmt({'twoLines': 'false'}),
+                                  hint: 'btn_add_participant'
+                                      .l10nfmt({'twoLines': 'false'}),
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
