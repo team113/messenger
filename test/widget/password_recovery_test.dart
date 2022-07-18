@@ -18,12 +18,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/api/backend/schema.dart'
+    show RecoverUserPasswordErrorCode;
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/main.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -65,121 +68,116 @@ void main() async {
 
   testWidgets('AuthView successfully recovers account access',
       (WidgetTester tester) async {
-    // Get.put(myUserProvider);
-    // Get.put(galleryItemProvider);
-    // Get.put(contactProvider);
-    // Get.put(userProvider);
-    // Get.put<GraphQlProvider>(graphQlProvider);
-    // Get.put(sessionProvider);
-    // Get.put(chatProvider);
+    Get.put(myUserProvider);
+    Get.put(galleryItemProvider);
+    Get.put(contactProvider);
+    Get.put(userProvider);
+    Get.put<GraphQlProvider>(graphQlProvider);
+    Get.put(sessionProvider);
+    Get.put(chatProvider);
 
-    // AuthService authService = Get.put(
-    //   AuthService(
-    //     Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-    //     sessionProvider,
-    //   ),
-    // );
-    // await authService.init();
-    // router = RouterState(authService);
-    // router.provider = MockPlatformRouteInformationProvider();
-    // when(router.provider!.value)
-    //     .thenReturn(const RouteInformation(location: '/'));
-    // when(graphQlProvider.recoverUserPassword(
-    //         UserLogin('login'), null, null, null))
-    //     .thenAnswer((_) => Future.value());
-    // when(graphQlProvider.validateUserPasswordRecoveryCode(
-    //         UserLogin('login'), null, null, null, ConfirmationCode('1234')))
-    //     .thenAnswer((_) => Future.value());
-    // when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-    //         ConfirmationCode('1234'), UserPassword('test123')))
-    //     .thenAnswer((_) => Future.value());
-
-    await authService.recoverUserPassword(
-      login: null,
-      num: null,
-      email: null,
-      phone: null,
+    AuthService authService = Get.put(
+      AuthService(
+        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        sessionProvider,
+      ),
     );
+    await authService.init();
+    router = RouterState(authService);
+    router.provider = MockPlatformRouteInformationProvider();
+    when(router.provider!.value)
+        .thenReturn(const RouteInformation(location: '/'));
+    when(graphQlProvider.recoverUserPassword(
+            UserLogin('login'), null, null, null))
+        .thenAnswer((_) => Future.value());
+    when(graphQlProvider.recoverUserPassword(
+            UserLogin('emptyuser'), null, null, null))
+        .thenAnswer((_) => throw RecoverUserPasswordException(
+            RecoverUserPasswordErrorCode.unknownUser));
+    when(graphQlProvider.validateUserPasswordRecoveryCode(
+            UserLogin('login'), null, null, null, ConfirmationCode('1234')))
+        .thenAnswer((_) => Future.value());
+    when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
+            ConfirmationCode('1234'), UserPassword('test123')))
+        .thenAnswer((_) => Future.value());
 
-    // await tester.pumpWidget(const App());
-    // await tester.pumpAndSettle();
-    // await tester.pumpAndSettle();
-    // final authView = find.byType(AuthView);
-    // expect(authView, findsOneWidget);
+    await tester.pumpWidget(const App());
+    await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
+    final authView = find.byType(AuthView);
+    expect(authView, findsOneWidget);
 
-    // final goToLoginButton = find.text('btn_login'.l10n);
-    // expect(goToLoginButton, findsOneWidget);
+    final goToLoginButton = find.text('btn_login'.l10n);
+    expect(goToLoginButton, findsOneWidget);
 
-    // await tester.tap(goToLoginButton);
-    // await tester.pumpAndSettle();
+    await tester.tap(goToLoginButton);
+    await tester.pumpAndSettle();
 
-    // final accessRecoveryTile = find.text('btn_forgot_password'.l10n);
-    // expect(accessRecoveryTile, findsOneWidget);
+    final accessRecoveryTile = find.text('btn_forgot_password'.l10n);
+    expect(accessRecoveryTile, findsOneWidget);
 
-    // await tester.tap(accessRecoveryTile);
-    // await tester.pumpAndSettle();
+    await tester.tap(accessRecoveryTile);
+    await tester.pumpAndSettle();
 
-    // final usernameField = find.byKey(const Key('RecoveryField'));
-    // expect(usernameField, findsOneWidget);
+    final usernameField = find.byKey(const Key('RecoveryField'));
+    expect(usernameField, findsOneWidget);
 
-    // await tester.enterText(usernameField, 'emptyuser');
-    // await tester.pumpAndSettle();
+    await tester.enterText(usernameField, 'emptyuser');
+    await tester.pumpAndSettle();
 
-    // final nextTile = find.text('btn_next'.l10n);
-    // expect(nextTile, findsOneWidget);
+    final nextTile = find.text('btn_next'.l10n);
+    expect(nextTile, findsOneWidget);
 
-    // await tester.tap(nextTile);
-    // await tester.pumpAndSettle();
-    // await tester.pump(const Duration(seconds: 1));
+    await tester.tap(nextTile);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
-    // final noCodeField = find.byKey(const ValueKey('RecoveryCodeField'));
-    // expect(noCodeField, findsNothing);
+    final noCodeField = find.byKey(const ValueKey('RecoveryCodeField'));
+    expect(noCodeField, findsNothing);
 
-    // await tester.enterText(usernameField, 'login');
-    // await tester.pumpAndSettle();
+    await tester.enterText(usernameField, 'login');
+    await tester.pumpAndSettle();
 
-    // await tester.tap(nextTile);
-    // await tester.pumpAndSettle();
-    // await tester.pump(const Duration(seconds: 1));
+    await tester.tap(nextTile);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
-    // final codeField = find.byKey(const ValueKey('RecoveryCodeField'));
-    // expect(codeField, findsOneWidget);
+    final codeField = find.byKey(const ValueKey('RecoveryCodeField'));
+    expect(codeField, findsOneWidget);
 
-    // await tester.enterText(codeField, '1234');
-    // await tester.pumpAndSettle();
+    await tester.enterText(codeField, '1234');
+    await tester.pumpAndSettle();
 
-    // await tester.tap(nextTile);
-    // await tester.pumpAndSettle();
-    // await tester.pump(const Duration(seconds: 1));
+    await tester.tap(nextTile);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
-    // final password1 = find.byKey(const ValueKey('PasswordField'));
-    // expect(password1, findsOneWidget);
-    // final password2 = find.byKey(const ValueKey('RepeatPasswordField'));
-    // expect(password2, findsOneWidget);
+    final password1 = find.byKey(const ValueKey('PasswordField'));
+    expect(password1, findsOneWidget);
+    final password2 = find.byKey(const ValueKey('RepeatPasswordField'));
+    expect(password2, findsOneWidget);
 
-    // await tester.enterText(password1, 'test123');
-    // await tester.enterText(password2, 'test123');
-    // await tester.pumpAndSettle();
-    // await tester.drag(
-    //     find.byType(SingleChildScrollView), const Offset(0.0, -100.0));
-    // await tester.pumpAndSettle();
-    // await tester.tap(recoveryTile);
+    await tester.enterText(password1, 'test123');
+    await tester.enterText(password2, 'test123');
+    await tester.pumpAndSettle();
 
-    // await tester.pumpAndSettle();
-    // await tester.pump(const Duration(seconds: 1));
-    // expect(password1, findsNothing);
+    await tester.tap(nextTile);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
-    // await tester.pumpAndSettle(const Duration(seconds: 5));
-    // await tester.pump(const Duration(seconds: 5));
+    expect(password1, findsNothing);
 
-    // verifyInOrder([
-    //   router.provider!.value,
-    //   graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-    //   graphQlProvider.validateUserPasswordRecoveryCode(
-    //       UserLogin('login'), null, null, null, ConfirmationCode('1234')),
-    //   graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-    //       ConfirmationCode('1234'), UserPassword('test123')),
-    // ]);
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+    await tester.pump(const Duration(seconds: 5));
+
+    verifyInOrder([
+      router.provider!.value,
+      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
+      graphQlProvider.validateUserPasswordRecoveryCode(
+          UserLogin('login'), null, null, null, ConfirmationCode('1234')),
+      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
+          ConfirmationCode('1234'), UserPassword('test123')),
+    ]);
 
     await Get.deleteAll(force: true);
   });

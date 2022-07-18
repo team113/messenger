@@ -33,7 +33,12 @@ class IntroductionView extends StatelessWidget {
   const IntroductionView({Key? key}) : super(key: key);
 
   static Future<T?> show<T>(BuildContext context) {
-    return Popup.show(context, const IntroductionView(), horizontalPadding: 0);
+    return Popup.show(
+        context,
+        const IntroductionView(
+          key: Key('IntroductionView'),
+        ),
+        horizontalPadding: 0);
   }
 
   @override
@@ -133,6 +138,7 @@ class IntroductionView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedRoundedButton(
+                      key: const Key('IntroductionSetPasswordButton'),
                       maxWidth: null,
                       title: Text(
                         'btn_set_password'.l10n,
@@ -149,6 +155,7 @@ class IntroductionView extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedRoundedButton(
+                      key: const Key('IntroductionCloseButton'),
                       maxWidth: null,
                       title: Text(
                         'btn_close'.l10n,
@@ -168,7 +175,6 @@ class IntroductionView extends StatelessWidget {
             child: AnimatedSwitcher(
               duration: 150.milliseconds,
               child: ListView(
-                key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [

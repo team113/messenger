@@ -302,11 +302,6 @@ class LoginController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      print('///' + success.toString());
-      print(_recoveryLogin);
-      print(_recoveryNum);
-      print(_recoveryEmail);
-      print(_recoveryPhone);
       if (success) {
         recovery.status.value = RxStatus.success();
         recovery.editable.value = false;
