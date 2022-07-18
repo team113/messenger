@@ -30,7 +30,7 @@ class IntroductionController extends GetxController {
   /// Indicates of displaying of widgets for password setting.
   final RxBool displayPassword = RxBool(false);
 
-  /// Specifies to displaying of the text if the password was changed
+  /// Indicates of displaying of the text if the password was changed
   /// successfully.
   final RxBool displaySuccess = RxBool(false);
 
