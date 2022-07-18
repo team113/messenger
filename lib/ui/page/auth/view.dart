@@ -154,7 +154,7 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('StartChattingButton'),
             title: Text(
-              'btn_start'.tr,
+              ' '.l10n,
               style: const TextStyle(color: Colors.white),
             ),
             leading: Container(
@@ -169,7 +169,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_login'.tr),
+            title: Text('btn_login'.l10n),
             leading: SvgLoader.asset(
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
@@ -179,7 +179,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           if (isIosWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.tr),
+              title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(bottom: 3 * 0.7),
                 child: SvgLoader.asset(
@@ -191,7 +191,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.tr),
+              title: Text('btn_download'.l10n),
               leading: Padding(
                 padding: const EdgeInsets.only(left: 2 * 0.7),
                 child: SvgLoader.asset(
@@ -203,7 +203,7 @@ class AuthView extends StatelessWidget {
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
-              title: Text('btn_download'.tr),
+              title: Text('btn_download'.l10n),
               leading: PlatformUtils.isMacOS
                   ? SvgLoader.asset(
                       'assets/icons/apple.svg',

@@ -29,9 +29,9 @@ abstract class Selector {
   static Future<T?> show<T>(
     BuildContext context,
     GlobalKey? key,
-    Map<String, String> items, {
+    List<String> items, {
     String? initialValue,
-    Map<String, String>? trails,
+    List<String>? trails,
     Function(int)? onSelect,
   }) {
     if (!context.isMobile) {
@@ -63,7 +63,7 @@ abstract class Selector {
                 );
               }
 
-              Widget _button(MapEntry<String, String> e) {
+              Widget _button(int i) {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                   child: Material(
@@ -73,8 +73,7 @@ abstract class Selector {
                       hoverColor: const Color(0x3363B4FF),
                       highlightColor: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
-                      onTap: () =>
-                          onSelect?.call(items.keys.toList().indexOf(e.key)),
+                      onTap: () => onSelect?.call(i),
                       child: Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Padding(
@@ -82,7 +81,7 @@ abstract class Selector {
                           child: Row(
                             children: [
                               Text(
-                                e.value,
+                                items[i],
                                 style: thin?.copyWith(
                                   fontSize: 15,
                                 ),
@@ -90,7 +89,7 @@ abstract class Selector {
                               if (trails != null) const Spacer(),
                               if (trails != null)
                                 Text(
-                                  trails[e.key]!.toUpperCase(),
+                                  trails[i],
                                   style: thin?.copyWith(
                                     fontSize: 15,
                                     color: const Color(0xFF000000),
@@ -135,8 +134,8 @@ abstract class Selector {
                               children: [
                                 SingleChildScrollView(
                                   child: Column(
-                                    children:
-                                        items.entries.map(_button).toList(),
+                                    children: List.generate(items.length,
+                                        (index) => _button(index)),
                                   ),
                                 ),
                                 if (items.length >= 8)
@@ -209,8 +208,7 @@ abstract class Selector {
         builder: (context) {
           return GetBuilder(
               init: SelectorController(
-                  items.keys.toList().indexOf(initialValue ?? items.keys.first),
-                  onSelect),
+                  items.indexOf(initialValue ?? items.first), onSelect),
               builder: (SelectorController c) {
                 return Container(
                   height: min(items.length * (65), 330),
@@ -240,58 +238,57 @@ abstract class Selector {
                             child: Stack(
                               children: [
                                 CupertinoPicker(
-                                  scrollController: FixedExtentScrollController(
-                                      initialItem: c.selected.value),
-                                  magnification: 1,
-                                  squeeze: 1,
-                                  looping: true,
-                                  diameterRatio: 100,
-                                  useMagnifier: false,
-                                  itemExtent: 38,
-                                  selectionOverlay: Container(
-                                    margin: const EdgeInsetsDirectional.only(
-                                        start: 8, end: 8),
-                                    decoration: const BoxDecoration(
-                                        color: Color(0x3363B4FF)),
-                                  ),
-                                  onSelectedItemChanged: (int i) {
-                                    HapticFeedback.selectionClick();
-                                    c.selected.value = i;
-                                  },
-                                  children: items.entries
-                                      .map((e) => Center(
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      46, 0, 29, 0),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    e.value,
-                                                    style: thin?.copyWith(
-                                                      fontSize: 15,
-                                                      color: const Color(
-                                                          0xFF000000),
-                                                    ),
-                                                  ),
-                                                  if (trails != null)
-                                                    const Spacer(),
-                                                  if (trails != null)
+                                    scrollController:
+                                        FixedExtentScrollController(
+                                            initialItem: c.selected.value),
+                                    magnification: 1,
+                                    squeeze: 1,
+                                    looping: true,
+                                    diameterRatio: 100,
+                                    useMagnifier: false,
+                                    itemExtent: 38,
+                                    selectionOverlay: Container(
+                                      margin: const EdgeInsetsDirectional.only(
+                                          start: 8, end: 8),
+                                      decoration: const BoxDecoration(
+                                          color: Color(0x3363B4FF)),
+                                    ),
+                                    onSelectedItemChanged: (int i) {
+                                      HapticFeedback.selectionClick();
+                                      c.selected.value = i;
+                                    },
+                                    children: List.generate(
+                                        items.length,
+                                        (index) => Center(
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        46, 0, 29, 0),
+                                                child: Row(
+                                                  children: [
                                                     Text(
-                                                      trails[e.key]!
-                                                          .toUpperCase(),
+                                                      items[index],
                                                       style: thin?.copyWith(
                                                         fontSize: 15,
                                                         color: const Color(
                                                             0xFF000000),
                                                       ),
                                                     ),
-                                                ],
+                                                    if (trails != null)
+                                                      const Spacer(),
+                                                    if (trails != null)
+                                                      Text(
+                                                        trails[index],
+                                                        style: thin?.copyWith(
+                                                          fontSize: 15,
+                                                          color: const Color(
+                                                              0xFF000000),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                ),
+                                            ))),
                                 Align(
                                   alignment: Alignment.topCenter,
                                   child: Container(
