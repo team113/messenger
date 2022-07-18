@@ -17,41 +17,59 @@
 import 'package:flutter/material.dart';
 
 import '/config.dart';
+import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [UserCallCover].
 ///
-/// Builds a background on `null` [cover].
+/// Displays an [UserAvatar] if [cover] is `null`.
+///
+/// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(this.cover, {Key? key}) : super(key: key);
+  const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
 
   /// Call cover data object.
   final UserCallCover? cover;
 
+  /// [User] this [UserCallCover] belongs to.
+  final User? user;
+
   @override
   Widget build(BuildContext context) {
-    return cover == null
-        ? SvgLoader.asset(
-            'assets/images/background_dark.svg',
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          )
-        : Stack(
-            children: [
-              Image.network(
-                '${Config.url}:${Config.port}/files${cover?.full}',
+    return Stack(
+      children: [
+        cover == null
+            ? SvgLoader.asset(
+                'assets/images/background_dark.svg',
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
-              ),
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: const Color(0x55000000),
               )
-            ],
-          );
+            : Stack(
+                children: [
+                  Image.network(
+                    '${Config.url}:${Config.port}/files${cover?.full}',
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: const Color(0x55000000),
+                  )
+                ],
+              ),
+        if (user != null && cover == null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AvatarWidget.fromUser(user, radius: 60),
+            ),
+          ),
+      ],
+    );
   }
 }

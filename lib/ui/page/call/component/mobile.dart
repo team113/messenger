@@ -34,6 +34,8 @@ import '../widget/round_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -199,6 +201,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               child: HintWidget(
                 text: '${c.error}.',
                 onTap: () => c.errorTimeout.value = 0,
+                isError: true,
               ),
             ),
           ),
@@ -263,7 +266,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.tr,
+              label: 'btn_add_participant'.l10n,
             ),
             const SizedBox(height: 13),
           ],
@@ -271,14 +274,14 @@ Widget mobileCall(CallController c, BuildContext context) {
             const SizedBox(height: 5),
             ...c.chat.value!.chat.value.members
                 .map(
-                  (e) => FutureBuilder<Rx<User>?>(
+                  (e) => FutureBuilder<RxUser?>(
                     future: c.getUser(e.user.id),
                     builder: (context, snapshot) {
                       if (snapshot.data == null) {
                         return _userButton(c, context, e.user);
                       } else {
                         return Obx(() =>
-                            _userButton(c, context, snapshot.data!.value));
+                            _userButton(c, context, snapshot.data!.user.value));
                       }
                     },
                   ),
@@ -289,7 +292,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               context,
               onTap: () => c.openAddMember(context),
               asset: SvgLoader.asset('assets/icons/add_user.svg', width: 22),
-              label: 'btn_add_participant'.tr,
+              label: 'btn_add_participant'.l10n,
             ),
             const SizedBox(height: 13),
           ],
@@ -609,12 +612,12 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.tr
+                ? 'label_call_joining'.l10n
                 : isOutgoing
-                    ? 'label_call_calling'.tr
+                    ? 'label_call_calling'.l10n
                     : c.withVideo == true
-                        ? 'label_video_call'.tr
-                        : 'label_audio_call'.tr;
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
 
         return _layoutButton(
           icon: Center(
@@ -630,7 +633,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                c.chat.value?.title.value ?? ('.'.tr * 3),
+                c.chat.value?.title.value ?? ('dot'.l10n * 3),
                 style: context.textTheme.headline4
                     ?.copyWith(color: Colors.white, fontSize: 20),
                 overflow: TextOverflow.ellipsis,
@@ -745,8 +748,8 @@ Widget _mobileVideo(
                       if (participant.source != MediaSourceKind.Display)
                         ContextMenuButton(
                           label: fit == null || fit == BoxFit.cover
-                              ? 'btn_call_do_not_cut_video'.tr
-                              : 'btn_call_cut_video'.tr,
+                              ? 'btn_call_do_not_cut_video'.l10n
+                              : 'btn_call_cut_video'.l10n,
                           onPressed: () {
                             c.rendererBoxFit[
                                     participant.video.value!.track.id()] =
@@ -763,14 +766,14 @@ Widget _mobileVideo(
                         ),
                       if (videos.length > 1)
                         ContextMenuButton(
-                          label: 'btn_call_center_video'.tr,
+                          label: 'btn_call_center_video'.l10n,
                           onPressed: () => c.highlight(participant),
                         ),
                     ],
                     ContextMenuButton(
                       label: participant.video.value?.isEnabled == true
-                          ? 'btn_call_disable_video'.tr
-                          : 'btn_call_enable_video'.tr,
+                          ? 'btn_call_disable_video'.l10n
+                          : 'btn_call_enable_video'.l10n,
                       onPressed: () =>
                           c.toggleRendererEnabled(participant.video),
                     ),
@@ -781,9 +784,7 @@ Widget _mobileVideo(
                   offstageUntilDetermined: true,
                   onSizeDetermined: () => setState(() {}),
                   fit: fit ?? BoxFit.cover,
-                  enableContextMenu: false,
                   muted: muted,
-                  withLabels: !c.minimized.value,
                   borderRadius: BorderRadius.zero,
                 ),
               );

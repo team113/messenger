@@ -23,7 +23,8 @@ class FitView extends StatelessWidget {
   const FitView({
     Key? key,
     required this.children,
-    this.dividerColor = Colors.white,
+    this.dividerColor,
+    this.dividerSize = 1,
   }) : super(key: key);
 
   /// Children widgets needed to be placed evenly on a screen.
@@ -33,6 +34,9 @@ class FitView extends StatelessWidget {
   ///
   /// If `null`, then there will be no divider at all.
   final Color? dividerColor;
+
+  /// Size of a divider between [children].
+  final double dividerSize;
 
   @override
   Widget build(BuildContext context) {
@@ -52,17 +56,18 @@ class FitView extends StatelessWidget {
       for (int columns = 1; columns <= children.length; ++columns) {
         int rows = (children.length / columns).ceil();
 
-        // Current diaogal of a single square.
+        // Current diagonal of a single square.
         double diagonal = (pow(constraints.maxWidth / columns, 2) +
                 pow(constraints.maxHeight / rows, 2))
             .toDouble();
 
-        // If there's any [children] left outside, then their diaogal will
+        // If there's any [children] left outside, then their diagonal will
         // always be bigger, so we need to recalculate.
         int outside = children.length % columns;
         if (outside != 0) {
-          // Diagonal of an ousided [children] is calculated with some
-          // coeffieint to force the algorithm to pick non-standart arrangment.
+          // Diagonal of an outside [children] is calculated with some
+          // coefficient to force the algorithm to pick non-standard
+          // arrangement.
           double coef = 1;
 
           // Coefficient is hard-coded for some cases in order to [FitView] to
@@ -146,7 +151,7 @@ class FitView extends StatelessWidget {
                 cellIndex < children.length - 1) {
               column.add(IgnorePointer(
                 child: Container(
-                  width: 1,
+                  width: dividerSize,
                   height: double.infinity,
                   color: dividerColor,
                 ),
@@ -169,7 +174,7 @@ class FitView extends StatelessWidget {
           if (dividerColor != null && rowIndex < rowCount - 1) {
             rows.add(IgnorePointer(
               child: Container(
-                height: 1,
+                height: dividerSize,
                 width: double.infinity,
                 color: dividerColor,
               ),
