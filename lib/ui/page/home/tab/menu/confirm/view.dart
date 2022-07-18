@@ -1,9 +1,27 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/auth/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/popup/popup.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
+
+import '/l10n/l10n.dart';
+import '/ui/page/auth/widget/outlined_rounded_button.dart';
+import '/ui/widget/popup/popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 
 import 'controller.dart';
 
@@ -18,7 +36,7 @@ class ConfirmLogoutView extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.caption?.copyWith(color: Colors.black);
+        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: ConfirmLogoutController(Get.find(), pop: Navigator.of(context).pop),
@@ -31,14 +49,14 @@ class ConfirmLogoutView extends StatelessWidget {
               const SizedBox(height: 14),
               Center(
                 child: Text(
-                  'Пароль успешно задан',
+                  'label_password_set_successfully'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 25),
               Center(
                 child: OutlinedRoundedButton(
-                  title: Text('Закрыть'.tr),
+                  title: Text('btn_close'.l10n),
                   onPressed: Navigator.of(context).pop,
                   color: const Color(0xFFEEEEEE),
                 ),
@@ -48,14 +66,14 @@ class ConfirmLogoutView extends StatelessWidget {
             children = [
               Center(
                 child: Text(
-                  'Задать пароль',
+                  'btn_set_password'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 18),
               ReactiveTextField(
                 state: c.password,
-                label: 'label_password'.tr,
+                label: 'label_password'.l10n,
                 obscure: c.obscurePassword.value,
                 style: thin,
                 onSuffixPressed: c.obscurePassword.toggle,
@@ -68,7 +86,7 @@ class ConfirmLogoutView extends StatelessWidget {
               const SizedBox(height: 12),
               ReactiveTextField(
                 state: c.repeat,
-                label: 'label_repeat_password'.tr,
+                label: 'label_repeat_password'.l10n,
                 obscure: c.obscureRepeat.value,
                 style: thin,
                 onSuffixPressed: c.obscureRepeat.toggle,
@@ -81,7 +99,7 @@ class ConfirmLogoutView extends StatelessWidget {
               const SizedBox(height: 25),
               OutlinedRoundedButton(
                 title: Text(
-                  'btn_save'.tr,
+                  'btn_save'.l10n,
                   style: thin?.copyWith(color: Colors.white),
                 ),
                 onPressed: c.setPassword,
@@ -97,7 +115,7 @@ class ConfirmLogoutView extends StatelessWidget {
             children = [
               Center(
                 child: Text(
-                  'Пароль не задан',
+                  'label_password_not_set'.l10n,
                   style: thin?.copyWith(fontSize: 18),
                 ),
               ),
@@ -108,7 +126,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     children: [
                       TextSpan(
                         style: thin,
-                        text: 'Доступ к аккаунту будет утерян',
+                        text: 'label_account_access_will_be_lost'.l10n,
                       ),
                     ],
                   ),
@@ -121,7 +139,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       maxWidth: null,
                       title: Text(
-                        'Задать пароль'.tr,
+                        'btn_set_password'.l10n,
                         style: const TextStyle(
                           color: Colors.white,
                         ),
@@ -135,7 +153,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       maxWidth: null,
                       title: Text(
-                        'Выйти'.tr,
+                        'btn_logout'.l10n,
                         style: const TextStyle(),
                       ),
                       onPressed: () => Navigator.of(context).pop(true),

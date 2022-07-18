@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -34,6 +35,7 @@ class CopyableTextField extends StatelessWidget {
     this.icon,
     this.label,
     this.style,
+    this.leading,
   }) : super(key: key);
 
   /// Reactive state of this [CopyableTextField].
@@ -45,6 +47,9 @@ class CopyableTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
+  /// Optional leading icon.
+  final Widget? leading;
+
   /// Optional label of this [CopyableTextField].
   final String? label;
 
@@ -55,6 +60,7 @@ class CopyableTextField extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // if (leading != null) leading!,
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
@@ -66,6 +72,9 @@ class CopyableTextField extends StatelessWidget {
         Expanded(
           child: ContextMenuRegion(
             enabled: (copy ?? state.text).isNotEmpty,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+            ),
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(
@@ -79,9 +88,21 @@ class CopyableTextField extends StatelessWidget {
               onTap: (copy ?? state.text).isEmpty ? null : () => _copy(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
+                  prefix: leading,
                   state: state,
-                  suffix: Icons.copy,
+                  // suffix: Icons.copy,
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/copy.svg',
+                        height: 15,
+                      ),
+                    ),
+                  ),
                   label: label,
+                  style: style,
                 ),
               ),
             ),

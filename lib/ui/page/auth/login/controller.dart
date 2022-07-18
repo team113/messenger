@@ -1,9 +1,27 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/util/message_popup.dart';
+
+import '/api/backend/schema.dart';
+import '/domain/model/my_user.dart';
+import '/domain/service/auth.dart';
+import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/util/message_popup.dart';
 
 import '/domain/model/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -12,7 +30,6 @@ import '/provider/gql/exceptions.dart'
         CreateSessionException,
         RecoverUserPasswordException,
         ResetUserPasswordException,
-        UpdateUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/ui/widget/text_field.dart';
 
@@ -114,6 +131,19 @@ class LoginController extends GetxController {
     super.onInit();
   }
 
+  void clearAccessFields() {
+    newPassword.clear();
+    repeatPassword.clear();
+
+    recoveryCode.clear();
+    recoveryCode.editable.value = true;
+    recoveryCode.status.value = RxStatus.empty();
+
+    recovery.clear();
+    recovery.editable.value = true;
+    recovery.status.value = RxStatus.empty();
+  }
+
   /// Signs in and redirects to the [Routes.home] page.
   ///
   /// Username is [login]'s text and the password is [password]'s text.
@@ -127,7 +157,7 @@ class LoginController extends GetxController {
     password.error.value = null;
 
     if (login.text.isEmpty) {
-      login.error.value = 'err_account_not_found'.tr;
+      login.error.value = 'err_account_not_found'.l10n;
       return;
     }
 
@@ -156,12 +186,12 @@ class LoginController extends GetxController {
     }
 
     if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.tr;
+      password.error.value = 'err_password_empty'.l10n;
       return;
     }
 
     if (userLogin == null && num == null && email == null && phone == null) {
-      login.error.value = 'err_account_not_found'.tr;
+      login.error.value = 'err_account_not_found'.l10n;
       return;
     }
 
@@ -174,7 +204,7 @@ class LoginController extends GetxController {
       );
 
       if (!exists) {
-        login.error.value = 'err_account_not_found'.tr;
+        login.error.value = 'err_account_not_found'.l10n;
       } else {
         await _auth.signIn(
           UserPassword(password.text),
@@ -187,7 +217,7 @@ class LoginController extends GetxController {
         router.home();
       }
     } on FormatException {
-      password.error.value = 'err_incorrect_password'.tr;
+      password.error.value = 'err_incorrect_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.unknownUser:
@@ -200,16 +230,16 @@ class LoginController extends GetxController {
 
         case CreateSessionErrorCode.artemisUnknown:
           password.unsubmit();
-          password.error.value = 'err_data_transfer'.tr;
+          password.error.value = 'err_data_transfer'.l10n;
           rethrow;
       }
     } on ConnectionException {
       password.unsubmit();
-      password.error.value = 'err_data_transfer'.tr;
+      password.error.value = 'err_data_transfer'.l10n;
       // No-op.
     } catch (e) {
       password.unsubmit();
-      password.error.value = 'err_data_transfer'.tr;
+      password.error.value = 'err_data_transfer'.l10n;
       // MessagePopup.error(e);
       rethrow;
     }
@@ -230,7 +260,7 @@ class LoginController extends GetxController {
     if (recovery.text.isEmpty) {
       recovery.status.value = RxStatus.empty();
       recovery.editable.value = true;
-      recovery.error.value = 'err_account_not_found'.tr;
+      recovery.error.value = 'err_account_not_found'.l10n;
       return;
     }
 
@@ -262,9 +292,9 @@ class LoginController extends GetxController {
       );
       success = true;
     } on FormatException {
-      recovery.error.value = 'err_account_not_found'.tr;
+      recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
-      recovery.error.value = 'err_account_not_found'.tr;
+      recovery.error.value = 'err_account_not_found'.l10n;
     } on RecoverUserPasswordException catch (e) {
       recovery.error.value = e.toMessage();
     } catch (e) {
@@ -272,11 +302,15 @@ class LoginController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
+      print('///' + success.toString());
+      print(_recoveryLogin);
+      print(_recoveryNum);
+      print(_recoveryEmail);
+      print(_recoveryPhone);
       if (success) {
         recovery.status.value = RxStatus.success();
         recovery.editable.value = false;
         showCodeSection.value = true;
-        recoveryCode.focus.requestFocus();
       } else {
         recovery.status.value = RxStatus.empty();
         recovery.editable.value = true;
@@ -296,7 +330,7 @@ class LoginController extends GetxController {
     if (recoveryCode.text.isEmpty) {
       recoveryCode.editable.value = true;
       recoveryCode.status.value = RxStatus.empty();
-      recoveryCode.error.value = 'err_input_empty'.tr;
+      recoveryCode.error.value = 'err_input_empty'.l10n;
       return;
     }
 
@@ -309,11 +343,10 @@ class LoginController extends GetxController {
         code: ConfirmationCode(recoveryCode.text.toLowerCase()),
       );
       success = true;
-      showNewPasswordSection.value = true;
     } on FormatException {
-      recoveryCode.error.value = 'err_incorrect_input'.tr;
+      recoveryCode.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
-      recoveryCode.error.value = 'err_incorrect_input'.tr;
+      recoveryCode.error.value = 'err_incorrect_input'.l10n;
     } on ValidateUserPasswordRecoveryCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
@@ -325,7 +358,6 @@ class LoginController extends GetxController {
         recoveryCode.editable.value = false;
         recoveryCode.status.value = RxStatus.success();
         showNewPasswordSection.value = true;
-        newPassword.focus.requestFocus();
       } else {
         recoveryCode.editable.value = true;
         recoveryCode.status.value = RxStatus.empty();
@@ -343,33 +375,33 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.empty();
 
     if (newPassword.text.isEmpty) {
-      newPassword.error.value = 'err_input_empty'.tr;
+      newPassword.error.value = 'err_input_empty'.l10n;
       newPassword.editable.value = true;
       repeatPassword.editable.value = true;
       return;
     }
 
     if (repeatPassword.text.isEmpty) {
-      repeatPassword.error.value = 'err_input_empty'.tr;
+      repeatPassword.error.value = 'err_input_empty'.l10n;
       return;
     }
 
     try {
       UserPassword(newPassword.text);
     } catch (e) {
-      newPassword.error.value = 'err_incorrect_input'.tr;
+      newPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }
 
     try {
       UserPassword(repeatPassword.text);
     } catch (e) {
-      repeatPassword.error.value = 'err_incorrect_input'.tr;
+      repeatPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }
 
     if (newPassword.text != repeatPassword.text) {
-      repeatPassword.error.value = 'err_passwords_mismatch'.tr;
+      repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
       return;
     }
 
@@ -386,7 +418,7 @@ class LoginController extends GetxController {
         newPassword: UserPassword(newPassword.text),
       );
 
-      MessagePopup.success('label_password_was_changed'.tr);
+      MessagePopup.success('label_password_was_changed'.l10n);
 
       recovery.clear();
       recoveryCode.clear();
@@ -402,9 +434,9 @@ class LoginController extends GetxController {
       recovery.editable.value = true;
       recoveryCode.editable.value = true;
     } on FormatException {
-      repeatPassword.error.value = 'err_incorrect_input'.tr;
+      repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
-      repeatPassword.error.value = 'err_incorrect_input'.tr;
+      repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ResetUserPasswordException catch (e) {
       repeatPassword.error.value = e.toMessage();
     } catch (e) {

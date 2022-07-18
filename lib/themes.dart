@@ -66,23 +66,30 @@ class Themes {
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
-        textTheme: GoogleFonts.robotoTextTheme(
-          ThemeData.light().textTheme.copyWith(
-                headline3: TextStyle(color: colors.primary, fontSize: 30),
-                headline4: TextStyle(color: colors.primary, fontSize: 24),
-                headline5: TextStyle(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 20,
-                ),
-                caption: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 17,
-                ),
-                subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-                subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
-              ),
+        textTheme: GoogleFonts.robotoTextTheme().copyWith(
+          headline3: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 18,
+          ),
+          headline4: TextStyle(color: colors.primary, fontSize: 24),
+          headline5: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w400,
+            fontSize: 20,
+          ),
+          caption: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 17,
+          ),
+          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
+          subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
+          bodyText1: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,

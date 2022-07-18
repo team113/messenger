@@ -82,6 +82,7 @@ btn_delete_from_contacts = Удалить из контактов
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
+btn_forgot_password = Забыли пароль?
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
@@ -96,6 +97,8 @@ btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_saved_messages = Сохранённые сообщения
+btn_save = Сохранить
+btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_start_chatting = Начать общение
 btn_submit = Применить
@@ -147,10 +150,12 @@ err_not_dialog = Не диалог
 err_not_group = Не группа
 err_not_member = Не участник чата
 err_nowhere_to_send = У аккаунта нет подтверждённой почты или телефона
+err_password_empty = Пожалуйста, введите пароль
+err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_phone_occupied = Телефон уже привязан к другому аккаунту
 err_quoted_message = Сообщение было процитировано
-err_repeat_password_empty = Повторите новый пароль
+err_repeat_password_empty = Пожалуйста, повторите пароль
 err_size_too_big = Файл превышает ограничение по размеру (15 МиБ)
 err_stale_version = Указанная версия слишком старая
 err_too_many_emails = Был достигнут максимум E-mail адресов
@@ -185,6 +190,8 @@ label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
+label_account_access_will_be_lost = Доступ к аккаунту будет утерян
+label_account_created = Аккаунт создан
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -288,6 +295,8 @@ label_emails = Эл.почта
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
+label_enter_it_bellow = Пожалуйста, введите его ниже.
+label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
 label_file = Файл
@@ -296,7 +305,7 @@ label_gallery = Галерея
 label_hidden = Статус скрыт
 label_hide_for_me = Удалить для меня
 label_hint_drag_n_drop_video =
-    Подсказка = Вы можете перетаскивать видео окна.
+    Подсказка: Вы можете перетаскивать видео окна.
 label_incoming_call = Входящий звонок
 label_last_seen = Был(а)
 label_login = Логин
@@ -320,6 +329,16 @@ label_online = Онлайн
 label_outgoing_call = Исходящий звонок
 label_or_register = или регистрация
 label_password = Пароль
+label_password_not_set = Пароль не задан
+label_password_not_set_description = 
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+    
+       - Вы не удалите пользовательские данные из приложения (браузера);
+
+       - Вы не нажмёте кнопку “Выход”.
+
+    Чтобы не потерять доступ к аккаунту, задайте пароль.
+label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
 label_phone_confirmation_code_was_send =
     Код подтверждения был отправлен Вам на номер телефона
@@ -330,7 +349,7 @@ label_presence_away = Отошёл
 label_presence_hidden = Скрыт
 label_presence_present = Информация о последнем входе
 label_read_by = Прочитано
-label_recover_account = Восстановление доступа к аккаунту
+label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
 label_search = Поиск
@@ -342,6 +361,7 @@ label_service_connected = Сервис успешно подключен
 label_service_encountered_error = Сервис столкнулся с ошибкой
 label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
+label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_settings = Настройки
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона

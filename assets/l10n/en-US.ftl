@@ -82,6 +82,7 @@ btn_delete_from_contacts = Delete from contacts
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
+btn_forgot_password = Forgot password?
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -96,6 +97,7 @@ btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_saved_messages = Saved messages
+btn_set_password = Set password
 btn_settings = Settings
 btn_start_chatting = Start chatting
 btn_submit = Submit
@@ -146,10 +148,12 @@ err_not_dialog = Not a dialog
 err_not_group = Not a group
 err_not_member = Not a member
 err_nowhere_to_send = Account has no confirmed emails or phones
+err_password_empty = Please, enter the password
+err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
 err_phone_occupied = Phone number is already occupied
 err_quoted_message = Message was quoted
-err_repeat_password_empty = Repeated password must not be empty
+err_repeat_password_empty = Please, repeat the password
 err_size_too_big = File is too big. Maximum allowed size is 15 MiB
 err_stale_version = Provided version is too stale
 err_too_many_emails = Reached maximum allowed number of E-mail addresses
@@ -182,6 +186,8 @@ label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88,
+label_account_access_will_be_lost = Account access will be lost
+label_account_created = Account created
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -276,6 +282,8 @@ label_emails = Emails
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
+label_enter_it_bellow = Please enter it below.
+label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
@@ -307,6 +315,16 @@ label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
+label_password_not_set = Password not set
+label_password_not_set_description = 
+    Password not set. Access to an account without a password is retained for one year from the time the account was created or until:
+                          
+           - You will not delete user data from the application (browser);
+                          
+           - You will not press the "Exit" button.
+                           
+          In order not to lose access to your account, set a password.
+label_password_set_successfully = Password set successfully
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
@@ -317,7 +335,7 @@ label_presence_away = Away
 label_presence_hidden = Hidden
 label_presence_present = Last visit information
 label_read_by = Read by
-label_recover_account = Account access recovery
+label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
 label_search = Search
@@ -329,6 +347,7 @@ label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
+label_set_new_password = Set a new password to log into your account
 label_settings = Settings
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone

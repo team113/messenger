@@ -1,4 +1,21 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:get/get.dart';
+import 'package:messenger/l10n/l10n.dart';
 
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -35,13 +52,13 @@ class ConfirmLogoutController extends GetxController {
           UserPassword(s.text);
 
           if (repeat.text != password.text && repeat.isValidated) {
-            repeat.error.value = 'err_passwords_mismatch'.tr;
+            repeat.error.value = 'err_passwords_mismatch'.l10n;
           }
         } on FormatException {
           if (s.text.isEmpty) {
-            s.error.value = 'err_password_empty'.tr;
+            s.error.value = 'err_password_empty'.l10n;
           } else {
-            s.error.value = 'err_password_incorrect'.tr;
+            s.error.value = 'err_password_incorrect'.l10n;
           }
         }
       },
@@ -60,13 +77,13 @@ class ConfirmLogoutController extends GetxController {
           UserPassword(s.text);
 
           if (repeat.text != password.text && password.isValidated) {
-            repeat.error.value = 'err_passwords_mismatch'.tr;
+            repeat.error.value = 'err_passwords_mismatch'.l10n;
           }
         } on FormatException {
           if (s.text.isEmpty) {
-            s.error.value = 'err_repeat_password_empty'.tr;
+            s.error.value = 'err_repeat_password_empty'.l10n;
           } else {
-            s.error.value = 'err_password_incorrect'.tr;
+            s.error.value = 'err_password_incorrect'.l10n;
           }
         }
       },
@@ -84,12 +101,12 @@ class ConfirmLogoutController extends GetxController {
     }
 
     if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.tr;
+      password.error.value = 'err_password_empty'.l10n;
       return;
     }
 
     if (repeat.text.isEmpty) {
-      repeat.error.value = 'err_repeat_password_empty'.tr;
+      repeat.error.value = 'err_repeat_password_empty'.l10n;
       return;
     }
 

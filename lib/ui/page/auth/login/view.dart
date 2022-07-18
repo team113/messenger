@@ -1,8 +1,25 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/auth/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/popup/popup.dart';
-import 'package:messenger/ui/widget/text_field.dart';
+import '/l10n/l10n.dart';
+import '/ui/page/auth/widget/outlined_rounded_button.dart';
+import '/ui/widget/popup/popup.dart';
+import '/ui/widget/text_field.dart';
 
 import 'controller.dart';
 
@@ -16,9 +33,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    final TextStyle? thin =
-        theme.textTheme.caption?.copyWith(color: Colors.black);
+    TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
       init: LoginController(Get.find()),
@@ -29,38 +44,45 @@ class LoginView extends StatelessWidget {
             children = [
               Center(
                 child: Text(
-                  'Задайте новый пароль для входа в аккаунт',
-                  style: thin?.copyWith(fontSize: 18),
+                  'label_set_new_password'.l10n,
+                  style: theme.headline3,
                 ),
               ),
               const SizedBox(height: 57),
               ReactiveTextField(
                 key: const Key('PasswordField'),
                 state: c.newPassword,
-                label: 'label_new_password'.tr,
+                label: 'label_new_password'.l10n,
                 obscure: true,
               ),
               const SizedBox(height: 16),
               ReactiveTextField(
                 key: const Key('RepeatPasswordField'),
                 state: c.repeatPassword,
-                label: 'label_repeat_password'.tr,
+                label: 'label_repeat_password'.l10n,
                 obscure: true,
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonTitle: 'btn_next'.tr,
+                  mainButtonKey: const Key('RecoveryNextTile'),
+                  secondaryButtonKey: const Key('RecoveryBackTile'),
+                  mainButtonTitle: 'btn_next'.l10n,
                   onMainButtonPressed: c.resetUserPassword,
-                  secondaryButtonTitle: 'btn_back'.tr,
-                  onSecondaryButtonPressed: c.showNewPasswordSection.toggle),
+                  secondaryButtonTitle: 'btn_back'.l10n,
+                  onSecondaryButtonPressed: () {
+                    c.clearAccessFields();
+                    c.showCodeSection.toggle();
+                    c.showNewPasswordSection.toggle();
+                  }),
               const SizedBox(height: 16),
             ];
           } else if (c.showCodeSection.value) {
             children = [
               Center(
                 child: Text(
-                  'Код подтверждения был выслан на ваш e-mail. Пожалуйста, введите его ниже.',
-                  style: thin?.copyWith(fontSize: 18),
+                  '${'label_email_confirmation_code_was_send'.l10n}'
+                  '${'dot'.l10n} ${'label_enter_it_bellow'.l10n}',
+                  style: theme.headline3,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -68,36 +90,43 @@ class LoginView extends StatelessWidget {
               ReactiveTextField(
                 key: const Key('RecoveryCodeField'),
                 state: c.recoveryCode,
-                label: 'label_recovery_code'.tr,
+                label: 'label_recovery_code'.l10n,
                 type: TextInputType.number,
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonTitle: 'btn_next'.tr,
+                  mainButtonKey: const Key('RecoveryNextTile'),
+                  secondaryButtonKey: const Key('RecoveryBackTile'),
+                  mainButtonTitle: 'btn_next'.l10n,
                   onMainButtonPressed: c.recoveryCode.submit,
-                  secondaryButtonTitle: 'btn_back'.tr,
-                  onSecondaryButtonPressed: c.showCodeSection.toggle),
+                  secondaryButtonTitle: 'btn_back'.l10n,
+                  onSecondaryButtonPressed: () {
+                    c.clearAccessFields();
+                    c.showCodeSection.toggle();
+                  }),
               const SizedBox(height: 16),
             ];
           } else if (c.displayAccess.value) {
             children = [
               Center(
                 child: Text(
-                  'label_recover_account'.tr,
-                  style: thin?.copyWith(fontSize: 18),
+                  'label_recover_account'.l10n,
+                  style: theme.headline3,
                 ),
               ),
               const SizedBox(height: 57),
               ReactiveTextField(
                 key: const Key('RecoveryField'),
                 state: c.recovery,
-                label: 'label_sign_in_input'.tr,
+                label: 'label_sign_in_input'.l10n,
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonTitle: 'btn_next'.tr,
+                  mainButtonKey: const Key('RecoveryNextTile'),
+                  secondaryButtonKey: const Key('RecoveryBackTile'),
+                  mainButtonTitle: 'btn_next'.l10n,
                   onMainButtonPressed: c.recovery.submit,
-                  secondaryButtonTitle: 'btn_back'.tr,
+                  secondaryButtonTitle: 'btn_back'.l10n,
                   onSecondaryButtonPressed: c.displayAccess.toggle),
               const SizedBox(height: 16),
             ];
@@ -105,15 +134,15 @@ class LoginView extends StatelessWidget {
             children = [
               Center(
                 child: Text(
-                  'label_entrance'.tr,
-                  style: thin?.copyWith(fontSize: 18),
+                  'label_entrance'.l10n,
+                  style: theme.headline3,
                 ),
               ),
               const SizedBox(height: 57),
               ReactiveTextField(
                 key: const Key('UsernameField'),
                 state: c.login,
-                label: 'label_sign_in_input'.tr,
+                label: 'label_sign_in_input'.l10n,
                 onChanged: () {},
               ),
               const SizedBox(height: 16),
@@ -121,13 +150,15 @@ class LoginView extends StatelessWidget {
                 key: const ValueKey('PasswordField'),
                 obscure: true,
                 state: c.password,
-                label: 'label_password'.tr,
+                label: 'label_password'.l10n,
               ),
               const SizedBox(height: 52),
               loginPopupButtons(
+                  mainButtonKey: const Key('LoginNextTile'),
+                  secondaryButtonKey: const Key('AccessRecoveryTile'),
                   isRightMainButton: false,
-                  mainButtonTitle: 'btn_login'.tr,
-                  secondaryButtonTitle: 'btn_forgot_password'.tr,
+                  mainButtonTitle: 'btn_login'.l10n,
+                  secondaryButtonTitle: 'btn_forgot_password'.l10n,
                   onMainButtonPressed: c.signIn,
                   onSecondaryButtonPressed: () {
                     c.recovery.unchecked = c.login.text;
@@ -160,18 +191,22 @@ class LoginView extends StatelessWidget {
   }
 }
 
-Widget loginPopupButtons(
-    {bool isRightMainButton = true,
-    String mainButtonTitle = '',
-    String secondaryButtonTitle = '',
-    VoidCallback? onMainButtonPressed,
-    VoidCallback? onSecondaryButtonPressed,
-    Color mainButtonColor = const Color(0xFF63B4FF),
-    Color secondaryButtonColor = const Color(0xFFEEEEEE),
-    Color mainButtonTextColor = Colors.white}) {
+Widget loginPopupButtons({
+  bool isRightMainButton = true,
+  String mainButtonTitle = '',
+  String secondaryButtonTitle = '',
+  VoidCallback? onMainButtonPressed,
+  VoidCallback? onSecondaryButtonPressed,
+  Color mainButtonColor = const Color(0xFF63B4FF),
+  Color secondaryButtonColor = const Color(0xFFEEEEEE),
+  Color mainButtonTextColor = Colors.white,
+  Key? mainButtonKey,
+  Key? secondaryButtonKey,
+}) {
   var elements = [
     Expanded(
       child: OutlinedRoundedButton(
+        key: secondaryButtonKey,
         maxWidth: null,
         title: Text(secondaryButtonTitle),
         onPressed: onSecondaryButtonPressed,
@@ -181,6 +216,7 @@ Widget loginPopupButtons(
     const SizedBox(width: 10),
     Expanded(
       child: OutlinedRoundedButton(
+        key: mainButtonKey,
         maxWidth: null,
         title: Text(
           mainButtonTitle,

@@ -113,6 +113,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/conf.toml
+    - assets/fonts/
     - assets/icons/
     - assets/images/
     - assets/images/logo/
