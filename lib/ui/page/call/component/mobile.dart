@@ -201,6 +201,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               child: HintWidget(
                 text: '${c.error}.',
                 onTap: () => c.errorTimeout.value = 0,
+                isError: true,
               ),
             ),
           ),
@@ -783,9 +784,7 @@ Widget _mobileVideo(
                   offstageUntilDetermined: true,
                   onSizeDetermined: () => setState(() {}),
                   fit: fit ?? BoxFit.cover,
-                  enableContextMenu: false,
                   muted: muted,
-                  withLabels: !c.minimized.value,
                   borderRadius: BorderRadius.zero,
                 ),
               );

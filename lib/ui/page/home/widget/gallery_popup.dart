@@ -774,20 +774,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns a [Rect] of an [Object] identified by the provided initial
   /// [GlobalKey].
-  Rect? _calculatePosition() {
-    final keyContext = widget.initialKey?.currentContext;
-    if (keyContext != null) {
-      RenderBox? box;
-      try {
-        box = keyContext.findRenderObject() as RenderBox?;
-      } catch (e) {
-        // [RenderObject] may not exist, which is ok.
-      }
-      return box?.paintBounds.shift(-box.globalToLocal(Offset.zero));
-    }
-
-    return null;
-  }
+  Rect? _calculatePosition() => widget.initialKey?.globalPaintBounds;
 
   /// Sets the [_ignorePageSnapping] to `true` and restarts the
   /// [_ignoreSnappingTimer].
@@ -797,5 +784,23 @@ class _GalleryPopupState extends State<GalleryPopup>
     _ignoreSnappingTimer = Timer(250.milliseconds, () {
       setState(() => _ignorePageSnapping = false);
     });
+  }
+}
+
+/// Extension of a [GlobalKey] allowing getting global
+/// [RenderObject.paintBounds].
+extension GlobalKeyExtension on GlobalKey {
+  /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
+  /// [Object] this [GlobalKey] represents.
+  Rect? get globalPaintBounds {
+    final renderObject = currentContext?.findRenderObject();
+    final matrix = renderObject?.getTransformTo(null);
+
+    if (matrix != null && renderObject?.paintBounds != null) {
+      final rect = MatrixUtils.transformRect(matrix, renderObject!.paintBounds);
+      return rect;
+    } else {
+      return null;
+    }
   }
 }
