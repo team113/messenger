@@ -52,7 +52,8 @@ class CallController extends GetxController {
     this._currentCall,
     this._calls,
     this._chatService,
-    this._userService,);
+    this._userService,
+  );
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
