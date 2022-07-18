@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 /// Dock reordering it's [items].
 class Dock<T> extends StatefulWidget {
   const Dock({
+    Key? key,
     required this.items,
     required this.itemBuilder,
     required this.onReorder,
@@ -32,7 +33,6 @@ class Dock<T> extends StatefulWidget {
     this.onDragEnded,
     this.onLeave,
     this.onWillAccept,
-    Key? key,
   }) : super(key: key);
 
   /// Items this [Dock] reorders.
@@ -190,8 +190,10 @@ class _DockState<T> extends State<Dock<T>> {
                               maxSimultaneousDrags: isAnimated ? 0 : 1,
                               dragAnchorStrategy: pointerDragAnchorStrategy,
                               feedback: Transform.translate(
-                                offset: -Offset(constraints.maxWidth / 2,
-                                    constraints.maxHeight / 2),
+                                offset: -Offset(
+                                  constraints.maxWidth / 2,
+                                  constraints.maxHeight / 2,
+                                ),
                                 child: ConstrainedBox(
                                   constraints: constraints,
                                   child: KeyedSubtree(
@@ -351,9 +353,7 @@ class _DockState<T> extends State<Dock<T>> {
           left: moveDragOffset!.dx,
           top: moveDragOffset!.dy,
           child: Container(
-            constraints: startDragConstraints != null
-                ? startDragConstraints!
-                : itemConstraints,
+            constraints: startDragConstraints ?? itemConstraints,
             child: KeyedSubtree(
               key: item.key,
               child: widget.itemBuilder(context, item),
@@ -568,7 +568,7 @@ class _DockState<T> extends State<Dock<T>> {
     BoxConstraints? endConstraints,
   }) async {
     var overlayEntry = OverlayEntry(
-      builder: (context) => _OverlayBlock(
+      builder: (context) => _OverlayBlock<T>(
         itemBuilder: widget.itemBuilder,
         item: item,
         from: from,
@@ -656,16 +656,16 @@ class _OverlayBlock<T> extends StatefulWidget {
   /// Builder of item.
   final Widget Function(BuildContext context, DraggedItem<T> item) itemBuilder;
 
-  /// Duration of animation.
+  /// [Duration] of animation.
   final Duration animationDuration;
 
   @override
-  State<_OverlayBlock> createState() => _OverlayBlockState();
+  State<_OverlayBlock<T>> createState() => _OverlayBlockState<T>();
 }
 
 /// State of [_OverlayBlock], used to play animation.
-class _OverlayBlockState extends State<_OverlayBlock> {
-  /// Offset of this widget.
+class _OverlayBlockState<T> extends State<_OverlayBlock<T>> {
+  /// [Offset] of this widget.
   late Offset offset = widget.from;
 
   /// Size of item.
@@ -693,8 +693,8 @@ class _OverlayBlockState extends State<_OverlayBlock> {
           duration: widget.animationDuration,
           constraints: constraints,
           child: KeyedSubtree(
-            child: widget.itemBuilder(context, widget.item),
             key: widget.item.key,
+            child: widget.itemBuilder(context, widget.item),
           ),
         ),
       );
@@ -728,7 +728,7 @@ class AnimatedWidth extends StatefulWidget {
 
 /// State of [AnimatedWidth] used to keep track of [width].
 class _AnimatedWidthState extends State<AnimatedWidth> {
-  /// Scale of this [_AnimatedDelayedScaleState].
+  /// Scale of this [_AnimatedWidthState].
   late double width;
 
   @override

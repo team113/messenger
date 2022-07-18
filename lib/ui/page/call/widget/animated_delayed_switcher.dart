@@ -18,56 +18,46 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// Delayed animation widget.
-class AnimatedDelayed extends StatefulWidget {
-  const AnimatedDelayed({
+/// [AnimatedSwitcher] with an optional [delay].
+class AnimatedDelayedSwitcher extends StatefulWidget {
+  const AnimatedDelayedSwitcher({
     Key? key,
-    required this.delay,
-    required this.duration,
+    this.delay = Duration.zero,
+    this.duration = const Duration(milliseconds: 300),
     required this.child,
   }) : super(key: key);
 
-  /// [Duration] of animation.
-  final Duration duration;
-
-  /// [Duration] of delay.
+  /// [Duration] of the delay.
   final Duration delay;
 
-  /// Child [Widget].
+  /// [Duration] of the switching animation.
+  final Duration duration;
+
+  /// [Widget] to switch to.
   final Widget child;
 
   @override
-  State<AnimatedDelayed> createState() => _AnimatedDelayedState();
+  State<AnimatedDelayedSwitcher> createState() => _AnimatedDelayedState();
 }
 
-/// [State] of [AnimatedDelayed].
-class _AnimatedDelayedState extends State<AnimatedDelayed> {
-  /// [Timer] of animation delay.
-  late final Timer _timer;
-
-  /// Indicator whether child widget should be displayed or not.
-  bool show = false;
+/// [State] of an [AnimatedDelayedSwitcher] switching the [Widget].
+class _AnimatedDelayedState extends State<AnimatedDelayedSwitcher> {
+  /// Indicator whether [AnimatedSwitcher] should be enabled.
+  bool _show = false;
 
   @override
   void initState() {
     super.initState();
-
-    _timer = Timer(widget.delay, () {
+    Future.delayed(widget.delay, () {
       if (mounted) {
-        setState(() => show = true);
+        setState(() => _show = true);
       }
     });
   }
 
   @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) => AnimatedSwitcher(
         duration: widget.duration,
-        child: show ? widget.child : Container(),
+        child: _show ? widget.child : Container(),
       );
 }

@@ -24,8 +24,8 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
-import '../widget/animated_delayed.dart';
 import '../widget/animated_delayed_scale.dart';
+import '../widget/animated_delayed_switcher.dart';
 import '../widget/dock.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -583,7 +583,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         Obx(
                           () => c.isMoreHintDismissed.value
                               ? Container()
-                              : AnimatedDelayed(
+                              : AnimatedDelayedSwitcher(
                                   delay: const Duration(milliseconds: 500),
                                   duration: const Duration(milliseconds: 200),
                                   child: SizedBox(
@@ -622,45 +622,43 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Obx(() {
-          return Align(
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.deferToChild,
-                    onTap: () {
-                      if (c.state.value == OngoingCallState.active) {
-                        if (c.displayMore.value) {
-                          c.displayMore.value = false;
-                          c.keepUi(false);
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.deferToChild,
+                  onTap: () {
+                    if (c.state.value == OngoingCallState.active) {
+                      if (c.displayMore.value) {
+                        c.displayMore.value = false;
+                        c.keepUi(false);
+                      } else {
+                        if (c.showUi.isFalse) {
+                          c.keepUi();
                         } else {
-                          if (c.showUi.isFalse) {
-                            c.keepUi();
-                          } else {
-                            c.keepUi(false);
-                          }
+                          c.keepUi(false);
                         }
                       }
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      verticalDirection: VerticalDirection.up,
-                      children: [
-                        _dock(),
-                        _launchpad(),
-                      ],
-                    ),
+                    }
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    verticalDirection: VerticalDirection.up,
+                    children: [
+                      _dock(),
+                      _launchpad(),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          );
-        }),
+              ),
+            ],
+          ),
+        ),
 
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
