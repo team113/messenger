@@ -45,6 +45,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
   Hive.init('./test/.temp_hive/password_recovery');
+  await L10n.init();
 
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
