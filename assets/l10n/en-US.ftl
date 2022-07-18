@@ -35,7 +35,10 @@ alert_popup_permissions_description =
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
-btn_add_participant = Add participant
+btn_add_participant = Add { $twoLines ->
+                              [true] {"\u000A"}
+                              *[other] {""}
+                          }participant
 btn_add_to_contacts = Add to contacts
 btn_allow = Allow
 btn_audio_call = Audio call
@@ -61,13 +64,29 @@ btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_hand_down = Hand down
 btn_call_hand_up = Hand up
+btn_call_remote_audio_off = Disable incoming audio
+btn_call_remote_audio_on = Enable incoming audio
+btn_call_remote_video_off = Disable incoming video
+btn_call_remote_video_on = Enable incoming video
 btn_call_screen_off = Stop screen sharing
 btn_call_screen_on = Share screen
 btn_call_settings = Settings
-btn_call_switch_camera = Switch camera
-btn_call_toggle_speaker = Toggle speaker
-btn_call_video_off = Turn video off
-btn_call_video_on = Turn video on
+btn_call_switch_camera = Switch { $twoLines ->
+                                    [true] {"\u000A"}
+                                    *[other] {""}
+                                }camera
+btn_call_toggle_speaker = Toggle { $twoLines ->
+                                     [true] {"\u000A"}
+                                     *[other] {""}
+                                 }speaker
+btn_call_video_off = Turn { $twoLines ->
+                              [true] {"\u000A"}
+                              *[other] {""}
+                          }video off
+btn_call_video_on = Turn { $twoLines ->
+                             [true] {"\u000A"}
+                             *[other] {""}
+                         }video on
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
 btn_chat_join_call = Join the call

@@ -177,12 +177,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                                       .first
                                       .padLeft(8, '0')
                                   : c.state.value == OngoingCallState.joining
-                                      ? 'label_call_joining'.tr
+                                      ? 'label_call_joining'.l10n
                                       : isOutgoing
-                                          ? 'label_call_calling'.tr
+                                          ? 'label_call_calling'.l10n
                                           : c.withVideo == true
-                                              ? 'label_video_call'.tr
-                                              : 'label_audio_call'.tr;
+                                              ? 'label_video_call'.l10n
+                                              : 'label_audio_call'.l10n;
 
                           return Padding(
                             padding: const EdgeInsets.only(left: 4, right: 4),
@@ -369,8 +369,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
-                              child:
-                                  Text('btn_call_switch_camera_two_lines'.tr),
+                              child: Text('btn_call_switch_camera'
+                                  .l10nfmt({'twoLines': 'true'})),
                             ),
                           )
                         : hintedButton(
@@ -378,8 +378,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                             AnimatedOpacity(
                               opacity: c.isPanelOpen.value ? 1 : 0,
                               duration: 200.milliseconds,
-                              child:
-                                  Text('btn_call_toggle_speaker_two_lines'.tr),
+                              child: Text('btn_call_toggle_speaker'
+                                  .l10nfmt({'twoLines': 'true'})),
                             ),
                           ),
                   ),
@@ -393,8 +393,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                         c.screenShareState.value == LocalTrackState.enabled ||
                                 c.screenShareState.value ==
                                     LocalTrackState.enabling
-                            ? 'Выключить\nдемонстрацию'.tr
-                            : 'Включить\nдемонстрацию'.tr,
+                            ? 'btn_call_screen_on'.l10nfmt({'twoLines': 'true'})
+                            : 'btn_call_screen_off'
+                                .l10nfmt({'twoLines': 'true'}),
                       ),
                     ),
                   )),
@@ -406,8 +407,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     child: Text(
                       c.audioState.value == LocalTrackState.enabled ||
                               c.audioState.value == LocalTrackState.enabling
-                          ? 'btn_call_audio_off_two_lines'.tr
-                          : 'btn_call_audio_on_two_lines'.tr,
+                          ? 'btn_call_audio_off'.l10nfmt({'twoLines': 'true'})
+                          : 'btn_call_audio_on'.l10nfmt({'twoLines': 'true'}),
                     ),
                   ),
                 )),
@@ -419,8 +420,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                     child: Text(
                       c.videoState.value == LocalTrackState.enabled ||
                               c.videoState.value == LocalTrackState.enabling
-                          ? 'btn_call_video_off_two_lines'.tr
-                          : 'btn_call_video_on_two_lines'.tr,
+                          ? 'btn_call_video_off'.l10nfmt({'twoLines': 'true'})
+                          : 'btn_call_video_on'.l10nfmt({'twoLines': 'true'}),
                     ),
                   ),
                 )),
@@ -429,7 +430,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
-                    child: Text('btn_call_end_two_lines'.tr),
+                    child: Text('btn_call_end'.l10n),
                   ),
                 )),
               ],
@@ -445,8 +446,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
                       child: Text(c.isHandRaised.value
-                          ? 'btn_call_hand_down'.tr
-                          : 'btn_call_hand_up'.tr),
+                          ? 'btn_call_hand_down'.l10n
+                          : 'btn_call_hand_up'.l10n),
                     ),
                   ),
                 ),
@@ -671,9 +672,39 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
 
         String? subtitle;
         if (c.isGroup) {
-          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          subtitle =
-              '${1 + actualMembers.length} ${'label_of'.tr} ${c.chat.value?.members.length}';
+          final Map<String, String> args = {
+            'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
+            'state': c.state.value.name,
+          };
+
+          switch (c.state.value) {
+            case OngoingCallState.local:
+            case OngoingCallState.pending:
+              bool isOutgoing =
+                  (c.outgoing || c.state.value == OngoingCallState.local) &&
+                      !c.started;
+              if (isOutgoing) {
+                args['type'] = 'outgoing';
+              } else if (c.withVideo) {
+                args['type'] = 'video';
+              } else {
+                args['type'] = 'audio';
+              }
+              break;
+
+            case OngoingCallState.active:
+              var actualMembers = c.members.keys.map((k) => k.userId).toSet();
+              args['members'] = '${actualMembers.length + 1}';
+              args['allMembers'] = '${c.chat.value?.members.length}';
+              args['duration'] = c.duration.value.hhMmSs();
+              break;
+
+            case OngoingCallState.joining:
+            case OngoingCallState.ended:
+            // No-op.
+              break;
+          }
+          subtitle = 'label_call_title'.l10nfmt(args);
         }
 
         return _layoutButton(
@@ -1166,7 +1197,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   Overlay.of(context)?.insert(c.addToSecondaryEntry!);
 }
 
-/// [DragTarget] of an empty [_secondaryView].
+/// [DragTarget] of an empty [_floatingSecondaryView].
 class SecondaryOverlayEntry extends StatefulWidget {
   const SecondaryOverlayEntry(this.c, {Key? key}) : super(key: key);
 

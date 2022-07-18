@@ -35,7 +35,10 @@ alert_popup_permissions_description =
 alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
-btn_add_participant = Добавить участника
+btn_add_participant = Добавить { $twoLines ->
+                                   [true] {"\u000A"}
+                                   *[other] {""}
+                               }участника
 btn_add_to_contacts = Добавить в контакты
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
@@ -47,8 +50,14 @@ btn_call_answer_with_audio =
 btn_call_answer_with_video =
     Ответить
     с видео
-btn_call_audio_off = Выключить микрофон
-btn_call_audio_on = Включить микрофон
+btn_call_audio_off = Выключить { $twoLines ->
+                                   [true] {"\u000A"}
+                                   *[other] {""}
+                               }микрофон
+btn_call_audio_on = Включить { $twoLines ->
+                                 [true] {"\u000A"}
+                                 *[other] {""}
+                             }микрофон
 btn_call_cancel = Отменить
 btn_call_center_video = Центрировать видео
 btn_call_cut_video = Обрезать видео
@@ -61,13 +70,35 @@ btn_call_enable_video = Включить видео
 btn_call_end = Закончить
 btn_call_hand_down = Опустить руку
 btn_call_hand_up = Поднять руку
-btn_call_screen_off = Завершить демонстрацию экрана
-btn_call_screen_on = Демонстрация экрана
+btn_call_remote_audio_off = Выключить входящее аудио
+btn_call_remote_audio_on = Включить входящее аудио
+btn_call_remote_video_off = Выключить входящее видео
+btn_call_remote_video_on = Включить входящее видео
+btn_call_screen_off = Завершить { $twoLines ->
+                                    [true] {"\u000A"}
+                                    *[other] {""}
+                                }демонстрацию экрана
+btn_call_screen_on = Демонстрация { $twoLines ->
+                                      [true] {"\u000A"}
+                                      *[other] {""}
+                                  }экрана
 btn_call_settings = Настройки
-btn_call_switch_camera = Переключить камеру
-btn_call_toggle_speaker = Переключить динамик
-btn_call_video_off = Выключить камеру
-btn_call_video_on = Включить камеру
+btn_call_switch_camera = Переключить { $twoLines ->
+                                         [true] {"\u000A"}
+                                         *[other] {""}
+                                     }камеру
+btn_call_toggle_speaker = Переключить { $twoLines ->
+                                          [true] {"\u000A"}
+                                          *[other] {""}
+                                      }динамик
+btn_call_video_off = Выключить { $twoLines ->
+                                   [true] {"\u000A"}
+                                   *[other] {""}
+                               }камеру
+btn_call_video_on = Включить { $twoLines ->
+                                 [true] {"\u000A"}
+                                 *[other] {""}
+                             }камеру
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
 btn_chat_join_call = Присоединиться к звонку

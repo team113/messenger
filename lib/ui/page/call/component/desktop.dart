@@ -260,7 +260,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       top: (c.minimized.value && !c.fullscreen.value ? 0 : 45) +
                           8),
                   child: Text(
-                    c.callerName ?? '...',
+                    c.callerName ?? 'dot'.l10n * 3,
                     style: context.textTheme.bodyText1?.copyWith(
                       color: const Color(0xFFBBBBBB),
                       fontSize: 20,
