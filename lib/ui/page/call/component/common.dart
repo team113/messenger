@@ -190,7 +190,6 @@ Widget handButton(CallController c, [double? scale]) => Obx(
         hint: c.isHandRaised.value
             ? 'btn_call_hand_down'.l10n
             : 'btn_call_hand_up'.l10n,
-        onPressed: c.toggleHand,
         scale: scale ?? 1,
         children: [
           SvgLoader.asset(

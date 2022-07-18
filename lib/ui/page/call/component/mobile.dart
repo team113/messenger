@@ -35,15 +35,12 @@ import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/fit_wrap.dart';
-import '/ui/page/call/widget/reorderable_fit_view.dart';
-import '/ui/page/call/widget/reorderable_fit_wrap.dart';
+import '/ui/page/call/widget/reorderable_fit.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -753,11 +750,14 @@ Widget _primaryView(CallController c, BuildContext context) {
 
     return Stack(
       children: [
-        ReorderableFitView<_DragData>(
+        ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
           onAdded: (d, i) => c.focus(d.participant),
-          useLongDraggable: true,
-          onWillAccept: (b) => c.primaryTargets.value = 1,
+          useLongPress: true,
+          onWillAccept: (b) {
+            c.primaryTargets.value = 1;
+            return true;
+          },
           onLeave: (b) => c.primaryTargets.value = 0,
           allowDraggingLast: false,
           onDragStarted: (r) {
@@ -848,7 +848,7 @@ Widget _primaryView(CallController c, BuildContext context) {
                     ? BoxFit.cover
                     : c.rendererBoxFit[
                         participant.video.value?.track.id() ?? ''],
-                isDragging: c.draggedRenderer.value == participant,
+                expanded: c.draggedRenderer.value == participant,
               );
             });
           },
@@ -981,10 +981,13 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
           ),
 
           // TODO: Make Avatar expand!!!!
-          ReorderableFitWrap<_DragData>(
+          ReorderableFit<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
-            onWillAccept: (b) => c.secondaryTargets.value = 1,
+            onWillAccept: (b) {
+              c.secondaryTargets.value = 1;
+              return true;
+            },
             onLeave: (b) => c.secondaryTargets.value = 0,
             useLongPress: true,
             onDragStarted: (r) {
@@ -1078,7 +1081,7 @@ Widget _floatingSecondaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                isDragging: c.draggedRenderer.value == participant,
+                expanded: c.draggedRenderer.value == participant,
                 useCallCover: true,
               );
             },
