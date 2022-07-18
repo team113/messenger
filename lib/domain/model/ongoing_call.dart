@@ -715,10 +715,16 @@ class OngoingCall {
 
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
-  Future<void> enumerateDevices() async =>
+  Future<void> enumerateDevices() async {
+    try {
       _devices.value = (await _mediaManager!.enumerateDevices())
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
+    } on EnumerateDevicesException catch (e) {
+      _errors.add('Failed to enumerate devices: $e');
+      rethrow;
+    }
+  }
 
   /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
