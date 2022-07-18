@@ -111,6 +111,9 @@ class CallController extends GetxController {
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
 
+  /// Indicator whether the more hint is dismissed or not.
+  final RxBool isMoreHintDismissed = RxBool(false);
+
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
 
@@ -178,17 +181,11 @@ class CallController extends GetxController {
   /// Indicator whether don't need to show hints to [CallButton]'s.
   final RxBool hideHint = RxBool(false);
 
-  /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
-
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
   /// Buttons width and height.
   final RxDouble buttonSize = RxDouble(48);
-
-  /// [GlobalKey] of buttons panel.
-  final GlobalKey buttonsPanelKey = GlobalKey();
 
   /// Indicator whether need to display more panel.
   final RxBool displayMore = RxBool(false);
@@ -198,9 +195,6 @@ class CallController extends GetxController {
 
   /// List of bottom panel [CallButton]'s.
   late final RxList<CallButton> buttons;
-
-  /// [Worker] for catching the changes of [showUi].
-  late final Worker _showUiWorker;
 
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
@@ -272,6 +266,9 @@ class CallController extends GetxController {
   /// [Worker] for catching the [isSlidingPanelEnabled] changes to correct the
   /// position of a minimized self view.
   late final Worker _panelWorker;
+
+  /// [Worker] closing the more panel on [showUi] changes.
+  late final Worker _showUiWorker;
 
   /// Subscription for [OngoingCall.localVideos] changes.
   late final StreamSubscription _localsSubscription;
@@ -455,8 +452,8 @@ class CallController extends GetxController {
       AudioCallButton(this),
     ]);
 
-    _showUiWorker = ever(showUi, (bool v) {
-      if (displayMore.value && !v) {
+    _showUiWorker = ever(showUi, (bool showUi) {
+      if (displayMore.value && !showUi) {
         displayMore.value = false;
       }
     });
@@ -633,6 +630,7 @@ class CallController extends GetxController {
     }
   }
 
+  /// Toggles the output device.
   Future<void> toggleSpeaker() async {
     keepUi();
 
@@ -658,7 +656,7 @@ class CallController extends GetxController {
     await _toggleHand();
   }
 
-  /// Toggles more panel.
+  /// Toggles the more panel visibility.
   void toggleMore() => displayMore.toggle();
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not

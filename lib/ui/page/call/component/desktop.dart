@@ -396,25 +396,6 @@ Widget desktopCall(
                   c.focused.isEmpty &&
                   c.paneled.isEmpty));
 
-          final buttonsContext = c.buttonsPanelKey.currentContext;
-
-          try {
-            final buttonsBox = buttonsContext?.findRenderObject() as RenderBox?;
-            if (buttonsBox?.hasSize == true) {
-              final selfContext = c.selfKey.currentContext;
-              final selfBox = selfContext?.findRenderObject() as RenderBox?;
-              if (selfBox?.hasSize == true) {
-                Offset buttonsPos = buttonsBox!.localToGlobal(Offset.zero);
-                Offset selfPos = selfBox!.localToGlobal(Offset.zero);
-                c.isSlidingPanelEnabled.value =
-                    buttonsPos.dx + buttonsBox.size.width + 10 > selfPos.dx &&
-                        showBottomUi;
-              }
-            }
-          } catch (_) {
-            // No-op, as the [RenderBox] may not exist yet.
-          }
-
           return AnimatedPadding(
             key: const Key('DockedAnimatedPadding'),
             padding: isDocked
@@ -459,7 +440,6 @@ Widget desktopCall(
                                     sigmaY: 15,
                                   ),
                                   child: AnimatedContainer(
-                                    key: c.buttonsPanelKey,
                                     decoration: BoxDecoration(
                                       color: const Color(0x301D6AAE),
                                       borderRadius: BorderRadius.circular(30),
@@ -476,12 +456,10 @@ Widget desktopCall(
                                           .build(context, true, small: true),
                                       onReorder: (buttons) {
                                         c.buttons.clear();
-                                        c.buttons
-                                            .addAll(buttons.cast<CallButton>());
+                                        c.buttons.addAll(buttons);
                                       },
                                       onDragStarted: (b) {
-                                        c.draggedButton.value =
-                                            b.item as CallButton;
+                                        c.draggedButton.value = b.item;
                                         c.hideHint.value = true;
                                       },
                                       onDragEnded: () {
@@ -643,7 +621,8 @@ Widget desktopCall(
                                   child: SizedBox(
                                     width: 290,
                                     child: HintWidget(
-                                      text: 'label_hint_drag_n_drop_buttons'.tr,
+                                      text:
+                                          'label_hint_drag_n_drop_buttons'.l10n,
                                       onTap: () =>
                                           c.isMoreHintDismissed.value = true,
                                     ),

@@ -21,12 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-/// Item builder function.
-typedef ButtonsDockBuilderFunction = Function(
-  BuildContext context,
-  DraggedItem item,
-);
-
 /// Dock reordering it's [items].
 class Dock<T> extends StatefulWidget {
   const Dock({
@@ -45,16 +39,16 @@ class Dock<T> extends StatefulWidget {
   final List<T> items;
 
   /// Builder building the [items].
-  final ButtonsDockBuilderFunction itemBuilder;
+  final Widget Function(BuildContext context, DraggedItem<T> item) itemBuilder;
 
   /// Max size of [items].
   final double itemSize;
 
   /// Callback, called when the [items] were reordered.
-  final Function(List)? onReorder;
+  final Function(List<T>)? onReorder;
 
   /// Callback, called when any drag of [items] is started.
-  final Function(DraggedItem)? onDragStarted;
+  final Function(DraggedItem<T>)? onDragStarted;
 
   /// Callback, called when any drag of [items] is ended.
   final Function()? onDragEnded;
@@ -76,7 +70,7 @@ class _DockState<T> extends State<Dock<T>> {
   Duration movingAnimationDuration = const Duration(milliseconds: 150);
 
   /// List of items.
-  List<DraggedItem> items = [];
+  List<DraggedItem<T>> items = [];
 
   /// Duration of [AnimatedContainer] width changing.
   Duration animationsDuration = 150.milliseconds;
@@ -91,7 +85,7 @@ class _DockState<T> extends State<Dock<T>> {
   int draggedIndex = -1;
 
   /// Element that was dragged.
-  DraggedItem? dragged;
+  DraggedItem<T>? dragged;
 
   /// [GlobalKey] of zone where items can be dragged or placed.
   GlobalKey dragZone = GlobalKey();
@@ -131,7 +125,7 @@ class _DockState<T> extends State<Dock<T>> {
 
   @override
   void initState() {
-    items = widget.items.map((e) => DraggedItem(e)).toList();
+    items = widget.items.map((e) => DraggedItem<T>(e)).toList();
     super.initState();
   }
 
@@ -150,7 +144,7 @@ class _DockState<T> extends State<Dock<T>> {
     /// Builder of the [DropTarget] building a [Row] of the reorderable [items].
     Widget _builder(
       BuildContext context,
-      List<DraggedItem?> candidates,
+      List<DraggedItem<T>?> candidates,
       List<dynamic> rejected,
     ) {
       return Row(
@@ -565,7 +559,7 @@ class _DockState<T> extends State<Dock<T>> {
 
   /// Shows item overlay.
   void _showOverlay({
-    required DraggedItem item,
+    required DraggedItem<T> item,
     required BuildContext context,
     required Offset from,
     required Offset to,
@@ -632,7 +626,7 @@ class DraggedItem<T> {
 }
 
 /// Overlay block of item.
-class _OverlayBlock extends StatefulWidget {
+class _OverlayBlock<T> extends StatefulWidget {
   const _OverlayBlock({
     Key? key,
     required this.itemBuilder,
@@ -645,7 +639,7 @@ class _OverlayBlock extends StatefulWidget {
   }) : super(key: key);
 
   /// [DraggedItem] of this overlay.
-  final DraggedItem item;
+  final DraggedItem<T> item;
 
   /// Start [Offset] place of this overlay.
   final Offset from;
@@ -660,7 +654,7 @@ class _OverlayBlock extends StatefulWidget {
   final BoxConstraints? endConstraints;
 
   /// Builder of item.
-  final ButtonsDockBuilderFunction itemBuilder;
+  final Widget Function(BuildContext context, DraggedItem<T> item) itemBuilder;
 
   /// Duration of animation.
   final Duration animationDuration;

@@ -53,15 +53,20 @@ btn_call_cancel = Cancel call
 btn_call_center_video = Center video
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
+btn_call_disable_incoming_audio = Disable incoming audio
+btn_call_disable_incoming_video = Disable incoming video
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     Drop any
     video here
+btn_call_enable_incoming_audio = Enable incoming audio
+btn_call_enable_incoming_video = Enable incoming video
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_hand_down = Hand down
 btn_call_hand_up = Hand up
+btn_call_more = More
 btn_call_screen_off = Stop sharing
 btn_call_screen_on = Share screen
 btn_call_settings = Settings
@@ -283,6 +288,8 @@ label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden
 label_hide_for_me = Delete for me
+label_hint_drag_n_drop_buttons =
+    Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video = Hint: you can drag and drop video windows.
 label_incoming_call = Incoming call
 label_last_seen = Last seen

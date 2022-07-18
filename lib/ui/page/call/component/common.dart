@@ -89,7 +89,7 @@ class VideoCallButton extends CallButton {
   String get hint {
     bool isVideo = c.videoState.value == LocalTrackState.enabled ||
         c.videoState.value == LocalTrackState.enabling;
-    return isVideo ? 'btn_call_video_off'.tr : 'btn_call_video_on'.tr;
+    return isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n;
   }
 
   @override
@@ -115,7 +115,7 @@ class EndCallButton extends CallButton {
   bool get isRemovable => false;
 
   @override
-  String get hint => 'btn_call_end'.tr;
+  String get hint => 'btn_call_end'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -136,7 +136,7 @@ class MoreCallButton extends CallButton {
   bool get isRemovable => false;
 
   @override
-  String get hint => 'btn_call_more'.tr;
+  String get hint => 'btn_call_more'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -156,7 +156,7 @@ class AudioCallButton extends CallButton {
   String get hint {
     bool isAudio = c.audioState.value == LocalTrackState.enabled ||
         c.audioState.value == LocalTrackState.enabling;
-    return isAudio ? 'btn_call_audio_off'.tr : 'btn_call_audio_on'.tr;
+    return isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n;
   }
 
   @override
@@ -182,7 +182,7 @@ class ScreenCallButton extends CallButton {
   String get hint {
     bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
-    return isScreen ? 'btn_call_screen_off'.tr : 'btn_call_screen_on'.tr;
+    return isScreen ? 'btn_call_screen_off'.l10n : 'btn_call_screen_on'.l10n;
   }
 
   @override
@@ -205,8 +205,9 @@ class HandCallButton extends CallButton {
   HandCallButton(CallController c) : super(c);
 
   @override
-  String get hint =>
-      c.isHandRaised.value ? 'btn_call_hand_down'.tr : 'btn_call_hand_up'.tr;
+  String get hint => c.isHandRaised.value
+      ? 'btn_call_hand_down'.l10n
+      : 'btn_call_hand_up'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -223,7 +224,7 @@ class SettingsCallButton extends CallButton {
   SettingsCallButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_call_settings'.tr;
+  String get hint => 'btn_call_settings'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -240,7 +241,7 @@ class AddMemberCallButton extends CallButton {
   AddMemberCallButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_add_participant'.tr;
+  String get hint => 'btn_add_participant'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -257,8 +258,9 @@ class FullscreenCallButton extends CallButton {
   FullscreenCallButton(CallController c) : super(c);
 
   @override
-  String get hint =>
-      c.fullscreen.value ? 'btn_fullscreen_exit'.tr : 'btn_fullscreen_enter'.tr;
+  String get hint => c.fullscreen.value
+      ? 'btn_fullscreen_exit'.l10n
+      : 'btn_fullscreen_enter'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -276,8 +278,8 @@ class DisableRemoteVideoCallButton extends CallButton {
 
   @override
   String get hint => c.isRemoteVideoEnabled.value
-      ? 'btn_call_disable_video'.tr
-      : 'btn_call_enable_video'.tr;
+      ? 'btn_call_disable_video'.l10n
+      : 'btn_call_enable_video'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
@@ -296,8 +298,8 @@ class DisableRemoteAudioCallButton extends CallButton {
 
   @override
   String get hint => c.isRemoteAudioEnabled.value
-      ? 'btn_call_disable_incoming_audio'.tr
-      : 'btn_call_enable_incoming_audio'.tr;
+      ? 'btn_call_disable_incoming_audio'.l10n
+      : 'btn_call_enable_incoming_audio'.l10n;
 
   @override
   Widget build(BuildContext context, bool minimized, {bool small = false}) =>
