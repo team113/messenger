@@ -52,12 +52,7 @@ class CallController extends GetxController {
     this._currentCall,
     this._calls,
     this._chatService,
-    this._userService, {
-    this.isPopup = false,
-  });
-
-  /// Indicator whether this call should be considered as a popup.
-  final bool isPopup;
+    this._userService,);
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -386,7 +381,7 @@ class CallController extends GetxController {
       var size = router.context!.mediaQuerySize;
       return Size(size.width, size.height - padding.bottom - padding.top);
     } else {
-      if (fullscreen.isTrue && !isPopup) {
+      if (fullscreen.isTrue && !WebUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - 30);
       } else {
@@ -534,8 +529,6 @@ class CallController extends GetxController {
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(_onChat),
     );
-
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {

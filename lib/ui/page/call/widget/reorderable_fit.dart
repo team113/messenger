@@ -970,11 +970,13 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   final bool enabled;
 
   @override
-  State<_ReorderableDraggable<T>> createState() => _ReorderableDraggableState<T>();
+  State<_ReorderableDraggable<T>> createState() =>
+      _ReorderableDraggableState<T>();
 }
 
-class _ReorderableDraggableState<T extends Object> extends State<_ReorderableDraggable<T>> {
-  /// Indicator whether dragging is started.
+class _ReorderableDraggableState<T extends Object>
+    extends State<_ReorderableDraggable<T>> {
+  /// Indicator whether this [_ReorderableDraggable] is dragged.
   bool isDragged = false;
 
   @override

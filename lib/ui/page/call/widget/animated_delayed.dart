@@ -27,7 +27,7 @@ class AnimatedDelayed extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
-  /// [Duration] over which to animate the appearing.
+  /// [Duration] of the appearing animation.
   final Duration duration;
 
   /// [Duration] of a delay.
