@@ -18,8 +18,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/util/platform_utils.dart';
 import '../menu_interceptor/menu_interceptor.dart';
 import 'overlay.dart';
 

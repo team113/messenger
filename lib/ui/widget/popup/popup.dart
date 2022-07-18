@@ -19,7 +19,9 @@ import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
 
+/// Class which is responsible for showing popups.
 abstract class Popup {
+  /// Shows popup depend to current platform.
   static Future<T?> show<T>(BuildContext context, Widget child,
       {double contentMaxWidth = 300,
       double layoutMaxWidth = 420,

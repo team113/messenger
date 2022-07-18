@@ -57,6 +57,8 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// Background color of this button.
   final Color? color;
+
+  /// Inactive color of this button.
   final Color? inactiveColor;
 
   /// Gradient to use when filling this button.
@@ -70,7 +72,10 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// This controls the size of the shadow below this button.
   final double elevation;
 
+  /// Maximal width of this button.
   final double? maxWidth;
+
+  /// Maximal height of this button.
   final double? height;
 
   @override

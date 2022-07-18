@@ -23,22 +23,36 @@ import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
+/// Controller of [IntroductionView].
 class IntroductionController extends GetxController {
-  IntroductionController(this._myUser, {this.pop});
+  IntroductionController(this._myUser);
 
+  /// Indicates of displaying of widgets for password setting.
   final RxBool displayPassword = RxBool(false);
-  final RxBool displaySuccess = RxBool(false);
-  final Function()? pop;
 
+  /// Specifies to displaying of the text if the password was changed
+  /// successfully.
+  final RxBool displaySuccess = RxBool(false);
+
+  /// Uses for password updating.
   final MyUserService _myUser;
 
+  /// Field which contains unique num of [MyUser].
   late final TextFieldState num;
+
+  /// Field for password input.
   late final TextFieldState password;
+
+  /// Field for password repeat input.
   late final TextFieldState repeat;
 
+  /// Indicates obscuring of password field.
   final RxBool obscurePassword = RxBool(true);
+
+  /// Indicates obscuring of repeat password field.
   final RxBool obscureRepeat = RxBool(true);
 
+  /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
 
   @override
@@ -106,6 +120,7 @@ class IntroductionController extends GetxController {
     super.onInit();
   }
 
+  /// Validates and sets [MyUser]'s password.
   Future<void> setPassword() async {
     if (password.error.value != null ||
         repeat.error.value != null ||

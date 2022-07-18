@@ -28,10 +28,12 @@ import '/util/platform_utils.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'controller.dart';
 
+/// An introduction view which is displayed to new users.
 // TODO: SHOW ONLY ONCE!!!!! Persist flag.
 class IntroductionView extends StatelessWidget {
   const IntroductionView({Key? key}) : super(key: key);
 
+  /// Shows this view as [Popup].
   static Future<T?> show<T>(BuildContext context) {
     return Popup.show(
         context,
@@ -48,7 +50,7 @@ class IntroductionView extends StatelessWidget {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: IntroductionController(Get.find(), pop: Navigator.of(context).pop),
+      init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
           List<Widget> children;

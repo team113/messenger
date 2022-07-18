@@ -17,14 +17,14 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/tab/menu/confirm/view.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/ui/page/home/tab/menu/confirm/view.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 

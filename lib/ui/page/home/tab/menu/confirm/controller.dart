@@ -15,26 +15,37 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/ui/widget/text_field.dart';
 
+/// Controller of [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {
-  ConfirmLogoutController(this._myUser, {this.pop});
+  ConfirmLogoutController(this._myUser);
 
+  /// Indicates of displaying of widgets for password setting.
   final RxBool displayPassword = RxBool(false);
-  final RxBool displaySuccess = RxBool(false);
-  final Function()? pop;
 
+  /// Indicates of displaying of the text if the password was changed
+  /// successfully.
+  final RxBool displaySuccess = RxBool(false);
+
+  /// Uses for password updating.
   final MyUserService _myUser;
 
+  /// Field for password input.
   late final TextFieldState password;
+
+  /// Field for password repeat input.
   late final TextFieldState repeat;
 
+  /// Indicates obscuring of password field.
   final RxBool obscurePassword = RxBool(true);
+
+  /// Indicates obscuring of repeat password field.
   final RxBool obscureRepeat = RxBool(true);
 
   @override

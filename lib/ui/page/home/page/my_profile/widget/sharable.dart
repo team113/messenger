@@ -17,15 +17,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
-/// Copyable text field that puts a [copy] of data into the clipboard on click
+/// Sharable text field that puts a [copy] of data into the clipboard on click
 /// or on context menu action.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
@@ -50,14 +50,19 @@ class SharableTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
+  /// Trailing of this [TextField].
   final Widget? trailing;
+
+  /// Leading of this [TextField].
   final Widget? leading;
 
   /// Optional label of this [SharableTextField].
   final String? label;
 
+  /// [TextStyle] of this [TextField].
   final TextStyle? style;
 
+  /// [GlobalKey] of this [TextField].
   final GlobalKey _key = GlobalKey();
 
   @override
@@ -115,6 +120,7 @@ class SharableTextField extends StatelessWidget {
     MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
+  /// Summons the platform's share sheet to share text.
   Future<void> _share(BuildContext context) async {
     Rect? rect;
 

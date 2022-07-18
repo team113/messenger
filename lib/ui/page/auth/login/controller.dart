@@ -33,6 +33,7 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/ui/widget/text_field.dart';
 
+/// [LoginView] controller.
 class LoginController extends GetxController {
   LoginController(this._auth);
 
@@ -131,6 +132,8 @@ class LoginController extends GetxController {
     super.onInit();
   }
 
+  /// Sets default states to fields [recovery],[recoveryCode],[newPassword] and
+  /// [repeatPassword].
   void clearAccessFields() {
     newPassword.clear();
     repeatPassword.clear();

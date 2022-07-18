@@ -23,9 +23,11 @@ import '/ui/widget/text_field.dart';
 
 import 'controller.dart';
 
+/// View which contains widgets for signing in and password restore.
 class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
 
+  /// Shows this view as [Popup].
   static Future<T?> show<T>(BuildContext context) {
     return Popup.show(context, const LoginView(),
         contentMaxWidth: 400, layoutMaxWidth: 520);
@@ -191,6 +193,7 @@ class LoginView extends StatelessWidget {
   }
 }
 
+/// Returns [Row] widget with two popup buttons.
 Widget loginPopupButtons({
   bool isRightMainButton = true,
   String mainButtonTitle = '',

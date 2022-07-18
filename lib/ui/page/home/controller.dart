@@ -79,12 +79,12 @@ class HomeController extends GetxController {
     refresh();
 
     if (_myUser.myUser.value != null) {
-      _displayNotice(_myUser.myUser.value!);
+      _displayIntroduction(_myUser.myUser.value!);
     } else {
       Worker? worker;
       worker = ever(_myUser.myUser, (MyUser? myUser) {
         if (myUser != null && worker != null) {
-          _displayNotice(myUser);
+          _displayIntroduction(myUser);
           worker?.dispose();
           worker = null;
         }
@@ -99,7 +99,8 @@ class HomeController extends GetxController {
     _myUserSubscription.cancel();
   }
 
-  void _displayNotice(MyUser myUser) {
+  /// Displays introduction view for new user.
+  void _displayIntroduction(MyUser myUser) {
     if (!myUser.hasPassword) {
       IntroductionView.show(router.context!);
     }

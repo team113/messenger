@@ -17,11 +17,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -53,6 +53,7 @@ class CopyableTextField extends StatelessWidget {
   /// Optional label of this [CopyableTextField].
   final String? label;
 
+  /// TextStyle of this [TextField].
   final TextStyle? style;
 
   @override
@@ -60,7 +61,6 @@ class CopyableTextField extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // if (leading != null) leading!,
         if (icon != null)
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 25),
@@ -90,7 +90,6 @@ class CopyableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
-                  // suffix: Icons.copy,
                   trailing: Transform.translate(
                     offset: const Offset(0, -1),
                     child: Transform.scale(

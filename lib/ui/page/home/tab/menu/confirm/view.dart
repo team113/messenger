@@ -25,9 +25,12 @@ import '/ui/widget/text_field.dart';
 
 import 'controller.dart';
 
+/// The view that is displayed if the user tries to log out but doesn't set a
+///  password.
 class ConfirmLogoutView extends StatelessWidget {
   const ConfirmLogoutView({Key? key}) : super(key: key);
 
+  /// Shows this view as [Popup].
   static Future<T?> show<T>(BuildContext context) {
     return Popup.show(context, const ConfirmLogoutView());
   }
@@ -39,7 +42,7 @@ class ConfirmLogoutView extends StatelessWidget {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init: ConfirmLogoutController(Get.find(), pop: Navigator.of(context).pop),
+      init: ConfirmLogoutController(Get.find()),
       builder: (ConfirmLogoutController c) {
         return Obx(() {
           List<Widget> children;
