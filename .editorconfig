@@ -23,6 +23,15 @@ indent_size = 4
 [schema.graphql]
 indent_size = 2
 
+[*.feature]
+indent_style = space
+indent_size = 2
+
+[*.ftl]
+indent_style = space
+indent_size = 4
+max_line_length = off
+
 [*.json]
 indent_style = space
 indent_size = 2

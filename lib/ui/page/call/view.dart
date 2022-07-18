@@ -19,23 +19,17 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'component/desktop.dart';
 import 'component/mobile.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall] overlay.
 class CallView extends StatelessWidget {
-  const CallView(
-    this._call, {
-    Key? key,
-    this.isPopup = false,
-  }) : super(key: key);
+  const CallView(this._call, {Key? key}) : super(key: key);
 
   /// Current [OngoingCall].
   final Rx<OngoingCall> _call;
-
-  /// Indicator whether this [CallView] is in a popup.
-  final bool isPopup;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +43,11 @@ class CallView extends StatelessWidget {
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {
-        if (isPopup) {
+        if (WebUtils.isPopup) {
           c.minimized.value = false;
           return Stack(
             clipBehavior: Clip.hardEdge,
-            children: [desktopCall(c, context, isPopup: true)],
+            children: [desktopCall(c, context)],
           );
         }
 

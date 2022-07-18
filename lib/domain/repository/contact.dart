@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '../model/contact.dart';
 import '../model/user.dart';
+import '../repository/user.dart';
 import '/util/obs/obs.dart';
 
 /// [ChatContact]s repository interface.
@@ -63,6 +64,9 @@ abstract class RxChatContact {
   /// Reactive value of the [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 
+  /// Returns [ChatContactId] of the [contact].
+  ChatContactId get id => contact.value.id;
+
   /// Reactive value of the first [User] this [ChatContact] contains.
-  Rx<Rx<User>?> get user;
+  Rx<RxUser?> get user;
 }

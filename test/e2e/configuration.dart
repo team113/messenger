@@ -29,10 +29,13 @@ import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/fill_field.dart';
+import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_widget.dart';
+import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
@@ -43,14 +46,17 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         fillField,
+        goToUserPage,
         hasDialogWithMe,
         iAm,
         seesAs,
         sendsMessageToMe,
         signInAs,
+        tapDropdownItem,
         tapWidget,
         twoUsers,
         untilTextExists,
+        updateBio,
         user,
         waitUntilKeyExists,
       ]

@@ -35,6 +35,9 @@ import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/video_view.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
@@ -662,12 +665,12 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
-                ? 'label_call_joining'.tr
+                ? 'label_call_joining'.l10n
                 : isOutgoing
-                    ? 'label_call_calling'.tr
+                    ? 'label_call_calling'.l10n
                     : c.withVideo == true
-                        ? 'label_video_call'.tr
-                        : 'label_audio_call'.tr;
+                        ? 'label_video_call'.l10n
+                        : 'label_audio_call'.l10n;
 
         String? subtitle;
         if (c.isGroup) {
@@ -690,7 +693,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                c.chat.value?.title.value ?? ('.'.tr * 3),
+                c.chat.value?.title.value ?? ('dot'.l10n * 3),
                 style: context.textTheme.headline4
                     ?.copyWith(color: Colors.white, fontSize: 20),
                 overflow: TextOverflow.ellipsis,
