@@ -303,6 +303,7 @@ class OngoingCall {
               case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
                 _errors.add('Failed to acquire local audio: $e');
                 await _room?.disableAudio();
+                _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
                 audioState.value = LocalTrackState.disabled;
                 break;
 
@@ -318,13 +319,17 @@ class OngoingCall {
 
               default:
                 _errors.add('Failed to get media: $e');
+
                 await _room?.disableAudio();
-                await setVideoEnabled(false);
-                await setScreenShareEnabled(false);
+                _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
                 audioState.value = LocalTrackState.disabled;
                 audioDevice.value = null;
+
+                await setVideoEnabled(false);
                 videoState.value = LocalTrackState.disabled;
                 videoDevice.value = null;
+
+                await setScreenShareEnabled(false);
                 screenShareState.value = LocalTrackState.disabled;
                 return;
             }
@@ -863,8 +868,8 @@ class OngoingCall {
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
 
-      // Initializes local tracks recursively until no error is thrown.
-      Future<void> getLocalTracks() async {
+      // Initializes local tracks recursively.
+      Future<void> initLocalTracks() async {
         try {
           tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
             audio: audioState.value == LocalTrackState.enabling,
@@ -879,18 +884,18 @@ class OngoingCall {
             case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
               audioDevice.value = null;
               audioState.value = LocalTrackState.disabled;
-              await getLocalTracks();
+              await initLocalTracks();
               break;
 
             case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
               videoDevice.value = null;
               videoState.value = LocalTrackState.disabled;
-              await getLocalTracks();
+              await initLocalTracks();
               break;
 
             case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
               screenShareState.value = LocalTrackState.disabled;
-              await getLocalTracks();
+              await initLocalTracks();
               break;
 
             default:
@@ -900,7 +905,7 @@ class OngoingCall {
       }
 
       try {
-        await getLocalTracks();
+        await initLocalTracks();
       } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;

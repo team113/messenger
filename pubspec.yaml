@@ -112,7 +112,7 @@ dependency_overrides:
   analyzer: ^4.0.0
 
   # TODO: Remove when `file_picker` updates.
-  ffi: ^1.1.2
+  ffi: ">=2.0.0 <3.0.0"
 
 flutter:
   uses-material-design: true
