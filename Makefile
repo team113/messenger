@@ -305,6 +305,8 @@ copyright:
 				$(shell grep -v '#' .gitignore | sed 's/^\///' | grep '\S'),\
 					-ignore '$(pat)') \
 			$(call rwildcard,,*.dart) \
+			$(call rwildcard,,*.feature) $(call rwildcard,,.feature) \
+			$(call rwildcard,,*.ftl) \
 			$(call rwildcard,,*.graphql) \
 			$(call rwildcard,,*.kt) \
 			web/index.html \

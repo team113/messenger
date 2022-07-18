@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
-import '/l10n/_l10n.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/widget/selector/view.dart';
 import '/ui/widget/svg/svg.dart';
@@ -135,18 +135,17 @@ class AuthView extends StatelessWidget {
         Widget language = CupertinoButton(
             key: c.languageKey,
             child: Text(
-              '${L10n.locales[L10n.chosen]!.countryCode}, ${L10n.languages[L10n.chosen]}',
+              '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
               style: thin?.copyWith(fontSize: 13, color: primary),
             ),
             onPressed: () async {
-              await Selector.show(context, c.languageKey, L10n.languages,
-                  initialValue: L10n.chosen,
-                  trails: L10n.locales
-                      .map((key, value) => MapEntry(key, value.languageCode)),
-                  onSelect: (i) {
-                L10n.chosen = L10n.languages.keys.elementAt(i);
-                Get.updateLocale(L10n.locales[L10n.chosen]!);
-              });
+              await Selector.show(context, c.languageKey,
+                  L10n.languages.map((l) => l.name).toList(),
+                  initialValue: L10n.chosen.value!.name,
+                  trails: L10n.languages
+                      .map((l) => l.locale.languageCode.toUpperCase())
+                      .toList(),
+                  onSelect: (i) async => L10n.set(L10n.languages[i]));
             });
 
         // Footer part of the page.
