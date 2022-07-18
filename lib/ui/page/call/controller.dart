@@ -56,6 +56,9 @@ class CallController extends GetxController {
     this._userService,
   );
 
+  /// Buttons width and height.
+  static const double buttonSize = 48.0;
+
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
 
@@ -209,9 +212,6 @@ class CallController extends GetxController {
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
-  /// Buttons width and height.
-  final RxDouble buttonSize = RxDouble(48);
-
   /// Indicator whether need to display more panel.
   final RxBool displayMore = RxBool(false);
 
@@ -329,10 +329,6 @@ class CallController extends GetxController {
 
   /// [Worker] for catching the [state] changes to start the [_durationTimer].
   late final Worker _stateWorker;
-
-  /// [Worker] for catching the [isSlidingPanelEnabled] changes to correct the
-  /// position of a minimized self view.
-  late final Worker _panelWorker;
 
   /// [Worker] closing the more panel on [showUi] changes.
   late final Worker _showUiWorker;

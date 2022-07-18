@@ -20,20 +20,16 @@ import 'package:get/get.dart';
 import '../controller.dart';
 import '../widget/call_title.dart';
 import '../widget/round_button.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Button used in call's bottom panel.
 abstract class CallButton {
-  CallButton(this.c) : chatId = c.chatId;
+  CallButton(this.c);
 
   /// CallController of this button.
   final CallController c;
-
-  /// [ChatId] this button placed.
-  final ChatId chatId;
 
   /// Indicates that this button must be hide or not.
   bool hide = false;
@@ -63,7 +59,6 @@ abstract class CallButton {
           child: RoundFloatingButton(
             onPressed: onPressed,
             color: color ?? const Color.fromARGB(122, 78, 90, 120),
-            scale: !small ? 1 : (c.buttonSize.value / 60),
             hint: (small &&
                     c.draggedButton.value == null &&
                     c.hideHint.value == false)
@@ -79,6 +74,14 @@ abstract class CallButton {
           ),
         ),
       );
+
+  @override
+  int get hashCode => hint.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CallButton &&
+          hashCode == other.hashCode;
 }
 
 /// [CallButton] toggling a local video.
@@ -352,7 +355,6 @@ Widget dropButton(CallController c, [double? scale]) => RoundFloatingButton(
       hint: 'btn_call_end'.l10n,
       onPressed: c.drop,
       color: CallController.endColor,
-      scale: scale ?? 1,
       children: [SvgLoader.asset('assets/icons/call_end.svg', width: 60)],
     );
 
@@ -372,7 +374,6 @@ Widget videoButton(CallController c, [double? scale]) => Obx(() {
       return RoundFloatingButton(
         hint: isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n,
         onPressed: c.toggleVideo,
-        scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
             c.state.value != OngoingCallState.joining,
         children: [
@@ -391,7 +392,6 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
       return RoundFloatingButton(
         hint: isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n,
         onPressed: c.toggleAudio,
-        scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
             c.state.value != OngoingCallState.joining,
         children: [
@@ -407,7 +407,6 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
 Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
       hint: 'btn_call_toggle_speaker'.l10n,
       onPressed: c.toggleSpeaker,
-      scale: scale ?? 1,
       withBlur: c.state.value != OngoingCallState.active &&
           c.state.value != OngoingCallState.joining,
       children: [
@@ -423,7 +422,6 @@ Widget switchButton(CallController c, [double? scale]) => Obx(
       () => RoundFloatingButton(
         hint: 'btn_call_switch_camera'.l10n,
         onPressed: c.switchCamera,
-        scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
             c.state.value != OngoingCallState.joining,
         children: [
@@ -454,7 +452,6 @@ Widget screenButton(CallController c, [double? scale]) => Obx(
                   ? 'btn_call_screen_off'.l10n
                   : 'btn_call_screen_on'.l10n,
               onPressed: c.toggleScreenShare,
-              scale: scale ?? 1,
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 2),

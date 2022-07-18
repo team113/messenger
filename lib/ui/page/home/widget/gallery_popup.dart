@@ -480,7 +480,6 @@ class _GalleryPopupState extends State<GalleryPopup>
               width: 50,
               height: 50,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: _dismiss,
                 withBlur: true,
@@ -517,7 +516,6 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayLeft ? 1 : 0,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: left
                     ? () {
@@ -552,7 +550,6 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayRight ? 1 : 0,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: right
                     ? () {

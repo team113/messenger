@@ -30,7 +30,6 @@ class RoundFloatingButton extends StatefulWidget {
     this.children = const [],
     this.color = const Color(0x7F818181),
     this.hint,
-    this.scale = 1,
     this.withBlur = false,
     this.withText = true,
   }) : super(key: key);
@@ -49,16 +48,13 @@ class RoundFloatingButton extends StatefulWidget {
   /// Widgets to draw inside the button.
   final List<Widget> children;
 
-  /// Controls the scale of the button.
-  final double scale;
-
   /// Background color of the button.
   final Color? color;
 
-  /// Indicator whether the button should have a blur under it or not.
+  /// Indicator whether the button should have a blur under it.
   final bool withBlur;
 
-  /// Indicator whether the button should be displayed with text or not.
+  /// Indicator whether the button should be displayed with [text] behind.
   final bool withText;
 
   @override
@@ -91,65 +87,44 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    return (!widget.withText)
-        ? ConditionalBackdropFilter(
-            condition: !WebUtils.isSafari && widget.withBlur,
-            borderRadius: BorderRadius.circular(30),
-            child: Material(
-              key: _key,
-              elevation: 0,
-              color: widget.color,
-              type: MaterialType.circle,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(30),
-                onHover: widget.hint != null
-                    ? (b) {
-                        if (b) {
-                          _populateOverlay();
-                        } else {
-                          _hintEntry?.remove();
-                          _hintEntry = null;
-                        }
-                      }
-                    : null,
-                onTap: widget.onPressed,
-                child: widget.children.first,
-              ),
-            ),
-          )
+    var button = ConditionalBackdropFilter(
+      condition: !WebUtils.isSafari && widget.withBlur,
+      borderRadius: BorderRadius.circular(30),
+      child: Material(
+        key: _key,
+        elevation: 0,
+        color: widget.color,
+        type: MaterialType.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(30),
+          onHover: widget.hint != null
+              ? (b) {
+                  if (b) {
+                    _populateOverlay();
+                  } else {
+                    _hintEntry?.remove();
+                    _hintEntry = null;
+                  }
+                }
+              : null,
+          onTap: widget.onPressed,
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: widget.children,
+          ),
+        ),
+      ),
+    );
+    return !widget.withText
+        ? button
         : Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ConditionalBackdropFilter(
-                condition: !WebUtils.isSafari && widget.withBlur,
-                borderRadius: BorderRadius.circular(30),
-                child: Material(
-                  key: _key,
-                  elevation: 0,
-                  color: widget.color,
-                  type: MaterialType.circle,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(30),
-                    onHover: widget.hint != null
-                        ? (b) {
-                            if (b) {
-                              _populateOverlay();
-                            } else {
-                              _hintEntry?.remove();
-                              _hintEntry = null;
-                            }
-                          }
-                        : null,
-                    onTap: widget.onPressed,
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: widget.children,
-                    ),
-                  ),
-                ),
-              ),
-              if (widget.text != null) const SizedBox(height: 5),
-              if (widget.text != null)
+              button,
+              if (widget.text != null && widget.withText) ...[
+                const SizedBox(height: 5),
                 Text(
                   widget.text!,
                   textAlign: TextAlign.center,
@@ -159,6 +134,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   ),
                   maxLines: 2,
                 ),
+              ]
             ],
           );
   }

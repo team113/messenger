@@ -561,7 +561,6 @@ Widget _textButton(
     _layoutButton(
       icon: RoundFloatingButton(
         onPressed: onTap,
-        scale: 0.75,
         children: asset == null ? [] : [asset],
       ),
       child: Text(

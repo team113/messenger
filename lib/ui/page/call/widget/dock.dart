@@ -67,7 +67,7 @@ class Dock<T> extends StatefulWidget {
 /// State of [Dock] used to handle reordering.
 class _DockState<T> extends State<Dock<T>> {
   /// Duration of animation moving button to his place on end of dragging.
-  Duration movingAnimationDuration = const Duration(milliseconds: 150);
+  Duration movingAnimationDuration = 150.milliseconds;
 
   /// List of items.
   List<DraggedItem<T>> items = [];
@@ -105,11 +105,8 @@ class _DockState<T> extends State<Dock<T>> {
   /// [BoxConstraints] constraints of same item.
   BoxConstraints? constraintsOnSameItem;
 
-  /// Indicator whether some item is animated.
-  bool isAnimated = false;
-
-  /// List of currently displayed overlays.
-  List<OverlayEntry> overlays = [];
+  /// Currently displayed [OverlayEntry].
+  OverlayEntry? overlay;
 
   /// Returns item width.
   double get itemWidth => items.isEmpty ||
@@ -131,10 +128,8 @@ class _DockState<T> extends State<Dock<T>> {
 
   @override
   void dispose() {
-    for (var e in overlays) {
-      if (e.mounted) {
-        e.remove();
-      }
+    if (overlay?.mounted == true) {
+      overlay!.remove();
     }
     super.dispose();
   }
@@ -149,6 +144,7 @@ class _DockState<T> extends State<Dock<T>> {
     ) {
       return Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: items.mapMany(
           (e) {
             int i = items.indexOf(e);
@@ -187,7 +183,7 @@ class _DockState<T> extends State<Dock<T>> {
                     aspectRatio: 1,
                     child: LayoutBuilder(
                         builder: (c, constraints) => Draggable(
-                              maxSimultaneousDrags: isAnimated ? 0 : 1,
+                              maxSimultaneousDrags: overlay == null ? 1 : 0,
                               dragAnchorStrategy: pointerDragAnchorStrategy,
                               feedback: Transform.translate(
                                 offset: -Offset(
@@ -228,7 +224,6 @@ class _DockState<T> extends State<Dock<T>> {
                               },
                               onDraggableCanceled: (v, o) {
                                 int savedDraggedIndex = draggedIndex;
-                                isAnimated = true;
                                 // Show animation of dragged item returns to its
                                 // start position.
                                 _showOverlay(
@@ -241,11 +236,11 @@ class _DockState<T> extends State<Dock<T>> {
                                   to: startDragOffset!,
                                   itemConstraints: startDragConstraints!,
                                   onEnd: () {
-                                    items[savedDraggedIndex].hide = false;
-                                    isAnimated = false;
-                                    widget.onDragEnded?.call();
                                     if (mounted) {
-                                      setState(() {});
+                                      setState(() {
+                                        items[savedDraggedIndex].hide = false;
+                                        widget.onDragEnded?.call();
+                                      });
                                     }
                                   },
                                 );
@@ -316,9 +311,9 @@ class _DockState<T> extends State<Dock<T>> {
         }
       },
       onWillAccept: (e) {
-        return e == null ||
-            (widget.onWillAccept?.call(e.item) ??
-                true); //e?.chatId == widget.chatId;
+        return e != null &&
+            (widget.onWillAccept?.call(e.item) ?? true) &&
+            overlay == null;
       },
       builder: _builder,
     );
@@ -335,9 +330,7 @@ class _DockState<T> extends State<Dock<T>> {
     }
 
     // If there's no such item.
-    if (items.firstWhereOrNull(
-            (e) => e.item.toString() == item.item.toString()) ==
-        null) {
+    if (items.firstWhereOrNull((e) => e == item) == null) {
       // Insert item to item's list.
       items.insert(expandBetween, item);
 
@@ -348,7 +341,7 @@ class _DockState<T> extends State<Dock<T>> {
       expandBetween = -1;
 
       // OverlayEntry that will display dragged item at onDragEnded place.
-      OverlayEntry overlayEntry = OverlayEntry(
+      overlay = OverlayEntry(
         builder: (context) => Positioned(
           left: moveDragOffset!.dx,
           top: moveDragOffset!.dy,
@@ -363,8 +356,7 @@ class _DockState<T> extends State<Dock<T>> {
       );
 
       // Insert OverlayEntry to Overlay to display him.
-      overlayState?.insert(overlayEntry);
-      overlays.add(overlayEntry);
+      overlayState?.insert(overlay!);
 
       // Hide added item.
       items[whereToPlace].hide = true;
@@ -379,11 +371,7 @@ class _DockState<T> extends State<Dock<T>> {
       // Post frame callBack to display animation of adding item to items
       // list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Remove OverlayEntry with item from Overlay.
-        overlayEntry.remove();
-        overlays.remove(overlayEntry);
-
-        setState(() => isAnimated = true);
+        _removeOverlay();
 
         // Get RenderBox of recently added item.
         RenderBox box = items[whereToPlace]
@@ -403,11 +391,14 @@ class _DockState<T> extends State<Dock<T>> {
           itemConstraints: startDragConstraints != null && localDragged != null
               ? startDragConstraints!
               : itemConstraints,
-          onEnd: () => setState(() {
-            isAnimated = false;
-            items[whereToPlace].hide = false;
-            widget.onDragEnded?.call();
-          }),
+          onEnd: () {
+            if (mounted) {
+              setState(() {
+                items[whereToPlace].hide = false;
+                widget.onDragEnded?.call();
+              });
+            }
+          },
           endConstraints: startDragConstraints != null && localDragged != null
               ? startDragConstraints!
               : box.constraints,
@@ -418,8 +409,7 @@ class _DockState<T> extends State<Dock<T>> {
     // Otherwise the provided [item] is already in the list.
     else {
       // Get position of same item.
-      int i =
-          items.indexWhere((e) => e.item.toString() == item.item.toString());
+      int i = items.indexWhere((e) => e == item);
       if (i == expandBetween || i + 1 == expandBetween) {
         return setState(() => expandBetween = -1);
       } else {
@@ -430,7 +420,7 @@ class _DockState<T> extends State<Dock<T>> {
 
       // Get RenderBox of same item.
       RenderBox box = items
-          .firstWhere((e) => e.item.toString() == item.item.toString())
+          .firstWhere((e) => e == item)
           .key
           .currentContext!
           .findRenderObject() as RenderBox;
@@ -467,7 +457,6 @@ class _DockState<T> extends State<Dock<T>> {
         compressBetween = i;
       }
 
-      isAnimated = true;
       dragged = null;
 
       // Display animation of sliding item from old place to new place.
@@ -477,12 +466,15 @@ class _DockState<T> extends State<Dock<T>> {
         from: startPosition,
         to: positionOnSameItem!,
         itemConstraints: constraintsOnSameItem!,
-        onEnd: () => setState(() {
-          items[whereToPlace].hide = false;
-          widget.onDragEnded?.call();
-          isAnimated = false;
-          compressBetween = -1;
-        }),
+        onEnd: () {
+          if (mounted) {
+            setState(() {
+              items[whereToPlace].hide = false;
+              widget.onDragEnded?.call();
+              compressBetween = -1;
+            });
+          }
+        },
       );
     }
 
@@ -564,10 +556,10 @@ class _DockState<T> extends State<Dock<T>> {
     required Offset from,
     required Offset to,
     required BoxConstraints itemConstraints,
-    required Function onEnd,
+    required VoidCallback onEnd,
     BoxConstraints? endConstraints,
   }) async {
-    var overlayEntry = OverlayEntry(
+    overlay = OverlayEntry(
       builder: (context) => _OverlayBlock<T>(
         itemBuilder: widget.itemBuilder,
         item: item,
@@ -576,17 +568,22 @@ class _DockState<T> extends State<Dock<T>> {
         itemConstraints: itemConstraints,
         animationDuration: movingAnimationDuration,
         endConstraints: endConstraints,
+        onEnd: () {
+          onEnd();
+          _removeOverlay();
+        },
       ),
     );
 
-    overlays.add(overlayEntry);
-    Overlay.of(context)!.insert(overlayEntry);
+    Overlay.of(context)!.insert(overlay!);
+  }
 
-    await Future.delayed(movingAnimationDuration);
-
-    overlayEntry.remove();
-    overlays.remove(overlayEntry);
-    onEnd();
+  /// Removes currently displayed [OverlayEntry].
+  void _removeOverlay() {
+    if (overlay?.mounted == true) {
+      overlay!.remove();
+      overlay = null;
+    }
   }
 }
 
@@ -623,6 +620,12 @@ class DraggedItem<T> {
       constraints = box.constraints;
     }
   }
+
+  @override
+  bool operator ==(Object other) => other is DraggedItem && item == other.item;
+
+  @override
+  int get hashCode => item.hashCode;
 }
 
 /// Overlay block of item.
@@ -636,6 +639,7 @@ class _OverlayBlock<T> extends StatefulWidget {
     required this.itemConstraints,
     required this.animationDuration,
     this.endConstraints,
+    this.onEnd,
   }) : super(key: key);
 
   /// [DraggedItem] of this overlay.
@@ -656,6 +660,9 @@ class _OverlayBlock<T> extends StatefulWidget {
   /// Builder of item.
   final Widget Function(BuildContext context, DraggedItem<T> item) itemBuilder;
 
+  /// Callback, called when animation ended.
+  final VoidCallback? onEnd;
+
   /// [Duration] of animation.
   final Duration animationDuration;
 
@@ -673,13 +680,17 @@ class _OverlayBlockState<T> extends State<_OverlayBlock<T>> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero).whenComplete(() => setState(() {
+    Future.delayed(Duration.zero).whenComplete(() {
+      if (mounted) {
+        setState(() {
           offset = widget.to;
           if (widget.endConstraints != null &&
               widget.endConstraints != constraints) {
             constraints = widget.endConstraints!;
           }
-        }));
+        });
+      }
+    });
     super.initState();
   }
 
@@ -689,6 +700,7 @@ class _OverlayBlockState<T> extends State<_OverlayBlock<T>> {
         left: offset.dx,
         top: offset.dy,
         curve: Curves.ease,
+        onEnd: widget.onEnd,
         child: AnimatedContainer(
           duration: widget.animationDuration,
           constraints: constraints,

@@ -629,7 +629,6 @@ class ElementStyleTabView extends StatelessWidget {
                           flex: 1,
                           child: RoundFloatingButton(
                             onPressed: () {},
-                            scale: 0.75,
                             children: [
                               SvgLoader.asset(
                                 'assets/icons/add_user.svg',

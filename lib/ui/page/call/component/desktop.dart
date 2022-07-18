@@ -419,7 +419,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                     duration: const Duration(milliseconds: 150),
                                     child: Dock<CallButton>(
                                       items: c.buttons,
-                                      itemSize: c.buttonSize.value,
+                                      itemSize: CallController.buttonSize,
                                       itemBuilder: (context, item) => item.item
                                           .build(context, true, small: true),
                                       onReorder: (buttons) {
@@ -435,7 +435,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         c.draggedButton.value = null;
                                       },
                                       onLeave: () => c.displayMore.value = true,
-                                      onWillAccept: (d) => d.chatId == c.chatId,
+                                      onWillAccept: (d) =>
+                                          d.c.chatId == c.chatId,
                                     ),
                                   ),
                                 ),
@@ -480,7 +481,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.item.chatId == c.chatId)
+                    color: candidate.any((e) => e?.item.c.chatId == c.chatId)
                         ? const Color.fromARGB(47, 34, 128, 209)
                         : const Color(0x9D165084),
                     borderRadius: BorderRadius.circular(30),
@@ -507,12 +508,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   children: [
                                     Draggable(
                                       feedback: Transform.translate(
-                                        offset: Offset(
-                                            c.buttonSize.value / 2 * -1,
-                                            c.buttonSize.value / 2 * -1),
+                                        offset: const Offset(
+                                          CallController.buttonSize / 2 * -1,
+                                          CallController.buttonSize / 2 * -1,
+                                        ),
                                         child: SizedBox(
-                                          height: c.buttonSize.value,
-                                          width: c.buttonSize.value,
+                                          height: CallController.buttonSize,
+                                          width: CallController.buttonSize,
                                           child: KeyedSubtree(
                                             key: data.key,
                                             child: e.build(
@@ -605,7 +607,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             c.draggedButton.value = null;
                           },
                           onWillAccept: (a) => (a != null &&
-                                  a.item.chatId == c.chatId &&
+                                  a.item.c.chatId == c.chatId &&
                                   a.item.isRemovable)
                               ? true
                               : false,
