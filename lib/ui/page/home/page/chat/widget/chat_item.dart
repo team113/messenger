@@ -689,6 +689,33 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 /// Extension adding a string representation of a [Duration] in
 /// `HH h, MM m, SS s` format.
 extension LocalizedDurationExtension on Duration {
+  /// Returns a string representation of this [Duration] in `HH:MM:SS` format.
+  ///
+  /// `HH` part is omitted if this [Duration] is less than an one hour.
+  String hhMmSs() {
+    var microseconds = inMicroseconds;
+
+    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    microseconds = microseconds.remainder(Duration.microsecondsPerHour);
+    var hoursPadding = hours < 10 ? '0' : '';
+
+    if (microseconds < 0) microseconds = -microseconds;
+
+    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
+    var minutesPadding = minutes < 10 ? '0' : '';
+
+    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
+    var secondsPadding = seconds < 10 ? '0' : '';
+
+    if (hours == 0) {
+      return '$minutesPadding$minutes:$secondsPadding$seconds';
+    }
+
+    return '$hoursPadding$hours:$minutesPadding$minutes:$secondsPadding$seconds';
+  }
+
   /// Returns localized string representing this [Duration] in
   /// `HH h, MM m, SS s` format.
   ///

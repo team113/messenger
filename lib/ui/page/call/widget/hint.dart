@@ -14,18 +14,18 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
-class HintWidget extends StatefulWidget {
+class HintWidget extends StatelessWidget {
   const HintWidget({
     Key? key,
     required this.text,
     this.onTap,
+    this.isError = false,
   }) : super(key: key);
 
   /// Text of a hint.
@@ -34,57 +34,76 @@ class HintWidget extends StatefulWidget {
   /// Callback, called when this hint is pressed.
   final GestureTapCallback? onTap;
 
-  @override
-  State<HintWidget> createState() => _HintWidgetState();
-}
-
-/// State of [HintWidget] used to keep track of [_buttons].
-class _HintWidgetState extends State<HintWidget> {
-  /// Bit field of [PointerDownEvent]'s buttons.
-  ///
-  /// [PointerUpEvent] doesn't contain the button being released, so it's
-  /// required to store the buttons from.
-  int _buttons = 0;
+  /// Indicator whether this [HintWidget] represents an error.
+  final bool isError;
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (d) => _buttons = d.buttons,
-      onPointerUp: (d) {
-        if (_buttons & kPrimaryButton != 0) {
-          widget.onTap?.call();
-        }
-      },
-      child: Card(
-        elevation: 8,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        child: InkWell(
-          onTap: () {},
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                flex: 8,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child:
-                      SvgLoader.asset('assets/images/head_60.svg', width: 58),
-                ),
+    return Card(
+      elevation: 8,
+      shadowColor: const Color(0x40000000),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      color: const Color(0xFFF4F9FD),
+      margin: EdgeInsets.zero,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 35,
+            decoration: const BoxDecoration(
+              color: Color(0xFFDFEDF9),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
               ),
-              Flexible(
-                flex: 17,
-                child: Text(
-                  widget.text,
-                  style: context.theme.outlinedButtonTheme.style!.textStyle!
-                      .resolve({MaterialState.disabled})!.copyWith(
-                          fontSize: 13),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const SizedBox(width: 14),
+                SvgLoader.asset('assets/icons/face.svg', height: 13),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isError
+                        ? 'label_error'.l10n
+                        : 'label_hint_from_gapopa'.l10n,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xBB818181),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                Center(
+                  child: InkResponse(
+                    onTap: onTap,
+                    radius: 11,
+                    child: const Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Color(0xBB818181),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 9),
+              ],
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
+            child: Center(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xBB818181),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
