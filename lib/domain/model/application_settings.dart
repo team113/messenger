@@ -26,7 +26,6 @@ class ApplicationSettings extends HiveObject {
   ApplicationSettings({
     this.enablePopups,
     this.locale,
-    this.showIntroduction,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -37,9 +36,4 @@ class ApplicationSettings extends HiveObject {
   /// Preferred language to use in the application.
   @HiveField(1)
   String? locale;
-
-  /// Indicator whether an [IntroductionView] should be displayed upon opening
-  /// the application.
-  @HiveField(2)
-  bool? showIntroduction;
 }

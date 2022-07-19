@@ -44,7 +44,4 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.locale] value.
   Future<void> setLocale(String locale);
-
-  /// Sets the [ApplicationSettings.showIntroduction] value.
-  Future<void> setShowIntroduction(bool show);
 }

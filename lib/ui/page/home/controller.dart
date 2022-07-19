@@ -26,7 +26,6 @@ import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
-import 'introduction/view.dart';
 
 export 'view.dart';
 
@@ -87,24 +86,6 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
-
-    if (_settings?.showIntroduction ?? true) {
-      if (_myUser.myUser.value != null) {
-        _displayIntroduction(_myUser.myUser.value!);
-      } else {
-        Worker? worker;
-        worker = ever(
-          _myUser.myUser,
-          (MyUser? myUser) {
-            if (myUser != null && worker != null) {
-              _displayIntroduction(myUser);
-              worker?.dispose();
-              worker = null;
-            }
-          },
-        );
-      }
-    }
   }
 
   @override
@@ -112,17 +93,6 @@ class HomeController extends GetxController {
     super.onClose();
     router.removeListener(_onRouterChanged);
     _myUserSubscription.cancel();
-  }
-
-  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
-  void _displayIntroduction(MyUser myUser) {
-    if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!).then((_) {
-        _settingsRepository.setShowIntroduction(false);
-      });
-    } else {
-      _settingsRepository.setShowIntroduction(false);
-    }
   }
 
   /// Refreshes the controller on [router] change.
