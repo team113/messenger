@@ -83,6 +83,10 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setLocale(String locale) => _settingsLocal.setLocale(locale);
 
+  @override
+  Future<void> setWasIntroductionShowed(bool wasShowed) =>
+      _settingsLocal.setIntroductionWasShowed(wasShowed);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

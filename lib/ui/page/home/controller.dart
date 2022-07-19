@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
@@ -30,7 +31,7 @@ export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser);
+  HomeController(this._auth, this._myUser, this._settingsRepository);
 
   /// Maximum screen's width in pixels until side bar will be expanding.
   static double maxSideBarExpandWidth = 860;
@@ -52,6 +53,9 @@ class HomeController extends GetxController {
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
+
+  /// Uses for access to [ApplicationSettings.wasIntroductionShowed].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
@@ -77,14 +81,18 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
-
-    if (_myUser.myUser.value != null) {
+    bool wasShowed =
+        (_settingsRepository.applicationSettings.value?.wasIntroductionShowed ??
+            false);
+    if (_myUser.myUser.value != null && !wasShowed) {
       _displayIntroduction(_myUser.myUser.value!);
+      _settingsRepository.setWasIntroductionShowed(true);
     } else {
       Worker? worker;
       worker = ever(_myUser.myUser, (MyUser? myUser) {
-        if (myUser != null && worker != null) {
+        if (myUser != null && worker != null && !wasShowed) {
           _displayIntroduction(myUser);
+          _settingsRepository.setWasIntroductionShowed(true);
           worker?.dispose();
           worker = null;
         }

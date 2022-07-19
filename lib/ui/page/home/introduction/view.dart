@@ -29,7 +29,6 @@ import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'controller.dart';
 
 /// An introduction view which is displayed to new users.
-// TODO: SHOW ONLY ONCE!!!!! Persist flag.
 class IntroductionView extends StatelessWidget {
   const IntroductionView({Key? key}) : super(key: key);
 
