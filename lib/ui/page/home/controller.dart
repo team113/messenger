@@ -20,7 +20,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/my_user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
@@ -29,7 +31,7 @@ export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser);
+  HomeController(this._auth, this._myUser, this._settingsRepository);
 
   /// Maximum screen's width in pixels until side bar will be expanding.
   static double maxSideBarExpandWidth = 860;
@@ -52,11 +54,19 @@ class HomeController extends GetxController {
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
 
+  /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
+  /// determine whether an [IntroductionView] was already shown.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  /// Returns [ApplicationSettings] from the [AbstractSettingsRepository].
+  ApplicationSettings? get _settings =>
+      _settingsRepository.applicationSettings.value;
 
   @override
   void onInit() {
@@ -76,6 +86,24 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
+
+    if (_settings?.showIntroduction ?? true) {
+      if (_myUser.myUser.value != null) {
+        _displayIntroduction(_myUser.myUser.value!);
+      } else {
+        Worker? worker;
+        worker = ever(
+          _myUser.myUser,
+          (MyUser? myUser) {
+            if (myUser != null && worker != null) {
+              _displayIntroduction(myUser);
+              worker?.dispose();
+              worker = null;
+            }
+          },
+        );
+      }
+    }
   }
 
   @override

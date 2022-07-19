@@ -17,29 +17,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
-/// Copyable text field that puts a [copy] of data into the clipboard on click
+/// Sharable text field that puts a [copy] of data into the clipboard on click
 /// or on context menu action.
-class CopyableTextField extends StatelessWidget {
-  const CopyableTextField({
+class SharableTextField extends StatelessWidget {
+  SharableTextField({
     Key? key,
-    required this.state,
+    required String? text,
     this.copy,
     this.icon,
     this.label,
     this.style,
+    this.trailing,
     this.leading,
-  }) : super(key: key);
+  }) : super(key: key) {
+    state = TextFieldState(text: text, editable: false);
+  }
 
-  /// Reactive state of this [CopyableTextField].
-  final TextFieldState state;
+  /// Reactive state of this [SharableTextField].
+  late final TextFieldState state;
 
   /// Data to put into the clipboard.
   final String? copy;
@@ -47,14 +50,20 @@ class CopyableTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Optional leading icon.
+  /// Trailing of this [TextField].
+  final Widget? trailing;
+
+  /// Leading of this [TextField].
   final Widget? leading;
 
-  /// Optional label of this [CopyableTextField].
+  /// Optional label of this [SharableTextField].
   final String? label;
 
-  /// TextStyle of this [TextField].
+  /// [TextStyle] of this [TextField].
   final TextStyle? style;
+
+  /// [GlobalKey] of this [TextField].
+  final GlobalKey _key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -85,21 +94,15 @@ class CopyableTextField extends StatelessWidget {
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
-              onTap: (copy ?? state.text).isEmpty ? null : () => _copy(context),
+              onTap:
+                  (copy ?? state.text).isEmpty ? null : () => _share(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
+                  key: _key,
                   prefix: leading,
                   state: state,
-                  trailing: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child: SvgLoader.asset(
-                        'assets/icons/copy.svg',
-                        height: 15,
-                      ),
-                    ),
-                  ),
+                  suffix: trailing == null ? Icons.ios_share : null,
+                  trailing: trailing,
                   label: label,
                   style: style,
                 ),
@@ -115,5 +118,21 @@ class CopyableTextField extends StatelessWidget {
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: copy ?? state.text));
     MessagePopup.success('label_copied_to_clipboard'.l10n);
+  }
+
+  /// Summons the platform's share sheet to share text.
+  Future<void> _share(BuildContext context) async {
+    Rect? rect;
+
+    try {
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null) {
+        rect = box.localToGlobal(Offset.zero) & box.size;
+      }
+    } catch (e) {
+      //No-op.
+    }
+
+    await Share.share(copy ?? state.text, sharePositionOrigin: rect);
   }
 }
