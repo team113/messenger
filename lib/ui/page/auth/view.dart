@@ -154,7 +154,7 @@ class AuthView extends StatelessWidget {
           OutlinedRoundedButton(
             key: const Key('StartChattingButton'),
             title: Text(
-              ' '.l10n,
+              'btn_start'.l10n,
               style: const TextStyle(color: Colors.white),
             ),
             leading: Container(
