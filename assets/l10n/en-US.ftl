@@ -97,7 +97,6 @@ btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_save = Save
 btn_saved_messages = Saved messages
-btn_set_password = Set password
 btn_settings = Settings
 btn_start_chatting = Start chatting
 btn_submit = Submit
@@ -149,7 +148,6 @@ err_not_group = Not a group
 err_not_member = Not a member
 err_nowhere_to_send = Account has no confirmed emails or phones
 err_password_empty = Please, enter the password
-err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
 err_phone_occupied = Phone number is already occupied
 err_quoted_message = Message was quoted
@@ -186,7 +184,6 @@ label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88,
-label_account_access_will_be_lost = Account access will be lost
 label_account_created = Account created
 label_ago = { $years ->
     [0] { $months ->
@@ -333,15 +330,6 @@ label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
-label_password_not_set = Password not set
-label_password_not_set_description =
-    Password not set. Access to an account without a password is retained for one year from the time the account was created or until:
-
-        • You will not delete user data from the application (browser);
-
-        • You will not press the "Logout" button.
-
-    In order not to lose access to your account, set a password.
 label_password_set_successfully = Password set successfully
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
