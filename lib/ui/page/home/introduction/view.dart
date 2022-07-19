@@ -19,13 +19,12 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/page/auth/widget/outlined_rounded_button.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/page/my_profile/widget/sharable.dart';
 import '/ui/widget/popup/popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
-
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'controller.dart';
 
 /// An introduction view which is displayed to new users.

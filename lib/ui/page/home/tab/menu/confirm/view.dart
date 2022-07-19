@@ -22,7 +22,6 @@ import '/ui/page/auth/widget/outlined_rounded_button.dart';
 import '/ui/widget/popup/popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-
 import 'controller.dart';
 
 /// The view that is displayed if the user tries to log out but doesn't set a

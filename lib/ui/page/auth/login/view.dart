@@ -20,7 +20,6 @@ import '/l10n/l10n.dart';
 import '/ui/page/auth/widget/outlined_rounded_button.dart';
 import '/ui/widget/popup/popup.dart';
 import '/ui/widget/text_field.dart';
-
 import 'controller.dart';
 
 /// View which contains widgets for signing in and password restore.
