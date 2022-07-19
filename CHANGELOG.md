@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
         - Language selection ([#23]).
+    - Introduction modal ([#38]).
 
 ### Changed
 
@@ -41,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
 [#23]: /../../pull/23
 [#26]: /../../pull/26
 [#35]: /../../pull/35
+[#35]: /../../pull/38
 
 
 
