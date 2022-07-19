@@ -17,8 +17,6 @@ All user visible changes to this project will be documented in this file. This p
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
         - Language selection ([#23]);
-        - Unspecified password reminder on logout ([#35]).
-    - Introduction modal ([#35]).
 
 ### Changed
 

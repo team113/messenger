@@ -103,7 +103,6 @@ void main() async {
 
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
-    await tester.pumpAndSettle();
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
@@ -164,7 +163,6 @@ void main() async {
     await tester.tap(nextTile);
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
-
     expect(password1, findsNothing);
 
     await tester.pumpAndSettle(const Duration(seconds: 5));
