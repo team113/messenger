@@ -99,24 +99,25 @@ class AuthView extends StatelessWidget {
                 duration: const Duration(milliseconds: 200),
                 child: SizedBox(
                   height: constraints.maxHeight >= height ? height : 140,
-                  child: constraints.maxHeight >= height &&
-                          !Config.disableInfiniteAnimations
+                  child: constraints.maxHeight >= height
                       ? Container(
                           key: const ValueKey('logo'),
                           child: RiveAnimation.asset(
                             'assets/images/logo/logo.riv',
                             onInit: (a) {
-                              final StateMachineController? machine =
-                                  StateMachineController.fromArtboard(
-                                      a, 'Machine');
-                              a.addController(machine!);
-                              c.blink = machine.findInput<bool>('blink')
-                                  as SMITrigger?;
+                              if (!Config.disableInfiniteAnimations) {
+                                final StateMachineController? machine =
+                                    StateMachineController.fromArtboard(
+                                        a, 'Machine');
+                                a.addController(machine!);
+                                c.blink = machine.findInput<bool>('blink')
+                                    as SMITrigger?;
 
-                              Future.delayed(
-                                const Duration(milliseconds: 500),
-                                c.animate,
-                              );
+                                Future.delayed(
+                                  const Duration(milliseconds: 500),
+                                  c.animate,
+                                );
+                              }
                             },
                           ),
                         )
@@ -139,13 +140,16 @@ class AuthView extends StatelessWidget {
               style: thin?.copyWith(fontSize: 13, color: primary),
             ),
             onPressed: () async {
-              await Selector.show(context, c.languageKey,
-                  L10n.languages.map((l) => l.name).toList(),
-                  initialValue: L10n.chosen.value!.name,
-                  trails: L10n.languages
-                      .map((l) => l.locale.languageCode.toUpperCase())
-                      .toList(),
-                  onSelect: (i) async => L10n.set(L10n.languages[i]));
+              await Selector.show(
+                context,
+                c.languageKey,
+                L10n.languages.map((l) => l.name).toList(),
+                initialValue: L10n.chosen.value!.name,
+                trails: L10n.languages
+                    .map((l) => l.locale.languageCode.toUpperCase())
+                    .toList(),
+                onSelect: (i) => L10n.set(L10n.languages[i]),
+              );
             });
 
         // Footer part of the page.

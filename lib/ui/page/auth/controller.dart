@@ -36,13 +36,13 @@ class AuthController extends GetxController {
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
 
-  /// A trigger of blink logo animation.
+  /// [SMITrigger] triggering the blinking animation.
   SMITrigger? blink;
 
   /// [GlobalKey] of an animated button used to share it between overlays.
   final GlobalKey languageKey = GlobalKey();
 
-  /// Timer that periodically increases [logoFrame].
+  /// [Timer] periodically increasing [logoFrame].
   Timer? _animationTimer;
 
   /// Returns user authentication status.
@@ -68,15 +68,18 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Resets the [logoFrame] and starts the animation.
+  /// Resets the [logoFrame] and starts the blinking animation.
   void animate() {
     blink?.fire();
 
     logoFrame.value = 1;
     _animationTimer?.cancel();
-    _animationTimer = Timer.periodic(const Duration(milliseconds: 45), (t) {
-      ++logoFrame.value;
-      if (logoFrame >= 9) t.cancel();
-    });
+    _animationTimer = Timer.periodic(
+      const Duration(milliseconds: 45),
+      (t) {
+        ++logoFrame.value;
+        if (logoFrame >= 9) t.cancel();
+      },
+    );
   }
 }

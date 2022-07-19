@@ -68,10 +68,10 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// This controls the size of the shadow below this button.
   final double elevation;
 
-  /// Maximum width of this widget.
+  /// Maximum width this button is allowed to occupy.
   final double? maxWidth;
 
-  /// Maximum height of this widget.
+  /// Height of this button.
   final double? height;
 
   @override
@@ -80,10 +80,10 @@ class OutlinedRoundedButton extends StatelessWidget {
       constraints: BoxConstraints(
         maxWidth: maxWidth ?? double.infinity,
         minHeight: height ?? 0,
-        maxHeight: height ?? 0,
+        maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
-        color: onPressed == null ? (const Color(0xFFBBBBBB)) : color,
+        color: onPressed == null ? const Color(0xFFBBBBBB) : color,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15),
       ),

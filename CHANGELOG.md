@@ -23,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned desktop interface ([#26]).
+    - Redesigned `Auth` page ([#29]).
 
 ### Fixed
 
@@ -31,12 +32,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
-
-### Changed
-
-- UI:
-    - Auth page:
-        - Redesign `Auth` page ([#29]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4

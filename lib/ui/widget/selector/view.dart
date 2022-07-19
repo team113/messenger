@@ -207,131 +207,133 @@ abstract class Selector {
         ),
         builder: (context) {
           return GetBuilder(
-              init: SelectorController(
-                  items.indexOf(initialValue ?? items.first), onSelect),
-              builder: (SelectorController c) {
-                return Container(
-                  height: min(items.length * (65), 330),
-                  margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: SafeArea(
-                    top: false,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            width: 60,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFCCCCCC),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+            init: SelectorController(
+              items.indexOf(initialValue ?? items.first),
+              onSelect,
+            ),
+            builder: (SelectorController c) {
+              return Container(
+                height: min(items.length * (65), 330),
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          width: 60,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFCCCCCC),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Stack(
-                              children: [
-                                CupertinoPicker(
-                                    scrollController:
-                                        FixedExtentScrollController(
-                                            initialItem: c.selected.value),
-                                    magnification: 1,
-                                    squeeze: 1,
-                                    looping: true,
-                                    diameterRatio: 100,
-                                    useMagnifier: false,
-                                    itemExtent: 38,
-                                    selectionOverlay: Container(
-                                      margin: const EdgeInsetsDirectional.only(
-                                          start: 8, end: 8),
-                                      decoration: const BoxDecoration(
-                                          color: Color(0x3363B4FF)),
-                                    ),
-                                    onSelectedItemChanged: (int i) {
-                                      HapticFeedback.selectionClick();
-                                      c.selected.value = i;
-                                    },
-                                    children: List.generate(
-                                        items.length,
-                                        (index) => Center(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        46, 0, 29, 0),
-                                                child: Row(
-                                                  children: [
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Stack(
+                            children: [
+                              CupertinoPicker(
+                                  scrollController: FixedExtentScrollController(
+                                      initialItem: c.selected.value),
+                                  magnification: 1,
+                                  squeeze: 1,
+                                  looping: true,
+                                  diameterRatio: 100,
+                                  useMagnifier: false,
+                                  itemExtent: 38,
+                                  selectionOverlay: Container(
+                                    margin: const EdgeInsetsDirectional.only(
+                                        start: 8, end: 8),
+                                    decoration: const BoxDecoration(
+                                        color: Color(0x3363B4FF)),
+                                  ),
+                                  onSelectedItemChanged: (int i) {
+                                    HapticFeedback.selectionClick();
+                                    c.selected.value = i;
+                                  },
+                                  children: List.generate(
+                                      items.length,
+                                      (index) => Center(
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      46, 0, 29, 0),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    items[index],
+                                                    style: thin?.copyWith(
+                                                      fontSize: 15,
+                                                      color: const Color(
+                                                          0xFF000000),
+                                                    ),
+                                                  ),
+                                                  if (trails != null)
+                                                    const Spacer(),
+                                                  if (trails != null)
                                                     Text(
-                                                      items[index],
+                                                      trails[index],
                                                       style: thin?.copyWith(
                                                         fontSize: 15,
                                                         color: const Color(
                                                             0xFF000000),
                                                       ),
                                                     ),
-                                                    if (trails != null)
-                                                      const Spacer(),
-                                                    if (trails != null)
-                                                      Text(
-                                                        trails[index],
-                                                        style: thin?.copyWith(
-                                                          fontSize: 15,
-                                                          color: const Color(
-                                                              0xFF000000),
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
+                                                ],
                                               ),
-                                            ))),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Container(
-                                    height: 15,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0xFFFFFFFF),
-                                          Color(0x00FFFFFF),
-                                        ],
-                                      ),
+                                            ),
+                                          ))),
+                              Align(
+                                alignment: Alignment.topCenter,
+                                child: Container(
+                                  height: 15,
+                                  width: double.infinity,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Color(0xFFFFFFFF),
+                                        Color(0x00FFFFFF),
+                                      ],
                                     ),
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    height: 15,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Color(0x00FFFFFF),
-                                          Color(0xFFFFFFFF),
-                                        ],
-                                      ),
+                              ),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  height: 15,
+                                  width: double.infinity,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Color(0x00FFFFFF),
+                                        Color(0xFFFFFFFF),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              });
+                ),
+              );
+            },
+          );
         },
       );
     }

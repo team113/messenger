@@ -28,7 +28,7 @@ class SelectorController extends GetxController {
   final Function(int)? onSelect;
 
   /// Prevents instant call of [onSelect] after the user has set
-  ///  [selected] item.
+  /// [selected] item.
   late final Worker _debounce;
 
   @override
