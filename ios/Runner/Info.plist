@@ -58,7 +58,5 @@
   <string>We need access to your microphone to record it</string>
   <key>LSSupportsOpeningDocumentsInPlace</key>
   <true/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
 </dict>
 </plist>
