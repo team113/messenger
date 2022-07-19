@@ -52,18 +52,18 @@ Widget svgFromAsset(
 }) {
   var path = package == null ? asset : 'packages/$package/$asset';
   return _BrowserSvg(
-      key: key,
-      loader: _AssetSvgLoader(path),
-      assetPath: path,
-      alignment: alignment,
-      color: color,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+    key: key,
+    loader: _AssetSvgLoader(path),
+    assetPath: path,
+    alignment: alignment,
+    color: color,
+    excludeFromSemantics: excludeFromSemantics,
+    fit: fit,
+    height: height,
+    placeholderBuilder: placeholderBuilder,
+    semanticsLabel: semanticsLabel,
+    width: width,
+  );
 }
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
@@ -143,6 +143,7 @@ class _AssetsCache {
 /// SVG picture loader from an asset.
 class _AssetSvgLoader implements _SvgLoader {
   _AssetSvgLoader(this.path);
+
   /// Asset path of the SVG picture.
   final String path;
 
@@ -159,8 +160,7 @@ class _AssetSvgLoader implements _SvgLoader {
 
   @override
   bool operator ==(Object other) =>
-      other is _AssetSvgLoader &&
-      other.path == path ;
+      other is _AssetSvgLoader && other.path == path;
 
   @override
   int get hashCode => path.hashCode;
@@ -265,7 +265,8 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   @override
   void initState() {
     super.initState();
-    if(widget.assetPath != null && _AssetsCache.cache[widget.assetPath] != null) {
+    if (widget.assetPath != null &&
+        _AssetsCache.cache[widget.assetPath] != null) {
       _imageBytes = _AssetsCache.cache[widget.assetPath];
       var b64 = base64.encode(_imageBytes!.toList());
       _image = 'data:image/svg+xml;base64,$b64';

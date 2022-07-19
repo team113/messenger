@@ -579,8 +579,6 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
-    _putParticipant(RemoteMemberId(me, null), handRaised: false);
-
     buttons = RxList([
       ScreenCallButton(this),
       VideoCallButton(this),

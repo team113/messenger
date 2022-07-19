@@ -64,7 +64,7 @@ class Dock<T extends Object> extends StatefulWidget {
   State<Dock<T>> createState() => _DockState<T>();
 }
 
-/// State of [Dock] used to handle reordering.
+/// State of [Dock] maintaining the reorderable [items] list.
 class _DockState<T extends Object> extends State<Dock<T>> {
   /// Duration of animation moving button to his place on end of dragging.
   Duration movingAnimationDuration = 150.milliseconds;
@@ -84,7 +84,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// Index of item was started dragging.
   int draggedIndex = -1;
 
-  /// Element that was dragged.
+  /// Item that was dragged.
   _DraggedItem<T>? dragged;
 
   /// [GlobalKey] of zone where items can be dragged or placed.
@@ -96,14 +96,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [Offset] where item was dragged.
   Offset? moveDragOffset;
 
-  /// Size of dragged item.
+  /// [BoxConstraints] of dragged item.
   BoxConstraints? startDragConstraints;
-
-  /// [Offset] position of same item.
-  Offset? positionOnSameItem;
-
-  /// [BoxConstraints] constraints of same item.
-  BoxConstraints? constraintsOnSameItem;
 
   /// Currently displayed [OverlayEntry].
   OverlayEntry? overlay;
@@ -414,23 +408,24 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         _resetAnimations();
       }
 
-      Offset? startPosition;
-
       // Get RenderBox of same item.
       RenderBox box =
           items[i].key.currentContext!.findRenderObject() as RenderBox;
 
       // Get Offset position of same item.
-      startPosition = box.localToGlobal(Offset.zero);
-
-      // Remove same item.
-      items.removeAt(i);
+      Offset startPosition = box.localToGlobal(Offset.zero);
 
       // Save place where item will be added.
       int whereToPlace = expandBetween;
       if (whereToPlace > i) {
         whereToPlace--;
       }
+
+      // Get Offset position where item will be placed.
+      Offset endPosition = items[whereToPlace].position!;
+
+      // Remove same item.
+      items.removeAt(i);
 
       if (whereToPlace > items.length) {
         // Add item to items list and hide it.
@@ -459,8 +454,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         item: draggedItem,
         context: context,
         from: startPosition,
-        to: positionOnSameItem!,
-        itemConstraints: constraintsOnSameItem!,
+        to: endPosition,
+        itemConstraints: itemConstraints,
         onEnd: () {
           if (mounted) {
             setState(() {
@@ -519,14 +514,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       for (var e in items) {
         e.updateCurrentPosition();
       }
-    }
-    int sameItemIndex = items.indexWhere((e) => e.item == d.data);
-    if (sameItemIndex >= 0) {
-      int sameItemNewIndex = indexToPlace;
-      if (sameItemIndex < sameItemNewIndex) sameItemNewIndex--;
-
-      positionOnSameItem = items[sameItemNewIndex].position;
-      constraintsOnSameItem = items[sameItemNewIndex].constraints;
     }
 
     expandBetween = indexToPlace;
