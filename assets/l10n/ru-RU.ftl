@@ -95,7 +95,6 @@ btn_next = Дальше
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
-btn_save = Сохранить
 btn_saved_messages = Сохранённые сообщения
 btn_settings = Настройки
 btn_start_chatting = Начать общение
