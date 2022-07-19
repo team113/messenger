@@ -36,8 +36,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
-    this.suffixColor,
-    this.suffixSize,
+    this.prefix,
     this.trailing,
     this.type,
     this.minLines,
@@ -45,9 +44,8 @@ class ReactiveTextField extends StatelessWidget {
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.prefix,
-    this.treatErrorAsStatus = true,
     this.filled,
+    this.treatErrorAsStatus = true,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -65,16 +63,15 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Optional trailing icon.
+  /// Optional [IconData] to display instead of the [trailing].
+  ///
+  /// If specified, [trailing] will be ignored.
   final IconData? suffix;
 
-  /// Suffix icon color. If not persistent, default value will be used.
-  final Color? suffixColor;
+  /// Optional prefix [Widget].
+  final Widget? prefix;
 
-  /// Suffix icon size. If not persistent, default value will be used.
-  final double? suffixSize;
-
-  /// Widget that will be present against suffix if suffix is null.
+  /// Optional trailing [Widget].
   final Widget? trailing;
 
   /// Optional label of this [ReactiveTextField].
@@ -118,14 +115,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
-  /// Optional prefix widget.
-  final Widget? prefix;
-
-  /// Enable or disable error icon visibility.
+  /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
+  /// be treated as a [RxStatus.error].
   final bool treatErrorAsStatus;
 
-  /// Shows is this TextField filled. If null, value from current theme
-  /// will be used.
+  /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
 
   @override
@@ -137,18 +131,18 @@ class ReactiveTextField extends StatelessWidget {
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-              : const EdgeInsets.fromLTRB(12, 12, 12, 12));
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12);
         } else {
-          contentPadding = (isDense
+          contentPadding = isDense
               ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-              : const EdgeInsets.fromLTRB(0, 12, 0, 12));
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12);
         }
       } else {
-        contentPadding = (isDense
+        contentPadding = isDense
             ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-            : const EdgeInsets.fromLTRB(12, 24, 12, 16));
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16);
       }
 
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
@@ -157,9 +151,7 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(
       () => Theme(
         data: Theme.of(context).copyWith(
-          scrollbarTheme: const ScrollbarThemeData(
-            crossAxisMargin: -10,
-          ),
+          scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -181,6 +173,7 @@ class ReactiveTextField extends StatelessWidget {
                 prefixText: prefixText,
                 prefix: prefix,
                 contentPadding: contentPadding,
+                fillColor: filled == false ? Colors.transparent : null,
                 suffixIconConstraints: suffix == null &&
                         trailing == null &&
                         state.status.value.isEmpty
@@ -229,11 +222,7 @@ class ReactiveTextField extends StatelessWidget {
                                                 key: const ValueKey('Icon'),
                                                 onPressed: onSuffixPressed,
                                                 icon: suffix != null
-                                                    ? Icon(
-                                                        suffix,
-                                                        color: suffixColor,
-                                                        size: suffixSize,
-                                                      )
+                                                    ? Icon(suffix)
                                                     : trailing == null
                                                         ? Container()
                                                         : trailing!,
@@ -253,6 +242,9 @@ class ReactiveTextField extends StatelessWidget {
                 labelText: label,
                 hintText: hint,
                 hintMaxLines: 1,
+
+                // Hide the error's text as the [AnimatedSize] below this
+                // [TextField] displays it better.
                 errorStyle: const TextStyle(fontSize: 0),
               ),
               obscureText: obscure,
@@ -261,6 +253,8 @@ class ReactiveTextField extends StatelessWidget {
               maxLines: maxLines,
               textInputAction: textInputAction,
             ),
+
+            // Displays an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
               child: AnimatedSwitcher(

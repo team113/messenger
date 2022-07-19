@@ -24,11 +24,11 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/copyable.dart';
 import '/ui/page/home/widget/gallery.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
-import 'widget/copyable.dart';
 import 'widget/dropdown.dart';
 
 /// View of the [Routes.me] page.

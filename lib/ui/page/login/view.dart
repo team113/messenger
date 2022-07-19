@@ -16,20 +16,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '/l10n/l10n.dart';
-import '/ui/page/auth/widget/outlined_rounded_button.dart';
-import '/ui/widget/popup/popup.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View which contains widgets for signing in and password restore.
+/// View for logging in or recovering access on the [Routes.auth] page.
+///
+/// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
 
-  /// Shows this view as [Popup].
+  /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return Popup.show(context, const LoginView(),
-        contentMaxWidth: 400, layoutMaxWidth: 520);
+    return ModalPopup.show(
+      context,
+      const LoginView(),
+      contentMaxWidth: 400,
+      layoutMaxWidth: 520,
+    );
   }
 
   @override
@@ -41,6 +48,7 @@ class LoginView extends StatelessWidget {
       builder: (LoginController c) {
         return Obx(() {
           List<Widget> children;
+
           if (c.showNewPasswordSection.value) {
             children = [
               Center(
@@ -65,16 +73,17 @@ class LoginView extends StatelessWidget {
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonKey: const Key('RecoveryNextTile'),
-                  secondaryButtonKey: const Key('RecoveryBackTile'),
-                  mainButtonTitle: 'btn_next'.l10n,
-                  onMainButtonPressed: c.resetUserPassword,
-                  secondaryButtonTitle: 'btn_back'.l10n,
-                  onSecondaryButtonPressed: () {
-                    c.clearAccessFields();
-                    c.showCodeSection.toggle();
-                    c.showNewPasswordSection.toggle();
-                  }),
+                mainButtonKey: const Key('RecoveryNextTile'),
+                secondaryButtonKey: const Key('RecoveryBackTile'),
+                mainButtonTitle: 'btn_next'.l10n,
+                onMainButtonPressed: c.resetUserPassword,
+                secondaryButtonTitle: 'btn_back'.l10n,
+                onSecondaryButtonPressed: () {
+                  c.clearAccessFields();
+                  c.showCodeSection.toggle();
+                  c.showNewPasswordSection.toggle();
+                },
+              ),
               const SizedBox(height: 16),
             ];
           } else if (c.showCodeSection.value) {
@@ -96,15 +105,16 @@ class LoginView extends StatelessWidget {
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonKey: const Key('RecoveryNextTile'),
-                  secondaryButtonKey: const Key('RecoveryBackTile'),
-                  mainButtonTitle: 'btn_next'.l10n,
-                  onMainButtonPressed: c.recoveryCode.submit,
-                  secondaryButtonTitle: 'btn_back'.l10n,
-                  onSecondaryButtonPressed: () {
-                    c.clearAccessFields();
-                    c.showCodeSection.toggle();
-                  }),
+                mainButtonKey: const Key('RecoveryNextTile'),
+                secondaryButtonKey: const Key('RecoveryBackTile'),
+                mainButtonTitle: 'btn_next'.l10n,
+                onMainButtonPressed: c.recoveryCode.submit,
+                secondaryButtonTitle: 'btn_back'.l10n,
+                onSecondaryButtonPressed: () {
+                  c.clearAccessFields();
+                  c.showCodeSection.toggle();
+                },
+              ),
               const SizedBox(height: 16),
             ];
           } else if (c.displayAccess.value) {
@@ -123,12 +133,13 @@ class LoginView extends StatelessWidget {
               ),
               const SizedBox(height: 58),
               loginPopupButtons(
-                  mainButtonKey: const Key('RecoveryNextTile'),
-                  secondaryButtonKey: const Key('RecoveryBackTile'),
-                  mainButtonTitle: 'btn_next'.l10n,
-                  onMainButtonPressed: c.recovery.submit,
-                  secondaryButtonTitle: 'btn_back'.l10n,
-                  onSecondaryButtonPressed: c.displayAccess.toggle),
+                mainButtonKey: const Key('RecoveryNextTile'),
+                secondaryButtonKey: const Key('RecoveryBackTile'),
+                mainButtonTitle: 'btn_next'.l10n,
+                onMainButtonPressed: c.recovery.submit,
+                secondaryButtonTitle: 'btn_back'.l10n,
+                onSecondaryButtonPressed: c.displayAccess.toggle,
+              ),
               const SizedBox(height: 16),
             ];
           } else {
@@ -155,17 +166,18 @@ class LoginView extends StatelessWidget {
               ),
               const SizedBox(height: 52),
               loginPopupButtons(
-                  mainButtonKey: const Key('LoginNextTile'),
-                  secondaryButtonKey: const Key('AccessRecoveryTile'),
-                  isRightMainButton: false,
-                  mainButtonTitle: 'btn_login'.l10n,
-                  secondaryButtonTitle: 'btn_forgot_password'.l10n,
-                  onMainButtonPressed: c.signIn,
-                  onSecondaryButtonPressed: () {
-                    c.recovery.unchecked = c.login.text;
-                    c.recovery.error.value = null;
-                    c.displayAccess.toggle();
-                  }),
+                mainButtonKey: const Key('LoginNextTile'),
+                secondaryButtonKey: const Key('AccessRecoveryTile'),
+                isRightMainButton: false,
+                mainButtonTitle: 'btn_login'.l10n,
+                secondaryButtonTitle: 'btn_forgot_password'.l10n,
+                onMainButtonPressed: c.signIn,
+                onSecondaryButtonPressed: () {
+                  c.recovery.unchecked = c.login.text;
+                  c.recovery.error.value = null;
+                  c.displayAccess.toggle();
+                },
+              ),
               const SizedBox(height: 16),
             ];
           }
@@ -229,6 +241,7 @@ Widget loginPopupButtons({
       ),
     ),
   ];
+
   return Row(
     children: isRightMainButton ? elements : elements.reversed.toList(),
   );

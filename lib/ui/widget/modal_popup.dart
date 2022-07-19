@@ -20,12 +20,15 @@ import 'package:flutter/material.dart';
 import '/util/platform_utils.dart';
 
 /// Class which is responsible for showing popups.
-abstract class Popup {
+abstract class ModalPopup {
   /// Shows popup depend to current platform.
-  static Future<T?> show<T>(BuildContext context, Widget child,
-      {double contentMaxWidth = 300,
-      double layoutMaxWidth = 420,
-      double horizontalPadding = 10}) {
+  static Future<T?> show<T>(
+    BuildContext context,
+    Widget child, {
+    double contentMaxWidth = 300,
+    double layoutMaxWidth = 420,
+    double horizontalPadding = 10,
+  }) {
     if (context.isMobile) {
       return showModalBottomSheet(
         context: context,
@@ -80,7 +83,9 @@ abstract class Popup {
               child: Container(
                 constraints: BoxConstraints(maxWidth: layoutMaxWidth),
                 padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding, vertical: 10),
+                  horizontal: horizontalPadding,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),

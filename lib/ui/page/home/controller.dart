@@ -19,13 +19,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
-import '/ui/page/home/introduction/view.dart';
+import 'introduction/view.dart';
 
 export 'view.dart';
 
@@ -54,7 +55,8 @@ class HomeController extends GetxController {
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
 
-  /// Uses for access to [ApplicationSettings.wasIntroductionShowed].
+  /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
+  /// determine whether an [IntroductionView] was already shown.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Subscription to the [MyUser] changes.
@@ -62,6 +64,10 @@ class HomeController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  /// Returns [ApplicationSettings] from the [AbstractSettingsRepository].
+  ApplicationSettings? get _settings =>
+      _settingsRepository.applicationSettings.value;
 
   @override
   void onInit() {
@@ -81,22 +87,23 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
-    bool wasShowed =
-        (_settingsRepository.applicationSettings.value?.wasIntroductionShowed ??
-            false);
-    if (_myUser.myUser.value != null && !wasShowed) {
-      _displayIntroduction(_myUser.myUser.value!);
-      _settingsRepository.setWasIntroductionShowed(true);
-    } else {
-      Worker? worker;
-      worker = ever(_myUser.myUser, (MyUser? myUser) {
-        if (myUser != null && worker != null && !wasShowed) {
-          _displayIntroduction(myUser);
-          _settingsRepository.setWasIntroductionShowed(true);
-          worker?.dispose();
-          worker = null;
-        }
-      });
+
+    if (_settings?.showIntroduction ?? true) {
+      if (_myUser.myUser.value != null) {
+        _displayIntroduction(_myUser.myUser.value!);
+      } else {
+        Worker? worker;
+        worker = ever(
+          _myUser.myUser,
+          (MyUser? myUser) {
+            if (myUser != null && worker != null) {
+              _displayIntroduction(myUser);
+              worker?.dispose();
+              worker = null;
+            }
+          },
+        );
+      }
     }
   }
 
@@ -107,10 +114,14 @@ class HomeController extends GetxController {
     _myUserSubscription.cancel();
   }
 
-  /// Displays introduction view for new user.
+  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
   void _displayIntroduction(MyUser myUser) {
     if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!);
+      IntroductionView.show(router.context!).then((_) {
+        _settingsRepository.setShowIntroduction(false);
+      });
+    } else {
+      _settingsRepository.setShowIntroduction(false);
     }
   }
 

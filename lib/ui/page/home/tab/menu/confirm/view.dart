@@ -18,21 +18,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/auth/widget/outlined_rounded_button.dart';
-import '/ui/widget/popup/popup.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
 /// The view that is displayed if the user tries to log out but doesn't set a
-///  password.
+/// password.
 class ConfirmLogoutView extends StatelessWidget {
   const ConfirmLogoutView({Key? key}) : super(key: key);
 
-  /// Shows this view as [Popup].
-  static Future<T?> show<T>(BuildContext context) {
-    return Popup.show(context, const ConfirmLogoutView());
-  }
+  /// Displays a [ConfirmLogoutView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(BuildContext context) =>
+      ModalPopup.show(context, const ConfirmLogoutView());
 
   @override
   Widget build(BuildContext context) {

@@ -18,27 +18,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/auth/widget/outlined_rounded_button.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/page/my_profile/widget/sharable.dart';
-import '/ui/widget/popup/popup.dart';
+import '/ui/page/home/widget/copyable.dart';
+import '/ui/page/home/widget/sharable.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// An introduction view which is displayed to new users.
+/// Introduction displaying important information alongside with an ability to
+/// set a password.
+///
+/// Intended to be displayed with the [show] method.
 class IntroductionView extends StatelessWidget {
   const IntroductionView({Key? key}) : super(key: key);
 
-  /// Shows this view as [Popup].
+  /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return Popup.show(
-        context,
-        const IntroductionView(
-          key: Key('IntroductionView'),
-        ),
-        horizontalPadding: 0);
+    return ModalPopup.show(
+      context,
+      const IntroductionView(),
+      horizontalPadding: 0,
+    );
   }
 
   @override
@@ -175,6 +177,7 @@ class IntroductionView extends StatelessWidget {
             child: AnimatedSwitcher(
               duration: 150.milliseconds,
               child: ListView(
+                key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
@@ -206,8 +209,7 @@ class IntroductionView extends StatelessWidget {
                     ),
                   const SizedBox(height: 25),
                   ...children,
-                  const SizedBox(height: 25),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 25 + 12),
                 ],
               ),
             ),

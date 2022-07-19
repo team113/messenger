@@ -16,14 +16,10 @@
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
-import '/util/message_popup.dart';
-
-import '/domain/model/user.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -31,9 +27,11 @@ import '/provider/gql/exceptions.dart'
         RecoverUserPasswordException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
-/// [LoginView] controller.
+/// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
   LoginController(this._auth);
 
@@ -94,9 +92,7 @@ class LoginController extends GetxController {
   void onInit() {
     login = TextFieldState(
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) {
-        password.focus.requestFocus();
-      },
+      onSubmitted: (s) => password.focus.requestFocus(),
     );
 
     password = TextFieldState(
@@ -199,60 +195,37 @@ class LoginController extends GetxController {
     }
 
     try {
-      bool exists = await _auth.checkUserIdentifiable(
+      login.status.value = RxStatus.loading();
+      password.status.value = RxStatus.loading();
+      await _auth.signIn(
+        UserPassword(password.text),
         login: userLogin,
         num: num,
         email: email,
         phone: phone,
       );
 
-      if (!exists) {
-        login.error.value = 'err_account_not_found'.l10n;
-      } else {
-        await _auth.signIn(
-          UserPassword(password.text),
-          login: userLogin,
-          num: num,
-          email: email,
-          phone: phone,
-        );
-
-        router.home();
-      }
+      router.home();
     } on FormatException {
       password.error.value = 'err_incorrect_password'.l10n;
     } on CreateSessionException catch (e) {
-      switch (e.code) {
-        case CreateSessionErrorCode.unknownUser:
-          login.error.value = e.toMessage();
-          break;
-
-        case CreateSessionErrorCode.wrongPassword:
-          password.error.value = e.toMessage();
-          break;
-
-        case CreateSessionErrorCode.artemisUnknown:
-          password.unsubmit();
-          password.error.value = 'err_data_transfer'.l10n;
-          rethrow;
-      }
+      login.error.value = e.toMessage();
     } on ConnectionException {
       password.unsubmit();
       password.error.value = 'err_data_transfer'.l10n;
-      // No-op.
     } catch (e) {
       password.unsubmit();
       password.error.value = 'err_data_transfer'.l10n;
-      // MessagePopup.error(e);
       rethrow;
+    } finally {
+      login.status.value = RxStatus.empty();
+      password.status.value = RxStatus.empty();
     }
   }
 
   /// Initiates password recovery for the [MyUser] identified by the provided
   /// [recovery] input and stores the parsed value.
   Future<void> recoverAccess() async {
-    bool success = false;
-
     recovery.editable.value = false;
     recovery.status.value = RxStatus.loading();
     recovery.error.value = null;
@@ -293,7 +266,10 @@ class LoginController extends GetxController {
         email: _recoveryEmail,
         phone: _recoveryPhone,
       );
-      success = true;
+
+      recovery.status.value = RxStatus.success();
+      recovery.editable.value = false;
+      showCodeSection.value = true;
     } on FormatException {
       recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
@@ -305,22 +281,14 @@ class LoginController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      if (success) {
-        recovery.status.value = RxStatus.success();
-        recovery.editable.value = false;
-        showCodeSection.value = true;
-      } else {
-        recovery.status.value = RxStatus.empty();
-        recovery.editable.value = true;
-      }
+      recovery.status.value = RxStatus.empty();
+      recovery.editable.value = true;
     }
   }
 
   /// Validates the provided password recovery [ConfirmationCode] for the
   /// [MyUser] identified by the provided in [recoverAccess] identity.
   Future<void> validateCode() async {
-    bool success = false;
-
     recoveryCode.editable.value = false;
     recoveryCode.status.value = RxStatus.loading();
     recoveryCode.error.value = null;
@@ -340,7 +308,10 @@ class LoginController extends GetxController {
         phone: _recoveryPhone,
         code: ConfirmationCode(recoveryCode.text.toLowerCase()),
       );
-      success = true;
+
+      recoveryCode.editable.value = false;
+      recoveryCode.status.value = RxStatus.success();
+      showNewPasswordSection.value = true;
     } on FormatException {
       recoveryCode.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
@@ -352,14 +323,8 @@ class LoginController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      if (success) {
-        recoveryCode.editable.value = false;
-        recoveryCode.status.value = RxStatus.success();
-        showNewPasswordSection.value = true;
-      } else {
-        recoveryCode.editable.value = true;
-        recoveryCode.status.value = RxStatus.empty();
-      }
+      recoveryCode.editable.value = true;
+      recoveryCode.status.value = RxStatus.empty();
     }
   }
 
@@ -406,6 +371,7 @@ class LoginController extends GetxController {
     newPassword.editable.value = false;
     repeatPassword.editable.value = false;
     repeatPassword.status.value = RxStatus.loading();
+
     try {
       await _auth.resetUserPassword(
         login: _recoveryLogin,

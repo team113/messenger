@@ -95,8 +95,8 @@ btn_next = Дальше
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
-btn_saved_messages = Сохранённые сообщения
 btn_save = Сохранить
+btn_saved_messages = Сохранённые сообщения
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_start_chatting = Начать общение
@@ -150,7 +150,8 @@ err_not_group = Не группа
 err_not_member = Не участник чата
 err_nowhere_to_send = У аккаунта нет подтверждённой почты или телефона
 err_password_empty = Пожалуйста, введите пароль
-err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
+err_password_incorrect =
+    Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_phone_occupied = Телефон уже привязан к другому аккаунту
 err_quoted_message = Сообщение было процитировано
@@ -346,12 +347,12 @@ label_outgoing_call = Исходящий звонок
 label_or_register = или регистрация
 label_password = Пароль
 label_password_not_set = Пароль не задан
-label_password_not_set_description = 
+label_password_not_set_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
-    
-       - Вы не удалите пользовательские данные из приложения (браузера);
 
-       - Вы не нажмёте кнопку “Выход”.
+        • Вы не удалите пользовательские данные из приложения (браузера);
+
+        • Вы не нажмёте кнопку "Выйти".
 
     Чтобы не потерять доступ к аккаунту, задайте пароль.
 label_password_set_successfully = Пароль успешно задан

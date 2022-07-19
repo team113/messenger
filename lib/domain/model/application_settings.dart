@@ -23,8 +23,11 @@ part 'application_settings.g.dart';
 /// Overall application settings used by the whole app.
 @HiveType(typeId: ModelTypeId.applicationSettings)
 class ApplicationSettings extends HiveObject {
-  ApplicationSettings(
-      {this.enablePopups, this.locale, this.wasIntroductionShowed});
+  ApplicationSettings({
+    this.enablePopups,
+    this.locale,
+    this.showIntroduction,
+  });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
   /// separate popup windows, or otherwise inside the main application.
@@ -35,7 +38,8 @@ class ApplicationSettings extends HiveObject {
   @HiveField(1)
   String? locale;
 
-  /// Flag that indicates was introduction showed to new user.
+  /// Indicator whether an [IntroductionView] should be displayed upon opening
+  /// the application.
   @HiveField(2)
-  bool? wasIntroductionShowed;
+  bool? showIntroduction;
 }

@@ -23,7 +23,7 @@ import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
-/// Controller of [IntroductionView].
+/// Controller of an [IntroductionView].
 class IntroductionController extends GetxController {
   IntroductionController(this._myUser);
 
@@ -120,7 +120,8 @@ class IntroductionController extends GetxController {
     super.onInit();
   }
 
-  /// Validates and sets [MyUser]'s password.
+  /// Validates and updates the [password] of the currently authenticated
+  /// [MyUser].
   Future<void> setPassword() async {
     if (password.error.value != null ||
         repeat.error.value != null ||

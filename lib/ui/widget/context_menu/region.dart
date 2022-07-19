@@ -19,8 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/util/platform_utils.dart';
 import '../menu_interceptor/menu_interceptor.dart';
+import '/util/platform_utils.dart';
 import 'overlay.dart';
 
 /// Region of a context [menu] over a [child], showed on a secondary mouse click
@@ -32,8 +32,6 @@ class ContextMenuRegion extends StatefulWidget {
     required this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
-    this.usePointerDown = false,
-    this.enableLongTap = true,
     this.decoration,
   }) : super(key: key);
 
@@ -50,13 +48,6 @@ class ContextMenuRegion extends StatefulWidget {
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
-
-  /// If true shows context menu if user taps pointer down.
-  /// Else context menu will be shown on pointer up.
-  final bool usePointerDown;
-
-  /// If true shows context menu on long tap press.
-  final bool enableLongTap;
 
   /// On message select fill decoration.
   final BoxDecoration? decoration;
@@ -79,16 +70,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           enabled: widget.preventContextMenu,
           child: Listener(
             behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) {
-              if (widget.usePointerDown) {
-                _buttons = 0;
-                if (d.buttons & kSecondaryButton != 0) {
-                  ContextMenuOverlay.of(context).show(widget.menu, d.position);
-                }
-              } else {
-                _buttons = d.buttons;
-              }
-            },
+            onPointerDown: (d) => _buttons = d.buttons,
             onPointerUp: (d) {
               if (_buttons & kSecondaryButton != 0) {
                 ContextMenuOverlay.of(context).show(widget.menu, d.position);
@@ -98,12 +80,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (d) => ContextMenuOverlay.of(context)
-                          .show(widget.menu, d.globalPosition)
-                      : null,
+                  onLongPressStart: (d) => ContextMenuOverlay.of(context)
+                      .show(widget.menu, d.globalPosition),
                   child: widget.child,
                 ),
+
+                // Display a selection [decoration] over this
+                // [ContextMenuRegion] if it is displayed right now.
                 if (context.isMobile)
                   Positioned.fill(
                     child: Obx(() {

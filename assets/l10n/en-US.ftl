@@ -95,6 +95,7 @@ btn_next = Next
 btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
+btn_save = Save
 btn_saved_messages = Saved messages
 btn_set_password = Set password
 btn_settings = Settings
@@ -333,14 +334,14 @@ label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
 label_password_not_set = Password not set
-label_password_not_set_description = 
+label_password_not_set_description =
     Password not set. Access to an account without a password is retained for one year from the time the account was created or until:
-                          
-           - You will not delete user data from the application (browser);
-                          
-           - You will not press the "Exit" button.
-                           
-          In order not to lose access to your account, set a password.
+
+        • You will not delete user data from the application (browser);
+
+        • You will not press the "Logout" button.
+
+    In order not to lose access to your account, set a password.
 label_password_set_successfully = Password set successfully
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
