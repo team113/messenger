@@ -8,7 +8,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_webrtc
   medea_jason
   sentry_flutter
-  url_launcher_linux
   window_manager
 )
 
