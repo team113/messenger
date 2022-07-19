@@ -80,8 +80,7 @@ abstract class CallButton {
 
   @override
   bool operator ==(Object other) =>
-      other is CallButton &&
-          hashCode == other.hashCode;
+      other is CallButton && hashCode == other.hashCode;
 }
 
 /// [CallButton] toggling a local video.

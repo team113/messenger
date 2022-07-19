@@ -49,10 +49,12 @@ Widget svgFromAsset(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    _BrowserSvg(
+}) {
+  var path = package == null ? asset : 'packages/$package/$asset';
+  return _BrowserSvg(
       key: key,
-      loader: _AssetSvgLoader(asset, package: package),
+      loader: _AssetSvgLoader(path),
+      assetPath: path,
       alignment: alignment,
       color: color,
       excludeFromSemantics: excludeFromSemantics,
@@ -62,6 +64,7 @@ Widget svgFromAsset(
       semanticsLabel: semanticsLabel,
       width: width,
     );
+}
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -131,31 +134,36 @@ abstract class _SvgLoader {
   Future<Uint8List> load();
 }
 
+/// Cache of loaded assets.
+class _AssetsCache {
+  /// Map of data loader from an asset.
+  static Map<String, Uint8List> cache = {};
+}
+
 /// SVG picture loader from an asset.
 class _AssetSvgLoader implements _SvgLoader {
-  _AssetSvgLoader(this.asset, {this.package});
-
-  /// Optional package of the SVG picture.
-  final String? package;
-
+  _AssetSvgLoader(this.path);
   /// Asset path of the SVG picture.
-  final String asset;
+  final String path;
 
   @override
   Future<Uint8List> load() async {
-    String image = await rootBundle
-        .loadString(package == null ? asset : 'packages/$package/$asset');
-    return Uint8List.fromList(utf8.encode(image));
+    if (_AssetsCache.cache[path] != null) {
+      return _AssetsCache.cache[path]!;
+    }
+    String image = await rootBundle.loadString(path);
+    var svg = Uint8List.fromList(utf8.encode(image));
+    _AssetsCache.cache[path] = svg;
+    return svg;
   }
 
   @override
   bool operator ==(Object other) =>
       other is _AssetSvgLoader &&
-      other.asset == asset &&
-      other.package == package;
+      other.path == path ;
 
   @override
-  int get hashCode => asset.hashCode;
+  int get hashCode => path.hashCode;
 }
 
 /// SVG picture loader from raw bytes.
@@ -193,11 +201,15 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
+    this.assetPath,
     this.color,
   }) : super(key: key);
 
   /// Loader to load the SVG from.
   final _SvgLoader loader;
+
+  /// Path to asset to get SVG from [_AssetsCache] if exist.
+  final String? assetPath;
 
   /// If specified, the width to use for the SVG. If unspecified, the SVG
   /// will take the width of its parent.
@@ -253,7 +265,13 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   @override
   void initState() {
     super.initState();
-    _loadImage();
+    if(widget.assetPath != null && _AssetsCache.cache[widget.assetPath] != null) {
+      _imageBytes = _AssetsCache.cache[widget.assetPath];
+      var b64 = base64.encode(_imageBytes!.toList());
+      _image = 'data:image/svg+xml;base64,$b64';
+    } else {
+      _loadImage();
+    }
   }
 
   @override

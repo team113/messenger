@@ -420,14 +420,14 @@ Widget desktopCall(CallController c, BuildContext context) {
                                     child: Dock<CallButton>(
                                       items: c.buttons,
                                       itemSize: CallController.buttonSize,
-                                      itemBuilder: (context, item) => item.item
+                                      itemBuilder: (context, item) => item
                                           .build(context, true, small: true),
                                       onReorder: (buttons) {
                                         c.buttons.clear();
                                         c.buttons.addAll(buttons);
                                       },
                                       onDragStarted: (b) {
-                                        c.draggedButton.value = b.item;
+                                        c.draggedButton.value = b;
                                         c.hideHint.value = true;
                                       },
                                       onDragEnded: () {
@@ -458,7 +458,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,
-          List<DraggedItem<CallButton>?> candidate,
+          List<CallButton?> candidate,
           List<dynamic> rejected,
         ) {
           return Container(
@@ -481,7 +481,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.item.c.chatId == c.chatId)
+                    color: candidate.any((e) => e?.c.chatId == c.chatId)
                         ? const Color.fromARGB(47, 34, 128, 209)
                         : const Color(0x9D165084),
                     borderRadius: BorderRadius.circular(30),
@@ -500,7 +500,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                           runSpacing: 21,
                           children: c.panel.map(
                             (e) {
-                              var data = DraggedItem(e);
                               return SizedBox(
                                 width: 100,
                                 height: 100,
@@ -515,17 +514,14 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         child: SizedBox(
                                           height: CallController.buttonSize,
                                           width: CallController.buttonSize,
-                                          child: KeyedSubtree(
-                                            key: data.key,
-                                            child: e.build(
-                                              context,
-                                              true,
-                                              small: true,
-                                            ),
+                                          child: e.build(
+                                            context,
+                                            true,
+                                            small: true,
                                           ),
                                         ),
                                       ),
-                                      data: data,
+                                      data: e,
                                       onDragStarted: () {
                                         c.draggedButton.value = e;
                                         c.hideHint.value = true;
@@ -600,15 +596,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 ),
                         ),
                         const IgnorePointer(child: SizedBox(height: 30)),
-                        DragTarget<DraggedItem<CallButton>>(
-                          onAccept: (DraggedItem data) {
-                            c.buttons.remove(data.item);
+                        DragTarget<CallButton>(
+                          onAccept: (CallButton data) {
+                            c.buttons.remove(data);
                             c.hideHint.value = false;
                             c.draggedButton.value = null;
                           },
                           onWillAccept: (a) => (a != null &&
-                                  a.item.c.chatId == c.chatId &&
-                                  a.item.isRemovable)
+                                  a.c.chatId == c.chatId &&
+                                  a.isRemovable)
                               ? true
                               : false,
                           builder: _builder,
@@ -775,35 +771,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                   )
                 : Container(key: UniqueKey()),
-          );
-        }),
-
-        // Top [MouseRegion] that toggles UI on hover.
-        Obx(() {
-          bool hideSecondary = c.size.width < 500 && c.size.height < 500;
-          bool mayDragVideo = !hideSecondary &&
-              (c.focused.length > 1 ||
-                  (c.focused.isEmpty &&
-                      c.primary.length + c.secondary.length > 1));
-          bool anyHintIsDisplayed = c.errorTimeout.value != 0 ||
-              (c.isHintDismissed.value || mayDragVideo);
-
-          return SizedBox(
-            height: anyHintIsDisplayed || c.secondaryHovered.value ? 110 : 45,
-            width: double.infinity,
-            child: !c.isSelfPanning.value &&
-                    c.primaryDrags.value == 0 &&
-                    c.secondaryDrags.value == 0
-                ? MouseRegion(
-                    opaque: false,
-                    onEnter: (d) => c.keepUi(true),
-                    onExit: (d) {
-                      if (c.showUi.value) {
-                        c.keepUi(false);
-                      }
-                    },
-                  )
-                : null,
           );
         }),
 
