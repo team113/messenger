@@ -79,8 +79,7 @@ abstract class CallButton {
   int get hashCode => hint.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      other is CallButton && hint == other.hint;
+  bool operator ==(Object other) => other is CallButton && hint == other.hint;
 }
 
 /// [CallButton] toggling a local video.
