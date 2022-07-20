@@ -422,7 +422,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       itemSize: CallController.buttonSize,
                                       itemBuilder: (context, item) => item
                                           .build(context, true, small: true),
-                                      onReorder: (buttons) {
+                                      onChange: (buttons) {
                                         c.buttons.clear();
                                         c.buttons.addAll(buttons);
                                       },

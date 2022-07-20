@@ -27,7 +27,7 @@ class Dock<T extends Object> extends StatefulWidget {
     Key? key,
     required this.items,
     required this.itemBuilder,
-    required this.onReorder,
+    required this.onChange,
     this.itemSize = 48,
     this.onDragStarted,
     this.onDragEnded,
@@ -44,8 +44,8 @@ class Dock<T extends Object> extends StatefulWidget {
   /// Max size of [items].
   final double itemSize;
 
-  /// Callback, called when the [items] were reordered.
-  final Function(List<T>)? onReorder;
+  /// Callback, called when the [items] were changed.
+  final Function(List<T>)? onChange;
 
   /// Callback, called when any drag of [items] is started.
   final Function(T)? onDragStarted;
@@ -95,9 +95,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   /// [BoxConstraints] of item was started dragging.
   BoxConstraints? startDragConstraints;
-
-  /// Current [Offset] of dragged item.
-  Offset? moveDragOffset;
 
   /// Currently displayed [OverlayEntry].
   OverlayEntry? overlay;
@@ -191,7 +188,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                                 ),
                               ),
                               data: e.item,
-                              onDragCompleted: () => widget.onReorder
+                              onDragCompleted: () => widget.onChange
                                   ?.call(items.map((e) => e.item).toList()),
                               onDragStarted: () {
                                 _resetAnimations();
@@ -294,8 +291,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
     return DragTarget<T>(
       key: dragZone,
-      onAccept: _onAccept,
       onMove: _onMove,
+      onAcceptWithDetails: _onAcceptWithDetails,
       onLeave: (e) {
         if (e == null || (widget.onWillAccept?.call(e) ?? true)) {
           widget.onLeave?.call();
@@ -312,9 +309,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   }
 
   /// Adds the provided [item] to the [items] list and animates the addition.
-  void _onAccept(T item) {
-    OverlayState? overlayState = Overlay.of(context);
-    var draggedItem = _DraggedItem(item);
+  void _onAcceptWithDetails(DragTargetDetails<T> item) {
+    var draggedItem = _DraggedItem(item.data);
 
     if (expandBetween > items.length) {
       expandBetween = items.length;
@@ -323,11 +319,25 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     // If there's no such item.
-    if (items.firstWhereOrNull((e) => e.item == item) == null) {
+    if (items.firstWhereOrNull((e) => e.item == item.data) == null) {
+      // Calculate offset of the accepted [item].
+      var dragOffset = Offset(
+        item.offset.dx -
+            ((startDragConstraints != null && dragged != null)
+                    ? startDragConstraints!.maxWidth
+                    : itemSize) /
+                2,
+        item.offset.dy -
+            ((startDragConstraints != null && dragged != null)
+                    ? startDragConstraints!.maxHeight
+                    : itemSize) /
+                2,
+      );
+
       // Insert item to item's list.
       items.insert(expandBetween, draggedItem);
 
-      // Save place where item will be added.
+      // Save added item index.
       int whereToPlace = expandBetween;
 
       // Reset expandBetween.
@@ -336,24 +346,21 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       // OverlayEntry that will display dragged item at onDragEnded place.
       overlay = OverlayEntry(
         builder: (context) => Positioned(
-          left: moveDragOffset!.dx,
-          top: moveDragOffset!.dy,
+          left: dragOffset.dx,
+          top: dragOffset.dy,
           child: Container(
             constraints: startDragConstraints ?? itemConstraints,
             child: widget.itemBuilder(context, draggedItem.item),
           ),
         ),
       );
-
-      // Insert OverlayEntry to Overlay to display him.
-      overlayState?.insert(overlay!);
+      Overlay.of(context)?.insert(overlay!);
 
       // Hide added item.
       items[whereToPlace].hidden = true;
 
       // Reset animations.
       _resetAnimations();
-      setState(() {});
 
       // Save dragged item.
       var localDragged = dragged;
@@ -376,7 +383,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         _showOverlay(
           item: draggedItem,
           context: context,
-          from: moveDragOffset!,
+          from: dragOffset,
           to: position,
           itemConstraints: startDragConstraints != null && localDragged != null
               ? startDragConstraints!
@@ -399,7 +406,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     // Otherwise the provided [item] is already in the list.
     else {
       // Get position of same item.
-      int i = items.indexWhere((e) => e.item == item);
+      int i = items.indexWhere((e) => e.item == item.data);
       if (i == expandBetween || i + 1 == expandBetween) {
         return setState(() => expandBetween = -1);
       } else {
@@ -413,7 +420,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       // Get Offset position of same item.
       Offset startPosition = box.localToGlobal(Offset.zero);
 
-      // Save place where item will be added.
+      // Save index where item will be placed.
       int whereToPlace = expandBetween;
       if (whereToPlace > i) {
         whereToPlace--;
@@ -425,20 +432,18 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       // Remove same item.
       items.removeAt(i);
 
+      // Add item to items list and hide it.
       if (whereToPlace > items.length) {
-        // Add item to items list and hide it.
         items.add(draggedItem);
         items.last.hidden = true;
-
-        // Change saved place where item will be added.
         whereToPlace = items.length;
       } else {
-        // Add item to items list and hide it.
         items.insert(whereToPlace, draggedItem);
         items[whereToPlace].hidden = true;
       }
       expandBetween = -1;
 
+      // Add compressing animation of the old [item] place.
       if (whereToPlace < i) {
         compressBetween = i + 1;
       } else {
@@ -466,7 +471,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       );
     }
 
-    widget.onReorder?.call(items.map((e) => e.item).toList());
+    widget.onChange?.call(items.map((e) => e.item).toList());
 
     setState(() {});
   }
@@ -482,7 +487,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     // Get position of drag&drop zone.
     Offset position = box.localToGlobal(Offset.zero);
 
-    // Calculate int number where new item will be placed.
+    // Calculate index where new item will be placed.
     int indexToPlace = ((d.offset.dx -
                 position.dx -
                 (box.size.width / (items.length + 1)).ceil()) /
@@ -494,20 +499,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       indexToPlace = 0;
     }
 
-    // Save last drag Offset.
-    moveDragOffset = Offset(
-      d.offset.dx -
-          ((startDragConstraints != null && dragged != null)
-                  ? startDragConstraints!.maxWidth
-                  : itemSize) /
-              2,
-      d.offset.dy -
-          ((startDragConstraints != null && dragged != null)
-                  ? startDragConstraints!.maxHeight
-                  : itemSize) /
-              2,
-    );
-
+    // Save [items] default positions.
     if (expandBetween < 0) {
       for (var e in items) {
         e.updateCurrentPosition();
@@ -578,18 +570,14 @@ class _DraggedItem<T> {
   /// Default [Offset] position of this item.
   Offset? position;
 
-  /// Default [BoxConstraints] constraints of this item.
-  BoxConstraints? constraints;
-
   /// Indicator whether item should be hidden.
   bool hidden = false;
 
-  /// Updates [position] and [constraints].
+  /// Updates [position].
   void updateCurrentPosition() {
     RenderBox? box = key.currentContext?.findRenderObject() as RenderBox?;
     if (box != null) {
       position = box.localToGlobal(Offset.zero);
-      constraints = box.constraints;
     }
   }
 
