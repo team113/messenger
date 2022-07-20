@@ -56,7 +56,7 @@ class CallController extends GetxController {
     this._userService,
   );
 
-  /// Buttons width and height.
+  /// Max size of buttons in bottom panel.
   static const double buttonSize = 48.0;
 
   /// Duration of the current ongoing call.
@@ -139,7 +139,7 @@ class CallController extends GetxController {
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
 
-  /// Indicator whether the more hint is dismissed or not.
+  /// Indicator whether the more hint is dismissed.
   final RxBool isMoreHintDismissed = RxBool(false);
 
   /// Indicator whether the cursor should be hidden or not.
@@ -215,7 +215,7 @@ class CallController extends GetxController {
   /// Indicator whether need to display more panel.
   final RxBool displayMore = RxBool(false);
 
-  /// List of top panel [CallButton]'s.
+  /// List of more panel [CallButton]'s.
   late final RxList<CallButton> panel;
 
   /// List of bottom panel [CallButton]'s.

@@ -87,7 +87,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// Item that was dragged.
   _DraggedItem<T>? dragged;
 
-  /// [GlobalKey] of zone where items can be dragged or placed.
+  /// [GlobalKey] of [DragTarget].
   GlobalKey dragZone = GlobalKey();
 
   /// [Offset] of item was started dragging.
@@ -181,10 +181,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                                 ),
                                 child: ConstrainedBox(
                                   constraints: constraints,
-                                  child: KeyedSubtree(
-                                      key: e.key,
-                                      child:
-                                          widget.itemBuilder(context, e.item)),
+                                  child: widget.itemBuilder(context, e.item),
                                 ),
                               ),
                               data: e.item,
@@ -212,7 +209,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
                                 setState(() {});
                               },
-                              onDraggableCanceled: (v, o) {
+                              onDraggableCanceled: (_, o) {
                                 int savedDraggedIndex = draggedIndex;
                                 // Show animation of dragged item returns to its
                                 // start position.
@@ -243,6 +240,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
                                 draggedIndex = -1;
                                 dragged = null;
+                                startDragConstraints = null;
                                 expandBetween = -1;
 
                                 setState(() {});
@@ -319,7 +317,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     // If there's no such item.
-    if (items.firstWhereOrNull((e) => e.item == item.data) == null) {
+    if (items.firstWhereOrNull((e) => e == draggedItem) == null) {
       // Calculate offset of the accepted [item].
       var dragOffset = Offset(
         item.offset.dx -
@@ -340,9 +338,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       // Save added item index.
       int whereToPlace = expandBetween;
 
-      // Reset expandBetween.
-      expandBetween = -1;
-
       // OverlayEntry that will display dragged item at onDragEnded place.
       overlay = OverlayEntry(
         builder: (context) => Positioned(
@@ -361,9 +356,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
       // Reset animations.
       _resetAnimations();
-
-      // Save dragged item.
-      var localDragged = dragged;
 
       // Post frame callBack to display animation of adding item to items
       // list.
@@ -385,18 +377,20 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           context: context,
           from: dragOffset,
           to: position,
-          itemConstraints: startDragConstraints != null && localDragged != null
+          itemConstraints: startDragConstraints != null
               ? startDragConstraints!
               : itemConstraints,
           onEnd: () {
             if (mounted) {
               setState(() {
+                dragged = null;
+                startDragConstraints = null;
                 items[whereToPlace].hidden = false;
                 widget.onDragEnded?.call();
               });
             }
           },
-          endConstraints: startDragConstraints != null && localDragged != null
+          endConstraints: startDragConstraints != null
               ? startDragConstraints!
               : box.constraints,
         );
@@ -406,7 +400,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     // Otherwise the provided [item] is already in the list.
     else {
       // Get position of same item.
-      int i = items.indexWhere((e) => e.item == item.data);
+      int i = items.indexWhere((e) => e == draggedItem);
       if (i == expandBetween || i + 1 == expandBetween) {
         return setState(() => expandBetween = -1);
       } else {
@@ -441,7 +435,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         items.insert(whereToPlace, draggedItem);
         items[whereToPlace].hidden = true;
       }
-      expandBetween = -1;
 
       // Add compressing animation of the old [item] place.
       if (whereToPlace < i) {
@@ -449,8 +442,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       } else {
         compressBetween = i;
       }
-
-      dragged = null;
 
       // Display animation of sliding item from old place to new place.
       _showOverlay(
@@ -470,6 +461,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         },
       );
     }
+
+    expandBetween = -1;
 
     widget.onChange?.call(items.map((e) => e.item).toList());
 
@@ -529,7 +522,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required BoxConstraints itemConstraints,
     required VoidCallback onEnd,
     BoxConstraints? endConstraints,
-  }) async {
+  }) {
     overlay = OverlayEntry(
       builder: (context) => _OverlayBlock<T>(
         from: from,
@@ -552,8 +545,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   void _removeOverlay() {
     if (overlay?.mounted == true) {
       overlay!.remove();
-      overlay = null;
     }
+    overlay = null;
   }
 }
 

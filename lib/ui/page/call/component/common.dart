@@ -76,10 +76,11 @@ abstract class CallButton {
       );
 
   @override
-  int get hashCode => hint.hashCode;
+  int get hashCode => runtimeType.hashCode;
 
   @override
-  bool operator ==(Object other) => other is CallButton && hint == other.hint;
+  bool operator ==(Object other) =>
+      other is CallButton && runtimeType.hashCode == other.runtimeType.hashCode;
 }
 
 /// [CallButton] toggling a local video.
@@ -349,7 +350,7 @@ Widget declineButton(CallController c) => RoundFloatingButton(
     );
 
 /// [RoundFloatingButton] dropping a call.
-Widget dropButton(CallController c, [double? scale]) => RoundFloatingButton(
+Widget dropButton(CallController c) => RoundFloatingButton(
       hint: 'btn_call_end'.l10n,
       onPressed: c.drop,
       color: CallController.endColor,
@@ -366,7 +367,7 @@ Widget cancelButton(CallController c) => RoundFloatingButton(
     );
 
 /// [RoundFloatingButton] toggling a local video.
-Widget videoButton(CallController c, [double? scale]) => Obx(() {
+Widget videoButton(CallController c) => Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
@@ -384,7 +385,7 @@ Widget videoButton(CallController c, [double? scale]) => Obx(() {
     });
 
 /// [RoundFloatingButton] toggling a local audio.
-Widget audioButton(CallController c, [double? scale]) => Obx(() {
+Widget audioButton(CallController c) => Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
@@ -402,7 +403,7 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
     });
 
 /// [RoundFloatingButton] switching a speaker output.
-Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
+Widget speakerButton(CallController c) => RoundFloatingButton(
       hint: 'btn_call_toggle_speaker'.l10n,
       onPressed: c.toggleSpeaker,
       withBlur: c.state.value != OngoingCallState.active &&
@@ -416,7 +417,7 @@ Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
     );
 
 /// [RoundFloatingButton] switching a local video stream.
-Widget switchButton(CallController c, [double? scale]) => Obx(
+Widget switchButton(CallController c) => Obx(
       () => RoundFloatingButton(
         hint: 'btn_call_switch_camera'.l10n,
         onPressed: c.switchCamera,
@@ -438,7 +439,7 @@ Widget switchButton(CallController c, [double? scale]) => Obx(
     );
 
 /// [RoundFloatingButton] toggling a local screen-sharing.
-Widget screenButton(CallController c, [double? scale]) => Obx(
+Widget screenButton(CallController c) => Obx(
       () {
         bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
             c.screenShareState.value == LocalTrackState.enabling;

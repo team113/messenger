@@ -578,24 +578,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Obx(
-                          () => c.isMoreHintDismissed.value
-                              ? Container()
-                              : AnimatedDelayedSwitcher(
-                                  delay: const Duration(milliseconds: 500),
-                                  duration: const Duration(milliseconds: 200),
-                                  child: SizedBox(
-                                    width: 290,
-                                    child: HintWidget(
-                                      text:
-                                          'label_hint_drag_n_drop_buttons'.l10n,
-                                      onTap: () =>
-                                          c.isMoreHintDismissed.value = true,
-                                    ),
-                                  ),
-                                ),
-                        ),
-                        const IgnorePointer(child: SizedBox(height: 30)),
                         DragTarget<CallButton>(
                           onAccept: (CallButton data) {
                             c.buttons.remove(data);
@@ -688,6 +670,38 @@ Widget desktopCall(CallController c, BuildContext context) {
                 },
               ),
             ),
+          );
+        }),
+
+        // If need to show bottom dock hint, display it.
+        Obx(() {
+          bool isDocked = c.state.value == OngoingCallState.active ||
+              c.state.value == OngoingCallState.joining;
+          bool displayMore = c.displayMore.value;
+
+          return AnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: isDocked && displayMore && !c.isMoreHintDismissed.value
+                ? AnimatedDelayedSwitcher(
+                    delay: const Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 200),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: 10 + (c.minimized.value ? 30 : 0),
+                        ),
+                        child: SizedBox(
+                          width: 290,
+                          child: HintWidget(
+                            text: 'label_hint_drag_n_drop_buttons'.l10n,
+                            onTap: () => c.isMoreHintDismissed.value = true,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
           );
         }),
       ];
