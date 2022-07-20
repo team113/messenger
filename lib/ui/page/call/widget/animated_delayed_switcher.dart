@@ -43,7 +43,7 @@ class AnimatedDelayedSwitcher extends StatefulWidget {
 
 /// [State] of an [AnimatedDelayedSwitcher] switching the [Widget].
 class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
-  /// Indicator whether [AnimatedSwitcher] should be enabled.
+  /// Indicator whether the [AnimatedSwitcher] should be enabled.
   bool _show = false;
 
   @override

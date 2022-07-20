@@ -466,6 +466,98 @@ Widget screenButton(CallController c) => Obx(
       },
     );
 
+/// [RoundFloatingButton] raising a hand.
+Widget handButton(CallController c) => Obx(
+      () => RoundFloatingButton(
+        hint: c.isHandRaised.value
+            ? 'btn_call_hand_down'.l10n
+            : 'btn_call_hand_up'.l10n,
+        onPressed: c.toggleHand,
+        children: [
+          SvgLoader.asset(
+            'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
+            width: 60,
+          )
+        ],
+      ),
+    );
+
+/// [RoundFloatingButton] invoking the [CallController.openAddMember].
+Widget addParticipantButton(CallController c, BuildContext context) =>
+    withDescription(
+      RoundFloatingButton(
+        onPressed: () => c.openAddMember(context),
+        children: [
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: SvgLoader.asset(
+              'assets/icons/add_user_small.svg',
+              width: 60,
+            ),
+          )
+        ],
+      ),
+      Text('btn_add_participant_desc'.l10n),
+    );
+
+/// [RoundFloatingButton] disabling the remote video.
+Widget disableVideo(CallController c) => Obx(
+      () => withDescription(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteVideos,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        Text(c.isRemoteVideoEnabled.value
+            ? 'btn_call_remote_video_off_desc'.l10n
+            : 'btn_call_remote_video_on_desc'.l10n),
+      ),
+    );
+
+/// [RoundFloatingButton] disabling the remote audio.
+Widget disableAudio(CallController c) => Obx(
+      () => withDescription(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteAudios,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        Text(c.isRemoteAudioEnabled.value
+            ? 'btn_call_remote_audio_off_desc'.l10n
+            : 'btn_call_remote_audio_on_desc'.l10n),
+      ),
+    );
+
+/// Returns a [Column] consisting of the [child] with the provided
+/// [description].
+Widget withDescription(Widget child, Widget description) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      child,
+      const SizedBox(height: 6),
+      DefaultTextStyle(
+        style: const TextStyle(
+          fontSize: 11,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        child: description,
+      ),
+    ],
+  );
+}
+
 /// Title call information.
 Widget callTitle(CallController c) => Obx(
       () {
