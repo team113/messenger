@@ -18,49 +18,46 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedSwitcher] with an optional delay.
-class AnimatedDelayed extends StatefulWidget {
-  const AnimatedDelayed({
+/// [AnimatedSwitcher] with an optional [delay].
+class AnimatedDelayedSwitcher extends StatefulWidget {
+  const AnimatedDelayedSwitcher({
     Key? key,
     this.delay = Duration.zero,
-    required this.duration,
+    this.duration = const Duration(milliseconds: 300),
     required this.child,
   }) : super(key: key);
 
-  /// [Duration] of the appearing animation.
-  final Duration duration;
-
-  /// [Duration] of a delay.
+  /// [Duration] of the delay.
   final Duration delay;
 
-  /// [Widget] to appear.
+  /// [Duration] of the switching animation.
+  final Duration duration;
+
+  /// [Widget] to switch to.
   final Widget child;
 
   @override
-  State<AnimatedDelayed> createState() => _AnimatedDelayedState();
+  State<AnimatedDelayedSwitcher> createState() => _AnimatedDelayedState();
 }
 
-/// State of an [AnimatedDelayed] maintaining the [show].
-class _AnimatedDelayedState extends State<AnimatedDelayed> {
-  /// Current show value.
-  bool show = false;
+/// [State] of an [AnimatedDelayedSwitcher] switching the [Widget].
+class _AnimatedDelayedState extends State<AnimatedDelayedSwitcher> {
+  /// Indicator whether [AnimatedSwitcher] should be enabled.
+  bool _show = false;
 
   @override
   void initState() {
     super.initState();
-
     Future.delayed(widget.delay, () {
       if (mounted) {
-        setState(() => show = true);
+        setState(() => _show = true);
       }
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: widget.duration,
-      child: show ? widget.child : Container(),
-    );
-  }
+  Widget build(BuildContext context) => AnimatedSwitcher(
+        duration: widget.duration,
+        child: _show ? widget.child : Container(),
+      );
 }

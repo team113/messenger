@@ -35,10 +35,10 @@ alert_popup_permissions_description =
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
-btn_add_participant = Add { $twoLines ->
-                              [true] {"\u000A"}
-                              *[other] {""}
-                          }participant
+btn_add_participant = Add participant
+btn_add_participant_desc =
+    Add
+    participant
 btn_add_to_contacts = Add to contacts
 btn_allow = Allow
 btn_audio_call = Audio call
@@ -51,7 +51,13 @@ btn_call_answer_with_video =
     Answer
     with video
 btn_call_audio_off = Mute
+btn_call_audio_off_desc =
+    Mute
+    microphone
 btn_call_audio_on = Unmute
+btn_call_audio_on_desc =
+    Unmute
+    microphone
 btn_call_cancel = Cancel call
 btn_call_center_video = Center video
 btn_call_cut_video = Cut video
@@ -62,31 +68,58 @@ btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
 btn_call_enable_video = Enable video
 btn_call_end = End call
+btn_call_end_desc =
+    End
+    call
 btn_call_hand_down = Hand down
+btn_call_hand_down_desc =
+    Hand
+    down
 btn_call_hand_up = Hand up
+btn_call_hand_up_desc =
+    Hand
+    up
 btn_call_remote_audio_off = Disable incoming audio
+btn_call_remote_audio_off_desc =
+    Disable
+    incoming audio
 btn_call_remote_audio_on = Enable incoming audio
+btn_call_remote_audio_on_desc =
+    Enable
+    incoming audio
 btn_call_remote_video_off = Disable incoming video
+btn_call_remote_video_off_desc =
+    Disable
+    incoming video
 btn_call_remote_video_on = Enable incoming video
+btn_call_remote_video_on_desc =
+    Enable
+    incoming video
 btn_call_screen_off = Stop screen sharing
+btn_call_screen_off_desc =
+    Stop screen
+    sharing
 btn_call_screen_on = Share screen
+btn_call_screen_on_desc =
+    Share
+    screen
 btn_call_settings = Settings
-btn_call_switch_camera = Switch { $twoLines ->
-                                    [true] {"\u000A"}
-                                    *[other] {""}
-                                }camera
-btn_call_toggle_speaker = Toggle { $twoLines ->
-                                     [true] {"\u000A"}
-                                     *[other] {""}
-                                 }speaker
-btn_call_video_off = Turn { $twoLines ->
-                              [true] {"\u000A"}
-                              *[other] {""}
-                          }video off
-btn_call_video_on = Turn { $twoLines ->
-                             [true] {"\u000A"}
-                             *[other] {""}
-                         }video on
+btn_call_switch_camera = Switch camera
+btn_call_switch_camera_desc =
+    Switch
+    camera
+btn_call_toggle_speaker = Toggle speaker
+btn_call_toggle_speaker_desc =
+    Toggle
+    speaker
+btn_call_video_off = Turn video off
+btn_call_video_off_desc =
+    Turn
+    video off
+btn_call_video_on = Turn video on
+btn_call_video_on_desc =
+    Turn
+    video on
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
 btn_chat_join_call = Join the call
@@ -195,6 +228,7 @@ err_you_already_has_unconfirmed_email = You already has unconfirmed E-mail
 err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
+label_a_of_b = {$a} of {$b}
 label_add_chat_member = Add member
 label_add_email = Add an email
 label_add_email_hint = Write your email address

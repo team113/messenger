@@ -23,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned desktop interface ([#26]);
-        - Redesign mobile interface ([#31]).
+        - Redesigned mobile interface ([#31]).
 
 ### Fixed
 

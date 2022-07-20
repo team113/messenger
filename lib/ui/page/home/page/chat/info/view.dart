@@ -233,7 +233,7 @@ class ChatInfoView extends StatelessWidget {
             ),
             ListTile(
               key: const Key('AddMemberButton'),
-              title: Text('btn_add_participant'.l10nfmt({'twoLines': 'false'})),
+              title: Text('btn_add_participant'.l10n),
               leading: CircleAvatar(
                 child: SvgLoader.asset(
                   'assets/icons/add_user.svg',

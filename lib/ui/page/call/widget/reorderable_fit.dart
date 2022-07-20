@@ -48,7 +48,6 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onDragEnd,
     this.onDragCompleted,
     this.onDraggableCanceled,
-    this.allowDraggingLast = true,
     this.hoverColor = const Color(0x00000000),
     this.axis,
     this.left,
@@ -62,6 +61,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onOffset,
     this.useLongPress = false,
     this.allowEmptyTarget = false,
+    this.allowDraggingLast = true,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -122,7 +122,8 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Indicator whether dragging allowed when only one item present.
+  /// Indicator whether dragging is allowed when [children] contain only one
+  /// item.
   final bool allowDraggingLast;
 
   /// Left position of this view.
@@ -468,7 +469,8 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Indicator whether dragging allowed when only one item present.
+  /// Indicator whether dragging is allowed when [children] contain only one
+  /// item.
   final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].

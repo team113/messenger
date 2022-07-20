@@ -83,9 +83,7 @@ Widget videoButton(CallController c, [double? scale]) => Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
-        hint: isVideo
-            ? 'btn_call_video_off'.l10nfmt({'twoLines': 'false'})
-            : 'btn_call_video_on'.l10nfmt({'twoLines': 'false'}),
+        hint: isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n,
         onPressed: c.toggleVideo,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -104,9 +102,7 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return RoundFloatingButton(
-        hint: isAudio
-            ? 'btn_call_audio_off'.l10nfmt({'twoLines': 'false'})
-            : 'btn_call_audio_on'.l10nfmt({'twoLines': 'false'}),
+        hint: isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n,
         onPressed: c.toggleAudio,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -122,7 +118,7 @@ Widget audioButton(CallController c, [double? scale]) => Obx(() {
 
 /// [RoundFloatingButton] switching a speaker output.
 Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
-      hint: 'btn_call_toggle_speaker'.l10nfmt({'twoLines': 'false'}),
+      hint: 'btn_call_toggle_speaker'.l10n,
       onPressed: c.toggleSpeaker,
       scale: scale ?? 1,
       withBlur: c.state.value != OngoingCallState.active &&
@@ -138,7 +134,7 @@ Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
 /// [RoundFloatingButton] switching a local video stream.
 Widget switchButton(CallController c, [double? scale]) => Obx(
       () => RoundFloatingButton(
-        hint: 'btn_call_switch_camera'.l10nfmt({'twoLines': 'false'}),
+        hint: 'btn_call_switch_camera'.l10n,
         onPressed: c.switchCamera,
         scale: scale ?? 1,
         withBlur: c.state.value != OngoingCallState.active &&
@@ -168,8 +164,8 @@ Widget screenButton(CallController c, [double? scale]) => Obx(
           children: [
             RoundFloatingButton(
               hint: isScreen
-                  ? 'btn_call_screen_off'.l10nfmt({'twoLines': 'false'})
-                  : 'btn_call_screen_on'.l10nfmt({'twoLines': 'false'}),
+                  ? 'btn_call_screen_off'.l10n
+                  : 'btn_call_screen_on'.l10n,
               onPressed: c.toggleScreenShare,
               scale: scale ?? 1,
               children: [
@@ -204,10 +200,13 @@ Widget handButton(CallController c, [double? scale]) => Obx(
       ),
     );
 
-/// [RoundFloatingButton] adding new participants.
-Widget addParticipantButton(CallController c, BuildContext context,
-        [double? scale]) =>
-    _hinted(
+/// [RoundFloatingButton] invoking the [CallController.openAddMember].
+Widget addParticipantButton(
+  CallController c,
+  BuildContext context, [
+  double? scale,
+]) =>
+    withDescription(
       RoundFloatingButton(
         onPressed: () => c.openAddMember(context),
         scale: scale ?? 1,
@@ -222,12 +221,12 @@ Widget addParticipantButton(CallController c, BuildContext context,
           )
         ],
       ),
-      hint: 'btn_add_participant'.l10nfmt({'twoLines': 'true'}),
+      Text('btn_add_participant_desc'.l10n),
     );
 
-/// [RoundFloatingButton] disabling remote video.
+/// [RoundFloatingButton] disabling the remote video.
 Widget disableVideo(CallController c, [double? scale]) => Obx(
-      () => _hinted(
+      () => withDescription(
         RoundFloatingButton(
           onPressed: c.toggleRemoteVideos,
           scale: scale ?? 1,
@@ -238,15 +237,15 @@ Widget disableVideo(CallController c, [double? scale]) => Obx(
             )
           ],
         ),
-        hint: c.isRemoteVideoEnabled.value
-            ? 'btn_call_remote_video_off'.l10n
-            : 'btn_call_remote_video_on'.l10n,
+        Text(c.isRemoteVideoEnabled.value
+            ? 'btn_call_remote_video_off_desc'.l10n
+            : 'btn_call_remote_video_on_desc'.l10n),
       ),
     );
 
-/// [RoundFloatingButton] disabling remote audio.
+/// [RoundFloatingButton] disabling the remote audio.
 Widget disableAudio(CallController c, [double? scale]) => Obx(
-      () => _hinted(
+      () => withDescription(
         RoundFloatingButton(
           onPressed: c.toggleRemoteAudios,
           scale: scale ?? 1,
@@ -257,14 +256,15 @@ Widget disableAudio(CallController c, [double? scale]) => Obx(
             )
           ],
         ),
-        hint: c.isRemoteAudioEnabled.value
-            ? 'btn_call_remote_audio_off'.l10n
-            : 'btn_call_remote_audio_on'.l10n,
+        Text(c.isRemoteAudioEnabled.value
+            ? 'btn_call_remote_audio_off_desc'.l10n
+            : 'btn_call_remote_audio_on_desc'.l10n),
       ),
     );
 
-/// Returns [child] with provided [hint] widget bellow.
-Widget hintedButton(Widget child, Widget hint) {
+/// Returns a [Column] consisting of the [child] with the provided
+/// [description].
+Widget withDescription(Widget child, Widget description) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -276,29 +276,9 @@ Widget hintedButton(Widget child, Widget hint) {
           color: Colors.white,
         ),
         textAlign: TextAlign.center,
-        child: hint,
+        maxLines: 2,
+        child: description,
       ),
-    ],
-  );
-}
-
-/// Returns [child] with provided [hint] text bellow.
-Widget _hinted(Widget child, {String? hint}) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      child,
-      if (hint != null) ...[
-        const SizedBox(height: 6),
-        Text(
-          hint,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
     ],
   );
 }

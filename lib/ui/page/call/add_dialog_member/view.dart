@@ -197,7 +197,7 @@ class AddDialogMemberView extends StatelessWidget {
                             ? null
                             : c.transformDialogCallIntoGroupCall,
                     child: Text(
-                      'btn_add_participant'.l10nfmt({'twoLines': 'false'}),
+                      'btn_add_participant'.l10n,
                       style:
                           c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
                               ? font17.copyWith(color: Colors.grey)
