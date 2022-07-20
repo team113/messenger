@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the AuthView class, for the Dart programming language.">
+  <title>build method - AuthView class - view library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_auth_view/ui_page_auth_view-library.html">view</a></li>
+    <li><a href="../../ui_page_auth_view/AuthView-class.html">AuthView</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">build</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<div>
+  <ol class="annotation-list">
+    <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+  </ol>
+</div>
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features">override</div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Describes the part of the user interface represented by this widget.</p>
+<p>The framework calls this method when this widget is inserted into the tree
+in a given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and when the dependencies of this widget change
+(e.g., an <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> referenced by this widget changes). This
+method can potentially be called in every frame and should not have any side
+effects beyond building a widget.</p>
+<p>The framework replaces the subtree below this widget with the widget
+returned by this method, either by updating the existing subtree or by
+removing the subtree and inflating a new subtree, depending on whether the
+widget returned by this method can update the root of the existing
+subtree, as determined by calling <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html">Widget.canUpdate</a>.</p>
+<p>Typically implementations return a newly created constellation of widgets
+that are configured with information from this widget's constructor and
+from the given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</p>
+<p>The given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> contains information about the location in the
+tree at which this widget is being built. For example, the context
+provides the set of inherited widgets for this location in the tree. A
+given widget might be built with multiple different <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>
+arguments over time if the widget is moved around the tree or if the
+widget is inserted into the tree in multiple places at once.</p>
+<p>The implementation of this method must only depend on:</p>
+<ul>
+<li>the fields of the widget, which themselves must not change over time,
+and</li>
+<li>any ambient state obtained from the <code>context</code> using
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html">BuildContext.dependOnInheritedWidgetOfExactType</a>.</li>
+</ul>
+<p>If a widget's <a href="../../ui_page_auth_view/AuthView/build.html">build</a> method is to depend on anything else, use a
+<a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> instead.</p>
+<p>See also:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, which contains the discussion on performance considerations.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  return GetBuilder(
+    init: AuthController(Get.find()),
+    builder: (AuthController c) =&gt; Obx(
+      () {
+        if (c.authStatus.value.isEmpty) {
+          bool isWeb = PlatformUtils.isWeb;
+          bool isAndroidWeb = isWeb &amp;&amp; PlatformUtils.isAndroid;
+          bool isIosWeb = isWeb &amp;&amp; PlatformUtils.isIOS;
+          bool isDesktopWeb = isWeb &amp;&amp; PlatformUtils.isDesktop;
+
+          &#47;&#47;&#47; Header part of the page.
+          &#47;&#47;&#47;
+          &#47;&#47;&#47; All frames of the animation are drawn in offstage in order to
+          &#47;&#47;&#47; load all the images ahead of animation to reduce the possible
+          &#47;&#47;&#47; flickering.
+          List&lt;Widget&gt; header = [
+            ...List.generate(10, (i) =&gt; &#39;assets&#47;images&#47;logo&#47;logo000$i.svg&#39;)
+                .map((e) =&gt; Offstage(child: SvgLoader.asset(e)))
+                .toList(),
+            ...List.generate(10, (i) =&gt; &#39;assets&#47;images&#47;logo&#47;head000$i.svg&#39;)
+                .map((e) =&gt; Offstage(child: SvgLoader.asset(e)))
+                .toList(),
+            const SizedBox(height: 30),
+            Text(
+              &#39;Messenger&#39;,
+              style: context.textTheme.headline3,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              &#39;by Gapopa&#39;,
+              style: context.textTheme.headline5,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            const SizedBox(height: 25),
+          ];
+
+          &#47;&#47;&#47; Animated logo widget.
+          Widget logo = LayoutBuilder(builder: (context, constraints) {
+            return Obx(() {
+              Widget placeholder = SizedBox(
+                height: constraints.maxHeight &gt; 350
+                    ? 350
+                    : constraints.maxHeight &lt;= 160
+                        ? 160
+                        : 350,
+                child: const Center(child: CircularProgressIndicator()),
+              );
+
+              return ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 350),
+                  child: AnimatedSize(
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 200),
+                    child: SizedBox(
+                      height: constraints.maxHeight &gt;= 350 ? 350 : 160,
+                      child: constraints.maxHeight &gt;= 350
+                          ? Container(
+                              key: const ValueKey(&#39;logo&#39;),
+                              child: SvgLoader.asset(
+                                &#39;assets&#47;images&#47;logo&#47;logo000${c.logoFrame.value}.svg&#39;,
+                                placeholderBuilder: (context) =&gt; placeholder,
+                                height: 350,
+                              ),
+                            )
+                          : SvgLoader.asset(
+                              &#39;assets&#47;images&#47;logo&#47;head000${c.logoFrame.value}.svg&#39;,
+                              placeholderBuilder: (context) =&gt; placeholder,
+                              height: 160,
+                            ),
+                    ),
+                  ));
+            });
+          });
+
+          &#47;&#47;&#47; Dropdown widget where user can choose application language.
+          Widget language = Obx(
+            () =&gt; DropdownButton&lt;Language&gt;(
+              key: const Key(&#39;LocalizationDropdown&#39;),
+              value: L10n.chosen.value,
+              items: L10n.languages.map&lt;DropdownMenuItem&lt;Language&gt;&gt;((e) {
+                return DropdownMenuItem(
+                  key: Key(e.toString()),
+                  value: e,
+                  child: Text(&#39;${e.locale.countryCode}, ${e.name}&#39;),
+                );
+              }).toList(),
+              onChanged: (d) =&gt; L10n.set(d!),
+              borderRadius: BorderRadius.circular(18),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 15,
+              ),
+              icon: const SizedBox(),
+              underline: const SizedBox(),
+            ),
+          );
+
+          &#47;&#47;&#47; Footer part of the page.
+          List&lt;Widget&gt; footer = [
+            const SizedBox(height: 25),
+            OutlinedRoundedButton(
+              key: const Key(&#39;StartChattingButton&#39;),
+              title: Text(
+                &#39;btn_start_chatting&#39;.l10n,
+                style: const TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                &#39;label_no_registration&#39;.l10n,
+                style: const TextStyle(color: Colors.white),
+              ),
+              leading: SvgLoader.asset(&#39;assets&#47;icons&#47;start.svg&#39;, width: 25),
+              onPressed: c.register,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF03A803), Color(0xFF20CD66)],
+              ),
+            ),
+            const SizedBox(height: 10),
+            OutlinedRoundedButton(
+              key: const Key(&#39;SignInButton&#39;),
+              title: Text(&#39;btn_login&#39;.l10n),
+              subtitle: Text(&#39;label_or_register&#39;.l10n),
+              leading: SvgLoader.asset(&#39;assets&#47;icons&#47;sign_in.svg&#39;, width: 20),
+              onPressed: router.login,
+            ),
+            const SizedBox(height: 10),
+            if (isIosWeb)
+              OutlinedRoundedButton(
+                title: Text(&#39;btn_download&#39;.l10n),
+                subtitle: const Text(&#39;App Store&#39;),
+                leading: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: SvgLoader.asset(&#39;assets&#47;icons&#47;apple.svg&#39;, width: 22),
+                ),
+                onPressed: () {},
+              ),
+            if (isAndroidWeb)
+              OutlinedRoundedButton(
+                title: Text(&#39;btn_download&#39;.l10n),
+                subtitle: const Text(&#39;Google Play&#39;),
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child:
+                      SvgLoader.asset(&#39;assets&#47;icons&#47;google.svg&#39;, width: 22),
+                ),
+                onPressed: () {},
+              ),
+            if (isDesktopWeb)
+              OutlinedRoundedButton(
+                title: Text(&#39;btn_download&#39;.l10n),
+                subtitle: Text(&#39;label_application&#39;.l10n),
+                leading: PlatformUtils.isMacOS
+                    ? SvgLoader.asset(&#39;assets&#47;icons&#47;apple.svg&#39;, width: 22)
+                    : (PlatformUtils.isWindows)
+                        ? SvgLoader.asset(&#39;assets&#47;icons&#47;windows.svg&#39;,
+                            width: 22)
+                        : (PlatformUtils.isLinux)
+                            ? SvgLoader.asset(&#39;assets&#47;icons&#47;linux.svg&#39;,
+                                width: 22)
+                            : null,
+                onPressed: () {},
+              ),
+            const SizedBox(height: 20),
+            if (isWeb) language,
+          ];
+
+          return Stack(
+            key: const Key(&#39;AuthView&#39;),
+            children: [
+              IgnorePointer(
+                child: SvgLoader.asset(
+                  &#39;assets&#47;images&#47;background_light.svg&#39;,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              GestureDetector(
+                onTap: c.animate,
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: Center(
+                    child: SingleChildScrollView(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                max(550, MediaQuery.of(context).size.height),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ...header,
+                              Flexible(child: logo),
+                              ...footer,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_auth_view/ui_page_auth_view-library.html">view</a></li>
+  <li><a href="../../ui_page_auth_view/AuthView-class.html">AuthView</a></li>
+  <li class="self-crumb">build method</li>
+</ol>
+
+
+    <h5>AuthView class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../ui_page_auth_view/AuthView-class.html#constructors">Constructors</a></li>
+    <li><a href="../../ui_page_auth_view/AuthView/AuthView.html">AuthView</a></li>
+
+
+    <li class="section-title inherited">
+      <a href="../../ui_page_auth_view/AuthView-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/key.html">key</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../ui_page_auth_view/AuthView-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../ui_page_auth_view/AuthView/build.html">build</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget/createElement.html">createElement</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/debugDescribeChildren.html">debugDescribeChildren</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/debugFillProperties.html">debugFillProperties</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toDiagnosticsNode.html">toDiagnosticsNode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/Diagnosticable/toString.html">toString</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringDeep.html">toStringDeep</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringShallow.html">toStringShallow</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/toStringShort.html">toStringShort</a></li>
+
+    <li class="section-title inherited"><a href="../../ui_page_auth_view/AuthView-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

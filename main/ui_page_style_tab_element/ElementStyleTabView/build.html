@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the ElementStyleTabView class, for the Dart programming language.">
+  <title>build method - ElementStyleTabView class - element library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_tab_element/ui_page_style_tab_element-library.html">element</a></li>
+    <li><a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html">ElementStyleTabView</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">build</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<div>
+  <ol class="annotation-list">
+    <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+  </ol>
+</div>
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features">override</div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Describes the part of the user interface represented by this widget.</p>
+<p>The framework calls this method when this widget is inserted into the tree
+in a given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and when the dependencies of this widget change
+(e.g., an <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> referenced by this widget changes). This
+method can potentially be called in every frame and should not have any side
+effects beyond building a widget.</p>
+<p>The framework replaces the subtree below this widget with the widget
+returned by this method, either by updating the existing subtree or by
+removing the subtree and inflating a new subtree, depending on whether the
+widget returned by this method can update the root of the existing
+subtree, as determined by calling <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html">Widget.canUpdate</a>.</p>
+<p>Typically implementations return a newly created constellation of widgets
+that are configured with information from this widget's constructor and
+from the given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</p>
+<p>The given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> contains information about the location in the
+tree at which this widget is being built. For example, the context
+provides the set of inherited widgets for this location in the tree. A
+given widget might be built with multiple different <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>
+arguments over time if the widget is moved around the tree or if the
+widget is inserted into the tree in multiple places at once.</p>
+<p>The implementation of this method must only depend on:</p>
+<ul>
+<li>the fields of the widget, which themselves must not change over time,
+and</li>
+<li>any ambient state obtained from the <code>context</code> using
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html">BuildContext.dependOnInheritedWidgetOfExactType</a>.</li>
+</ul>
+<p>If a widget's <a href="../../ui_page_style_tab_element/ElementStyleTabView/build.html">build</a> method is to depend on anything else, use a
+<a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> instead.</p>
+<p>See also:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, which contains the discussion on performance considerations.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  Widget _element({
+    required String title,
+    required Widget child,
+    bool background = false,
+    Color backgroundColor = const Color(0xFF444444),
+    String? asset,
+  }) =&gt;
+      Column(
+        children: [
+          Caption(title),
+          _WithDownload(
+            enabled: asset != null,
+            path: asset ?? &#39;&#39;,
+            child: Container(
+              color: background ? backgroundColor : null,
+              padding:
+                  background ? const EdgeInsets.fromLTRB(30, 8, 30, 8) : null,
+              child: child,
+            ),
+          ),
+        ],
+      );
+
+  return SingleChildScrollView(
+    controller: ScrollController(),
+    child: Padding(
+      padding: const EdgeInsets.all(8),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            _element(
+              title: &#39;Logo в полный рост.&#39;,
+              asset: &#39;assets&#47;images&#47;logo&#47;logo0000.svg&#39;,
+              child: SvgLoader.asset(&#39;assets&#47;images&#47;logo&#47;logo0000.svg&#39;,
+                  height: 350),
+            ),
+            _element(
+              title: &#39;Logo голова.&#39;,
+              asset: &#39;assets&#47;images&#47;logo&#47;head0000.svg&#39;,
+              child: SvgLoader.asset(&#39;assets&#47;images&#47;logo&#47;head0000.svg&#39;,
+                  height: 160),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка начать общение.&#39;,
+              asset: &#39;assets&#47;icons&#47;start.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: Text(
+                  &#39;Start chatting&#39;.l10n,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  &#39;no registration&#39;.l10n,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                leading: SvgLoader.asset(&#39;assets&#47;icons&#47;start.svg&#39;, width: 25),
+                onPressed: () {},
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF03A803), Color(0xFF20CD66)],
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка войти.&#39;,
+              asset: &#39;assets&#47;icons&#47;sign_in.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: const Text(&#39;Sign in&#39;),
+                subtitle: const Text(&#39;or register&#39;),
+                leading:
+                    SvgLoader.asset(&#39;assets&#47;icons&#47;sign_in.svg&#39;, width: 20),
+                onPressed: () {},
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка загрузки App Store.&#39;,
+              asset: &#39;assets&#47;icons&#47;apple.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: const Text(&#39;Download&#39;),
+                subtitle: const Text(&#39;App Store&#39;),
+                leading: Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: SvgLoader.asset(&#39;assets&#47;icons&#47;apple.svg&#39;, width: 22),
+                ),
+                onPressed: () {},
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка загрузки Google Play.&#39;,
+              asset: &#39;assets&#47;icons&#47;google.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: const Text(&#39;Download&#39;),
+                subtitle: const Text(&#39;Google Play&#39;),
+                leading: Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child:
+                      SvgLoader.asset(&#39;assets&#47;icons&#47;google.svg&#39;, width: 22),
+                ),
+                onPressed: () {},
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка загрузки Linux.&#39;,
+              asset: &#39;assets&#47;icons&#47;linux.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: const Text(&#39;Download&#39;),
+                subtitle: const Text(&#39;application&#39;),
+                leading: SvgLoader.asset(&#39;assets&#47;icons&#47;linux.svg&#39;, width: 22),
+                onPressed: () {},
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Кнопка загрузки Windows.&#39;,
+              asset: &#39;assets&#47;icons&#47;windows.svg&#39;,
+              child: OutlinedRoundedButton(
+                title: const Text(&#39;Download&#39;),
+                subtitle: const Text(&#39;application&#39;),
+                leading:
+                    SvgLoader.asset(&#39;assets&#47;icons&#47;windows.svg&#39;, width: 22),
+                onPressed: () {},
+              ),
+            ),
+            _element(
+              title: &#39;Аватары.&#39;,
+              child: Wrap(
+                spacing: 2,
+                runSpacing: 2,
+                children: List.generate(
+                  AvatarWidget.colors.length,
+                  (i) =&gt; AvatarWidget(title: &#39;Иван Иванович&#39;, color: i),
+                ),
+              ),
+            ),
+            _element(
+              title: &#39;Перетягиваемая панель окна звонка.&#39;,
+              child: Container(
+                color: const Color(0xFF222222),
+                height: 45,
+                child: Material(
+                  color: const Color(0xFF222222),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                              maxWidth: context.mediaQuerySize.width &#47; 2),
+                          child: InkWell(
+                            onTap: () {},
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(width: 10),
+                                const AvatarWidget(radius: 15),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 160),
+                                    child: Text(
+                                      &#39;Username&#39;,
+                                      style: context.textTheme.bodyText1
+                                          ?.copyWith(
+                                        fontSize: 17,
+                                        color: const Color(0xFFBBBBBB),
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      IgnorePointer(
+                        child: Container(
+                          height: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 90),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Color(0x00222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0xFF222222),
+                                Color(0x00222222),
+                              ],
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                &#39;10:04&#39;,
+                                style: context.textTheme.bodyText1?.copyWith(
+                                    color: const Color(0xFFBBBBBB)),
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 3),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TooltipButton(
+                                onTap: () =&gt; WebUtils.download(
+                                  &#39;&#47;assets&#47;assets&#47;icons&#47;add_user.svg&#39;,
+                                  &#39;add_user.svg&#39;,
+                                ),
+                                hint: &#39;btn_add_participant&#39;.l10n,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: SvgLoader.asset(
+                                    &#39;assets&#47;icons&#47;add_user.svg&#39;,
+                                    color: const Color(0xFFBBBBBB),
+                                    width: 19,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              TooltipButton(
+                                onTap: () =&gt; WebUtils.download(
+                                  &#39;&#47;assets&#47;assets&#47;icons&#47;settings.svg&#39;,
+                                  &#39;settings.svg&#39;,
+                                ),
+                                hint: &#39;btn_call_settings&#39;.l10n,
+                                child: SvgLoader.asset(
+                                  &#39;assets&#47;icons&#47;settings.svg&#39;,
+                                  color: const Color(0xFFBBBBBB),
+                                  width: 16,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              TooltipButton(
+                                onTap: () =&gt; WebUtils.download(
+                                  &#39;&#47;assets&#47;assets&#47;icons&#47;fullscreen_enter.svg&#39;,
+                                  &#39;fullscreen_enter.svg&#39;,
+                                ),
+                                hint: &#39;Fullscreen mode&#39;,
+                                child: SvgLoader.asset(
+                                  &#39;assets&#47;icons&#47;fullscreen_enter.svg&#39;,
+                                  width: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(&#39;(иконки скачиваются по клику по иконкам)&#39;),
+            _element(
+              background: true,
+              title: &#39;Меню ПКМ над видео в звонке.&#39;,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 200),
+                child: ContextMenu(
+                  actions: [
+                    ContextMenuButton(
+                      label: &#39;Do not cut video&#39;,
+                      onPressed: () {},
+                    ),
+                    ContextMenuButton(
+                      label: &#39;Center video&#39;,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Принять звонок с аудио.&#39;,
+              asset: &#39;assets&#47;icons&#47;audio_call_start.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                text: &#39;Answer\nwith audio&#39;,
+                color: const Color(0xDD34B139),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;audio_call_start.svg&#39;,
+                      width: 29)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Принять звонок с видео.&#39;,
+              asset: &#39;assets&#47;icons&#47;video_on.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                text: &#39;Answer\nwith video&#39;,
+                color: const Color(0xDD34B139),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;video_on.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Отклонить звонок.&#39;,
+              asset: &#39;assets&#47;icons&#47;call_end.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                text: &#39;Decline&#39;,
+                color: const Color(0xDDFF0000),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;call_end.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Положить&#47;отменить звонок.&#39;,
+              asset: &#39;assets&#47;icons&#47;call_end.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;End call&#39;,
+                color: const Color(0xDDFF0000),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;call_end.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Выключить камеру в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;video_on.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Turn video off&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;video_on.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Включить камеру в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;video_off.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Turn video on&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;video_off.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Выключить микрофон в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;microphone_on.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Mute&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;microphone_on.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Включить микрофон в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;microphone_off.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Unmute&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;microphone_off.svg&#39;,
+                      width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Выключить демонстрацию экрана в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;screen_share_on.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Share screen&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;screen_share_on.svg&#39;,
+                      width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Включить демонстрацию экрана в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;screen_share_off.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Stop sharing&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;screen_share_off.svg&#39;,
+                      width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Выключить динамик в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;speaker_on.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;speaker_on.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Включить динамик в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;speaker_off.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;speaker_off.svg&#39;, width: 60)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Переключить камеру на заднюю в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;camera_front.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;camera_front.svg&#39;, width: 28)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Переключить камеру на переднюю в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;camera_back.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;camera_back.svg&#39;, width: 28)
+                ],
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Область Drag-n-drop в боковой панели звонка.&#39;,
+              asset: &#39;assets&#47;icons&#47;drag-n-drop.svg&#39;,
+              child: SizedBox(
+                width: 150,
+                height: 150,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgLoader.asset(&#39;assets&#47;icons&#47;drag_n_drop.svg&#39;,
+                        width: 44),
+                    const SizedBox(height: 5),
+                    Text(
+                      &#39;Drop any\nvideo here&#39;,
+                      style: context.textTheme.bodyText1?.copyWith(
+                        color: const Color(0xFFBBBBBB),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Титульная информация звонка.&#39;,
+              child: CallTitle(
+                const UserId(&#39;val&#39;),
+                chat: Chat(
+                  const ChatId(&#39;val&#39;),
+                  name: ChatName(&#39;Групповой чат&#39;),
+                  kindIndex: 2,
+                ),
+                title: &#39;Групповой чат&#39;,
+                state: &#39;Звоним&#39;,
+                withDots: true,
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Информация о звонке в панели на мобильном устройстве.&#39;,
+              asset: &#39;assets&#47;icons&#47;add_user.svg&#39;,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: InkWell(
+                  hoverColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {},
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Expanded(
+                        flex: 1,
+                        child: Center(
+                          child: SizedBox(
+                            width: 58,
+                            height: 58,
+                            child: AvatarWidget(
+                              title: &#39;Иван Иванович&#39;,
+                              radius: 29,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              &#39;Иван Иванович&#39;,
+                              style: context.textTheme.headline4?.copyWith(
+                                  color: Colors.white, fontSize: 20),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              &#39;10:04&#39;,
+                              style: context.textTheme.headline4?.copyWith(
+                                  color: Colors.white, fontSize: 15),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title:
+                  &#39;Добавить участника в звонок в панели на мобильном устройстве.&#39;,
+              asset: &#39;assets&#47;icons&#47;add_user.svg&#39;,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: InkWell(
+                  hoverColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {},
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: RoundFloatingButton(
+                          onPressed: () {},
+                          scale: 0.75,
+                          children: [
+                            SvgLoader.asset(
+                              &#39;assets&#47;icons&#47;add_user.svg&#39;,
+                              width: 22,
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          &#39;Добавить участника&#39;,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.headline4
+                              ?.copyWith(color: Colors.white, fontSize: 17),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            _element(
+              title: &#39;Кнопка назад в чате.&#39;,
+              asset: &#39;assets&#47;icons&#47;arrow_left.svg&#39;,
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: SvgLoader.asset(
+                        &#39;assets&#47;icons&#47;arrow_left.svg&#39;,
+                        height: 16,
+                      ),
+                    ),
+                  ),
+                  onTap: () =&gt; Navigator.maybePop(context),
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Временная метка в чате.&#39;,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+                ),
+                child: const Text(
+                  &#39;11:04&#39;,
+                  style: TextStyle(color: Color(0xFF888888)),
+                ),
+              ),
+            ),
+            _element(
+              background: true,
+              title: &#39;Выпадающее меню с кнопками в чате.&#39;,
+              child: AnimatedFab(
+                labelStyle: const TextStyle(fontSize: 17),
+                closedIcon: const Icon(
+                  Icons.more_horiz,
+                  color: Colors.blue,
+                  size: 30,
+                ),
+                openedIcon: const Icon(
+                  Icons.close,
+                  color: Colors.blue,
+                  size: 30,
+                ),
+                actions: [
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.call, color: Colors.blue),
+                    label: &#39;label_audio_call&#39;.l10n,
+                    onTap: () {},
+                    noAnimation: true,
+                  ),
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.video_call, color: Colors.blue),
+                    label: &#39;label_video_call&#39;.l10n,
+                    onTap: () {},
+                    noAnimation: true,
+                  ),
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.person, color: Colors.blue),
+                    label: &#39;label_contact&#39;.l10n,
+                    onTap: () {},
+                  ),
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.attachment, color: Colors.blue),
+                    label: &#39;label_file&#39;.l10n,
+                    onTap: () {},
+                  ),
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.photo, color: Colors.blue),
+                    label: &#39;label_photo&#39;.l10n,
+                    onTap: () {},
+                  ),
+                  AnimatedFabAction(
+                    icon: const Icon(Icons.camera, color: Colors.blue),
+                    label: &#39;label_camera&#39;.l10n,
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 200),
+            const Caption(&#39;Не используется&#39;),
+            _element(
+              background: true,
+              title: &#39;Открыть настройки в звонке.&#39;,
+              asset: &#39;assets&#47;icons&#47;settings.svg&#39;,
+              child: RoundFloatingButton(
+                onPressed: () {},
+                hint: &#39;Settings&#39;,
+                color: const Color(0xDD818181),
+                children: [
+                  SvgLoader.asset(&#39;assets&#47;icons&#47;settings.svg&#39;, width: 32)
+                ],
+              ),
+            ),
+            const SizedBox(height: 60),
+          ],
+        ),
+      ),
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_style_tab_element/ui_page_style_tab_element-library.html">element</a></li>
+  <li><a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html">ElementStyleTabView</a></li>
+  <li class="self-crumb">build method</li>
+</ol>
+
+
+    <h5>ElementStyleTabView class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html#constructors">Constructors</a></li>
+    <li><a href="../../ui_page_style_tab_element/ElementStyleTabView/ElementStyleTabView.html">ElementStyleTabView</a></li>
+
+
+    <li class="section-title inherited">
+      <a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/key.html">key</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../ui_page_style_tab_element/ElementStyleTabView/build.html">build</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget/createElement.html">createElement</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/debugDescribeChildren.html">debugDescribeChildren</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/debugFillProperties.html">debugFillProperties</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toDiagnosticsNode.html">toDiagnosticsNode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/Diagnosticable/toString.html">toString</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringDeep.html">toStringDeep</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringShallow.html">toStringShallow</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/toStringShort.html">toStringShort</a></li>
+
+    <li class="section-title inherited"><a href="../../ui_page_style_tab_element/ElementStyleTabView-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

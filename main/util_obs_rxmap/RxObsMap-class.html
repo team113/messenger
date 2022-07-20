@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the RxObsMap class from the rxmap library, for the Dart programming language.">
+  <title>RxObsMap class - rxmap library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../util_obs_rxmap/util_obs_rxmap-library.html">rxmap</a></li>
+    <li class="self-crumb">RxObsMap<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span> class</li>
+  </ol>
+  <div class="self-name">RxObsMap</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">RxObsMap&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p><code>GetX</code>-reactive <a href="../util_obs_map/ObsMap-class.html">ObsMap</a>.</p>
+<p>Behaves like a wrapper around <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> with its <a href="../util_obs_rxmap/RxObsMap/changes.html">changes</a> exposed.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+          <li><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin-class.html">MapMixin</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></li>
+          <li>RxObsMap</li>
+        </ul></dd>
+
+        <dt>Implemented types</dt>
+        <dd>
+          <ul class="comma-separated clazz-relationships">
+            <li><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxInterface-class.html">RxInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></li>
+          </ul>
+        </dd>
+
+        <dt>Mixed in types</dt>
+        <dd><ul class="comma-separated clazz-relationships">
+          <li><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager-mixin.html">NotifyManager</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin-mixin.html">RxObjectMixin</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></li>
+        </ul></dd>
+
+
+        <dt>Available Extensions</dt>
+        <dd><ul class="comma-separated clazz-relationships">
+          <li><a href="https://pub.dev/documentation/built_collection/5.1.1/built_collection/BuiltMapExtension.html">BuiltMapExtension</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/rx_types/MapExtension.html">MapExtension</a></li>
+        </ul></dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="RxObsMap" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.html">RxObsMap</a></span><span class="signature">(<span class="parameter" id="-param-initial">[<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">initial</span> = <span class="default-value">const {}</span>]</span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> with the provided <code>initial</code> keys and values. 
+        </dd>
+        <dt id="RxObsMap.from" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.from.html">RxObsMap.from</a></span><span class="signature">(<span class="parameter" id="from-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">other</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> with the same keys and values as <code>other</code>. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="RxObsMap.fromEntries" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromEntries.html">RxObsMap.fromEntries</a></span><span class="signature">(<span class="parameter" id="fromEntries-param-entries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">entries</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> and adds all the provided <code>entries</code> to it. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="RxObsMap.fromIterable" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromIterable.html">RxObsMap.fromIterable</a></span><span class="signature">(<span class="parameter" id="fromIterable-param-iterable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a></span> <span class="parameter-name">iterable</span>, </span><span class="parameter" id="fromIterable-param-key">{<span class="type-annotation">K</span> <span class="parameter-name">key</span>(<span class="parameter" id="param-element"><span class="type-annotation">dynamic</span> <span class="parameter-name">element</span></span>)?, </span><span class="parameter" id="fromIterable-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span>(<span class="parameter" id="param-element"><span class="type-annotation">dynamic</span> <span class="parameter-name">element</span></span>)?}</span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> instance in which the keys and values are
+computed from the provided <code>iterable</code>. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="RxObsMap.fromIterables" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromIterables.html">RxObsMap.fromIterables</a></span><span class="signature">(<span class="parameter" id="fromIterables-param-keys"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>&gt;</span></span> <span class="parameter-name">keys</span>, </span><span class="parameter" id="fromIterables-param-values"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">values</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> associating the given <code>keys</code> to the given
+<code>values</code>. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="RxObsMap.of" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.of.html">RxObsMap.of</a></span><span class="signature">(<span class="parameter" id="of-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">other</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a new <a href="https://api.flutter.dev/flutter/dart-collection/LinkedHashMap-class.html">LinkedHashMap</a> with the same keys and values as <code>other</code>. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="RxObsMap.unmodifiable" class="callable">
+          <span class="name"><a href="../util_obs_rxmap/RxObsMap/RxObsMap.unmodifiable.html">RxObsMap.unmodifiable</a></span><span class="signature">(<span class="parameter" id="unmodifiable-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a></span> <span class="parameter-name">other</span></span>)</span>
+        </dt>
+        <dd>
+          Creates an unmodifiable hash based map containing the entries of <code>other</code>. 
+          <div class="constructor-modifier features">factory</div>
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="canUpdate" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/canUpdate.html">canUpdate</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="changes" class="property">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/changes.html">changes</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/MapChangeNotification-class.html">MapChangeNotification</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returns stream of record of changes of this <a href="../util_obs_rxmap/RxObsMap-class.html">RxObsMap</a>. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="entries" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/entries.html">entries</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  The map entries of <a href="../util_obs_rxmap/RxObsMap-class.html">this</a>. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="firstRebuild" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/firstRebuild.html">firstRebuild</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read / write, inherited</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isEmpty" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/isEmpty.html">isEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether there is no key/value pair in the map. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isNotEmpty" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/isNotEmpty.html">isNotEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether there is at least one key/value pair in the map. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="keys" class="property">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/keys.html">keys</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  The keys of <a href="../util_obs_rxmap/RxObsMap-class.html">this</a>. <a href="../util_obs_rxmap/RxObsMap/keys.html">[...]</a>
+  <div class="features">read-only, override</div>
+
+</dd>
+
+        <dt id="length" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/length.html">length</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The number of key/value pairs in the map. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="sentToStream" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/sentToStream.html">sentToStream</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read / write, inherited</div>
+
+</dd>
+
+        <dt id="stream" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/stream.html">stream</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="string" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/string.html">string</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> 
+
+</dt>
+<dd class="inherited">
+  Same as <code>toString()</code> but using a getter. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="subject" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/subject.html">subject</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.3/rx_stream/GetStream-class.html">GetStream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read / write, inherited</div>
+
+</dd>
+
+        <dt id="value" class="property">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/value.html">value</a></span>
+  <span class="signature">&#8596; <a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returns the current <a href="../util_obs_rxmap/RxObsMap/value.html">value</a> 
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/protected-constant.html">protected</a>, read / write, inherited-setter, override-getter</div>
+
+</dd>
+
+        <dt id="values" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/values.html">values</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  The values of <a href="../util_obs_rxmap/RxObsMap-class.html">this</a>. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/values.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="addAll" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addAll.html">addAll</a></span><span class="signature">(<wbr><span class="parameter" id="addAll-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds all key/value pairs of <code>other</code> to this map. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addAll.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addEntries" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addEntries.html">addEntries</a></span><span class="signature">(<wbr><span class="parameter" id="addEntries-param-newEntries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">newEntries</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds all key/value pairs of <code>newEntries</code> to this map. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addEntries.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-rxGetx"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.3/rx_stream/GetStream-class.html">GetStream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">rxGetx</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  This is an internal method.
+Subscribe to changes on the inner stream. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="bindStream" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/bindStream.html">bindStream</a></span><span class="signature">(<wbr><span class="parameter" id="bindStream-param-stream"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">stream</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Binds an existing <code>Stream&lt;T&gt;</code> to this Rx<t> to keep the values in sync.
+You can bind multiple sources to update the value.
+Closing the subscription will happen automatically when the observer
+Widget (<code>GetX</code> or <code>Obx</code>) gets unmounted from the Widget tree.</t> 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="call" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-v">[<span class="type-annotation"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span>?</span> <span class="parameter-name">v</span>]</span>)
+    <span class="returntype parameter">&#8594; <a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  updates the value to <code>null</code> and adds it to the Stream.
+Even with null-safety coming, is still an important feature to support, as
+<code>call()</code> doesn't accept <code>null</code> values. For instance,
+<code>InputDecoration.errorText</code> has to be null to not show the "error state". <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/call.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="cast" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/cast.html">cast</a></span><span class="signature">&lt;<wbr><span class="type-parameter">RK</span>, <span class="type-parameter">RV</span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">RK</span>, <span class="type-parameter">RV</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides a view of this map as having <code>RK</code> keys and <code>RV</code> instances,
+if necessary. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/cast.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="clear" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/clear.html">clear</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes all entries from the map. <a href="../util_obs_rxmap/RxObsMap/clear.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="close" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/close.html">close</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Closes the subscriptions for this Rx, releasing the resources. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="containsKey" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsKey.html">containsKey</a></span><span class="signature">(<wbr><span class="parameter" id="containsKey-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this map contains the given <code>key</code>. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsKey.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="containsValue" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsValue.html">containsValue</a></span><span class="signature">(<wbr><span class="parameter" id="containsValue-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this map contains the given <code>value</code>. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsValue.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="emit" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/emit.html">emit</a></span><span class="signature">(<wbr><span class="parameter" id="emit-param-event"><span class="type-annotation"><a href="../util_obs_map/MapChangeNotification-class.html">MapChangeNotification</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">event</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emits a new <code>event</code>. <a href="../util_obs_rxmap/RxObsMap/emit.html">[...]</a>
+  
+
+</dd>
+
+        <dt id="forEach" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/forEach.html">forEach</a></span><span class="signature">(<wbr><span class="parameter" id="forEach-param-action"><span class="type-annotation">void</span> <span class="parameter-name">action</span>(<span class="parameter" id="param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Applies <code>action</code> to each key/value pair of the map. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/forEach.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="listen" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/listen.html">listen</a></span><span class="signature">(<wbr><span class="parameter" id="listen-param-onData"><span class="type-annotation">void</span> <span class="parameter-name">onData</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span></span>), </span><span class="parameter" id="listen-param-onError">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="listen-param-onDone"><span class="type-annotation">void</span> <span class="parameter-name">onDone</span>()?, </span><span class="parameter" id="listen-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">cancelOnError</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="listenAndPump" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/listenAndPump.html">listenAndPump</a></span><span class="signature">(<wbr><span class="parameter" id="listenAndPump-param-onData"><span class="type-annotation">void</span> <span class="parameter-name">onData</span>(<span class="parameter" id="param-event"><span class="type-annotation"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">event</span></span>), </span><span class="parameter" id="listenAndPump-param-onError">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a>?</span> <span class="parameter-name">onError</span>, </span><span class="parameter" id="listenAndPump-param-onDone"><span class="type-annotation">void</span> <span class="parameter-name">onDone</span>()?, </span><span class="parameter" id="listenAndPump-param-cancelOnError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">cancelOnError</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_obs_map/ObsMap-class.html">ObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a <a href="https://api.flutter.dev/flutter/dart-async/StreamSubscription-class.html">StreamSubscription</a> similar to <a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/listen.html">listen</a>, but with the
+added benefit that it primes the stream with the current <a href="../util_obs_rxmap/RxObsMap/value.html">value</a>, rather
+than waiting for the next <a href="../util_obs_rxmap/RxObsMap/value.html">value</a>. This should not be called in <code>onInit</code>
+or anywhere else during the build process. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="map" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/map.html">map</a></span><span class="signature">&lt;<wbr><span class="type-parameter">K2</span>, <span class="type-parameter">V2</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="map-param-transform"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/MapEntry-class.html">MapEntry</a><span class="signature">&lt;<wbr><span class="type-parameter">K2</span>, <span class="type-parameter">V2</span>&gt;</span></span> <span class="parameter-name">transform</span>(<span class="parameter" id="param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">K2</span>, <span class="type-parameter">V2</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a new map where all entries of this map are transformed by
+the given <code>convert</code> function. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="move" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/move.html">move</a></span><span class="signature">(<wbr><span class="parameter" id="move-param-oldKey"><span class="type-annotation">K</span> <span class="parameter-name">oldKey</span>, </span><span class="parameter" id="move-param-newKey"><span class="type-annotation">K</span> <span class="parameter-name">newKey</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Moves the element at the <code>oldKey</code> to the <code>newKey</code> replacing the existing
+element, if any. <a href="../util_obs_rxmap/RxObsMap/move.html">[...]</a>
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="putIfAbsent" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/putIfAbsent.html">putIfAbsent</a></span><span class="signature">(<wbr><span class="parameter" id="putIfAbsent-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="putIfAbsent-param-ifAbsent"><span class="type-annotation">V</span> <span class="parameter-name">ifAbsent</span>()</span>)
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Look up the value of <code>key</code>, or add a new entry if it isn't there. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/putIfAbsent.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="refresh" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/refresh.html">refresh</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes a direct update of <a href="../util_obs_rxmap/RxObsMap/value.html">value</a> adding it to the Stream
+useful when you make use of Rx for custom Types to referesh your UI. <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/refresh.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="remove" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/remove.html">remove</a></span><span class="signature">(<wbr><span class="parameter" id="remove-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span></span>)
+    <span class="returntype parameter">&#8594; V?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes <code>key</code> and its associated value, if present, from the map. <a href="../util_obs_rxmap/RxObsMap/remove.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="removeWhere" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/removeWhere.html">removeWhere</a></span><span class="signature">(<wbr><span class="parameter" id="removeWhere-param-test"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">test</span>(<span class="parameter" id="param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Removes all entries of this map that satisfy the given <code>test</code>. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/removeWhere.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="toJson" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/toJson.html">toJson</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the json representation of <code>value</code>. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="update" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/update.html">update</a></span><span class="signature">(<wbr><span class="parameter" id="update-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="update-param-update"><span class="type-annotation">V</span> <span class="parameter-name">update</span>(<span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>), </span><span class="parameter" id="update-param-ifAbsent">{<span class="type-annotation">V</span> <span class="parameter-name">ifAbsent</span>()?}</span>)
+    <span class="returntype parameter">&#8594; V</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates the value for the provided <code>key</code>. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/update.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateAll" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/updateAll.html">updateAll</a></span><span class="signature">(<wbr><span class="parameter" id="updateAll-param-update"><span class="type-annotation">V</span> <span class="parameter-name">update</span>(<span class="parameter" id="param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates all values. <a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/updateAll.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-o"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">o</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  This equality override works for _RxImpl instances and the internal
+values. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="operator []" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/operator_get.html">operator []</a></span><span class="signature">(<wbr><span class="parameter" id="[]-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span></span>)
+    <span class="returntype parameter">&#8594; V?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  The value for the given <code>key</code>, or <code>null</code> if <code>key</code> is not in the map. <a href="../util_obs_rxmap/RxObsMap/operator_get.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="operator []=" class="callable">
+  <span class="name"><a href="../util_obs_rxmap/RxObsMap/operator_put.html">operator []=</a></span><span class="signature">(<wbr><span class="parameter" id="[]=-param-key"><span class="type-annotation">K</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="[]=-param-value"><span class="type-annotation">V</span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Associates the <code>key</code> with the given <code>value</code>. <a href="../util_obs_rxmap/RxObsMap/operator_put.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../util_obs_rxmap/util_obs_rxmap-library.html">rxmap</a></li>
+  <li class="self-crumb">RxObsMap<span class="signature">&lt;<wbr><span class="type-parameter">K</span>, <span class="type-parameter">V</span>&gt;</span> class</li>
+</ol>
+
+
+    <h5>rxmap library</h5>
+    <ol>
+  <li class="section-title"><a href="../util_obs_rxmap/util_obs_rxmap-library.html#classes">Classes</a></li>
+  <li><a href="../util_obs_rxmap/RxObsMap-class.html">RxObsMap</a></li>
+
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../util_obs_rxmap/RxObsMap-class.html#constructors">Constructors</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.html">RxObsMap</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.from.html">from</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromEntries.html">fromEntries</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromIterable.html">fromIterable</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.fromIterables.html">fromIterables</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.of.html">of</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/RxObsMap.unmodifiable.html">unmodifiable</a></li>
+
+
+    <li class="section-title">
+      <a href="../util_obs_rxmap/RxObsMap-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/canUpdate.html">canUpdate</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/changes.html">changes</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/entries.html">entries</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/firstRebuild.html">firstRebuild</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/isEmpty.html">isEmpty</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/isNotEmpty.html">isNotEmpty</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/keys.html">keys</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/length.html">length</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/sentToStream.html">sentToStream</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/stream.html">stream</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/string.html">string</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/subject.html">subject</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/value.html">value</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/values.html">values</a></li>
+
+    <li class="section-title"><a href="../util_obs_rxmap/RxObsMap-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addAll.html">addAll</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/addEntries.html">addEntries</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/addListener.html">addListener</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/bindStream.html">bindStream</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/call.html">call</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/cast.html">cast</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/clear.html">clear</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/close.html">close</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsKey.html">containsKey</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/containsValue.html">containsValue</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/emit.html">emit</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/forEach.html">forEach</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/NotifyManager/listen.html">listen</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/listenAndPump.html">listenAndPump</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/map.html">map</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/move.html">move</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/putIfAbsent.html">putIfAbsent</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/refresh.html">refresh</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/remove.html">remove</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/removeWhere.html">removeWhere</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/toJson.html">toJson</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/toString.html">toString</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/update.html">update</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-collection/MapMixin/updateAll.html">updateAll</a></li>
+
+    <li class="section-title"><a href="../util_obs_rxmap/RxObsMap-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxObjectMixin/operator_equals.html">operator ==</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/operator_get.html">operator []</a></li>
+    <li><a href="../util_obs_rxmap/RxObsMap/operator_put.html">operator []=</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

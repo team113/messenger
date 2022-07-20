@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the chatEvents method from the ChatGraphQlMixin class, for the Dart programming language.">
+  <title>chatEvents method - ChatGraphQlMixin class - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_chat/provider_gql_components_chat-library.html">chat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html">ChatGraphQlMixin</a></li>
+    <li class="self-crumb">chatEvents method</li>
+  </ol>
+  <div class="self-name">chatEvents</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">chatEvents</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+<span class="name ">chatEvents</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="chatEvents-param-id"><span class="type-annotation"><a href="../../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span>, </span></li>
+<li><span class="parameter" id="chatEvents-param-ver"><span class="type-annotation"><a href="../../store_model_chat/ChatVersion-class.html">ChatVersion</a>?</span> <span class="parameter-name">ver</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Subscribes to <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a>s of the specified <a href="../../domain_model_chat/Chat-class.html">Chat</a>.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="initialization">Initialization</h3>
+<p>Once this subscription is initialized completely, it immediately emits
+<code>SubscriptionInitialized</code>, or immediately completes (without emitting
+anything) if such <a href="../../domain_model_chat/Chat-class.html">Chat</a> doesn't exist or <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> doesn't participate in
+it.</p>
+<p>If nothing has been emitted for a long period of time after establishing
+this subscription (while not being completed), it should be considered as
+an unexpected server error. This fact can be used on a client side to
+decide whether this subscription has been initialized successfully.</p>
+<h3 id="result">Result</h3>
+<p>If <code>ver</code> argument is not specified (or is <code>null</code>) an initial state of the
+<a href="../../domain_model_chat/Chat-class.html">Chat</a> will be emitted after <code>SubscriptionInitialized</code> and before any
+other <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a>s (and won't be emitted ever again until this
+subscription completes). This allows to skip doing <a href="../../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">getChat</a> (or
+<a href="../../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a>) before establishing this subscription.</p>
+<p>If the specified <code>ver</code> is not fresh (was queried quite a time ago), it may
+become stale, so this subscription will return <code>STALE_VERSION</code> error on
+initialization. In such case:</p>
+<ul>
+<li>either a fresh version should be obtained via <a href="../../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">getChat</a> (or
+<a href="../../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a>);</li>
+<li>or a re-subscription should be done without specifying a <code>ver</code> argument
+(so the fresh <code>ver</code> may be obtained in the emitted initial state of the
+<a href="../../domain_model_chat/Chat-class.html">Chat</a>).</li>
+</ul>
+<h3 id="completion">Completion</h3>
+<p>Finite.</p>
+<p>Completes without re-subscription necessity when:</p>
+<ul>
+<li>The <a href="../../domain_model_chat/Chat-class.html">Chat</a> does not exist (emits nothing, completes immediately after
+being established).</li>
+<li>The authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> is not a member of the <a href="../../domain_model_chat/Chat-class.html">Chat</a> at the moment
+of subscribing (emits nothing, completes immediately after being
+established).</li>
+<li>The authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> is no longer a member of the <a href="../../domain_model_chat/Chat-class.html">Chat</a> (emits
+<a href="../../store_event_chat/EventChatItemPosted-class.html">EventChatItemPosted</a> with <a href="../../domain_model_chat_item/ChatMemberInfo-class.html">ChatMemberInfo</a> of <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> being removed and
+completes).</li>
+</ul>
+<p>Completes requiring a re-subscription when:</p>
+<ul>
+<li>Authenticated Session expires (<code>SESSION_EXPIRED</code> error is emitted).</li>
+<li>An error occurs on the server (error is emitted).</li>
+<li>The server is shutting down or becoming unreachable (unexpectedly
+completes after initialization).</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;Stream&lt;QueryResult&gt;&gt; chatEvents(ChatId id, ChatVersion? ver) {
+  var variables = ChatEventsArguments(id: id, ver: ver);
+  return client.subscribe(
+    SubscriptionOptions(
+      operationName: &#39;ChatEvents&#39;,
+      document: ChatEventsSubscription(variables: variables).document,
+      variables: variables.toJson(),
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../provider_gql_components_chat/provider_gql_components_chat-library.html">chat</a></li>
+  <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html">ChatGraphQlMixin</a></li>
+  <li class="self-crumb">chatEvents method</li>
+</ol>
+
+
+    <h5>ChatGraphQlMixin class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html#constructors">Constructors</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/ChatGraphQlMixin.html">ChatGraphQlMixin</a></li>
+
+
+    <li class="section-title">
+      <a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/client.html">client</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/addChatMember.html">addChatMember</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/chatEvents.html">chatEvents</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/chatItems.html">chatItems</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/createChatDirectLink.html">createChatDirectLink</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/createDialogChat.html">createDialogChat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/createGroupChat.html">createGroupChat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/deleteChatDirectLink.html">deleteChatDirectLink</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/deleteChatForward.html">deleteChatForward</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/deleteChatMessage.html">deleteChatMessage</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/editChatMessageText.html">editChatMessageText</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">getChat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/hideChat.html">hideChat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/hideChatItem.html">hideChatItem</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/keepTyping.html">keepTyping</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/postChatMessage.html">postChatMessage</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/readChat.html">readChat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/recentChatsTopEvents.html">recentChatsTopEvents</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/removeChatMember.html">removeChatMember</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/renameChat.html">renameChat</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/uploadAttachment.html">uploadAttachment</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin/useChatDirectLink.html">useChatDirectLink</a></li>
+
+    <li class="section-title inherited"><a href="../../provider_gql_components_chat/ChatGraphQlMixin-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

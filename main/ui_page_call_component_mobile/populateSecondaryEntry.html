@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the populateSecondaryEntry function from the mobile library, for the Dart programming language.">
+  <title>populateSecondaryEntry function - mobile library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">mobile</a></li>
+    <li class="self-crumb">populateSecondaryEntry function</li>
+  </ol>
+  <div class="self-name">populateSecondaryEntry</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-function">populateSecondaryEntry</span> function 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+
+<span class="returntype">void</span>
+<span class="name ">populateSecondaryEntry</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="populateSecondaryEntry-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="populateSecondaryEntry-param-c"><span class="type-annotation"><a href="../ui_page_call_controller/CallController-class.html">CallController</a></span> <span class="parameter-name">c</span></span></li>
+</ol>)
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Adds a <a href="https://api.flutter.dev/flutter/widgets/DragTarget-class.html">DragTarget</a> of an empty secondary view to the <a href="https://api.flutter.dev/flutter/widgets/Overlay-class.html">Overlay</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void populateSecondaryEntry(BuildContext context, CallController c) {
+  c.secondaryEntry = OverlayEntry(builder: (context) {
+    return Obx(() {
+      if (c.secondary.isNotEmpty) {
+        return Container();
+      }
+
+      Axis secondaryAxis =
+          c.size.width &gt;= c.size.height ? Axis.horizontal : Axis.vertical;
+
+      &#47;&#47; Pre-calculate the [FitWrap]&#39;s size.
+      double panelSize = max(
+        FitWrap.calculateSize(
+          maxSize: c.size.shortestSide &#47; 4,
+          constraints: Size(c.size.width, c.size.height - 45),
+          axis: c.size.width &gt;= c.size.height ? Axis.horizontal : Axis.vertical,
+          length: c.secondary.length,
+        ),
+        130,
+      );
+
+      return AnimatedDelayedSwitcher(
+        key: const Key(&#39;SecondaryTargetAnimatedSwitcher&#39;),
+        duration: 200.milliseconds,
+        child: SafeArea(
+          child: Align(
+            alignment: secondaryAxis == Axis.horizontal
+                ? Alignment.centerRight
+                : Alignment.bottomCenter,
+            child: DragTarget&lt;_DragData&gt;(
+              onAccept: (_DragData d) {
+                c.secondaryAlignment.value = null;
+                c.secondaryKeepAlignment.value = true;
+                c.secondaryLeft.value = null;
+                c.secondaryTop.value = null;
+                c.secondaryRight.value = 10;
+                c.secondaryBottom.value = 10;
+                c.secondaryTargets.value = 0;
+                c.unfocus(d.participant);
+              },
+              onWillAccept: (b) {
+                c.secondaryTargets.value = 1;
+                return true;
+              },
+              onLeave: (b) =&gt; c.secondaryTargets.value = 0,
+              builder: (context, candidate, rejected) {
+                return SizedBox(
+                  width: secondaryAxis == Axis.horizontal
+                      ? panelSize
+                      : double.infinity,
+                  height: secondaryAxis == Axis.horizontal
+                      ? double.infinity
+                      : panelSize,
+                  child: IgnorePointer(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Container(
+                        width: panelSize,
+                        height: panelSize,
+                        decoration: const BoxDecoration(
+                          boxShadow: [
+                            CustomBoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              blurStyle: BlurStyle.outer,
+                            )
+                          ],
+                        ),
+                        margin: const EdgeInsets.only(bottom: 8, right: 8),
+                        child: ConditionalBackdropFilter(
+                          child: Container(
+                            color: const Color(0x30000000),
+                            child: Center(
+                              child: SizedBox(
+                                width: secondaryAxis == Axis.horizontal
+                                    ? min(panelSize, 150 + 44)
+                                    : null,
+                                height: secondaryAxis == Axis.horizontal
+                                    ? null
+                                    : min(panelSize, 150 + 44),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AnimatedScale(
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      curve: Curves.ease,
+                                      scale: c.secondaryTargets.value != 0
+                                          ? 1.06
+                                          : 1,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0x40000000),
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Icon(
+                                            Icons.add_rounded,
+                                            size: 35,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    });
+  });
+
+  Overlay.of(context)?.insert(c.secondaryEntry!);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">mobile</a></li>
+  <li class="self-crumb">populateSecondaryEntry function</li>
+</ol>
+
+
+    <h5>mobile library</h5>
+    <ol>
+
+
+
+
+
+  <li class="section-title"><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html#functions">Functions</a></li>
+  <li><a href="../ui_page_call_component_mobile/mobileCall.html">mobileCall</a></li>
+  <li><a href="../ui_page_call_component_mobile/populateSecondaryEntry.html">populateSecondaryEntry</a></li>
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

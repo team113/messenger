@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the buildChatTile method from the ChatsTabView class, for the Dart programming language.">
+  <title>buildChatTile method - ChatsTabView class - view library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_tab_chats_view/ui_page_home_tab_chats_view-library.html">view</a></li>
+    <li><a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html">ChatsTabView</a></li>
+    <li class="self-crumb">buildChatTile method</li>
+  </ol>
+  <div class="self-name">buildChatTile</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">buildChatTile</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">buildChatTile</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="buildChatTile-param-c"><span class="type-annotation"><a href="../../ui_page_home_tab_chats_controller/ChatsTabController-class.html">ChatsTabController</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="buildChatTile-param-rxChat"><span class="type-annotation"><a href="../../domain_repository_chat/RxChat-class.html">RxChat</a></span> <span class="parameter-name">rxChat</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Reactive <a href="https://api.flutter.dev/flutter/material/ListTile-class.html">ListTile</a> with <a href="../../store_model_chat/store_model_chat-library.html">chat</a>'s information.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget buildChatTile(ChatsTabController c, RxChat rxChat) =&gt; Obx(() {
+      Chat chat = rxChat.chat.value;
+
+      const Color subtitleColor = Color(0xFF666666);
+      List&lt;Widget&gt;? subtitle;
+
+      Iterable&lt;String&gt; typings = rxChat.typingUsers
+          .where((e) =&gt; e.id != c.me)
+          .map((e) =&gt; e.name?.val ?? e.num.val);
+
+      if (chat.currentCall == null) {
+        if (typings.isNotEmpty) {
+          subtitle = [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Icon(Icons.edit, size: 15),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      typings.join(&#39;, &#39;),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(typings.length &gt; 1
+                      ? &#39;label_typings&#39;.l10n
+                      : &#39;label_typing&#39;.l10n),
+                  const AnimatedDots(color: Colors.black)
+                ],
+              ),
+            )
+          ];
+        } else if (chat.lastItem != null) {
+          if (chat.lastItem is ChatCall) {
+            var item = chat.lastItem as ChatCall;
+            String description = &#39;label_chat_call_ended&#39;.l10n;
+            if (item.finishedAt == null &amp;&amp; item.finishReason == null) {
+              subtitle = [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  child: ElevatedButton(
+                    onPressed: () =&gt; c.joinCall(chat.id),
+                    child: Text(&#39;btn_chat_join_call&#39;.l10n),
+                  ),
+                ),
+              ];
+            } else {
+              description =
+                  item.finishReason?.localizedString(item.authorId == c.me) ??
+                      description;
+              subtitle = [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
+                  child: Icon(Icons.call, size: 16, color: subtitleColor),
+                ),
+                Flexible(child: Text(description, maxLines: 2)),
+              ];
+            }
+          } else if (chat.lastItem is ChatMessage) {
+            var item = chat.lastItem as ChatMessage;
+
+            var desc = StringBuffer();
+
+            if (!chat.isGroup &amp;&amp; item.authorId == c.me) {
+              desc.write(&#39;${&#39;label_you&#39;.l10n}: &#39;);
+            }
+
+            if (item.text != null) {
+              desc.write(item.text!.val);
+              if (item.attachments.isNotEmpty) {
+                desc.write(
+                    &#39; [${item.attachments.length} ${&#39;label_attachments&#39;.l10n}]&#39;);
+              }
+            } else if (item.attachments.isNotEmpty) {
+              desc.write(
+                  &#39;[${item.attachments.length} ${&#39;label_attachments&#39;.l10n}]&#39;);
+            }
+
+            subtitle = [
+              if (chat.isGroup)
+                Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: FutureBuilder&lt;RxUser?&gt;(
+                    future: c.getUser(item.authorId),
+                    builder: (_, snapshot) =&gt; snapshot.data != null
+                        ? Obx(
+                            () =&gt; AvatarWidget.fromUser(
+                              snapshot.data!.user.value,
+                              radius: 10,
+                            ),
+                          )
+                        : AvatarWidget.fromUser(
+                            chat.getUser(item.authorId),
+                            radius: 10,
+                          ),
+                  ),
+                ),
+              Flexible(child: Text(desc.toString(), maxLines: 2)),
+            ];
+          } else {
+            &#47;&#47; TODO: Implement other ChatItems.
+          }
+        }
+      } else {
+        subtitle = [
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+              child: ElevatedButton(
+                onPressed: () =&gt; c.joinCall(chat.id),
+                child: Text(
+                  &#39;btn_chat_join_call&#39;.l10n,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ];
+      }
+
+      return ContextMenuRegion(
+        key: Key(&#39;ContextMenuRegion_${chat.id}&#39;),
+        preventContextMenu: false,
+        menu: ContextMenu(
+          actions: [
+            ContextMenuButton(
+              key: const Key(&#39;ButtonHideChat&#39;),
+              label: &#39;btn_hide_chat&#39;.l10n,
+              onPressed: () =&gt; c.hideChat(chat.id),
+            ),
+            if (chat.isGroup)
+              ContextMenuButton(
+                key: const Key(&#39;ButtonLeaveChat&#39;),
+                label: &#39;btn_leave_chat&#39;.l10n,
+                onPressed: () =&gt; c.leaveChat(chat.id),
+              ),
+          ],
+        ),
+        child: ListTile(
+          leading: Obx(
+            () =&gt; Badge(
+              showBadge: rxChat.chat.value.isDialog &amp;&amp;
+                  rxChat.members.values
+                          .firstWhereOrNull((e) =&gt; e.id != c.me)
+                          ?.user
+                          .value
+                          .online ==
+                      true,
+              badgeContent: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                padding: const EdgeInsets.all(5),
+              ),
+              padding: const EdgeInsets.all(2),
+              badgeColor: Colors.white,
+              animationType: BadgeAnimationType.scale,
+              position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+              elevation: 0,
+              child: AvatarWidget.fromRxChat(rxChat),
+            ),
+          ),
+          title: Text(
+            rxChat.title.value,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          subtitle: subtitle == null
+              ? null
+              : DefaultTextStyle.merge(
+                  style: const TextStyle(color: subtitleColor),
+                  overflow: TextOverflow.ellipsis,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Row(children: subtitle),
+                  ),
+                ),
+          trailing: chat.unreadCount == 0
+              ? null
+              : Badge(
+                  toAnimate: false,
+                  elevation: 0,
+                  badgeContent: Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      &#39;${chat.unreadCount}&#39;,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ),
+          onTap: () =&gt; router.chat(chat.id),
+        ),
+      );
+    });</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_home_tab_chats_view/ui_page_home_tab_chats_view-library.html">view</a></li>
+  <li><a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html">ChatsTabView</a></li>
+  <li class="self-crumb">buildChatTile method</li>
+</ol>
+
+
+    <h5>ChatsTabView class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html#constructors">Constructors</a></li>
+    <li><a href="../../ui_page_home_tab_chats_view/ChatsTabView/ChatsTabView.html">ChatsTabView</a></li>
+
+
+    <li class="section-title inherited">
+      <a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/key.html">key</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../ui_page_home_tab_chats_view/ChatsTabView/build.html">build</a></li>
+    <li><a href="../../ui_page_home_tab_chats_view/ChatsTabView/buildChatTile.html">buildChatTile</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget/createElement.html">createElement</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/debugDescribeChildren.html">debugDescribeChildren</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/debugFillProperties.html">debugFillProperties</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toDiagnosticsNode.html">toDiagnosticsNode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/Diagnosticable/toString.html">toString</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringDeep.html">toStringDeep</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/DiagnosticableTree/toStringShallow.html">toStringShallow</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/toStringShort.html">toStringShort</a></li>
+
+    <li class="section-title inherited"><a href="../../ui_page_home_tab_chats_view/ChatsTabView-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/Widget/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

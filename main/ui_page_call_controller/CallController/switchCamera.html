@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the switchCamera method from the CallController class, for the Dart programming language.">
+  <title>switchCamera method - CallController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">switchCamera method</li>
+  </ol>
+  <div class="self-name">switchCamera</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">switchCamera</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">switchCamera</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Changes the local video device to the next one from the
+<a href="../../domain_model_ongoing_call/OngoingCall/devices.html">OngoingCall.devices</a> list.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; switchCamera() async {
+  keepUi();
+
+  List&lt;MediaDeviceInfo&gt; cameras = _currentCall.value.devices.video().toList();
+  if (cameras.length &gt; 1) {
+    int selected = _currentCall.value.videoDevice.value == null
+        ? 0
+        : cameras.indexWhere(
+            (e) =&gt; e.deviceId() == _currentCall.value.videoDevice.value!);
+    selected += 1;
+    cameraSwitched.toggle();
+    await _currentCall.value.setVideoDevice(
+      cameras[(selected) % cameras.length].deviceId(),
+    );
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+  <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+  <li class="self-crumb">switchCamera method</li>
+</ol>
+
+
+    <h5>CallController class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../ui_page_call_controller/CallController-class.html#constructors">Constructors</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/CallController.html">CallController</a></li>
+
+
+    <li class="section-title">
+      <a href="../../ui_page_call_controller/CallController-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../ui_page_call_controller/CallController/audios.html">audios</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/audioState.html">audioState</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/callCover.html">callCover</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/callerName.html">callerName</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/cameraSwitched.html">cameraSwitched</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/chat.html">chat</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/chatId.html">chatId</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/doughDraggedRenderer.html">doughDraggedRenderer</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/downButtons.html">downButtons</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/downPosition.html">downPosition</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/draggedRenderer.html">draggedRenderer</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/duration.html">duration</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/error.html">error</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/errorTimeout.html">errorTimeout</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/focused.html">focused</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/fullscreen.html">fullscreen</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/handleLmb.html">handleLmb</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/hasListeners.html">hasListeners</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/height.html">height</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/hoveredRenderer.html">hoveredRenderer</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/hoveredRendererTimeout.html">hoveredRendererTimeout</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isCursorHidden.html">isCursorHidden</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isDialog.html">isDialog</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isGroup.html">isGroup</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isHandRaised.html">isHandRaised</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isHintDismissed.html">isHintDismissed</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isMobile.html">isMobile</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isPanelOpen.html">isPanelOpen</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isRemoteAudioEnabled.html">isRemoteAudioEnabled</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/isRemoteVideoEnabled.html">isRemoteVideoEnabled</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/left.html">left</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/listeners.html">listeners</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/lmbTimeout.html">lmbTimeout</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/locals.html">locals</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/me.html">me</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/members.html">members</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/minimized.html">minimized</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/minimizedAnimation.html">minimizedAnimation</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/outgoing.html">outgoing</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/panelController.html">panelController</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/paneled.html">paneled</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/panelUp.html">panelUp</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/possibleSecondaryAlignment.html">possibleSecondaryAlignment</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/primary.html">primary</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/primaryDrags.html">primaryDrags</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/primaryTargets.html">primaryTargets</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/remotes.html">remotes</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/rendererBoxFit.html">rendererBoxFit</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/screenShareState.html">screenShareState</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondary.html">secondary</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryAlignment.html">secondaryAlignment</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryBottom.html">secondaryBottom</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryDragged.html">secondaryDragged</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryDrags.html">secondaryDrags</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryEntry.html">secondaryEntry</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryHeight.html">secondaryHeight</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryHovered.html">secondaryHovered</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryKeepAlignment.html">secondaryKeepAlignment</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryLeft.html">secondaryLeft</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryRight.html">secondaryRight</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryTargets.html">secondaryTargets</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryTop.html">secondaryTop</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/secondaryWidth.html">secondaryWidth</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/showUi.html">showUi</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/size.html">size</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/speakerSwitched.html">speakerSwitched</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/started.html">started</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/state.html">state</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/top.html">top</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/videoState.html">videoState</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/width.html">width</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/withVideo.html">withVideo</a></li>
+
+    <li class="section-title"><a href="../../ui_page_call_controller/CallController-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListener.html">addListener</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListenerId.html">addListenerId</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/applyConstraints.html">applyConstraints</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/applySecondaryConstraints.html">applySecondaryConstraints</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/center.html">center</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/decline.html">decline</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/dispose.html">dispose</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/disposeId.html">disposeId</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/drop.html">drop</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/findParticipant.html">findParticipant</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/focus.html">focus</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/focusAll.html">focusAll</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/getUser.html">getUser</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/join.html">join</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/keepUi.html">keepUi</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/maximize.html">maximize</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/minimize.html">minimize</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/notifyChildrens.html">notifyChildrens</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/onClose.html">onClose</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/onInit.html">onInit</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/openAddMember.html">openAddMember</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/openSettings.html">openSettings</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refresh.html">refresh</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refreshGroup.html">refreshGroup</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListener.html">removeListener</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListenerId.html">removeListenerId</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/resize.html">resize</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/resizeSecondary.html">resizeSecondary</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/switchCamera.html">switchCamera</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleAudio.html">toggleAudio</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleFullscreen.html">toggleFullscreen</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleHand.html">toggleHand</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleRemoteAudios.html">toggleRemoteAudios</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleRemoteVideos.html">toggleRemoteVideos</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleRendererEnabled.html">toggleRendererEnabled</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleScreenShare.html">toggleScreenShare</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleSpeaker.html">toggleSpeaker</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/toggleVideo.html">toggleVideo</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/unfocus.html">unfocus</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/unfocusAll.html">unfocusAll</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager/GetxController/update.html">update</a></li>
+
+    <li class="section-title inherited"><a href="../../ui_page_call_controller/CallController-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+    <li class="section-title"><a href="../../ui_page_call_controller/CallController-class.html#constants">Constants</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/acceptColor-constant.html">acceptColor</a></li>
+    <li><a href="../../ui_page_call_controller/CallController/endColor-constant.html">endColor</a></li>
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

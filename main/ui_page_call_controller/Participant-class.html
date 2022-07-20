@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Participant class from the controller library, for the Dart programming language.">
+  <title>Participant class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li class="self-crumb">Participant class</li>
+  </ol>
+  <div class="self-name">Participant</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">Participant</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Separate call entity participating in a call.</p>
+</section>
+
+
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="Participant" class="callable">
+          <span class="name"><a href="../ui_page_call_controller/Participant/Participant.html">Participant</a></span><span class="signature">(<span class="parameter" id="-param-id"><span class="type-annotation"><a href="../domain_model_ongoing_call/RemoteMemberId-class.html">RemoteMemberId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="-param-owner"><span class="type-annotation"><a href="../domain_model_ongoing_call/MediaOwnerKind.html">MediaOwnerKind</a></span> <span class="parameter-name">owner</span>, </span><span class="parameter" id="-param-user">{<span class="type-annotation"><a href="../domain_repository_user/RxUser-class.html">RxUser</a>?</span> <span class="parameter-name">user</span>, </span><span class="parameter" id="-param-video"><span class="type-annotation"><a href="../domain_model_ongoing_call/RtcVideoRenderer-class.html">RtcVideoRenderer</a>?</span> <span class="parameter-name">video</span>, </span><span class="parameter" id="-param-audio"><span class="type-annotation"><a href="../domain_model_ongoing_call/RtcAudioRenderer-class.html">RtcAudioRenderer</a>?</span> <span class="parameter-name">audio</span>, </span><span class="parameter" id="-param-handRaised"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">handRaised</span>}</span>)</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="audio" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/audio.html">audio</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/RtcAudioRenderer-class.html">RtcAudioRenderer</a>?</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Reactive audio renderer of this <a href="../ui_page_call_controller/Participant-class.html">Participant</a>. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="handRaised" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/handRaised.html">handRaised</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Indicator whether this <a href="../ui_page_call_controller/Participant-class.html">Participant</a> raised a hand. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="id" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_ongoing_call/RemoteMemberId-class.html">RemoteMemberId</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_ongoing_call/RemoteMemberId-class.html">RemoteMemberId</a> of the <a href="../domain_model_user/User-class.html">User</a> this <a href="../ui_page_call_controller/Participant-class.html">Participant</a> represents. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="owner" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/owner.html">owner</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_ongoing_call/MediaOwnerKind.html">MediaOwnerKind</a></span> 
+
+</dt>
+<dd>
+  Media ownership kind of this <a href="../ui_page_call_controller/Participant-class.html">Participant</a>. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="source" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/source.html">source</a></span>
+  <span class="signature">&#8594; MediaSourceKind</span> 
+
+</dt>
+<dd>
+  Media source kind of this <a href="../ui_page_call_controller/Participant-class.html">Participant</a>. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="user" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/user.html">user</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_user/RxUser-class.html">RxUser</a>?</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_user/User-class.html">User</a> this <a href="../ui_page_call_controller/Participant-class.html">Participant</a> represents. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="video" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/video.html">video</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/RtcVideoRenderer-class.html">RtcVideoRenderer</a>?</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Reactive video renderer of this <a href="../ui_page_call_controller/Participant-class.html">Participant</a>. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="videoKey" class="property">
+  <span class="name"><a href="../ui_page_call_controller/Participant/videoKey.html">videoKey</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></span>&gt;</span></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a> of this <a href="../ui_page_call_controller/Participant-class.html">Participant</a>'s <code>VideoView</code>. 
+  <div class="features">final</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+  <li class="self-crumb">Participant class</li>
+</ol>
+
+
+    <h5>controller library</h5>
+    <ol>
+  <li class="section-title"><a href="../ui_page_call_controller/ui_page_call_controller-library.html#classes">Classes</a></li>
+  <li><a href="../ui_page_call_controller/CallController-class.html">CallController</a></li>
+  <li><a href="../ui_page_call_view/CallView-class.html">CallView</a></li>
+  <li><a href="../ui_page_call_controller/Participant-class.html">Participant</a></li>
+
+
+
+
+
+
+  <li class="section-title"><a href="../ui_page_call_controller/ui_page_call_controller-library.html#enums">Enums</a></li>
+  <li><a href="../ui_page_call_controller/ScaleModeX.html">ScaleModeX</a></li>
+  <li><a href="../ui_page_call_controller/ScaleModeY.html">ScaleModeY</a></li>
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../ui_page_call_controller/Participant-class.html#constructors">Constructors</a></li>
+    <li><a href="../ui_page_call_controller/Participant/Participant.html">Participant</a></li>
+
+
+    <li class="section-title">
+      <a href="../ui_page_call_controller/Participant-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../ui_page_call_controller/Participant/audio.html">audio</a></li>
+    <li><a href="../ui_page_call_controller/Participant/handRaised.html">handRaised</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li><a href="../ui_page_call_controller/Participant/id.html">id</a></li>
+    <li><a href="../ui_page_call_controller/Participant/owner.html">owner</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../ui_page_call_controller/Participant/source.html">source</a></li>
+    <li><a href="../ui_page_call_controller/Participant/user.html">user</a></li>
+    <li><a href="../ui_page_call_controller/Participant/video.html">video</a></li>
+    <li><a href="../ui_page_call_controller/Participant/videoKey.html">videoKey</a></li>
+
+    <li class="section-title inherited"><a href="../ui_page_call_controller/Participant-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+
+    <li class="section-title inherited"><a href="../ui_page_call_controller/Participant-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

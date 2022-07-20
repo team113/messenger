@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the desktopCall function from the desktop library, for the Dart programming language.">
+  <title>desktopCall function - desktop library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_desktop/ui_page_call_component_desktop-library.html">desktop</a></li>
+    <li class="self-crumb">desktopCall function</li>
+  </ol>
+  <div class="self-name">desktopCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-function">desktopCall</span> function 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">desktopCall</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="desktopCall-param-c"><span class="type-annotation"><a href="../ui_page_call_controller/CallController-class.html">CallController</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="desktopCall-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a desktop design of a <a href="../ui_page_call_view/CallView-class.html">CallView</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget desktopCall(CallController c, BuildContext context) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      &#47;&#47; Call stackable content.
+      List&lt;Widget&gt; content = [
+        SvgLoader.asset(
+          &#39;assets&#47;images&#47;background_dark.svg&#39;,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      ];
+
+      &#47;&#47; Active call.
+      if (c.state.value == OngoingCallState.active) {
+        &#47;&#47; Secondary view possible alignment.
+        Widget _possibleContainer() {
+          return Obx(() {
+            Alignment? alignment = c.possibleSecondaryAlignment.value;
+            if (alignment == null) {
+              return Container();
+            }
+
+            double width = 10;
+            double height = 10;
+
+            if (alignment == Alignment.topCenter ||
+                alignment == Alignment.bottomCenter) {
+              width = double.infinity;
+            } else {
+              height = double.infinity;
+            }
+
+            return Align(
+              alignment: alignment,
+              child: ConditionalBackdropFilter(
+                child: Container(
+                  height: height,
+                  width: width,
+                  color: const Color(0x4D165084),
+                ),
+              ),
+            );
+          });
+        }
+
+        content.addAll([
+          &#47;&#47; Call&#39;s primary view.
+          Column(
+            children: [
+              Obx(() =&gt; SizedBox(
+                    width: double.infinity,
+                    height: c.secondary.isNotEmpty &amp;&amp;
+                            c.secondaryAlignment.value == Alignment.topCenter
+                        ? c.secondaryHeight.value
+                        : 0,
+                  )),
+              Expanded(
+                child: Row(
+                  children: [
+                    Obx(() =&gt; SizedBox(
+                          height: double.infinity,
+                          width: c.secondary.isNotEmpty &amp;&amp;
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerLeft
+                              ? c.secondaryWidth.value
+                              : 0,
+                        )),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          _primaryView(c),
+                          Obx(
+                            () =&gt; MouseRegion(
+                              opaque: false,
+                              cursor: c.isCursorHidden.value
+                                  ? SystemMouseCursors.none
+                                  : SystemMouseCursors.basic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Obx(() =&gt; SizedBox(
+                          height: double.infinity,
+                          width: c.secondary.isNotEmpty &amp;&amp;
+                                  c.secondaryAlignment.value ==
+                                      Alignment.centerRight
+                              ? c.secondaryWidth.value
+                              : 0,
+                        )),
+                  ],
+                ),
+              ),
+              Obx(() =&gt; SizedBox(
+                    width: double.infinity,
+                    height: c.secondary.isNotEmpty &amp;&amp;
+                            c.secondaryAlignment.value == Alignment.bottomCenter
+                        ? c.secondaryHeight.value
+                        : 0,
+                  )),
+            ],
+          ),
+
+          _possibleContainer(),
+
+          &#47;&#47; Makes UI appear on click.
+          Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (d) {
+              if ((d.kind != PointerDeviceKind.mouse &amp;&amp;
+                      d.kind != PointerDeviceKind.stylus) ||
+                  !c.handleLmb.value) {
+                c.downPosition = d.localPosition;
+                c.downButtons = d.buttons;
+              }
+            },
+            onPointerUp: (d) {
+              if (c.downButtons &amp; kPrimaryButton != 0 &amp;&amp;
+                  (d.localPosition.distanceSquared -
+                              c.downPosition.distanceSquared)
+                          .abs() &lt;=
+                      1500) {
+                if (c.primaryDrags.value == 0 &amp;&amp; c.secondaryDrags.value == 0) {
+                  if (c.state.value == OngoingCallState.active) {
+                    if (!c.showUi.value) {
+                      c.keepUi();
+                    } else {
+                      c.keepUi(false);
+                    }
+                  }
+                }
+              }
+            },
+          ),
+
+          &#47;&#47; Secondary panel itself.
+          _secondaryView(c, context),
+
+          &#47;&#47; Empty drop zone if [secondary] is empty.
+          _secondaryTarget(c),
+        ]);
+
+        &#47;&#47; Show a hint if any renderer is draggable.
+        content.add(Obx(() {
+          bool hideSecondary = c.size.width &lt; 500 &amp;&amp; c.size.height &lt; 500;
+          bool mayDragVideo = !hideSecondary &amp;&amp;
+              (c.focused.length &gt; 1 ||
+                  (c.focused.isEmpty &amp;&amp;
+                      c.primary.length + c.secondary.length &gt; 1));
+
+          return AnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: !c.isHintDismissed.value &amp;&amp; mayDragVideo
+                ? Padding(
+                    padding: EdgeInsets.only(
+                      top: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value == Alignment.topCenter
+                          ? 10 + c.secondaryHeight.value
+                          : 10,
+                      right: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value ==
+                                  Alignment.centerRight
+                          ? 10 + c.secondaryWidth.value
+                          : 10,
+                    ),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 320,
+                        child: HintWidget(
+                          text: &#39;label_hint_drag_n_drop_video&#39;.l10n,
+                          onTap: c.isHintDismissed.toggle,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
+          );
+        }));
+      } else {
+        &#47;&#47; Call is not active.
+        content.add(Obx(() {
+          RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
+              c.paneled.firstOrNull?.video.value;
+          var callCover = c.chat.value?.callCover;
+
+          return c.videoState.value == LocalTrackState.disabled || local == null
+              ? CallCoverWidget(callCover)
+              : RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+        }));
+
+        &#47;&#47; Display a caller&#39;s name if the call is not outgoing and the chat is
+        &#47;&#47; a group.
+        content.add(
+          Obx(() {
+            bool isOutgoing =
+                (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp;
+                    !c.started;
+            bool preferTitle = c.state.value != OngoingCallState.active;
+
+            if (!preferTitle &amp;&amp;
+                !isOutgoing &amp;&amp;
+                c.chat.value?.chat.value.isGroup == true) {
+              return Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: (c.minimized.value &amp;&amp; !c.fullscreen.value ? 0 : 45) +
+                          8),
+                  child: Text(
+                    c.callerName ?? &#39;dot&#39;.l10n * 3,
+                    style: context.textTheme.bodyText1?.copyWith(
+                      color: const Color(0xFFBBBBBB),
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return Container();
+          }),
+        );
+      }
+
+      &#47;&#47; If there&#39;s any error to show, display it.
+      content.add(Obx(() {
+        return AnimatedSwitcher(
+          duration: 150.milliseconds,
+          child: c.errorTimeout.value != 0
+              ? Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value == Alignment.topCenter
+                          ? 10 + c.secondaryHeight.value
+                          : 10,
+                      right: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value ==
+                                  Alignment.centerRight
+                          ? 10 + c.secondaryWidth.value
+                          : 10,
+                    ),
+                    child: SizedBox(
+                      width: 320,
+                      child: HintWidget(
+                        text: &#39;${c.error}.&#39;,
+                        onTap: () {
+                          c.errorTimeout.value = 0;
+                        },
+                        isError: true,
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+        );
+      }));
+
+      _padding(Widget child) =&gt; Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2), child: child);
+
+      bool isOutgoing =
+          (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp; !c.started;
+
+      List&lt;Widget&gt; buttons = c.state.value == OngoingCallState.active ||
+              c.state.value == OngoingCallState.joining
+          ? [
+              if (PlatformUtils.isDesktop) _padding(screenButton(c, 0.8)),
+              if (PlatformUtils.isMobile)
+                _padding(
+                  c.videoState.value.isEnabled()
+                      ? switchButton(c, 0.8)
+                      : speakerButton(c, 0.8),
+                ),
+              _padding(videoButton(c, 0.8)),
+              _padding(dropButton(c, 0.8)),
+              _padding(audioButton(c, 0.8)),
+              _padding(handButton(c, 0.8)),
+            ]
+          : isOutgoing
+              ? [
+                  if (PlatformUtils.isMobile)
+                    _padding(
+                      c.videoState.value.isEnabled()
+                          ? switchButton(c)
+                          : speakerButton(c),
+                    ),
+                  _padding(videoButton(c)),
+                  _padding(cancelButton(c)),
+                  _padding(audioButton(c)),
+                ]
+              : [
+                  _padding(acceptAudioButton(c)),
+                  _padding(acceptVideoButton(c)),
+                  _padding(declineButton(c)),
+                ];
+
+      &#47;&#47; Indicator whether the [_activeButtons] should be in a dock or not.
+      bool isDocked = c.state.value == OngoingCallState.active ||
+          c.state.value == OngoingCallState.joining;
+
+      Widget _activeButtons() =&gt; ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isDocked
+                  ? 330
+                  : isOutgoing
+                      ? 270
+                      : 380,
+            ),
+            child: Row(
+              crossAxisAlignment: isDocked
+                  ? CrossAxisAlignment.center
+                  : CrossAxisAlignment.start,
+              children: buttons.map((e) =&gt; Expanded(child: e)).toList(),
+            ),
+          );
+
+      &#47;&#47; Footer part of the call with buttons.
+      List&lt;Widget&gt; footer = [
+        &#47;&#47; Animated bottom buttons.
+        Obx(() {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
+                  child: AnimatedSlider(
+                    isOpen: c.state.value != OngoingCallState.active ||
+                        c.showUi.value,
+                    duration: const Duration(milliseconds: 400),
+                    translate: false,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        &#47;&#47; Draw a blurred dock with the invisible [_activeButtons]
+                        &#47;&#47; if [isDocked].
+                        if (isDocked)
+                          ConditionalBackdropFilter(
+                            borderRadius: BorderRadius.circular(30),
+                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0x55000000),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 13,
+                                horizontal: 5,
+                              ),
+                              child: Visibility(
+                                visible: false,
+                                maintainSize: true,
+                                maintainAnimation: true,
+                                maintainState: true,
+                                child: _activeButtons(),
+                              ),
+                            ),
+                          ),
+                        _activeButtons(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+        &#47;&#47; Bottom [MouseRegion] that toggles UI on hover.
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (d) {
+                c.isPanelOpen.value = true;
+                c.keepUi(true);
+              },
+              onExit: (d) {
+                c.isPanelOpen.value = false;
+                if (c.showUi.value) {
+                  c.keepUi(false);
+                }
+              },
+            ),
+          ),
+        ),
+      ];
+
+      List&lt;Widget&gt; ui = [
+        IgnorePointer(
+          child: Obx(() {
+            bool preferTitle = c.state.value != OngoingCallState.active;
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: preferTitle &amp;&amp;
+                      c.primary.where((e) =&gt; e.video.value != null).isNotEmpty
+                  ? Container(color: const Color(0x55000000))
+                  : null,
+            );
+          }),
+        ),
+
+        Obx(() {
+          bool preferTitle = c.state.value != OngoingCallState.active;
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onDoubleTap: c.toggleFullscreen,
+            onPanUpdate: preferTitle
+                ? (d) {
+                    c.left.value = c.left.value + d.delta.dx;
+                    c.top.value = c.top.value + d.delta.dy;
+                    c.applyConstraints(context);
+                  }
+                : null,
+          );
+        }),
+
+        &#47;&#47; Settings button on the top right if call [isOutgoing].
+        Obx(() {
+          bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp;
+                  !c.started;
+
+          if (isOutgoing &amp;&amp;
+              c.state.value != OngoingCallState.active &amp;&amp;
+              c.state.value != OngoingCallState.joining) {
+            return Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8, right: 8),
+                child: TooltipButton(
+                  verticalOffset: 8,
+                  hint: &#39;btn_call_settings&#39;.l10n,
+                  onTap: () =&gt; c.openSettings(context),
+                  child: SvgLoader.asset(
+                    &#39;assets&#47;icons&#47;settings.svg&#39;,
+                    width: 16,
+                    height: 16,
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return Container();
+        }),
+
+        &#47;&#47; Sliding from the top title bar.
+        Obx(() {
+          bool preferTitle = c.state.value != OngoingCallState.active;
+          return AnimatedSwitcher(
+            key: const Key(&#39;AnimatedSwitcherCallTitle&#39;),
+            duration: const Duration(milliseconds: 200),
+            child: preferTitle
+                ? Align(
+                    key: const Key(&#39;CallTitlePadding&#39;),
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        top: c.size.height * 0.05,
+                      ),
+                      child: callTitle(c),
+                    ),
+                  )
+                : Container(key: UniqueKey()),
+          );
+        }),
+
+        &#47;&#47; Top [MouseRegion] that toggles UI on hover.
+        Obx(() {
+          bool hideSecondary = c.size.width &lt; 500 &amp;&amp; c.size.height &lt; 500;
+          bool mayDragVideo = !hideSecondary &amp;&amp;
+              (c.focused.length &gt; 1 ||
+                  (c.focused.isEmpty &amp;&amp;
+                      c.primary.length + c.secondary.length &gt; 1));
+          bool anyHintIsDisplayed = c.errorTimeout.value != 0 ||
+              (c.isHintDismissed.value || mayDragVideo);
+
+          return SizedBox(
+            height: anyHintIsDisplayed || c.secondaryHovered.value ? 110 : 45,
+            width: double.infinity,
+            child: c.primaryDrags.value == 0 &amp;&amp; c.secondaryDrags.value == 0
+                ? MouseRegion(
+                    opaque: false,
+                    onEnter: (d) =&gt; c.keepUi(true),
+                    onExit: (d) {
+                      if (c.showUi.value) {
+                        c.keepUi(false);
+                      }
+                    },
+                  )
+                : null,
+          );
+        }),
+
+        &#47;&#47; Sliding from the bottom buttons.
+        Obx(() {
+          if (c.minimized.value &amp;&amp; !c.fullscreen.value) {
+            return Container();
+          }
+
+          return Stack(children: footer);
+        }),
+      ];
+
+      &#47;&#47; Combines all the stackable content into [Scaffold].
+      Widget scaffold = Scaffold(
+        backgroundColor: Colors.black,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!WebUtils.isPopup)
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanUpdate: (d) {
+                  c.left.value = c.left.value + d.delta.dx;
+                  c.top.value = c.top.value + d.delta.dy;
+                  c.applyConstraints(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  child: _titleBar(context, c),
+                ),
+              ),
+            Expanded(child: Stack(children: [...content, ...ui])),
+          ],
+        ),
+      );
+
+      c.applySecondaryConstraints(context);
+
+      if (c.minimized.value &amp;&amp; !c.fullscreen.value) {
+        &#47;&#47; Applies constraints on every rebuild.
+        &#47;&#47; This includes the screen size changes.
+        c.applyConstraints(context);
+
+        &#47;&#47; Returns a stack of draggable [Scaler]s on each of the sides:
+        &#47;&#47;
+        &#47;&#47; +-------+
+        &#47;&#47; |       |
+        &#47;&#47; |       |
+        &#47;&#47; |       |
+        &#47;&#47; +-------+
+        &#47;&#47;
+        &#47;&#47; 1) + is a cornered scale point;
+        &#47;&#47; 2) | is a horizontal scale point;
+        &#47;&#47; 3) - is a vertical scale point;
+        return Stack(
+          children: [
+            &#47;&#47; top middle
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value + Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpDown,
+                  child: Scaler(
+                    width: c.width.value - Scaler.size,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.top,
+                      dy: dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; center left
+            Obx(() {
+              return Positioned(
+                top: c.top.value + Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeLeftRight,
+                  child: Scaler(
+                    height: c.height.value - Scaler.size,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      x: ScaleModeX.left,
+                      dx: dx,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; center right
+            Obx(() {
+              return Positioned(
+                top: c.top.value + Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeLeftRight,
+                  child: Scaler(
+                    height: c.height.value - Scaler.size,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      x: ScaleModeX.right,
+                      dx: -dx,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; bottom center
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - Scaler.size &#47; 2,
+                left: c.left.value + Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpDown,
+                  child: Scaler(
+                    width: c.width.value - Scaler.size,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.bottom,
+                      dy: -dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; top left
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  child: Scaler(
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.top,
+                      x: ScaleModeX.left,
+                      dx: dx,
+                      dy: dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; top right
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - 3 * Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                  child: Scaler(
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.top,
+                      x: ScaleModeX.right,
+                      dx: -dx,
+                      dy: dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; bottom left
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - 3 * Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                  child: Scaler(
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.bottom,
+                      x: ScaleModeX.left,
+                      dx: dx,
+                      dy: -dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+            &#47;&#47; bottom right
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - 3 * Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - 3 * Scaler.size &#47; 2,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  child: Scaler(
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) =&gt; c.resize(
+                      context,
+                      y: ScaleModeY.bottom,
+                      x: ScaleModeX.right,
+                      dx: -dx,
+                      dy: -dy,
+                    ),
+                  ),
+                ),
+              );
+            }),
+
+            Obx(() {
+              return Positioned(
+                left: c.left.value,
+                top: c.top.value,
+                width: c.width.value,
+                height: c.height.value,
+                child: Material(
+                  type: MaterialType.card,
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 10,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: scaffold,
+                      ),
+                      ClipRect(child: Stack(children: footer)),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      }
+
+      &#47;&#47; If the call popup is not [minimized], then return the [scaffold].
+      return scaffold;
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../ui_page_call_component_desktop/ui_page_call_component_desktop-library.html">desktop</a></li>
+  <li class="self-crumb">desktopCall function</li>
+</ol>
+
+
+    <h5>desktop library</h5>
+    <ol>
+
+
+
+
+
+  <li class="section-title"><a href="../ui_page_call_component_desktop/ui_page_call_component_desktop-library.html#functions">Functions</a></li>
+  <li><a href="../ui_page_call_component_desktop/desktopCall.html">desktopCall</a></li>
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

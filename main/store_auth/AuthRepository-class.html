@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the AuthRepository class from the auth library, for the Dart programming language.">
+  <title>AuthRepository class - auth library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../store_auth/store_auth-library.html">auth</a></li>
+    <li class="self-crumb">AuthRepository class</li>
+  </ol>
+  <div class="self-name">AuthRepository</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">AuthRepository</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Implementation of an <a href="../domain_repository_auth/AbstractAuthRepository-class.html">AbstractAuthRepository</a>.</p>
+<p>All methods may throw <a href="../provider_gql_exceptions/ConnectionException-class.html">ConnectionException</a>, <a href="../provider_gql_exceptions/GraphQlException-class.html">GraphQlException</a>.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+
+        <dt>Implemented types</dt>
+        <dd>
+          <ul class="comma-separated clazz-relationships">
+            <li><a href="../domain_repository_auth/AbstractAuthRepository-class.html">AbstractAuthRepository</a></li>
+          </ul>
+        </dd>
+
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="AuthRepository" class="callable">
+          <span class="name"><a href="../store_auth/AuthRepository/AuthRepository.html">AuthRepository</a></span><span class="signature">(<span class="parameter" id="-param-_graphQlProvider"><span class="type-annotation"><a href="../provider_gql_graphql/GraphQlProvider-class.html">GraphQlProvider</a></span> <span class="parameter-name">_graphQlProvider</span></span>)</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="authExceptionHandler" class="property">
+  <span class="name"><a href="../store_auth/AuthRepository/authExceptionHandler.html">authExceptionHandler</a></span>
+  <span class="signature">&#8592; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-"><span class="type-annotation"><a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a></span></span>)</span></span> 
+
+</dt>
+<dd>
+  Sets <code>handler</code> that will be called on any <a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a>. 
+  <div class="features">write-only, override</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="token" class="property">
+  <span class="name"><a href="../store_auth/AuthRepository/token.html">token</a></span>
+  <span class="signature">&#8592; <a href="../domain_model_session/AccessToken-class.html">AccessToken</a>?</span> 
+
+</dt>
+<dd>
+  Sets an authorization <code>token</code> of this repository. 
+  <div class="features">write-only, override</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="applyToken" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/applyToken.html">applyToken</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies the specified <a href="../store_auth/AuthRepository/token.html">token</a> right away instead of the lazy reconnection. <a href="../store_auth/AuthRepository/applyToken.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="checkUserIdentifiable" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/checkUserIdentifiable.html">checkUserIdentifiable</a></span><span class="signature">(<wbr><span class="parameter" id="checkUserIdentifiable-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="checkUserIdentifiable-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="checkUserIdentifiable-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="checkUserIdentifiable-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Indicates whether some <a href="../domain_model_user/User-class.html">User</a> can be identified by the given <code>num</code>,
+<code>login</code>, <code>email</code> or <code>phone</code>. <a href="../store_auth/AuthRepository/checkUserIdentifiable.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="logout" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/logout.html">logout</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes a <a href="../domain_model_session/Session-class.html">Session</a> of the <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the <a href="../store_auth/AuthRepository/token.html">token</a> of this
+repository. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="recoverUserPassword" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/recoverUserPassword.html">recoverUserPassword</a></span><span class="signature">(<wbr><span class="parameter" id="recoverUserPassword-param-login">{<span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="recoverUserPassword-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="recoverUserPassword-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="recoverUserPassword-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Initiates password recovery for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of fourth should be specified). <a href="../store_auth/AuthRepository/recoverUserPassword.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="renewSession" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/renewSession.html">renewSession</a></span><span class="signature">(<wbr><span class="parameter" id="renewSession-param-token"><span class="type-annotation"><a href="../domain_model_session/RememberToken-class.html">RememberToken</a></span> <span class="parameter-name">token</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_session/Credentials-class.html">Credentials</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Refreshes the current <a href="../domain_model_session/AccessToken-class.html">AccessToken</a>. <a href="../store_auth/AuthRepository/renewSession.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="resetUserPassword" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/resetUserPassword.html">resetUserPassword</a></span><span class="signature">(<wbr><span class="parameter" id="resetUserPassword-param-code">{<span>required</span> <span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="resetUserPassword-param-newPassword"><span>required</span> <span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a></span> <span class="parameter-name">newPassword</span>, </span><span class="parameter" id="resetUserPassword-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="resetUserPassword-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="resetUserPassword-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="resetUserPassword-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resets password for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of fourth should be specified)
+and recovery <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a>. <a href="../store_auth/AuthRepository/resetUserPassword.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="signIn" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/signIn.html">signIn</a></span><span class="signature">(<wbr><span class="parameter" id="signIn-param-password"><span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a></span> <span class="parameter-name">password</span>, </span><span class="parameter" id="signIn-param-login">{<span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="signIn-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="signIn-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="signIn-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_session/Credentials-class.html">Credentials</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new <a href="../domain_model_session/Session-class.html">Session</a> for the <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of four should be specified). 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="signUp" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/signUp.html">signUp</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_session/Credentials-class.html">Credentials</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> having only <a href="../domain_model_user/UserId-class.html">UserId</a> and <a href="../domain_model_user/UserNum-class.html">UserNum</a> fields, and
+creates a new <a href="../domain_model_session/Session-class.html">Session</a> for this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../store_auth/AuthRepository/signUp.html">[...]</a>
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="useChatDirectLink" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/useChatDirectLink.html">useChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="useChatDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a></span> <span class="parameter-name">slug</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Uses the specified <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> creating
+a new <a href="../domain_model_chat/Chat-class.html">Chat</a>-dialog or joining an existing <a href="../domain_model_chat/Chat-class.html">Chat</a>-group. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="validateToken" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/validateToken.html">validateToken</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates the current <a href="../domain_model_session/AccessToken-class.html">AccessToken</a>. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="validateUserPasswordRecoveryCode" class="callable">
+  <span class="name"><a href="../store_auth/AuthRepository/validateUserPasswordRecoveryCode.html">validateUserPasswordRecoveryCode</a></span><span class="signature">(<wbr><span class="parameter" id="validateUserPasswordRecoveryCode-param-code">{<span>required</span> <span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates the provided password recovery <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>
+identified by the provided <code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of
+fourth should be specified). 
+  <div class="features">override</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../store_auth/store_auth-library.html">auth</a></li>
+  <li class="self-crumb">AuthRepository class</li>
+</ol>
+
+
+    <h5>auth library</h5>
+    <ol>
+  <li class="section-title"><a href="../store_auth/store_auth-library.html#classes">Classes</a></li>
+  <li><a href="../store_auth/AuthRepository-class.html">AuthRepository</a></li>
+
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../store_auth/AuthRepository-class.html#constructors">Constructors</a></li>
+    <li><a href="../store_auth/AuthRepository/AuthRepository.html">AuthRepository</a></li>
+
+
+    <li class="section-title">
+      <a href="../store_auth/AuthRepository-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../store_auth/AuthRepository/authExceptionHandler.html">authExceptionHandler</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../store_auth/AuthRepository/token.html">token</a></li>
+
+    <li class="section-title"><a href="../store_auth/AuthRepository-class.html#instance-methods">Methods</a></li>
+    <li><a href="../store_auth/AuthRepository/applyToken.html">applyToken</a></li>
+    <li><a href="../store_auth/AuthRepository/checkUserIdentifiable.html">checkUserIdentifiable</a></li>
+    <li><a href="../store_auth/AuthRepository/logout.html">logout</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../store_auth/AuthRepository/recoverUserPassword.html">recoverUserPassword</a></li>
+    <li><a href="../store_auth/AuthRepository/renewSession.html">renewSession</a></li>
+    <li><a href="../store_auth/AuthRepository/resetUserPassword.html">resetUserPassword</a></li>
+    <li><a href="../store_auth/AuthRepository/signIn.html">signIn</a></li>
+    <li><a href="../store_auth/AuthRepository/signUp.html">signUp</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../store_auth/AuthRepository/useChatDirectLink.html">useChatDirectLink</a></li>
+    <li><a href="../store_auth/AuthRepository/validateToken.html">validateToken</a></li>
+    <li><a href="../store_auth/AuthRepository/validateUserPasswordRecoveryCode.html">validateUserPasswordRecoveryCode</a></li>
+
+    <li class="section-title inherited"><a href="../store_auth/AuthRepository-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

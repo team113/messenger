@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the events method from the CallRepository class, for the Dart programming language.">
+  <title>events method - CallRepository class - call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_call/store_call-library.html">call</a></li>
+    <li><a href="../../store_call/CallRepository-class.html">CallRepository</a></li>
+    <li class="self-crumb">events method</li>
+  </ol>
+  <div class="self-name">events</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">events</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<div>
+  <ol class="annotation-list">
+    <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+  </ol>
+</div>
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../store_event_incoming_chat_call/IncomingChatCallsTopEvent-class.html">IncomingChatCallsTopEvent</a></span>&gt;</span></span>&gt;</span></span>
+<span class="name ">events</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="events-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span></li>
+</ol>)
+
+      <div class="features">override</div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the subscription of <a href="../../store_event_incoming_chat_call/IncomingChatCallsTopEvent-class.html">IncomingChatCallsTopEvent</a>s.</p>
+<p><code>count</code> determines the length of the list of incoming <a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a>s which
+updates will be notified via events.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Future&lt;Stream&lt;IncomingChatCallsTopEvent&gt;&gt; events(int count) async =&gt;
+    (await _graphQlProvider.incomingCallsTopEvents(count))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
+          .incomingChatCallsTopEvents;
+
+      if (events.$$typename == &#39;SubscriptionInitialized&#39;) {
+        yield const IncomingChatCallsTopInitialized();
+      } else if (events.$$typename == &#39;IncomingChatCallsTop&#39;) {
+        var list = (events
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
+            .list;
+        for (var u in list.map((e) =&gt; e.members).expand((e) =&gt; e)) {
+          _userRepo.put(u.user.toHive());
+        }
+        yield IncomingChatCallsTop(list.map((e) =&gt; e.toModel()).toList());
+      } else if (events.$$typename ==
+          &#39;EventIncomingChatCallsTopChatCallAdded&#39;) {
+        var data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+        yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
+      } else if (events.$$typename ==
+          &#39;EventIncomingChatCallsTopChatCallRemoved&#39;) {
+        var data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
+        yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+      }
+    });</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../store_call/store_call-library.html">call</a></li>
+  <li><a href="../../store_call/CallRepository-class.html">CallRepository</a></li>
+  <li class="self-crumb">events method</li>
+</ol>
+
+
+    <h5>CallRepository class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../store_call/CallRepository-class.html#constructors">Constructors</a></li>
+    <li><a href="../../store_call/CallRepository/CallRepository.html">CallRepository</a></li>
+
+
+    <li class="section-title">
+      <a href="../../store_call/CallRepository-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../store_call/CallRepository/calls.html">calls</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../store_call/CallRepository-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../store_call/CallRepository/add.html">add</a></li>
+    <li><a href="../../store_call/CallRepository/contains.html">contains</a></li>
+    <li><a href="../../store_call/CallRepository/decline.html">decline</a></li>
+    <li><a href="../../store_call/CallRepository/events.html">events</a></li>
+    <li><a href="../../store_call/CallRepository/heartbeat.html">heartbeat</a></li>
+    <li><a href="../../store_call/CallRepository/join.html">join</a></li>
+    <li><a href="../../store_call/CallRepository/leave.html">leave</a></li>
+    <li><a href="../../store_call/CallRepository/move.html">move</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../store_call/CallRepository/remove.html">remove</a></li>
+    <li><a href="../../store_call/CallRepository/start.html">start</a></li>
+    <li><a href="../../store_call/CallRepository/toggleHand.html">toggleHand</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../../store_call/CallRepository/transformDialogCallIntoGroupCall.html">transformDialogCallIntoGroupCall</a></li>
+
+    <li class="section-title"><a href="../../store_call/CallRepository-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+    <li><a href="../../store_call/CallRepository/operator_get.html">operator []</a></li>
+    <li><a href="../../store_call/CallRepository/operator_put.html">operator []=</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

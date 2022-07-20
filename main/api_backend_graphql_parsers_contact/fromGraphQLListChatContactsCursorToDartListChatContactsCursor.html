@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the fromGraphQLListChatContactsCursorToDartListChatContactsCursor function from the contact library, for the Dart programming language.">
+  <title>fromGraphQLListChatContactsCursorToDartListChatContactsCursor function - contact library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../api_backend_graphql_parsers_contact/api_backend_graphql_parsers_contact-library.html">contact</a></li>
+    <li class="self-crumb">fromGraphQLListChatContactsCursorToDartListChatContactsCursor function</li>
+  </ol>
+  <div class="self-name">fromGraphQLListChatContactsCursorToDartListChatContactsCursor</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-function">fromGraphQLListChatContactsCursorToDartListChatContactsCursor</span> function 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../store_model_contact/ChatContactsCursor-class.html">ChatContactsCursor</a></span>&gt;</span></span>
+<span class="name ">fromGraphQLListChatContactsCursorToDartListChatContactsCursor</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="fromGraphQLListChatContactsCursorToDartListChatContactsCursor-param-v"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">v</span></span></li>
+</ol>)
+
+    </section>
+    
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">List&lt;ChatContactsCursor&gt;
+    fromGraphQLListChatContactsCursorToDartListChatContactsCursor(
+            List&lt;Object?&gt; v) =&gt;
+        v
+            .map((e) =&gt; fromGraphQLChatContactsCursorToDartChatContactsCursor(
+                e as String))
+            .toList();</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/api_backend_graphql_parsers_contact-library.html">contact</a></li>
+  <li class="self-crumb">fromGraphQLListChatContactsCursorToDartListChatContactsCursor function</li>
+</ol>
+
+
+    <h5>contact library</h5>
+    <ol>
+
+
+
+
+
+  <li class="section-title"><a href="../api_backend_graphql_parsers_contact/api_backend_graphql_parsers_contact-library.html#functions">Functions</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactIdNullableToGraphQLChatContactIdNullable.html">fromDartChatContactIdNullableToGraphQLChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactIdToGraphQLChatContactId.html">fromDartChatContactIdToGraphQLChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable.html">fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactPositionToGraphQLChatContactPosition.html">fromDartChatContactPositionToGraphQLChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactsCursorNullableToGraphQLChatContactsCursorNullable.html">fromDartChatContactsCursorNullableToGraphQLChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactsCursorToGraphQLChatContactsCursor.html">fromDartChatContactsCursorToGraphQLChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactsListVersionNullableToGraphQLChatContactsListVersionNullable.html">fromDartChatContactsListVersionNullableToGraphQLChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactsListVersionToGraphQLChatContactsListVersion.html">fromDartChatContactsListVersionToGraphQLChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactVersionNullableToGraphQLChatContactVersionNullable.html">fromDartChatContactVersionNullableToGraphQLChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartChatContactVersionToGraphQLChatContactVersion.html">fromDartChatContactVersionToGraphQLChatContactVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactIdNullableToGraphQLListChatContactIdNullable.html">fromDartListChatContactIdNullableToGraphQLListChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactIdToGraphQLListChatContactId.html">fromDartListChatContactIdToGraphQLListChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactPositionNullableToGraphQLListChatContactPositionNullable.html">fromDartListChatContactPositionNullableToGraphQLListChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactPositionToGraphQLListChatContactPosition.html">fromDartListChatContactPositionToGraphQLListChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactsCursorNullableToGraphQLListChatContactsCursorNullable.html">fromDartListChatContactsCursorNullableToGraphQLListChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactsCursorToGraphQLListChatContactsCursor.html">fromDartListChatContactsCursorToGraphQLListChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactsListVersionNullableToGraphQLListChatContactsListVersionNullable.html">fromDartListChatContactsListVersionNullableToGraphQLListChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactsListVersionToGraphQLListChatContactsListVersion.html">fromDartListChatContactsListVersionToGraphQLListChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactVersionNullableToGraphQLListChatContactVersionNullable.html">fromDartListChatContactVersionNullableToGraphQLListChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListChatContactVersionToGraphQLListChatContactVersion.html">fromDartListChatContactVersionToGraphQLListChatContactVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactIdNullableToGraphQLListNullableChatContactIdNullable.html">fromDartListNullableChatContactIdNullableToGraphQLListNullableChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactIdToGraphQLListNullableChatContactId.html">fromDartListNullableChatContactIdToGraphQLListNullableChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactPositionNullableToGraphQLListNullableChatContactPositionNullable.html">fromDartListNullableChatContactPositionNullableToGraphQLListNullableChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactPositionToGraphQLListNullableChatContactPosition.html">fromDartListNullableChatContactPositionToGraphQLListNullableChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactsCursorNullableToGraphQLListNullableChatContactsCursorNullable.html">fromDartListNullableChatContactsCursorNullableToGraphQLListNullableChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactsCursorToGraphQLListNullableChatContactsCursor.html">fromDartListNullableChatContactsCursorToGraphQLListNullableChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactsListVersionNullableToGraphQLListNullableChatContactsListVersionNullable.html">fromDartListNullableChatContactsListVersionNullableToGraphQLListNullableChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactsListVersionToGraphQLListNullableChatContactsListVersion.html">fromDartListNullableChatContactsListVersionToGraphQLListNullableChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactVersionNullableToGraphQLListNullableChatContactVersionNullable.html">fromDartListNullableChatContactVersionNullableToGraphQLListNullableChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromDartListNullableChatContactVersionToGraphQLListNullableChatContactVersion.html">fromDartListNullableChatContactVersionToGraphQLListNullableChatContactVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactIdNullableToDartChatContactIdNullable.html">fromGraphQLChatContactIdNullableToDartChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactIdToDartChatContactId.html">fromGraphQLChatContactIdToDartChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable.html">fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactPositionToDartChatContactPosition.html">fromGraphQLChatContactPositionToDartChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactsCursorNullableToDartChatContactsCursorNullable.html">fromGraphQLChatContactsCursorNullableToDartChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactsCursorToDartChatContactsCursor.html">fromGraphQLChatContactsCursorToDartChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactsListVersionNullableToDartChatContactsListVersionNullable.html">fromGraphQLChatContactsListVersionNullableToDartChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactsListVersionToDartChatContactsListVersion.html">fromGraphQLChatContactsListVersionToDartChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactVersionNullableToDartChatContactVersionNullable.html">fromGraphQLChatContactVersionNullableToDartChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLChatContactVersionToDartChatContactVersion.html">fromGraphQLChatContactVersionToDartChatContactVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactIdNullableToDartListChatContactIdNullable.html">fromGraphQLListChatContactIdNullableToDartListChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactIdToDartListChatContactId.html">fromGraphQLListChatContactIdToDartListChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactPositionNullableToDartListChatContactPositionNullable.html">fromGraphQLListChatContactPositionNullableToDartListChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactPositionToDartListChatContactPosition.html">fromGraphQLListChatContactPositionToDartListChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactsCursorNullableToDartListChatContactsCursorNullable.html">fromGraphQLListChatContactsCursorNullableToDartListChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactsCursorToDartListChatContactsCursor.html">fromGraphQLListChatContactsCursorToDartListChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactsListVersionNullableToDartListChatContactsListVersionNullable.html">fromGraphQLListChatContactsListVersionNullableToDartListChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactsListVersionToDartListChatContactsListVersion.html">fromGraphQLListChatContactsListVersionToDartListChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactVersionNullableToDartListChatContactVersionNullable.html">fromGraphQLListChatContactVersionNullableToDartListChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListChatContactVersionToDartListChatContactVersion.html">fromGraphQLListChatContactVersionToDartListChatContactVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactIdNullableToDartListNullableChatContactIdNullable.html">fromGraphQLListNullableChatContactIdNullableToDartListNullableChatContactIdNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactIdToDartListNullableChatContactId.html">fromGraphQLListNullableChatContactIdToDartListNullableChatContactId</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactPositionNullableToDartListNullableChatContactPositionNullable.html">fromGraphQLListNullableChatContactPositionNullableToDartListNullableChatContactPositionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactPositionToDartListNullableChatContactPosition.html">fromGraphQLListNullableChatContactPositionToDartListNullableChatContactPosition</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactsCursorNullableToDartListNullableChatContactsCursorNullable.html">fromGraphQLListNullableChatContactsCursorNullableToDartListNullableChatContactsCursorNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactsCursorToDartListNullableChatContactsCursor.html">fromGraphQLListNullableChatContactsCursorToDartListNullableChatContactsCursor</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactsListVersionNullableToDartListNullableChatContactsListVersionNullable.html">fromGraphQLListNullableChatContactsListVersionNullableToDartListNullableChatContactsListVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactsListVersionToDartListNullableChatContactsListVersion.html">fromGraphQLListNullableChatContactsListVersionToDartListNullableChatContactsListVersion</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactVersionNullableToDartListNullableChatContactVersionNullable.html">fromGraphQLListNullableChatContactVersionNullableToDartListNullableChatContactVersionNullable</a></li>
+  <li><a href="../api_backend_graphql_parsers_contact/fromGraphQLListNullableChatContactVersionToDartListNullableChatContactVersion.html">fromGraphQLListNullableChatContactVersionToDartListNullableChatContactVersion</a></li>
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

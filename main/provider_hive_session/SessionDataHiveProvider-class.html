@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SessionDataHiveProvider class from the session library, for the Dart programming language.">
+  <title>SessionDataHiveProvider class - session library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_hive_session/provider_hive_session-library.html">session</a></li>
+    <li class="self-crumb">SessionDataHiveProvider class</li>
+  </ol>
+  <div class="self-name">SessionDataHiveProvider</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">SessionDataHiveProvider</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p><a href="https://pub.dev/documentation/hive/2.1.0/hive/Hive.html">Hive</a> storage for a <a href="../store_model_session_data/SessionData-class.html">SessionData</a>.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycle-class.html">GetLifeCycle</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface-class.html">DisposableInterface</a></li>
+          <li><a href="../provider_hive_base/HiveBaseProvider-class.html">HiveBaseProvider</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../store_model_session_data/SessionData-class.html">SessionData</a></span>&gt;</span></li>
+          <li>SessionDataHiveProvider</li>
+        </ul></dd>
+
+
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="SessionDataHiveProvider" class="callable">
+          <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/SessionDataHiveProvider.html">SessionDataHiveProvider</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="box" class="property inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/box.html">box</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../store_model_session_data/SessionData-class.html">SessionData</a></span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Returns the <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a> storing data of this <a href="../provider_hive_base/HiveBaseProvider-class.html">HiveBaseProvider</a>. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="boxEvents" class="property">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/boxEvents.html">boxEvents</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/hive/2.1.0/hive/BoxEvent-class.html">BoxEvent</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returns a broadcast stream of Hive <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a> change events. 
+  <div class="features">read-only, override</div>
+
+</dd>
+
+        <dt id="boxName" class="property">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/boxName.html">boxName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> 
+
+</dt>
+<dd>
+  Name of the underlying <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a>. 
+  <div class="features">read-only, override</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="initialized" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been initialized. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isClosed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been closed. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isEmpty" class="property inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/isEmpty.html">isEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Indicates whether there are no entries in this <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a>. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isReady" class="property inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/isReady.html">isReady</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Indicates whether the underlying <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a> was opened and can be used. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="onDelete" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Internal callback that starts the cycle of this controller. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="onStart" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Called at the exact moment the widget is allocated in memory.
+It uses an internal "callable" type, to avoid any @overrides in subclases.
+This method should be internal and is required to define the
+lifetime cycle of the subclass. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="valuesSafe" class="property inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/valuesSafe.html">valuesSafe</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../store_model_session_data/SessionData-class.html">SessionData</a></span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Exception-safe wrapper for <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box/values.html">Box.values</a> returning all the values in the
+<a href="../provider_hive_base/HiveBaseProvider/box.html">box</a>. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="$configureLifeCycle" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="clear" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/clear.html">clear</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Removes all entries from the <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a>. 
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/mustCallSuper-constant.html">mustCallSuper</a>, inherited</div>
+
+</dd>
+
+        <dt id="close" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/close.html">close</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Closes the <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a>. 
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/mustCallSuper-constant.html">mustCallSuper</a>, inherited</div>
+
+</dd>
+
+        <dt id="deleteSafe" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/deleteSafe.html">deleteSafe</a></span><span class="signature">(<wbr><span class="parameter" id="deleteSafe-param-key"><span class="type-annotation">dynamic</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="deleteSafe-param-defaultValue">{<span class="type-annotation"><a href="../store_model_session_data/SessionData-class.html">SessionData</a>?</span> <span class="parameter-name">defaultValue</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Exception-safe wrapper for <a href="https://pub.dev/documentation/hive/2.1.0/hive/BoxBase/delete.html">BoxBase.delete</a> deleting the given <code>key</code> from
+the <a href="../provider_hive_base/HiveBaseProvider/box.html">box</a>. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="getChatContactsListVersion" class="callable">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/getChatContactsListVersion.html">getChatContactsListVersion</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../store_model_contact/ChatContactsListVersion-class.html">ChatContactsListVersion</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the stored <a href="../store_model_contact/ChatContactsListVersion-class.html">ChatContactsListVersion</a> from <a href="https://pub.dev/documentation/hive/2.1.0/hive/Hive.html">Hive</a>. 
+  
+
+</dd>
+
+        <dt id="getCredentials" class="callable">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/getCredentials.html">getCredentials</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../domain_model_session/Credentials-class.html">Credentials</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the stored <a href="../domain_model_session/Credentials-class.html">Credentials</a> from <a href="https://pub.dev/documentation/hive/2.1.0/hive/Hive.html">Hive</a>. 
+  
+
+</dd>
+
+        <dt id="getSafe" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/getSafe.html">getSafe</a></span><span class="signature">(<wbr><span class="parameter" id="getSafe-param-key"><span class="type-annotation">dynamic</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="getSafe-param-defaultValue">{<span class="type-annotation"><a href="../store_model_session_data/SessionData-class.html">SessionData</a>?</span> <span class="parameter-name">defaultValue</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="../store_model_session_data/SessionData-class.html">SessionData</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Exception-safe wrapper for <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box/get.html">Box.get</a> returning the value associated with
+the given <code>key</code>, if any. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="init" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/init.html">init</a></span><span class="signature">(<wbr><span class="parameter" id="init-param-userId">{<span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a>?</span> <span class="parameter-name">userId</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Opens a <a href="https://pub.dev/documentation/hive/2.1.0/hive/Box-class.html">Box</a> and changes <a href="../provider_hive_base/HiveBaseProvider/isReady.html">isReady</a> to true. <a href="../provider_hive_base/HiveBaseProvider/init.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="onClose" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/onClose.html">onClose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Called before <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a> method. <a href="../provider_hive_base/HiveBaseProvider/onClose.html">onClose</a> might be used to
+dispose resources used by the controller. Like closing events,
+or streams before the controller is destroyed.
+Or dispose objects that can potentially create some memory leaks,
+like TextEditingControllers, AnimationControllers.
+Might be useful as well to persist some data on disk. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="onInit" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onInit.html">onInit</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller. 
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/mustCallSuper-constant.html">mustCallSuper</a>, inherited</div>
+
+</dd>
+
+        <dt id="onReady" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Called 1 frame after onInit(). It is the perfect place to enter
+navigation events, like snackbar, dialogs, or a new route, or
+async request. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="putSafe" class="callable inherited">
+  <span class="name"><a href="../provider_hive_base/HiveBaseProvider/putSafe.html">putSafe</a></span><span class="signature">(<wbr><span class="parameter" id="putSafe-param-key"><span class="type-annotation">dynamic</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="putSafe-param-value"><span class="type-annotation"><a href="../store_model_session_data/SessionData-class.html">SessionData</a></span> <span class="parameter-name">value</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Exception-safe wrapper for <a href="https://pub.dev/documentation/hive/2.1.0/hive/BoxBase/put.html">BoxBase.put</a> saving the <code>key</code> - <code>value</code> pair. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="registerAdapters" class="callable">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/registerAdapters.html">registerAdapters</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+   
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="setChatContactsListVersion" class="callable">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/setChatContactsListVersion.html">setChatContactsListVersion</a></span><span class="signature">(<wbr><span class="parameter" id="setChatContactsListVersion-param-ver"><span class="type-annotation"><a href="../store_model_contact/ChatContactsListVersion-class.html">ChatContactsListVersion</a></span> <span class="parameter-name">ver</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stores a new <a href="../store_model_contact/ChatContactsListVersion-class.html">ChatContactsListVersion</a> to <a href="https://pub.dev/documentation/hive/2.1.0/hive/Hive.html">Hive</a>. 
+  
+
+</dd>
+
+        <dt id="setCredentials" class="callable">
+  <span class="name"><a href="../provider_hive_session/SessionDataHiveProvider/setCredentials.html">setCredentials</a></span><span class="signature">(<wbr><span class="parameter" id="setCredentials-param-credentials"><span class="type-annotation"><a href="../domain_model_session/Credentials-class.html">Credentials</a></span> <span class="parameter-name">credentials</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Stores new <a href="../domain_model_session/Credentials-class.html">Credentials</a> to <a href="https://pub.dev/documentation/hive/2.1.0/hive/Hive.html">Hive</a>. 
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../provider_hive_session/provider_hive_session-library.html">session</a></li>
+  <li class="self-crumb">SessionDataHiveProvider class</li>
+</ol>
+
+
+    <h5>session library</h5>
+    <ol>
+  <li class="section-title"><a href="../provider_hive_session/provider_hive_session-library.html#classes">Classes</a></li>
+  <li><a href="../provider_hive_session/SessionDataHiveProvider-class.html">SessionDataHiveProvider</a></li>
+
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../provider_hive_session/SessionDataHiveProvider-class.html#constructors">Constructors</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/SessionDataHiveProvider.html">SessionDataHiveProvider</a></li>
+
+
+    <li class="section-title">
+      <a href="../provider_hive_session/SessionDataHiveProvider-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/box.html">box</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/boxEvents.html">boxEvents</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/boxName.html">boxName</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/isEmpty.html">isEmpty</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/isReady.html">isReady</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/valuesSafe.html">valuesSafe</a></li>
+
+    <li class="section-title"><a href="../provider_hive_session/SessionDataHiveProvider-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/clear.html">clear</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/close.html">close</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/deleteSafe.html">deleteSafe</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/getChatContactsListVersion.html">getChatContactsListVersion</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/getCredentials.html">getCredentials</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/getSafe.html">getSafe</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/init.html">init</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/onClose.html">onClose</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onInit.html">onInit</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></li>
+    <li class="inherited"><a href="../provider_hive_base/HiveBaseProvider/putSafe.html">putSafe</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/registerAdapters.html">registerAdapters</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/setChatContactsListVersion.html">setChatContactsListVersion</a></li>
+    <li><a href="../provider_hive_session/SessionDataHiveProvider/setCredentials.html">setCredentials</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+
+    <li class="section-title inherited"><a href="../provider_hive_session/SessionDataHiveProvider-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

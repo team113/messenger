@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the setVideoDevice method from the OngoingCall class, for the Dart programming language.">
+  <title>setVideoDevice method - OngoingCall class - ongoing_call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../domain_model_ongoing_call/domain_model_ongoing_call-library.html">ongoing_call</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+    <li class="self-crumb">setVideoDevice method</li>
+  </ol>
+  <div class="self-name">setVideoDevice</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">setVideoDevice</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">setVideoDevice</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="setVideoDevice-param-deviceId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">deviceId</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Sets device with <code>deviceId</code> as a currently used <a href="../../domain_model_ongoing_call/OngoingCall/videoDevice.html">videoDevice</a>.</p>
+<p>Does nothing if <code>deviceId</code> is already an ID of the <a href="../../domain_model_ongoing_call/OngoingCall/videoDevice.html">videoDevice</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; setVideoDevice(String deviceId) async {
+  if ((videoDevice.value != null &amp;&amp; deviceId != videoDevice.value) ||
+      (videoDevice.value == null &amp;&amp;
+          _devices.video().firstOrNull?.deviceId() != deviceId)) {
+    await _updateSettings(videoDevice: deviceId);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../domain_model_ongoing_call/domain_model_ongoing_call-library.html">ongoing_call</a></li>
+  <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+  <li class="self-crumb">setVideoDevice method</li>
+</ol>
+
+
+    <h5>OngoingCall class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../domain_model_ongoing_call/OngoingCall-class.html#constructors">Constructors</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/OngoingCall.html">OngoingCall</a></li>
+
+
+    <li class="section-title">
+      <a href="../../domain_model_ongoing_call/OngoingCall-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/audioDevice.html">audioDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/audioState.html">audioState</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/call.html">call</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/callChatItemId.html">callChatItemId</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/caller.html">caller</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/chatId.html">chatId</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/connected.html">connected</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/conversationStartedAt.html">conversationStartedAt</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/creds.html">creds</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/deviceId.html">deviceId</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/devices.html">devices</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/errors.html">errors</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/isActive.html">isActive</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/isRemoteAudioEnabled.html">isRemoteAudioEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/isRemoteVideoEnabled.html">isRemoteVideoEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/localVideos.html">localVideos</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/me.html">me</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/members.html">members</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/outputDevice.html">outputDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/remoteAudios.html">remoteAudios</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/remoteVideos.html">remoteVideos</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/screenShareState.html">screenShareState</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/state.html">state</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/videoDevice.html">videoDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/videoState.html">videoState</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/withVideo.html">withVideo</a></li>
+
+    <li class="section-title"><a href="../../domain_model_ongoing_call/OngoingCall-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/addError.html">addError</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/connect.html">connect</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/decline.html">decline</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/dispose.html">dispose</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/enumerateDevices.html">enumerateDevices</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/init.html">init</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/join.html">join</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/leave.html">leave</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setAudioDevice.html">setAudioDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setAudioEnabled.html">setAudioEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setOutputDevice.html">setOutputDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setRemoteAudioEnabled.html">setRemoteAudioEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setRemoteVideoEnabled.html">setRemoteVideoEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setScreenShareEnabled.html">setScreenShareEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setVideoDevice.html">setVideoDevice</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/setVideoEnabled.html">setVideoEnabled</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/toggleAudio.html">toggleAudio</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/toggleRemoteAudio.html">toggleRemoteAudio</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/toggleRemoteVideo.html">toggleRemoteVideo</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/toggleScreenShare.html">toggleScreenShare</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall/toggleVideo.html">toggleVideo</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+
+    <li class="section-title inherited"><a href="../../domain_model_ongoing_call/OngoingCall-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

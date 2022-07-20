@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the GraphQlProvider class from the graphql library, for the Dart programming language.">
+  <title>GraphQlProvider class - graphql library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_gql_graphql/provider_gql_graphql-library.html">graphql</a></li>
+    <li class="self-crumb">GraphQlProvider class</li>
+  </ol>
+  <div class="self-name">GraphQlProvider</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">GraphQlProvider</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Provider of backend GraphQL API.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+          <li><a href="../provider_gql_base/GraphQlProviderBase-class.html">GraphQlProviderBase</a></li>
+          <li>GraphQlProvider</li>
+        </ul></dd>
+
+
+        <dt>Mixed in types</dt>
+        <dd><ul class="comma-separated clazz-relationships">
+          <li><a href="../provider_gql_components_auth/AuthGraphQlMixin-class.html">AuthGraphQlMixin</a></li>
+          <li><a href="../provider_gql_components_user/UserGraphQlMixin-class.html">UserGraphQlMixin</a></li>
+          <li><a href="../provider_gql_components_call/CallGraphQlMixin-class.html">CallGraphQlMixin</a></li>
+          <li><a href="../provider_gql_components_contact/ContactGraphQlMixin-class.html">ContactGraphQlMixin</a></li>
+          <li><a href="../provider_gql_components_chat/ChatGraphQlMixin-class.html">ChatGraphQlMixin</a></li>
+        </ul></dd>
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="GraphQlProvider" class="callable">
+          <span class="name"><a href="../provider_gql_graphql/GraphQlProvider/GraphQlProvider.html">GraphQlProvider</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="authExceptionHandler" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/authExceptionHandler.html">authExceptionHandler</a></span>
+  <span class="signature">&#8592; (<a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function?<span class="signature">(<span class="parameter" id="param-"><span class="type-annotation"><a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a></span></span>)</span>?)</span> 
+
+</dt>
+<dd class="inherited">
+  Sets callback, called when middleware catches <a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a>. 
+  <div class="features">write-only, inherited</div>
+
+</dd>
+
+        <dt id="client" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/client.html">client</a></span>
+  <span class="signature">&#8594; <a href="../provider_gql_base/GraphQlClient-class.html">GraphQlClient</a></span> 
+
+</dt>
+<dd class="inherited">
+  Returns <a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/GraphQLClient-class.html">GraphQLClient</a> with or without authorization. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="clientGuard" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/clientGuard.html">clientGuard</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/mutex/3.0.0/mutex/Mutex-class.html">Mutex</a></span> 
+
+</dt>
+<dd class="inherited">
+  Returns mutex guarding the <a href="../provider_gql_base/GraphQlProviderBase/client.html">client</a>. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="token" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/token.html">token</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_session/AccessToken-class.html">AccessToken</a>?</span> 
+
+</dt>
+<dd class="inherited">
+  Returns authorization bearer token. 
+  <div class="features">read / write, inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="addChatMember" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/addChatMember.html">addChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="addChatMember-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="addChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds an <a href="../domain_model_user/User-class.html">User</a> to a <a href="../domain_model_chat/Chat-class.html">Chat</a>-group by the authority of the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/addChatMember.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addUserEmail" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/addUserEmail.html">addUserEmail</a></span><span class="signature">(<wbr><span class="parameter" id="addUserEmail-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a></span> <span class="parameter-name">email</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds a new email address for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/addUserEmail.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addUserPhone" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/addUserPhone.html">addUserPhone</a></span><span class="signature">(<wbr><span class="parameter" id="addUserPhone-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a></span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds a new phone number for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/addUserPhone.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="callEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/callEvents.html">callEvents</a></span><span class="signature">(<wbr><span class="parameter" id="callEvents-param-id"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="callEvents-param-deviceId"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallDeviceId-class.html">ChatCallDeviceId</a></span> <span class="parameter-name">deviceId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to <a href="../store_event_chat_call/ChatCallEvent-class.html">ChatCallEvent</a>s of a <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/callEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="changeContactName" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_contact/ContactGraphQlMixin/changeContactName.html">changeContactName</a></span><span class="signature">(<wbr><span class="parameter" id="changeContactName-param-id"><span class="type-annotation"><a href="../domain_model_contact/ChatContactId-class.html">ChatContactId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="changeContactName-param-name"><span class="type-annotation"><a href="../domain_model_user/UserName-class.html">UserName</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatContactEventsVersionedMixin-mixin.html">ChatContactEventsVersionedMixin</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates the <code>name</code> of the specified <a href="../domain_model_contact/ChatContact-class.html">ChatContact</a> in the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s address book. <a href="../provider_gql_components_contact/ContactGraphQlMixin/changeContactName.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="chatContacts" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_contact/ContactGraphQlMixin/chatContacts.html">chatContacts</a></span><span class="signature">(<wbr><span class="parameter" id="chatContacts-param-first">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">first</span>, </span><span class="parameter" id="chatContacts-param-after"><span class="type-annotation"><a href="../store_model_contact/ChatContactsCursor-class.html">ChatContactsCursor</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="chatContacts-param-last"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">last</span>, </span><span class="parameter" id="chatContacts-param-before"><span class="type-annotation"><a href="../store_model_contact/ChatContactsCursor-class.html">ChatContactsCursor</a>?</span> <span class="parameter-name">before</span>, </span><span class="parameter" id="chatContacts-param-noFavorite"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">noFavorite</span> = <span class="default-value">false</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/Contacts$Query$ChatContacts-class.html">Contacts$Query$ChatContacts</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns address book of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> ordered alphabetically
+by <a href="../domain_model_contact/ChatContact-class.html">ChatContact</a> names. <a href="../provider_gql_components_contact/ContactGraphQlMixin/chatContacts.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="chatEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/chatEvents.html">chatEvents</a></span><span class="signature">(<wbr><span class="parameter" id="chatEvents-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="chatEvents-param-ver"><span class="type-annotation"><a href="../store_model_chat/ChatVersion-class.html">ChatVersion</a>?</span> <span class="parameter-name">ver</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to <a href="../store_event_chat/ChatEvent-class.html">ChatEvent</a>s of the specified <a href="../domain_model_chat/Chat-class.html">Chat</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/chatEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="chatItems" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/chatItems.html">chatItems</a></span><span class="signature">(<wbr><span class="parameter" id="chatItems-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="chatItems-param-first">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">first</span>, </span><span class="parameter" id="chatItems-param-after"><span class="type-annotation"><a href="../store_model_chat_item/ChatItemsCursor-class.html">ChatItemsCursor</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="chatItems-param-last"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">last</span>, </span><span class="parameter" id="chatItems-param-before"><span class="type-annotation"><a href="../store_model_chat_item/ChatItemsCursor-class.html">ChatItemsCursor</a>?</span> <span class="parameter-name">before</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/GetMessages$Query-class.html">GetMessages$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Fetches <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a>s of a <a href="../domain_model_chat/Chat-class.html">Chat</a> identified by its <code>id</code> ordered by their
+posting time. <a href="../provider_gql_components_chat/ChatGraphQlMixin/chatItems.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="checkUserIdentifiable" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/checkUserIdentifiable.html">checkUserIdentifiable</a></span><span class="signature">(<wbr><span class="parameter" id="checkUserIdentifiable-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="checkUserIdentifiable-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="checkUserIdentifiable-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="checkUserIdentifiable-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether some <a href="../domain_model_user/User-class.html">User</a> can be identified by the given <code>num</code>,
+<code>login</code>, <code>email</code> or <code>phone</code>. <a href="../provider_gql_components_auth/AuthGraphQlMixin/checkUserIdentifiable.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="clearCache" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/clearCache.html">clearCache</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Clears the cache attached to the client. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="confirmEmailCode" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/confirmEmailCode.html">confirmEmailCode</a></span><span class="signature">(<wbr><span class="parameter" id="confirmEmailCode-param-code"><span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Confirms the given unconfirmed email address with the provided
+<a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>, and moves it to a
+<a href="../domain_model_my_user/MyUserEmails/confirmed.html">MyUserEmails.confirmed</a> sub-field unlocking the related capabilities. <a href="../provider_gql_components_user/UserGraphQlMixin/confirmEmailCode.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="confirmPhoneCode" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/confirmPhoneCode.html">confirmPhoneCode</a></span><span class="signature">(<wbr><span class="parameter" id="confirmPhoneCode-param-code"><span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Confirms the given unconfirmed phone number with the provided
+<a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>, and moves it to a
+<a href="../domain_model_my_user/MyUserPhones/confirmed.html">MyUserPhones.confirmed</a> sub-field unlocking the related capabilities. <a href="../provider_gql_components_user/UserGraphQlMixin/confirmPhoneCode.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="contactsEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_contact/ContactGraphQlMixin/contactsEvents.html">contactsEvents</a></span><span class="signature">(<wbr><span class="parameter" id="contactsEvents-param-ver"><span class="type-annotation"><a href="../store_model_contact/ChatContactsListVersion-class.html">ChatContactsListVersion</a>?</span> <span class="parameter-name">ver</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to <a href="../store_event_contact/ChatContactEvent-class.html">ChatContactEvent</a>s of all <a href="../domain_model_contact/ChatContact-class.html">ChatContact</a>s of the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_contact/ContactGraphQlMixin/contactsEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="createChatContact" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_contact/ContactGraphQlMixin/createChatContact.html">createChatContact</a></span><span class="signature">(<wbr><span class="parameter" id="createChatContact-param-name">{<span>required</span> <span class="type-annotation"><a href="../domain_model_user/UserName-class.html">UserName</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="createChatContact-param-records"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatContactRecord-class.html">ChatContactRecord</a></span>&gt;</span>?</span> <span class="parameter-name">records</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatContactEventsVersionedMixin-mixin.html">ChatContactEventsVersionedMixin</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_contact/ChatContact-class.html">ChatContact</a> in the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s address book. <a href="../provider_gql_components_contact/ContactGraphQlMixin/createChatContact.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="createChatDirectLink" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createChatDirectLink.html">createChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="createChatDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a></span> <span class="parameter-name">slug</span>, </span><span class="parameter" id="createChatDirectLink-param-groupId">{<span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a>?</span> <span class="parameter-name">groupId</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> with the specified <a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a> and
+deletes the current active <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group. <a href="../provider_gql_components_chat/ChatGraphQlMixin/createChatDirectLink.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="createDialogChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createDialogChat.html">createDialogChat</a></span><span class="signature">(<wbr><span class="parameter" id="createDialogChat-param-responderId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">responderId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatMixin-mixin.html">ChatMixin</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="../domain_model_chat/Chat-class.html">Chat</a>-dialog with the provided <code>responderId</code> for the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/createDialogChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="createGroupChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createGroupChat.html">createGroupChat</a></span><span class="signature">(<wbr><span class="parameter" id="createGroupChat-param-memberIds"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_user/UserId-class.html">UserId</a></span>&gt;</span></span> <span class="parameter-name">memberIds</span>, </span><span class="parameter" id="createGroupChat-param-name">{<span class="type-annotation"><a href="../domain_model_chat/ChatName-class.html">ChatName</a>?</span> <span class="parameter-name">name</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatMixin-mixin.html">ChatMixin</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="../domain_model_chat/Chat-class.html">Chat</a>-group with the provided <a href="../domain_model_user/User-class.html">User</a>s as members and the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/createGroupChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="createUserDirectLink" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/createUserDirectLink.html">createUserDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="createUserDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a></span> <span class="parameter-name">slug</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> with the specified <a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a> and
+deletes the current active <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>
+(if any). <a href="../provider_gql_components_user/UserGraphQlMixin/createUserDirectLink.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="declineChatCall" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/declineChatCall.html">declineChatCall</a></span><span class="signature">(<wbr><span class="parameter" id="declineChatCall-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Declines the ongoing <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/declineChatCall.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteChatContact" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_contact/ContactGraphQlMixin/deleteChatContact.html">deleteChatContact</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatContact-param-id"><span class="type-annotation"><a href="../domain_model_contact/ChatContactId-class.html">ChatContactId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/DeleteChatContact$Mutation-class.html">DeleteChatContact$Mutation</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the specified <a href="../domain_model_contact/ChatContact-class.html">ChatContact</a> from the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s
+address book. <a href="../provider_gql_components_contact/ContactGraphQlMixin/deleteChatContact.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteChatDirectLink" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatDirectLink.html">deleteChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatDirectLink-param-groupId">{<span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a>?</span> <span class="parameter-name">groupId</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the current <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group. <a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatDirectLink.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteChatForward" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatForward.html">deleteChatForward</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatForward-param-id"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the specified <a href="../domain_model_chat_item/ChatForward-class.html">ChatForward</a> posted by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatForward.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteChatMessage" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatMessage.html">deleteChatMessage</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatMessage-param-id"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the specified <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a> posted by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatMessage.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteMyUser" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteMyUser.html">deleteMyUser</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> completely. <a href="../provider_gql_components_user/UserGraphQlMixin/deleteMyUser.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteSession" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/deleteSession.html">deleteSession</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes an authorized <a href="../domain_model_session/Session-class.html">Session</a> by the stored <a href="../provider_gql_base/GraphQlProviderBase/token.html">token</a>. <a href="../provider_gql_components_auth/AuthGraphQlMixin/deleteSession.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteUserDirectLink" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserDirectLink.html">deleteUserDirectLink</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the current <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserDirectLink.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteUserEmail" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserEmail.html">deleteUserEmail</a></span><span class="signature">(<wbr><span class="parameter" id="deleteUserEmail-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a></span> <span class="parameter-name">email</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the given <code>email</code> from <a href="../domain_model_my_user/MyUser/emails.html">MyUser.emails</a> of the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserEmail.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteUserGalleryItem" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserGalleryItem.html">deleteUserGalleryItem</a></span><span class="signature">(<wbr><span class="parameter" id="deleteUserGalleryItem-param-id"><span class="type-annotation"><a href="../domain_model_gallery_item/GalleryItemId-class.html">GalleryItemId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Removes the specified <a href="../ui_page_home_widget_gallery_popup/GalleryItem-class.html">GalleryItem</a> from the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s
+gallery. <a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserGalleryItem.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="deleteUserPhone" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserPhone.html">deleteUserPhone</a></span><span class="signature">(<wbr><span class="parameter" id="deleteUserPhone-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a></span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Deletes the given <code>phone</code> from <a href="../domain_model_my_user/MyUser/phones.html">MyUser.phones</a> for the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserPhone.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="disconnect" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/disconnect.html">disconnect</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Disconnects the <a href="../provider_gql_base/GraphQlProviderBase/client.html">client</a> and disposes the connection. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="editChatMessageText" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/editChatMessageText.html">editChatMessageText</a></span><span class="signature">(<wbr><span class="parameter" id="editChatMessageText-param-id"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="editChatMessageText-param-text"><span class="type-annotation"><a href="../domain_model_chat_item/ChatMessageText-class.html">ChatMessageText</a>?</span> <span class="parameter-name">text</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Edits <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a>'s text by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/editChatMessageText.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="getChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">getChat</a></span><span class="signature">(<wbr><span class="parameter" id="getChat-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/GetChat$Query-class.html">GetChat$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a <a href="../domain_model_chat/Chat-class.html">Chat</a> by its ID. <a href="../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="getMyUser" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/getMyUser.html">getMyUser</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/GetMyUser$Query-class.html">GetMyUser$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the current authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/getMyUser.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="getUser" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/getUser.html">getUser</a></span><span class="signature">(<wbr><span class="parameter" id="getUser-param-id"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/GetUser$Query-class.html">GetUser$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns an <a href="../domain_model_user/User-class.html">User</a> by its <code>id</code>. <a href="../provider_gql_components_user/UserGraphQlMixin/getUser.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="hideChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChat.html">hideChat</a></span><span class="signature">(<wbr><span class="parameter" id="hideChat-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Marks the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> as hidden for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="hideChatItem" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChatItem.html">hideChatItem</a></span><span class="signature">(<wbr><span class="parameter" id="hideChatItem-param-id"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Hides the specified <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a> for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChatItem.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="incomingCalls" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a></span><span class="signature">(<wbr><span class="parameter" id="incomingCalls-param-first">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">first</span>, </span><span class="parameter" id="incomingCalls-param-after"><span class="type-annotation"><a href="../store_model_chat_call/IncomingChatCallsCursor-class.html">IncomingChatCallsCursor</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="incomingCalls-param-last"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">last</span>, </span><span class="parameter" id="incomingCalls-param-before"><span class="type-annotation"><a href="../store_model_chat_call/IncomingChatCallsCursor-class.html">IncomingChatCallsCursor</a>?</span> <span class="parameter-name">before</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/IncomingCalls$Query$IncomingChatCalls-class.html">IncomingCalls$Query$IncomingChatCalls</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a list of incoming <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a>s of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="incomingCallsTopEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/incomingCallsTopEvents.html">incomingCallsTopEvents</a></span><span class="signature">(<wbr><span class="parameter" id="incomingCallsTopEvents-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to updates of top <code>count</code> items of <a href="../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a> list. <a href="../provider_gql_components_call/CallGraphQlMixin/incomingCallsTopEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="joinChatCall" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/joinChatCall.html">joinChatCall</a></span><span class="signature">(<wbr><span class="parameter" id="joinChatCall-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="joinChatCall-param-creds"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallCredentials-class.html">ChatCallCredentials</a></span> <span class="parameter-name">creds</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/JoinCall$Mutation$JoinChatCall$JoinChatCallOk-class.html">JoinCall$Mutation$JoinChatCall$JoinChatCallOk</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Joins the ongoing <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/joinChatCall.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="keepOnline" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/keepOnline.html">keepOnline</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Keeps the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> online while subscribed. <a href="../provider_gql_components_user/UserGraphQlMixin/keepOnline.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="keepTyping" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/keepTyping.html">keepTyping</a></span><span class="signature">(<wbr><span class="parameter" id="keepTyping-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Notifies <a href="../domain_model_chat/ChatMember-class.html">ChatMember</a>s about the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> typing in the
+specified <a href="../domain_model_chat/Chat-class.html">Chat</a> at the moment. <a href="../provider_gql_components_chat/ChatGraphQlMixin/keepTyping.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="leaveChatCall" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/leaveChatCall.html">leaveChatCall</a></span><span class="signature">(<wbr><span class="parameter" id="leaveChatCall-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="leaveChatCall-param-deviceId"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallDeviceId-class.html">ChatCallDeviceId</a></span> <span class="parameter-name">deviceId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Leaves the ongoing <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/leaveChatCall.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="myUserEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/myUserEvents.html">myUserEvents</a></span><span class="signature">(<wbr><span class="parameter" id="myUserEvents-param-ver"><span class="type-annotation"><a href="../store_model_my_user/MyUserVersion-class.html">MyUserVersion</a>?</span> <span class="parameter-name">ver</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to <a href="../store_event_my_user/MyUserEvent-class.html">MyUserEvent</a>s of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/myUserEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="postChatMessage" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/postChatMessage.html">postChatMessage</a></span><span class="signature">(<wbr><span class="parameter" id="postChatMessage-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="postChatMessage-param-text">{<span class="type-annotation"><a href="../domain_model_chat_item/ChatMessageText-class.html">ChatMessageText</a>?</span> <span class="parameter-name">text</span>, </span><span class="parameter" id="postChatMessage-param-attachments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_attachment/AttachmentId-class.html">AttachmentId</a></span>&gt;</span>?</span> <span class="parameter-name">attachments</span>, </span><span class="parameter" id="postChatMessage-param-repliesTo"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a>?</span> <span class="parameter-name">repliesTo</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Posts a new <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a> to the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/postChatMessage.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="readChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/readChat.html">readChat</a></span><span class="signature">(<wbr><span class="parameter" id="readChat-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="readChat-param-untilId"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">untilId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Marks the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> as read for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> until
+the specified <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a> inclusively. <a href="../provider_gql_components_chat/ChatGraphQlMixin/readChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="recentChats" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a></span><span class="signature">(<wbr><span class="parameter" id="recentChats-param-first">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">first</span>, </span><span class="parameter" id="recentChats-param-after"><span class="type-annotation"><a href="../store_model_chat/RecentChatsCursor-class.html">RecentChatsCursor</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="recentChats-param-last"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">last</span>, </span><span class="parameter" id="recentChats-param-before"><span class="type-annotation"><a href="../store_model_chat/RecentChatsCursor-class.html">RecentChatsCursor</a>?</span> <span class="parameter-name">before</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/RecentChats$Query-class.html">RecentChats$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns non-hidden <a href="../domain_model_chat/Chat-class.html">Chat</a>s of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> ordered
+descending by the last updating time. <a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="recentChatsTopEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChatsTopEvents.html">recentChatsTopEvents</a></span><span class="signature">(<wbr><span class="parameter" id="recentChatsTopEvents-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to updates of top <code>count</code> items of <a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a> list. <a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChatsTopEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="reconnect" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlProviderBase/reconnect.html">reconnect</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Reconnects the <a href="../provider_gql_base/GraphQlProviderBase/client.html">client</a> right away if the <a href="../provider_gql_base/GraphQlProviderBase/token.html">token</a> mismatch is detected. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="recoverUserPassword" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/recoverUserPassword.html">recoverUserPassword</a></span><span class="signature">(<wbr><span class="parameter" id="recoverUserPassword-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="recoverUserPassword-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="recoverUserPassword-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="recoverUserPassword-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Initiates password recovery for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of fourth should be specified). <a href="../provider_gql_components_auth/AuthGraphQlMixin/recoverUserPassword.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="removeChatMember" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/removeChatMember.html">removeChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatMember-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="removeChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Removes an <a href="../domain_model_user/User-class.html">User</a> from a <a href="../domain_model_chat/Chat-class.html">Chat</a>-group by the authority of the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/removeChatMember.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="renameChat" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/renameChat.html">renameChat</a></span><span class="signature">(<wbr><span class="parameter" id="renameChat-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="renameChat-param-name"><span class="type-annotation"><a href="../domain_model_chat/ChatName-class.html">ChatName</a>?</span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Renames the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by authority of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_chat/ChatGraphQlMixin/renameChat.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="renewSession" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/renewSession.html">renewSession</a></span><span class="signature">(<wbr><span class="parameter" id="renewSession-param-token"><span class="type-annotation"><a href="../domain_model_session/RememberToken-class.html">RememberToken</a></span> <span class="parameter-name">token</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/RenewSession$Mutation-class.html">RenewSession$Mutation</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Renews a <a href="../domain_model_session/Session-class.html">Session</a> of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the
+provided <a href="../domain_model_session/RememberToken-class.html">RememberToken</a>. <a href="../provider_gql_components_auth/AuthGraphQlMixin/renewSession.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="resendEmail" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/resendEmail.html">resendEmail</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Resends a new <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> to <a href="../domain_model_my_user/MyUserEmails/unconfirmed.html">MyUserEmails.unconfirmed</a> address
+for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/resendEmail.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="resendPhone" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/resendPhone.html">resendPhone</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Resends a new <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> to <a href="../domain_model_my_user/MyUserPhones/unconfirmed.html">MyUserPhones.unconfirmed</a> number for
+the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/resendPhone.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="resetUserPassword" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/resetUserPassword.html">resetUserPassword</a></span><span class="signature">(<wbr><span class="parameter" id="resetUserPassword-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="resetUserPassword-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="resetUserPassword-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="resetUserPassword-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>, </span><span class="parameter" id="resetUserPassword-param-code"><span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span>, </span><span class="parameter" id="resetUserPassword-param-newPassword"><span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a></span> <span class="parameter-name">newPassword</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Resets password for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of fourth should be specified),
+and authenticating the mutation with the provided recovery
+<a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a>. <a href="../provider_gql_components_auth/AuthGraphQlMixin/resetUserPassword.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="searchUsers" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/searchUsers.html">searchUsers</a></span><span class="signature">(<wbr><span class="parameter" id="searchUsers-param-num">{<span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="searchUsers-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="searchUsers-param-link"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a>?</span> <span class="parameter-name">link</span>, </span><span class="parameter" id="searchUsers-param-name"><span class="type-annotation"><a href="../domain_model_user/UserName-class.html">UserName</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="searchUsers-param-first"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">first</span>, </span><span class="parameter" id="searchUsers-param-after"><span class="type-annotation"><a href="../store_model_user/UsersCursor-class.html">UsersCursor</a>?</span> <span class="parameter-name">after</span>, </span><span class="parameter" id="searchUsers-param-last"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">last</span>, </span><span class="parameter" id="searchUsers-param-before"><span class="type-annotation"><a href="../store_model_user/UsersCursor-class.html">UsersCursor</a>?</span> <span class="parameter-name">before</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/SearchUsers$Query-class.html">SearchUsers$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Searches <a href="../domain_model_user/User-class.html">User</a>s by the given criteria. <a href="../provider_gql_components_user/UserGraphQlMixin/searchUsers.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="signIn" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/signIn.html">signIn</a></span><span class="signature">(<wbr><span class="parameter" id="signIn-param-password"><span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a></span> <span class="parameter-name">password</span>, </span><span class="parameter" id="signIn-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="signIn-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="signIn-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="signIn-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>, </span><span class="parameter" id="signIn-param-remember"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">remember</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/SignIn$Mutation$CreateSession$CreateSessionOk-class.html">SignIn$Mutation$CreateSession$CreateSessionOk</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_session/Session-class.html">Session</a> for the <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> identified by the provided
+<code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of four should be specified). <a href="../provider_gql_components_auth/AuthGraphQlMixin/signIn.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="signUp" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/signUp.html">signUp</a></span><span class="signature">(<wbr><span class="parameter" id="signUp-param-remember">[<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">remember</span> = <span class="default-value">true</span>]</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/SignUp$Mutation-class.html">SignUp$Mutation</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> having only <code>id</code> and unique <code>num</code> fields, along
+with a <a href="../domain_model_session/Session-class.html">Session</a> for him (valid for the returned expiration). <a href="../provider_gql_components_auth/AuthGraphQlMixin/signUp.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="startChatCall" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/startChatCall.html">startChatCall</a></span><span class="signature">(<wbr><span class="parameter" id="startChatCall-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="startChatCall-param-creds"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallCredentials-class.html">ChatCallCredentials</a></span> <span class="parameter-name">creds</span>, </span><span class="parameter" id="startChatCall-param-withVideo">[<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">withVideo</span>]</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/StartCall$Mutation$StartChatCall$StartChatCallOk-class.html">StartCall$Mutation$StartChatCall$StartChatCallOk</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts a new <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/startChatCall.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="toggleChatCallHand" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/toggleChatCallHand.html">toggleChatCallHand</a></span><span class="signature">(<wbr><span class="parameter" id="toggleChatCallHand-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="toggleChatCallHand-param-raised"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">raised</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatCallEventsVersionedMixin-mixin.html">ChatCallEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Raises/lowers a hand of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> in the specified
+<a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a>. <a href="../provider_gql_components_call/CallGraphQlMixin/toggleChatCallHand.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="transformDialogCallIntoGroupCall" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_call/CallGraphQlMixin/transformDialogCallIntoGroupCall.html">transformDialogCallIntoGroupCall</a></span><span class="signature">(<wbr><span class="parameter" id="transformDialogCallIntoGroupCall-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="transformDialogCallIntoGroupCall-param-additionalMemberIds"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_user/UserId-class.html">UserId</a></span>&gt;</span></span> <span class="parameter-name">additionalMemberIds</span>, </span><span class="parameter" id="transformDialogCallIntoGroupCall-param-groupName"><span class="type-annotation"><a href="../domain_model_chat/ChatName-class.html">ChatName</a>?</span> <span class="parameter-name">groupName</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ChatCallEventsVersionedMixin-mixin.html">ChatCallEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Moves an ongoing <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in a <a href="../domain_model_chat/Chat-class.html">Chat</a>-dialog to a newly created
+<a href="../domain_model_chat/Chat-class.html">Chat</a>-group, optionally adding new members. <a href="../provider_gql_components_call/CallGraphQlMixin/transformDialogCallIntoGroupCall.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserAvatar" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserAvatar.html">updateUserAvatar</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserAvatar-param-id"><span class="type-annotation"><a href="../domain_model_gallery_item/GalleryItemId-class.html">GalleryItemId</a>?</span> <span class="parameter-name">id</span>, </span><span class="parameter" id="updateUserAvatar-param-crop"><span class="type-annotation"><a href="../api_backend_schema.graphql/CropAreaInput-class.html">CropAreaInput</a>?</span> <span class="parameter-name">crop</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates or resets the <a href="../domain_model_my_user/MyUser/avatar.html">MyUser.avatar</a> field with the provided
+<a href="../ui_page_home_widget_gallery_popup/GalleryItem-class.html">GalleryItem</a> from the gallery of the authenticated MyUser. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserAvatar.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserBio" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserBio.html">updateUserBio</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserBio-param-bio"><span class="type-annotation"><a href="../domain_model_user/UserBio-class.html">UserBio</a>?</span> <span class="parameter-name">bio</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates <a href="../domain_model_my_user/MyUser/bio.html">MyUser.bio</a> field for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserBio.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserCallCover" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserCallCover.html">updateUserCallCover</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserCallCover-param-id"><span class="type-annotation"><a href="../domain_model_gallery_item/GalleryItemId-class.html">GalleryItemId</a>?</span> <span class="parameter-name">id</span>, </span><span class="parameter" id="updateUserCallCover-param-crop"><span class="type-annotation"><a href="../api_backend_schema.graphql/CropAreaInput-class.html">CropAreaInput</a>?</span> <span class="parameter-name">crop</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates or resets the <a href="../domain_model_my_user/MyUser/callCover.html">MyUser.callCover</a> field with the provided
+<a href="../ui_page_home_widget_gallery_popup/GalleryItem-class.html">GalleryItem</a> from the gallery of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserCallCover.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserLogin" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserLogin.html">updateUserLogin</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserLogin-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a></span> <span class="parameter-name">login</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates <a href="../domain_model_my_user/MyUser/login.html">MyUser.login</a> field for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserLogin.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserName" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserName.html">updateUserName</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserName-param-name"><span class="type-annotation"><a href="../domain_model_user/UserName-class.html">UserName</a>?</span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates <a href="../domain_model_my_user/MyUser/name.html">MyUser.name</a> field for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserName.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserPassword" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPassword.html">updateUserPassword</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserPassword-param-oldPassword"><span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a>?</span> <span class="parameter-name">oldPassword</span>, </span><span class="parameter" id="updateUserPassword-param-newPassword"><span class="type-annotation"><a href="../domain_model_user/UserPassword-class.html">UserPassword</a></span> <span class="parameter-name">newPassword</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates password for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPassword.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateUserPresence" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPresence.html">updateUserPresence</a></span><span class="signature">(<wbr><span class="parameter" id="updateUserPresence-param-presence"><span class="type-annotation"><a href="../api_backend_schema.graphql/Presence.html">Presence</a></span> <span class="parameter-name">presence</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Updates <a href="../domain_model_my_user/MyUser/presence.html">MyUser.presence</a> to the provided value. <a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPresence.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="uploadAttachment" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/uploadAttachment.html">uploadAttachment</a></span><span class="signature">(<wbr><span class="parameter" id="uploadAttachment-param-attachment"><span class="type-annotation"><a href="https://pub.dev/documentation/dio/4.0.6/dio/MultipartFile-class.html">MultipartFile</a>?</span> <span class="parameter-name">attachment</span>, </span><span class="parameter" id="uploadAttachment-param-onSendProgress">{<span class="type-annotation">void</span> <span class="parameter-name">onSendProgress</span>(<span class="parameter" id="param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="param-total"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">total</span></span>)?}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk-class.html">UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a new <a href="../domain_model_attachment/Attachment-class.html">Attachment</a> linked to the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> for a
+later use in the <a href="../provider_gql_components_chat/ChatGraphQlMixin/postChatMessage.html">postChatMessage</a> mutation. <a href="../provider_gql_components_chat/ChatGraphQlMixin/uploadAttachment.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="uploadUserGalleryItem" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/uploadUserGalleryItem.html">uploadUserGalleryItem</a></span><span class="signature">(<wbr><span class="parameter" id="uploadUserGalleryItem-param-galleryItem"><span class="type-annotation"><a href="https://pub.dev/documentation/dio/4.0.6/dio/MultipartFile-class.html">MultipartFile</a>?</span> <span class="parameter-name">galleryItem</span>, </span><span class="parameter" id="uploadUserGalleryItem-param-onSendProgress">{<span class="type-annotation">void</span> <span class="parameter-name">onSendProgress</span>(<span class="parameter" id="param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="param-total"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">total</span></span>)?}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds a new <a href="../ui_page_home_widget_gallery_popup/GalleryItem-class.html">GalleryItem</a> to the gallery of the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/uploadUserGalleryItem.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="useChatDirectLink" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_chat/ChatGraphQlMixin/useChatDirectLink.html">useChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="useChatDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a></span> <span class="parameter-name">slug</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk-class.html">UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Uses the specified <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> creating
+a new <a href="../domain_model_chat/Chat-class.html">Chat</a>-dialog or joining an existing <a href="../domain_model_chat/Chat-class.html">Chat</a>-group. <a href="../provider_gql_components_chat/ChatGraphQlMixin/useChatDirectLink.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="userEvents" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_user/UserGraphQlMixin/userEvents.html">userEvents</a></span><span class="signature">(<wbr><span class="parameter" id="userEvents-param-id"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="userEvents-param-ver"><span class="type-annotation"><a href="../store_model_user/UserVersion-class.html">UserVersion</a>?</span> <span class="parameter-name">ver</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.1.2-beta.1/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subscribes to <a href="../store_event_user/UserEvent-class.html">UserEvent</a>s of the specified <a href="../domain_model_user/User-class.html">User</a>. <a href="../provider_gql_components_user/UserGraphQlMixin/userEvents.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="validateToken" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/validateToken.html">validateToken</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/ValidateToken$Query-class.html">ValidateToken$Query</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates the current authorization token. <a href="../provider_gql_components_auth/AuthGraphQlMixin/validateToken.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="validateUserPasswordRecoveryCode" class="callable inherited">
+  <span class="name"><a href="../provider_gql_components_auth/AuthGraphQlMixin/validateUserPasswordRecoveryCode.html">validateUserPasswordRecoveryCode</a></span><span class="signature">(<wbr><span class="parameter" id="validateUserPasswordRecoveryCode-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-num"><span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a>?</span> <span class="parameter-name">num</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a>?</span> <span class="parameter-name">email</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a>?</span> <span class="parameter-name">phone</span>, </span><span class="parameter" id="validateUserPasswordRecoveryCode-param-code"><span class="type-annotation"><a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a></span> <span class="parameter-name">code</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validates the provided password recovery <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> for a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>
+identified by the provided <code>num</code>/<code>login</code>/<code>email</code>/<code>phone</code> (exactly one of
+fourth should be specified). <a href="../provider_gql_components_auth/AuthGraphQlMixin/validateUserPasswordRecoveryCode.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../provider_gql_graphql/provider_gql_graphql-library.html">graphql</a></li>
+  <li class="self-crumb">GraphQlProvider class</li>
+</ol>
+
+
+    <h5>graphql library</h5>
+    <ol>
+  <li class="section-title"><a href="../provider_gql_graphql/provider_gql_graphql-library.html#classes">Classes</a></li>
+  <li><a href="../provider_gql_graphql/GraphQlProvider-class.html">GraphQlProvider</a></li>
+
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../provider_gql_graphql/GraphQlProvider-class.html#constructors">Constructors</a></li>
+    <li><a href="../provider_gql_graphql/GraphQlProvider/GraphQlProvider.html">GraphQlProvider</a></li>
+
+
+    <li class="section-title inherited">
+      <a href="../provider_gql_graphql/GraphQlProvider-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/authExceptionHandler.html">authExceptionHandler</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/client.html">client</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/clientGuard.html">clientGuard</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/token.html">token</a></li>
+
+    <li class="section-title inherited"><a href="../provider_gql_graphql/GraphQlProvider-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/addChatMember.html">addChatMember</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/addUserEmail.html">addUserEmail</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/addUserPhone.html">addUserPhone</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/callEvents.html">callEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_components_contact/ContactGraphQlMixin/changeContactName.html">changeContactName</a></li>
+    <li class="inherited"><a href="../provider_gql_components_contact/ContactGraphQlMixin/chatContacts.html">chatContacts</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/chatEvents.html">chatEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/chatItems.html">chatItems</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/checkUserIdentifiable.html">checkUserIdentifiable</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/clearCache.html">clearCache</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/confirmEmailCode.html">confirmEmailCode</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/confirmPhoneCode.html">confirmPhoneCode</a></li>
+    <li class="inherited"><a href="../provider_gql_components_contact/ContactGraphQlMixin/contactsEvents.html">contactsEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_components_contact/ContactGraphQlMixin/createChatContact.html">createChatContact</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createChatDirectLink.html">createChatDirectLink</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createDialogChat.html">createDialogChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/createGroupChat.html">createGroupChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/createUserDirectLink.html">createUserDirectLink</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/declineChatCall.html">declineChatCall</a></li>
+    <li class="inherited"><a href="../provider_gql_components_contact/ContactGraphQlMixin/deleteChatContact.html">deleteChatContact</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatDirectLink.html">deleteChatDirectLink</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatForward.html">deleteChatForward</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/deleteChatMessage.html">deleteChatMessage</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteMyUser.html">deleteMyUser</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/deleteSession.html">deleteSession</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserDirectLink.html">deleteUserDirectLink</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserEmail.html">deleteUserEmail</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserGalleryItem.html">deleteUserGalleryItem</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/deleteUserPhone.html">deleteUserPhone</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/disconnect.html">disconnect</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/editChatMessageText.html">editChatMessageText</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/getChat.html">getChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/getMyUser.html">getMyUser</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/getUser.html">getUser</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChat.html">hideChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/hideChatItem.html">hideChatItem</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/incomingCallsTopEvents.html">incomingCallsTopEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/joinChatCall.html">joinChatCall</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/keepOnline.html">keepOnline</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/keepTyping.html">keepTyping</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/leaveChatCall.html">leaveChatCall</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/myUserEvents.html">myUserEvents</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/postChatMessage.html">postChatMessage</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/readChat.html">readChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChats.html">recentChats</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/recentChatsTopEvents.html">recentChatsTopEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_base/GraphQlProviderBase/reconnect.html">reconnect</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/recoverUserPassword.html">recoverUserPassword</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/removeChatMember.html">removeChatMember</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/renameChat.html">renameChat</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/renewSession.html">renewSession</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/resendEmail.html">resendEmail</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/resendPhone.html">resendPhone</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/resetUserPassword.html">resetUserPassword</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/searchUsers.html">searchUsers</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/signIn.html">signIn</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/signUp.html">signUp</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/startChatCall.html">startChatCall</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/toggleChatCallHand.html">toggleChatCallHand</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li class="inherited"><a href="../provider_gql_components_call/CallGraphQlMixin/transformDialogCallIntoGroupCall.html">transformDialogCallIntoGroupCall</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserAvatar.html">updateUserAvatar</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserBio.html">updateUserBio</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserCallCover.html">updateUserCallCover</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserLogin.html">updateUserLogin</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserName.html">updateUserName</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPassword.html">updateUserPassword</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/updateUserPresence.html">updateUserPresence</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/uploadAttachment.html">uploadAttachment</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/uploadUserGalleryItem.html">uploadUserGalleryItem</a></li>
+    <li class="inherited"><a href="../provider_gql_components_chat/ChatGraphQlMixin/useChatDirectLink.html">useChatDirectLink</a></li>
+    <li class="inherited"><a href="../provider_gql_components_user/UserGraphQlMixin/userEvents.html">userEvents</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/validateToken.html">validateToken</a></li>
+    <li class="inherited"><a href="../provider_gql_components_auth/AuthGraphQlMixin/validateUserPasswordRecoveryCode.html">validateUserPasswordRecoveryCode</a></li>
+
+    <li class="section-title inherited"><a href="../provider_gql_graphql/GraphQlProvider-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

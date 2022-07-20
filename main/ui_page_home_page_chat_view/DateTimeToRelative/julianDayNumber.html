@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the julianDayNumber method from the DateTimeToRelative extension, for the Dart programming language.">
+  <title>julianDayNumber method - DateTimeToRelative extension - view library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_page_chat_view/ui_page_home_page_chat_view-library.html">view</a></li>
+    <li><a href="../../ui_page_home_page_chat_view/DateTimeToRelative.html">DateTimeToRelative</a></li>
+    <li class="self-crumb">julianDayNumber method</li>
+  </ol>
+  <div class="self-name">julianDayNumber</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">julianDayNumber</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+<span class="name ">julianDayNumber</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a Julian day number of this <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">int julianDayNumber() {
+  final int c0 = ((month - 3) &#47; 12).floor();
+  final int x4 = year + c0;
+  final int x3 = (x4 &#47; 100).floor();
+  final int x2 = x4 % 100;
+  final int x1 = month - (12 * c0) - 3;
+  return ((146097 * x3) &#47; 4).floor() +
+      ((36525 * x2) &#47; 100).floor() +
+      (((153 * x1) + 2) &#47; 5).floor() +
+      day +
+      1721119;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_home_page_chat_view/ui_page_home_page_chat_view-library.html">view</a></li>
+  <li><a href="../../ui_page_home_page_chat_view/DateTimeToRelative.html">DateTimeToRelative</a></li>
+  <li class="self-crumb">julianDayNumber method</li>
+</ol>
+
+
+    <h5>DateTimeToRelative extension</h5>
+    <ol>
+
+
+
+
+
+    <li class="section-title"><a href="../../ui_page_home_page_chat_view/DateTimeToRelative.html#instance-methods">Methods</a></li>
+    <li><a href="../../ui_page_home_page_chat_view/DateTimeToRelative/julianDayNumber.html">julianDayNumber</a></li>
+    <li><a href="../../ui_page_home_page_chat_view/DateTimeToRelative/toRelative.html">toRelative</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

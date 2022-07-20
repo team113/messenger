@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the HomeRouterDelegate class, for the Dart programming language.">
+  <title>build method - HomeRouterDelegate class - router library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_router/ui_page_home_router-library.html">router</a></li>
+    <li><a href="../../ui_page_home_router/HomeRouterDelegate-class.html">HomeRouterDelegate</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">build</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<div>
+  <ol class="annotation-list">
+    <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+  </ol>
+</div>
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features">override</div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called by the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> to obtain the widget tree that represents the
+current state.</p>
+<p>This is called whenever the <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a>s returned by <a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/setInitialRoutePath.html">setInitialRoutePath</a>,
+<a href="../../ui_page_home_router/HomeRouterDelegate/setNewRoutePath.html">setNewRoutePath</a>, or <a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/setRestoredRoutePath.html">setRestoredRoutePath</a> complete as well as when this
+notifies its clients (see the <a href="https://api.flutter.dev/flutter/foundation/Listenable-class.html">Listenable</a> interface, which this interface
+includes). In addition, it may be called at other times. It is important,
+therefore, that the methods above do not update the state that the <a href="../../ui_page_home_router/HomeRouterDelegate/build.html">build</a>
+method uses before they complete their respective futures.</p>
+<p>Typically this method returns a suitably-configured <a href="https://api.flutter.dev/flutter/widgets/Navigator-class.html">Navigator</a>. If you do
+plan to create a navigator, consider using the
+<a href="https://api.flutter.dev/flutter/widgets/PopNavigatorRouterDelegateMixin-mixin.html">PopNavigatorRouterDelegateMixin</a>. If state restoration is enabled for the
+<a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> using this delegate, consider providing a non-null
+<a href="https://api.flutter.dev/flutter/widgets/Navigator/restorationScopeId.html">Navigator.restorationScopeId</a> to the <a href="https://api.flutter.dev/flutter/widgets/Navigator-class.html">Navigator</a> returned by this method.</p>
+<p>This method must not return null.</p>
+<p>The <code>context</code> is the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a>'s build context.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  return Navigator(
+    key: navigatorKey,
+    pages: _pages,
+    onPopPage: (route, result) {
+      _state.pop();
+      notifyListeners();
+      return route.didPop(result);
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../ui_page_home_router/ui_page_home_router-library.html">router</a></li>
+  <li><a href="../../ui_page_home_router/HomeRouterDelegate-class.html">HomeRouterDelegate</a></li>
+  <li class="self-crumb">build method</li>
+</ol>
+
+
+    <h5>HomeRouterDelegate class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../ui_page_home_router/HomeRouterDelegate-class.html#constructors">Constructors</a></li>
+    <li><a href="../../ui_page_home_router/HomeRouterDelegate/HomeRouterDelegate.html">HomeRouterDelegate</a></li>
+
+
+    <li class="section-title">
+      <a href="../../ui_page_home_router/HomeRouterDelegate-class.html#instance-properties">Properties</a>
+    </li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/currentConfiguration.html">currentConfiguration</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/hasListeners.html">hasListeners</a></li>
+    <li><a href="../../ui_page_home_router/HomeRouterDelegate/navigatorKey.html">navigatorKey</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../ui_page_home_router/HomeRouterDelegate-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/addListener.html">addListener</a></li>
+    <li><a href="../../ui_page_home_router/HomeRouterDelegate/build.html">build</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/dispose.html">dispose</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/notifyListeners.html">notifyListeners</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/PopNavigatorRouterDelegateMixin/popRoute.html">popRoute</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/foundation/ChangeNotifier/removeListener.html">removeListener</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/setInitialRoutePath.html">setInitialRoutePath</a></li>
+    <li><a href="../../ui_page_home_router/HomeRouterDelegate/setNewRoutePath.html">setNewRoutePath</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/setRestoredRoutePath.html">setRestoredRoutePath</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+
+    <li class="section-title inherited"><a href="../../ui_page_home_router/HomeRouterDelegate-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

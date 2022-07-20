@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the updateUserPresence method from the UserGraphQlMixin class, for the Dart programming language.">
+  <title>updateUserPresence method - UserGraphQlMixin class - user library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_user/provider_gql_components_user-library.html">user</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin-class.html">UserGraphQlMixin</a></li>
+    <li class="self-crumb">updateUserPresence method</li>
+  </ol>
+  <div class="self-name">updateUserPresence</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">updateUserPresence</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../api_backend_schema.graphql/MyUserEventsVersionedMixin-mixin.html">MyUserEventsVersionedMixin</a>?</span>&gt;</span></span>
+<span class="name ">updateUserPresence</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="updateUserPresence-param-presence"><span class="type-annotation"><a href="../../api_backend_schema.graphql/Presence.html">Presence</a></span> <span class="parameter-name">presence</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Updates <a href="../../domain_model_my_user/MyUser/presence.html">MyUser.presence</a> to the provided value.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="result">Result</h3>
+<p>Only the following <a href="../../store_event_my_user/MyUserEvent-class.html">MyUserEvent</a> may be produced on success:</p>
+<ul>
+<li><a href="../../store_event_my_user/EventUserPresenceUpdated-class.html">EventUserPresenceUpdated</a>.</li>
+</ul>
+<h3 id="idempotent">Idempotent</h3>
+<p>Succeeds as no-op (and returns no <a href="../../store_event_my_user/MyUserEvent-class.html">MyUserEvent</a>) if the authenticated
+<a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> has the provided <code>presence</code> value already.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;MyUserEventsVersionedMixin?&gt; updateUserPresence(
+    Presence presence) async {
+  var variables = UpdateUserPresenceArguments(presence: presence);
+  QueryResult res = await client.mutate(
+    MutationOptions(
+      document: UpdateUserPresenceMutation(variables: variables).document,
+      variables: variables.toJson(),
+    ),
+  );
+  return UpdateUserPresence$Mutation.fromJson(res.data!).updateUserPresence;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../provider_gql_components_user/provider_gql_components_user-library.html">user</a></li>
+  <li><a href="../../provider_gql_components_user/UserGraphQlMixin-class.html">UserGraphQlMixin</a></li>
+  <li class="self-crumb">updateUserPresence method</li>
+</ol>
+
+
+    <h5>UserGraphQlMixin class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../provider_gql_components_user/UserGraphQlMixin-class.html#constructors">Constructors</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/UserGraphQlMixin.html">UserGraphQlMixin</a></li>
+
+
+    <li class="section-title">
+      <a href="../../provider_gql_components_user/UserGraphQlMixin-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/client.html">client</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../provider_gql_components_user/UserGraphQlMixin-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/addUserEmail.html">addUserEmail</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/addUserPhone.html">addUserPhone</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/confirmEmailCode.html">confirmEmailCode</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/confirmPhoneCode.html">confirmPhoneCode</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/createUserDirectLink.html">createUserDirectLink</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/deleteMyUser.html">deleteMyUser</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/deleteUserDirectLink.html">deleteUserDirectLink</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/deleteUserEmail.html">deleteUserEmail</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/deleteUserGalleryItem.html">deleteUserGalleryItem</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/deleteUserPhone.html">deleteUserPhone</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/getMyUser.html">getMyUser</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/getUser.html">getUser</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/keepOnline.html">keepOnline</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/myUserEvents.html">myUserEvents</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/resendEmail.html">resendEmail</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/resendPhone.html">resendPhone</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/searchUsers.html">searchUsers</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserAvatar.html">updateUserAvatar</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserBio.html">updateUserBio</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserCallCover.html">updateUserCallCover</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserLogin.html">updateUserLogin</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserName.html">updateUserName</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserPassword.html">updateUserPassword</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/updateUserPresence.html">updateUserPresence</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/uploadUserGalleryItem.html">uploadUserGalleryItem</a></li>
+    <li><a href="../../provider_gql_components_user/UserGraphQlMixin/userEvents.html">userEvents</a></li>
+
+    <li class="section-title inherited"><a href="../../provider_gql_components_user/UserGraphQlMixin-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the leaveChatCall method from the CallGraphQlMixin class, for the Dart programming language.">
+  <title>leaveChatCall method - CallGraphQlMixin class - call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_call/provider_gql_components_call-library.html">call</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin-class.html">CallGraphQlMixin</a></li>
+    <li class="self-crumb">leaveChatCall method</li>
+  </ol>
+  <div class="self-name">leaveChatCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">leaveChatCall</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+<span class="name ">leaveChatCall</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="leaveChatCall-param-chatId"><span class="type-annotation"><a href="../../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span></li>
+<li><span class="parameter" id="leaveChatCall-param-deviceId"><span class="type-annotation"><a href="../../domain_model_chat_call/ChatCallDeviceId-class.html">ChatCallDeviceId</a></span> <span class="parameter-name">deviceId</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Leaves the ongoing <a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../../domain_model_my_user/MyUser-class.html">MyUser</a>.</p>
+<p>Use this mutation when the authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> wants to finish or leave
+the <a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> he's participating in at the moment.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="result">Result</h3>
+<p>One of the following <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a>s may be produced on success:</p>
+<ul>
+<li><a href="../../store_event_chat_call/EventChatCallMemberLeft-class.html">EventChatCallMemberLeft</a> (for <a href="../../domain_model_chat/Chat-class.html">Chat</a>-groups);</li>
+<li><a href="../../store_event_chat_call/EventChatCallFinished-class.html">EventChatCallFinished</a> (for <a href="../../domain_model_chat/Chat-class.html">Chat</a>-dialogs).</li>
+</ul>
+<h3 id="idempotent">Idempotent</h3>
+<p>Succeeds as no-op (and returns no <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a>) if there is no ongoing
+<a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in the specified <a href="../../domain_model_chat/Chat-class.html">Chat</a> at the moment, or the authenticated
+<a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> is not a member of it already.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;ChatEventsVersionedMixin?&gt; leaveChatCall(
+  ChatId chatId,
+  ChatCallDeviceId deviceId,
+) async {
+  var variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
+  final QueryResult result = await client.query(
+    QueryOptions(
+      operationName: &#39;LeaveCall&#39;,
+      document: LeaveCallMutation(variables: variables).document,
+      variables: variables.toJson(),
+    ),
+    (data) =&gt; LeaveChatCallException(
+        (LeaveCall$Mutation.fromJson(data).leaveChatCall
+                as LeaveCall$Mutation$LeaveChatCall$LeaveChatCallError)
+            .code),
+  );
+  return (LeaveCall$Mutation.fromJson(result.data!).leaveChatCall
+      as ChatEventsVersionedMixin?);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">messenger</a></li>
+  <li><a href="../../provider_gql_components_call/provider_gql_components_call-library.html">call</a></li>
+  <li><a href="../../provider_gql_components_call/CallGraphQlMixin-class.html">CallGraphQlMixin</a></li>
+  <li class="self-crumb">leaveChatCall method</li>
+</ol>
+
+
+    <h5>CallGraphQlMixin class</h5>
+    <ol>
+
+    <li class="section-title"><a href="../../provider_gql_components_call/CallGraphQlMixin-class.html#constructors">Constructors</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/CallGraphQlMixin.html">CallGraphQlMixin</a></li>
+
+
+    <li class="section-title">
+      <a href="../../provider_gql_components_call/CallGraphQlMixin-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/client.html">client</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../../provider_gql_components_call/CallGraphQlMixin-class.html#instance-methods">Methods</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/callEvents.html">callEvents</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/declineChatCall.html">declineChatCall</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/incomingCallsTopEvents.html">incomingCallsTopEvents</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/joinChatCall.html">joinChatCall</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/leaveChatCall.html">leaveChatCall</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/startChatCall.html">startChatCall</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/toggleChatCallHand.html">toggleChatCallHand</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin/transformDialogCallIntoGroupCall.html">transformDialogCallIntoGroupCall</a></li>
+
+    <li class="section-title inherited"><a href="../../provider_gql_components_call/CallGraphQlMixin-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

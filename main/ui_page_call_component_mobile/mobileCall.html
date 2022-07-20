@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mobileCall function from the mobile library, for the Dart programming language.">
+  <title>mobileCall function - mobile library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">mobile</a></li>
+    <li class="self-crumb">mobileCall function</li>
+  </ol>
+  <div class="self-name">mobileCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-function">mobileCall</span> function 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">mobileCall</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="mobileCall-param-c"><span class="type-annotation"><a href="../ui_page_call_controller/CallController-class.html">CallController</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="mobileCall-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a mobile design of a <a href="../ui_page_call_view/CallView-class.html">CallView</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget mobileCall(CallController c, BuildContext context) {
+  return LayoutBuilder(builder: (context, constraints) {
+    bool isOutgoing =
+        (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp; !c.started;
+
+    &#47;&#47; Call stackable content.
+    List&lt;Widget&gt; content = [
+      SvgLoader.asset(
+        &#39;assets&#47;images&#47;background_dark.svg&#39;,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    ];
+
+    &#47;&#47; Layer of [MouseRegion]s to determine the hovered renderer.
+    List&lt;Widget&gt; overlay = [];
+
+    &#47;&#47; Active call.
+    if (c.state.value == OngoingCallState.active) {
+      content.addAll([
+        _primaryView(c, context),
+
+        &#47;&#47; Secondary panel itself.
+        Obx(() {
+          if (c.minimized.value) {
+            return Container();
+          }
+
+          return GestureDetector(
+            onPanStart: (d) {
+              c.secondaryDragged.value = true;
+              var right = c.secondaryRight.value ?? 0;
+              var bottom = c.secondaryBottom.value ?? 0;
+              c.secondaryRight.value = null;
+              c.secondaryBottom.value = null;
+
+              if (c.secondaryAlignment.value != null ||
+                  c.secondaryKeepAlignment.isTrue) {
+                c.secondaryAlignment.value = null;
+
+                var size = c.size;
+                c.secondaryLeft.value =
+                    size.width - c.secondaryWidth.value - right;
+                c.secondaryTop.value =
+                    size.height - c.secondaryHeight.value - bottom;
+                c.applySecondaryConstraints(context);
+              }
+
+              c.secondaryKeepAlignment.value = false;
+            },
+            onPanDown: (d) =&gt; c.secondaryDragged.value = true,
+            onPanEnd: (d) =&gt; c.secondaryDragged.value = false,
+            onPanCancel: () =&gt; c.secondaryDragged.value = false,
+            onPanUpdate: (d) {
+              c.secondaryDragged.value = true;
+              c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
+              c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
+              c.applySecondaryConstraints(context);
+            },
+            child: _secondaryView(c, context),
+          );
+        }),
+      ]);
+    } else {
+      &#47;&#47; Call is not active.
+      content.add(Obx(() {
+        RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
+            c.paneled.firstOrNull?.video.value;
+
+        if (c.videoState.value != LocalTrackState.disabled &amp;&amp; local != null) {
+          return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+        }
+
+        return Stack(
+          children: [
+            &#47;&#47; Show an [AvatarWidget], if no [CallCover] is available.
+            if (!c.isGroup &amp;&amp;
+                c.chat.value?.callCover == null &amp;&amp;
+                c.minimized.value)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AvatarWidget.fromRxChat(c.chat.value, radius: 60),
+                ),
+              ),
+
+            &#47;&#47; Or a [CallCover] otherwise.
+            if (c.chat.value?.callCover != null)
+              CallCoverWidget(c.chat.value?.callCover),
+
+            &#47;&#47; Display call&#39;s title info only if not minimized.
+            AnimatedSwitcher(
+              duration: 200.milliseconds,
+              child: c.minimized.value
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: const Color(0xA0000000),
+                          ),
+                          height: 40,
+                          child: Obx(() {
+                            bool isOutgoing = (c.outgoing ||
+                                    c.state.value == OngoingCallState.local) &amp;&amp;
+                                !c.started;
+                            bool withDots = c.state.value !=
+                                    OngoingCallState.active &amp;&amp;
+                                (c.state.value == OngoingCallState.joining ||
+                                    isOutgoing);
+                            String state =
+                                c.state.value == OngoingCallState.active
+                                    ? c.duration.value
+                                        .toString()
+                                        .split(&#39;.&#39;)
+                                        .first
+                                        .padLeft(8, &#39;0&#39;)
+                                    : c.state.value == OngoingCallState.joining
+                                        ? &#39;label_call_joining&#39;.l10n
+                                        : isOutgoing
+                                            ? &#39;label_call_calling&#39;.l10n
+                                            : c.withVideo == true
+                                                ? &#39;label_video_call&#39;.l10n
+                                                : &#39;label_audio_call&#39;.l10n;
+
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 4, right: 4),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    state,
+                                    style: context.textTheme.caption
+                                        ?.copyWith(color: Colors.white),
+                                  ),
+                                  if (withDots) const AnimatedDots(),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ),
+          ],
+        );
+      }));
+    }
+
+    &#47;&#47; If there&#39;s any error to show, display it.
+    if (c.errorTimeout.value != 0) {
+      overlay.add(
+        Align(
+          alignment: Alignment.topRight,
+          child: SizedBox(
+            width: 280,
+            child: HintWidget(
+              text: &#39;${c.error}.&#39;,
+              onTap: () =&gt; c.errorTimeout.value = 0,
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget _padding(Widget child) =&gt; Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: child,
+        );
+
+    Widget _buttons(List&lt;Widget&gt; children) =&gt; ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children.map((e) =&gt; Expanded(child: e)).toList(),
+          ),
+        );
+
+    List&lt;Widget&gt; ui = [
+      &#47;&#47; Dimmed container if any video is displayed while calling.
+      Obx(() {
+        return IgnorePointer(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: (c.state.value != OngoingCallState.active &amp;&amp;
+                    c.state.value != OngoingCallState.joining &amp;&amp;
+                    ([...c.primary, ...c.secondary]
+                            .firstWhereOrNull((e) =&gt; e.video.value != null) !=
+                        null) &amp;&amp;
+                    !c.minimized.value)
+                ? Container(color: const Color(0x55000000))
+                : null,
+          ),
+        );
+      }),
+
+      &#47;&#47; Listen to the taps only if the call is not minimized.
+      Obx(() {
+        return c.minimized.value
+            ? Container()
+            : Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: (d) {
+                  c.downPosition = d.localPosition;
+                  c.downButtons = d.buttons;
+                },
+                onPointerUp: (d) {
+                  if (c.draggedRenderer.value != null) return;
+                  if (c.secondaryDragged.value) return;
+                  if (c.downButtons &amp; kPrimaryButton != 0) {
+                    if (c.state.value == OngoingCallState.active) {
+                      if ((d.localPosition.distanceSquared -
+                                  c.downPosition.distanceSquared)
+                              .abs() &lt;=
+                          80000) {
+                        if (c.showUi.isFalse) {
+                          c.keepUi();
+                        } else {
+                          c.keepUi(c.isPanelOpen.value);
+                        }
+                      }
+                    }
+                  }
+                },
+              );
+      }),
+
+      &#47;&#47; Sliding from the top title bar.
+      SafeArea(
+        child: Obx(() {
+          bool showUi =
+              (c.state.value != OngoingCallState.active &amp;&amp; !c.minimized.value);
+          return AnimatedSlider(
+            duration: const Duration(milliseconds: 400),
+            isOpen: showUi,
+            beginOffset: Offset(0, -190 - MediaQuery.of(context).padding.top),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: c.size.height * 0.05,
+                ),
+                child: callTitle(c),
+              ),
+            ),
+          );
+        }),
+      ),
+      &#47;&#47; Sliding from the bottom buttons panel.
+      SafeArea(
+        left: false,
+        right: false,
+        top: false,
+        child: Obx(() {
+          bool showUi =
+              (c.showUi.isTrue || c.state.value != OngoingCallState.active) &amp;&amp;
+                  !c.minimized.value;
+
+          double panelHeight = 0;
+          List&lt;Widget&gt; panelChildren = [];
+
+          &#47;&#47; Populate the sliding panel height and its content.
+          if (c.state.value == OngoingCallState.active ||
+              c.state.value == OngoingCallState.joining) {
+            panelHeight = 360;
+            panelHeight = min(c.size.height - 45, panelHeight);
+
+            Widget _divider() =&gt; Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(
+                        color: Color(0x99FFFFFF),
+                        thickness: 1,
+                        height: 1,
+                      ),
+                    ),
+                  ),
+                );
+
+            panelChildren = [
+              const SizedBox(height: 12),
+              _buttons(
+                [
+                  if (PlatformUtils.isMobile)
+                    _padding(
+                      c.videoState.value.isEnabled()
+                          ? withDescription(
+                              switchButton(c),
+                              AnimatedOpacity(
+                                opacity: c.isPanelOpen.value ? 1 : 0,
+                                duration: 200.milliseconds,
+                                child: Text(&#39;btn_call_switch_camera_desc&#39;.l10n),
+                              ),
+                            )
+                          : withDescription(
+                              speakerButton(c),
+                              AnimatedOpacity(
+                                opacity: c.isPanelOpen.value ? 1 : 0,
+                                duration: 200.milliseconds,
+                                child:
+                                    Text(&#39;btn_call_toggle_speaker_desc&#39;.l10n),
+                              ),
+                            ),
+                    ),
+                  if (PlatformUtils.isDesktop)
+                    _padding(withDescription(
+                      screenButton(c),
+                      AnimatedOpacity(
+                        opacity: c.isPanelOpen.value ? 1 : 0,
+                        duration: 200.milliseconds,
+                        child: Text(
+                          c.screenShareState.value == LocalTrackState.enabled ||
+                                  c.screenShareState.value ==
+                                      LocalTrackState.enabling
+                              ? &#39;btn_call_screen_off_desc&#39;.l10n
+                              : &#39;btn_call_screen_on_desc&#39;.l10n,
+                        ),
+                      ),
+                    )),
+                  _padding(withDescription(
+                    audioButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(
+                        c.audioState.value == LocalTrackState.enabled ||
+                                c.audioState.value == LocalTrackState.enabling
+                            ? &#39;btn_call_audio_off_desc&#39;.l10n
+                            : &#39;btn_call_audio_on_desc&#39;.l10n,
+                      ),
+                    ),
+                  )),
+                  _padding(withDescription(
+                    videoButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(
+                        c.videoState.value == LocalTrackState.enabled ||
+                                c.videoState.value == LocalTrackState.enabling
+                            ? &#39;btn_call_video_off_desc&#39;.l10n
+                            : &#39;btn_call_video_on_desc&#39;.l10n,
+                      ),
+                    ),
+                  )),
+                  _padding(withDescription(
+                    dropButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(&#39;btn_call_end_desc&#39;.l10n),
+                    ),
+                  )),
+                ],
+              ),
+              const SizedBox(height: 32),
+              _buttons(
+                [
+                  _padding(addParticipantButton(c, context)),
+                  _padding(withDescription(
+                    handButton(c),
+                    AnimatedOpacity(
+                      opacity: c.isPanelOpen.value ? 1 : 0,
+                      duration: 200.milliseconds,
+                      child: Text(c.isHandRaised.value
+                          ? &#39;btn_call_hand_down_desc&#39;.l10n
+                          : &#39;btn_call_hand_up_desc&#39;.l10n),
+                    ),
+                  )),
+                  _padding(disableAudio(c)),
+                  _padding(disableVideo(c)),
+                ],
+              ),
+              const SizedBox(height: 13),
+              _divider(),
+              const SizedBox(height: 13),
+              _callTile(context, c),
+              const SizedBox(height: 13),
+            ];
+          }
+
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: c.state.value == OngoingCallState.active ||
+                    c.state.value == OngoingCallState.joining
+                ? AnimatedSlider(
+                    beginOffset: Offset(
+                      0,
+                      130 + MediaQuery.of(context).padding.bottom,
+                    ),
+                    isOpen: showUi,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutQuad,
+                    reverseCurve: Curves.easeOutQuad,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(size: c.size),
+                      child: SlidingUpPanel(
+                        controller: c.panelController,
+                        boxShadow: null,
+                        color: PlatformUtils.isIOS &amp;&amp; WebUtils.isSafari
+                            ? const Color(0xDD165084)
+                            : const Color(0x9D165084),
+                        backdropEnabled: true,
+                        backdropOpacity: 0,
+                        minHeight: min(c.size.height - 45, 130),
+                        maxHeight: panelHeight,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        panel: ConditionalBackdropFilter(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                          condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 12),
+                              Center(
+                                child: Container(
+                                  width: 60,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x99FFFFFF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Expanded(child: Column(children: panelChildren)),
+                            ],
+                          ),
+                        ),
+                        onPanelSlide: (d) {
+                          c.keepUi(true);
+                          c.isPanelOpen.value = d &gt; 0;
+                        },
+                        onPanelOpened: () {
+                          c.keepUi(true);
+                          c.isPanelOpen.value = true;
+                        },
+                        onPanelClosed: () {
+                          c.keepUi();
+                          c.isPanelOpen.value = false;
+                        },
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 30),
+                          child: AnimatedSlider(
+                            isOpen: showUi,
+                            duration: const Duration(milliseconds: 400),
+                            beginOffset: Offset(
+                              0,
+                              150 + MediaQuery.of(context).padding.bottom,
+                            ),
+                            child: _buttons(
+                              isOutgoing
+                                  ? [
+                                      if (PlatformUtils.isMobile)
+                                        _padding(
+                                          c.videoState.value.isEnabled()
+                                              ? switchButton(c)
+                                              : speakerButton(c),
+                                        ),
+                                      _padding(audioButton(c)),
+                                      _padding(videoButton(c)),
+                                      _padding(cancelButton(c)),
+                                    ]
+                                  : [
+                                      _padding(acceptAudioButton(c)),
+                                      _padding(acceptVideoButton(c)),
+                                      _padding(declineButton(c)),
+                                    ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          );
+        }),
+      ),
+    ];
+
+    &#47;&#47; Combines all the stackable content into [Scaffold].
+    Widget scaffold = Scaffold(
+      backgroundColor: const Color(0xFF444444),
+      body: Stack(
+        children: [
+          ...content,
+          const MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.basic,
+          ),
+          ...ui.map((e) =&gt; ClipRect(child: e)),
+          ...overlay,
+        ],
+      ),
+    );
+
+    if (c.minimized.value) {
+      c.applyConstraints(context);
+    } else {
+      c.applySecondaryConstraints(context);
+    }
+
+    return MinimizableView(
+      onInit: (animation) {
+        c.minimizedAnimation = animation;
+        animation.addListener(() {
+          if (animation.value != 0) {
+            c.keepUi(false);
+          }
+          c.minimized.value = animation.value == 1;
+          if (c.minimized.value) {
+            c.hoveredRenderer.value = null;
+          }
+        });
+      },
+      onDispose: () =&gt; c.minimizedAnimation = null,
+      child: Obx(() {
+        return IgnorePointer(
+          ignoring: c.minimized.value,
+          child: scaffold,
+        );
+      }),
+    );
+  });
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">mobile</a></li>
+  <li class="self-crumb">mobileCall function</li>
+</ol>
+
+
+    <h5>mobile library</h5>
+    <ol>
+
+
+
+
+
+  <li class="section-title"><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html#functions">Functions</a></li>
+  <li><a href="../ui_page_call_component_mobile/mobileCall.html">mobileCall</a></li>
+  <li><a href="../ui_page_call_component_mobile/populateSecondaryEntry.html">populateSecondaryEntry</a></li>
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

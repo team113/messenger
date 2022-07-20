@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the MyProfileController class from the controller library, for the Dart programming language.">
+  <title>MyProfileController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html">controller</a></li>
+    <li class="self-crumb">MyProfileController class</li>
+  </ol>
+  <div class="self-name">MyProfileController</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">MyProfileController</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Controller of the <a href="../routes/Routes/me-constant.html">Routes.me</a> page.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycle-class.html">GetLifeCycle</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface-class.html">DisposableInterface</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager/GetxController-class.html">GetxController</a></li>
+          <li>MyProfileController</li>
+        </ul></dd>
+
+
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="MyProfileController" class="callable">
+          <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/MyProfileController.html">MyProfileController</a></span><span class="signature">(<span class="parameter" id="-param-_myUserService"><span class="type-annotation"><a href="../domain_service_my_user/MyUserService-class.html">MyUserService</a></span> <span class="parameter-name">_myUserService</span></span>)</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="addGalleryStatus" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/addGalleryStatus.html">addGalleryStatus</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_notifier/RxStatus-class.html">RxStatus</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Upload status of the added <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a>. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="avatarStatus" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/avatarStatus.html">avatarStatus</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_notifier/RxStatus-class.html">RxStatus</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Status of the <a href="../domain_model_my_user/MyUser/avatar.html">MyUser.avatar</a> update. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="bio" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/bio.html">bio</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/bio.html">MyUser.bio</a>'s field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="deleteGalleryStatus" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteGalleryStatus.html">deleteGalleryStatus</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_notifier/RxStatus-class.html">RxStatus</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Delete status of the <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a>. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="email" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/email.html">email</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  A new <a href="../domain_model_user/UserEmail-class.html">UserEmail</a>'s field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="emailCode" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/emailCode.html">emailCode</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  A new <a href="../domain_model_user/UserEmail-class.html">UserEmail</a> confirmation code field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="emailsOnDeletion" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/emailsOnDeletion.html">emailsOnDeletion</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <code>UserEmail</code>s that are being deleted. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="galleryController" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryController.html">galleryController</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/carousel_slider/4.1.1/carousel_controller/CarouselController-class.html">CarouselController</a>?</span> 
+
+</dt>
+<dd>
+  <a href="https://pub.dev/documentation/carousel_slider/4.1.1/carousel_controller/CarouselController-class.html">CarouselController</a> of the <a href="../domain_model_my_user/MyUser/gallery.html">MyUser.gallery</a> used to jump between gallery
+items on <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> updates. 
+  <div class="features">read / write</div>
+
+</dd>
+
+        <dt id="galleryIndex" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryIndex.html">galleryIndex</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxInt-class.html">RxInt</a></span> 
+
+</dt>
+<dd>
+  Index of the currently displayed <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a> in the
+<a href="../domain_model_my_user/MyUser/gallery.html">MyUser.gallery</a> list. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="initialized" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been initialized. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isAvatar" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/isAvatar.html">isAvatar</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd>
+  Indicates whether the <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a> at <a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryIndex.html">galleryIndex</a> is the current
+<a href="../domain_model_my_user/MyUser/avatar.html">MyUser.avatar</a>. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="isClosed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been closed. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isDraggingFiles" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/isDraggingFiles.html">isDraggingFiles</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxBool-class.html">RxBool</a></span> 
+
+</dt>
+<dd>
+  Indicator whether there is an ongoing drag-n-drop at the moment. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="link" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/link.html">link</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/chatDirectLink.html">MyUser.chatDirectLink</a>'s copyable state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="listeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/listeners.html">listeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="login" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/login.html">login</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/login.html">MyUser.login</a>'s field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="myUser" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_my_user/MyUser-class.html">MyUser</a>?</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returns current <code>MyUser</code> value. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/name.html">name</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/name.html">MyUser.name</a>'s field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="newPassword" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/newPassword.html">newPassword</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  State of a new <a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a>'s password field. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="num" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/num.html">num</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/num.html">MyUser.num</a>'s copyable state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="oldPassword" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/oldPassword.html">oldPassword</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  State of a current <a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a>'s password field. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="onDelete" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Internal callback that starts the cycle of this controller. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="onStart" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Called at the exact moment the widget is allocated in memory.
+It uses an internal "callable" type, to avoid any @overrides in subclases.
+This method should be internal and is required to define the
+lifetime cycle of the subclass. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="phone" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phone.html">phone</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  A new <a href="../domain_model_user/UserPhone-class.html">UserPhone</a>'s field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="phoneCode" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phoneCode.html">phoneCode</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  A new <a href="../domain_model_user/UserPhone-class.html">UserPhone</a> confirmation code field state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="phonesOnDeletion" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phonesOnDeletion.html">phonesOnDeletion</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <code>UserPhone</code>s that are being deleted. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="presence" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/presence.html">presence</a></span>
+  <span class="signature">&#8596; <a href="../ui_page_home_page_my_profile_widget_dropdown/DropdownFieldState-class.html">DropdownFieldState</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../api_backend_schema.graphql/Presence.html">Presence</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  <a href="../domain_model_my_user/MyUser/presence.html">MyUser.presence</a>'s dropdown state. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="repeatPassword" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/repeatPassword.html">repeatPassword</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span> 
+
+</dt>
+<dd>
+  State of a repeated new <a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a>'s password field. 
+  <div class="features">late, final</div>
+
+</dd>
+
+        <dt id="resendEmailTimeout" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendEmailTimeout.html">resendEmailTimeout</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxInt-class.html">RxInt</a></span> 
+
+</dt>
+<dd>
+  Timeout of a <a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendEmail.html">resendEmail</a> action. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="resendPhoneTimeout" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendPhoneTimeout.html">resendPhoneTimeout</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxInt-class.html">RxInt</a></span> 
+
+</dt>
+<dd>
+  Timeout of a <a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendPhone.html">resendPhone</a> action. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="showEmailCodeButton" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/showEmailCodeButton.html">showEmailCodeButton</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxBool-class.html">RxBool</a></span> 
+
+</dt>
+<dd>
+  Indicator whether resend phone confirmation code button should be visible
+or not. 
+  <div class="features">final</div>
+
+</dd>
+
+        <dt id="showPhoneCodeButton" class="property">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/showPhoneCodeButton.html">showPhoneCodeButton</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxBool-class.html">RxBool</a></span> 
+
+</dt>
+<dd>
+  Indicator whether resend email confirmation code button should be visible
+or not. 
+  <div class="features">final</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="$configureLifeCycle" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object notifies its listeners. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListenerId.html">addListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="addListenerId-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="addListenerId-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="changePassword" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/changePassword.html">changePassword</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validates and updates current <a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a>'s password with the one specified
+in the <a href="../ui_page_home_page_my_profile_controller/MyProfileController/newPassword.html">newPassword</a> and <a href="../ui_page_home_page_my_profile_controller/MyProfileController/repeatPassword.html">repeatPassword</a> fields. 
+  
+
+</dd>
+
+        <dt id="copyLink" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/copyLink.html">copyLink</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Puts the <a href="../domain_model_my_user/MyUser/chatDirectLink.html">MyUser.chatDirectLink</a> into the clipboard and shows a snackbar. 
+  
+
+</dd>
+
+        <dt id="deleteAccount" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteAccount.html">deleteAccount</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes <a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a>'s account. 
+  
+
+</dd>
+
+        <dt id="deleteAvatar" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteAvatar.html">deleteAvatar</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes the <a href="../domain_model_my_user/MyUser/avatar.html">MyUser.avatar</a> and <a href="../domain_model_my_user/MyUser/callCover.html">MyUser.callCover</a>. 
+  
+
+</dd>
+
+        <dt id="deleteGalleryItem" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteGalleryItem.html">deleteGalleryItem</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a> at the <a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryIndex.html">galleryIndex</a> from <a href="../domain_model_my_user/MyUser/gallery.html">MyUser.gallery</a>. 
+  
+
+</dd>
+
+        <dt id="deleteLink" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteLink.html">deleteLink</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes <a href="../domain_model_my_user/MyUser/chatDirectLink.html">MyUser.chatDirectLink</a>. 
+  
+
+</dd>
+
+        <dt id="deleteUserEmail" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteUserEmail.html">deleteUserEmail</a></span><span class="signature">(<wbr><span class="parameter" id="deleteUserEmail-param-email"><span class="type-annotation"><a href="../domain_model_user/UserEmail-class.html">UserEmail</a></span> <span class="parameter-name">email</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes <code>email</code> address from <a href="../domain_model_my_user/MyUser/emails.html">MyUser.emails</a>. 
+  
+
+</dd>
+
+        <dt id="deleteUserPhone" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteUserPhone.html">deleteUserPhone</a></span><span class="signature">(<wbr><span class="parameter" id="deleteUserPhone-param-phone"><span class="type-annotation"><a href="../domain_model_user/UserPhone-class.html">UserPhone</a></span> <span class="parameter-name">phone</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes <code>phone</code> number from <a href="../domain_model_my_user/MyUser/phones.html">MyUser.phones</a>. 
+  
+
+</dd>
+
+        <dt id="dispose" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/mustCallSuper-constant.html">mustCallSuper</a>, inherited</div>
+
+</dd>
+
+        <dt id="disposeId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/disposeId.html">disposeId</a></span><span class="signature">(<wbr><span class="parameter" id="disposeId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  To dispose an <code>id</code> from future updates(), this ids are registered
+by <code>GetBuilder()</code> or similar, so is a way to unlink the state change with
+the Widget from the Controller. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="dropFiles" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/dropFiles.html">dropFiles</a></span><span class="signature">(<wbr><span class="parameter" id="dropFiles-param-details"><span class="type-annotation"><a href="https://pub.dev/documentation/desktop_drop/0.3.3/desktop_drop/DropDoneDetails-class.html">DropDoneDetails</a></span> <span class="parameter-name">details</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Uploads the specified <code>details</code> files to the <a href="../domain_model_my_user/MyUser/gallery.html">MyUser.gallery</a>. 
+  
+
+</dd>
+
+        <dt id="generateLink" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/generateLink.html">generateLink</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a new <a href="../domain_model_my_user/MyUser/chatDirectLink.html">MyUser.chatDirectLink</a>. 
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="notifyChildrens" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/notifyChildrens.html">notifyChildrens</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/protected-constant.html">protected</a>, inherited</div>
+
+</dd>
+
+        <dt id="onClose" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/onClose.html">onClose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called before <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a> method. <a href="../ui_page_home_page_my_profile_controller/MyProfileController/onClose.html">onClose</a> might be used to
+dispose resources used by the controller. Like closing events,
+or streams before the controller is destroyed.
+Or dispose objects that can potentially create some memory leaks,
+like TextEditingControllers, AnimationControllers.
+Might be useful as well to persist some data on disk. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="onInit" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/onInit.html">onInit</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="onReady" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Called 1 frame after onInit(). It is the perfect place to enter
+navigation events, like snackbar, dialogs, or a new route, or
+async request. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="pickGalleryItem" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/pickGalleryItem.html">pickGalleryItem</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens a file choose popup and uploads the selected images to the
+<a href="../domain_model_my_user/MyUser/gallery.html">MyUser.gallery</a> 
+  
+
+</dd>
+
+        <dt id="refresh" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refresh.html">refresh</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/protected-constant.html">protected</a>, inherited</div>
+
+</dd>
+
+        <dt id="refreshGroup" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refreshGroup.html">refreshGroup</a></span><span class="signature">(<wbr><span class="parameter" id="refreshGroup-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">@<a href="https://pub.dev/documentation/meta/1.7.0/meta/protected-constant.html">protected</a>, inherited</div>
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that the
+object notifies. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="removeListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListenerId.html">removeListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="removeListenerId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="removeListenerId-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="resendEmail" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendEmail.html">resendEmail</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resend <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> to <a href="../domain_model_user/UserEmail-class.html">UserEmail</a> specified in the <a href="../ui_page_home_page_my_profile_controller/MyProfileController/email.html">email</a> field to
+<a href="../domain_model_my_user/MyUser/emails.html">MyUser.emails</a>. 
+  
+
+</dd>
+
+        <dt id="resendPhone" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendPhone.html">resendPhone</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resend <a href="../domain_model_my_user/ConfirmationCode-class.html">ConfirmationCode</a> to <a href="../domain_model_user/UserPhone-class.html">UserPhone</a> specified in the <a href="../ui_page_home_page_my_profile_controller/MyProfileController/phone.html">phone</a> field to
+<a href="../domain_model_my_user/MyUser/phones.html">MyUser.phones</a>. 
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="update" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager/GetxController/update.html">update</a></span><span class="signature">(<wbr><span class="parameter" id="update-param-ids">[<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span>?</span> <span class="parameter-name">ids</span>, </span><span class="parameter" id="update-param-condition"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">condition</span> = <span class="default-value">true</span>]</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Rebuilds <code>GetBuilder</code> each time you call <code>update()</code>;
+Can take a List of <code>ids</code>, that will only update the matching
+<code>GetBuilder( id: )</code>,
+<code>ids</code> can be reused among <code>GetBuilders</code> like group tags.
+The update will only notify the Widgets, if <code>condition</code> is true. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="updateAvatar" class="callable">
+  <span class="name"><a href="../ui_page_home_page_my_profile_controller/MyProfileController/updateAvatar.html">updateAvatar</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates <a href="../domain_model_my_user/MyUser/avatar.html">MyUser.avatar</a> and <a href="../domain_model_my_user/MyUser/callCover.html">MyUser.callCover</a> with the <a href="../domain_model_image_gallery_item/ImageGalleryItem-class.html">ImageGalleryItem</a>
+at <a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryIndex.html">galleryIndex</a>. 
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html">controller</a></li>
+  <li class="self-crumb">MyProfileController class</li>
+</ol>
+
+
+    <h5>controller library</h5>
+    <ol>
+  <li class="section-title"><a href="../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html#classes">Classes</a></li>
+  <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController-class.html">MyProfileController</a></li>
+  <li><a href="../ui_page_home_page_my_profile_view/MyProfileView-class.html">MyProfileView</a></li>
+
+  <li class="section-title"><a href="../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html#extensions">Extensions</a></li>
+  <li><a href="../ui_page_home_page_my_profile_controller/PresenceL10n.html">PresenceL10n</a></li>
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../ui_page_home_page_my_profile_controller/MyProfileController-class.html#constructors">Constructors</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/MyProfileController.html">MyProfileController</a></li>
+
+
+    <li class="section-title">
+      <a href="../ui_page_home_page_my_profile_controller/MyProfileController-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/addGalleryStatus.html">addGalleryStatus</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/avatarStatus.html">avatarStatus</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/bio.html">bio</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteGalleryStatus.html">deleteGalleryStatus</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/email.html">email</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/emailCode.html">emailCode</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/emailsOnDeletion.html">emailsOnDeletion</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryController.html">galleryController</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/galleryIndex.html">galleryIndex</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/hasListeners.html">hasListeners</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/isAvatar.html">isAvatar</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/isDraggingFiles.html">isDraggingFiles</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/link.html">link</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/listeners.html">listeners</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/login.html">login</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/myUser.html">myUser</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/name.html">name</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/newPassword.html">newPassword</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/num.html">num</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/oldPassword.html">oldPassword</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phone.html">phone</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phoneCode.html">phoneCode</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/phonesOnDeletion.html">phonesOnDeletion</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/presence.html">presence</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/repeatPassword.html">repeatPassword</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendEmailTimeout.html">resendEmailTimeout</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendPhoneTimeout.html">resendPhoneTimeout</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/showEmailCodeButton.html">showEmailCodeButton</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/showPhoneCodeButton.html">showPhoneCodeButton</a></li>
+
+    <li class="section-title"><a href="../ui_page_home_page_my_profile_controller/MyProfileController-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListener.html">addListener</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListenerId.html">addListenerId</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/changePassword.html">changePassword</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/copyLink.html">copyLink</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteAccount.html">deleteAccount</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteAvatar.html">deleteAvatar</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteGalleryItem.html">deleteGalleryItem</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteLink.html">deleteLink</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteUserEmail.html">deleteUserEmail</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/deleteUserPhone.html">deleteUserPhone</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/dispose.html">dispose</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/disposeId.html">disposeId</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/dropFiles.html">dropFiles</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/generateLink.html">generateLink</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/notifyChildrens.html">notifyChildrens</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/onClose.html">onClose</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/onInit.html">onInit</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/pickGalleryItem.html">pickGalleryItem</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refresh.html">refresh</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refreshGroup.html">refreshGroup</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListener.html">removeListener</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListenerId.html">removeListenerId</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendEmail.html">resendEmail</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/resendPhone.html">resendPhone</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager/GetxController/update.html">update</a></li>
+    <li><a href="../ui_page_home_page_my_profile_controller/MyProfileController/updateAvatar.html">updateAvatar</a></li>
+
+    <li class="section-title inherited"><a href="../ui_page_home_page_my_profile_controller/MyProfileController-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+

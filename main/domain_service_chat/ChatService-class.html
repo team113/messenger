@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ChatService class from the chat library, for the Dart programming language.">
+  <title>ChatService class - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../"
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../domain_service_chat/domain_service_chat-library.html">chat</a></li>
+    <li class="self-crumb">ChatService class</li>
+  </ol>
+  <div class="self-name">ChatService</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">ChatService</span> class 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Service responsible for <a href="../domain_model_chat/Chat-class.html">Chat</a>s related functionality.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>Inheritance</dt>
+        <dd><ul class="gt-separated dark clazz-relationships">
+          <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycle-class.html">GetLifeCycle</a></li>
+          <li><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface-class.html">DisposableInterface</a></li>
+          <li><a href="../domain_service_disposable_service/DisposableService-class.html">DisposableService</a></li>
+          <li>ChatService</li>
+        </ul></dd>
+
+
+
+
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="constructors">
+      <h2>Constructors</h2>
+
+      <dl class="constructor-summary-list">
+        <dt id="ChatService" class="callable">
+          <span class="name"><a href="../domain_service_chat/ChatService/ChatService.html">ChatService</a></span><span class="signature">(<span class="parameter" id="-param-_chatRepository"><span class="type-annotation"><a href="../domain_repository_chat/AbstractChatRepository-class.html">AbstractChatRepository</a></span> <span class="parameter-name">_chatRepository</span>, </span><span class="parameter" id="-param-_myUser"><span class="type-annotation"><a href="../domain_service_my_user/MyUserService-class.html">MyUserService</a></span> <span class="parameter-name">_myUser</span></span>)</span>
+        </dt>
+        <dd>
+           
+        </dd>
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="chats" class="property">
+  <span class="name"><a href="../domain_service_chat/ChatService/chats.html">chats</a></span>
+  <span class="signature">&#8594; <a href="../util_obs_rxmap/RxObsMap-class.html">RxObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span>, <span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returns the current reactive map of <code>RxChat</code>s. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">[...]</a>
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="initialized" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been initialized. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isClosed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been closed. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+        <dt id="isReady" class="property">
+  <span class="name"><a href="../domain_service_chat/ChatService/isReady.html">isReady</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/rx_types/RxBool-class.html">RxBool</a></span> 
+
+</dt>
+<dd>
+  Changes to <code>true</code> once the underlying data storage is initialized and
+<a href="../domain_service_chat/ChatService/chats.html">chats</a> value is fetched. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="me" class="property">
+  <span class="name"><a href="../domain_service_chat/ChatService/me.html">me</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/UserId-class.html">UserId</a>?</span> 
+
+</dt>
+<dd>
+  Returns <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s <a href="../domain_model_user/UserId-class.html">UserId</a>. 
+  <div class="features">read-only</div>
+
+</dd>
+
+        <dt id="onDelete" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Internal callback that starts the cycle of this controller. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="onStart" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> 
+
+</dt>
+<dd class="inherited">
+  Called at the exact moment the widget is allocated in memory.
+It uses an internal "callable" type, to avoid any @overrides in subclases.
+This method should be internal and is required to define the
+lifetime cycle of the subclass. 
+  <div class="features">final, inherited</div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object. 
+  <div class="features">read-only, inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="instance-methods">
+      <h2>Methods</h2>
+      <dl class="callables">
+        <dt id="$configureLifeCycle" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+   
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="addChatMember" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/addChatMember.html">addChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="addChatMember-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="addChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Adds an <a href="../domain_model_user/User-class.html">User</a> to a <a href="../domain_model_chat/Chat-class.html">Chat</a>-group by the authority of the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="createChatDirectLink" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/createChatDirectLink.html">createChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="createChatDirectLink-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="createChatDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a></span> <span class="parameter-name">slug</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> with the specified <a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a> and
+deletes the current active <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group (if
+any). 
+  
+
+</dd>
+
+        <dt id="createDialogChat" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/createDialogChat.html">createDialogChat</a></span><span class="signature">(<wbr><span class="parameter" id="createDialogChat-param-responderId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">responderId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a dialog <a href="../domain_model_chat/Chat-class.html">Chat</a> between the given <code>responderId</code> and the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="createGroupChat" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/createGroupChat.html">createGroupChat</a></span><span class="signature">(<wbr><span class="parameter" id="createGroupChat-param-memberIds"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_user/UserId-class.html">UserId</a></span>&gt;</span></span> <span class="parameter-name">memberIds</span>, </span><span class="parameter" id="createGroupChat-param-name">{<span class="type-annotation"><a href="../domain_model_chat/ChatName-class.html">ChatName</a>?</span> <span class="parameter-name">name</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a group <a href="../domain_model_chat/Chat-class.html">Chat</a> with the provided members and the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>, optionally <code>name</code>d. 
+  
+
+</dd>
+
+        <dt id="deleteChatDirectLink" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/deleteChatDirectLink.html">deleteChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatDirectLink-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes the current <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group. 
+  
+
+</dd>
+
+        <dt id="deleteChatForward" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/deleteChatForward.html">deleteChatForward</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatForward-param-item"><span class="type-annotation"><a href="../domain_model_chat_item/ChatForward-class.html">ChatForward</a></span> <span class="parameter-name">item</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes the specified <a href="../domain_model_chat_item/ChatForward-class.html">ChatForward</a> posted by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="deleteChatMessage" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/deleteChatMessage.html">deleteChatMessage</a></span><span class="signature">(<wbr><span class="parameter" id="deleteChatMessage-param-item"><span class="type-annotation"><a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a></span> <span class="parameter-name">item</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes the specified <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a> posted by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="editChatMessage" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/editChatMessage.html">editChatMessage</a></span><span class="signature">(<wbr><span class="parameter" id="editChatMessage-param-item"><span class="type-annotation"><a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a></span> <span class="parameter-name">item</span>, </span><span class="parameter" id="editChatMessage-param-text"><span class="type-annotation"><a href="../domain_model_chat_item/ChatMessageText-class.html">ChatMessageText</a>?</span> <span class="parameter-name">text</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Edits the specified <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a> posted by the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="get" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/get.html">get</a></span><span class="signature">(<wbr><span class="parameter" id="get-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a <a href="../domain_model_chat/Chat-class.html">Chat</a> by the provided <code>id</code>. 
+  
+
+</dd>
+
+        <dt id="hideChat" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/hideChat.html">hideChat</a></span><span class="signature">(<wbr><span class="parameter" id="hideChat-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Marks the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> as hidden for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="hideChatItem" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/hideChatItem.html">hideChatItem</a></span><span class="signature">(<wbr><span class="parameter" id="hideChatItem-param-item"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a></span> <span class="parameter-name">item</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Hides the specified <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a> for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="keepTyping" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/keepTyping.html">keepTyping</a></span><span class="signature">(<wbr><span class="parameter" id="keepTyping-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Notifies <a href="../domain_model_chat/ChatMember-class.html">ChatMember</a>s about the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> typing in the
+specified <a href="../domain_model_chat/Chat-class.html">Chat</a> at the moment. 
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a non-existent method or property is accessed. <a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="onClose" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/onClose.html">onClose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called before <a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a> method. <a href="../domain_service_chat/ChatService/onClose.html">onClose</a> might be used to
+dispose resources used by the controller. Like closing events,
+or streams before the controller is destroyed.
+Or dispose objects that can potentially create some memory leaks,
+like TextEditingControllers, AnimationControllers.
+Might be useful as well to persist some data on disk. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="onInit" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/onInit.html">onInit</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller. 
+  <div class="features">override</div>
+
+</dd>
+
+        <dt id="onReady" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Called 1 frame after onInit(). It is the perfect place to enter
+navigation events, like snackbar, dialogs, or a new route, or
+async request. 
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="postChatMessage" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/postChatMessage.html">postChatMessage</a></span><span class="signature">(<wbr><span class="parameter" id="postChatMessage-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="postChatMessage-param-text">{<span class="type-annotation"><a href="../domain_model_chat_item/ChatMessageText-class.html">ChatMessageText</a>?</span> <span class="parameter-name">text</span>, </span><span class="parameter" id="postChatMessage-param-attachments"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_attachment/AttachmentId-class.html">AttachmentId</a></span>&gt;</span>?</span> <span class="parameter-name">attachments</span>, </span><span class="parameter" id="postChatMessage-param-repliesTo"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a>?</span> <span class="parameter-name">repliesTo</span>}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Posts a new <a href="../domain_model_chat_item/ChatMessage-class.html">ChatMessage</a> to the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authenticated
+<a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../domain_service_chat/ChatService/postChatMessage.html">[...]</a>
+  
+
+</dd>
+
+        <dt id="readChat" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/readChat.html">readChat</a></span><span class="signature">(<wbr><span class="parameter" id="readChat-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="readChat-param-untilId"><span class="type-annotation"><a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">untilId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Marks the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> as read for the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> until
+the specified <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a> inclusively. <a href="../domain_service_chat/ChatService/readChat.html">[...]</a>
+  
+
+</dd>
+
+        <dt id="removeChatMember" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/removeChatMember.html">removeChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatMember-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="removeChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes an <a href="../domain_model_user/User-class.html">User</a> from a <a href="../domain_model_chat/Chat-class.html">Chat</a>-group by the authority of the
+authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. 
+  
+
+</dd>
+
+        <dt id="renameChat" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/renameChat.html">renameChat</a></span><span class="signature">(<wbr><span class="parameter" id="renameChat-param-id"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="renameChat-param-name"><span class="type-annotation"><a href="../domain_model_chat/ChatName-class.html">ChatName</a>?</span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Renames the specified <a href="../domain_model_chat/Chat-class.html">Chat</a> by the authority of authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>. <a href="../domain_service_chat/ChatService/renameChat.html">[...]</a>
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object. <a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+        <dt id="uploadAttachment" class="callable">
+  <span class="name"><a href="../domain_service_chat/ChatService/uploadAttachment.html">uploadAttachment</a></span><span class="signature">(<wbr><span class="parameter" id="uploadAttachment-param-attachment"><span class="type-annotation"><a href="../domain_model_native_file/NativeFile-class.html">NativeFile</a></span> <span class="parameter-name">attachment</span>, </span><span class="parameter" id="uploadAttachment-param-onSendProgress">{<span class="type-annotation">void</span> <span class="parameter-name">onSendProgress</span>(<span class="parameter" id="param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span>, </span><span class="parameter" id="param-total"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">total</span></span>)?}</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_attachment/Attachment-class.html">Attachment</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new <code>Attachment</code> linked to the authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> for a
+later use in the <a href="../domain_service_chat/ChatService/postChatMessage.html">postChatMessage</a> method. 
+  
+
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor inherited" id="operators">
+      <h2>Operators</h2>
+      <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator. <a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">[...]</a>
+  <div class="features">inherited</div>
+
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">messenger</a></li>
+  <li><a href="../domain_service_chat/domain_service_chat-library.html">chat</a></li>
+  <li class="self-crumb">ChatService class</li>
+</ol>
+
+
+    <h5>chat library</h5>
+    <ol>
+  <li class="section-title"><a href="../domain_service_chat/domain_service_chat-library.html#classes">Classes</a></li>
+  <li><a href="../domain_service_chat/ChatService-class.html">ChatService</a></li>
+
+
+
+
+
+
+
+
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+    <li class="section-title"><a href="../domain_service_chat/ChatService-class.html#constructors">Constructors</a></li>
+    <li><a href="../domain_service_chat/ChatService/ChatService.html">ChatService</a></li>
+
+
+    <li class="section-title">
+      <a href="../domain_service_chat/ChatService-class.html#instance-properties">Properties</a>
+    </li>
+    <li><a href="../domain_service_chat/ChatService/chats.html">chats</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/initialized.html">initialized</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/isClosed.html">isClosed</a></li>
+    <li><a href="../domain_service_chat/ChatService/isReady.html">isReady</a></li>
+    <li><a href="../domain_service_chat/ChatService/me.html">me</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onDelete.html">onDelete</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/onStart.html">onStart</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+    <li class="section-title"><a href="../domain_service_chat/ChatService-class.html#instance-methods">Methods</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_instance_src_lifecycle/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></li>
+    <li><a href="../domain_service_chat/ChatService/addChatMember.html">addChatMember</a></li>
+    <li><a href="../domain_service_chat/ChatService/createChatDirectLink.html">createChatDirectLink</a></li>
+    <li><a href="../domain_service_chat/ChatService/createDialogChat.html">createDialogChat</a></li>
+    <li><a href="../domain_service_chat/ChatService/createGroupChat.html">createGroupChat</a></li>
+    <li><a href="../domain_service_chat/ChatService/deleteChatDirectLink.html">deleteChatDirectLink</a></li>
+    <li><a href="../domain_service_chat/ChatService/deleteChatForward.html">deleteChatForward</a></li>
+    <li><a href="../domain_service_chat/ChatService/deleteChatMessage.html">deleteChatMessage</a></li>
+    <li><a href="../domain_service_chat/ChatService/editChatMessage.html">editChatMessage</a></li>
+    <li><a href="../domain_service_chat/ChatService/get.html">get</a></li>
+    <li><a href="../domain_service_chat/ChatService/hideChat.html">hideChat</a></li>
+    <li><a href="../domain_service_chat/ChatService/hideChatItem.html">hideChatItem</a></li>
+    <li><a href="../domain_service_chat/ChatService/keepTyping.html">keepTyping</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+    <li><a href="../domain_service_chat/ChatService/onClose.html">onClose</a></li>
+    <li><a href="../domain_service_chat/ChatService/onInit.html">onInit</a></li>
+    <li class="inherited"><a href="https://pub.dev/documentation/get/4.6.3/get_state_manager_src_rx_flutter_rx_disposable/DisposableInterface/onReady.html">onReady</a></li>
+    <li><a href="../domain_service_chat/ChatService/postChatMessage.html">postChatMessage</a></li>
+    <li><a href="../domain_service_chat/ChatService/readChat.html">readChat</a></li>
+    <li><a href="../domain_service_chat/ChatService/removeChatMember.html">removeChatMember</a></li>
+    <li><a href="../domain_service_chat/ChatService/renameChat.html">renameChat</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></li>
+    <li><a href="../domain_service_chat/ChatService/uploadAttachment.html">uploadAttachment</a></li>
+
+    <li class="section-title inherited"><a href="../domain_service_chat/ChatService-class.html#operators">Operators</a></li>
+    <li class="inherited"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    messenger
+      0.1.0-alpha.5
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+
