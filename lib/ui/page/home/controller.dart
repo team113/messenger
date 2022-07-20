@@ -92,6 +92,18 @@ class HomeController extends GetxController {
       if (_myUser.myUser.value != null) {
         _displayIntroduction(_myUser.myUser.value!);
         _settingsRepository.setShowIntroduction(false);
+      } else {
+        Worker? worker;
+        worker = ever(
+          _myUser.myUser,
+          (MyUser? myUser) {
+            if (myUser != null && worker != null) {
+              _displayIntroduction(myUser);
+              worker?.dispose();
+              worker = null;
+            }
+          },
+        );
       }
     }
   }
