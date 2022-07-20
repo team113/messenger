@@ -19,12 +19,13 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/widget/selector/view.dart';
+import '/ui/widget/selector.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -140,15 +141,29 @@ class AuthView extends StatelessWidget {
               style: thin?.copyWith(fontSize: 13, color: primary),
             ),
             onPressed: () async {
-              await Selector.show(
+              await Selector.show<Language>(
                 context,
-                c.languageKey,
-                L10n.languages.map((l) => l.name).toList(),
-                initialValue: L10n.chosen.value!.name,
-                trails: L10n.languages
-                    .map((l) => l.locale.languageCode.toUpperCase())
-                    .toList(),
-                onSelect: (i) => L10n.set(L10n.languages[i]),
+                items: L10n.languages,
+                itemBuilder: (Language lang) => Row(
+                  children: [
+                    Text(
+                      lang.name,
+                      style: thin?.copyWith(
+                        fontSize: 15,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      lang.locale.languageCode.toUpperCase(),
+                      style: thin?.copyWith(
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+                initialValue: L10n.chosen.value!,
+                globalKey: c.languageKey,
+                onSelect: (selected) => L10n.set(selected),
               );
             });
 
