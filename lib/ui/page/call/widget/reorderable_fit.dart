@@ -122,7 +122,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Indicator whether dragging is allowed when [children] contain only one
+  /// Indicator whether dragging is allowed when the [children] contain only one
   /// item.
   final bool allowDraggingLast;
 
@@ -469,7 +469,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
 
-  /// Indicator whether dragging is allowed when [children] contain only one
+  /// Indicator whether dragging is allowed when the [children] contain only one
   /// item.
   final bool allowDraggingLast;
 
