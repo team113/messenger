@@ -25,7 +25,7 @@ class Themes {
     ColorScheme colors = ThemeData.light().colorScheme.copyWith(
           primary: const Color(0xFF888888),
           onPrimary: Colors.white,
-          secondary: Colors.blue,
+          secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
           background: Colors.white,
           onBackground: Colors.black,

@@ -29,15 +29,18 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
+
+/// Possible [LoginView] flow stage.
+enum LoginViewStage {
+  recovery,
+  recoveryCode,
+  recoveryPassword,
+  recoverySuccess,
+}
 
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
   LoginController(this._auth);
-
-  /// [RxBool] which indicating of displaying password recovery popup against
-  /// sign in.
-  final RxBool displayAccess = RxBool(false);
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -57,14 +60,8 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
-  /// Indicator whether the password field should be shown.
-  RxBool showPwdSection = RxBool(false);
-
-  /// Indicator whether the recovery code field should be shown.
-  RxBool showCodeSection = RxBool(false);
-
-  /// Indicator whether the new password field should be shown.
-  RxBool showNewPasswordSection = RxBool(false);
+  /// [LoginViewStage] currently being displayed.
+  final Rx<LoginViewStage?> stage = Rx(null);
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _auth;
@@ -128,8 +125,8 @@ class LoginController extends GetxController {
     super.onInit();
   }
 
-  /// Sets default states to fields [recovery],[recoveryCode],[newPassword] and
-  /// [repeatPassword].
+  /// Sets default states to fields [recovery], [recoveryCode], [newPassword]
+  /// and [repeatPassword].
   void clearAccessFields() {
     newPassword.clear();
     repeatPassword.clear();
@@ -229,7 +226,6 @@ class LoginController extends GetxController {
     recovery.editable.value = false;
     recovery.status.value = RxStatus.loading();
     recovery.error.value = null;
-    showCodeSection.value = false;
 
     _recoveryLogin = _recoveryNum = _recoveryPhone = _recoveryEmail = null;
 
@@ -267,9 +263,9 @@ class LoginController extends GetxController {
         phone: _recoveryPhone,
       );
 
+      stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
       recovery.editable.value = false;
-      showCodeSection.value = true;
     } on FormatException {
       recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
@@ -278,7 +274,7 @@ class LoginController extends GetxController {
       recovery.error.value = e.toMessage();
     } catch (e) {
       recovery.unsubmit();
-      MessagePopup.error(e);
+      recovery.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
       recovery.status.value = RxStatus.empty();
@@ -311,7 +307,7 @@ class LoginController extends GetxController {
 
       recoveryCode.editable.value = false;
       recoveryCode.status.value = RxStatus.success();
-      showNewPasswordSection.value = true;
+      stage.value = LoginViewStage.recoveryPassword;
     } on FormatException {
       recoveryCode.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
@@ -320,7 +316,7 @@ class LoginController extends GetxController {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
       recoveryCode.unsubmit();
-      MessagePopup.error(e);
+      recoveryCode.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
       recoveryCode.editable.value = true;
@@ -382,21 +378,7 @@ class LoginController extends GetxController {
         newPassword: UserPassword(newPassword.text),
       );
 
-      MessagePopup.success('label_password_was_changed'.l10n);
-
-      recovery.clear();
-      recoveryCode.clear();
-      newPassword.clear();
-      repeatPassword.clear();
-
-      showCodeSection.value = false;
-      showNewPasswordSection.value = false;
-
-      recovery.status.value = RxStatus.empty();
-      recoveryCode.status.value = RxStatus.empty();
-
-      recovery.editable.value = true;
-      recoveryCode.editable.value = true;
+      stage.value = LoginViewStage.recoverySuccess;
     } on FormatException {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
@@ -404,7 +386,7 @@ class LoginController extends GetxController {
     } on ResetUserPasswordException catch (e) {
       repeatPassword.error.value = e.toMessage();
     } catch (e) {
-      MessagePopup.error(e);
+      repeatPassword.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
       repeatPassword.status.value = RxStatus.empty();

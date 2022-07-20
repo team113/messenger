@@ -68,6 +68,7 @@ btn_call_switch_camera = Переключить камеру
 btn_call_toggle_speaker = Переключить динамик
 btn_call_video_off = Выключить камеру
 btn_call_video_on = Включить камеру
+btn_cancel = Отмена
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
 btn_chat_join_call = Присоединиться к звонку
@@ -91,7 +92,7 @@ btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
-btn_next = Дальше
+btn_next = Далее
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
@@ -139,7 +140,7 @@ err_new_password_empty = Новый пароль не должен быть пу
 err_no_filename = Файл должен иметь имя
 err_no_text_and_no_attachment =
     Сообщение должно иметь текст или прикрепления
-err_no_unconfirmed_email = Нет неподтверждённых E-mail адресов
+err_no_unconfirmed_email = Нет неподтверждённых Email адресов
 err_no_unconfirmed_phone = Нет неподтверждённых номеров телефонов
 err_not_author = Не автор
 err_not_call_member = Не участник звонка
@@ -154,7 +155,7 @@ err_quoted_message = Сообщение было процитировано
 err_repeat_password_empty = Пожалуйста, повторите пароль
 err_size_too_big = Файл превышает ограничение по размеру (15 МиБ)
 err_stale_version = Указанная версия слишком старая
-err_too_many_emails = Был достигнут максимум E-mail адресов
+err_too_many_emails = Был достигнут максимум Email адресов
 err_too_many_phones = Был достигнут максимум номеров телефонов
 err_unauthorized = Требуется авторизация
 err_uneditable_message = Сообщение нельзя редактировать
@@ -173,10 +174,10 @@ err_uploaded_file_malformed = Файл повреждён
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный текущий пароль
 err_wrong_recovery_code = Неверный код
-err_you_already_add_this_email = E-mail уже добавлен
+err_you_already_add_this_email = Email уже добавлен
 err_you_already_add_this_phone = Номер телефона уже добавлен
 err_you_already_has_unconfirmed_email =
-    У вас уже есть неподтвержденный E-mail
+    У вас уже есть неподтвержденный Email
 err_you_already_has_unconfirmed_phone =
     У вас уже есть неподтвержденный телефон
 err_you_are_blacklisted = Вы в чёрном списке
@@ -295,7 +296,7 @@ label_duration_second_short = с
 label_edit_message = Редактирование сообщения
 label_edit_message_hint = Без текста
 label_email_confirmation_code_was_send =
-    Код подтверждения был отправлен Вам на E-mail
+    Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
