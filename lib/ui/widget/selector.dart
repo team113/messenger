@@ -54,6 +54,7 @@ class Selector<T extends Object> extends StatefulWidget {
     this.switchingDelayDuration = const Duration(milliseconds: 500),
   }) : super(key: key);
 
+  /// Displays a [Selector] wrapped in a popup depend to the current platform.
   static Future<T?> show<T extends Object>(
     BuildContext context, {
     required List<T> items,
