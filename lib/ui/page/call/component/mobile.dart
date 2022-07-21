@@ -80,8 +80,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           return GestureDetector(
             onPanStart: (d) {
-              Offset block =
-              (c.secondaryKey.currentContext?.findRenderObject() as RenderBox)
+              Offset block = (c.secondaryKey.currentContext?.findRenderObject()
+                      as RenderBox)
                   .localToGlobal(Offset.zero);
 
               c.panDragDifference.value = Offset(
@@ -278,8 +278,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                         } else {
                           c.keepUi(c.isPanelOpen.value);
                         }
-                      } else {
-                        c.keepUi(c.isPanelOpen.value);
                       }
                     }
                   }
@@ -449,109 +447,109 @@ Widget mobileCall(CallController c, BuildContext context) {
           return AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: c.state.value == OngoingCallState.active ||
-                c.state.value == OngoingCallState.joining
+                    c.state.value == OngoingCallState.joining
                 ? AnimatedSlider(
-              beginOffset: Offset(
-                0,
-                130 + MediaQuery.of(context).padding.bottom,
-              ),
-              isOpen: showUi,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutQuad,
-              reverseCurve: Curves.easeOutQuad,
-              child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(size: c.size),
-                child: SlidingUpPanel(
-                  controller: c.panelController,
-                  boxShadow: null,
-                  color: PlatformUtils.isIOS && WebUtils.isSafari
-                      ? const Color(0xDD165084)
-                      : const Color(0x9D165084),
-                  backdropEnabled: true,
-                  backdropOpacity: 0,
-                  minHeight: min(c.size.height - 45, 130),
-                  maxHeight: panelHeight,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                  panel: ConditionalBackdropFilter(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
+                    beginOffset: Offset(
+                      0,
+                      130 + MediaQuery.of(context).padding.bottom,
                     ),
-                    condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
+                    isOpen: showUi,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutQuad,
+                    reverseCurve: Curves.easeOutQuad,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(size: c.size),
+                      child: SlidingUpPanel(
+                        controller: c.panelController,
+                        boxShadow: null,
+                        color: PlatformUtils.isIOS && WebUtils.isSafari
+                            ? const Color(0xDD165084)
+                            : const Color(0x9D165084),
+                        backdropEnabled: true,
+                        backdropOpacity: 0,
+                        minHeight: min(c.size.height - 45, 130),
+                        maxHeight: panelHeight,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        panel: ConditionalBackdropFilter(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                          condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 12),
+                              Center(
+                                child: Container(
+                                  width: 60,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x99FFFFFF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Expanded(child: Column(children: panelChildren)),
+                            ],
+                          ),
+                        ),
+                        onPanelSlide: (d) {
+                          c.keepUi(true);
+                          c.isPanelOpen.value = d > 0;
+                        },
+                        onPanelOpened: () {
+                          c.keepUi(true);
+                          c.isPanelOpen.value = true;
+                        },
+                        onPanelClosed: () {
+                          c.keepUi();
+                          c.isPanelOpen.value = false;
+                        },
+                      ),
+                    ),
+                  )
+                : Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            width: 60,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: const Color(0x99FFFFFF),
-                              borderRadius: BorderRadius.circular(12),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 30),
+                          child: AnimatedSlider(
+                            isOpen: showUi,
+                            duration: const Duration(milliseconds: 400),
+                            beginOffset: Offset(
+                              0,
+                              150 + MediaQuery.of(context).padding.bottom,
+                            ),
+                            child: _buttons(
+                              isOutgoing
+                                  ? [
+                                      if (PlatformUtils.isMobile)
+                                        _padding(
+                                          c.videoState.value.isEnabled()
+                                              ? switchButton(c)
+                                              : speakerButton(c),
+                                        ),
+                                      _padding(audioButton(c)),
+                                      _padding(videoButton(c)),
+                                      _padding(cancelButton(c)),
+                                    ]
+                                  : [
+                                      _padding(acceptAudioButton(c)),
+                                      _padding(acceptVideoButton(c)),
+                                      _padding(declineButton(c)),
+                                    ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Expanded(child: Column(children: panelChildren)),
                       ],
                     ),
                   ),
-                  onPanelSlide: (d) {
-                    c.keepUi(true);
-                    c.isPanelOpen.value = d > 0;
-                  },
-                  onPanelOpened: () {
-                    c.keepUi(true);
-                    c.isPanelOpen.value = true;
-                  },
-                  onPanelClosed: () {
-                    c.keepUi();
-                    c.isPanelOpen.value = false;
-                  },
-                ),
-              ),
-            )
-                : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    child: AnimatedSlider(
-                      isOpen: showUi,
-                      duration: const Duration(milliseconds: 400),
-                      beginOffset: Offset(
-                        0,
-                        150 + MediaQuery.of(context).padding.bottom,
-                      ),
-                      child: _buttons(
-                        isOutgoing
-                            ? [
-                          if (PlatformUtils.isMobile)
-                            _padding(
-                              c.videoState.value.isEnabled()
-                                  ? switchButton(c)
-                                  : speakerButton(c),
-                            ),
-                          _padding(audioButton(c)),
-                          _padding(videoButton(c)),
-                          _padding(cancelButton(c)),
-                        ]
-                            : [
-                          _padding(acceptAudioButton(c)),
-                          _padding(acceptVideoButton(c)),
-                          _padding(declineButton(c)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           );
         }),
       ),

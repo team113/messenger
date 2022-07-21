@@ -52,12 +52,8 @@ class CallController extends GetxController {
     this._currentCall,
     this._calls,
     this._chatService,
-    this._userService, {
-    this.isPopup = false,
-  });
-
-  /// Indicator whether this call should be considered as a popup.
-  final bool isPopup;
+    this._userService,
+  );
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -210,7 +206,7 @@ class CallController extends GetxController {
   /// Secondary view current bottom position.
   final RxnDouble secondaryBottom = RxnDouble(null);
 
- /// Secondary view current width.
+  /// Secondary view current width.
   late final RxDouble secondaryWidth;
 
   /// Secondary view current height.
@@ -545,11 +541,10 @@ class CallController extends GetxController {
       refresh();
     });
 
-    _onFullscreenChange = PlatformUtils.onFullscreenChange
-        .listen((bool v) {
-          fullscreen.value = v;
-          applySecondaryConstraints();
-        });
+    _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+      fullscreen.value = v;
+      applySecondaryConstraints();
+    });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
       error.value = e;
@@ -1079,9 +1074,9 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
       secondaryTop.value = offset.dy -
-          ((isPopup) ? 0 : titleBarHeight) -
+          ((WebUtils.isPopup) ? 0 : titleBarHeight) -
           panDragDifference.value!.dy;
-    } else if (isPopup) {
+    } else if (WebUtils.isPopup) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
       secondaryTop.value = offset.dy - panDragDifference.value!.dy;
     } else {
@@ -1147,7 +1142,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
+  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     switch (x) {
