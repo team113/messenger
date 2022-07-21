@@ -48,6 +48,9 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a password text input.
   late final TextFieldState password;
 
+  /// Indicates [password] obscuring.
+  final RxBool obscurePassword = RxBool(true);
+
   /// [TextFieldState] of a recovery text input.
   late final TextFieldState recovery;
 
@@ -59,6 +62,12 @@ class LoginController extends GetxController {
 
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
+
+  /// Indicates [newPassword] obscuring.
+  final RxBool obscureNewPassword = RxBool(true);
+
+  /// Indicates [repeatPassword] obscuring.
+  final RxBool obscureRepeat = RxBool(true);
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);
@@ -123,21 +132,6 @@ class LoginController extends GetxController {
     );
 
     super.onInit();
-  }
-
-  /// Sets default states to fields [recovery], [recoveryCode], [newPassword]
-  /// and [repeatPassword].
-  void clearAccessFields() {
-    newPassword.clear();
-    repeatPassword.clear();
-
-    recoveryCode.clear();
-    recoveryCode.editable.value = true;
-    recoveryCode.status.value = RxStatus.empty();
-
-    recovery.clear();
-    recovery.editable.value = true;
-    recovery.status.value = RxStatus.empty();
   }
 
   /// Signs in and redirects to the [Routes.home] page.

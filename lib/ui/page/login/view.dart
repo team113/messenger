@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -144,9 +145,12 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 58),
                 _spaced(
                   _secondaryButton(
-                    key: const Key('RecoveryBackButton'),
+                    key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
-                    onPressed: () => c.stage.value = null,
+                    onPressed: () {
+                      c.recovery.unsubmit();
+                      c.stage.value = null;
+                    },
                   ),
                   _primaryButton(
                     key: const Key('RecoveryNextButton'),
@@ -171,21 +175,35 @@ class LoginView extends StatelessWidget {
                   key: const Key('PasswordField'),
                   state: c.newPassword,
                   label: 'label_new_password'.l10n,
-                  obscure: true,
+                  obscure: c.obscureNewPassword.value,
+                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
                   label: 'label_repeat_password'.l10n,
-                  obscure: true,
+                  obscure: c.obscureRepeat.value,
+                  onSuffixPressed: c.obscureRepeat.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
                 ),
                 const SizedBox(height: 58),
                 _spaced(
                   _secondaryButton(
-                    key: const Key('RecoveryBackButton'),
+                    key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
-                    onPressed: () => c.stage.value = null,
+                    onPressed: () {
+                      c.recovery.unsubmit();
+                      c.recoveryCode.unsubmit();
+                      c.stage.value = null;
+                    },
                   ),
                   _primaryButton(
                     key: const Key('RecoveryNextButton'),
@@ -198,8 +216,23 @@ class LoginView extends StatelessWidget {
               break;
 
             case LoginViewStage.recoverySuccess:
-              // TODO: Handle this case.
-              children = [];
+              children = [
+                const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    'label_password_set_successfully'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Center(
+                    child: _secondaryButton(
+                  key: const Key('RecoveryCloseButton'),
+                  title: 'btn_close'.l10n,
+                  onPressed: () => Navigator.of(context).pop(true),
+                )),
+                const SizedBox(height: 13)
+              ];
               break;
 
             default:
@@ -220,9 +253,14 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 16),
                 ReactiveTextField(
                   key: const ValueKey('PasswordField'),
-                  obscure: true,
                   state: c.password,
                   label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
                 ),
                 const SizedBox(height: 52),
                 _spaced(
