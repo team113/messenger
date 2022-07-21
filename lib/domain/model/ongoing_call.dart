@@ -296,9 +296,47 @@ class OngoingCall {
 
       _room = _jason!.initRoom();
 
-      _room!.onFailedLocalMedia((e) {
-        Log.print('onFailedLocalMedia', 'CALL');
-        _errors.add('Local media acquisition error $e');
+      _room!.onFailedLocalMedia((e) async {
+        if (e is LocalMediaInitException) {
+          try {
+            switch (e.kind()) {
+              case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+                _errors.add('Failed to acquire local audio: $e');
+                await _room?.disableAudio();
+                _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
+                audioState.value = LocalTrackState.disabled;
+                break;
+
+              case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+                _errors.add('Failed to acquire local video: $e');
+                await setVideoEnabled(false);
+                break;
+
+              case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+                _errors.add('Failed to initiate screen capture: $e');
+                await setScreenShareEnabled(false);
+                break;
+
+              default:
+                _errors.add('Failed to get media: $e');
+
+                await _room?.disableAudio();
+                _removeLocalTracks(MediaKind.Audio, MediaSourceKind.Device);
+                audioState.value = LocalTrackState.disabled;
+                audioDevice.value = null;
+
+                await setVideoEnabled(false);
+                videoState.value = LocalTrackState.disabled;
+                videoDevice.value = null;
+
+                await setScreenShareEnabled(false);
+                screenShareState.value = LocalTrackState.disabled;
+                return;
+            }
+          } catch (e) {
+            _errors.add('$e');
+          }
+        }
       });
       _room!.onConnectionLoss((e) async {
         Log.print('onConnectionLoss', 'CALL');
@@ -579,6 +617,13 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
+            if (_tracks
+                .where((e) =>
+                    e.kind() == MediaKind.Audio &&
+                    e.mediaSourceKind() == MediaSourceKind.Device)
+                .isEmpty) {
+              await _room?.enableAudio();
+            }
             await _room?.unmuteAudio();
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
@@ -670,10 +715,16 @@ class OngoingCall {
 
   /// Populates [devices] with a list of [MediaDeviceInfo] objects representing
   /// available media input devices, such as microphones, cameras, and so forth.
-  Future<void> enumerateDevices() async =>
+  Future<void> enumerateDevices() async {
+    try {
       _devices.value = (await _mediaManager!.enumerateDevices())
           .whereNot((e) => e.deviceId().isEmpty)
           .toList();
+    } on EnumerateDevicesException catch (e) {
+      _errors.add('Failed to enumerate devices: $e');
+      rethrow;
+    }
+  }
 
   /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
@@ -822,7 +873,9 @@ class OngoingCall {
 
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
-      try {
+
+      // Initializes local tracks recursively.
+      Future<void> initLocalTracks() async {
         try {
           tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
             audio: audioState.value == LocalTrackState.enabling,
@@ -832,21 +885,34 @@ class OngoingCall {
             videoDevice: videoDevice.value,
             facingMode: videoDevice.value == null ? FacingMode.User : null,
           ));
-        } on LocalMediaInitException {
-          audioDevice.value = null;
-          videoDevice.value = null;
-          screenShareState.value = LocalTrackState.disabled;
+        } on LocalMediaInitException catch (e) {
+          switch (e.kind()) {
+            case LocalMediaInitExceptionKind.GetUserMediaAudioFailed:
+              audioDevice.value = null;
+              audioState.value = LocalTrackState.disabled;
+              await initLocalTracks();
+              break;
 
-          tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: screenShareState.value == LocalTrackState.enabling,
-            facingMode: FacingMode.User,
-          ));
+            case LocalMediaInitExceptionKind.GetUserMediaVideoFailed:
+              videoDevice.value = null;
+              videoState.value = LocalTrackState.disabled;
+              await initLocalTracks();
+              break;
+
+            case LocalMediaInitExceptionKind.GetDisplayMediaFailed:
+              screenShareState.value = LocalTrackState.disabled;
+              await initLocalTracks();
+              break;
+
+            default:
+              rethrow;
+          }
         }
-      } catch (e) {
-        // TODO: Handle media acquisition exceptions.
+      }
 
+      try {
+        await initLocalTracks();
+      } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;
