@@ -25,6 +25,16 @@ import '/util/platform_utils.dart';
 
 /// Class which is responsible for showing popup of items select.
 class Selector<T extends Object> extends StatefulWidget {
+  const Selector({
+    Key? key,
+    required this.items,
+    required this.itemBuilder,
+    this.initialValue,
+    this.onSelect,
+    this.globalKey,
+    this.switchingDelayDuration = const Duration(milliseconds: 500),
+  }) : super(key: key);
+
   /// Items that are present in this [Selector];
   final List<T> items;
 
@@ -43,16 +53,6 @@ class Selector<T extends Object> extends StatefulWidget {
 
   /// Delay that will be spent after value was set and before [onSelect] call.
   final Duration switchingDelayDuration;
-
-  const Selector({
-    Key? key,
-    required this.items,
-    required this.itemBuilder,
-    this.initialValue,
-    this.onSelect,
-    this.globalKey,
-    this.switchingDelayDuration = const Duration(milliseconds: 500),
-  }) : super(key: key);
 
   /// Displays a [Selector] wrapped in a popup depend to the current platform.
   static Future<T?> show<T extends Object>(
@@ -105,6 +105,7 @@ class Selector<T extends Object> extends StatefulWidget {
   State<Selector<T>> createState() => _SelectorState<T>();
 }
 
+/// State of a [Selector] used to provide [_debounce] worker on mobile.
 class _SelectorState<T extends Object> extends State<Selector<T>> {
   /// Current selected item.
   late Rx<T> selected;
@@ -120,10 +121,8 @@ class _SelectorState<T extends Object> extends State<Selector<T>> {
     if (widget.switchingDelayDuration.inMicroseconds > 0) {
       _debounce = debounce(
         selected,
-        (value) {
-          if (widget.onSelect != null) {
-            widget.onSelect?.call(value as T);
-          }
+        (T value) {
+          widget.onSelect?.call(value);
         },
         time: widget.switchingDelayDuration,
       );

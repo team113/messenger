@@ -24,7 +24,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26]);
         - Redesigned mobile interface ([#31]).
-    - Redesigned `Auth` page ([#29]).
+    - Redesign `Auth` page ([#29]).
+
 ### Fixed
 
 - Android:
