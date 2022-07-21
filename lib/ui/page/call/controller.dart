@@ -508,8 +508,6 @@ class CallController extends GetxController {
       (ChatId id) => _chatService.get(id).then(_onChat),
     );
 
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
-
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
         DateTime begunAt = DateTime.now();
@@ -1074,7 +1072,7 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
       secondaryTop.value = offset.dy -
-          ((WebUtils.isPopup) ? 0 : titleBarHeight) -
+          ((WebUtils.isPopup || PlatformUtils.isMobile) ? 0 : titleBarHeight) -
           panDragDifference.value!.dy;
     } else if (WebUtils.isPopup) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
@@ -1085,8 +1083,7 @@ class CallController extends GetxController {
           panDragDifference.value!.dx;
       secondaryTop.value = offset.dy -
           ((PlatformUtils.isMobile) ? 0 : top.value + titleBarHeight) -
-          panDragDifference.value!.dy -
-          router.context!.mediaQueryPadding.top;
+          panDragDifference.value!.dy;
     }
 
     if (secondaryLeft.value! < 0) {
@@ -1113,6 +1110,7 @@ class CallController extends GetxController {
     secondaryLeft.value = _applySLeft(secondaryLeft.value);
     secondaryTop.value = _applySTop(secondaryTop.value);
 
+    // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
       secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
@@ -1142,7 +1140,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
+  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
   void resize(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     switch (x) {
@@ -1203,7 +1201,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
+  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     secondaryLeft.value ??=

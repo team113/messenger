@@ -1654,11 +1654,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           Offset block = (c.secondaryKey.currentContext
-                              ?.findRenderObject() as RenderBox)
+                                  ?.findRenderObject() as RenderBox)
                               .localToGlobal(Offset.zero);
 
                           if (c.secondaryAlignment.value ==
-                              Alignment.centerRight ||
+                                  Alignment.centerRight ||
                               c.secondaryAlignment.value ==
                                   Alignment.centerLeft ||
                               c.secondaryAlignment.value == null) {
@@ -1667,7 +1667,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               d.globalPosition.dy - block.dy,
                             );
                           } else if (c.secondaryAlignment.value ==
-                              Alignment.bottomCenter ||
+                                  Alignment.bottomCenter ||
                               c.secondaryAlignment.value ==
                                   Alignment.topCenter) {
                             c.panDragDifference.value = Offset(
