@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import 'controller.dart';
 
@@ -30,17 +31,17 @@ class SettingsView extends StatelessWidget {
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
         return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.tr)),
+          appBar: AppBar(title: Text('label_settings'.l10n)),
           body: ListView(
             children: [
               ListTile(
-                title: Text('btn_media_settings'.tr),
+                title: Text('btn_media_settings'.l10n),
                 onTap: router.settingsMedia,
               ),
               ListTile(
                 title: Row(
                   children: [
-                    Text('label_enable_popup_calls'.tr),
+                    Text('label_enable_popup_calls'.l10n),
                     const SizedBox(width: 10),
                     Obx(() {
                       return Switch(
@@ -49,6 +50,34 @@ class SettingsView extends StatelessWidget {
                       );
                     }),
                   ],
+                ),
+              ),
+              ListTile(
+                title: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: Obx(
+                    () => DropdownButton<Language>(
+                      key: const Key('LanguageDropdown'),
+                      value: L10n.chosen.value,
+                      items:
+                          L10n.languages.map<DropdownMenuItem<Language>>((e) {
+                        return DropdownMenuItem(
+                          key: Key(
+                              'Language_${e.locale.languageCode}${e.locale.countryCode}'),
+                          value: e,
+                          child: Text('${e.locale.countryCode}, ${e.name}'),
+                        );
+                      }).toList(),
+                      onChanged: c.setLocale,
+                      borderRadius: BorderRadius.circular(18),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 15,
+                      ),
+                      icon: const SizedBox(),
+                      underline: const SizedBox(),
+                    ),
+                  ),
                 ),
               )
             ],

@@ -29,10 +29,10 @@ class AnimatedDelayedScale extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
-  /// [Duration] of a delay.
+  /// [Duration] of the delay.
   final Duration delay;
 
-  /// [Duration] over which to animate the scaling.
+  /// [Duration] of the scaling animation.
   final Duration duration;
 
   /// Initial scale of [child].

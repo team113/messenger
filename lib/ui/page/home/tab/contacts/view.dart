@@ -14,11 +14,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/contact.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -50,11 +52,10 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_contacts'.tr),
+          title: Text('label_contacts'.l10n),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.5),
             child: Container(
@@ -72,7 +73,7 @@ class ContactsTabView extends StatelessWidget {
             onTrailingTap: c.addToContacts,
             body: c.contactsReady.value
                 ? c.favorites.isEmpty && c.contacts.isEmpty
-                    ? Center(child: Text('label_no_contacts'.tr))
+                    ? Center(child: Text('label_no_contacts'.l10n))
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
@@ -81,7 +82,7 @@ class ContactsTabView extends StatelessWidget {
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.tr),
+                                child: Text('label_favorite_contacts'.l10n),
                               ),
                               ...c.favorites.entries
                                   .map((e) => _contact(e.value, c))
@@ -107,7 +108,7 @@ class ContactsTabView extends StatelessWidget {
         menu: ContextMenu(
           actions: [
             ContextMenuButton(
-              label: 'btn_change_contact_name'.tr,
+              label: 'btn_change_contact_name'.l10n,
               onPressed: () {
                 c.contactToChangeNameOf.value = contact.contact.value.id;
                 c.contactName.clear();
@@ -117,7 +118,7 @@ class ContactsTabView extends StatelessWidget {
               },
             ),
             ContextMenuButton(
-              label: 'btn_delete_from_contacts'.tr,
+              label: 'btn_delete_from_contacts'.l10n,
               onPressed: () => c.deleteFromContacts(contact.contact.value),
             ),
           ],
@@ -147,9 +148,24 @@ class ContactsTabView extends StatelessWidget {
             : ListTile(
                 key: Key(contact.contact.value.id.val),
                 leading: Obx(
-                  () => AvatarWidget.fromContact(
-                    contact.contact.value,
-                    avatar: contact.user.value?.value.avatar,
+                  () => Badge(
+                    showBadge: contact.user.value?.user.value.online == true,
+                    badgeContent: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.green,
+                      ),
+                      padding: const EdgeInsets.all(5),
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    badgeColor: Colors.white,
+                    animationType: BadgeAnimationType.scale,
+                    position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+                    elevation: 0,
+                    child: AvatarWidget.fromContact(
+                      contact.contact.value,
+                      avatar: contact.user.value?.user.value.avatar,
+                    ),
                   ),
                 ),
                 title: Text(contact.contact.value.name.val),

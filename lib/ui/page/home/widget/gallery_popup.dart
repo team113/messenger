@@ -787,8 +787,8 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 }
 
-/// Extension adding getting global [RenderObject.paintBounds] from the
-/// [GlobalKey].
+/// Extension of a [GlobalKey] allowing getting global
+/// [RenderObject.paintBounds].
 extension GlobalKeyExtension on GlobalKey {
   /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
   /// [Object] this [GlobalKey] represents.

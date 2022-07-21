@@ -15,8 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
@@ -67,7 +67,9 @@ class HintWidget extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    isError ? 'label_error'.tr : 'label_hint_from_gapopa'.tr,
+                    isError
+                        ? 'label_error'.l10n
+                        : 'label_hint_from_gapopa'.l10n,
                     style: const TextStyle(
                       fontSize: 13,
                       color: Color(0xBB818181),

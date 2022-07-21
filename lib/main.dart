@@ -37,7 +37,7 @@ import 'config.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
-import 'l10n/_l10n.dart';
+import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/session.dart';
 import 'pubspec.g.dart';
@@ -72,9 +72,7 @@ void main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     await authService.init();
 
-    /// TODO: Should only be called if not persisted.
-    var locale = Platform.localeName.replaceAll('-', '_');
-    L10n.chosen = L10n.locales.containsKey(locale) ? locale : 'en_US';
+    await L10n.init();
 
     router = RouterState(authService);
 
@@ -150,8 +148,6 @@ class App extends StatelessWidget {
       onGenerateTitle: (context) => 'Gapopa',
       theme: Themes.light(),
       themeMode: ThemeMode.light,
-      locale: L10n.locales[L10n.chosen],
-      translationsKeys: L10n.phrases,
       debugShowCheckedModeBanner: false,
     );
   }
