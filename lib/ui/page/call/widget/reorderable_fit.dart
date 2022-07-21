@@ -61,6 +61,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onOffset,
     this.useLongPress = false,
     this.allowEmptyTarget = false,
+    this.allowDraggingLast = true,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -120,6 +121,10 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
+
+  /// Indicator whether dragging is allowed when the [children] contain only one
+  /// item.
+  final bool allowDraggingLast;
 
   /// Left position of this view.
   final double? left;
@@ -368,6 +373,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onWillAccept: onWillAccept,
           onOffset: onOffset,
           useLongPress: useLongPress,
+          allowDraggingLast: allowDraggingLast,
         );
       }),
     );
@@ -406,6 +412,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onWillAccept,
     this.onOffset,
     this.useLongPress = false,
+    this.allowDraggingLast = true,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -461,6 +468,10 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
 
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
+
+  /// Indicator whether dragging is allowed when the [children] contain only one
+  /// item.
+  final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
   final Color hoverColor;
@@ -579,7 +590,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     itemBuilder: widget.itemBuilder,
                     useLongPress: widget.useLongPress,
                     sharedKey: item.sharedKey,
-                    enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
+                    enabled:
+                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
+                            (widget.allowDraggingLast || _items.length != 1),
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
                       if (_doughDragged != null) {
@@ -912,7 +925,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 }
 
 /// [_ReorderableItem] wrapped in a [DraggableDough].
-class _ReorderableDraggable<T extends Object> extends StatelessWidget {
+class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   const _ReorderableDraggable({
     Key? key,
     required this.item,
@@ -959,6 +972,16 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<_ReorderableDraggable<T>> createState() =>
+      _ReorderableDraggableState<T>();
+}
+
+class _ReorderableDraggableState<T extends Object>
+    extends State<_ReorderableDraggable<T>> {
+  /// Indicator whether this [_ReorderableDraggable] is dragged.
+  bool isDragged = false;
+
+  @override
   Widget build(BuildContext context) {
     return DoughRecipe(
       data: DoughRecipeData(
@@ -966,35 +989,43 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
         viscosity: 2000,
         draggablePrefs: DraggableDoughPrefs(
           breakDistance: 50,
-          useHapticsOnBreak: true,
+          useHapticsOnBreak: false,
         ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          var widget = itemBuilder(item);
+          var child = widget.itemBuilder(widget.item);
           return DraggableDough<T>(
-            data: item,
-            longPress: useLongPress,
-            maxSimultaneousDrags: enabled ? 1 : 0,
-            onDragEnd: (d) => onDragEnd?.call(d.offset),
-            onDragStarted: onDragStarted,
-            onDragCompleted: onDragCompleted,
-            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
+            data: widget.item,
+            longPress: widget.useLongPress,
+            maxSimultaneousDrags: widget.enabled ? 1 : 0,
+            onDragEnd: (d) {
+              widget.onDragEnd?.call(d.offset);
+              isDragged = false;
+            },
+            onDragStarted: () {
+              widget.onDragStarted?.call();
+              HapticFeedback.lightImpact();
+              isDragged = true;
+            },
+            onDragCompleted: widget.onDragCompleted,
+            onDraggableCanceled: (_, d) => widget.onDraggableCanceled?.call(d),
             onDoughBreak: () {
-              if (enabled) {
-                onDoughBreak?.call();
+              if (widget.enabled && isDragged) {
+                widget.onDoughBreak?.call();
+                HapticFeedback.lightImpact();
               }
             },
             feedback: SizedBox(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
               child: KeyedSubtree(
-                key: sharedKey,
-                child: widget,
+                key: widget.sharedKey,
+                child: child,
               ),
             ),
             childWhenDragging: KeyedSubtree(
-              key: sharedKey,
+              key: widget.sharedKey,
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -1002,8 +1033,8 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
               ),
             ),
             child: KeyedSubtree(
-              key: sharedKey,
-              child: widget,
+              key: widget.sharedKey,
+              child: child,
             ),
           );
         },

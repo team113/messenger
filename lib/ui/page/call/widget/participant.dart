@@ -20,6 +20,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
@@ -327,8 +328,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                                   right: 3,
                                                 ),
                                                 child: Text(
-                                                  participant.user.value?.user
-                                                          .value.name?.val ??
+                                                  participant.user.value
+                                                          ?.user.value.name?.val ??
                                                       participant
                                                           .user
                                                           .value
@@ -336,7 +337,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                                           .value
                                                           .num
                                                           .val ??
-                                                      '...',
+                                                      'dot'.l10n * 3,
                                                   style: context
                                                       .theme
                                                       .outlinedButtonTheme

@@ -22,9 +22,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Redesigned desktop interface ([#26]).
+        - Redesigned desktop interface ([#26]);
+        - Redesigned mobile interface ([#31]).
     - Redesigned `Auth` page ([#29]).
-
 ### Fixed
 
 - Android:
@@ -41,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#23]: /../../pull/23
 [#26]: /../../pull/26
 [#29]: /../../pull/29
+[#31]: /../../pull/31
 
 
 
