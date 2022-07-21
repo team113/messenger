@@ -18,7 +18,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedScale] with an optional [delay].
+/// [AnimatedScale] with an optional delay.
 class AnimatedDelayedScale extends StatefulWidget {
   const AnimatedDelayedScale({
     Key? key,

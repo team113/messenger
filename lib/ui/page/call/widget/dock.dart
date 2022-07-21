@@ -21,14 +21,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-/// Dock reordering it's [items].
+import '/ui/page/home/widget/gallery_popup.dart';
+
+/// Reorderable [Row] of the provided [items].
 class Dock<T extends Object> extends StatefulWidget {
   const Dock({
     Key? key,
     required this.items,
     required this.itemBuilder,
-    required this.onChange,
-    this.itemSize = 48,
+    this.onReorder,
+    this.itemWidth = 48,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -38,39 +40,38 @@ class Dock<T extends Object> extends StatefulWidget {
   /// Items this [Dock] reorders.
   final List<T> items;
 
-  /// Builder building the [items].
-  final Widget Function(BuildContext context, T item) itemBuilder;
+  /// Builder building the provided item.
+  final Widget Function(T item) itemBuilder;
 
-  /// Max size of [items].
-  final double itemSize;
+  /// Max width [itemBuilder] is allowed to build within.
+  final double itemWidth;
 
-  /// Callback, called when the [items] were changed.
-  final Function(List<T>)? onChange;
+  /// Callback, called when the [items] list is reordered.
+  final Function(List<T>)? onReorder;
 
-  /// Callback, called when any drag of [items] is started.
+  /// Callback, called when item dragging is started.
   final Function(T)? onDragStarted;
 
-  /// Callback, called when any drag of [items] is ended.
+  /// Callback, called when item dragging is ended.
   final Function()? onDragEnded;
 
-  /// Callback, called when any dragged item leave this [Dock].
+  /// Callback, called when a dragged item leaves this [Dock].
   final Function()? onLeave;
 
-  /// Callback, called to determine whether this widget is interested in
-  /// receiving a given piece of data being dragged over drag target.
+  /// Callback, called when this [Dock] may accept the dragged item.
   final bool Function(T)? onWillAccept;
 
   @override
   State<Dock<T>> createState() => _DockState<T>();
 }
 
-/// State of [Dock] maintaining the reorderable [items] list.
+/// State of a [Dock] maintaining the reorderable [_items] list.
 class _DockState<T extends Object> extends State<Dock<T>> {
   /// [_DraggedItem]s of this [Dock].
-  List<_DraggedItem<T>> items = [];
+  late final List<_DraggedItem<T>> _items;
 
   /// Duration of animation moving button to his place on end of dragging.
-  Duration movingAnimationDuration = 150.milliseconds;
+  Duration movingAnimationDuration = 300.milliseconds;
 
   /// Duration of [AnimatedContainer] width changing animation.
   Duration animationsDuration = 150.milliseconds;
@@ -88,7 +89,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   _DraggedItem<T>? dragged;
 
   /// [GlobalKey] of [DragTarget].
-  GlobalKey dragZone = GlobalKey();
+  final GlobalKey _dockKey = GlobalKey();
 
   /// [Offset] of item was started dragging.
   Offset? startDragOffset;
@@ -100,12 +101,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   OverlayEntry? overlay;
 
   /// Returns item size.
-  double get itemSize => items.isEmpty ||
-          items.first.key.currentState == null ||
-          items.first.key.currentState?.mounted == false ||
-          items.first.key.currentContext?.size == null
-      ? widget.itemSize
-      : items.first.key.currentContext!.size!.width;
+  double get itemSize => _items.isEmpty ||
+          _items.first.key.currentState == null ||
+          _items.first.key.currentState?.mounted == false ||
+          _items.first.key.currentContext?.size == null
+      ? widget.itemWidth
+      : _items.first.key.currentContext!.size!.width;
 
   /// [BoxConstraints] of item.
   BoxConstraints get itemConstraints =>
@@ -113,7 +114,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   void initState() {
-    items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+    _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
     super.initState();
   }
 
@@ -125,7 +126,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // Builder of the [DragTarget] building a [Row] of the reorderable [items].
+    // Builds a [Row] of the [_items] itself.
     Widget _builder(
       BuildContext context,
       List<T?> candidates,
@@ -134,11 +135,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: items.mapMany(
+        children: _items.mapMany(
           (e) {
-            int i = items.indexOf(e);
+            int i = _items.indexOf(e);
             return [
-              if (items.firstOrNull == e) ...[
+              if (_items.firstOrNull == e) ...[
                 Flexible(
                   flex: 1,
                   child: Container(width: 10),
@@ -170,88 +171,85 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   constraints: itemConstraints,
                   child: AspectRatio(
                     aspectRatio: 1,
-                    child: LayoutBuilder(
-                        builder: (c, constraints) => Draggable(
-                              maxSimultaneousDrags: overlay == null ? 1 : 0,
-                              dragAnchorStrategy: pointerDragAnchorStrategy,
-                              feedback: Transform.translate(
-                                offset: -Offset(
-                                  constraints.maxWidth / 2,
-                                  constraints.maxHeight / 2,
-                                ),
-                                child: ConstrainedBox(
-                                  constraints: constraints,
-                                  child: widget.itemBuilder(context, e.item),
-                                ),
-                              ),
-                              data: e.item,
-                              onDragCompleted: () => widget.onChange
-                                  ?.call(items.map((e) => e.item).toList()),
-                              onDragStarted: () {
-                                _resetAnimations();
-                                widget.onDragStarted?.call(items[i].item);
+                    child: LayoutBuilder(builder: (c, constraints) {
+                      return Draggable(
+                        maxSimultaneousDrags: overlay == null ? 1 : 0,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: Transform.translate(
+                          offset: -Offset(
+                            constraints.maxWidth / 2,
+                            constraints.maxHeight / 2,
+                          ),
+                          child: ConstrainedBox(
+                            constraints: constraints,
+                            child: widget.itemBuilder(e.item),
+                          ),
+                        ),
+                        data: e.item,
+                        onDragCompleted: () => widget.onReorder
+                            ?.call(_items.map((e) => e.item).toList()),
+                        onDragStarted: () {
+                          _resetAnimations();
+                          widget.onDragStarted?.call(_items[i].item);
 
-                                // Get RenderBox of dragged item.
-                                RenderBox box = items[i]
-                                    .key
-                                    .currentContext
-                                    ?.findRenderObject() as RenderBox;
+                          // Get RenderBox of dragged item.
+                          RenderBox box = _items[i]
+                              .key
+                              .currentContext
+                              ?.findRenderObject() as RenderBox;
 
-                                // Get Offset of dragged item.
-                                startDragOffset =
-                                    box.localToGlobal(Offset.zero);
-                                startDragConstraints = box.constraints;
+                          // Get Offset of dragged item.
+                          startDragOffset = box.localToGlobal(Offset.zero);
+                          startDragConstraints = box.constraints;
 
-                                expandBetween = i;
-                                dragged = e;
-                                draggedIndex = i;
-                                items.removeAt(i);
+                          expandBetween = i;
+                          dragged = e;
+                          draggedIndex = i;
+                          _items.removeAt(i);
 
-                                setState(() {});
-                              },
-                              onDraggableCanceled: (_, o) {
-                                int savedDraggedIndex = draggedIndex;
-                                // Show animation of dragged item returns to its
-                                // start position.
-                                _showOverlay(
-                                  item: dragged!,
-                                  context: context,
-                                  from: Offset(
-                                    o.dx - startDragConstraints!.maxWidth / 2,
-                                    o.dy - startDragConstraints!.maxHeight / 2,
-                                  ),
-                                  to: startDragOffset!,
-                                  itemConstraints: startDragConstraints!,
-                                  onEnd: () {
-                                    if (mounted) {
-                                      setState(() {
-                                        items[savedDraggedIndex].hidden = false;
-                                        widget.onDragEnded?.call();
-                                      });
-                                    }
-                                  },
-                                );
+                          setState(() {});
+                        },
+                        onDraggableCanceled: (_, o) {
+                          int savedDraggedIndex = draggedIndex;
 
-                                // Insert dragged item to items list.
-                                items.insert(draggedIndex, dragged!);
+                          // Show animation of dragged item returns to its
+                          // start position.
+                          _showOverlay(
+                            item: dragged!,
+                            context: context,
+                            from: Offset(
+                              o.dx - startDragConstraints!.maxWidth / 2,
+                              o.dy - startDragConstraints!.maxHeight / 2,
+                            ),
+                            to: startDragOffset!,
+                            itemConstraints: startDragConstraints!,
+                            onEnd: () {
+                              if (mounted) {
+                                setState(() {
+                                  _items[savedDraggedIndex].hidden = false;
+                                  widget.onDragEnded?.call();
+                                });
+                              }
+                            },
+                          );
 
-                                // Hide recently added item.
-                                items[draggedIndex].hidden = true;
+                          _items.insert(draggedIndex, dragged!);
+                          _items[draggedIndex].hidden = true;
 
-                                draggedIndex = -1;
-                                dragged = null;
-                                startDragConstraints = null;
-                                expandBetween = -1;
+                          draggedIndex = -1;
+                          dragged = null;
+                          startDragConstraints = null;
+                          expandBetween = -1;
 
-                                setState(() {});
-                              },
-                              child: Opacity(
-                                opacity: (e.hidden) ? 0 : 1,
-                                child: KeyedSubtree(
-                                    key: e.key,
-                                    child: widget.itemBuilder(context, e.item)),
-                              ),
-                            )),
+                          setState(() {});
+                        },
+                        child: Opacity(
+                          opacity: (e.hidden) ? 0 : 1,
+                          child: KeyedSubtree(
+                              key: e.key, child: widget.itemBuilder(e.item)),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),
@@ -288,7 +286,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     return DragTarget<T>(
-      key: dragZone,
+      key: _dockKey,
       onMove: _onMove,
       onAcceptWithDetails: _onAcceptWithDetails,
       onLeave: (e) {
@@ -306,19 +304,18 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     );
   }
 
-  /// Adds the provided [item] to the [items] list and animates the addition.
+  /// Adds the provided [item] to the [_items] list and animates the addition.
   void _onAcceptWithDetails(DragTargetDetails<T> item) {
-    var draggedItem = _DraggedItem(item.data);
+    var data = _DraggedItem(item.data);
 
-    if (expandBetween > items.length) {
-      expandBetween = items.length;
+    if (expandBetween > _items.length) {
+      expandBetween = _items.length;
     } else if (expandBetween < 0) {
       expandBetween = 0;
     }
 
-    // If there's no such item.
-    if (items.firstWhereOrNull((e) => e == draggedItem) == null) {
-      // Calculate offset of the accepted [item].
+    int i = _items.indexWhere((e) => e == data);
+    if (i == -1) {
       var dragOffset = Offset(
         item.offset.dx -
             ((startDragConstraints != null && dragged != null)
@@ -333,7 +330,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       );
 
       // Insert item to item's list.
-      items.insert(expandBetween, draggedItem);
+      _items.insert(expandBetween, data);
 
       // Save added item index.
       int whereToPlace = expandBetween;
@@ -345,35 +342,28 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           top: dragOffset.dy,
           child: Container(
             constraints: startDragConstraints ?? itemConstraints,
-            child: widget.itemBuilder(context, draggedItem.item),
+            child: widget.itemBuilder(data.item),
           ),
         ),
       );
       Overlay.of(context)?.insert(overlay!);
 
-      // Hide added item.
-      items[whereToPlace].hidden = true;
-
-      // Reset animations.
+      _items[whereToPlace].hidden = true;
       _resetAnimations();
 
-      // Post frame callBack to display animation of adding item to items
-      // list.
+      // Post frame callBack to display animation of adding item to items list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
 
-        // Get RenderBox of recently added item.
-        RenderBox box = items[whereToPlace]
+        RenderBox box = _items[whereToPlace]
             .key
             .currentContext!
             .findRenderObject() as RenderBox;
-
-        // Get position of recently added item.
         Offset position = box.localToGlobal(Offset.zero);
 
         // Display animation of adding item.
         _showOverlay(
-          item: draggedItem,
+          item: data,
           context: context,
           from: dragOffset,
           to: position,
@@ -385,7 +375,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               setState(() {
                 dragged = null;
                 startDragConstraints = null;
-                items[whereToPlace].hidden = false;
+                _items[whereToPlace].hidden = false;
                 widget.onDragEnded?.call();
               });
             }
@@ -395,45 +385,35 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               : box.constraints,
         );
       });
-    }
-
-    // Otherwise the provided [item] is already in the list.
-    else {
-      // Get position of same item.
-      int i = items.indexWhere((e) => e == draggedItem);
+    } else {
       if (i == expandBetween || i + 1 == expandBetween) {
         return setState(() => expandBetween = -1);
       } else {
         _resetAnimations();
       }
 
-      // Get RenderBox of same item.
       RenderBox box =
-          items[i].key.currentContext!.findRenderObject() as RenderBox;
-
-      // Get Offset position of same item.
+          _items[i].key.currentContext!.findRenderObject() as RenderBox;
       Offset startPosition = box.localToGlobal(Offset.zero);
 
-      // Save index where item will be placed.
       int whereToPlace = expandBetween;
       if (whereToPlace > i) {
         whereToPlace--;
       }
 
-      // Get Offset position where item will be placed.
-      Offset endPosition = items[whereToPlace].position!;
+      Rect? itemBox = _items[whereToPlace].key.globalPaintBounds;
+      Offset endPosition = Offset((itemBox?.left ?? 0), itemBox?.top ?? 0);
 
-      // Remove same item.
-      items.removeAt(i);
+      _items.removeAt(i);
 
-      // Add item to items list and hide it.
-      if (whereToPlace > items.length) {
-        items.add(draggedItem);
-        items.last.hidden = true;
-        whereToPlace = items.length;
+      // Add item to [_items] list and hide it.
+      if (whereToPlace > _items.length) {
+        _items.add(data);
+        _items.last.hidden = true;
+        whereToPlace = _items.length;
       } else {
-        items.insert(whereToPlace, draggedItem);
-        items[whereToPlace].hidden = true;
+        _items.insert(whereToPlace, data);
+        _items[whereToPlace].hidden = true;
       }
 
       // Add compressing animation of the old [item] place.
@@ -445,7 +425,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
       // Display animation of sliding item from old place to new place.
       _showOverlay(
-        item: draggedItem,
+        item: data,
         context: context,
         from: startPosition,
         to: endPosition,
@@ -453,7 +433,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         onEnd: () {
           if (mounted) {
             setState(() {
-              items[whereToPlace].hidden = false;
+              _items[whereToPlace].hidden = false;
               widget.onDragEnded?.call();
               compressBetween = -1;
             });
@@ -463,9 +443,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     expandBetween = -1;
-
-    widget.onChange?.call(items.map((e) => e.item).toList());
-
+    widget.onReorder?.call(_items.map((e) => e.item).toList());
     setState(() {});
   }
 
@@ -474,34 +452,20 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     if (widget.onWillAccept?.call(d.data) == false) {
       return;
     }
-    // Get RenderBox of drag&drop zone.
-    RenderBox box = dragZone.currentContext!.findRenderObject() as RenderBox;
 
-    // Get position of drag&drop zone.
-    Offset position = box.localToGlobal(Offset.zero);
-
-    // Calculate index where new item will be placed.
+    Rect? rect = _dockKey.globalPaintBounds ?? Rect.zero;
     int indexToPlace = ((d.offset.dx -
-                position.dx -
-                (box.size.width / (items.length + 1)).ceil()) /
-            (box.size.width / (items.length + 1)).ceil())
+                rect.left -
+                (rect.size.width / (_items.length + 1)).ceil()) /
+            (rect.size.width / (_items.length + 1)).ceil())
         .ceil();
-    if (indexToPlace > items.length) {
-      indexToPlace = items.length;
+    if (indexToPlace > _items.length) {
+      indexToPlace = _items.length;
     } else if (indexToPlace < 0) {
       indexToPlace = 0;
     }
 
-    // Save [items] default positions.
-    if (expandBetween < 0) {
-      for (var e in items) {
-        e.updateCurrentPosition();
-      }
-    }
-
-    expandBetween = indexToPlace;
-
-    setState(() {});
+    setState(() => expandBetween = indexToPlace);
   }
 
   /// Resets [AnimatedContainer]'s width changing animations.
@@ -509,7 +473,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     animationsDuration = Duration.zero;
     SchedulerBinding.instance.addPostFrameCallback(
       (_) => Future.delayed(
-          Duration.zero, () => animationsDuration = 150.milliseconds),
+        Duration.zero,
+        () => animationsDuration = 150.milliseconds,
+      ),
     );
   }
 
@@ -534,7 +500,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           onEnd();
           _removeOverlay();
         },
-        child: widget.itemBuilder(context, item.item),
+        child: widget.itemBuilder(item.item),
       ),
     );
 
@@ -550,29 +516,19 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   }
 }
 
-/// Dragged item data.
+/// Data of an [Object] used in a [Dock] to be reordered around.
 class _DraggedItem<T> {
   _DraggedItem(this.item);
 
-  /// Dragged item.
-  T item;
+  /// Reorderable [Object] itself.
+  final T item;
 
-  /// [GlobalKey] of item.
-  GlobalKey key = GlobalKey();
+  /// [GlobalKey] of this [_DraggedItem] representing the global position of
+  /// this [item].
+  final GlobalKey key = GlobalKey();
 
-  /// Default [Offset] position of this item.
-  Offset? position;
-
-  /// Indicator whether item should be hidden.
+  /// Indicator whether this [item] should not be displayed.
   bool hidden = false;
-
-  /// Updates [position].
-  void updateCurrentPosition() {
-    RenderBox? box = key.currentContext?.findRenderObject() as RenderBox?;
-    if (box != null) {
-      position = box.localToGlobal(Offset.zero);
-    }
-  }
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
@@ -629,7 +585,8 @@ class _OverlayBlockState<T> extends State<_OverlayBlock<T>> {
 
   @override
   void initState() {
-    Future.delayed(Duration.zero).whenComplete(() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
       if (mounted) {
         setState(() {
           offset = widget.to;
@@ -640,25 +597,26 @@ class _OverlayBlockState<T> extends State<_OverlayBlock<T>> {
         });
       }
     });
-    super.initState();
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedPositioned(
+  Widget build(BuildContext context) {
+    return AnimatedPositioned(
+      duration: widget.animationDuration,
+      left: offset.dx,
+      top: offset.dy,
+      curve: Curves.ease,
+      onEnd: widget.onEnd,
+      child: AnimatedContainer(
         duration: widget.animationDuration,
-        left: offset.dx,
-        top: offset.dy,
-        curve: Curves.ease,
-        onEnd: widget.onEnd,
-        child: AnimatedContainer(
-          duration: widget.animationDuration,
-          constraints: constraints,
-          child: widget.child,
-        ),
-      );
+        constraints: constraints,
+        child: widget.child,
+      ),
+    );
+  }
 }
 
-/// Container changing width with animation.
+/// [AnimatedContainer] changing its width from [beginWidth] to [endWidth].
 class _AnimatedWidth extends StatefulWidget {
   const _AnimatedWidth({
     Key? key,
@@ -667,20 +625,20 @@ class _AnimatedWidth extends StatefulWidget {
     required this.duration,
   }) : super(key: key);
 
-  /// [Duration] of animation.
+  /// [Duration] of resize animation.
   final Duration duration;
 
-  /// Initial width of [child].
+  /// Initial width of an [AnimatedContainer].
   final double beginWidth;
 
-  /// Target width of [child].
+  /// Target width of an [AnimatedContainer].
   final double endWidth;
 
   @override
   State<_AnimatedWidth> createState() => _AnimatedWidthState();
 }
 
-/// State of [_AnimatedWidth] maintaining [width].
+/// State of an [_AnimatedWidth] maintaining the [width].
 class _AnimatedWidthState extends State<_AnimatedWidth> {
   /// Current width value.
   late double width;

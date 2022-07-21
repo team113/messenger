@@ -483,13 +483,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                 color: const Color(0x66000000),
                 onPressed: _dismiss,
                 withBlur: true,
-                children: const [
-                  Icon(
-                    Icons.close_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  )
-                ],
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
             ),
           ),
@@ -528,16 +526,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 1),
-                    child: Icon(
-                      Icons.keyboard_arrow_left_rounded,
-                      color: left ? Colors.white : Colors.grey,
-                      size: 36,
-                    ),
-                  )
-                ],
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 1),
+                  child: Icon(
+                    Icons.keyboard_arrow_left_rounded,
+                    color: left ? Colors.white : Colors.grey,
+                    size: 36,
+                  ),
+                ),
               ),
             ),
           ),
@@ -562,16 +558,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 1),
-                    child: Icon(
-                      Icons.keyboard_arrow_right_rounded,
-                      color: right ? Colors.white : Colors.grey,
-                      size: 36,
-                    ),
-                  )
-                ],
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 1),
+                  child: Icon(
+                    Icons.keyboard_arrow_right_rounded,
+                    color: right ? Colors.white : Colors.grey,
+                    size: 36,
+                  ),
+                ),
               ),
             ),
           ),

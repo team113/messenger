@@ -14,24 +14,28 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'conditional_backdrop.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
+import 'conditional_backdrop.dart';
 
 /// [FloatingActionButton] of [children] content with an optional [text] and
 /// [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     Key? key,
+    this.asset,
+    this.assetWidth,
     this.onPressed,
     this.text,
-    this.children = const [],
-    this.color = const Color(0x7F818181),
+    this.color = const Color(0x794E5A78),
     this.hint,
     this.withBlur = false,
-    this.withText = true,
+    this.child,
   }) : super(key: key);
 
   /// Callback, called when the button is tapped or activated other way.
@@ -45,17 +49,22 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Widgets to draw inside the button.
-  final List<Widget> children;
+  /// Name of an asset to place into a [SvgLoader.asset].
+  final String? asset;
+
+  /// Size of the [asset].
+  ///
+  /// If not provided, [asset] is considered to be 60 pixels wide.
+  final double? assetWidth;
+
+  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  final Widget? child;
 
   /// Background color of the button.
   final Color? color;
 
-  /// Indicator whether the button should have a blur under it.
+  /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
-
-  /// Indicator whether the button should be displayed with [text] behind.
-  final bool withText;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -66,7 +75,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   /// [GlobalKey] of this [RoundFloatingButton].
   final GlobalKey _key = GlobalKey();
 
-  /// Overlay hint of this [RoundFloatingButton].
+  /// [OverlayEntry] of a hint of this [RoundFloatingButton].
   OverlayEntry? _hintEntry;
 
   @override
@@ -87,16 +96,16 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    var button = ConditionalBackdropFilter(
+    Widget button = ConditionalBackdropFilter(
       condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(60),
       child: Material(
         key: _key,
         elevation: 0,
         color: widget.color,
         type: MaterialType.circle,
         child: InkWell(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(60),
           onHover: widget.hint != null
               ? (b) {
                   if (b) {
@@ -108,14 +117,22 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 }
               : null,
           onTap: widget.onPressed,
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            children: widget.children,
-          ),
+          child: widget.child ??
+              SizedBox(
+                width: max(widget.assetWidth ?? 60, 60),
+                height: max(widget.assetWidth ?? 60, 60),
+                child: Center(
+                  child: SvgLoader.asset(
+                    'assets/icons/${widget.asset}.svg',
+                    width: widget.assetWidth ?? 60,
+                  ),
+                ),
+              ),
         ),
       ),
     );
-    return !widget.withText
+
+    return widget.text == null
         ? button
         : Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -123,18 +140,16 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               button,
-              if (widget.text != null && widget.withText) ...[
-                const SizedBox(height: 5),
-                Text(
-                  widget.text!,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.caption?.copyWith(
-                    color: Colors.white,
-                    fontSize: 13,
-                  ),
-                  maxLines: 2,
+              const SizedBox(height: 5),
+              Text(
+                widget.text!,
+                textAlign: TextAlign.center,
+                style: context.textTheme.caption?.copyWith(
+                  color: Colors.white,
+                  fontSize: 13,
                 ),
-              ]
+                maxLines: 2,
+              ),
             ],
           );
   }

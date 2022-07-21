@@ -56,9 +56,6 @@ class CallController extends GetxController {
     this._userService,
   );
 
-  /// Max size of buttons in bottom panel.
-  static const double buttonSize = 48.0;
-
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
 
@@ -191,24 +188,24 @@ class CallController extends GetxController {
   /// Minimized view current left position.
   late final RxDouble left;
 
-  /// Indicator whether don't need to show hints to [CallButton]'s.
-  final RxBool hideHint = RxBool(false);
+  /// Indicator whether more panel is displayed.
+  final RxBool displayMore = RxBool(false);
+
+  /// [CallButton]s available in the more panel.
+  late final RxList<CallButton> panel;
+
+  /// [CallButton]s currently being in the [Dock].
+  late final RxList<CallButton> buttons;
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
-  /// Indicator whether need to display more panel.
-  final RxBool displayMore = RxBool(false);
-
-  /// List of more panel [CallButton]'s.
-  late final RxList<CallButton> panel;
-
-  /// List of bottom panel [CallButton]'s.
-  late final RxList<CallButton> buttons;
-
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
+
+  /// Maximum size a [CallButton] is allowed to occupy in the [Dock].
+  static const double buttonSize = 48.0;
 
   /// Color of a call buttons that accept the call.
   static const Color acceptColor = Color(0x7F34B139);
@@ -570,22 +567,22 @@ class CallController extends GetxController {
     });
 
     buttons = RxList([
-      ScreenCallButton(this),
-      VideoCallButton(this),
+      ScreenButton(this),
+      VideoButton(this),
       EndCallButton(this),
-      AudioCallButton(this),
-      MoreCallButton(this),
+      AudioButton(this),
+      MoreButton(this),
     ]);
 
     panel = RxList([
-      SettingsCallButton(this),
+      SettingsButton(this),
       AddMemberCallButton(this),
-      HandCallButton(this),
-      ScreenCallButton(this),
-      DisableRemoteVideoCallButton(this),
-      DisableRemoteAudioCallButton(this),
-      VideoCallButton(this),
-      AudioCallButton(this),
+      HandButton(this),
+      ScreenButton(this),
+      RemoteVideoButton(this),
+      RemoteAudioButton(this),
+      VideoButton(this),
+      AudioButton(this),
     ]);
 
     _showUiWorker = ever(showUi, (bool showUi) {
@@ -807,7 +804,7 @@ class CallController extends GetxController {
     await _toggleHand();
   }
 
-  /// Toggles the more panel visibility.
+  /// Toggles the [displayMore] visibility.
   void toggleMore() => displayMore.toggle();
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not

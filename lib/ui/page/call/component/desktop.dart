@@ -313,9 +313,11 @@ Widget desktopCall(CallController c, BuildContext context) {
       }));
 
       _padding(Widget child) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2), child: child);
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Center(child: child),
+          );
 
-      /// Widget that displays bottom dock buttons while call is pending.
+      // Builds a buttons' [Row] of non-active call.
       Widget _pendingButtons() => Obx(() {
             bool isOutgoing =
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
@@ -326,17 +328,17 @@ Widget desktopCall(CallController c, BuildContext context) {
                     if (PlatformUtils.isMobile)
                       _padding(
                         c.videoState.value.isEnabled()
-                            ? switchButton(c)
-                            : speakerButton(c),
+                            ? SwitchButton(c).build(blur: true)
+                            : SpeakerButton(c).build(blur: true),
                       ),
-                    _padding(videoButton(c)),
-                    _padding(cancelButton(c)),
-                    _padding(audioButton(c)),
+                    _padding(VideoButton(c).build(blur: true)),
+                    _padding(CancelButton(c).build(blur: true)),
+                    _padding(AudioButton(c).build(blur: true)),
                   ]
                 : [
-                    _padding(acceptAudioButton(c)),
-                    _padding(acceptVideoButton(c)),
-                    _padding(declineButton(c)),
+                    _padding(AcceptAudioButton(c).build(expanded: true)),
+                    _padding(AcceptVideoButton(c).build(expanded: true)),
+                    _padding(DeclineButton(c).build(expanded: true)),
                   ];
 
             return ConstrainedBox(
@@ -349,7 +351,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           });
 
-      /// Widget that displays bottom dock buttons.
+      /// Builds a buttons' [Dock] of active-call.
       Widget _dock() {
         return Obx(() {
           bool isDocked = c.state.value == OngoingCallState.active ||
@@ -380,68 +382,49 @@ Widget desktopCall(CallController c, BuildContext context) {
                       isOpen: showBottomUi,
                       duration: 400.milliseconds,
                       translate: false,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Draw a blurred dock with the invisible [_activeButtons]
-                            // if [isDocked].
-                            if (isDocked)
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                  boxShadow: const [
-                                    CustomBoxShadow(
-                                      color: Color(0x33000000),
-                                      blurRadius: 8,
-                                      blurStyle: BlurStyle.outer,
-                                    )
-                                  ],
-                                ),
-                                padding: const EdgeInsets.all(2),
-                                child: ConditionalBackdropFilter(
-                                  borderRadius: BorderRadius.circular(30),
-                                  filter: ImageFilter.blur(
-                                    sigmaX: 15,
-                                    sigmaY: 15,
-                                  ),
-                                  child: AnimatedContainer(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0x301D6AAE),
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 13,
-                                      horizontal: 5,
-                                    ),
-                                    duration: const Duration(milliseconds: 150),
-                                    child: Dock<CallButton>(
-                                      items: c.buttons,
-                                      itemSize: CallController.buttonSize,
-                                      itemBuilder: (context, item) => item
-                                          .build(context, true, small: true),
-                                      onChange: (buttons) {
-                                        c.buttons.clear();
-                                        c.buttons.addAll(buttons);
-                                      },
-                                      onDragStarted: (b) {
-                                        c.draggedButton.value = b;
-                                        c.hideHint.value = true;
-                                      },
-                                      onDragEnded: () {
-                                        c.hideHint.value = false;
-                                        c.draggedButton.value = null;
-                                      },
-                                      onLeave: () => c.displayMore.value = true,
-                                      onWillAccept: (d) =>
-                                          d.c.chatId == c.chatId,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: const [
+                            CustomBoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              blurStyle: BlurStyle.outer,
+                            )
                           ],
+                        ),
+                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        child: ConditionalBackdropFilter(
+                          borderRadius: BorderRadius.circular(30),
+                          filter: ImageFilter.blur(
+                            sigmaX: 15,
+                            sigmaY: 15,
+                          ),
+                          child: AnimatedContainer(
+                            decoration: BoxDecoration(
+                              color: const Color(0x301D6AAE),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 13,
+                              horizontal: 5,
+                            ),
+                            duration: const Duration(milliseconds: 150),
+                            child: Dock<CallButton>(
+                              items: c.buttons,
+                              itemWidth: CallController.buttonSize,
+                              itemBuilder: (e) => e.build(),
+                              onReorder: (buttons) {
+                                c.buttons.clear();
+                                c.buttons.addAll(buttons);
+                              },
+                              onDragStarted: (b) => c.draggedButton.value = b,
+                              onDragEnded: () => c.draggedButton.value = null,
+                              onLeave: () => c.displayMore.value = true,
+                              onWillAccept: (d) => d.c == c,
+                            ),
+                          ),
                         ),
                       ),
                     )
@@ -454,7 +437,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         });
       }
 
-      /// Widget that displays more buttons.
+      /// Builds a more buttons panel.
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,
@@ -481,8 +464,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   decoration: BoxDecoration(
-                    color: candidate.any((e) => e?.c.chatId == c.chatId)
-                        ? const Color.fromARGB(47, 34, 128, 209)
+                    color: candidate.any((e) => e?.c == c)
+                        ? const Color(0xE0165084)
                         : const Color(0x9D165084),
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -514,31 +497,23 @@ Widget desktopCall(CallController c, BuildContext context) {
                                         child: SizedBox(
                                           height: CallController.buttonSize,
                                           width: CallController.buttonSize,
-                                          child: e.build(
-                                            context,
-                                            true,
-                                            small: true,
-                                          ),
+                                          child: e.build(),
                                         ),
                                       ),
                                       data: e,
-                                      onDragStarted: () {
-                                        c.draggedButton.value = e;
-                                        c.hideHint.value = true;
-                                      },
+                                      onDragStarted: () =>
+                                          c.draggedButton.value = e,
                                       onDragCompleted: () =>
                                           c.draggedButton.value = null,
                                       onDragEnd: (_) =>
                                           c.draggedButton.value = null,
-                                      onDraggableCanceled: (_, __) {
-                                        c.draggedButton.value = null;
-                                        c.hideHint.value = false;
-                                      },
+                                      onDraggableCanceled: (_, __) =>
+                                          c.draggedButton.value = null,
                                       maxSimultaneousDrags:
                                           e.isRemovable ? null : 0,
                                       dragAnchorStrategy:
                                           pointerDragAnchorStrategy,
-                                      child: e.build(context, false),
+                                      child: e.build(hinted: false),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
@@ -570,25 +545,20 @@ Widget desktopCall(CallController c, BuildContext context) {
           child: Obx(() {
             bool isDocked = c.state.value == OngoingCallState.active ||
                 c.state.value == OngoingCallState.joining;
-            bool displayMore = c.displayMore.value;
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: isDocked && displayMore
+              child: isDocked && c.displayMore.value
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         DragTarget<CallButton>(
                           onAccept: (CallButton data) {
                             c.buttons.remove(data);
-                            c.hideHint.value = false;
                             c.draggedButton.value = null;
                           },
-                          onWillAccept: (a) => (a != null &&
-                                  a.c.chatId == c.chatId &&
-                                  a.isRemovable)
-                              ? true
-                              : false,
+                          onWillAccept: (CallButton? a) =>
+                              a?.c == c && a?.isRemovable == true,
                           builder: _builder,
                         )
                       ],

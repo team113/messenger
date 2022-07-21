@@ -62,14 +62,10 @@ btn_call_cancel = Cancel call
 btn_call_center_video = Center video
 btn_call_cut_video = Cut video
 btn_call_decline = Decline
-btn_call_disable_incoming_audio = Disable incoming audio
-btn_call_disable_incoming_video = Disable incoming video
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
 btn_call_drop_video_here =
     You can add a video to a separate panel by simply dragging and dropping
-btn_call_enable_incoming_audio = Enable incoming audio
-btn_call_enable_incoming_video = Enable incoming video
 btn_call_enable_video = Enable video
 btn_call_end = End call
 btn_call_end_desc =

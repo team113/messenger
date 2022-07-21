@@ -62,16 +62,12 @@ btn_call_cancel = Отменить
 btn_call_center_video = Центрировать видео
 btn_call_cut_video = Обрезать видео
 btn_call_decline = Отклонить
-btn_call_disable_incoming_audio = Выключить входящее аудио
-btn_call_disable_incoming_video = Выключить входящее видео
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
 btn_call_drop_video_here =
     Добавить видео в отдельную панель можно простым перетаскиванием
-btn_call_enable_incoming_audio = Включить входящее аудио
-btn_call_enable_incoming_video = Включить входящее видео
 btn_call_enable_video = Включить видео
-btn_call_end = Закончить
+btn_call_end = Завершить звонок
 btn_call_end_desc =
     Завершить
     звонок
