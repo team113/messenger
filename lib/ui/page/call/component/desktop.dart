@@ -388,7 +388,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     duration: const Duration(milliseconds: 400),
                     translate: false,
                     child: Stack(
-                      key: c.animatedSliderButtonsPanelKey,
+                      key: c.buttonsDockKey,
                       alignment: Alignment.center,
                       children: [
                         // Draw a blurred dock with the invisible [_activeButtons]
@@ -1655,6 +1655,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
+                          c.secondaryBottomBeforeShift.value = null;
                           c.showUiBeforeDragging.value = c.showUi.value;
                           c.showUi.value = false;
                           Offset block = (c.secondaryKey.currentContext
@@ -1699,7 +1700,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           c.secondaryBottom.value = null;
                         },
                         onPanUpdate: (d) {
-                          c.selfVideoWasReplacedByBottomBar.value = false;
                           c.secondaryDragged.value = true;
                           c.updateSecondaryCoordinates(d.globalPosition);
                           c.applySecondaryConstraints();

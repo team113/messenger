@@ -472,7 +472,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         topRight: Radius.circular(10),
                       ),
                       panel: ConditionalBackdropFilter(
-                        key: c.animatedSliderButtonsPanelKey,
+                        key: c.buttonsDockKey,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),

@@ -91,8 +91,8 @@ class _AnimatedSliderState extends State<AnimatedSlider>
 
   @override
   void dispose() {
-    animation.dispose();if
-    (widget.animationStream != null) {
+    animation.dispose();
+    if (widget.animationStream != null) {
       animation.removeListener(_animationListener);
     }
     super.dispose();
@@ -113,7 +113,7 @@ class _AnimatedSliderState extends State<AnimatedSlider>
         animation.reverse(from: animation.value);
       }
     }
-    if (widget.animationStream != null) {
+    else if (widget.animationStream != null) {
       _animationListener();
     }
   }

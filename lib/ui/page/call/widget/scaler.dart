@@ -21,6 +21,7 @@ class Scaler extends StatefulWidget {
   const Scaler({
     Key? key,
     required this.onDrag,
+    this.onEnd,
     this.width = size,
     this.height = size,
     this.opacity = 0,
@@ -31,6 +32,9 @@ class Scaler extends StatefulWidget {
 
   /// Callback reporting `x` and `y` drag deltas.
   final Function(double, double) onDrag;
+
+  /// Callback, called when dragging is ended.
+  final VoidCallback? onEnd;
 
   /// Width of the draggable area.
   final double width;
@@ -66,6 +70,9 @@ class _ScalerState extends State<Scaler> {
         initX = details.globalPosition.dx;
         initY = details.globalPosition.dy;
         widget.onDrag(dx, dy);
+      },
+      onPanEnd: (_) {
+        widget.onEnd?.call();
       },
       child: Opacity(
         opacity: widget.opacity,

@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -37,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -220,8 +222,8 @@ class CallController extends GetxController {
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   /// Global key of animated slider buttons panel.
-  final GlobalKey animatedSliderButtonsPanelKey = GlobalKey();
-  
+  final GlobalKey buttonsDockKey = GlobalKey();
+
   /// [Offset] difference between global positions of secondary view and pan
   /// start position.
   final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
@@ -232,17 +234,8 @@ class CallController extends GetxController {
   /// [StreamController] of showing bottom animation stream.
   final StreamController bottomAnimationStream = StreamController();
 
-  /// Offset of pan drag delta self video.
-  final Rx<Offset?> panDragDelta = Rx<Offset?>(null);
-
-  /// Offset of pan drag difference.
-  final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
-
-  /// Indicator whether self video was replaced by bottom bar or not.
-  final RxBool selfVideoWasReplacedByBottomBar = RxBool(false);
-
   /// Initial top position of video before changing position by bottom bar.
-  final RxDouble selfVideoTopBeforeChangingByBottomBar = RxDouble(0);
+  final RxnDouble secondaryBottomBeforeShift = RxnDouble(null);
 
   /// Indicator whether [showBottomUi] was true when secondary video was start
   /// dragged or not.
@@ -418,7 +411,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    bottomAnimationStream.stream.listen(recountSelfVideoPosition);
+    bottomAnimationStream.stream.listen((_) => recountSelfVideoPosition());
 
     _currentCall.value.init(_chatService.me);
 
@@ -469,6 +462,7 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
+        secondaryBottomBeforeShift.value = 10;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -1016,68 +1010,48 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
+  bool recountLocked = false;
+
   /// Recounts self video position.
-  void recountSelfVideoPosition(_) {
-    if (animatedSliderButtonsPanelKey.currentContext?.findRenderObject() !=
-        null) {
-      var box = (animatedSliderButtonsPanelKey.currentContext!
-          .findRenderObject() as RenderBox);
-      Offset position = box.localToGlobal(Offset.zero);
-      if (!isPopup && fullscreen.isTrue && PlatformUtils.isDesktop) {
-        position = Offset(position.dx, position.dy - titleBarHeight);
-      } else if (PlatformUtils.isMobile) {
-        position = Offset(position.dx, position.dy);
-      }
-      double start = 0, end = 0;
-      if (!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop) {
-        start = position.dx - left.value;
-        end = position.dx + box.size.width - left.value;
-      } else {
-        start = position.dx;
-        end = position.dx + box.size.width;
-      }
-      if ((PlatformUtils.isMobile && isPanelOpen.isFalse) ||
-          PlatformUtils.isDesktop) {
-        if (position.dy <
-            secondaryTop.value! +
-                secondaryHeight.value +
-                ((isPopup || PlatformUtils.isMobile)
-                    ? 0
-                    : ((fullscreen.isTrue) ? 0 : titleBarHeight + top.value))) {
-          if ((start < secondaryLeft.value! && end > secondaryLeft.value!) ||
-              (start < secondaryLeft.value! + secondaryWidth.value &&
-                  end > secondaryLeft.value! + secondaryWidth.value)) {
-            if (selfVideoTopBeforeChangingByBottomBar.value == 0) {
-              selfVideoTopBeforeChangingByBottomBar.value = secondaryTop.value!;
-            }
-            selfVideoWasReplacedByBottomBar.value = true;
-            secondaryTop.value = position.dy -
-                ((!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop)
-                    ? titleBarHeight + top.value + secondaryHeight.value
-                    : secondaryHeight.value);
-          }
+  void recountSelfVideoPosition() {
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      recountLocked = false;
+    });
+    if (buttonsDockKey.currentContext?.findRenderObject() != null &&
+        secondaryKey.currentContext?.findRenderObject() != null &&
+        secondaryDragged.isFalse && !recountLocked) {
+      recountLocked = true;
+      Rect secondaryBounds = secondaryKey.globalPaintBounds!;
+      Rect dockBounds = buttonsDockKey.globalPaintBounds!;
+      var intercept = secondaryBounds.intersect(dockBounds);
+
+      if (intercept.width > 0 && intercept.height > 0) {
+        if (secondaryBottom.value != null) {
+          secondaryBottom.value = secondaryBottom.value! + intercept.height;
         } else {
-          if (selfVideoWasReplacedByBottomBar.value &&
-              selfVideoTopBeforeChangingByBottomBar.value > 0) {
-            if (selfVideoTopBeforeChangingByBottomBar.value >
-                secondaryTop.value!) {
-              double newValue = position.dy -
-                  ((!isPopup && fullscreen.isFalse && PlatformUtils.isDesktop)
-                      ? top.value + secondaryHeight.value + titleBarHeight
-                      : secondaryHeight.value);
-              if (PlatformUtils.isMobile) {
-                secondaryTop.value = newValue;
-              } else if (newValue +
-                  secondaryHeight.value -
-                  ((!isPopup && fullscreen.isFalse)
-                      ? top.value - titleBarHeight
-                      : 0) <
-                  size.height) {
-                secondaryTop.value = newValue;
-              }
+          secondaryTop.value = secondaryTop.value! - intercept.height;
+        }
+        applySecondaryConstraints();
+      } else if (intercept.height < 0 &&
+          secondaryBottomBeforeShift.value != null) {
+        var bottom = secondaryBottom.value ??
+            size.height - secondaryTop.value! - secondaryHeight.value;
+        if (bottom > secondaryBottomBeforeShift.value!) {
+          var difference = bottom - secondaryBottomBeforeShift.value!;
+          if (secondaryBottom.value != null) {
+            if (difference < intercept.height) {
+              secondaryBottom.value = secondaryBottomBeforeShift.value;
             } else {
-              secondaryTop.value = selfVideoTopBeforeChangingByBottomBar.value;
-              selfVideoTopBeforeChangingByBottomBar.value = 0;
+              secondaryBottom.value = secondaryBottom.value! + intercept.height;
+            }
+          } else {
+            if (difference < intercept.height) {
+              secondaryTop.value = size.height -
+                  secondaryHeight.value -
+                  secondaryBottomBeforeShift.value!;
+            } else {
+              secondaryTop.value = secondaryTop.value! - intercept.height;
             }
           }
         }
@@ -1160,6 +1134,10 @@ class CallController extends GetxController {
         secondaryRight.value = 0;
       }
     }
+
+    secondaryBottomBeforeShift.value =
+        secondaryBottom.value ?? size.height - top - secondaryHeight.value;
+    recountSelfVideoPosition();
   }
 
   /// Applies secondary coordinates.
