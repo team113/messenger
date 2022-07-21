@@ -219,7 +219,8 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// Offset of pan drag difference.
+  /// [Offset] difference between global positions of secondary view and pan
+  /// start position.
   final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
 
   /// Global key of secondary view.
