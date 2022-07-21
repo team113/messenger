@@ -27,17 +27,15 @@ import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/fit_view.dart';
-import '../widget/fit_wrap.dart';
 import '../widget/hint.dart';
 import '../widget/participant.dart';
-import '../widget/reorderable_fit_view.dart';
-import '../widget/reorderable_fit_wrap.dart';
+import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -47,14 +45,11 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
-Widget desktopCall(
-  CallController c,
-  BuildContext context, {
-  bool isPopup = false,
-}) {
+Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
@@ -161,8 +156,6 @@ Widget desktopCall(
           _possibleContainer(),
 
           // Makes UI appear on click.
-          //
-          // Also, if [showTitle] is `false`, allows dragging the window.
           Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) {
@@ -227,7 +220,7 @@ Widget desktopCall(
                       child: SizedBox(
                         width: 320,
                         child: HintWidget(
-                          text: 'label_hint_drag_n_drop_video'.tr,
+                          text: 'label_hint_drag_n_drop_video'.l10n,
                           onTap: c.isHintDismissed.toggle,
                         ),
                       ),
@@ -267,7 +260,7 @@ Widget desktopCall(
                       top: (c.minimized.value && !c.fullscreen.value ? 0 : 45) +
                           8),
                   child: Text(
-                    c.callerName ?? '...',
+                    c.callerName ?? 'dot'.l10n * 3,
                     style: context.textTheme.bodyText1?.copyWith(
                       color: const Color(0xFFBBBBBB),
                       fontSize: 20,
@@ -379,8 +372,8 @@ Widget desktopCall(
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Obx(
-          () => Center(
+        Obx(() {
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -429,8 +422,8 @@ Widget desktopCall(
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        }),
         // Bottom [MouseRegion] that toggles UI on hover.
         Align(
           alignment: Alignment.bottomCenter,
@@ -498,7 +491,7 @@ Widget desktopCall(
                 padding: const EdgeInsets.only(top: 8, right: 8),
                 child: TooltipButton(
                   verticalOffset: 8,
-                  hint: 'btn_call_settings'.tr,
+                  hint: 'btn_call_settings'.l10n,
                   onTap: () => c.openSettings(context),
                   child: SvgLoader.asset(
                     'assets/icons/settings.svg',
@@ -552,9 +545,7 @@ Widget desktopCall(
             child: c.primaryDrags.value == 0 && c.secondaryDrags.value == 0
                 ? MouseRegion(
                     opaque: false,
-                    onEnter: (d) {
-                      c.keepUi(true);
-                    },
+                    onEnter: (d) => c.keepUi(true),
                     onExit: (d) {
                       if (c.showUi.value) {
                         c.keepUi(false);
@@ -581,7 +572,7 @@ Widget desktopCall(
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!isPopup)
+            if (!WebUtils.isPopup)
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onPanUpdate: (d) {
@@ -601,7 +592,7 @@ Widget desktopCall(
                       )
                     ],
                   ),
-                  child: _titleBar(context, c, isPopup),
+                  child: _titleBar(context, c),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
@@ -821,36 +812,43 @@ Widget desktopCall(
 
 /// Title bar of the call containing information about the call and control
 /// buttons.
-Widget _titleBar(
-  BuildContext context,
-  CallController c, [
-  bool isPopup = false,
-]) =>
-    Obx(() {
-      bool isOutgoing =
-          (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
-      String state = c.state.value == OngoingCallState.active
-          ? c.duration.value.hhMmSs()
-          : c.state.value == OngoingCallState.joining
-              ? 'label_call_joining'.tr
-              : isOutgoing
-                  ? 'label_call_calling'.tr
-                  : c.withVideo == true
-                      ? 'label_video_call'.tr
-                      : 'label_audio_call'.tr;
+Widget _titleBar(BuildContext context, CallController c) => Obx(() {
+      final Map<String, String> args = {
+        'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
+        'state': c.state.value.name,
+      };
 
-      String title = c.chat.value?.title.value ?? ('.'.tr * 3);
+      switch (c.state.value) {
+        case OngoingCallState.local:
+        case OngoingCallState.pending:
+          bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &&
+                  !c.started;
+          if (isOutgoing) {
+            args['type'] = 'outgoing';
+          } else if (c.withVideo) {
+            args['type'] = 'video';
+          } else {
+            args['type'] = 'audio';
+          }
+          break;
 
-      String? subtitle;
-      if (c.isGroup) {
-        var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-        subtitle =
-            ' | ${1 + actualMembers.length} ${'label_of'.tr} ${c.chat.value?.members.length}';
+        case OngoingCallState.active:
+          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
+          args['members'] = '${actualMembers.length + 1}';
+          args['allMembers'] = '${c.chat.value?.members.length}';
+          args['duration'] = c.duration.value.hhMmSs();
+          break;
+
+        case OngoingCallState.joining:
+        case OngoingCallState.ended:
+          // No-op.
+          break;
       }
 
       return Container(
         key: const ValueKey('TitleBar'),
-        color: const Color.fromARGB(255, 22, 38, 54),
+        color: const Color(0xFF162636),
         height: c.titleBarHeight,
         child: Stack(
           alignment: Alignment.center,
@@ -862,13 +860,13 @@ Widget _titleBar(
             ),
 
             // Left part of the title bar that displays the recipient or
-            // the caller and its avatar.
+            // the caller, its avatar and the call's state.
             Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: c.size.width / 2),
                 child: InkWell(
-                  onTap: isPopup
+                  onTap: WebUtils.isPopup
                       ? null
                       : () {
                           router.chat(c.chatId);
@@ -883,51 +881,17 @@ Widget _titleBar(
                       AvatarWidget.fromRxChat(c.chat.value, radius: 8),
                       const SizedBox(width: 8),
                       Flexible(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 110),
-                          child: Text(
-                            title,
-                            style: context.textTheme.bodyText1?.copyWith(
-                              fontSize: 13,
-                              color: const Color(0xFFFFFFFF),
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle,
+                        child: Text(
+                          'label_call_title'.l10nfmt(args),
                           style: context.textTheme.bodyText1?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
                     ],
                   ),
-                ),
-              ),
-            ),
-
-            // Center part of the title bar that displays the call state.
-            IgnorePointer(
-              child: Container(
-                height: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 90),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      state,
-                      style: context.textTheme.bodyText1?.copyWith(
-                        fontSize: 13,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -943,8 +907,8 @@ Widget _titleBar(
                     TooltipButton(
                       onTap: c.toggleFullscreen,
                       hint: c.fullscreen.value
-                          ? 'btn_fullscreen_exit'.tr
-                          : 'btn_fullscreen_enter'.tr,
+                          ? 'btn_fullscreen_exit'.l10n
+                          : 'btn_fullscreen_enter'.l10n,
                       child: SvgLoader.asset(
                         'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
                         width: 12,
@@ -960,7 +924,7 @@ Widget _titleBar(
       );
     });
 
-/// [FitView] of the [CallController.primary] participants.
+/// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
     List<Participant> primary = List.from(c.primary);
@@ -991,14 +955,21 @@ Widget _primaryView(CallController c) {
 
     return Stack(
       children: [
-        ReorderableFitView<_DragData>(
+        ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
+          allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
-          onWillAccept: (b) {
-            if (c.draggedRenderer.value?.user.value?.value.id != c.me ||
-                c.draggedRenderer.value?.source != MediaSourceKind.Display) {
-              c.primaryTargets.value = 1;
+          onWillAccept: (d) {
+            if (d?.chatId == c.chatId) {
+              if (d?.participant.user.value?.id != c.me ||
+                  d?.participant.source != MediaSourceKind.Display) {
+                c.primaryTargets.value = 1;
+              }
+
+              return true;
             }
+
+            return false;
           },
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
@@ -1010,7 +981,7 @@ Widget _primaryView(CallController c) {
           onOffset: () {
             if (c.minimized.value && !c.fullscreen.value) {
               return Offset(-c.left.value, -c.top.value - 30);
-            } else if (!c.isPopup) {
+            } else if (!WebUtils.isPopup) {
               return const Offset(0, -30);
             }
 
@@ -1089,8 +1060,8 @@ Widget _primaryView(CallController c) {
                                       MediaSourceKind.Device)
                                     ContextMenuButton(
                                       label: fit == null || fit == BoxFit.cover
-                                          ? 'btn_call_do_not_cut_video'.tr
-                                          : 'btn_call_cut_video'.tr,
+                                          ? 'btn_call_do_not_cut_video'.l10n
+                                          : 'btn_call_cut_video'.l10n,
                                       onPressed: () {
                                         c.rendererBoxFit[participant
                                                 .video.value!.track
@@ -1107,7 +1078,7 @@ Widget _primaryView(CallController c) {
                                       },
                                     ),
                                   ContextMenuButton(
-                                    label: 'btn_call_center_video'.tr,
+                                    label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
@@ -1115,8 +1086,8 @@ Widget _primaryView(CallController c) {
                                   ContextMenuButton(
                                     label: participant.video.value?.isEnabled ==
                                             true
-                                        ? 'btn_call_disable_video'.tr
-                                        : 'btn_call_enable_video'.tr,
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
                                     onPressed: () => c.toggleRendererEnabled(
                                         participant.video),
                                   ),
@@ -1138,8 +1109,7 @@ Widget _primaryView(CallController c) {
               });
             });
           },
-          decoratorBuilder: (_DragData item) =>
-              const ParticipantDecoratorWidget(),
+          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -1153,7 +1123,7 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.refresh,
                 fit:
                     c.rendererBoxFit[participant.video.value?.track.id() ?? ''],
-                isDragging: c.doughDraggedRenderer.value == participant,
+                expanded: c.doughDraggedRenderer.value == participant,
               );
             });
           },
@@ -1172,10 +1142,14 @@ Widget _primaryView(CallController c) {
                           beginScale: 1,
                           endScale: 1.06,
                           child: ConditionalBackdropFilter(
+                            condition: !c.minimized.value || c.fullscreen.value,
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
-                              decoration: const BoxDecoration(
-                                color: Color(0x40000000),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: !c.minimized.value || c.fullscreen.value
+                                    ? const Color(0x40000000)
+                                    : const Color(0x90000000),
                               ),
                               child: const Padding(
                                 padding: EdgeInsets.all(16),
@@ -1199,7 +1173,7 @@ Widget _primaryView(CallController c) {
   });
 }
 
-/// [FitWrap] of the [CallController.secondary] participants.
+/// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -1499,10 +1473,17 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
-          ReorderableFitWrap<_DragData>(
+          ReorderableFit<_DragData>(
             key: const Key('SecondaryFitView'),
             onAdded: (d, i) => c.unfocus(d.participant),
-            onWillAccept: (b) => c.secondaryTargets.value = 1,
+            onWillAccept: (d) {
+              if (d?.chatId == c.chatId) {
+                c.secondaryTargets.value = 1;
+                return true;
+              }
+
+              return false;
+            },
             onLeave: (b) => c.secondaryTargets.value = 0,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;
@@ -1514,7 +1495,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onDragEnd: _onDragEnded,
             onDragCompleted: _onDragEnded,
             onDraggableCanceled: _onDragEnded,
-            wrapAxis: axis,
+            axis: axis,
             width: width,
             height: height,
             left: left,
@@ -1524,7 +1505,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onOffset: () {
               if (c.minimized.value && !c.fullscreen.value) {
                 return Offset(-c.left.value, -c.top.value - 30);
-              } else if (!c.isPopup) {
+              } else if (!WebUtils.isPopup) {
                 return const Offset(0, -30);
               }
 
@@ -1577,14 +1558,40 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
                         ? Container()
-                        : IgnorePointer(
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
+                        : ContextMenuRegion(
+                            key: ObjectKey(participant),
+                            preventContextMenu: true,
+                            menu: ContextMenu(
+                              actions: [
+                                if ((participant.owner !=
+                                            MediaOwnerKind.local ||
+                                        participant.source !=
+                                            MediaSourceKind.Display) &&
+                                    participant.video.value?.isEnabled == true)
+                                  ContextMenuButton(
+                                    label: 'btn_call_center_video'.l10n,
+                                    onPressed: () => c.center(participant),
+                                  ),
+                                if (participant.video.value != null)
+                                  ContextMenuButton(
+                                    label: participant.video.value?.isEnabled ==
+                                            true
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () => c.toggleRendererEnabled(
+                                        participant.video),
+                                  )
+                              ],
+                            ),
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
                             ),
                           ),
                   ),
@@ -1595,38 +1602,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 const ParticipantDecoratorWidget(),
             itemBuilder: (_DragData data) {
               var participant = data.participant;
-
-              return ContextMenuRegion(
-                preventContextMenu: true,
-                menu: ContextMenu(
-                  actions: [
-                    if ((participant.owner != MediaOwnerKind.local ||
-                            participant.source != MediaSourceKind.Display) &&
-                        participant.video.value?.isEnabled == true)
-                      ContextMenuButton(
-                        label: 'btn_call_center_video'.tr,
-                        onPressed: () => c.center(participant),
-                      ),
-                    if (participant.video.value != null)
-                      ContextMenuButton(
-                        label: participant.video.value?.isEnabled == true
-                            ? 'btn_call_disable_video'.tr
-                            : 'btn_call_enable_video'.tr,
-                        onPressed: () =>
-                            c.toggleRendererEnabled(participant.video),
-                      )
-                  ],
-                ),
-                child: Obx(
-                  () => ParticipantWidget(
-                    participant,
-                    key: ObjectKey(participant),
-                    offstageUntilDetermined: true,
-                    respectAspectRatio: true,
-                    useCallCover: true,
-                    borderRadius: BorderRadius.zero,
-                    isDragging: c.doughDraggedRenderer.value == participant,
-                  ),
+              return Obx(
+                () => ParticipantWidget(
+                  participant,
+                  key: ObjectKey(participant),
+                  offstageUntilDetermined: true,
+                  respectAspectRatio: true,
+                  useCallCover: true,
+                  borderRadius: BorderRadius.zero,
+                  expanded: c.doughDraggedRenderer.value == participant,
                 ),
               );
             },
@@ -1702,11 +1686,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryAlignment.value = null;
                             c.updateSecondaryCoordinates(d.globalPosition);
                           } else {
-                            var size = c.size;
-                            c.secondaryLeft.value ??= size.width -
+                            c.secondaryLeft.value ??= c.size.width -
                                 c.secondaryWidth.value -
                                 (c.secondaryRight.value ?? 0);
-                            c.secondaryTop.value ??= size.height -
+                            c.secondaryTop.value ??= c.size.height -
                                 c.secondaryHeight.value -
                                 (c.secondaryBottom.value ?? 0);
                             c.applySecondaryConstraints();
@@ -1752,7 +1735,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     ),
                                   ),
                                   InkResponse(
-                                    onTap: isAnyDrag ? null : c.unfocusAll,
+                                    onTap: isAnyDrag ? null : c.focusAll,
                                     child: SvgLoader.asset(
                                       'assets/icons/close.svg',
                                       height: 10.25,
@@ -1820,10 +1803,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 beginScale: 1,
                                 endScale: 1.06,
                                 child: ConditionalBackdropFilter(
+                                  condition:
+                                      !c.minimized.value || c.fullscreen.value,
                                   borderRadius: BorderRadius.circular(16),
                                   child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Color(0x40000000),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: !c.minimized.value ||
+                                              c.fullscreen.value
+                                          ? const Color(0x40000000)
+                                          : const Color(0x90000000),
                                     ),
                                     child: const Padding(
                                       padding: EdgeInsets.all(16),
@@ -1927,9 +1916,9 @@ Widget _secondaryTarget(CallController c) {
     Axis secondaryAxis =
         c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
 
-    // Pre-calculate the [FitWrap]'s size.
+    // Pre-calculate the [ReorderableFit]'s size.
     double panelSize = max(
-      FitWrap.calculateSize(
+      ReorderableFit.calculateSize(
         maxSize: c.size.shortestSide / 4,
         constraints: Size(c.size.width, c.size.height - 45),
         axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
@@ -1954,12 +1943,7 @@ Widget _secondaryTarget(CallController c) {
                     ? double.infinity
                     : panelSize / 1.6,
                 child: DragTarget<_DragData>(
-                  onWillAccept: (d) {
-                    if (d?.id == c.chatId) {
-                      return true;
-                    }
-                    return false;
-                  },
+                  onWillAccept: (d) => d?.chatId == c.chatId,
                   onAccept: (_DragData d) {
                     if (secondaryAxis == Axis.horizontal) {
                       c.secondaryAlignment.value = Alignment.centerRight;
@@ -2050,19 +2034,21 @@ Widget _secondaryTarget(CallController c) {
   });
 }
 
-/// Drag data of an call [Participant].
+/// [Draggable] data consisting of a [participant] and its [chatId].
 class _DragData {
-  const _DragData(this.participant, this.id);
+  const _DragData(this.participant, this.chatId);
 
-  /// [Participant] to focus.
+  /// [Participant] this [_DragData] represents.
   final Participant participant;
 
-  /// [ChatId] this [_DragData] placed.
-  final ChatId id;
+  /// [ChatId] of the [CallView] this [participant] takes place in.
+  final ChatId chatId;
 
   @override
   bool operator ==(Object other) =>
-      other is _DragData && participant == other.participant;
+      other is _DragData &&
+      participant == other.participant &&
+      chatId == other.chatId;
 
   @override
   int get hashCode => participant.hashCode;

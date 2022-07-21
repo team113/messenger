@@ -25,10 +25,12 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -49,7 +51,7 @@ class UserController extends GetxController {
   final UserId id;
 
   /// Reactive [User] itself.
-  Rx<User>? user;
+  RxUser? user;
 
   /// Status of the [user] fetching.
   ///
@@ -119,6 +121,7 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
+    user?.stopUpdates();
     _contactsSubscription?.cancel();
     super.onClose();
   }
@@ -128,7 +131,7 @@ class UserController extends GetxController {
     if (!inContacts.value) {
       status.value = RxStatus.loadingMore();
       try {
-        await _contactService.createChatContact(user!.value);
+        await _contactService.createChatContact(user!.user.value);
         inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
@@ -142,12 +145,12 @@ class UserController extends GetxController {
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
     if (inContacts.value) {
-      if (await MessagePopup.alert('alert_are_you_sure'.tr) == true) {
+      if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         status.value = RxStatus.loadingMore();
         try {
           RxChatContact? contact = _contactService.contacts.values
-              .firstWhereOrNull((e) =>
-                  e.contact.value.users.every((m) => m.id == user?.value.id));
+              .firstWhereOrNull(
+                  (e) => e.contact.value.users.every((m) => m.id == user?.id));
           if (contact != null) {
             await _contactService.deleteContact(contact.contact.value.id);
           }
@@ -167,15 +170,15 @@ class UserController extends GetxController {
   ///
   /// Creates a new one if it doesn't exist.
   Future<void> openChat() async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = user?.user.value.dialog;
+    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
     router.chat(dialog.id, push: true);
   }
 
   /// Starts an [OngoingCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
-    Chat? dialog = user?.value.dialog;
-    dialog ??= (await _chatService.createDialogChat(user!.value.id)).chat.value;
+    Chat? dialog = user?.user.value.dialog;
+    dialog ??= (await _chatService.createDialogChat(user!.id)).chat.value;
 
     try {
       await _callService.call(dialog.id, withVideo: withVideo);
@@ -188,6 +191,7 @@ class UserController extends GetxController {
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
+      user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);
@@ -205,24 +209,24 @@ extension UserViewExt on User {
     switch (presence) {
       case Presence.present:
         if (online) {
-          return 'label_online'.tr;
+          return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.tr} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.tr;
+          return 'label_offline'.l10n;
         }
 
       case Presence.away:
         if (online) {
-          return 'label_away'.tr;
+          return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.tr} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
         } else {
-          return 'label_offline'.tr;
+          return 'label_offline'.l10n;
         }
 
       case Presence.hidden:
-        return 'label_hidden'.tr;
+        return 'label_hidden'.l10n;
 
       case Presence.artemisUnknown:
         return null;
@@ -240,32 +244,13 @@ extension _DateTimeToAgo on DateTime {
     DateTime local = isUtc ? toLocal() : this;
     Duration diff = DateTime.now().difference(local);
 
-    if (diff.inDays > 730) {
-      return '${diff.inDays ~/ 365} ${'label_ago_years'.tr}';
-    } else if (diff.inDays > 365) {
-      return 'label_ago_year'.tr;
-    } else if (diff.inDays > 60) {
-      return '${diff.inDays ~/ 30} ${'label_ago_months'.tr}';
-    } else if (diff.inDays > 30) {
-      return 'label_ago_month'.tr;
-    } else if (diff.inDays > 14) {
-      return '${diff.inDays ~/ 7} ${'label_ago_weeks'.tr}';
-    } else if (diff.inDays > 7) {
-      return 'label_ago_week'.tr;
-    } else if (diff.inHours > 48) {
-      return '${diff.inHours ~/ 24} ${'label_ago_days'.tr}';
-    } else if (diff.inHours > 24) {
-      return 'label_ago_day'.tr;
-    } else if (diff.inMinutes > 120) {
-      return '${diff.inHours} ${'label_ago_hours'.tr}';
-    } else if (diff.inMinutes > 60) {
-      return 'label_ago_hour'.tr;
-    } else if (diff.inMinutes > 2) {
-      return '${diff.inMinutes} ${'label_ago_minutes'.tr}';
-    } else if (diff.inMinutes > 1) {
-      return 'label_ago_minutes'.tr;
-    } else {
-      return 'label_ago_recently'.tr;
-    }
+    return 'label_ago'.l10nfmt({
+      'years': diff.inDays ~/ 365,
+      'months': diff.inDays ~/ 30,
+      'weeks': diff.inDays ~/ 7,
+      'days': diff.inDays,
+      'hours': diff.inHours,
+      'minutes': diff.inMinutes
+    });
   }
 }

@@ -14,7 +14,16 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
+    - User information auto-updating on changes ([#7], [#4]).
+    - Menu:
+        - Language selection ([#23]).
+
+### Changed
+
+- UI:
     - Media panel:
+        - Redesigned desktop interface ([#26]);
+        - Redesigned mobile interface ([#31]);
         - Attaching secondary view to nearest corner ([#34], [#33]).
 
 ### Fixed
@@ -24,13 +33,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
-    - Media panel:
-        - Redesign desktop interface ([#26]);
-        - Redesign mobile interface ([#31]).
 
 [#2]: /../../issues/2
+[#4]: /../../issues/4
+[#7]: /../../pull/7
 [#14]: /../../pull/14
 [#15]: /../../pull/15
+[#23]: /../../pull/23
 [#26]: /../../pull/26
 [#31]: /../../pull/31
 [#33]: /../../issues/33

@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -28,9 +29,11 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -49,12 +52,8 @@ class CallController extends GetxController {
     this._currentCall,
     this._calls,
     this._chatService,
-    this._userService, {
-    this.isPopup = false,
-  });
-
-  /// Indicator whether this call should be considered as a popup.
-  final bool isPopup;
+    this._userService,
+  );
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -83,32 +82,29 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
-  /// [Participant] that should be highlighted over the others.
-  final Rx<Participant?> highlighted = Rx(null);
-
-  /// Indicator that secondary view is hovered by some participant view.
+  /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
-  /// Indicator that secondary view is dragged.
+  /// Indicator whether the secondary view is being dragged.
   final RxBool secondaryDragged = RxBool(false);
 
-  /// Currently dragged [Participant].
+  /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
 
-  /// Currently dragged [Participant] that brake dough.
+  /// [Participant] being dragged currently with its dough broken.
   final Rx<Participant?> doughDraggedRenderer = Rx(null);
 
-  /// [Participant]s to display in a fit view.
-  RxList<Participant> primary = RxList();
+  /// [Participant]s to display in the fit view.
+  final RxList<Participant> primary = RxList();
 
-  /// [Participant]s to display in a secondary view.
-  RxList<Participant> secondary = RxList();
+  /// [Participant]s to display in the secondary view.
+  final RxList<Participant> secondary = RxList();
 
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
 
-  /// Drag target of an empty secondary view.
-  OverlayEntry? addToSecondaryEntry;
+  /// [OverlayEntry] of an empty secondary view.
+  OverlayEntry? secondaryEntry;
 
   /// Count of a currently happening drags of the secondary videos used to
   /// determine if any drag happened at all.
@@ -118,10 +114,10 @@ class CallController extends GetxController {
   /// determine if any drag happened at all and to display secondary view hint.
   final RxInt primaryDrags = RxInt(0);
 
-  /// Count of a currently active targets to drop [secondaryDrags].
+  /// Count of [Participant]s to be accepted into the fit view.
   final RxInt primaryTargets = RxInt(0);
 
-  /// Count of a currently active targets to drop [primaryDrags].
+  /// Count of [Participant]s to be accepted into the secondary view.
   final RxInt secondaryTargets = RxInt(0);
 
   /// Indicator whether the camera was switched or not.
@@ -141,9 +137,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
-
-  /// Indicator whether the [SlidingUpPanel] is on screen or not.
-  final RxBool isSlidingPanelEnabled = RxBool(false);
 
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
@@ -195,43 +188,45 @@ class CallController extends GetxController {
   /// [minimized] value.
   AnimationController? minimizedAnimation;
 
-  /// View padding of the screen.
-  EdgeInsets padding = EdgeInsets.zero;
-
   /// Color of a call buttons that accept the call.
   static const Color acceptColor = Color(0x7F34B139);
 
   /// Color of a call buttons that end the call.
   static const Color endColor = Color(0x7FFF0000);
 
-  /// Left coordinate of secondary view.
-  final RxnDouble secondaryLeft = RxnDouble(null);
+  /// Secondary view current left position.
+  final RxnDouble secondaryLeft = RxnDouble(0);
 
-  /// Top coordinate of secondary view.
-  final RxnDouble secondaryTop = RxnDouble(null);
+  /// Secondary view current top position.
+  final RxnDouble secondaryTop = RxnDouble(0);
 
-  /// Right coordinate of secondary view.
-  final RxnDouble secondaryRight = RxnDouble(10);
+  /// Secondary view current right position.
+  final RxnDouble secondaryRight = RxnDouble(null);
 
-  /// Bottom coordinate of secondary view.
-  final RxnDouble secondaryBottom = RxnDouble(10);
+  /// Secondary view current bottom position.
+  final RxnDouble secondaryBottom = RxnDouble(null);
 
-  /// Width of secondary view.
+  /// Secondary view current width.
   late final RxDouble secondaryWidth;
 
-  /// Height of secondary view.
+  /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
-  /// [Alignment] of secondary view.
-  final Rx<Alignment?> secondaryAlignment = Rx(null);
+  /// [Alignment] of the secondary view.
+  final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
 
-  /// Possible [Alignment] of secondary view.
+  /// [Alignment] that might become the [secondaryAlignment] serving as a hint
+  /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
   /// Global key of animated slider buttons panel.
   final GlobalKey animatedSliderButtonsPanelKey = GlobalKey();
+  
+  /// [Offset] difference between global positions of secondary view and pan
+  /// start position.
+  final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
 
-  /// Global key of secondary video.
+  /// Global key of secondary view.
   final GlobalKey secondaryKey = GlobalKey();
 
   /// [StreamController] of showing bottom animation stream.
@@ -268,17 +263,17 @@ class CallController extends GetxController {
   /// Min height of the minimized view in pixels.
   static const double _minHeight = 500;
 
-  /// Minimal height of secondary view.
-  static const double _minSHeight = 100;
+  /// Max width of the secondary view in percentage of the call width.
+  static const double _maxSWidth = 0.95;
 
-  /// Minimal width of secondary view.
-  static const double _minSWidth = 100;
-
-  /// Maximal height of secondary view in percent.
+  /// Max height of the secondary view in percentage of the call height.
   static const double _maxSHeight = 0.95;
 
-  /// Maximal width of secondary view in percent.
-  static const double _maxSWidth = 0.95;
+  /// Min width of the secondary view in pixels.
+  static const double _minSWidth = 100;
+
+  /// Min height of the secondary view in pixels.
+  static const double _minSHeight = 100;
 
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
@@ -334,10 +329,10 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
 
-  /// Subscription for [OngoingCall.members] changes to update title.
+  /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
 
-  /// Subscription for [duration] changes to update title.
+  /// Subscription for [duration] changes updating the title.
   StreamSubscription? _durationSubscription;
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
@@ -389,11 +384,11 @@ class CallController extends GetxController {
     if (!fullscreen.value && minimized.value) {
       return Size(width.value, height.value - titleBarHeight);
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      var padding = router.context!.mediaQueryPadding;
-      var size = router.context!.mediaQuerySize;
-      return Size(size.width, size.height - padding.bottom - padding.top);
+      // TODO: Account [BuildContext.mediaQueryPadding].
+      return router.context!.mediaQuerySize;
     } else {
-      if (fullscreen.isTrue && !isPopup) {
+      // If not [WebUtils.isPopup], then subtract the title bar from the height.
+      if (fullscreen.isTrue && !WebUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - titleBarHeight);
       } else {
@@ -416,7 +411,7 @@ class CallController extends GetxController {
   RxBool get isRemoteVideoEnabled => _currentCall.value.isRemoteVideoEnabled;
 
   /// Indicator whether the inbound audio in the current [OngoingCall] is
-  /// enabled or not.
+  /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   @override
@@ -435,10 +430,6 @@ class CallController extends GetxController {
     } else {
       secondaryWidth = RxDouble(200);
       secondaryHeight = RxDouble(200);
-    }
-
-    if (isPopup) {
-      isSlidingPanelEnabled.value = true;
     }
 
     fullscreen = RxBool(false);
@@ -471,6 +462,7 @@ class CallController extends GetxController {
       _putParticipant(RemoteMemberId(me, null));
       _insureCorrectGrouping();
 
+      // TODO: Temporary solution.
       if (!isGroup) {
         secondaryAlignment.value = null;
         secondaryLeft.value = null;
@@ -479,9 +471,18 @@ class CallController extends GetxController {
         secondaryBottom.value = 10;
       }
 
-      if (isPopup) {
+      // Update the [WebUtils.title] if this call is in a popup.
+      if (WebUtils.isPopup) {
+        _titleSubscription?.cancel();
+        _durationSubscription?.cancel();
+
         if (v != null) {
           void _updateTitle() {
+            final Map<String, String> args = {
+              'title': v.title.value,
+              'state': state.value.name,
+            };
+
             switch (state.value) {
               case OngoingCallState.local:
               case OngoingCallState.pending:
@@ -489,51 +490,48 @@ class CallController extends GetxController {
                     (outgoing || state.value == OngoingCallState.local) &&
                         !started;
                 if (isOutgoing) {
-                  WebUtils.title(
-                      '${v.title.value} | ${'label_call_calling'.tr}${'.'.tr * 3}');
+                  args['type'] = 'outgoing';
                 } else if (withVideo) {
-                  WebUtils.title('${v.title.value} | ${'label_video_call'.tr}');
+                  args['type'] = 'video';
                 } else {
-                  WebUtils.title('${v.title.value} | ${'label_audio_call'.tr}');
+                  args['type'] = 'audio';
                 }
-                break;
-
-              case OngoingCallState.joining:
-                WebUtils.title(
-                    '${v.title.value} | ${'label_call_joining'.tr}${'.'.tr * 3}');
                 break;
 
               case OngoingCallState.active:
                 var actualMembers = _currentCall.value.members.keys
                     .map((k) => k.userId)
                     .toSet();
-                WebUtils.title(
-                  '\u205f​​​ \u205f​​​${v.title.value} | ${1 + actualMembers.length} ${'label_of'.tr} ${v.chat.value.members.length} | ${duration.value.hhMmSs()} \u205f​​​ \u205f​​​',
-                );
+                args['members'] = '${actualMembers.length + 1}';
+                args['allMembers'] = '${v.chat.value.members.length}';
+                args['duration'] = duration.value.hhMmSs();
                 break;
 
+              case OngoingCallState.joining:
               case OngoingCallState.ended:
+                // No-op.
                 break;
             }
+
+            WebUtils.title(
+              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
+            );
           }
 
           _updateTitle();
 
-          _titleSubscription?.cancel();
           _titleSubscription =
               _currentCall.value.members.listen((_) => _updateTitle());
-          _durationSubscription?.cancel();
           _durationSubscription = duration.listen((_) => _updateTitle());
         }
       }
     }
 
+    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(_onChat),
     );
-
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
@@ -566,11 +564,10 @@ class CallController extends GetxController {
       refresh();
     });
 
-    _onFullscreenChange = PlatformUtils.onFullscreenChange
-        .listen((bool v) {
-          fullscreen.value = v;
-          applySecondaryConstraints();
-        });
+    _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+      fullscreen.value = v;
+      applySecondaryConstraints();
+    });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
       error.value = e;
@@ -585,15 +582,16 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool wasNotEmpty = primary.isNotEmpty;
           paneled.removeWhere((m) => m.id == e.key);
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
           _insureCorrectGrouping();
-
-          if (highlighted.value?.id == e.key) {
-            highlighted.value = null;
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
           }
+
           break;
 
         case OperationKind.updated:
@@ -633,9 +631,14 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.removed:
+          bool wasNotEmpty = primary.isNotEmpty;
           rendererBoxFit.remove(e.element.track.id);
           _removeParticipant(e.element.memberId, video: e.element);
           _insureCorrectGrouping();
+          if (wasNotEmpty && primary.isEmpty) {
+            focusAll();
+          }
+
           Future.delayed(1.seconds, e.element.inner.dispose);
           break;
 
@@ -681,6 +684,8 @@ class CallController extends GetxController {
     _errorsSubscription?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+
+    secondaryEntry?.remove();
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
@@ -768,6 +773,8 @@ class CallController extends GetxController {
         await _currentCall.value.setOutputDevice(deviceId);
       }
     } else {
+      // TODO: Ensure `flutter_webrtc` supports iOS and Web output device
+      //       switching.
       speakerSwitched.toggle();
     }
   }
@@ -901,6 +908,9 @@ class CallController extends GetxController {
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
+      if (focused.isEmpty) {
+        unfocusAll();
+      }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
@@ -910,24 +920,29 @@ class CallController extends GetxController {
     }
   }
 
-  /// Unfocuses all [Participant]s, which means putting them in theirs `default`
+  /// [focus]es all [Participant]s, which means putting them in theirs `default`
   /// groups.
-  void unfocusAll() {
-    if (focused.isEmpty) {
-      for (Participant r in List.from(paneled, growable: false)) {
-        focus(r);
-      }
-    } else {
-      for (Participant r in List.from(focused, growable: false)) {
-        unfocus(r);
-      }
+  void focusAll() {
+    for (Participant r in List.from(paneled, growable: false)) {
+      _putVideoFrom(r, paneled);
     }
+
+    for (Participant r in List.from(focused, growable: false)) {
+      _putVideoFrom(r, focused);
+    }
+
+    _insureCorrectGrouping();
   }
 
-  /// Highlights the [participant].
-  void highlight(Participant? participant) {
-    highlighted.value = participant;
-    keepUi(false);
+  /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
+  /// group.
+  void unfocusAll() {
+    for (Participant r
+        in List.from([...focused, ...locals, ...remotes], growable: false)) {
+      _putVideoTo(r, paneled);
+    }
+
+    _insureCorrectGrouping();
   }
 
   /// Minimizes the view.
@@ -991,7 +1006,7 @@ class CallController extends GetxController {
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {
@@ -1152,9 +1167,9 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
       secondaryTop.value = offset.dy -
-          ((isPopup) ? 0 : titleBarHeight) -
+          ((WebUtils.isPopup || PlatformUtils.isMobile) ? 0 : titleBarHeight) -
           panDragDifference.value!.dy;
-    } else if (isPopup) {
+    } else if (WebUtils.isPopup) {
       secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
       secondaryTop.value = offset.dy - panDragDifference.value!.dy;
     } else {
@@ -1163,8 +1178,7 @@ class CallController extends GetxController {
           panDragDifference.value!.dx;
       secondaryTop.value = offset.dy -
           ((PlatformUtils.isMobile) ? 0 : top.value + titleBarHeight) -
-          panDragDifference.value!.dy -
-          router.context!.mediaQueryPadding.top;
+          panDragDifference.value!.dy;
     }
 
     if (secondaryLeft.value! < 0) {
@@ -1191,6 +1205,7 @@ class CallController extends GetxController {
     secondaryLeft.value = _applySLeft(secondaryLeft.value);
     secondaryTop.value = _applySTop(secondaryTop.value);
 
+    // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
       secondaryWidth.value = min(secondaryWidth.value, size.width / 2);
@@ -1199,6 +1214,7 @@ class CallController extends GetxController {
       secondaryHeight.value = min(secondaryHeight.value, size.height / 2);
     }
 
+    // Determine the [possibleSecondaryAlignment].
     possibleSecondaryAlignment.value = null;
     if (secondaryDragged.value) {
       if (secondaryLeft.value != null) {
@@ -1280,7 +1296,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Resizes the minimized view along [x] by [dx] and/or [y] by [dy] axis.
+  /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
     secondaryLeft.value ??=
@@ -1305,6 +1321,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeX.right:
         double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
@@ -1314,6 +1331,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }
@@ -1335,6 +1353,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeY.bottom:
         double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
@@ -1344,6 +1363,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }
@@ -1352,7 +1372,7 @@ class CallController extends GetxController {
     updateSecondaryAttach();
   }
 
-  /// Returns corrected according to constraints [width] value.
+  /// Returns corrected according to secondary constraints [width] value.
   double _applySWidth(double width) {
     if (_minSWidth > size.width * _maxSWidth) {
       return size.width * _maxSWidth;
@@ -1364,7 +1384,7 @@ class CallController extends GetxController {
     return width;
   }
 
-  /// Returns corrected according to constraints [height] value.
+  /// Returns corrected according to secondary constraints [height] value.
   double _applySHeight(double height) {
     if (_minSHeight > size.height * _maxSHeight) {
       return size.height * _maxSHeight;
@@ -1376,7 +1396,7 @@ class CallController extends GetxController {
     return height;
   }
 
-  /// Returns corrected according to constraints [left] value.
+  /// Returns corrected according to secondary constraints [left] value.
   double? _applySLeft(double? left) {
     if (left != null) {
       if (left + secondaryWidth.value > size.width) {
@@ -1389,7 +1409,7 @@ class CallController extends GetxController {
     return left;
   }
 
-  /// Returns corrected according to constraints [top] value.
+  /// Returns corrected according to secondary constraints [top] value.
   double? _applySTop(double? top) {
     if (top != null) {
       if (top + secondaryHeight.value > size.height) {
@@ -1616,10 +1636,6 @@ class CallController extends GetxController {
         remotes.remove(participant);
         paneled.remove(participant);
         focused.remove(participant);
-
-        if (highlighted.value == participant) {
-          highlighted.value = null;
-        }
       }
     }
   }
@@ -1636,7 +1652,7 @@ class Participant {
   Participant(
     this.id,
     this.owner, {
-    Rx<User>? user,
+    RxUser? user,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
@@ -1650,7 +1666,7 @@ class Participant {
   final RemoteMemberId id;
 
   /// [User] this [Participant] represents.
-  final Rx<Rx<User>?> user;
+  final Rx<RxUser?> user;
 
   /// Indicator whether this [Participant] raised a hand.
   final Rx<bool> handRaised;
