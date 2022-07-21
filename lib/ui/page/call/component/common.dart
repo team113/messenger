@@ -200,6 +200,89 @@ Widget handButton(CallController c, [double? scale]) => Obx(
       ),
     );
 
+/// [RoundFloatingButton] invoking the [CallController.openAddMember].
+Widget addParticipantButton(
+  CallController c,
+  BuildContext context, [
+  double? scale,
+]) =>
+    withDescription(
+      RoundFloatingButton(
+        onPressed: () => c.openAddMember(context),
+        scale: scale ?? 1,
+        children: [
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: SvgLoader.asset(
+              'assets/icons/add_user_small.svg',
+              width: 60,
+            ),
+          )
+        ],
+      ),
+      Text('btn_add_participant_desc'.l10n),
+    );
+
+/// [RoundFloatingButton] disabling the remote video.
+Widget disableVideo(CallController c, [double? scale]) => Obx(
+      () => withDescription(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteVideos,
+          scale: scale ?? 1,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        Text(c.isRemoteVideoEnabled.value
+            ? 'btn_call_remote_video_off_desc'.l10n
+            : 'btn_call_remote_video_on_desc'.l10n),
+      ),
+    );
+
+/// [RoundFloatingButton] disabling the remote audio.
+Widget disableAudio(CallController c, [double? scale]) => Obx(
+      () => withDescription(
+        RoundFloatingButton(
+          onPressed: c.toggleRemoteAudios,
+          scale: scale ?? 1,
+          children: [
+            SvgLoader.asset(
+              'assets/icons/speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}.svg',
+              width: 60,
+            )
+          ],
+        ),
+        Text(c.isRemoteAudioEnabled.value
+            ? 'btn_call_remote_audio_off_desc'.l10n
+            : 'btn_call_remote_audio_on_desc'.l10n),
+      ),
+    );
+
+/// Returns a [Column] consisting of the [child] with the provided
+/// [description].
+Widget withDescription(Widget child, Widget description) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      child,
+      const SizedBox(height: 6),
+      DefaultTextStyle(
+        style: const TextStyle(
+          fontSize: 11,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        child: description,
+      ),
+    ],
+  );
+}
+
 /// Title call information.
 Widget callTitle(CallController c) => Obx(
       () {
