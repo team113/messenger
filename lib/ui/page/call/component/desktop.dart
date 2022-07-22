@@ -394,7 +394,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             )
                           ],
                         ),
-                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                        margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                         child: ConditionalBackdropFilter(
                           borderRadius: BorderRadius.circular(30),
                           filter: ImageFilter.blur(
@@ -414,7 +414,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: Dock<CallButton>(
                               items: c.buttons,
                               itemWidth: CallController.buttonSize,
-                              itemBuilder: (e) => e.build(),
+                              itemBuilder: (e) => e.build(
+                                  hinted: c.draggedButton.value == null),
                               onReorder: (buttons) {
                                 c.buttons.clear();
                                 c.buttons.addAll(buttons);
@@ -456,7 +457,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 )
               ],
             ),
-            padding: const EdgeInsets.all(2),
+            margin: const EdgeInsets.all(2),
             child: ConditionalBackdropFilter(
               borderRadius: BorderRadius.circular(30),
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
