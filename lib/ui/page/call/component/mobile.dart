@@ -218,9 +218,9 @@ Widget mobileCall(CallController c, BuildContext context) {
       );
     }
 
-    Widget _padding(Widget child) => Padding(
+    _padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: child,
+          child: Center(child: child),
         );
 
     Widget _buttons(List<Widget> children) => ConstrainedBox(
@@ -345,7 +345,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     _padding(
                       c.videoState.value.isEnabled()
                           ? withDescription(
-                              switchButton(c),
+                              SwitchButton(c).build(),
                               AnimatedOpacity(
                                 opacity: c.isPanelOpen.value ? 1 : 0,
                                 duration: 200.milliseconds,
@@ -353,7 +353,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ),
                             )
                           : withDescription(
-                              speakerButton(c),
+                              SpeakerButton(c).build(),
                               AnimatedOpacity(
                                 opacity: c.isPanelOpen.value ? 1 : 0,
                                 duration: 200.milliseconds,
@@ -364,7 +364,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   if (PlatformUtils.isDesktop)
                     _padding(withDescription(
-                      screenButton(c),
+                      ScreenButton(c).build(),
                       AnimatedOpacity(
                         opacity: c.isPanelOpen.value ? 1 : 0,
                         duration: 200.milliseconds,
@@ -378,7 +378,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       ),
                     )),
                   _padding(withDescription(
-                    audioButton(c),
+                    AudioButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -391,7 +391,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   )),
                   _padding(withDescription(
-                    videoButton(c),
+                    VideoButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -404,7 +404,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   )),
                   _padding(withDescription(
-                    dropButton(c),
+                    DropButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -416,9 +416,12 @@ Widget mobileCall(CallController c, BuildContext context) {
               const SizedBox(height: 32),
               _buttons(
                 [
-                  _padding(addParticipantButton(c, context)),
                   _padding(withDescription(
-                    handButton(c),
+                    AddMemberCallButton(c).build(),
+                    Text('btn_add_participant_desc'.l10n),
+                  )),
+                  _padding(withDescription(
+                    HandButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
@@ -427,8 +430,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                           : 'btn_call_hand_up_desc'.l10n),
                     ),
                   )),
-                  _padding(disableAudio(c)),
-                  _padding(disableVideo(c)),
+                  _padding(withDescription(
+                    RemoteAudioButton(c).build(),
+                    Text(c.isRemoteAudioEnabled.value
+                        ? 'btn_call_remote_audio_off_desc'.l10n
+                        : 'btn_call_remote_audio_on_desc'.l10n),
+                  )),
+                  _padding(withDescription(
+                    RemoteVideoButton(c).build(),
+                    Text(c.isRemoteVideoEnabled.value
+                        ? 'btn_call_remote_video_off_desc'.l10n
+                        : 'btn_call_remote_video_on_desc'.l10n),
+                  )),
                 ],
               ),
               const SizedBox(height: 13),
@@ -527,17 +540,25 @@ Widget mobileCall(CallController c, BuildContext context) {
                                       if (PlatformUtils.isMobile)
                                         _padding(
                                           c.videoState.value.isEnabled()
-                                              ? switchButton(c)
-                                              : speakerButton(c),
+                                              ? SwitchButton(c)
+                                                  .build(blur: true)
+                                              : SpeakerButton(c)
+                                                  .build(blur: true),
                                         ),
-                                      _padding(audioButton(c)),
-                                      _padding(videoButton(c)),
-                                      _padding(cancelButton(c)),
+                                      _padding(
+                                          AudioButton(c).build(blur: true)),
+                                      _padding(
+                                          VideoButton(c).build(blur: true)),
+                                      _padding(
+                                          CancelButton(c).build(blur: true)),
                                     ]
                                   : [
-                                      _padding(acceptAudioButton(c)),
-                                      _padding(acceptVideoButton(c)),
-                                      _padding(declineButton(c)),
+                                      _padding(AcceptAudioButton(c)
+                                          .build(expanded: true)),
+                                      _padding(AcceptVideoButton(c)
+                                          .build(expanded: true)),
+                                      _padding(DeclineButton(c)
+                                          .build(expanded: true)),
                                     ],
                             ),
                           ),
@@ -576,12 +597,17 @@ Widget mobileCall(CallController c, BuildContext context) {
       onInit: (animation) {
         c.minimizedAnimation = animation;
         animation.addListener(() {
-          if (animation.value != 0) {
-            c.keepUi(false);
-          }
-          c.minimized.value = animation.value == 1;
-          if (c.minimized.value) {
-            c.hoveredRenderer.value = null;
+          if (c.state.value != OngoingCallState.joining &&
+              c.state.value != OngoingCallState.active) {
+            c.minimized.value = animation.value != 0;
+          } else {
+            if (animation.value != 0) {
+              c.keepUi(false);
+            }
+            c.minimized.value = animation.value == 1;
+            if (c.minimized.value) {
+              c.hoveredRenderer.value = null;
+            }
           }
         });
       },

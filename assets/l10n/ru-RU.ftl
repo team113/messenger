@@ -67,7 +67,7 @@ btn_call_do_not_cut_video = Не обрезать видео
 btn_call_drop_video_here =
     Добавить видео в отдельную панель можно простым перетаскиванием
 btn_call_enable_video = Включить видео
-btn_call_end = Закончить
+btn_call_end = Завершить звонок
 btn_call_end_desc =
     Завершить
     звонок
@@ -79,6 +79,7 @@ btn_call_hand_up = Поднять руку
 btn_call_hand_up_desc =
     Поднять
     руку
+btn_call_more = Ещё
 btn_call_remote_audio_off = Выключить входящее аудио
 btn_call_remote_audio_off_desc =
     Выключить
@@ -150,9 +151,9 @@ btn_saved_messages = Сохранённые сообщения
 btn_settings = Настройки
 btn_start_chatting = Начать общение
 btn_submit = Применить
-btn_your_profile = Ваш профиль
-btn_write_message = Написать сообщение
 btn_video_call = Видеозвонок
+btn_write_message = Написать сообщение
+btn_your_profile = Ваш профиль
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Указанный аккаунт не найден
@@ -357,7 +358,8 @@ label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_hidden = Статус скрыт
 label_hide_for_me = Удалить для меня
-label_hint_from_gapopa = Подсказка от Gapopa
+label_hint_drag_n_drop_buttons =
+    Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =
     Просто перетащите, чтобы:
 
@@ -366,6 +368,7 @@ label_hint_drag_n_drop_video =
     • прикрепить одно или несколько видео к любой из сторон;
 
     • вынести одно или несколько видео в отдельную панель.
+label_hint_from_gapopa = Подсказка от Gapopa
 label_incoming_call = Входящий звонок
 label_last_seen = Был(а)
 label_login = Логин
