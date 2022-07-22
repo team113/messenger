@@ -124,7 +124,11 @@ class _HomeViewState extends State<HomeView>
                       if (s.scrollDelta.dx.abs() < 3 &&
                           (s.scrollDelta.dy.abs() > 3 ||
                               c.verticalScrollTimer.value != null)) {
-                        _resetVerticalScroll(c);
+                        c.verticalScrollTimer.value?.cancel();
+                        c.verticalScrollTimer.value =
+                            Timer(150.milliseconds, () {
+                          c.verticalScrollTimer.value = null;
+                        });
                       }
                     }
                   },
@@ -237,16 +241,5 @@ class _HomeViewState extends State<HomeView>
         );
       },
     );
-  }
-
-  /// Cancels a [_verticalScrollTimer] and starts it again with the provided
-  /// [duration].
-  ///
-  /// Defaults to 150 milliseconds if no [duration] is provided.
-  void _resetVerticalScroll(HomeController c, [Duration? duration]) {
-    c.verticalScrollTimer.value?.cancel();
-    c.verticalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
-      c.verticalScrollTimer.value = null;
-    });
   }
 }
