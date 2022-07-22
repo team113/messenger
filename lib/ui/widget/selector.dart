@@ -77,6 +77,20 @@ class Selector<T extends Object> extends StatefulWidget {
     T? initial,
   }) {
     bool isMobile = context.isMobile;
+
+    Widget builder(BuildContext context) {
+      return Selector<T>(
+        debounce: debounce,
+        initial: initial,
+        items: items,
+        itemBuilder: itemBuilder,
+        onSelected: onSelected,
+        buttonKey: buttonKey,
+        alignment: alignment,
+        isMobile: isMobile,
+      );
+    }
+
     if (isMobile) {
       return showModalBottomSheet(
         context: context,
@@ -88,35 +102,13 @@ class Selector<T extends Object> extends StatefulWidget {
             topRight: Radius.circular(8),
           ),
         ),
-        builder: (context) {
-          return Selector<T>(
-            debounce: debounce,
-            initial: initial,
-            items: items,
-            itemBuilder: itemBuilder,
-            onSelected: onSelected,
-            buttonKey: buttonKey,
-            alignment: alignment,
-            isMobile: isMobile,
-          );
-        },
+        builder: builder,
       );
     } else {
       return showDialog(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        builder: (context) {
-          return Selector<T>(
-            debounce: debounce,
-            initial: initial,
-            items: items,
-            itemBuilder: itemBuilder,
-            onSelected: onSelected,
-            buttonKey: buttonKey,
-            alignment: alignment,
-            isMobile: isMobile,
-          );
-        },
+        builder: builder,
       );
     }
   }
@@ -128,18 +120,18 @@ class Selector<T extends Object> extends StatefulWidget {
 /// State of a [Selector] maintaining the [_debounce].
 class _SelectorState<T extends Object> extends State<Selector<T>> {
   /// Currently selected item.
-  late Rx<T> selected;
+  late Rx<T> _selected;
 
-  /// [Worker] debouncing the [selected] value, if any debounce is specified.
+  /// [Worker] debouncing the [_selected] value, if any debounce is specified.
   Worker? _debounce;
 
   @override
   void initState() {
-    selected = Rx(widget.initial ?? widget.items.first);
+    _selected = Rx(widget.initial ?? widget.items.first);
 
     if (widget.debounce != null) {
       _debounce = debounce(
-        selected,
+        _selected,
         (T value) => widget.onSelected?.call(value),
         time: widget.debounce,
       );
@@ -196,7 +188,7 @@ class _SelectorState<T extends Object> extends State<Selector<T>> {
                       scrollController: FixedExtentScrollController(
                         initialItem: widget.initial == null
                             ? 0
-                            : widget.items.indexOf(selected.value),
+                            : widget.items.indexOf(_selected.value),
                       ),
                       magnification: 1,
                       squeeze: 1,
@@ -212,9 +204,9 @@ class _SelectorState<T extends Object> extends State<Selector<T>> {
                       ),
                       onSelectedItemChanged: (int i) {
                         HapticFeedback.selectionClick();
-                        selected.value = widget.items[i];
+                        _selected.value = widget.items[i];
                         if (_debounce == null) {
-                          widget.onSelected?.call(selected.value);
+                          widget.onSelected?.call(_selected.value);
                         }
                       },
                       children: widget.items
@@ -313,6 +305,18 @@ class _SelectorState<T extends Object> extends State<Selector<T>> {
         }
       }
 
+      if (left != null && left < 0) {
+        left = 0;
+      } else if (right != null && right > constraints.maxWidth) {
+        right = constraints.maxWidth;
+      }
+
+      if (top != null && top < 0) {
+        top = 0;
+      } else if (bottom != null && bottom > constraints.maxHeight) {
+        bottom = constraints.maxHeight;
+      }
+
       // Builds the provided [item].
       Widget _button(T item) {
         return Padding(
@@ -325,9 +329,9 @@ class _SelectorState<T extends Object> extends State<Selector<T>> {
               highlightColor: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               onTap: () {
-                selected.value = item;
+                _selected.value = item;
                 if (_debounce == null) {
-                  widget.onSelected?.call(selected.value);
+                  widget.onSelected?.call(_selected.value);
                 }
               },
               child: Align(
