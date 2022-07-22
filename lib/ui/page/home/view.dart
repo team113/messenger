@@ -48,8 +48,7 @@ class HomeView extends StatefulWidget {
 /// State of the [Routes.home] page.
 ///
 /// State is required for [BuildContext] to be acquired.
-class _HomeViewState extends State<HomeView>
-    with SingleTickerProviderStateMixin {
+class _HomeViewState extends State<HomeView> {
   /// [HomeRouterDelegate] for the nested [Router].
   final HomeRouterDelegate _routerDelegate = HomeRouterDelegate(router);
 
