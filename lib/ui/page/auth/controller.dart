@@ -39,10 +39,10 @@ class AuthController extends GetxController {
   /// [SMITrigger] triggering the blinking animation.
   SMITrigger? blink;
 
-  /// [GlobalKey] of an animated button used to share it between overlays.
+  /// [GlobalKey] of the button opening the [Language] selection.
   final GlobalKey languageKey = GlobalKey();
 
-  /// [Timer] periodically increasing [logoFrame].
+  /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
   /// Returns user authentication status.

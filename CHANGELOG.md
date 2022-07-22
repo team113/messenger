@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
-        - Language selection ([#23]).
+        - Language selection ([#23], [#29]).
 
 ### Changed
 
@@ -24,8 +24,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26]);
         - Redesigned mobile interface ([#31]).
-    - Auth page:
-        - Redesigned `Auth` page ([#29]).
+    - Redesigned `Auth` page ([#29]).
 
 ### Fixed
 

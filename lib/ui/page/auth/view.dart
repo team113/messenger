@@ -57,7 +57,7 @@ class AuthView extends StatelessWidget {
           ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
               .map((e) => Offstage(child: SvgLoader.asset(e)))
               .toList(),
-          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
+          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
               .map((e) => Offstage(child: SvgLoader.asset(e)))
               .toList(),
           const SizedBox(height: 30),
@@ -134,37 +134,34 @@ class AuthView extends StatelessWidget {
 
         // Language selection popup.
         Widget language = CupertinoButton(
-            key: c.languageKey,
-            child: Text(
-              '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
-              style: thin?.copyWith(fontSize: 13, color: primary),
-            ),
-            onPressed: () async {
-              await Selector.show<Language>(
-                context,
-                items: L10n.languages,
-                itemBuilder: (Language lang) => Row(
-                  children: [
-                    Text(
-                      lang.name,
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      lang.locale.languageCode.toUpperCase(),
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
+          key: c.languageKey,
+          child: Text(
+            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            style: thin?.copyWith(fontSize: 13, color: primary),
+          ),
+          onPressed: () => Selector.show<Language>(
+            context: context,
+            buttonKey: c.languageKey,
+            initial: L10n.chosen.value!,
+            items: L10n.languages,
+            onSelected: (l) => L10n.set(l),
+            debounce:
+                context.isMobile ? const Duration(milliseconds: 500) : null,
+            itemBuilder: (Language e) => Row(
+              children: [
+                Text(
+                  e.name,
+                  style: thin?.copyWith(fontSize: 15),
                 ),
-                initialValue: L10n.chosen.value!,
-                globalKey: c.languageKey,
-                onSelect: (selected) => L10n.set(selected),
-              );
-            });
+                const Spacer(),
+                Text(
+                  e.locale.languageCode.toUpperCase(),
+                  style: thin?.copyWith(fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+        );
 
         // Footer part of the page.
         List<Widget> footer = [
