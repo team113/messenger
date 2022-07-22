@@ -23,7 +23,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
 
-/// [FloatingActionButton] of [children] content with an optional [text] and
+/// [FloatingActionButton] of [child] content with an optional [text] and
 /// [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
