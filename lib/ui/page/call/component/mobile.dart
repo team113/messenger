@@ -80,6 +80,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           return GestureDetector(
             onPanStart: (d) {
+              c.secondaryBottomBeforeShift.value = null;              
               c.calculateSecondaryPanning(d.globalPosition);
 
               c.secondaryLeft.value ??= c.size.width -
@@ -435,6 +436,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining
               ? AnimatedSlider(
+                  animationStream: c.bottomAnimationStream,
                   beginOffset: Offset(
                     0,
                     130 + MediaQuery.of(context).padding.bottom,
@@ -460,6 +462,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         topRight: Radius.circular(10),
                       ),
                       panel: ConditionalBackdropFilter(
+                        key: c.buttonsDockKey,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
@@ -486,6 +489,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
+                        c.recountSelfVideoPosition();
                       },
                       onPanelOpened: () {
                         c.keepUi(true);

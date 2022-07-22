@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -37,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -81,6 +83,9 @@ class CallController extends GetxController {
 
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
+
+  /// Indicator whether the secondary view is being scaled.
+  final RxBool secondaryScaled = RxBool(false);
 
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
@@ -172,6 +177,9 @@ class CallController extends GetxController {
   /// Timeout of a [error] being shown.
   final RxInt errorTimeout = RxInt(0);
 
+  /// Indicator whether the minimized view is being scaled.
+  final RxBool scaled = RxBool(false);
+
   /// Minimized view current width.
   late final RxDouble width;
 
@@ -219,11 +227,24 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
+  /// Global key of animated slider buttons panel.
+  final GlobalKey buttonsDockKey = GlobalKey();
+
   /// [Offset] the secondary view has relative to the pan gesture position.
   Offset? secondaryPanningOffset;
 
   /// [GlobalKey] of the secondary view.
   final GlobalKey secondaryKey = GlobalKey();
+
+  /// [StreamController] of showing bottom animation stream.
+  final StreamController bottomAnimationStream = StreamController();
+
+  /// Initial top position of video before changing position by bottom bar.
+  final RxnDouble secondaryBottomBeforeShift = RxnDouble(null);
+
+  /// Indicator whether [showBottomUi] was true when secondary video was start
+  /// dragged or not.
+  final RxBool showUiBeforeDragging = RxBool(false);
 
   /// Height of the title bar.
   static const double titleHeight = 30;
@@ -395,6 +416,8 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
+    bottomAnimationStream.stream.listen((_) => recountSelfVideoPosition());
+
     _currentCall.value.init(_chatService.me);
 
     Size size = router.context!.mediaQuerySize;
@@ -443,6 +466,7 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
+        secondaryBottomBeforeShift.value = 10;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -509,6 +533,9 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          recountSelfVideoPosition();
+        });
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -649,6 +676,7 @@ class CallController extends GetxController {
   @override
   void onClose() {
     super.onClose();
+    bottomAnimationStream.close();
     _durationTimer?.cancel();
     _uiTimer?.cancel();
     _stateWorker.dispose();
@@ -989,6 +1017,59 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
+  bool recountLocked = false;
+
+  /// Recounts self video position.
+  void recountSelfVideoPosition() {
+    if (buttonsDockKey.currentContext?.findRenderObject() != null &&
+        secondaryKey.currentContext?.findRenderObject() != null &&
+        secondaryDragged.isFalse &&
+        scaled.isFalse &&
+        secondaryScaled.isFalse &&
+        !recountLocked) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        recountLocked = false;
+      });
+      recountLocked = true;
+
+      Rect secondaryBounds = secondaryKey.globalPaintBounds!;
+      Rect dockBounds = buttonsDockKey.globalPaintBounds!;
+      var intercept = secondaryBounds.intersect(dockBounds);
+
+      if (intercept.width > 0 && intercept.height > 0) {
+        if (secondaryBottom.value != null) {
+          secondaryBottom.value = secondaryBottom.value! + intercept.height;
+        } else {
+          secondaryTop.value = secondaryTop.value! - intercept.height;
+        }
+        applySecondaryConstraints();
+      } else if (intercept.height < 0 &&
+          secondaryBottomBeforeShift.value != null) {
+        var bottom = secondaryBottom.value ??
+            size.height - secondaryTop.value! - secondaryHeight.value;
+        if (bottom > secondaryBottomBeforeShift.value!) {
+          var difference = bottom - secondaryBottomBeforeShift.value!;
+          if (secondaryBottom.value != null) {
+            if (difference.abs() < intercept.height.abs()) {
+              secondaryBottom.value = secondaryBottomBeforeShift.value;
+            } else {
+              secondaryBottom.value = secondaryBottom.value! + intercept.height;
+            }
+          } else {
+            if (difference < intercept.height) {
+              secondaryTop.value = size.height -
+                  secondaryHeight.value -
+                  secondaryBottomBeforeShift.value!;
+            } else {
+              secondaryTop.value = secondaryTop.value! - intercept.height;
+            }
+          }
+        }
+      }
+      applySecondaryConstraints();
+    }
+  }
+
   /// Calculates the appropriate [secondaryLeft], [secondaryRight],
   /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
   void updateSecondaryAttach() {
@@ -1058,6 +1139,10 @@ class CallController extends GetxController {
           ? size.height - top - secondaryHeight.value
           : 0;
     }
+
+    secondaryBottomBeforeShift.value =
+        secondaryBottom.value ?? size.height - top - secondaryHeight.value;
+    recountSelfVideoPosition();
   }
 
   /// Calculates the [secondaryPanningOffset] based on the provided [offset].
@@ -1215,7 +1300,6 @@ class CallController extends GetxController {
         break;
     }
 
-    updateSecondaryAttach();
     applySecondaryConstraints();
   }
 
@@ -1226,6 +1310,8 @@ class CallController extends GetxController {
         size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
+    secondaryBottom.value = null;
+    secondaryRight.value = null;
 
     switch (x) {
       case ScaleModeX.left:
@@ -1292,7 +1378,6 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
-    updateSecondaryAttach();
   }
 
   /// Returns corrected according to secondary constraints [width] value.

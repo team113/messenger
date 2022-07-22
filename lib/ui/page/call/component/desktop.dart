@@ -382,11 +382,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                 Padding(
                   padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
                   child: AnimatedSlider(
+                    animationStream: c.bottomAnimationStream,
                     isOpen: c.state.value != OngoingCallState.active ||
                         c.showUi.value,
                     duration: const Duration(milliseconds: 400),
                     translate: false,
                     child: Stack(
+                      key: c.buttonsDockKey,
                       alignment: Alignment.center,
                       children: [
                         // Draw a blurred dock with the invisible [_activeButtons]
@@ -605,6 +607,31 @@ Widget desktopCall(CallController c, BuildContext context) {
         // This includes the screen size changes.
         c.applyConstraints(context);
 
+        // Returns [Scaler] for scaling minimized view.
+        Widget _minimizedViewScaler({
+          Key? key,
+          required Function(double, double) onDrag,
+          double? width,
+          double? height,
+          double? opacity,
+        }) {
+          return Scaler(
+            key: key,
+            onDrag: onDrag,
+            onStart: () {
+              c.scaled.value = true;
+              c.secondaryBottomBeforeShift.value = null;
+            },
+            onEnd: () {
+              c.scaled.value = false;
+              c.updateSecondaryAttach();
+            },
+            width: width ?? Scaler.size,
+            height: height ?? Scaler.size,
+            opacity: opacity ?? 0,
+          );
+        }
+
         // Returns a stack of draggable [Scaler]s on each of the sides:
         //
         // +-------+
@@ -625,7 +652,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value + Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpDown,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: c.width.value - Scaler.size,
                     onDrag: (dx, dy) => c.resize(
                       context,
@@ -643,7 +670,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value - Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     height: c.height.value - Scaler.size,
                     onDrag: (dx, dy) => c.resize(
                       context,
@@ -661,7 +688,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value + c.width.value - Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     height: c.height.value - Scaler.size,
                     onDrag: (dx, dy) => c.resize(
                       context,
@@ -679,7 +706,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value + Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpDown,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: c.width.value - Scaler.size,
                     onDrag: (dx, dy) => c.resize(
                       context,
@@ -698,7 +725,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value - Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpLeftDownRight,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
                     onDrag: (dx, dy) => c.resize(
@@ -719,7 +746,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
                     onDrag: (dx, dy) => c.resize(
@@ -740,7 +767,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value - Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
                     onDrag: (dx, dy) => c.resize(
@@ -761,7 +788,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: MouseRegion(
                   cursor: SystemMouseCursors.resizeUpLeftDownRight,
-                  child: Scaler(
+                  child: _minimizedViewScaler(
                     width: Scaler.size * 2,
                     height: Scaler.size * 2,
                     onDrag: (dx, dy) => c.resize(
@@ -1222,12 +1249,37 @@ Widget _secondaryView(CallController c, BuildContext context) {
       }
 
       Widget _buildDragHandle(Alignment alignment) {
+        // Returns [Scaler] for scaling secondary view.
+        Widget _secondaryViewScaler({
+          Key? key,
+          required Function(double, double) onDrag,
+          double? width,
+          double? height,
+          double? opacity,
+        }) {
+          return Scaler(
+            key: key,
+            onDrag: onDrag,
+            onStart: () {
+              c.secondaryBottomBeforeShift.value = null;
+              c.secondaryScaled.value = true;
+            },
+            onEnd: () {
+              c.secondaryScaled.value = false;
+              c.updateSecondaryAttach();
+            },
+            width: width ?? Scaler.size,
+            height: height ?? Scaler.size,
+            opacity: opacity ?? 0,
+          );
+        }
+
         Widget widget = Container();
 
         if (alignment == Alignment.centerLeft) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeLeftRight,
-            child: Scaler(
+            child: _secondaryViewScaler(
               height: height - Scaler.size,
               onDrag: (dx, dy) => c.resizeSecondary(
                 context,
@@ -1239,7 +1291,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.centerRight) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeLeftRight,
-            child: Scaler(
+            child: _secondaryViewScaler(
               height: height - Scaler.size,
               onDrag: (dx, dy) => c.resizeSecondary(
                 context,
@@ -1251,7 +1303,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.bottomCenter) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpDown,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: width - Scaler.size,
               onDrag: (dx, dy) => c.resizeSecondary(
                 context,
@@ -1263,7 +1315,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.topCenter) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpDown,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: width - Scaler.size,
               onDrag: (dx, dy) => c.resizeSecondary(
                 context,
@@ -1275,7 +1327,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.topLeft) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpLeftDownRight,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1290,7 +1342,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.topRight) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1305,7 +1357,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.bottomLeft) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1320,7 +1372,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         } else if (alignment == Alignment.bottomRight) {
           widget = MouseRegion(
             cursor: SystemMouseCursors.resizeUpLeftDownRight,
-            child: Scaler(
+            child: _secondaryViewScaler(
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1653,6 +1705,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
+                          c.secondaryBottomBeforeShift.value = null;
+                          c.showUiBeforeDragging.value = c.showUi.value;
+                          c.showUi.value = false;
                           c.secondaryDragged.value = true;
 
                           c.calculateSecondaryPanning(d.globalPosition);
@@ -1679,6 +1734,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {
+                          c.showUi.value = c.showUiBeforeDragging.value;
                           c.secondaryDragged.value = false;
                           if (c.possibleSecondaryAlignment.value != null) {
                             c.secondaryAlignment.value =
