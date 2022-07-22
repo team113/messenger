@@ -285,7 +285,6 @@ class LoginView extends StatelessWidget {
               break;
           }
           return AnimatedSizeAndFade(
-            key: const Key('AnimatedSizeAndFade'),
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             fadeInCurve: Curves.easeOut,
