@@ -227,17 +227,19 @@ class _HomeViewState extends State<HomeView>
         /// Otherwise, [Stack] widget will be updated, which will lead its
         /// children to be updated as well.
         return CallOverlayView(
-          child: Obx(() => c.authStatus.value.isSuccess
-              ? Stack(
-                  key: const Key('HomeView'),
-                  children: [
-                    Container(child: context.isMobile ? null : navigation),
-                    sideBar,
-                    Container(child: context.isMobile ? navigation : null),
-                  ],
-                )
-              : const Scaffold(
-                  body: Center(child: CircularProgressIndicator()))),
+          child: Obx(
+            () => c.authStatus.value.isSuccess
+                ? Stack(
+                    key: const Key('HomeView'),
+                    children: [
+                      Container(child: context.isMobile ? null : navigation),
+                      sideBar,
+                      Container(child: context.isMobile ? navigation : null),
+                    ],
+                  )
+                : const Scaffold(
+                    body: Center(child: CircularProgressIndicator())),
+          ),
         );
       },
     );
