@@ -20,9 +20,6 @@ Feature: Account creation
     When I tap `StartChattingButton` button
     And I wait until `HomeView` is present
 
-    And I wait until `IntroductionView` is present
-    Then I tap `IntroductionCloseButton` button
-
     Then I tap `MenuButton` button
     And I tap `MyProfileButton` button
     And I wait until `MyProfileView` is present

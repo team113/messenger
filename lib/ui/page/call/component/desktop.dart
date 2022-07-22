@@ -260,7 +260,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       top: (c.minimized.value && !c.fullscreen.value ? 0 : 45) +
                           8),
                   child: Text(
-                    c.callerName ?? '...',
+                    c.callerName ?? 'dot'.l10n * 3,
                     style: context.textTheme.bodyText1?.copyWith(
                       color: const Color(0xFFBBBBBB),
                       fontSize: 20,
@@ -540,9 +540,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           return SizedBox(
             height: anyHintIsDisplayed || c.secondaryHovered.value ? 110 : 45,
             width: double.infinity,
-            child: !c.isSelfPanning.value &&
-                    c.primaryDrags.value == 0 &&
-                    c.secondaryDrags.value == 0
+            child: c.primaryDrags.value == 0 && c.secondaryDrags.value == 0
                 ? MouseRegion(
                     opaque: false,
                     onEnter: (d) => c.keepUi(true),

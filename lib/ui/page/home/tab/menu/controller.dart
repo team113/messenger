@@ -23,7 +23,6 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
 
@@ -57,7 +56,7 @@ class MenuTabController extends GetxController {
       }
     }
 
-    return true;
+    return Future.sync(() => true);
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.

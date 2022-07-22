@@ -17,7 +17,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 
 /// Overlay of a context menu.
 ///
@@ -48,15 +47,15 @@ class ContextMenuOverlay extends StatefulWidget {
 /// State of a [ContextMenuOverlay].
 class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Currently opened context menu.
-  final Rx<Widget?> menu = Rx(null);
+  Widget? _menu;
 
   /// Size of the [ContextMenuOverlay].
   Size? _area;
 
-  /// Position of the [menu].
+  /// Position of the [_menu].
   Offset _position = Offset.zero;
 
-  /// Alignment of this [menu].
+  /// Alignment of this [_menu].
   ///
   /// See [alignment] for details.
   Alignment _alignment = Alignment.bottomRight;
@@ -64,10 +63,10 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Alignment of current context menu.
   ///
   /// May be:
-  /// - `bottomRight`, meaning [menu] is placed in the bottom right quadrant.
-  /// - `bottomLeft`, meaning [menu] is placed in the bottom left quadrant.
-  /// - `topRight`, meaning [menu] is placed in the top right quadrant.
-  /// - `topLeft`, meaning [menu] is placed in the top left quadrant.
+  /// - `bottomRight`, meaning [_menu] is placed in the bottom right quadrant.
+  /// - `bottomLeft`, meaning [_menu] is placed in the bottom left quadrant.
+  /// - `topRight`, meaning [_menu] is placed in the top right quadrant.
+  /// - `topLeft`, meaning [_menu] is placed in the top left quadrant.
   Alignment get alignment => _alignment;
 
   @override
@@ -78,7 +77,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
         // This is classic context menu behavior at the OS level.
         final Size size = constraints.biggest;
         if (size != _area) {
-          menu.value = null;
+          _menu = null;
           _area = size;
         }
 
@@ -96,12 +95,12 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
             body: Stack(
               children: [
                 widget.child,
-                if (menu.value != null) ...[
-                  // Listens for taps outside the [menu].
+                if (_menu != null) ...[
+                  // Listens for taps outside the [_menu].
                   Listener(
                     behavior: HitTestBehavior.opaque,
                     onPointerDown: (d) {
-                      // If [kSecondaryButton] was pressed outside the [menu],
+                      // If [kSecondaryButton] was pressed outside the [_menu],
                       // then simulate the [PointerUpDown] and [PointerUpEvent]
                       // for every [RenderPointerListener] on
                       // [BoxHitTestResult]'s path.
@@ -155,7 +154,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                       hide();
                     },
                   ),
-                  // Draws [menu] at [_position] with [alignment] translation.
+                  // Draws [_menu] at [_position] with [alignment] translation.
                   Positioned(
                     left: _position.dx,
                     top: _position.dy,
@@ -164,7 +163,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                         _alignment.x > 0 ? 0 : -1,
                         _alignment.y > 0 ? 0 : -1,
                       ),
-                      child: IntrinsicWidth(child: menu.value),
+                      child: IntrinsicWidth(child: _menu),
                     ),
                   ),
                 ]
@@ -179,11 +178,11 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Sets the current menu to [child] at [position].
   void show(Widget child, Offset position) => setState(() {
         _position = position;
-        menu.value = child;
+        _menu = child;
       });
 
   /// Hides the current menu if there is one.
-  void hide() => setState(() => menu.value = null);
+  void hide() => setState(() => _menu = null);
 }
 
 /// [InheritedWidget] of a [_ContextMenuOverlayState] used to implement

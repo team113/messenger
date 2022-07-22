@@ -29,7 +29,6 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color = Colors.white,
-    this.inactiveColor,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
   }) : super(key: key);
@@ -58,9 +57,6 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Background color of this button.
   final Color? color;
 
-  /// Inactive color of this button.
-  final Color? inactiveColor;
-
   /// Gradient to use when filling this button.
   ///
   /// If this is specified, [color] has no effect.
@@ -87,11 +83,9 @@ class OutlinedRoundedButton extends StatelessWidget {
         maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
-        color: onPressed == null
-            ? (inactiveColor ?? const Color(0xFFBBBBBB))
-            : color,
+        color: onPressed == null ? const Color(0xFFBBBBBB) : color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
         color: Colors.transparent,

@@ -14,12 +14,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -49,200 +51,258 @@ class LoginView extends StatelessWidget {
         return Obx(() {
           List<Widget> children;
 
-          if (c.showNewPasswordSection.value) {
-            children = [
-              Center(
-                child: Text(
-                  'label_set_new_password'.l10n,
-                  style: theme.headline3,
-                ),
+          Widget _primaryButton({
+            Key? key,
+            String? title,
+            VoidCallback? onPressed,
+          }) {
+            return OutlinedRoundedButton(
+              key: key,
+              maxWidth: null,
+              title: Text(
+                title ?? '',
+                style: const TextStyle(color: Colors.white),
               ),
-              const SizedBox(height: 57),
-              ReactiveTextField(
-                key: const Key('PasswordField'),
-                state: c.newPassword,
-                label: 'label_new_password'.l10n,
-                obscure: true,
-              ),
-              const SizedBox(height: 16),
-              ReactiveTextField(
-                key: const Key('RepeatPasswordField'),
-                state: c.repeatPassword,
-                label: 'label_repeat_password'.l10n,
-                obscure: true,
-              ),
-              const SizedBox(height: 58),
-              loginPopupButtons(
-                mainButtonKey: const Key('RecoveryNextTile'),
-                secondaryButtonKey: const Key('RecoveryBackTile'),
-                mainButtonTitle: 'btn_next'.l10n,
-                onMainButtonPressed: c.resetUserPassword,
-                secondaryButtonTitle: 'btn_back'.l10n,
-                onSecondaryButtonPressed: () {
-                  c.clearAccessFields();
-                  c.showCodeSection.toggle();
-                  c.showNewPasswordSection.toggle();
-                },
-              ),
-              const SizedBox(height: 16),
-            ];
-          } else if (c.showCodeSection.value) {
-            children = [
-              Center(
-                child: Text(
-                  '${'label_email_confirmation_code_was_send'.l10n}'
-                  '${'dot'.l10n} ${'label_enter_it_bellow'.l10n}',
-                  style: theme.headline3,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 57),
-              ReactiveTextField(
-                key: const Key('RecoveryCodeField'),
-                state: c.recoveryCode,
-                label: 'label_recovery_code'.l10n,
-                type: TextInputType.number,
-              ),
-              const SizedBox(height: 58),
-              loginPopupButtons(
-                mainButtonKey: const Key('RecoveryNextTile'),
-                secondaryButtonKey: const Key('RecoveryBackTile'),
-                mainButtonTitle: 'btn_next'.l10n,
-                onMainButtonPressed: c.recoveryCode.submit,
-                secondaryButtonTitle: 'btn_back'.l10n,
-                onSecondaryButtonPressed: () {
-                  c.clearAccessFields();
-                  c.showCodeSection.toggle();
-                },
-              ),
-              const SizedBox(height: 16),
-            ];
-          } else if (c.displayAccess.value) {
-            children = [
-              Center(
-                child: Text(
-                  'label_recover_account'.l10n,
-                  style: theme.headline3,
-                ),
-              ),
-              const SizedBox(height: 57),
-              ReactiveTextField(
-                key: const Key('RecoveryField'),
-                state: c.recovery,
-                label: 'label_sign_in_input'.l10n,
-              ),
-              const SizedBox(height: 58),
-              loginPopupButtons(
-                mainButtonKey: const Key('RecoveryNextTile'),
-                secondaryButtonKey: const Key('RecoveryBackTile'),
-                mainButtonTitle: 'btn_next'.l10n,
-                onMainButtonPressed: c.recovery.submit,
-                secondaryButtonTitle: 'btn_back'.l10n,
-                onSecondaryButtonPressed: c.displayAccess.toggle,
-              ),
-              const SizedBox(height: 16),
-            ];
-          } else {
-            children = [
-              Center(
-                child: Text(
-                  'label_entrance'.l10n,
-                  style: theme.headline3,
-                ),
-              ),
-              const SizedBox(height: 57),
-              ReactiveTextField(
-                key: const Key('UsernameField'),
-                state: c.login,
-                label: 'label_sign_in_input'.l10n,
-                onChanged: () {},
-              ),
-              const SizedBox(height: 16),
-              ReactiveTextField(
-                key: const ValueKey('PasswordField'),
-                obscure: true,
-                state: c.password,
-                label: 'label_password'.l10n,
-              ),
-              const SizedBox(height: 52),
-              loginPopupButtons(
-                mainButtonKey: const Key('LoginNextTile'),
-                secondaryButtonKey: const Key('AccessRecoveryTile'),
-                isRightMainButton: false,
-                mainButtonTitle: 'btn_login'.l10n,
-                secondaryButtonTitle: 'btn_forgot_password'.l10n,
-                onMainButtonPressed: c.signIn,
-                onSecondaryButtonPressed: () {
-                  c.recovery.unchecked = c.login.text;
-                  c.recovery.error.value = null;
-                  c.displayAccess.toggle();
-                },
-              ),
-              const SizedBox(height: 16),
-            ];
+              onPressed: onPressed,
+              color: Theme.of(context).colorScheme.secondary,
+            );
           }
 
-          return AnimatedSize(
-            duration: 250.milliseconds,
-            curve: Curves.easeOut,
-            child: AnimatedSwitcher(
-              duration: 250.milliseconds,
-              child: ListView(
-                key: Key('${c.displayAccess.value}'),
-                shrinkWrap: true,
-                children: [
-                  const SizedBox(height: 12),
-                  ...children,
-                  const SizedBox(height: 12),
-                ],
+          Widget _secondaryButton({
+            Key? key,
+            String? title,
+            VoidCallback? onPressed,
+          }) {
+            return OutlinedRoundedButton(
+              key: key,
+              maxWidth: null,
+              title: Text(
+                title ?? '',
+                style: const TextStyle(color: Colors.black),
               ),
+              onPressed: onPressed,
+              color: const Color(0xFFEEEEEE),
+            );
+          }
+
+          Row _spaced(Widget a, Widget b) {
+            return Row(
+              children: [
+                Expanded(child: a),
+                const SizedBox(width: 10),
+                Expanded(child: b)
+              ],
+            );
+          }
+
+          switch (c.stage.value) {
+            case LoginViewStage.recovery:
+              children = [
+                Center(
+                  child: Text(
+                    'label_recover_account'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.recovery,
+                  label: 'label_sign_in_input'.l10n,
+                ),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryBackButton'),
+                    title: 'btn_back'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.recovery.submit,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoveryCode:
+              children = [
+                Center(
+                  child: Text(
+                    'label_email_confirmation_code_was_send'.l10n,
+                    style: theme.headline3,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('RecoveryCodeField'),
+                  state: c.recoveryCode,
+                  label: 'label_recovery_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryCancelButton'),
+                    title: 'btn_cancel'.l10n,
+                    onPressed: () {
+                      c.recovery.unsubmit();
+                      c.stage.value = null;
+                    },
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.recoveryCode.submit,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoveryPassword:
+              children = [
+                Center(
+                  child: Text(
+                    'label_set_new_password'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('PasswordField'),
+                  state: c.newPassword,
+                  label: 'label_new_password'.l10n,
+                  obscure: c.obscureNewPassword.value,
+                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const Key('RepeatPasswordField'),
+                  state: c.repeatPassword,
+                  label: 'label_repeat_password'.l10n,
+                  obscure: c.obscureRepeat.value,
+                  onSuffixPressed: c.obscureRepeat.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryCancelButton'),
+                    title: 'btn_cancel'.l10n,
+                    onPressed: () {
+                      c.recovery.unsubmit();
+                      c.recoveryCode.unsubmit();
+                      c.stage.value = null;
+                    },
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.resetUserPassword,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoverySuccess:
+              children = [
+                const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    'label_password_set_successfully'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Center(
+                    child: _secondaryButton(
+                  key: const Key('RecoveryCloseButton'),
+                  title: 'btn_close'.l10n,
+                  onPressed: () => Navigator.of(context).pop(true),
+                )),
+                const SizedBox(height: 13)
+              ];
+              break;
+
+            default:
+              children = [
+                Center(
+                  child: Text(
+                    'label_entrance'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('UsernameField'),
+                  state: c.login,
+                  label: 'label_sign_in_input'.l10n,
+                  onChanged: () {},
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const ValueKey('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 52),
+                _spaced(
+                  _primaryButton(
+                    key: const Key('LoginButton'),
+                    title: 'btn_login'.l10n,
+                    onPressed: c.signIn,
+                  ),
+                  _secondaryButton(
+                    key: const Key('RecoveryButton'),
+                    title: 'btn_forgot_password'.l10n,
+                    onPressed: () {
+                      c.recovery.unchecked = c.login.text;
+                      c.recovery.error.value = null;
+                      c.stage.value = LoginViewStage.recovery;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+          }
+          return AnimatedSizeAndFade(
+            key: const Key('AnimatedSizeAndFade'),
+            fadeDuration: const Duration(milliseconds: 250),
+            sizeDuration: const Duration(milliseconds: 250),
+            fadeInCurve: Curves.easeOut,
+            fadeOutCurve: Curves.easeOut,
+            sizeCurve: Curves.easeOut,
+            child: ListView(
+              key: Key('${c.stage.value}'),
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 12),
+                ...children,
+                const SizedBox(height: 12),
+              ],
             ),
           );
         });
       },
     );
   }
-}
-
-/// Returns [Row] widget with two popup buttons.
-Widget loginPopupButtons({
-  bool isRightMainButton = true,
-  String mainButtonTitle = '',
-  String secondaryButtonTitle = '',
-  VoidCallback? onMainButtonPressed,
-  VoidCallback? onSecondaryButtonPressed,
-  Color mainButtonColor = const Color(0xFF63B4FF),
-  Color secondaryButtonColor = const Color(0xFFEEEEEE),
-  Color mainButtonTextColor = Colors.white,
-  Key? mainButtonKey,
-  Key? secondaryButtonKey,
-}) {
-  var elements = [
-    Expanded(
-      child: OutlinedRoundedButton(
-        key: secondaryButtonKey,
-        maxWidth: null,
-        title: Text(secondaryButtonTitle),
-        onPressed: onSecondaryButtonPressed,
-        color: secondaryButtonColor,
-      ),
-    ),
-    const SizedBox(width: 10),
-    Expanded(
-      child: OutlinedRoundedButton(
-        key: mainButtonKey,
-        maxWidth: null,
-        title: Text(
-          mainButtonTitle,
-          style: TextStyle(color: mainButtonTextColor),
-        ),
-        onPressed: onMainButtonPressed,
-        color: const Color(0xFF63B4FF),
-      ),
-    ),
-  ];
-
-  return Row(
-    children: isRightMainButton ? elements : elements.reversed.toList(),
-  );
 }
