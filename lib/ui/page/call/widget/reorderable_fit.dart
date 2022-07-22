@@ -22,8 +22,8 @@ import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '/ui/page/call/widget/animated_transition.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
 ///

@@ -21,8 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-import '/ui/page/call/widget/animated_transition.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'animated_transition.dart';
 
 /// Reorderable [Row] of the provided [items].
 class Dock<T extends Object> extends StatefulWidget {
@@ -54,12 +54,12 @@ class Dock<T extends Object> extends StatefulWidget {
   final Function(T)? onDragStarted;
 
   /// Callback, called when item dragging is ended.
-  final Function()? onDragEnded;
+  final Function(T)? onDragEnded;
 
-  /// Callback, called when a dragged item leaves this [Dock].
-  final Function()? onLeave;
+  /// Callback, called when a _dragged item leaves this [Dock].
+  final Function(T?)? onLeave;
 
-  /// Callback, called when this [Dock] may accept the dragged item.
+  /// Callback, called when this [Dock] may accept the _dragged item.
   final bool Function(T)? onWillAccept;
 
   @override
@@ -68,32 +68,33 @@ class Dock<T extends Object> extends StatefulWidget {
 
 /// State of a [Dock] maintaining the reorderable [_items] list.
 class _DockState<T extends Object> extends State<Dock<T>> {
+  /// [Duration] of [_DraggedItem] jumping from one position to another.
+  static const Duration jumpDuration = Duration(milliseconds: 300);
+
+  /// [Duration] of [AnimatedContainer]s representing [_DraggedItem]s being
+  /// added and removed animations.
+  static const Duration animateDuration = Duration(milliseconds: 150);
+
   /// [_DraggedItem]s of this [Dock].
   late final List<_DraggedItem<T>> _items;
 
-  /// Duration of animation moving button to its place on end of dragging.
-  Duration movingAnimationDuration = 300.milliseconds;
+  /// Current [Duration] of [AnimatedContainer]s.
+  Duration _animateDuration = animateDuration;
 
-  /// Duration of [AnimatedContainer] width changing animation.
-  Duration animationsDuration = 150.milliseconds;
+  /// Position in [_items] to add expanding [AnimatedContainer] to.
+  int _expanded = -1;
 
-  /// Place where item will be placed.
-  int expandBetween = -1;
+  /// Position in [_items] to add shrinking [AnimatedContainer] to.
+  int _compressed = -1;
 
-  /// Place where item was placed before same item was added.
-  int compressBetween = -1;
-
-  /// Index of item was started dragging.
-  int draggedIndex = -1;
-
-  /// Item that was dragged.
-  _DraggedItem<T>? dragged;
+  /// [MapEntry] of the currently moved [_DraggedItem] along with its index.
+  MapEntry<int, _DraggedItem<T>>? _dragged;
 
   /// [GlobalKey] of [DragTarget].
   final GlobalKey _dockKey = GlobalKey();
 
-  /// [Rect] of item was started dragging.
-  Rect? startDragRect;
+  /// [Rect] of [_DraggedItem].
+  Rect? _rect;
 
   /// Currently displayed [OverlayEntry].
   OverlayEntry? overlay;
@@ -143,23 +144,23 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   child: Container(width: 10),
                 ),
                 AnimatedContainer(
-                  duration: animationsDuration,
-                  width: expandBetween == 0 && expandBetween == i
-                      ? startDragRect == null
+                  duration: _animateDuration,
+                  width: _expanded == 0 && _expanded == i
+                      ? _rect == null
                           ? itemConstraints.maxWidth
-                          : startDragRect!.width
+                          : _rect!.width
                       : 0,
                 ),
-                if (compressBetween == 0 && compressBetween == i)
+                if (_compressed == 0 && _compressed == i)
                   _AnimatedWidth(
                     beginWidth: itemConstraints.maxWidth,
                     endWidth: 0,
-                    duration: movingAnimationDuration,
+                    duration: jumpDuration,
                   ),
                 Flexible(
-                  flex: expandBetween == 0 && expandBetween == i ? 1 : 0,
+                  flex: _expanded == 0 && _expanded == i ? 1 : 0,
                   child: Container(
-                    width: expandBetween == 0 && expandBetween == i ? 10 : 0,
+                    width: _expanded == 0 && _expanded == i ? 10 : 0,
                   ),
                 ),
               ],
@@ -185,7 +186,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                         ),
                         data: e.item,
                         onDragCompleted: () {
-                          startDragRect = null;
+                          _rect = null;
                           widget.onReorder
                               ?.call(_items.map((e) => e.item).toList());
                         },
@@ -193,54 +194,55 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                           _resetAnimations();
                           widget.onDragStarted?.call(_items[i].item);
 
-                          startDragRect = _items[i].key.globalPaintBounds;
+                          _rect = _items[i].key.globalPaintBounds;
 
-                          expandBetween = i;
-                          dragged = e;
-                          draggedIndex = i;
+                          _expanded = i;
+                          _dragged = MapEntry(i, e);
                           _items.removeAt(i);
 
                           setState(() {});
                         },
                         onDraggableCanceled: (_, o) {
-                          int savedDraggedIndex = draggedIndex;
+                          int savedDraggedIndex = _dragged!.key;
 
-                          // Show animation of dragged item returns to its
+                          // Show animation of _dragged item returns to its
                           // start position.
                           _showOverlay(
-                            item: dragged!,
+                            item: _dragged!.value,
                             context: context,
                             beginRect: Rect.fromLTWH(
-                              o.dx - startDragRect!.width / 2,
-                              o.dy - startDragRect!.height / 2,
-                              startDragRect!.width,
-                              startDragRect!.height,
+                              o.dx - _rect!.width / 2,
+                              o.dy - _rect!.height / 2,
+                              _rect!.width,
+                              _rect!.height,
                             ),
-                            endRect: startDragRect!,
+                            endRect: _rect!,
                             onEnd: () {
                               if (mounted) {
                                 setState(() {
                                   _items[savedDraggedIndex].hidden = false;
-                                  widget.onDragEnded?.call();
+                                  widget.onDragEnded
+                                      ?.call(_items[savedDraggedIndex].item);
                                 });
                               }
                             },
                           );
 
-                          _items.insert(draggedIndex, dragged!);
-                          _items[draggedIndex].hidden = true;
+                          _items.insert(_dragged!.key, _dragged!.value);
+                          _items[_dragged!.key].hidden = true;
 
-                          startDragRect = null;
-                          draggedIndex = -1;
-                          dragged = null;
-                          expandBetween = -1;
+                          _rect = null;
+                          _dragged = null;
+                          _expanded = -1;
 
                           setState(() {});
                         },
                         child: Opacity(
-                          opacity: (e.hidden) ? 0 : 1,
+                          opacity: e.hidden ? 0 : 1,
                           child: KeyedSubtree(
-                              key: e.key, child: widget.itemBuilder(e.item)),
+                            key: e.key,
+                            child: widget.itemBuilder(e.item),
+                          ),
                         ),
                       );
                     }),
@@ -248,31 +250,24 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                 ),
               ),
               Flexible(
-                flex: expandBetween - 1 == i ? 1 : 0,
-                child: Container(
-                  width: expandBetween - 1 == i ? 10 : 0,
-                ),
+                flex: _expanded - 1 == i ? 1 : 0,
+                child: SizedBox(width: _expanded - 1 == i ? 10 : 0),
               ),
               AnimatedContainer(
-                duration: animationsDuration,
-                width: expandBetween - 1 == i
-                    ? startDragRect == null
+                duration: _animateDuration,
+                width: _expanded - 1 == i
+                    ? _rect == null
                         ? itemConstraints.maxWidth
-                        : startDragRect!.width
+                        : _rect!.width
                     : 0,
               ),
-              if (compressBetween - 1 == i)
+              if (_compressed - 1 == i)
                 _AnimatedWidth(
                   beginWidth: itemConstraints.maxWidth,
                   endWidth: 0,
-                  duration: movingAnimationDuration,
+                  duration: jumpDuration,
                 ),
-              Flexible(
-                flex: 1,
-                child: Container(
-                  width: 10,
-                ),
-              ),
+              const Flexible(flex: 1, child: SizedBox(width: 10)),
             ];
           },
         ).toList(),
@@ -285,8 +280,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       onAcceptWithDetails: _onAcceptWithDetails,
       onLeave: (e) {
         if (e == null || (widget.onWillAccept?.call(e) ?? true)) {
-          widget.onLeave?.call();
-          setState(() => expandBetween = -1);
+          widget.onLeave?.call(e);
+          setState(() => _expanded = -1);
         }
       },
       onWillAccept: (e) {
@@ -302,43 +297,36 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   void _onAcceptWithDetails(DragTargetDetails<T> item) {
     var data = _DraggedItem(item.data);
 
-    if (expandBetween > _items.length) {
-      expandBetween = _items.length;
-    } else if (expandBetween < 0) {
-      expandBetween = 0;
+    if (_expanded > _items.length) {
+      _expanded = _items.length;
+    } else if (_expanded < 0) {
+      _expanded = 0;
     }
 
     int i = _items.indexWhere((e) => e == data);
     if (i == -1) {
-      var savedStartDragRect = startDragRect;
       var dragOffset = Offset(
         item.offset.dx -
-            ((savedStartDragRect != null && dragged != null)
-                    ? savedStartDragRect.width
-                    : itemSize) /
-                2,
+            (_rect != null && _dragged != null ? _rect!.width : itemSize) / 2,
         item.offset.dy -
-            ((savedStartDragRect != null && dragged != null)
-                    ? savedStartDragRect.height
-                    : itemSize) /
-                2,
+            (_rect != null && _dragged != null ? _rect!.height : itemSize) / 2,
       );
 
-      _items.insert(expandBetween, data);
+      _items.insert(_expanded, data);
 
       // Save added item index.
-      int whereToPlace = expandBetween;
+      int to = _expanded;
 
-      // OverlayEntry that will display dragged item at onDragEnded place.
+      // [OverlayEntry] that will display [_dragged] item at onDragEnded place.
       overlay = OverlayEntry(
         builder: (context) => Positioned(
           left: dragOffset.dx,
           top: dragOffset.dy,
           child: Container(
-            constraints: savedStartDragRect != null
+            constraints: _rect != null
                 ? BoxConstraints(
-                    maxWidth: savedStartDragRect.width,
-                    maxHeight: savedStartDragRect.height,
+                    maxWidth: _rect!.width,
+                    maxHeight: _rect!.height,
                   )
                 : itemConstraints,
             child: widget.itemBuilder(data.item),
@@ -347,21 +335,21 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       );
       Overlay.of(context)?.insert(overlay!);
 
-      _items[whereToPlace].hidden = true;
+      _items[to].hidden = true;
       _resetAnimations();
 
       // Post frame callBack to display animation of adding item to items list.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
 
-        Rect endRect = _items[whereToPlace].key.globalPaintBounds!;
+        Rect endRect = _items[to].key.globalPaintBounds!;
         Rect beginRect;
-        if (savedStartDragRect != null) {
+        if (_rect != null) {
           beginRect = Rect.fromLTWH(
             dragOffset.dx,
             dragOffset.dy,
-            savedStartDragRect.width,
-            savedStartDragRect.height,
+            _rect!.width,
+            _rect!.height,
           );
         } else {
           beginRect = Rect.fromLTWH(
@@ -381,67 +369,64 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           onEnd: () {
             if (mounted) {
               setState(() {
-                dragged = null;
-                _items[whereToPlace].hidden = false;
-                widget.onDragEnded?.call();
+                _dragged = null;
+                _items[to].hidden = false;
+                widget.onDragEnded?.call(_items[to].item);
               });
             }
           },
         );
       });
     } else {
-      if (i == expandBetween || i + 1 == expandBetween) {
-        return setState(() => expandBetween = -1);
+      if (i == _expanded || i + 1 == _expanded) {
+        return setState(() => _expanded = -1);
       } else {
         _resetAnimations();
       }
 
-      int whereToPlace = expandBetween;
-      if (whereToPlace > i) {
-        whereToPlace--;
+      int to = _expanded;
+      if (to > i) {
+        to--;
       }
-
-      var beginRect = _items[i].key.globalPaintBounds!;
-      var endRect = _items[whereToPlace].defaultRect!;
 
       _items.removeAt(i);
 
       // Add item to [_items] list and hide it.
-      if (whereToPlace > _items.length) {
+      if (to > _items.length) {
         _items.add(data);
         _items.last.hidden = true;
-        whereToPlace = _items.length;
+        to = _items.length;
       } else {
-        _items.insert(whereToPlace, data);
-        _items[whereToPlace].hidden = true;
+        _items.insert(to, data);
+        _items[to].hidden = true;
       }
 
       // Add compressing animation of the old [item] place.
-      if (whereToPlace < i) {
-        compressBetween = i + 1;
+      if (to < i) {
+        _compressed = i + 1;
       } else {
-        compressBetween = i;
+        _compressed = i;
       }
 
       // Display animation of sliding item from old place to new place.
       _showOverlay(
         item: data,
         context: context,
-        beginRect: beginRect,
-        endRect: endRect,
+        beginRect: _items[i].key.globalPaintBounds!,
+        endRect: _items[to].paintBounds!,
         onEnd: () {
           if (mounted) {
             setState(() {
-              _items[whereToPlace].hidden = false;
-              widget.onDragEnded?.call();
-              compressBetween = -1;
+              _items[to].hidden = false;
+              widget.onDragEnded?.call(_items[to].item);
+              _compressed = -1;
             });
           }
         },
       );
     }
 
-    expandBetween = -1;
+    _expanded = -1;
     widget.onReorder?.call(_items.map((e) => e.item).toList());
     setState(() {});
   }
@@ -464,22 +449,22 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       indexToPlace = 0;
     }
 
-    if (expandBetween < 0) {
-      for (var e in _items) {
-        e.updateDefaultRect();
+    if (_expanded < 0) {
+      for (_DraggedItem<T> e in _items) {
+        e.paintBounds = e.key.globalPaintBounds;
       }
     }
 
-    setState(() => expandBetween = indexToPlace);
+    setState(() => _expanded = indexToPlace);
   }
 
   /// Resets [AnimatedContainer]'s width changing animations.
   void _resetAnimations() {
-    animationsDuration = Duration.zero;
+    _animateDuration = Duration.zero;
     SchedulerBinding.instance.addPostFrameCallback(
       (_) => Future.delayed(
         Duration.zero,
-        () => animationsDuration = 150.milliseconds,
+        () => _animateDuration = 150.milliseconds,
       ),
     );
   }
@@ -493,10 +478,10 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required VoidCallback onEnd,
   }) {
     overlay = OverlayEntry(
-      builder: (context) => AnimatedTransition(
+      builder: (_) => AnimatedTransition(
         beginRect: beginRect,
         endRect: endRect,
-        animationDuration: movingAnimationDuration,
+        animationDuration: jumpDuration,
         onEnd: () {
           onEnd();
           _removeOverlay();
@@ -524,26 +509,22 @@ class _DraggedItem<T> {
   /// Reorderable [Object] itself.
   final T item;
 
-  /// [GlobalKey] of this [_DraggedItem] representing the global position of
-  /// this [item].
+  /// [GlobalKey] representing the global position of this [item].
   final GlobalKey key = GlobalKey();
 
   /// Default [Rect] of this item.
   ///
   /// Used to play animation on adding an item that already exist.
-  Rect? defaultRect;
+  Rect? paintBounds;
 
   /// Indicator whether this [item] should not be displayed.
   bool hidden = false;
 
-  /// Updates [defaultRect].
-  void updateDefaultRect() => defaultRect = key.globalPaintBounds;
+  @override
+  int get hashCode => item.hashCode;
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
-
-  @override
-  int get hashCode => item.hashCode;
 }
 
 /// [AnimatedContainer] changing its width from [beginWidth] to [endWidth].

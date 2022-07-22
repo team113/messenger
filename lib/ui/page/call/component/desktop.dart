@@ -415,14 +415,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                               items: c.buttons,
                               itemWidth: CallController.buttonSize,
                               itemBuilder: (e) => e.build(
-                                  hinted: c.draggedButton.value == null),
+                                hinted: c.draggedButton.value == null,
+                              ),
                               onReorder: (buttons) {
                                 c.buttons.clear();
                                 c.buttons.addAll(buttons);
                               },
                               onDragStarted: (b) => c.draggedButton.value = b,
-                              onDragEnded: () => c.draggedButton.value = null,
-                              onLeave: () => c.displayMore.value = true,
+                              onDragEnded: (_) => c.draggedButton.value = null,
+                              onLeave: (_) => c.displayMore.value = true,
                               onWillAccept: (d) => d.c == c,
                             ),
                           ),
