@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -42,7 +43,9 @@ import 'password_recovery_test.mocks.dart';
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  Config.disableInfiniteAnimations = true;
   Hive.init('./test/.temp_hive/password_recovery');
+  await L10n.init();
 
   var sessionProvider = SessionDataHiveProvider();
   var graphQlProvider = MockGraphQlProvider();

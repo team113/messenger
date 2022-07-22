@@ -46,6 +46,11 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
+  /// Indicator whether all looped animations should be disabled.
+  ///
+  /// Intended to be used in E2E testing.
+  static bool disableInfiniteAnimations = false;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;

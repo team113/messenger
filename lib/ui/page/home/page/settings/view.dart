@@ -19,6 +19,8 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/selector.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.settings] page.
@@ -52,32 +54,43 @@ class SettingsView extends StatelessWidget {
                   ],
                 ),
               ),
-              ListTile(
-                title: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 200),
-                  child: Obx(
-                    () => DropdownButton<Language>(
-                      key: const Key('LanguageDropdown'),
-                      value: L10n.chosen.value,
-                      items:
-                          L10n.languages.map<DropdownMenuItem<Language>>((e) {
-                        return DropdownMenuItem(
-                          key: Key(
-                              'Language_${e.locale.languageCode}${e.locale.countryCode}'),
-                          value: e,
-                          child: Text('${e.locale.countryCode}, ${e.name}'),
-                        );
-                      }).toList(),
-                      onChanged: c.setLocale,
-                      borderRadius: BorderRadius.circular(18),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 15,
-                      ),
-                      icon: const SizedBox(),
-                      underline: const SizedBox(),
-                    ),
+              KeyedSubtree(
+                key: c.languageKey,
+                child: ListTile(
+                  key: const Key('LanguageDropdown'),
+                  title: Text(
+                    '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
                   ),
+                  onTap: () async {
+                    final TextStyle? thin = context.textTheme.caption
+                        ?.copyWith(color: Colors.black);
+                    await Selector.show<Language>(
+                      context: context,
+                      buttonKey: c.languageKey,
+                      alignment: Alignment.bottomCenter,
+                      items: L10n.languages,
+                      initial: L10n.chosen.value!,
+                      onSelected: (l) => L10n.set(l),
+                      debounce: context.isMobile
+                          ? const Duration(milliseconds: 500)
+                          : null,
+                      itemBuilder: (Language e) => Row(
+                        key: Key(
+                            'Language_${e.locale.languageCode}${e.locale.countryCode}'),
+                        children: [
+                          Text(
+                            e.name,
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                          const Spacer(),
+                          Text(
+                            e.locale.languageCode.toUpperCase(),
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               )
             ],
