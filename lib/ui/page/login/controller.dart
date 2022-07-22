@@ -220,6 +220,7 @@ class LoginController extends GetxController {
     recovery.editable.value = false;
     recovery.status.value = RxStatus.loading();
     recovery.error.value = null;
+    recovery.unsubmit();
 
     _recoveryLogin = _recoveryNum = _recoveryPhone = _recoveryEmail = null;
 
@@ -282,6 +283,7 @@ class LoginController extends GetxController {
     recoveryCode.editable.value = false;
     recoveryCode.status.value = RxStatus.loading();
     recoveryCode.error.value = null;
+    recoveryCode.unsubmit();
 
     if (recoveryCode.text.isEmpty) {
       recoveryCode.editable.value = true;
@@ -326,6 +328,8 @@ class LoginController extends GetxController {
     }
 
     repeatPassword.status.value = RxStatus.empty();
+    newPassword.unsubmit();
+    repeatPassword.unsubmit();
 
     if (newPassword.text.isEmpty) {
       newPassword.error.value = 'err_input_empty'.l10n;
