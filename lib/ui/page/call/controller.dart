@@ -229,7 +229,7 @@ class CallController extends GetxController {
 
   /// Global key of animated slider buttons panel.
   final GlobalKey buttonsDockKey = GlobalKey();
-  
+
   /// [Offset] the secondary view has relative to the pan gesture position.
   Offset? secondaryPanningOffset;
 
@@ -533,6 +533,9 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          recountSelfVideoPosition();
+        });
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -1028,6 +1031,7 @@ class CallController extends GetxController {
         recountLocked = false;
       });
       recountLocked = true;
+
       Rect secondaryBounds = secondaryKey.globalPaintBounds!;
       Rect dockBounds = buttonsDockKey.globalPaintBounds!;
       var intercept = secondaryBounds.intersect(dockBounds);
@@ -1062,9 +1066,10 @@ class CallController extends GetxController {
           }
         }
       }
+      applySecondaryConstraints();
     }
   }
-  
+
   /// Calculates the appropriate [secondaryLeft], [secondaryRight],
   /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
   void updateSecondaryAttach() {
@@ -1305,6 +1310,8 @@ class CallController extends GetxController {
         size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
+    secondaryBottom.value = null;
+    secondaryRight.value = null;
 
     switch (x) {
       case ScaleModeX.left:
