@@ -26,7 +26,7 @@ import '/util/platform_utils.dart';
 /// Dropdown selecting the provided [items].
 ///
 /// Intended to be displayed with the [show] method.
-class Selector<T extends Object> extends StatefulWidget {
+class Selector<T> extends StatefulWidget {
   const Selector({
     Key? key,
     required this.items,
@@ -118,7 +118,7 @@ class Selector<T extends Object> extends StatefulWidget {
 }
 
 /// State of a [Selector] maintaining the [_debounce].
-class _SelectorState<T extends Object> extends State<Selector<T>> {
+class _SelectorState<T> extends State<Selector<T>> {
   /// Currently selected item.
   late Rx<T> _selected;
 
