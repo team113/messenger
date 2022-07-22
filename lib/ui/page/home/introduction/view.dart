@@ -14,11 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/copyable.dart';
+import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -172,46 +173,44 @@ class IntroductionView extends StatelessWidget {
             ];
           }
 
-          return AnimatedSize(
-            duration: 200.milliseconds,
-            child: AnimatedSwitcher(
-              duration: 150.milliseconds,
-              child: ListView(
-                key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Text(
-                      'label_account_created'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
+          return AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 150),
+            sizeDuration: const Duration(milliseconds: 200),
+            child: ListView(
+              key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              children: [
+                const SizedBox(height: 12),
+                Center(
+                  child: Text(
+                    'label_account_created'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
                   ),
-                  const SizedBox(height: 25),
-                  if (PlatformUtils.isMobile)
-                    SharableTextField(
-                      key: const Key('NumCopyable'),
-                      text: c.num.text,
-                      label: 'label_num'.l10n,
-                      copy: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                      trailing:
-                          SvgLoader.asset('assets/icons/share.svg', width: 18),
-                      style: thin,
-                    )
-                  else
-                    CopyableTextField(
-                      key: const Key('NumCopyable'),
-                      state: c.num,
-                      label: 'label_num'.l10n,
-                      copy: c.myUser.value?.num.val,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  const SizedBox(height: 25),
-                  ...children,
-                  const SizedBox(height: 25 + 12),
-                ],
-              ),
+                ),
+                const SizedBox(height: 25),
+                if (PlatformUtils.isMobile)
+                  SharableTextField(
+                    key: const Key('NumCopyable'),
+                    text: c.num.text,
+                    label: 'label_num'.l10n,
+                    copy: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                    trailing:
+                        SvgLoader.asset('assets/icons/share.svg', width: 18),
+                    style: thin,
+                  )
+                else
+                  CopyableTextField(
+                    key: const Key('NumCopyable'),
+                    state: c.num,
+                    label: 'label_num'.l10n,
+                    copy: c.myUser.value?.num.val,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                const SizedBox(height: 25),
+                ...children,
+                const SizedBox(height: 25 + 12),
+              ],
             ),
           );
         });
