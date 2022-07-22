@@ -82,9 +82,6 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
-  /// [Participant] that should be highlighted over the others.
-  final Rx<Participant?> highlighted = Rx(null);
-
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
@@ -105,6 +102,9 @@ class CallController extends GetxController {
 
   /// Indicator whether the view is mobile or desktop.
   late bool isMobile;
+
+  /// [OverlayEntry] of an empty secondary view.
+  OverlayEntry? secondaryEntry;
 
   /// Count of a currently happening drags of the secondary videos used to
   /// determine if any drag happened at all.
@@ -137,9 +137,6 @@ class CallController extends GetxController {
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
-
-  /// Indicator whether the [SlidingUpPanel] is on screen or not.
-  final RxBool isSlidingPanelEnabled = RxBool(false);
 
   /// [PanelController] used to close the [SlidingUpPanel].
   final PanelController panelController = PanelController();
@@ -187,24 +184,9 @@ class CallController extends GetxController {
   /// Minimized view current left position.
   late final RxDouble left;
 
-  /// [GlobalKey] of a self view used in [applySelfConstraints].
-  final GlobalKey selfKey = GlobalKey();
-
-  /// Minimized self view right offset.
-  final Rx<double> selfRight = Rx<double>(10);
-
-  /// Minimized self view bottom offset.
-  final Rx<double> selfBottom = Rx<double>(10);
-
-  /// Indicator whether the minimized self view is being panned or not.
-  final RxBool isSelfPanning = RxBool(false);
-
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
-
-  /// View padding of the screen.
-  EdgeInsets padding = EdgeInsets.zero;
 
   /// Color of a call buttons that accept the call.
   static const Color acceptColor = Color(0x7F34B139);
@@ -371,9 +353,22 @@ class CallController extends GetxController {
       _currentCall.value.caller?.num.val;
 
   /// Returns actual size of the call view.
-  Size get size => !fullscreen.value && minimized.value
-      ? Size(width.value, height.value - 30)
-      : router.context!.mediaQuerySize;
+  Size get size {
+    if (!fullscreen.value && minimized.value) {
+      return Size(width.value, height.value - 30);
+    } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      // TODO: Account [BuildContext.mediaQueryPadding].
+      return router.context!.mediaQuerySize;
+    } else {
+      // If not [WebUtils.isPopup], then subtract the title bar from the height.
+      if (fullscreen.isTrue && !WebUtils.isPopup) {
+        var size = router.context!.mediaQuerySize;
+        return Size(size.width, size.height - 30);
+      } else {
+        return router.context!.mediaQuerySize;
+      }
+    }
+  }
 
   /// Indicates whether the [chat] is a dialog.
   bool get isDialog => chat.value?.chat.value.isDialog ?? false;
@@ -406,11 +401,6 @@ class CallController extends GetxController {
     } else {
       secondaryWidth = RxDouble(200);
       secondaryHeight = RxDouble(200);
-    }
-
-    if (WebUtils.isPopup) {
-      isSlidingPanelEnabled.value = true;
-      selfBottom.value = 85;
     }
 
     fullscreen = RxBool(false);
@@ -572,9 +562,6 @@ class CallController extends GetxController {
             focusAll();
           }
 
-          if (highlighted.value?.id == e.key) {
-            highlighted.value = null;
-          }
           break;
 
         case OperationKind.updated:
@@ -666,6 +653,8 @@ class CallController extends GetxController {
     _errorsSubscription?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+
+    secondaryEntry?.remove();
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
@@ -924,12 +913,6 @@ class CallController extends GetxController {
     _insureCorrectGrouping();
   }
 
-  /// Highlights the [participant].
-  void highlight(Participant? participant) {
-    highlighted.value = participant;
-    keepUi(false);
-  }
-
   /// Minimizes the view.
   void minimize() {
     if (isMobile) {
@@ -999,28 +982,6 @@ class CallController extends GetxController {
     height.value = _applyHeight(context, height.value);
     left.value = _applyLeft(context, left.value);
     top.value = _applyTop(context, top.value);
-  }
-
-  /// Applies constraints to the [selfRight] and [selfBottom].
-  void applySelfConstraints(BuildContext context) {
-    final keyContext = selfKey.currentContext;
-    if (keyContext != null) {
-      final box = keyContext.findRenderObject() as RenderBox;
-
-      if (selfRight.value < 0) {
-        selfRight.value = 0;
-      } else if (selfRight.value > size.width - box.size.width) {
-        selfRight.value = size.width - box.size.width;
-      }
-
-      if (selfBottom.value < 0) {
-        selfBottom.value = 0;
-      } else if (selfBottom.value >
-          size.height - box.size.height - padding.bottom - padding.top) {
-        selfBottom.value =
-            size.height - box.size.height - padding.bottom - padding.top;
-      }
-    }
   }
 
   /// Applies constraints to the [secondaryWidth], [secondaryHeight],
@@ -1469,10 +1430,6 @@ class CallController extends GetxController {
         remotes.remove(participant);
         paneled.remove(participant);
         focused.remove(participant);
-
-        if (highlighted.value == participant) {
-          highlighted.value = null;
-        }
       }
     }
   }

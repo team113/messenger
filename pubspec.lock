@@ -15,6 +15,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  animated_size_and_fade:
+    dependency: "direct main"
+    description:
+      name: animated_size_and_fade
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   ansicolor:
     dependency: transitive
     description:
@@ -363,7 +370,7 @@ packages:
     description:
       path: "packages/dough"
       ref: HEAD
-      resolved-ref: "1834fa7c62d42a8b306cd15895d0cec453d8fbe7"
+      resolved-ref: b30c3ff3ec1db5730e09c2ca28a7178c4e7b9fde
       url: "https://github.com/krida2000/dough"
     source: git
     version: "1.0.3"
