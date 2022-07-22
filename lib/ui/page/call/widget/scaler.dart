@@ -22,6 +22,7 @@ class Scaler extends StatefulWidget {
     Key? key,
     required this.onDrag,
     this.onEnd,
+    this.onStart,
     this.width = size,
     this.height = size,
     this.opacity = 0,
@@ -35,6 +36,9 @@ class Scaler extends StatefulWidget {
 
   /// Callback, called when dragging is ended.
   final VoidCallback? onEnd;
+
+  /// Callback, called when dragging is started.
+  final VoidCallback? onStart;
 
   /// Width of the draggable area.
   final double width;
@@ -60,10 +64,13 @@ class _ScalerState extends State<Scaler> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanStart: (details) => setState(() {
-        initX = details.globalPosition.dx;
-        initY = details.globalPosition.dy;
-      }),
+      onPanStart: (details) {
+        setState(() {
+          initX = details.globalPosition.dx;
+          initY = details.globalPosition.dy;
+        });
+        widget.onStart?.call();
+      },
       onPanUpdate: (details) {
         var dx = details.globalPosition.dx - initX;
         var dy = details.globalPosition.dy - initY;

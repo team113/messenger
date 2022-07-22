@@ -80,8 +80,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           return GestureDetector(
             onPanStart: (d) {
-              c.showUiBeforeDragging.value = c.showUi.value;
-              c.showUi.value = false;
+              c.secondaryBottomBeforeShift.value = null;
               Offset block = (c.secondaryKey.currentContext?.findRenderObject()
                       as RenderBox)
                   .localToGlobal(Offset.zero);
@@ -106,7 +105,6 @@ Widget mobileCall(CallController c, BuildContext context) {
             },
             onPanDown: (d) => c.secondaryDragged.value = true,
             onPanEnd: (d) {
-              c.showUi.value = c.showUiBeforeDragging.value;
               c.secondaryDragged.value = false;
               c.updateSecondaryAttach();
             },
@@ -499,6 +497,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
+                        c.recountSelfVideoPosition();
                       },
                       onPanelOpened: () {
                         c.keepUi(true);

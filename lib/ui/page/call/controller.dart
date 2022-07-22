@@ -84,6 +84,9 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
+  /// Indicator whether the secondary view is being scaled.
+  final RxBool secondaryScaled = RxBool(false);
+
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
@@ -173,6 +176,9 @@ class CallController extends GetxController {
 
   /// Timeout of a [error] being shown.
   final RxInt errorTimeout = RxInt(0);
+
+  /// Indicator whether the minimized view is being scaled.
+  final RxBool scaled = RxBool(false);
 
   /// Minimized view current width.
   late final RxDouble width;
@@ -1014,13 +1020,15 @@ class CallController extends GetxController {
 
   /// Recounts self video position.
   void recountSelfVideoPosition() {
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      recountLocked = false;
-    });
     if (buttonsDockKey.currentContext?.findRenderObject() != null &&
         secondaryKey.currentContext?.findRenderObject() != null &&
-        secondaryDragged.isFalse && !recountLocked) {
+        secondaryDragged.isFalse &&
+        scaled.isFalse &&
+        secondaryScaled.isFalse &&
+        !recountLocked) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        recountLocked = false;
+      });
       recountLocked = true;
       Rect secondaryBounds = secondaryKey.globalPaintBounds!;
       Rect dockBounds = buttonsDockKey.globalPaintBounds!;
@@ -1040,7 +1048,7 @@ class CallController extends GetxController {
         if (bottom > secondaryBottomBeforeShift.value!) {
           var difference = bottom - secondaryBottomBeforeShift.value!;
           if (secondaryBottom.value != null) {
-            if (difference < intercept.height) {
+            if (difference.abs() < intercept.height.abs()) {
               secondaryBottom.value = secondaryBottomBeforeShift.value;
             } else {
               secondaryBottom.value = secondaryBottom.value! + intercept.height;
@@ -1270,7 +1278,6 @@ class CallController extends GetxController {
         break;
     }
 
-    updateSecondaryAttach();
     applySecondaryConstraints();
   }
 
@@ -1347,7 +1354,6 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
-    updateSecondaryAttach();
   }
 
   /// Returns corrected according to secondary constraints [width] value.

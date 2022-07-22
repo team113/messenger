@@ -112,8 +112,7 @@ class _AnimatedSliderState extends State<AnimatedSlider>
       } else {
         animation.reverse(from: animation.value);
       }
-    }
-    else if (widget.animationStream != null) {
+    } else if (widget.animationStream != null) {
       _animationListener();
     }
   }
