@@ -71,7 +71,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [_DraggedItem]s of this [Dock].
   late final List<_DraggedItem<T>> _items;
 
-  /// Duration of animation moving button to his place on end of dragging.
+  /// Duration of animation moving button to its place on end of dragging.
   Duration movingAnimationDuration = 300.milliseconds;
 
   /// Duration of [AnimatedContainer] width changing animation.
@@ -530,7 +530,7 @@ class _DraggedItem<T> {
 
   /// Default [Rect] of this item.
   ///
-  /// Used to play animation on adding item that already exist.
+  /// Used to play animation on adding an item that already exist.
   Rect? defaultRect;
 
   /// Indicator whether this [item] should not be displayed.
