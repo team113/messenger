@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -166,19 +167,17 @@ class ConfirmLogoutView extends StatelessWidget {
             ];
           }
 
-          return AnimatedSize(
-            duration: 200.milliseconds,
-            child: AnimatedSwitcher(
-              duration: 150.milliseconds,
-              child: ListView(
-                key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
-                shrinkWrap: true,
-                children: [
-                  const SizedBox(height: 12),
-                  ...children,
-                  const SizedBox(height: 25),
-                ],
-              ),
+          return AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 150),
+            sizeDuration: const Duration(milliseconds: 200),
+            child: ListView(
+              key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 12),
+                ...children,
+                const SizedBox(height: 25),
+              ],
             ),
           );
         });
