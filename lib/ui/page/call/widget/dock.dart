@@ -310,20 +310,20 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
     int i = _items.indexWhere((e) => e == data);
     if (i == -1) {
+      var savedStartDragRect = startDragRect;
       var dragOffset = Offset(
         item.offset.dx -
-            ((startDragRect != null && dragged != null)
-                    ? startDragRect!.width
+            ((savedStartDragRect != null && dragged != null)
+                    ? savedStartDragRect.width
                     : itemSize) /
                 2,
         item.offset.dy -
-            ((startDragRect != null && dragged != null)
-                    ? startDragRect!.height
+            ((savedStartDragRect != null && dragged != null)
+                    ? savedStartDragRect.height
                     : itemSize) /
                 2,
       );
 
-      // Insert item to item's list.
       _items.insert(expandBetween, data);
 
       // Save added item index.
@@ -335,10 +335,10 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           left: dragOffset.dx,
           top: dragOffset.dy,
           child: Container(
-            constraints: startDragRect != null
+            constraints: savedStartDragRect != null
                 ? BoxConstraints(
-                    maxWidth: startDragRect!.width,
-                    maxHeight: startDragRect!.height,
+                    maxWidth: savedStartDragRect.width,
+                    maxHeight: savedStartDragRect.height,
                   )
                 : itemConstraints,
             child: widget.itemBuilder(data.item),
@@ -356,12 +356,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
         Rect endRect = _items[whereToPlace].key.globalPaintBounds!;
         Rect beginRect;
-        if (startDragRect != null) {
+        if (savedStartDragRect != null) {
           beginRect = Rect.fromLTWH(
             dragOffset.dx,
             dragOffset.dy,
-            startDragRect!.width,
-            startDragRect!.height,
+            savedStartDragRect.width,
+            savedStartDragRect.height,
           );
         } else {
           beginRect = Rect.fromLTWH(
