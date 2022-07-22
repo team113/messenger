@@ -108,7 +108,7 @@ void main() async {
     await tester.tap(goToLoginButton);
     await tester.pumpAndSettle();
 
-    final loginTile = find.byKey(const ValueKey('LoginNextTile'));
+    final loginTile = find.byKey(const ValueKey('LoginButton'));
     expect(loginTile, findsOneWidget);
 
     final usernameField = find.byKey(const ValueKey('UsernameField'));

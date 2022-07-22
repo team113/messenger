@@ -21,13 +21,13 @@ import '../widget/caption.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/auth/widget/outlined_rounded_button.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/page/home/page/chat/widget/animated_fab.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 

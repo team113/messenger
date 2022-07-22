@@ -29,6 +29,8 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color = Colors.white,
+    this.maxWidth = 250 * 0.7,
+    this.height = 60 * 0.7,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -66,26 +68,39 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// This controls the size of the shadow below this button.
   final double elevation;
 
+  /// Maximum width this button is allowed to occupy.
+  final double? maxWidth;
+
+  /// Height of this button.
+  final double? height;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints:
-          const BoxConstraints(maxWidth: 250, minHeight: 60, maxHeight: 60),
+      constraints: BoxConstraints(
+        maxWidth: maxWidth ?? double.infinity,
+        minHeight: height ?? 0,
+        maxHeight: height ?? double.infinity,
+      ),
       decoration: BoxDecoration(
-        color: color,
+        color: onPressed == null ? const Color(0xFFBBBBBB) : color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
         color: Colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
+          hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16 * 0.7,
+              vertical: 6 * 0.7,
+            ),
             child: Stack(
               children: [
                 if (leading != null)
@@ -100,22 +115,24 @@ class OutlinedRoundedButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 17,
-                  ),
+                  style: Theme.of(context).textTheme.caption?.copyWith(
+                        color: Colors.black,
+                        fontSize: 24 * 0.7,
+                      ),
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding: leading == null
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.only(left: 10 * 0.7),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           title ?? Container(),
-                          if (subtitle != null) const SizedBox(height: 1),
+                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 13),
+                              style: const TextStyle(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],
