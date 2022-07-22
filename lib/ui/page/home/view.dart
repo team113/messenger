@@ -128,8 +128,8 @@ class _HomeViewState extends State<HomeView>
                       }
                     }
                   },
-                  child: Obx(() {
-                    return PageView(
+                  child: Obx(
+                    () => PageView(
                       physics: c.verticalScrollTimer.value == null
                           ? null
                           : const NeverScrollableScrollPhysics(),
@@ -142,8 +142,8 @@ class _HomeViewState extends State<HomeView>
                         KeepAlivePage(child: ChatsTabView()),
                         KeepAlivePage(child: MenuTabView()),
                       ],
-                    );
-                  }),
+                    ),
+                  ),
                 ),
                 bottomNavigationBar: SafeArea(
                   child: Obx(
