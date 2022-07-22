@@ -219,10 +219,14 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  // TODO: Temporary solution.
-  /// Indicator whether the secondary view should be attached to the
-  /// [Alignment.bottomRight] part of the screen.
-  final RxBool secondaryKeepAlignment = RxBool(false);
+  /// [Offset] the secondary view has relative to the pan gesture position.
+  Offset? secondaryPanningOffset;
+
+  /// [GlobalKey] of the secondary view.
+  final GlobalKey secondaryKey = GlobalKey();
+
+  /// Height of the title bar.
+  static const double titleHeight = 30;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -355,7 +359,7 @@ class CallController extends GetxController {
   /// Returns actual size of the call view.
   Size get size {
     if (!fullscreen.value && minimized.value) {
-      return Size(width.value, height.value - 30);
+      return Size(width.value, height.value - titleHeight);
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
@@ -363,7 +367,7 @@ class CallController extends GetxController {
       // If not [WebUtils.isPopup], then subtract the title bar from the height.
       if (fullscreen.isTrue && !WebUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
-        return Size(size.width, size.height - 30);
+        return Size(size.width, size.height - titleHeight);
       } else {
         return router.context!.mediaQuerySize;
       }
@@ -433,10 +437,8 @@ class CallController extends GetxController {
       _putParticipant(RemoteMemberId(me, null));
       _insureCorrectGrouping();
 
-      // TODO: Temporary solution.
       if (!isGroup) {
         secondaryAlignment.value = null;
-        secondaryKeepAlignment.value = true;
         secondaryLeft.value = null;
         secondaryTop.value = null;
         secondaryRight.value = 10;
@@ -536,8 +538,10 @@ class CallController extends GetxController {
       refresh();
     });
 
-    _onFullscreenChange = PlatformUtils.onFullscreenChange
-        .listen((bool v) => fullscreen.value = v);
+    _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+      fullscreen.value = v;
+      applySecondaryConstraints();
+    });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
       error.value = e;
@@ -724,6 +728,7 @@ class CallController extends GetxController {
     }
   }
 
+  /// Toggles speaker on and off.
   Future<void> toggleSpeaker() async {
     keepUi();
 
@@ -984,9 +989,132 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
+  /// Calculates the appropriate [secondaryLeft], [secondaryRight],
+  /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
+  void updateSecondaryAttach() {
+    secondaryLeft.value ??=
+        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
+    secondaryTop.value ??=
+        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
+
+    List<MapEntry<Alignment, double>> alignments = [
+      MapEntry(
+        Alignment.topLeft,
+        Point(
+          secondaryLeft.value!,
+          secondaryTop.value!,
+        ).squaredDistanceTo(const Point(0, 0)),
+      ),
+      MapEntry(
+        Alignment.topRight,
+        Point(
+          secondaryLeft.value! + secondaryWidth.value,
+          secondaryTop.value!,
+        ).squaredDistanceTo(Point(size.width, 0)),
+      ),
+      MapEntry(
+        Alignment.bottomLeft,
+        Point(
+          secondaryLeft.value!,
+          secondaryTop.value! + secondaryHeight.value,
+        ).squaredDistanceTo(Point(0, size.height)),
+      ),
+      MapEntry(
+        Alignment.bottomRight,
+        Point(
+          secondaryLeft.value! + secondaryWidth.value,
+          secondaryTop.value! + secondaryHeight.value,
+        ).squaredDistanceTo(Point(size.width, size.height)),
+      ),
+    ]..sort((e1, e2) => e1.value.compareTo(e2.value));
+
+    Alignment align = alignments.first.key;
+    double left = secondaryLeft.value!;
+    double top = secondaryTop.value!;
+
+    secondaryTop.value = null;
+    secondaryLeft.value = null;
+    secondaryRight.value = null;
+    secondaryBottom.value = null;
+
+    if (align == Alignment.topLeft) {
+      secondaryTop.value = top;
+      secondaryLeft.value = left;
+    } else if (align == Alignment.topRight) {
+      secondaryTop.value = top;
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? secondaryRight.value = size.width - left - secondaryWidth.value
+          : 0;
+    } else if (align == Alignment.bottomLeft) {
+      secondaryLeft.value = left;
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
+    } else if (align == Alignment.bottomRight) {
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? size.width - left - secondaryWidth.value
+          : 0;
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
+    }
+  }
+
+  /// Calculates the [secondaryPanningOffset] based on the provided [offset].
+  void calculateSecondaryPanning(Offset offset) {
+    Offset position =
+        (secondaryKey.currentContext?.findRenderObject() as RenderBox?)
+                ?.localToGlobal(Offset.zero) ??
+            Offset.zero;
+
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft ||
+        secondaryAlignment.value == null) {
+      secondaryPanningOffset = Offset(
+        offset.dx - position.dx,
+        offset.dy - position.dy,
+      );
+    } else if (secondaryAlignment.value == Alignment.bottomCenter ||
+        secondaryAlignment.value == Alignment.topCenter) {
+      secondaryPanningOffset = Offset(
+        secondaryWidth.value / 2,
+        offset.dy - position.dy,
+      );
+    }
+  }
+
+  /// Sets the [secondaryLeft] and [secondaryTop] correctly to the provided
+  /// [offset].
+  void updateSecondaryOffset(Offset offset) {
+    if (fullscreen.isTrue) {
+      secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
+      secondaryTop.value = offset.dy -
+          ((WebUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
+          secondaryPanningOffset!.dy;
+    } else if (WebUtils.isPopup) {
+      secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
+      secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
+    } else {
+      secondaryLeft.value = offset.dx -
+          (router.context!.isMobile ? 0 : left.value) -
+          secondaryPanningOffset!.dx;
+      secondaryTop.value = offset.dy -
+          (router.context!.isMobile ? 0 : top.value + titleHeight) -
+          secondaryPanningOffset!.dy;
+    }
+
+    if (secondaryLeft.value! < 0) {
+      secondaryLeft.value = 0;
+    }
+
+    if (secondaryTop.value! < 0) {
+      secondaryTop.value = 0;
+    }
+  }
+
   /// Applies constraints to the [secondaryWidth], [secondaryHeight],
   /// [secondaryLeft] and [secondaryTop].
-  void applySecondaryConstraints(BuildContext context) {
+  void applySecondaryConstraints() {
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft) {
       secondaryLeft.value = size.width / 2;
@@ -995,10 +1123,10 @@ class CallController extends GetxController {
       secondaryTop.value = size.height / 2;
     }
 
-    secondaryWidth.value = _applySWidth(context, secondaryWidth.value);
-    secondaryHeight.value = _applySHeight(context, secondaryHeight.value);
-    secondaryLeft.value = _applySLeft(context, secondaryLeft.value);
-    secondaryTop.value = _applySTop(context, secondaryTop.value);
+    secondaryWidth.value = _applySWidth(secondaryWidth.value);
+    secondaryHeight.value = _applySHeight(secondaryHeight.value);
+    secondaryLeft.value = _applySLeft(secondaryLeft.value);
+    secondaryTop.value = _applySTop(secondaryTop.value);
 
     // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
@@ -1087,22 +1215,23 @@ class CallController extends GetxController {
         break;
     }
 
-    applySecondaryConstraints(context);
+    updateSecondaryAttach();
+    applySecondaryConstraints();
   }
 
   /// Resizes the secondary view along [x] by [dx] and/or [y] by [dy] axis.
   void resizeSecondary(BuildContext context,
       {ScaleModeY? y, ScaleModeX? x, double? dx, double? dy}) {
-    if (secondaryLeft.value == null || secondaryTop.value == null) {
-      return;
-    }
+    secondaryLeft.value ??=
+        size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
+    secondaryTop.value ??=
+        size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
 
     switch (x) {
       case ScaleModeX.left:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
           double? left = _applySLeft(
-            context,
             secondaryLeft.value! + (secondaryWidth.value - width),
           );
 
@@ -1117,7 +1246,7 @@ class CallController extends GetxController {
         break;
 
       case ScaleModeX.right:
-        double width = _applySWidth(context, secondaryWidth.value - dx!);
+        double width = _applySWidth(secondaryWidth.value - dx!);
         if (secondaryWidth.value - dx == width) {
           double right = secondaryLeft.value! + width;
           if (right < size.width) {
@@ -1132,10 +1261,9 @@ class CallController extends GetxController {
 
     switch (y) {
       case ScaleModeY.top:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
           double? top = _applySTop(
-            context,
             secondaryTop.value! + (secondaryHeight.value - height),
           );
 
@@ -1150,7 +1278,7 @@ class CallController extends GetxController {
         break;
 
       case ScaleModeY.bottom:
-        double height = _applySHeight(context, secondaryHeight.value - dy!);
+        double height = _applySHeight(secondaryHeight.value - dy!);
         if (secondaryHeight.value - dy == height) {
           double bottom = secondaryTop.value! + height;
           if (bottom < size.height) {
@@ -1163,11 +1291,12 @@ class CallController extends GetxController {
         break;
     }
 
-    applySecondaryConstraints(context);
+    applySecondaryConstraints();
+    updateSecondaryAttach();
   }
 
   /// Returns corrected according to secondary constraints [width] value.
-  double _applySWidth(BuildContext context, double width) {
+  double _applySWidth(double width) {
     if (_minSWidth > size.width * _maxSWidth) {
       return size.width * _maxSWidth;
     } else if (width > size.width * _maxSWidth) {
@@ -1179,7 +1308,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [height] value.
-  double _applySHeight(BuildContext context, double height) {
+  double _applySHeight(double height) {
     if (_minSHeight > size.height * _maxSHeight) {
       return size.height * _maxSHeight;
     } else if (height > size.height * _maxSHeight) {
@@ -1191,7 +1320,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [left] value.
-  double? _applySLeft(BuildContext context, double? left) {
+  double? _applySLeft(double? left) {
     if (left != null) {
       if (left + secondaryWidth.value > size.width) {
         return size.width - secondaryWidth.value;
@@ -1204,7 +1333,7 @@ class CallController extends GetxController {
   }
 
   /// Returns corrected according to secondary constraints [top] value.
-  double? _applySTop(BuildContext context, double? top) {
+  double? _applySTop(double? top) {
     if (top != null) {
       if (top + secondaryHeight.value > size.height) {
         return size.height - secondaryHeight.value;
