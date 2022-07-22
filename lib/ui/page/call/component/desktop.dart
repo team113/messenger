@@ -847,7 +847,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       return Container(
         key: const ValueKey('TitleBar'),
         color: const Color(0xFF162636),
-        height: c.titleBarHeight,
+        height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -1653,34 +1653,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
-                          Offset block = (c.secondaryKey.currentContext
-                                  ?.findRenderObject() as RenderBox)
-                              .localToGlobal(Offset.zero);
-
-                          if (c.secondaryAlignment.value ==
-                                  Alignment.centerRight ||
-                              c.secondaryAlignment.value ==
-                                  Alignment.centerLeft ||
-                              c.secondaryAlignment.value == null) {
-                            c.panDragDifference.value = Offset(
-                              d.globalPosition.dx - block.dx,
-                              d.globalPosition.dy - block.dy,
-                            );
-                          } else if (c.secondaryAlignment.value ==
-                                  Alignment.bottomCenter ||
-                              c.secondaryAlignment.value ==
-                                  Alignment.topCenter) {
-                            c.panDragDifference.value = Offset(
-                              c.secondaryWidth.value / 2,
-                              d.globalPosition.dy - block.dy,
-                            );
-                          }
-
                           c.secondaryDragged.value = true;
+
+                          c.calculateSecondaryPanning(d.globalPosition);
 
                           if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
-                            c.updateSecondaryCoordinates(d.globalPosition);
+                            c.updateSecondaryOffset(d.globalPosition);
                           } else {
                             c.secondaryLeft.value ??= c.size.width -
                                 c.secondaryWidth.value -
@@ -1696,7 +1675,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
-                          c.updateSecondaryCoordinates(d.globalPosition);
+                          c.updateSecondaryOffset(d.globalPosition);
                           c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {

@@ -219,15 +219,14 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// [Offset] difference between global positions of secondary view and pan
-  /// start position.
-  final Rx<Offset?> panDragDifference = Rx<Offset?>(null);
+  /// [Offset] the secondary view has relative to the pan gesture position.
+  Offset? secondaryPanningOffset;
 
-  /// Global key of secondary view.
+  /// [GlobalKey] of the secondary view.
   final GlobalKey secondaryKey = GlobalKey();
 
-  /// Height of title bar.
-  final double titleBarHeight = 30;
+  /// Height of the title bar.
+  static const double titleHeight = 30;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -360,7 +359,7 @@ class CallController extends GetxController {
   /// Returns actual size of the call view.
   Size get size {
     if (!fullscreen.value && minimized.value) {
-      return Size(width.value, height.value - titleBarHeight);
+      return Size(width.value, height.value - titleHeight);
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
@@ -368,7 +367,7 @@ class CallController extends GetxController {
       // If not [WebUtils.isPopup], then subtract the title bar from the height.
       if (fullscreen.isTrue && !WebUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
-        return Size(size.width, size.height - titleBarHeight);
+        return Size(size.width, size.height - titleHeight);
       } else {
         return router.context!.mediaQuerySize;
       }
@@ -438,7 +437,6 @@ class CallController extends GetxController {
       _putParticipant(RemoteMemberId(me, null));
       _insureCorrectGrouping();
 
-      // TODO: Temporary solution.
       if (!isGroup) {
         secondaryAlignment.value = null;
         secondaryLeft.value = null;
@@ -991,47 +989,49 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
-  /// Attaches secondary view to nearest corner.
+  /// Calculates the appropriate [secondaryLeft], [secondaryRight],
+  /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
   void updateSecondaryAttach() {
-    Map<Alignment, double> points = {};
-
     secondaryLeft.value ??=
         size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
 
-    points[Alignment.topLeft] = Point(
-      secondaryLeft.value!,
-      secondaryTop.value!,
-    ).distanceTo(
-      const Point(0, 0),
-    );
-    points[Alignment.bottomRight] = Point(
-      secondaryLeft.value! + secondaryWidth.value,
-      secondaryTop.value! + secondaryHeight.value,
-    ).distanceTo(
-      Point(size.width, size.height),
-    );
-    points[Alignment.bottomLeft] = Point(
-      secondaryLeft.value!,
-      secondaryTop.value! + secondaryHeight.value,
-    ).distanceTo(
-      Point(0, size.height),
-    );
-    points[Alignment.topRight] = Point(
-      secondaryLeft.value! + secondaryWidth.value,
-      secondaryTop.value!,
-    ).distanceTo(
-      Point(size.width, 0),
-    );
+    List<MapEntry<Alignment, double>> alignments = [
+      MapEntry(
+        Alignment.topLeft,
+        Point(
+          secondaryLeft.value!,
+          secondaryTop.value!,
+        ).squaredDistanceTo(const Point(0, 0)),
+      ),
+      MapEntry(
+        Alignment.topRight,
+        Point(
+          secondaryLeft.value! + secondaryWidth.value,
+          secondaryTop.value!,
+        ).squaredDistanceTo(Point(size.width, 0)),
+      ),
+      MapEntry(
+        Alignment.bottomLeft,
+        Point(
+          secondaryLeft.value!,
+          secondaryTop.value! + secondaryHeight.value,
+        ).squaredDistanceTo(Point(0, size.height)),
+      ),
+      MapEntry(
+        Alignment.bottomRight,
+        Point(
+          secondaryLeft.value! + secondaryWidth.value,
+          secondaryTop.value! + secondaryHeight.value,
+        ).squaredDistanceTo(Point(size.width, size.height)),
+      ),
+    ]..sort((e1, e2) => e1.value.compareTo(e2.value));
 
-    Alignment align = Map.fromEntries(points.entries.toList()
-          ..sort((e1, e2) => e1.value.compareTo(e2.value)))
-        .keys
-        .first;
+    Alignment align = alignments.first.key;
+    double left = secondaryLeft.value!;
+    double top = secondaryTop.value!;
 
-    var top = secondaryTop.value!;
-    var left = secondaryLeft.value!;
     secondaryTop.value = null;
     secondaryLeft.value = null;
     secondaryRight.value = null;
@@ -1042,54 +1042,71 @@ class CallController extends GetxController {
       secondaryLeft.value = left;
     } else if (align == Alignment.topRight) {
       secondaryTop.value = top;
-      if (secondaryWidth.value + left <= size.width) {
-        secondaryRight.value = size.width - left - secondaryWidth.value;
-      } else {
-        secondaryRight.value = 0;
-      }
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? secondaryRight.value = size.width - left - secondaryWidth.value
+          : 0;
     } else if (align == Alignment.bottomLeft) {
       secondaryLeft.value = left;
-      if (top + secondaryHeight.value <= size.height) {
-        secondaryBottom.value = size.height - top - secondaryHeight.value;
-      } else {
-        secondaryBottom.value = 0;
-      }
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
     } else if (align == Alignment.bottomRight) {
-      if (top + secondaryHeight.value <= size.height) {
-        secondaryBottom.value = size.height - top - secondaryHeight.value;
-      } else {
-        secondaryBottom.value = 0;
-      }
-      if (secondaryWidth.value + left <= size.width) {
-        secondaryRight.value = size.width - left - secondaryWidth.value;
-      } else {
-        secondaryRight.value = 0;
-      }
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? size.width - left - secondaryWidth.value
+          : 0;
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
     }
   }
 
-  /// Applies secondary coordinates.
-  void updateSecondaryCoordinates(Offset offset) {
+  /// Calculates the [secondaryPanningOffset] based on the provided [offset].
+  void calculateSecondaryPanning(Offset offset) {
+    Offset position =
+        (secondaryKey.currentContext?.findRenderObject() as RenderBox?)
+                ?.localToGlobal(Offset.zero) ??
+            Offset.zero;
+
+    if (secondaryAlignment.value == Alignment.centerRight ||
+        secondaryAlignment.value == Alignment.centerLeft ||
+        secondaryAlignment.value == null) {
+      secondaryPanningOffset = Offset(
+        offset.dx - position.dx,
+        offset.dy - position.dy,
+      );
+    } else if (secondaryAlignment.value == Alignment.bottomCenter ||
+        secondaryAlignment.value == Alignment.topCenter) {
+      secondaryPanningOffset = Offset(
+        secondaryWidth.value / 2,
+        offset.dy - position.dy,
+      );
+    }
+  }
+
+  /// Sets the [secondaryLeft] and [secondaryTop] correctly to the provided
+  /// [offset].
+  void updateSecondaryOffset(Offset offset) {
     if (fullscreen.isTrue) {
-      secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
+      secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy -
-          ((WebUtils.isPopup || PlatformUtils.isMobile) ? 0 : titleBarHeight) -
-          panDragDifference.value!.dy;
+          ((WebUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
+          secondaryPanningOffset!.dy;
     } else if (WebUtils.isPopup) {
-      secondaryLeft.value = offset.dx - panDragDifference.value!.dx;
-      secondaryTop.value = offset.dy - panDragDifference.value!.dy;
+      secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
+      secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
     } else {
       secondaryLeft.value = offset.dx -
-          ((PlatformUtils.isMobile) ? 0 : left.value) -
-          panDragDifference.value!.dx;
+          (router.context!.isMobile ? 0 : left.value) -
+          secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy -
-          ((PlatformUtils.isMobile) ? 0 : top.value + titleBarHeight) -
-          panDragDifference.value!.dy;
+          (router.context!.isMobile ? 0 : top.value + titleHeight) -
+          secondaryPanningOffset!.dy;
     }
 
     if (secondaryLeft.value! < 0) {
       secondaryLeft.value = 0;
     }
+
     if (secondaryTop.value! < 0) {
       secondaryTop.value = 0;
     }
