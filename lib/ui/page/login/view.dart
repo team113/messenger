@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -283,21 +284,21 @@ class LoginView extends StatelessWidget {
               ];
               break;
           }
-
-          return AnimatedSize(
-            duration: 250.milliseconds,
-            curve: Curves.easeOut,
-            child: AnimatedSwitcher(
-              duration: 250.milliseconds,
-              child: ListView(
-                key: Key('${c.stage.value}'),
-                shrinkWrap: true,
-                children: [
-                  const SizedBox(height: 12),
-                  ...children,
-                  const SizedBox(height: 12),
-                ],
-              ),
+          return AnimatedSizeAndFade(
+            key: const Key('AnimatedSizeAndFade'),
+            fadeDuration: const Duration(milliseconds: 250),
+            sizeDuration: const Duration(milliseconds: 250),
+            fadeInCurve: Curves.easeOut,
+            fadeOutCurve: Curves.easeOut,
+            sizeCurve: Curves.easeOut,
+            child: ListView(
+              key: Key('${c.stage.value}'),
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 12),
+                ...children,
+                const SizedBox(height: 12),
+              ],
             ),
           );
         });
