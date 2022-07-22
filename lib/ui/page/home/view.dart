@@ -59,18 +59,10 @@ class _HomeViewState extends State<HomeView>
   /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
   late ChildBackButtonDispatcher _backButtonDispatcher;
 
-  late final AnimationController _animation;
-
-  int i = 0;
-
   @override
   void initState() {
     super.initState();
     widget._depsFactory().then((v) => setState(() => _deps = v));
-    _animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
   }
 
   @override
@@ -129,49 +121,29 @@ class _HomeViewState extends State<HomeView>
                 body: Listener(
                   onPointerSignal: (s) {
                     if (s is PointerScrollEvent) {
-                      if (s.scrollDelta.dy.abs() < 3 &&
-                          (s.scrollDelta.dx.abs() > 3 ||
-                              c.horizontalScrollTimer.value != null)) {
-                        double value =
-                            _animation.value + s.scrollDelta.dx / 100;
-                        _animation.value = value.clamp(0, 1);
-                        if (_animation.value == 0 || _animation.value == 1) {
-                          _resetHorizontalScroll(c, 100.milliseconds);
-                        } else {
-                          _resetHorizontalScroll(c);
-                        }
+                      if (s.scrollDelta.dx.abs() < 3 &&
+                          (s.scrollDelta.dy.abs() > 3 ||
+                              c.verticalScrollTimer.value != null)) {
+                        _resetVerticalScroll(c);
                       }
                     }
                   },
-                  child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onHorizontalDragUpdate: (d) {
-                        double value = _animation.value - d.delta.dx / 100;
-                        _animation.value = value.clamp(0, 1);
-                      },
-                      onHorizontalDragEnd: (d) {
-                        if (_animation.value >= 0.5) {
-                          _animation.forward();
-                        } else {
-                          _animation.reverse();
-                        }
-                      },
-                      child: Obx(() {
-                        return PageView(
-                          physics: c.horizontalScrollTimer.value != null
-                              ? null
-                              : const NeverScrollableScrollPhysics(),
-                          controller: c.pages,
-                          onPageChanged: (i) => router.tab = HomeTab.values[i],
+                  child: Obx(() {
+                    return PageView(
+                      physics: c.verticalScrollTimer.value == null
+                          ? null
+                          : const NeverScrollableScrollPhysics(),
+                      controller: c.pages,
+                      onPageChanged: (i) => router.tab = HomeTab.values[i],
 
-                          /// [KeepAlivePage] used to keep the tabs' states.
-                          children: const [
-                            KeepAlivePage(child: ContactsTabView()),
-                            KeepAlivePage(child: ChatsTabView()),
-                            KeepAlivePage(child: MenuTabView()),
-                          ],
-                        );
-                      })),
+                      /// [KeepAlivePage] used to keep the tabs' states.
+                      children: const [
+                        KeepAlivePage(child: ContactsTabView()),
+                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(child: MenuTabView()),
+                      ],
+                    );
+                  }),
                 ),
                 bottomNavigationBar: SafeArea(
                   child: Obx(
@@ -269,19 +241,14 @@ class _HomeViewState extends State<HomeView>
     );
   }
 
-  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
+  /// Cancels a [_verticalScrollTimer] and starts it again with the provided
   /// [duration].
   ///
   /// Defaults to 150 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(HomeController c, [Duration? duration]) {
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.horizontalScrollTimer.value = null;
+  void _resetVerticalScroll(HomeController c, [Duration? duration]) {
+    c.verticalScrollTimer.value?.cancel();
+    c.verticalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
+      c.verticalScrollTimer.value = null;
     });
   }
 }

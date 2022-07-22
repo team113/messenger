@@ -45,15 +45,17 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final Rx<int> unreadChatsCount = Rx<int>(0);
 
-  final Rx<Timer?> horizontalScrollTimer = Rx(null);
+  /// [Timer] for discarding any horizontal movement in a [PageView] of pages
+  /// when non-`null`.
+  ///
+  /// Indicates currently ongoing vertical scroll of a view.
+  final Rx<Timer?> verticalScrollTimer = Rx(null);
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
-
-  bool isScrolling = false;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
