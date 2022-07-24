@@ -139,7 +139,7 @@ class _HomeViewState extends State<HomeView> {
                       controller: c.pages,
                       onPageChanged: (i) => router.tab = HomeTab.values[i],
 
-                      /// [KeepAlivePage] used to keep the tabs' states.
+                      // [KeepAlivePage] used to keep the tabs' states.
                       children: const [
                         KeepAlivePage(child: ContactsTabView()),
                         KeepAlivePage(child: ChatsTabView()),
