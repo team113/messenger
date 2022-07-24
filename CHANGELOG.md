@@ -32,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
+    - Home page:
+        - Horizontal scroll overlapping with vertical ([#42], [#41]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4
@@ -42,6 +44,8 @@ All user visible changes to this project will be documented in this file. This p
 [#26]: /../../pull/26
 [#31]: /../../pull/31
 [#34]: /../../pull/34
+[#41]: /../../issues/41
+[#42]: /../../pull/42
 
 
 
