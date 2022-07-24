@@ -22,8 +22,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Redesigned desktop interface ([#26]);
-        - Redesigned mobile interface ([#31]).
+        - Redesigned desktop interface ([#26], [#34]);
+        - Redesigned mobile interface ([#31], [#34]).
 
 ### Fixed
 
@@ -41,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#23]: /../../pull/23
 [#26]: /../../pull/26
 [#31]: /../../pull/31
+[#34]: /../../pull/34
 
 
 
