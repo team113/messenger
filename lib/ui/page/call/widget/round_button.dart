@@ -49,7 +49,7 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Name of an asset to place into a [SvgLoader.asset].
+  /// Name of an asset to place into the [SvgLoader.asset].
   final String? asset;
 
   /// Width of the [asset].

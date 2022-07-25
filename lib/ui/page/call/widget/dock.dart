@@ -95,7 +95,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [GlobalKey] of the [DragTarget] this [Dock] contains.
   final GlobalKey _dockKey = GlobalKey();
 
-  /// [Rect] of [_DraggedItem].
+  /// [RenderObject.paintBounds] of the [_dragged] item.
   Rect? _rect;
 
   /// [OverlayEntry] of the [_DraggedItem] being animated right now.
@@ -198,9 +198,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                         widget.onDragStarted?.call(_items[i].item);
 
                         _rect = _items[i].key.globalPaintBounds;
-
                         _expanded = i;
                         _dragged = MapEntry(i, e);
+
                         _items.removeAt(i);
 
                         setState(() {});
