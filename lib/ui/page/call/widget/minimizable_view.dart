@@ -25,6 +25,7 @@ class MinimizableView extends StatefulWidget {
     this.onInit,
     this.onDispose,
     required this.child,
+    this.startMinimizeDifference = 50,
   }) : super(key: key);
 
   /// Callback, called when the [AnimationController] of this [MinimizableView]
@@ -36,6 +37,9 @@ class MinimizableView extends StatefulWidget {
 
   /// [Widget] to minimize.
   final Widget child;
+
+  /// Distance between start drag position and position to start minimizing.
+  final double startMinimizeDifference;
 
   @override
   State<MinimizableView> createState() => _MinimizableViewState();
@@ -78,7 +82,7 @@ class _MinimizableViewState extends State<MinimizableView>
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
 
-  /// Difference between start dragging position and current dragging position.
+  /// Distance between start dragging position and current dragging position.
   double _panDragDifference = 0;
 
   /// [DecorationTween] of this view.
@@ -153,15 +157,11 @@ class _MinimizableViewState extends State<MinimizableView>
                       }
                     : null,
                 onPanUpdate: (d) {
-                  _panDragDifference = _panDragDifference - d.delta.dy;
+                  _panDragDifference = _panDragDifference + d.delta.dy;
 
-                  if (_panDragDifference < -50 &&
-                      _drag == null &&
-                      _value == null) {
-                    _controller.stop();
-                    _drag = d.localPosition;
-                    _value = _controller.value;
-                    setState(() {});
+                  if (_panDragDifference < widget.startMinimizeDifference &&
+                      _controller.value == 0) {
+                    return;
                   }
 
                   if (_drag != null && _value != null) {
@@ -176,6 +176,14 @@ class _MinimizableViewState extends State<MinimizableView>
                     });
                   }
                 },
+                onPanStart: _controller.value == 0
+                    ? (d) {
+                        _controller.stop();
+                        _drag = d.localPosition;
+                        _value = _controller.value;
+                        setState(() {});
+                      }
+                    : null,
                 onPanEnd: (d) {
                   if (_drag != null && _value != null) {
                     _onVerticalDragEnd(d);
