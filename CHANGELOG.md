@@ -29,6 +29,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
+    - Media panel:
+        - Swipe down gesture rekognition ([#45]);
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
@@ -46,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#34]: /../../pull/34
 [#41]: /../../issues/41
 [#42]: /../../pull/42
+[#45]: /../../pull/45
 
 
 
