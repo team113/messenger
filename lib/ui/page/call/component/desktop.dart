@@ -351,7 +351,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           });
 
-      /// Builds the [Dock] containing the [CallController.buttons].
+      // Builds the [Dock] containing the [CallController.buttons].
       Widget _dock() {
         return Obx(() {
           bool isDocked = c.state.value == OngoingCallState.active ||
@@ -439,7 +439,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         });
       }
 
-      /// Builds the more panel.
+      // Builds the more panel containing the [CallController.panel].
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,
@@ -483,54 +483,52 @@ Widget desktopCall(CallController c, BuildContext context) {
                           alignment: WrapAlignment.center,
                           spacing: 4,
                           runSpacing: 21,
-                          children: c.panel.map(
-                            (e) {
-                              return SizedBox(
-                                width: 100,
-                                height: 100,
-                                child: Column(
-                                  children: [
-                                    Draggable(
-                                      feedback: Transform.translate(
-                                        offset: const Offset(
-                                          CallController.buttonSize / 2 * -1,
-                                          CallController.buttonSize / 2 * -1,
-                                        ),
-                                        child: SizedBox(
-                                          height: CallController.buttonSize,
-                                          width: CallController.buttonSize,
-                                          child: e.build(),
-                                        ),
+                          children: c.panel.map((e) {
+                            return SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Column(
+                                children: [
+                                  Draggable(
+                                    feedback: Transform.translate(
+                                      offset: const Offset(
+                                        CallController.buttonSize / 2 * -1,
+                                        CallController.buttonSize / 2 * -1,
                                       ),
-                                      data: e,
-                                      onDragStarted: () =>
-                                          c.draggedButton.value = e,
-                                      onDragCompleted: () =>
-                                          c.draggedButton.value = null,
-                                      onDragEnd: (_) =>
-                                          c.draggedButton.value = null,
-                                      onDraggableCanceled: (_, __) =>
-                                          c.draggedButton.value = null,
-                                      maxSimultaneousDrags:
-                                          e.isRemovable ? null : 0,
-                                      dragAnchorStrategy:
-                                          pointerDragAnchorStrategy,
-                                      child: e.build(hinted: false),
+                                      child: SizedBox(
+                                        height: CallController.buttonSize,
+                                        width: CallController.buttonSize,
+                                        child: e.build(),
+                                      ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      e.hint,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
-                                ),
-                              );
-                            },
-                          ).toList(),
+                                    data: e,
+                                    onDragStarted: () =>
+                                        c.draggedButton.value = e,
+                                    onDragCompleted: () =>
+                                        c.draggedButton.value = null,
+                                    onDragEnd: (_) =>
+                                        c.draggedButton.value = null,
+                                    onDraggableCanceled: (_, __) =>
+                                        c.draggedButton.value = null,
+                                    maxSimultaneousDrags:
+                                        e.isRemovable ? null : 0,
+                                    dragAnchorStrategy:
+                                        pointerDragAnchorStrategy,
+                                    child: e.build(hinted: false),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    e.hint,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.white,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -545,16 +543,13 @@ Widget desktopCall(CallController c, BuildContext context) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 30),
           child: Obx(() {
-            bool isDocked = c.state.value == OngoingCallState.active ||
-                c.state.value == OngoingCallState.joining;
-
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: isDocked && c.displayMore.value
+              child: c.displayMore.value
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // If need to show bottom dock hint, display it.
+                        // Display the hint, if not dismissed.
                         Obx(() {
                           return AnimatedSwitcher(
                             duration: 150.milliseconds,

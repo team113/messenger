@@ -137,7 +137,7 @@ abstract class _SvgLoader {
 
 /// SVG picture loader from an asset.
 class _AssetSvgLoader implements _SvgLoader {
-  _AssetSvgLoader(this.asset);
+  const _AssetSvgLoader(this.asset);
 
   /// Asset path of the SVG picture.
   final String asset;

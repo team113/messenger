@@ -136,7 +136,7 @@ class CallController extends GetxController {
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
 
-  /// Indicator whether the more hint is dismissed.
+  /// Indicator whether the more hint is dismissed or not.
   final RxBool isMoreHintDismissed = RxBool(false);
 
   /// Indicator whether the cursor should be hidden or not.
@@ -194,7 +194,7 @@ class CallController extends GetxController {
   /// [CallButton]s available in the more panel.
   late final RxList<CallButton> panel;
 
-  /// [CallButton]s currently being in the [Dock].
+  /// [CallButton]s placed in the [Dock].
   late final RxList<CallButton> buttons;
 
   /// Currently dragged [CallButton].
@@ -204,7 +204,7 @@ class CallController extends GetxController {
   /// [minimized] value.
   AnimationController? minimizedAnimation;
 
-  /// Maximum size [CallButton] is allowed to occupy in the [Dock].
+  /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
 
   /// Color of a call buttons that accept the call.
@@ -808,7 +808,7 @@ class CallController extends GetxController {
     await _toggleHand();
   }
 
-  /// Toggles the [displayMore] visibility.
+  /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not

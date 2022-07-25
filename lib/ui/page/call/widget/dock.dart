@@ -78,10 +78,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [_DraggedItem]s of this [Dock].
   late final List<_DraggedItem<T>> _items;
 
-  /// Current [Duration] of [AnimatedContainer]s.
+  /// Current [Duration] of the [AnimatedContainer]s.
   Duration _animateDuration = animateDuration;
 
   /// Position in [_items] to add expanding [AnimatedContainer] to.
+  ///
+  /// Represents a place to add the dragged item to.
   int _expanded = -1;
 
   /// Position in [_items] to add shrinking [AnimatedContainer] to.
@@ -99,17 +101,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [OverlayEntry] of the [_DraggedItem] being animated right now.
   OverlayEntry? _entry;
 
-  /// Returns item size.
-  double get itemSize => _items.isEmpty ||
+  /// Returns the width single [_DraggedItem] occupies.
+  double get _size => _items.isEmpty ||
           _items.first.key.currentState == null ||
           _items.first.key.currentState?.mounted == false ||
           _items.first.key.currentContext?.size == null
       ? widget.itemWidth
       : _items.first.key.currentContext!.size!.width;
-
-  /// [BoxConstraints] of item.
-  BoxConstraints get itemConstraints =>
-      BoxConstraints(maxHeight: itemSize, maxWidth: itemSize);
 
   @override
   void initState() {
@@ -125,7 +123,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // Builds a [Row] of the [_items] themselves.
+    // Builds a [Row] of the [_items].
     //
     // The [Row] is constructed in the following way:
     // {Flexible}{Item}...{Item}{Flexible}
@@ -150,13 +148,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                 duration: _animateDuration,
                 width: _expanded == 0 && _expanded == i
                     ? _rect == null
-                        ? itemConstraints.maxWidth
+                        ? _size
                         : _rect!.width
                     : 0,
               ),
               if (_compressed == 0 && _compressed == i)
                 AnimatedDelayedWidth(
-                  beginWidth: itemConstraints.maxWidth,
+                  beginWidth: _size,
                   endWidth: 0,
                   duration: jumpDuration,
                 ),
@@ -172,7 +170,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
             Flexible(
               flex: 5,
               child: Container(
-                constraints: itemConstraints,
+                constraints: BoxConstraints(maxWidth: _size, maxHeight: _size),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
@@ -262,13 +260,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               duration: _animateDuration,
               width: _expanded - 1 == i
                   ? _rect == null
-                      ? itemConstraints.maxWidth
+                      ? _size
                       : _rect!.width
                   : 0,
             ),
             if (_compressed - 1 == i)
               AnimatedDelayedWidth(
-                beginWidth: itemConstraints.maxWidth,
+                beginWidth: _size,
                 endWidth: 0,
                 duration: jumpDuration,
               ),
@@ -294,7 +292,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     );
   }
 
-  /// Adds the provided [item] to the [_items] list and animates the addition.
+  /// Adds the provided [item] to the [_items] and animates the addition.
   void _onAcceptWithDetails(DragTargetDetails<T> item) {
     var data = _DraggedItem(item.data);
 
@@ -316,9 +314,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
       Offset dragOffset = Offset(
         item.offset.dx -
-            (_rect != null && _dragged != null ? _rect!.width : itemSize) / 2,
+            (_rect != null && _dragged != null ? _rect!.width : _size) / 2,
         item.offset.dy -
-            (_rect != null && _dragged != null ? _rect!.height : itemSize) / 2,
+            (_rect != null && _dragged != null ? _rect!.height : _size) / 2,
       );
 
       // Keep the provided [data] in the overlay for one frame.
@@ -328,39 +326,28 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           left: dragOffset.dx,
           top: dragOffset.dy,
           child: Container(
-            constraints: rect != null
-                ? BoxConstraints(
-                    maxWidth: rect.width,
-                    maxHeight: rect.height,
-                  )
-                : itemConstraints,
+            constraints: BoxConstraints(
+              maxWidth: rect?.width ?? _size,
+              maxHeight: rect?.height ?? _size,
+            ),
             child: widget.itemBuilder(data.item),
           ),
         ),
       );
       Overlay.of(context)?.insert(_entry!);
 
-      // Display the appropriate sliding animation of the new item.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
 
         Rect begin;
         if (_rect != null) {
           begin = Rect.fromLTWH(
-            dragOffset.dx,
-            dragOffset.dy,
-            _rect!.width,
-            _rect!.height,
-          );
+              dragOffset.dx, dragOffset.dy, _rect!.width, _rect!.height);
         } else {
-          begin = Rect.fromLTWH(
-            dragOffset.dx,
-            dragOffset.dy,
-            itemConstraints.maxWidth,
-            itemConstraints.maxHeight,
-          );
+          begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
         }
 
+        // Display the appropriate sliding animation of the new item.
         _animate(
           item: data,
           context: context,
@@ -379,8 +366,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       });
     } else {
       if (i == _expanded || i + 1 == _expanded) {
-        // If this position is already expanded, then the item is already
-        // sorted at this place, so no action is needed.
+        // If this position is already expanded, then the item is at this
+        // position, so no action is needed.
         return setState(() => _expanded = -1);
       }
 

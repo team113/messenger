@@ -24,12 +24,13 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 
-/// Call's button placed in a [Dock] to be reordered around.
+/// Button in an [OngoingCall].
+///
+/// Intended to be placed in a [Dock] to be reordered around.
 abstract class CallButton {
   const CallButton(this.c);
 
-  /// [CallController] owning this [CallButton], used for changing the state of
-  /// this [CallButton].
+  /// [CallController] owning this [CallButton], used for changing the state.
   final CallController c;
 
   /// Indicates whether this [CallButton] can be removed from the [Dock].
@@ -48,7 +49,7 @@ abstract class CallButton {
   /// Builds the [Widget] representation of this [CallButton].
   Widget build({bool hinted = true});
 
-  /// Returns a styled [RoundFloatingButton] with the provided style.
+  /// Returns a styled [RoundFloatingButton] with the provided parameters.
   Widget _common({
     required String asset,
     VoidCallback? onPressed,
