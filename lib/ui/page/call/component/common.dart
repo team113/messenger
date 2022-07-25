@@ -24,7 +24,7 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 
-/// Button in an [OngoingCall].
+/// Button in a [CallView].
 ///
 /// Intended to be placed in a [Dock] to be reordered around.
 abstract class CallButton {
