@@ -317,7 +317,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             child: Center(child: child),
           );
 
-      // Builds the [Row] of non-active buttons.
+      /// Builds the [Row] of non-active buttons.
       Widget _pendingButtons() => Obx(() {
             bool isOutgoing =
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
@@ -351,7 +351,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           });
 
-      // Builds the [Dock] containing the [CallController.buttons].
+      /// Builds the [Dock] containing the [CallController.buttons].
       Widget _dock() {
         return Obx(() {
           bool isDocked = c.state.value == OngoingCallState.active ||
@@ -439,7 +439,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         });
       }
 
-      // Builds the more panel containing the [CallController.panel].
+      /// Builds the more panel containing the [CallController.panel].
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,

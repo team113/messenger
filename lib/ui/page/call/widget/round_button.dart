@@ -23,8 +23,8 @@ import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
 
-/// [FloatingActionButton] of the provided [asset] or [child] content with an
-/// optional [text] and [hint].
+/// [FloatingActionButton] of some [asset] or [child] content with an optional
+/// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     Key? key,
@@ -49,7 +49,7 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Name of an asset to place into the [SvgLoader.asset].
+  /// Name of the asset to place into the [SvgLoader.asset].
   final String? asset;
 
   /// Width of the [asset].
@@ -74,7 +74,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   /// correctly.
   final GlobalKey _key = GlobalKey();
 
-  /// [OverlayEntry] of a hint of this [RoundFloatingButton].
+  /// [OverlayEntry] of the hint of this [RoundFloatingButton].
   OverlayEntry? _hintEntry;
 
   @override

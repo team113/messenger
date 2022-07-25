@@ -24,7 +24,7 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_delayed_width.dart';
 import 'animated_transition.dart';
 
-/// Reorderable [Row] of the provided [items].
+/// Reorderable [Row] of provided [items].
 class Dock<T extends Object> extends StatefulWidget {
   const Dock({
     Key? key,
@@ -50,13 +50,13 @@ class Dock<T extends Object> extends StatefulWidget {
   /// Callback, called when the [items] are reordered.
   final Function(List<T>)? onReorder;
 
-  /// Callback, called when item dragging is started.
+  /// Callback, called when an item dragging is started.
   final Function(T)? onDragStarted;
 
-  /// Callback, called when item dragging is ended.
+  /// Callback, called when an item dragging is ended.
   final Function(T)? onDragEnded;
 
-  /// Callback, called when a dragged item leaves this [Dock].
+  /// Callback, called when the dragged item leaves this [Dock].
   final Function(T?)? onLeave;
 
   /// Callback, called when this [Dock] may accept the dragged item.
@@ -66,7 +66,7 @@ class Dock<T extends Object> extends StatefulWidget {
   State<Dock<T>> createState() => _DockState<T>();
 }
 
-/// State of a [Dock] maintaining the reorderable [_items] list.
+/// State of a [Dock] maintaining a reorderable [_items] list.
 class _DockState<T extends Object> extends State<Dock<T>> {
   /// [Duration] of [_DraggedItem] jumping from one position to another.
   static const Duration jumpDuration = Duration(milliseconds: 300);
@@ -123,13 +123,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   Widget build(BuildContext context) {
-    // Builds a [Row] of the [_items].
-    //
-    // The [Row] is constructed in the following way:
-    // {Flexible}{Item}...{Item}{Flexible}
-    //
-    // The [Flexible]s are animated, thus creating the expanding/shrinking
-    // effects.
+    /// Builds a [Row] of the [_items].
+    ///
+    /// The [Row] is constructed in the following way:
+    /// `{Flexible}{Item}...{Item}{Flexible}`
+    ///
+    /// The [Flexible]s are animated, thus creating the expanding/shrinking
+    /// effects.
     Widget _builder(
       BuildContext context,
       List<T?> candidates,

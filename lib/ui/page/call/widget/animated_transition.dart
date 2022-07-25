@@ -17,8 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-/// Animated transform of the provided [child] from the [beginRect] to the
-/// [endRect].
+/// Animated rectangular transform of the provided [child].
 class AnimatedTransition extends StatefulWidget {
   const AnimatedTransition({
     Key? key,
@@ -36,23 +35,23 @@ class AnimatedTransition extends StatefulWidget {
   /// Target [Rect] to animate this [child] to.
   final Rect endRect;
 
-  /// Callback, called when animation ends.
+  /// Callback, called when the animation ends.
   final VoidCallback? onEnd;
 
   /// [Widget] to transform around.
   final Widget child;
 
-  /// [Curve] of animation.
+  /// [Curve] of the animation.
   final Curve? curve;
 
-  /// [Duration] of animation.
+  /// [Duration] of the animation.
   final Duration animationDuration;
 
   @override
   State<AnimatedTransition> createState() => AnimatedTransitionState();
 }
 
-/// State of an [AnimatedTransition] changing the [rect].
+/// State of an [AnimatedTransition] changing its [rect].
 class AnimatedTransitionState extends State<AnimatedTransition>
     with SingleTickerProviderStateMixin {
   /// [Rect] that [AnimatedTransition.child] occupies.

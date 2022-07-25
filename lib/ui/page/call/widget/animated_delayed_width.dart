@@ -16,8 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedContainer] changing its width from the [beginWidth] to the
-/// [endWidth].
+/// [AnimatedContainer] changing its width.
 class AnimatedDelayedWidth extends StatefulWidget {
   const AnimatedDelayedWidth({
     Key? key,
@@ -43,7 +42,7 @@ class AnimatedDelayedWidth extends StatefulWidget {
   State<AnimatedDelayedWidth> createState() => _AnimatedDelayedWidthState();
 }
 
-/// State of an [AnimatedDelayedWidth] maintaining the [width].
+/// State of an [AnimatedDelayedWidth] maintaining its [width].
 class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
   /// Current width value.
   late double width;
