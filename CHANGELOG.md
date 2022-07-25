@@ -24,7 +24,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26]);
         - Redesigned mobile interface ([#31]).
-    - Redesign login interface ([#35]).
+    - Login:
+        - Redesigned login interface ([#35]).
 
 ### Fixed
 
