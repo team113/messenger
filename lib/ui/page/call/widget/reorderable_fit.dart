@@ -976,7 +976,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
       _ReorderableDraggableState<T>();
 }
 
-/// State of an [_ReorderableDraggable] maintaining the [isDragged] indicator.
+/// State of a [_ReorderableDraggable] maintaining the [isDragged] indicator.
 class _ReorderableDraggableState<T extends Object>
     extends State<_ReorderableDraggable<T>> {
   /// Indicator whether this [_ReorderableDraggable] is dragged.

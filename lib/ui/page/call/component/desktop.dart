@@ -317,7 +317,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             child: Center(child: child),
           );
 
-      // Builds a buttons' [Row] of non-active call.
+      // Builds the [Row] of non-active buttons.
       Widget _pendingButtons() => Obx(() {
             bool isOutgoing =
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
@@ -351,7 +351,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           });
 
-      /// Builds a buttons' [Dock] of active-call.
+      /// Builds the [Dock] containing the [CallController.buttons].
       Widget _dock() {
         return Obx(() {
           bool isDocked = c.state.value == OngoingCallState.active ||
@@ -424,7 +424,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                               onDragStarted: (b) => c.draggedButton.value = b,
                               onDragEnded: (_) => c.draggedButton.value = null,
                               onLeave: (_) => c.displayMore.value = true,
-                              onWillAccept: (d) => d.c == c,
+                              onWillAccept: (d) => d?.c == c,
                             ),
                           ),
                         ),
@@ -439,7 +439,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         });
       }
 
-      /// Builds a more buttons panel.
+      /// Builds the more panel.
       Widget _launchpad() {
         Widget _builder(
           BuildContext context,
@@ -554,6 +554,37 @@ Widget desktopCall(CallController c, BuildContext context) {
                   ? Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // If need to show bottom dock hint, display it.
+                        Obx(() {
+                          return AnimatedSwitcher(
+                            duration: 150.milliseconds,
+                            child: !c.isMoreHintDismissed.value
+                                ? AnimatedDelayedSwitcher(
+                                    delay: const Duration(milliseconds: 500),
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Align(
+                                      alignment: Alignment.topCenter,
+                                      child: Container(
+                                        width: 290,
+                                        padding: EdgeInsets.only(
+                                          top: 10 +
+                                              (c.minimized.value
+                                                  ? CallController.titleHeight
+                                                  : 0),
+                                        ),
+                                        child: HintWidget(
+                                          text: 'label_hint_drag_n_drop_buttons'
+                                              .l10n,
+                                          onTap: () => c
+                                              .isMoreHintDismissed.value = true,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                          );
+                        }),
+                        const IgnorePointer(child: SizedBox(height: 30)),
                         DragTarget<CallButton>(
                           onAccept: (CallButton data) {
                             c.buttons.remove(data);
@@ -598,13 +629,16 @@ Widget desktopCall(CallController c, BuildContext context) {
                       }
                     }
                   },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    verticalDirection: VerticalDirection.up,
-                    children: [
-                      _dock(),
-                      _launchpad(),
-                    ],
+                  child: SingleChildScrollView(
+                    reverse: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      verticalDirection: VerticalDirection.up,
+                      children: [
+                        _dock(),
+                        _launchpad(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -624,55 +658,12 @@ Widget desktopCall(CallController c, BuildContext context) {
               width: double.infinity,
               child: MouseRegion(
                 opaque: false,
-                onEnter: (d) {
-                  if (enabled) {
-                    c.keepUi(true);
-                  }
-                },
-                onHover: (d) {
-                  if (enabled) {
-                    c.keepUi(true);
-                  }
-                },
-                onExit: (d) {
-                  if (c.showUi.value && enabled) {
-                    c.keepUi(false);
-                  }
-                },
+                onEnter: enabled ? (d) => c.keepUi(true) : null,
+                onHover: enabled ? (d) => c.keepUi(true) : null,
+                onExit:
+                    c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
               ),
             ),
-          );
-        }),
-
-        // If need to show bottom dock hint, display it.
-        Obx(() {
-          bool isDocked = c.state.value == OngoingCallState.active ||
-              c.state.value == OngoingCallState.joining;
-          bool displayMore = c.displayMore.value;
-
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: isDocked && displayMore && !c.isMoreHintDismissed.value
-                ? AnimatedDelayedSwitcher(
-                    delay: const Duration(milliseconds: 500),
-                    duration: const Duration(milliseconds: 200),
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          top: 10 + (c.minimized.value ? 30 : 0),
-                        ),
-                        child: SizedBox(
-                          width: 290,
-                          child: HintWidget(
-                            text: 'label_hint_drag_n_drop_buttons'.l10n,
-                            onTap: () => c.isMoreHintDismissed.value = true,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
           );
         }),
       ];

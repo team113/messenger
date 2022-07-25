@@ -23,13 +23,13 @@ import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
 
-/// [FloatingActionButton] of [asset] or [child] content with an optional [text]
-/// and [hint].
+/// [FloatingActionButton] of the provided [asset] or [child] content with an
+/// optional [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     Key? key,
     this.asset,
-    this.assetWidth,
+    this.assetWidth = 60,
     this.onPressed,
     this.text,
     this.color = const Color(0x794E5A78),
@@ -52,10 +52,8 @@ class RoundFloatingButton extends StatefulWidget {
   /// Name of an asset to place into a [SvgLoader.asset].
   final String? asset;
 
-  /// Size of the [asset].
-  ///
-  /// If not provided, [asset] is considered to be 60 pixels wide.
-  final double? assetWidth;
+  /// Width of the [asset].
+  final double assetWidth;
 
   /// Optional [Widget] to replace the default [SvgLoader.asset].
   final Widget? child;
@@ -72,7 +70,8 @@ class RoundFloatingButton extends StatefulWidget {
 
 /// State of [RoundFloatingButton] used to keep the [_hintEntry].
 class _RoundFloatingButtonState extends State<RoundFloatingButton> {
-  /// [GlobalKey] of this [RoundFloatingButton].
+  /// [GlobalKey] of this [RoundFloatingButton] to place its [_hintEntry]
+  /// correctly.
   final GlobalKey _key = GlobalKey();
 
   /// [OverlayEntry] of a hint of this [RoundFloatingButton].
@@ -119,12 +118,12 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           onTap: widget.onPressed,
           child: widget.child ??
               SizedBox(
-                width: max(widget.assetWidth ?? 60, 60),
-                height: max(widget.assetWidth ?? 60, 60),
+                width: max(widget.assetWidth, 60),
+                height: max(widget.assetWidth, 60),
                 child: Center(
                   child: SvgLoader.asset(
                     'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth ?? 60,
+                    width: widget.assetWidth,
                   ),
                 ),
               ),

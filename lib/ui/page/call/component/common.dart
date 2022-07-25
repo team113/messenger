@@ -56,7 +56,7 @@ abstract class CallButton {
     bool expanded = false,
     bool withBlur = false,
     Color color = const Color(0x794E5A78),
-    double? assetWidth,
+    double assetWidth = 60,
   }) {
     return RoundFloatingButton(
       asset: asset,
@@ -222,7 +222,7 @@ class AddMemberCallButton extends CallButton {
   }
 }
 
-/// [CallButton] toggling remote video.
+/// [CallButton] toggling the remote video.
 class RemoteVideoButton extends CallButton {
   const RemoteVideoButton(CallController c) : super(c);
 
@@ -243,7 +243,7 @@ class RemoteVideoButton extends CallButton {
   }
 }
 
-/// [CallButton] toggling remote audio.
+/// [CallButton] toggling the remote audio.
 class RemoteAudioButton extends CallButton {
   const RemoteAudioButton(CallController c) : super(c);
 

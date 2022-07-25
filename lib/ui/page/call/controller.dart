@@ -204,7 +204,7 @@ class CallController extends GetxController {
   /// [minimized] value.
   AnimationController? minimizedAnimation;
 
-  /// Maximum size a [CallButton] is allowed to occupy in the [Dock].
+  /// Maximum size [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
 
   /// Color of a call buttons that accept the call.

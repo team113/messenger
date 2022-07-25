@@ -214,7 +214,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       );
     }
 
-    _padding(Widget child) => Padding(
+    Widget _padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: Center(child: child),
         );
@@ -374,11 +374,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
                     child: Text(
-                      c.screenShareState.value == LocalTrackState.enabled ||
-                              c.screenShareState.value ==
-                                  LocalTrackState.enabling
-                          ? 'btn_call_screen_off_desc'.l10n
-                          : 'btn_call_screen_on_desc'.l10n,
+                      c.audioState.value == LocalTrackState.enabled ||
+                              c.audioState.value == LocalTrackState.enabling
+                          ? 'btn_call_audio_off_desc'.l10n
+                          : 'btn_call_audio_on_desc'.l10n,
                     ),
                   ),
                 )),
@@ -497,8 +496,21 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ],
                         ),
                       ),
+                      onPanelSlide: (d) {
+                        c.keepUi(true);
+                        c.isPanelOpen.value = d > 0;
+                      },
+                      onPanelOpened: () {
+                        c.keepUi(true);
+                        c.isPanelOpen.value = true;
+                      },
+                      onPanelClosed: () {
+                        c.keepUi();
+                        c.isPanelOpen.value = false;
+                      },
                     ),
-                  ))
+                  ),
+                )
               : Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
