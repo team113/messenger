@@ -598,7 +598,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       );
 
-      c.applySecondaryConstraints(context);
+      c.applySecondaryConstraints();
 
       if (c.minimized.value && !c.fullscreen.value) {
         // Applies constraints on every rebuild.
@@ -847,7 +847,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
       return Container(
         key: const ValueKey('TitleBar'),
         color: const Color(0xFF162636),
-        height: 30,
+        height: CallController.titleHeight,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -1631,6 +1631,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           // Sliding from top draggable title bar.
           Positioned(
+            key: c.secondaryKey,
             left: left,
             right: right,
             top: top,
@@ -1653,34 +1654,29 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryDragged.value = true;
-                          c.secondaryRight.value = null;
-                          c.secondaryBottom.value = null;
 
-                          if (c.secondaryAlignment.value != null ||
-                              c.secondaryKeepAlignment.value == true) {
+                          c.calculateSecondaryPanning(d.globalPosition);
+
+                          if (c.secondaryAlignment.value != null) {
                             c.secondaryAlignment.value = null;
-
-                            if (c.minimized.value) {
-                              c.secondaryLeft.value =
-                                  d.globalPosition.dx - c.left.value;
-                              c.secondaryTop.value =
-                                  d.globalPosition.dy - 35 - c.top.value;
-                            } else {
-                              c.secondaryLeft.value = d.globalPosition.dx;
-                              c.secondaryTop.value = d.globalPosition.dy - 15;
-                            }
-                            c.applySecondaryConstraints(context);
+                            c.updateSecondaryOffset(d.globalPosition);
+                          } else {
+                            c.secondaryLeft.value ??= c.size.width -
+                                c.secondaryWidth.value -
+                                (c.secondaryRight.value ?? 0);
+                            c.secondaryTop.value ??= c.size.height -
+                                c.secondaryHeight.value -
+                                (c.secondaryBottom.value ?? 0);
+                            c.applySecondaryConstraints();
                           }
 
-                          c.secondaryKeepAlignment.value = false;
+                          c.secondaryRight.value = null;
+                          c.secondaryBottom.value = null;
                         },
                         onPanUpdate: (d) {
                           c.secondaryDragged.value = true;
-                          c.secondaryLeft.value =
-                              c.secondaryLeft.value! + d.delta.dx;
-                          c.secondaryTop.value =
-                              c.secondaryTop.value! + d.delta.dy;
-                          c.applySecondaryConstraints(context);
+                          c.updateSecondaryOffset(d.globalPosition);
+                          c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {
                           c.secondaryDragged.value = false;
@@ -1688,7 +1684,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             c.secondaryAlignment.value =
                                 c.possibleSecondaryAlignment.value;
                             c.possibleSecondaryAlignment.value = null;
-                            c.applySecondaryConstraints(context);
+                            c.applySecondaryConstraints();
+                          } else {
+                            c.updateSecondaryAttach();
                           }
                         },
                         child: AnimatedOpacity(
