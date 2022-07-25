@@ -25,7 +25,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View for logging in or recovering access on the [Routes.auth] page.
+/// View for logging in or recovering access on.
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
@@ -34,10 +34,10 @@ class LoginView extends StatelessWidget {
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
-      context,
-      const LoginView(),
+      context: context,
       contentMaxWidth: 400,
       layoutMaxWidth: 520,
+      child: const LoginView(),
     );
   }
 
@@ -51,6 +51,7 @@ class LoginView extends StatelessWidget {
         return Obx(() {
           List<Widget> children;
 
+          // Returns a primary styled [OutlinedRoundedButton].
           Widget _primaryButton({
             Key? key,
             String? title,
@@ -68,6 +69,7 @@ class LoginView extends StatelessWidget {
             );
           }
 
+          // Returns a secondary styled [OutlinedRoundedButton].
           Widget _secondaryButton({
             Key? key,
             String? title,
@@ -85,6 +87,7 @@ class LoginView extends StatelessWidget {
             );
           }
 
+          // Returns a [Row] with [a] and [b] placed in the [Expanded] widgets.
           Row _spaced(Widget a, Widget b) {
             return Row(
               children: [
@@ -188,10 +191,10 @@ class LoginView extends StatelessWidget {
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
                   label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeat.value,
-                  onSuffixPressed: c.obscureRepeat.toggle,
+                  obscure: c.obscureRepeatPassword.value,
+                  onSuffixPressed: c.obscureRepeatPassword.toggle,
                   trailing: SvgLoader.asset(
-                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
@@ -249,7 +252,6 @@ class LoginView extends StatelessWidget {
                   key: const Key('UsernameField'),
                   state: c.login,
                   label: 'label_sign_in_input'.l10n,
-                  onChanged: () {},
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField(
@@ -274,8 +276,11 @@ class LoginView extends StatelessWidget {
                     key: const Key('RecoveryButton'),
                     title: 'btn_forgot_password'.l10n,
                     onPressed: () {
+                      c.recovery.clear();
+                      c.recoveryCode.clear();
+                      c.newPassword.clear();
+                      c.repeatPassword.clear();
                       c.recovery.unchecked = c.login.text;
-                      c.recovery.error.value = null;
                       c.stage.value = LoginViewStage.recovery;
                     },
                   ),
@@ -284,6 +289,7 @@ class LoginView extends StatelessWidget {
               ];
               break;
           }
+
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),

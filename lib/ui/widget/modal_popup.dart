@@ -19,12 +19,14 @@ import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
 
-/// Class which is responsible for showing popups.
+/// Stylized modal popup.
+///
+/// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
-  /// Shows popup depend to current platform.
-  static Future<T?> show<T>(
-    BuildContext context,
-    Widget child, {
+  /// Opens a [ModalPopup] wrapping the provided [child].
+  static Future<T?> show<T>({
+    required BuildContext context,
+    required Widget child,
     double contentMaxWidth = 300,
     double layoutMaxWidth = 420,
     double horizontalPadding = 10,

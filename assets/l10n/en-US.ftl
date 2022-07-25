@@ -176,7 +176,8 @@ err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
 err_current_password_empty = Current password must not be empty
-err_data_transfer = Data transfer error
+err_data_transfer =
+    Data transfer error. Please, check your network connection.
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
@@ -343,7 +344,6 @@ label_emails = Emails
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
-label_enter_it_bellow = Please, enter it below.
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
