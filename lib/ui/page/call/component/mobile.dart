@@ -79,9 +79,31 @@ Widget mobileCall(CallController c, BuildContext context) {
           }
 
           return GestureDetector(
-            onPanStart: (d) {
-              c.calculateSecondaryPanning(d.globalPosition);
-
+            // onPanStart: (d) {
+            //   c.calculateSecondaryPanning(d.globalPosition);
+            //
+            //   c.secondaryLeft.value ??= c.size.width -
+            //       c.secondaryWidth.value -
+            //       (c.secondaryRight.value ?? 0);
+            //   c.secondaryTop.value ??= c.size.height -
+            //       c.secondaryHeight.value -
+            //       (c.secondaryBottom.value ?? 0);
+            //
+            //   c.secondaryRight.value = null;
+            //   c.secondaryBottom.value = null;
+            //
+            //   c.applySecondaryConstraints();
+            // },
+            // onPanEnd: (d) {
+            //   c.secondaryDragged.value = false;
+            //   c.updateSecondaryAttach();
+            // },
+            // onPanUpdate: (d) {
+            //   c.secondaryDragged.value = true;
+            //   c.updateSecondaryOffset(d.globalPosition);
+            //   c.applySecondaryConstraints();
+            // },
+            onScaleStart: (d) {
               c.secondaryLeft.value ??= c.size.width -
                   c.secondaryWidth.value -
                   (c.secondaryRight.value ?? 0);
@@ -92,18 +114,35 @@ Widget mobileCall(CallController c, BuildContext context) {
               c.secondaryRight.value = null;
               c.secondaryBottom.value = null;
 
-              c.applySecondaryConstraints();
+              if (d.pointerCount == 1) {
+                print('one point');
+                c.secondaryDragged.value = true;
+
+                c.calculateSecondaryPanning(d.focalPoint);
+
+                c.applySecondaryConstraints();
+              } else if (d.pointerCount == 2) {
+                print('two point');
+                c.secondaryScaled.value = true;
+                c.sWidthBeforeScale = c.secondaryWidth.value;
+                c.sHeightBeforeScale = c.secondaryHeight.value;
+                c.sLeftBeforeScale = c.secondaryLeft.value;
+                c.sTopBeforeScale = c.secondaryTop.value;
+              }
             },
-            onPanDown: (d) => c.secondaryDragged.value = true,
-            onPanEnd: (d) {
-              c.secondaryDragged.value = false;
-              c.updateSecondaryAttach();
+            onScaleUpdate: (d) {
+              if (d.pointerCount == 1 && c.secondaryDragged.isTrue) {
+                c.updateSecondaryOffset(d.focalPoint);
+                c.applySecondaryConstraints();
+              } else if (d.pointerCount == 2 && c.secondaryScaled.isTrue) {
+                c.scaleSecondary(d.scale);
+                //print(d.scale);
+              }
             },
-            onPanCancel: () => c.secondaryDragged.value = false,
-            onPanUpdate: (d) {
-              c.secondaryDragged.value = true;
-              c.updateSecondaryOffset(d.globalPosition);
-              c.applySecondaryConstraints();
+            onScaleEnd: (d) {
+                c.secondaryDragged.value = false;
+                c.secondaryScaled.value = false;
+                c.updateSecondaryAttach();
             },
             child: _secondaryView(c, context),
           );
@@ -729,7 +768,7 @@ Widget _primaryView(CallController c, BuildContext context) {
             return true;
           },
           onLeave: (b) => c.primaryTargets.value = 0,
-          allowDraggingLast: false,
+          allowDraggingLast: true,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
             c.isHintDismissed.value = true;

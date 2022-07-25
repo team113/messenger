@@ -82,6 +82,9 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
+  /// Indicator whether the secondary view is being scaled.
+  final RxBool secondaryScaled = RxBool(false);
+
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
@@ -1293,6 +1296,24 @@ class CallController extends GetxController {
 
     applySecondaryConstraints();
     updateSecondaryAttach();
+  }
+
+  double? sWidthBeforeScale;
+  double? sHeightBeforeScale;
+  double? sLeftBeforeScale;
+  double? sTopBeforeScale;
+
+  void scaleSecondary(double scale) {
+    secondaryWidth.value = _applySWidth(sWidthBeforeScale! * scale);
+    secondaryHeight.value = _applySHeight(sHeightBeforeScale! * scale);
+
+    double widthDifference = secondaryWidth.value - sWidthBeforeScale!;
+    double heightDifference = secondaryHeight.value - sHeightBeforeScale!;
+
+    secondaryLeft.value = _applySLeft(sHeightBeforeScale! - widthDifference / 2);
+    secondaryTop.value = _applySTop(sTopBeforeScale! - heightDifference / 2);
+
+    applySecondaryConstraints();
   }
 
   /// Returns corrected according to secondary constraints [width] value.
