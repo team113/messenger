@@ -24,8 +24,8 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
-    required this.child,
     this.startMinimizeDifference = 50,
+    required this.child,
   }) : super(key: key);
 
   /// Callback, called when the [AnimationController] of this [MinimizableView]
