@@ -35,8 +35,8 @@ class LoginView extends StatelessWidget {
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
       context: context,
-      contentMaxWidth: 400,
-      layoutMaxWidth: 520,
+      desktopConstraints: const BoxConstraints(maxWidth: 400),
+      modalConstraints: const BoxConstraints(maxWidth: 520),
       child: const LoginView(),
     );
   }
