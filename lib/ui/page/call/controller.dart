@@ -42,6 +42,7 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'add_dialog_member/view.dart';
+import 'component/common.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -135,6 +136,9 @@ class CallController extends GetxController {
   /// Indicator whether the hint is dismissed or not.
   final RxBool isHintDismissed = RxBool(false);
 
+  /// Indicator whether the more hint is dismissed or not.
+  final RxBool isMoreHintDismissed = RxBool(false);
+
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);
 
@@ -184,9 +188,24 @@ class CallController extends GetxController {
   /// Minimized view current left position.
   late final RxDouble left;
 
+  /// Indicator whether more panel is displayed.
+  final RxBool displayMore = RxBool(false);
+
+  /// [CallButton]s available in the more panel.
+  late final RxList<CallButton> panel;
+
+  /// [CallButton]s placed in the [Dock].
+  late final RxList<CallButton> buttons;
+
+  /// Currently dragged [CallButton].
+  final Rx<CallButton?> draggedButton = Rx(null);
+
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
+
+  /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
+  static const double buttonSize = 48.0;
 
   /// Color of a call buttons that accept the call.
   static const Color acceptColor = Color(0x7F34B139);
@@ -293,6 +312,9 @@ class CallController extends GetxController {
 
   /// [Worker] for catching the [state] changes to start the [_durationTimer].
   late final Worker _stateWorker;
+
+  /// [Worker] closing the more panel on [showUi] changes.
+  late final Worker _showUiWorker;
 
   /// Subscription for [OngoingCall.localVideos] changes.
   late final StreamSubscription _localsSubscription;
@@ -548,6 +570,31 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
+    buttons = RxList([
+      ScreenButton(this),
+      VideoButton(this),
+      EndCallButton(this),
+      AudioButton(this),
+      MoreButton(this),
+    ]);
+
+    panel = RxList([
+      SettingsButton(this),
+      AddMemberCallButton(this),
+      HandButton(this),
+      ScreenButton(this),
+      RemoteVideoButton(this),
+      RemoteAudioButton(this),
+      VideoButton(this),
+      AudioButton(this),
+    ]);
+
+    _showUiWorker = ever(showUi, (bool showUi) {
+      if (displayMore.value && !showUi) {
+        displayMore.value = false;
+      }
+    });
+
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
@@ -650,6 +697,7 @@ class CallController extends GetxController {
   void onClose() {
     super.onClose();
     _durationTimer?.cancel();
+    _showUiWorker.dispose();
     _uiTimer?.cancel();
     _stateWorker.dispose();
     _chatWorker.dispose();
@@ -759,6 +807,9 @@ class CallController extends GetxController {
     _putParticipant(RemoteMemberId(me, null), handRaised: isHandRaised.value);
     await _toggleHand();
   }
+
+  /// Toggles the [displayMore].
+  void toggleMore() => displayMore.toggle();
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.
