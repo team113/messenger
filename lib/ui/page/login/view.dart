@@ -256,6 +256,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
                   trailing: SvgLoader.asset(
                     'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
