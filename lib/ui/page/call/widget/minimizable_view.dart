@@ -24,7 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
-    this.startMinimizeDifference = 50,
+    this.startMinimizeDistance = 50,
     required this.child,
   }) : super(key: key);
 
@@ -36,7 +36,7 @@ class MinimizableView extends StatefulWidget {
   final void Function()? onDispose;
 
   /// Distance between start drag position and position to start minimizing.
-  final double startMinimizeDifference;
+  final double startMinimizeDistance;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -82,8 +82,8 @@ class _MinimizableViewState extends State<MinimizableView>
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
 
-  /// Distance between start dragging position and current dragging position.
-  double _panDragDifference = 0;
+  /// Distance between start and current dragging positions.
+  double _panningDistance = 0;
 
   /// [DecorationTween] of this view.
   final DecorationTween _decorationTween = DecorationTween(
@@ -157,9 +157,9 @@ class _MinimizableViewState extends State<MinimizableView>
                       }
                     : null,
                 onPanUpdate: (d) {
-                  _panDragDifference = _panDragDifference + d.delta.dy;
+                  _panningDistance = _panningDistance + d.delta.dy;
 
-                  if (_panDragDifference < widget.startMinimizeDifference &&
+                  if (_panningDistance < widget.startMinimizeDistance &&
                       _controller.value == 0) {
                     return;
                   }
@@ -188,7 +188,7 @@ class _MinimizableViewState extends State<MinimizableView>
                   if (_drag != null && _value != null) {
                     _onVerticalDragEnd(d);
                   }
-                  _panDragDifference = 0;
+                  _panningDistance = 0;
                 },
                 child: DecoratedBoxTransition(
                   key: _key,
