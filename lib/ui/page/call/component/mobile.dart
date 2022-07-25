@@ -80,7 +80,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           return GestureDetector(
             onPanStart: (d) {
-              c.secondaryBottomBeforeShift.value = null;              
+              c.secondaryBottomBeforeShift.value = null;
+              c.secondaryDragged.value = true;
               c.calculateSecondaryPanning(d.globalPosition);
 
               c.secondaryLeft.value ??= c.size.width -
@@ -95,14 +96,11 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               c.applySecondaryConstraints();
             },
-            onPanDown: (d) => c.secondaryDragged.value = true,
             onPanEnd: (d) {
               c.secondaryDragged.value = false;
               c.updateSecondaryAttach();
             },
-            onPanCancel: () => c.secondaryDragged.value = false,
             onPanUpdate: (d) {
-              c.secondaryDragged.value = true;
               c.updateSecondaryOffset(d.globalPosition);
               c.applySecondaryConstraints();
             },
@@ -436,7 +434,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining
               ? AnimatedSlider(
-                  animationStream: c.bottomAnimationStream,
+                  animationStream: c.dockAnimationStream,
                   beginOffset: Offset(
                     0,
                     130 + MediaQuery.of(context).padding.bottom,
@@ -489,7 +487,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
-                        c.recountSelfVideoPosition();
+                        c.shiftSecondaryView();
                       },
                       onPanelOpened: () {
                         c.keepUi(true);

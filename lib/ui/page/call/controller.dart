@@ -236,15 +236,17 @@ class CallController extends GetxController {
   /// [GlobalKey] of the secondary view.
   final GlobalKey secondaryKey = GlobalKey();
 
-  /// [StreamController] of showing bottom animation stream.
-  final StreamController bottomAnimationStream = StreamController();
+  /// [StreamController] of the button dock sliding animation.
+  final StreamController dockAnimationStream = StreamController();
 
-  /// Initial top position of video before changing position by bottom bar.
+  /// Initial bottom position of the secondary view before changing position by
+  /// bottom bar.
   final RxnDouble secondaryBottomBeforeShift = RxnDouble(null);
 
-  /// Indicator whether [showBottomUi] was true when secondary video was start
-  /// dragged or not.
-  final RxBool showUiBeforeDragging = RxBool(false);
+  /// Indicator whether [shiftSecondaryView] locked.
+  ///
+  /// Used to limit [shiftSecondaryView] calls to one time in frame.
+  bool _secondaryShiftLocked = false;
 
   /// Height of the title bar.
   static const double titleHeight = 30;
@@ -416,7 +418,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    bottomAnimationStream.stream.listen((_) => recountSelfVideoPosition());
+    dockAnimationStream.stream.listen((_) => shiftSecondaryView());
 
     _currentCall.value.init(_chatService.me);
 
@@ -533,8 +535,8 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-          recountSelfVideoPosition();
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          shiftSecondaryView();
         });
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
@@ -676,7 +678,7 @@ class CallController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    bottomAnimationStream.close();
+    dockAnimationStream.close();
     _durationTimer?.cancel();
     _uiTimer?.cancel();
     _stateWorker.dispose();
@@ -804,14 +806,15 @@ class CallController extends GetxController {
   }
 
   /// Toggles fullscreen on and off.
-  void toggleFullscreen() {
+  Future<void> toggleFullscreen() async {
     if (fullscreen.isTrue) {
       fullscreen.value = false;
-      PlatformUtils.exitFullscreen();
+      await PlatformUtils.exitFullscreen();
     } else {
       fullscreen.value = true;
-      PlatformUtils.enterFullscreen();
+      await PlatformUtils.enterFullscreen();
     }
+    shiftSecondaryView();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1017,56 +1020,57 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
-  bool recountLocked = false;
-
-  /// Recounts self video position.
-  void recountSelfVideoPosition() {
+  /// Shifts secondary view up if it intersect with buttons dock, elsewhere
+  /// return to position before shift.
+  void shiftSecondaryView() {
     if (buttonsDockKey.currentContext?.findRenderObject() != null &&
         secondaryKey.currentContext?.findRenderObject() != null &&
-        secondaryDragged.isFalse &&
         scaled.isFalse &&
+        secondaryDragged.isFalse &&
         secondaryScaled.isFalse &&
-        !recountLocked) {
+        !_secondaryShiftLocked) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        recountLocked = false;
+        _secondaryShiftLocked = false;
       });
-      recountLocked = true;
+      _secondaryShiftLocked = true;
 
       Rect secondaryBounds = secondaryKey.globalPaintBounds!;
       Rect dockBounds = buttonsDockKey.globalPaintBounds!;
-      var intercept = secondaryBounds.intersect(dockBounds);
+      var intersect = secondaryBounds.intersect(dockBounds);
 
-      if (intercept.width > 0 && intercept.height > 0) {
+      if (intersect.width > 0 && intersect.height > 0) {
         if (secondaryBottom.value != null) {
-          secondaryBottom.value = secondaryBottom.value! + intercept.height;
+          secondaryBottom.value = secondaryBottom.value! + intersect.height;
         } else {
-          secondaryTop.value = secondaryTop.value! - intercept.height;
+          secondaryTop.value = secondaryTop.value! - intersect.height;
         }
+
         applySecondaryConstraints();
-      } else if (intercept.height < 0 &&
+      } else if (intersect.height < 0 &&
           secondaryBottomBeforeShift.value != null) {
         var bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
         if (bottom > secondaryBottomBeforeShift.value!) {
           var difference = bottom - secondaryBottomBeforeShift.value!;
           if (secondaryBottom.value != null) {
-            if (difference.abs() < intercept.height.abs()) {
+            if (difference.abs() < intersect.height.abs()) {
               secondaryBottom.value = secondaryBottomBeforeShift.value;
             } else {
-              secondaryBottom.value = secondaryBottom.value! + intercept.height;
+              secondaryBottom.value = secondaryBottom.value! + intersect.height;
             }
           } else {
-            if (difference < intercept.height) {
+            if (difference.abs() < intersect.height.abs()) {
               secondaryTop.value = size.height -
                   secondaryHeight.value -
                   secondaryBottomBeforeShift.value!;
             } else {
-              secondaryTop.value = secondaryTop.value! - intercept.height;
+              secondaryTop.value = secondaryTop.value! - intersect.height;
             }
           }
+
+          applySecondaryConstraints();
         }
       }
-      applySecondaryConstraints();
     }
   }
 
@@ -1142,7 +1146,7 @@ class CallController extends GetxController {
 
     secondaryBottomBeforeShift.value =
         secondaryBottom.value ?? size.height - top - secondaryHeight.value;
-    recountSelfVideoPosition();
+    shiftSecondaryView();
   }
 
   /// Calculates the [secondaryPanningOffset] based on the provided [offset].

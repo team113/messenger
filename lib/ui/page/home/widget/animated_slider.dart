@@ -62,8 +62,8 @@ class AnimatedSlider extends StatefulWidget {
   /// [SlideTransition] or not.
   final bool translate;
 
-  /// [StreamController] listening changes of animation.
-  final StreamController? animationStream;
+  /// [StreamController] of animation changes.
+  final StreamController<void>? animationStream;
 
   @override
   State<AnimatedSlider> createState() => _AnimatedSliderState();

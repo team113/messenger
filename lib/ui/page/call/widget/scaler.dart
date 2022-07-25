@@ -35,10 +35,10 @@ class Scaler extends StatefulWidget {
   final Function(double, double) onDrag;
 
   /// Callback, called when dragging is ended.
-  final VoidCallback? onEnd;
+  final Function(DragEndDetails details)? onEnd;
 
   /// Callback, called when dragging is started.
-  final VoidCallback? onStart;
+  final Function(DragStartDetails details)? onStart;
 
   /// Width of the draggable area.
   final double width;
@@ -69,7 +69,7 @@ class _ScalerState extends State<Scaler> {
           initX = details.globalPosition.dx;
           initY = details.globalPosition.dy;
         });
-        widget.onStart?.call();
+        widget.onStart?.call(details);
       },
       onPanUpdate: (details) {
         var dx = details.globalPosition.dx - initX;
@@ -78,9 +78,7 @@ class _ScalerState extends State<Scaler> {
         initY = details.globalPosition.dy;
         widget.onDrag(dx, dy);
       },
-      onPanEnd: (_) {
-        widget.onEnd?.call();
-      },
+      onPanEnd: widget.onEnd,
       child: Opacity(
         opacity: widget.opacity,
         child: Container(

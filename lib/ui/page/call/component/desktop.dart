@@ -382,7 +382,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 Padding(
                   padding: EdgeInsets.only(bottom: isDocked ? 5 : 30),
                   child: AnimatedSlider(
-                    animationStream: c.bottomAnimationStream,
+                    animationStream: c.dockAnimationStream,
                     isOpen: c.state.value != OngoingCallState.active ||
                         c.showUi.value,
                     duration: const Duration(milliseconds: 400),
@@ -618,11 +618,11 @@ Widget desktopCall(CallController c, BuildContext context) {
           return Scaler(
             key: key,
             onDrag: onDrag,
-            onStart: () {
+            onStart: (_) {
               c.scaled.value = true;
               c.secondaryBottomBeforeShift.value = null;
             },
-            onEnd: () {
+            onEnd: (_) {
               c.scaled.value = false;
               c.updateSecondaryAttach();
             },
@@ -1260,11 +1260,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
           return Scaler(
             key: key,
             onDrag: onDrag,
-            onStart: () {
+            onStart: (_) {
               c.secondaryBottomBeforeShift.value = null;
               c.secondaryScaled.value = true;
             },
-            onEnd: () {
+            onEnd: (_) {
               c.secondaryScaled.value = false;
               c.updateSecondaryAttach();
             },
@@ -1706,8 +1706,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: GestureDetector(
                         onPanStart: (d) {
                           c.secondaryBottomBeforeShift.value = null;
-                          c.showUiBeforeDragging.value = c.showUi.value;
-                          c.showUi.value = false;
                           c.secondaryDragged.value = true;
 
                           c.calculateSecondaryPanning(d.globalPosition);
@@ -1729,12 +1727,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           c.secondaryBottom.value = null;
                         },
                         onPanUpdate: (d) {
-                          c.secondaryDragged.value = true;
                           c.updateSecondaryOffset(d.globalPosition);
                           c.applySecondaryConstraints();
                         },
                         onPanEnd: (d) {
-                          c.showUi.value = c.showUiBeforeDragging.value;
                           c.secondaryDragged.value = false;
                           if (c.possibleSecondaryAlignment.value != null) {
                             c.secondaryAlignment.value =
