@@ -1020,7 +1020,7 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
-  /// Shifts secondary view up if it intersect with buttons dock, elsewhere
+  /// Moves secondary view up if it intersect with buttons dock, elsewhere
   /// return to position before shift.
   void shiftSecondaryView() {
     if (buttonsDockKey.currentContext?.findRenderObject() != null &&
@@ -1036,7 +1036,7 @@ class CallController extends GetxController {
 
       Rect secondaryBounds = secondaryKey.globalPaintBounds!;
       Rect dockBounds = buttonsDockKey.globalPaintBounds!;
-      var intersect = secondaryBounds.intersect(dockBounds);
+      Rect intersect = secondaryBounds.intersect(dockBounds);
 
       if (intersect.width > 0 && intersect.height > 0) {
         if (secondaryBottom.value != null) {
@@ -1053,13 +1053,15 @@ class CallController extends GetxController {
         if (bottom > secondaryBottomBeforeShift.value!) {
           var difference = bottom - secondaryBottomBeforeShift.value!;
           if (secondaryBottom.value != null) {
-            if (difference.abs() < intersect.height.abs()) {
+            if (difference.abs() < intersect.height.abs() ||
+                intersect.width < 0) {
               secondaryBottom.value = secondaryBottomBeforeShift.value;
             } else {
               secondaryBottom.value = secondaryBottom.value! + intersect.height;
             }
           } else {
-            if (difference.abs() < intersect.height.abs()) {
+            if (difference.abs() < intersect.height.abs() ||
+                intersect.width < 0) {
               secondaryTop.value = size.height -
                   secondaryHeight.value -
                   secondaryBottomBeforeShift.value!;
