@@ -78,6 +78,9 @@ class _MinimizableViewState extends State<MinimizableView>
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
 
+  /// Difference between start dragging position and current dragging position.
+  double _panDragDifference = 0;
+
   /// [DecorationTween] of this view.
   final DecorationTween _decorationTween = DecorationTween(
     begin: const BoxDecoration(borderRadius: BorderRadius.zero),
@@ -150,6 +153,17 @@ class _MinimizableViewState extends State<MinimizableView>
                       }
                     : null,
                 onPanUpdate: (d) {
+                  _panDragDifference = _panDragDifference - d.delta.dy;
+
+                  if (_panDragDifference < -50 &&
+                      _drag == null &&
+                      _value == null) {
+                    _controller.stop();
+                    _drag = d.localPosition;
+                    _value = _controller.value;
+                    setState(() {});
+                  }
+
                   if (_drag != null && _value != null) {
                     _controller.value = _value! +
                         (d.localPosition.dy - _drag!.dy) *
@@ -162,16 +176,12 @@ class _MinimizableViewState extends State<MinimizableView>
                     });
                   }
                 },
-                onPanStart: _controller.value == 0
-                    ? (d) {
-                        _controller.stop();
-                        _drag = d.localPosition;
-                        _value = _controller.value;
-                        setState(() {});
-                      }
-                    : null,
-                onPanEnd:
-                    _drag != null && _value != null ? _onVerticalDragEnd : null,
+                onPanEnd: (d) {
+                  if (_drag != null && _value != null) {
+                    _onVerticalDragEnd(d);
+                  }
+                  _panDragDifference = 0;
+                },
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),
