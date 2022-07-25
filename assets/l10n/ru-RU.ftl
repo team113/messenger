@@ -350,7 +350,7 @@ label_duration_minute_short = м
 label_duration_second_short = с
 label_edit_message = Редактирование сообщения
 label_edit_message_hint = Без текста
-label_email_confirmation_code_was_send =
+label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
 label_enable_popup_calls = Отображать звонки в отдельных окнах

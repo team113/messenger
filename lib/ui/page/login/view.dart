@@ -134,7 +134,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Center(
                   child: Text(
-                    'label_email_confirmation_code_was_send'.l10n,
+                    'label_email_confirmation_code_was_sent'.l10n,
                     style: theme.headline3,
                     textAlign: TextAlign.center,
                   ),
@@ -151,10 +151,7 @@ class LoginView extends StatelessWidget {
                   _secondaryButton(
                     key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
-                    onPressed: () {
-                      c.recovery.unsubmit();
-                      c.stage.value = null;
-                    },
+                    onPressed: () => c.stage.value = null,
                   ),
                   _primaryButton(
                     key: const Key('RecoveryNextButton'),
@@ -181,6 +178,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_new_password'.l10n,
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
+                  treatErrorAsStatus: false,
                   trailing: SvgLoader.asset(
                     'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
@@ -193,6 +191,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  treatErrorAsStatus: false,
                   trailing: SvgLoader.asset(
                     'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
@@ -203,11 +202,7 @@ class LoginView extends StatelessWidget {
                   _secondaryButton(
                     key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
-                    onPressed: () {
-                      c.recovery.unsubmit();
-                      c.recoveryCode.unsubmit();
-                      c.stage.value = null;
-                    },
+                    onPressed: () => c.stage.value = null,
                   ),
                   _primaryButton(
                     key: const Key('RecoveryNextButton'),
@@ -228,13 +223,14 @@ class LoginView extends StatelessWidget {
                     style: theme.headline3,
                   ),
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 32),
                 Center(
-                    child: _secondaryButton(
-                  key: const Key('RecoveryCloseButton'),
-                  title: 'btn_close'.l10n,
-                  onPressed: () => Navigator.of(context).pop(true),
-                )),
+                  child: _primaryButton(
+                    key: const Key('RecoverySuccessButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                ),
                 const SizedBox(height: 13)
               ];
               break;
