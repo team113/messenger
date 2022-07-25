@@ -17,14 +17,15 @@ All user visible changes to this project will be documented in this file. This p
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
         - Language selection ([#23]).
+    - Media panel:
+        - Reorderable buttons dock on desktop ([#9], [#6]).
 
 ### Changed
 
 - UI:
     - Media panel:
-        - Redesigned desktop interface ([#26], [#34]);
-        - Redesigned mobile interface ([#31], [#34]);
-        - Desktop buttons dock sorting ([#9], [#6]).
+        - Redesigned desktop interface ([#26], [#34], [#9]);
+        - Redesigned mobile interface ([#31], [#34]).
 
 ### Fixed
 
