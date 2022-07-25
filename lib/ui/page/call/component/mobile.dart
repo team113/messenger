@@ -80,34 +80,30 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           return GestureDetector(
             onPanStart: (d) {
-              c.secondaryDragged.value = true;
-              var right = c.secondaryRight.value ?? 0;
-              var bottom = c.secondaryBottom.value ?? 0;
+              c.calculateSecondaryPanning(d.globalPosition);
+
+              c.secondaryLeft.value ??= c.size.width -
+                  c.secondaryWidth.value -
+                  (c.secondaryRight.value ?? 0);
+              c.secondaryTop.value ??= c.size.height -
+                  c.secondaryHeight.value -
+                  (c.secondaryBottom.value ?? 0);
+
               c.secondaryRight.value = null;
               c.secondaryBottom.value = null;
 
-              if (c.secondaryAlignment.value != null ||
-                  c.secondaryKeepAlignment.isTrue) {
-                c.secondaryAlignment.value = null;
-
-                var size = c.size;
-                c.secondaryLeft.value =
-                    size.width - c.secondaryWidth.value - right;
-                c.secondaryTop.value =
-                    size.height - c.secondaryHeight.value - bottom;
-                c.applySecondaryConstraints(context);
-              }
-
-              c.secondaryKeepAlignment.value = false;
+              c.applySecondaryConstraints();
             },
             onPanDown: (d) => c.secondaryDragged.value = true,
-            onPanEnd: (d) => c.secondaryDragged.value = false,
+            onPanEnd: (d) {
+              c.secondaryDragged.value = false;
+              c.updateSecondaryAttach();
+            },
             onPanCancel: () => c.secondaryDragged.value = false,
             onPanUpdate: (d) {
               c.secondaryDragged.value = true;
-              c.secondaryLeft.value = c.secondaryLeft.value! + d.delta.dx;
-              c.secondaryTop.value = c.secondaryTop.value! + d.delta.dy;
-              c.applySecondaryConstraints(context);
+              c.updateSecondaryOffset(d.globalPosition);
+              c.applySecondaryConstraints();
             },
             child: _secondaryView(c, context),
           );
@@ -304,271 +300,249 @@ Widget mobileCall(CallController c, BuildContext context) {
         }),
       ),
       // Sliding from the bottom buttons panel.
-      SafeArea(
-        left: false,
-        right: false,
-        top: false,
-        child: Obx(() {
-          bool showUi =
-              (c.showUi.isTrue || c.state.value != OngoingCallState.active) &&
-                  !c.minimized.value;
+      Obx(() {
+        bool showUi =
+            (c.showUi.isTrue || c.state.value != OngoingCallState.active) &&
+                !c.minimized.value;
 
-          double panelHeight = 0;
-          List<Widget> panelChildren = [];
+        double panelHeight = 0;
+        List<Widget> panelChildren = [];
 
-          // Populate the sliding panel height and its content.
-          if (c.state.value == OngoingCallState.active ||
-              c.state.value == OngoingCallState.joining) {
-            panelHeight = 360;
-            panelHeight = min(c.size.height - 45, panelHeight);
+        // Populate the sliding panel height and its content.
+        if (c.state.value == OngoingCallState.active ||
+            c.state.value == OngoingCallState.joining) {
+          panelHeight = 360;
+          panelHeight = min(c.size.height - 45, panelHeight);
 
-            Widget _divider() => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Divider(
-                        color: Color(0x99FFFFFF),
-                        thickness: 1,
-                        height: 1,
-                      ),
+          Widget _divider() => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Divider(
+                      color: Color(0x99FFFFFF),
+                      thickness: 1,
+                      height: 1,
                     ),
                   ),
-                );
+                ),
+              );
 
-            panelChildren = [
-              const SizedBox(height: 12),
-              _buttons(
-                [
-                  if (PlatformUtils.isMobile)
-                    _padding(
-                      c.videoState.value.isEnabled()
-                          ? withDescription(
-                              SwitchButton(c).build(),
-                              AnimatedOpacity(
-                                opacity: c.isPanelOpen.value ? 1 : 0,
-                                duration: 200.milliseconds,
-                                child: Text('btn_call_switch_camera_desc'.l10n),
-                              ),
-                            )
-                          : withDescription(
-                              SpeakerButton(c).build(),
-                              AnimatedOpacity(
-                                opacity: c.isPanelOpen.value ? 1 : 0,
-                                duration: 200.milliseconds,
-                                child:
-                                    Text('btn_call_toggle_speaker_desc'.l10n),
-                              ),
+          panelChildren = [
+            const SizedBox(height: 12),
+            _buttons(
+              [
+                if (PlatformUtils.isMobile)
+                  _padding(
+                    c.videoState.value.isEnabled()
+                        ? withDescription(
+                            SwitchButton(c).build(),
+                            AnimatedOpacity(
+                              opacity: c.isPanelOpen.value ? 1 : 0,
+                              duration: 200.milliseconds,
+                              child: Text('btn_call_switch_camera_desc'.l10n),
                             ),
-                    ),
-                  if (PlatformUtils.isDesktop)
-                    _padding(withDescription(
-                      ScreenButton(c).build(),
-                      AnimatedOpacity(
-                        opacity: c.isPanelOpen.value ? 1 : 0,
-                        duration: 200.milliseconds,
-                        child: Text(
-                          c.screenShareState.value == LocalTrackState.enabled ||
-                                  c.screenShareState.value ==
-                                      LocalTrackState.enabling
-                              ? 'btn_call_screen_off_desc'.l10n
-                              : 'btn_call_screen_on_desc'.l10n,
-                        ),
-                      ),
-                    )),
+                          )
+                        : withDescription(
+                            SpeakerButton(c).build(),
+                            AnimatedOpacity(
+                              opacity: c.isPanelOpen.value ? 1 : 0,
+                              duration: 200.milliseconds,
+                              child: Text('btn_call_toggle_speaker_desc'.l10n),
+                            ),
+                          ),
+                  ),
+                if (PlatformUtils.isDesktop)
                   _padding(withDescription(
-                    AudioButton(c).build(),
+                    ScreenButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
                       duration: 200.milliseconds,
                       child: Text(
-                        c.audioState.value == LocalTrackState.enabled ||
-                                c.audioState.value == LocalTrackState.enabling
-                            ? 'btn_call_audio_off_desc'.l10n
-                            : 'btn_call_audio_on_desc'.l10n,
+                        c.screenShareState.value == LocalTrackState.enabled ||
+                                c.screenShareState.value ==
+                                    LocalTrackState.enabling
+                            ? 'btn_call_screen_off_desc'.l10n
+                            : 'btn_call_screen_on_desc'.l10n,
                       ),
                     ),
                   )),
-                  _padding(withDescription(
-                    VideoButton(c).build(),
-                    AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
-                        c.videoState.value == LocalTrackState.enabled ||
-                                c.videoState.value == LocalTrackState.enabling
-                            ? 'btn_call_video_off_desc'.l10n
-                            : 'btn_call_video_on_desc'.l10n,
-                      ),
+                _padding(withDescription(
+                  AudioButton(c).build(),
+                  AnimatedOpacity(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    child: Text(
+                      c.screenShareState.value == LocalTrackState.enabled ||
+                              c.screenShareState.value ==
+                                  LocalTrackState.enabling
+                          ? 'btn_call_screen_off_desc'.l10n
+                          : 'btn_call_screen_on_desc'.l10n,
                     ),
-                  )),
-                  _padding(withDescription(
-                    DropButton(c).build(),
-                    AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text('btn_call_end_desc'.l10n),
+                  ),
+                )),
+                _padding(withDescription(
+                  VideoButton(c).build(),
+                  AnimatedOpacity(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    child: Text(
+                      c.videoState.value == LocalTrackState.enabled ||
+                              c.videoState.value == LocalTrackState.enabling
+                          ? 'btn_call_video_off_desc'.l10n
+                          : 'btn_call_video_on_desc'.l10n,
                     ),
-                  )),
-                ],
-              ),
-              const SizedBox(height: 32),
-              _buttons(
-                [
-                  _padding(withDescription(
-                    AddMemberCallButton(c).build(),
-                    Text('btn_add_participant_desc'.l10n),
-                  )),
-                  _padding(withDescription(
-                    HandButton(c).build(),
-                    AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(c.isHandRaised.value
-                          ? 'btn_call_hand_down_desc'.l10n
-                          : 'btn_call_hand_up_desc'.l10n),
-                    ),
-                  )),
-                  _padding(withDescription(
-                    RemoteAudioButton(c).build(),
-                    Text(c.isRemoteAudioEnabled.value
-                        ? 'btn_call_remote_audio_off_desc'.l10n
-                        : 'btn_call_remote_audio_on_desc'.l10n),
-                  )),
-                  _padding(withDescription(
-                    RemoteVideoButton(c).build(),
-                    Text(c.isRemoteVideoEnabled.value
-                        ? 'btn_call_remote_video_off_desc'.l10n
-                        : 'btn_call_remote_video_on_desc'.l10n),
-                  )),
-                ],
-              ),
-              const SizedBox(height: 13),
-              _divider(),
-              const SizedBox(height: 13),
-              _callTile(context, c),
-              const SizedBox(height: 13),
-            ];
-          }
+                  ),
+                )),
+                _padding(withDescription(
+                  DropButton(c).build(),
+                  AnimatedOpacity(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    child: Text('btn_call_end_desc'.l10n),
+                  ),
+                )),
+              ],
+            ),
+            const SizedBox(height: 32),
+            _buttons(
+              [
+                _padding(withDescription(
+                  AddMemberCallButton(c).build(),
+                  Text('btn_add_participant_desc'.l10n),
+                )),
+                _padding(withDescription(
+                  HandButton(c).build(),
+                  AnimatedOpacity(
+                    opacity: c.isPanelOpen.value ? 1 : 0,
+                    duration: 200.milliseconds,
+                    child: Text(c.isHandRaised.value
+                        ? 'btn_call_hand_down_desc'.l10n
+                        : 'btn_call_hand_up_desc'.l10n),
+                  ),
+                )),
+                _padding(withDescription(
+                  RemoteAudioButton(c).build(),
+                  Text(c.isRemoteAudioEnabled.value
+                      ? 'btn_call_remote_audio_off_desc'.l10n
+                      : 'btn_call_remote_audio_on_desc'.l10n),
+                )),
+                _padding(withDescription(
+                  RemoteVideoButton(c).build(),
+                  Text(c.isRemoteVideoEnabled.value
+                      ? 'btn_call_remote_video_off_desc'.l10n
+                      : 'btn_call_remote_video_on_desc'.l10n),
+                )),
+              ],
+            ),
+            const SizedBox(height: 13),
+            _divider(),
+            const SizedBox(height: 13),
+            _callTile(context, c),
+            const SizedBox(height: 13),
+          ];
+        }
 
-          return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: c.state.value == OngoingCallState.active ||
-                    c.state.value == OngoingCallState.joining
-                ? AnimatedSlider(
-                    beginOffset: Offset(
-                      0,
-                      130 + MediaQuery.of(context).padding.bottom,
-                    ),
-                    isOpen: showUi,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutQuad,
-                    reverseCurve: Curves.easeOutQuad,
-                    child: MediaQuery(
-                      data: MediaQuery.of(context).copyWith(size: c.size),
-                      child: SlidingUpPanel(
-                        controller: c.panelController,
-                        boxShadow: null,
-                        color: PlatformUtils.isIOS && WebUtils.isSafari
-                            ? const Color(0xDD165084)
-                            : const Color(0x9D165084),
-                        backdropEnabled: true,
-                        backdropOpacity: 0,
-                        minHeight: min(c.size.height - 45, 130),
-                        maxHeight: panelHeight,
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: c.state.value == OngoingCallState.active ||
+                  c.state.value == OngoingCallState.joining
+              ? AnimatedSlider(
+                  beginOffset: Offset(
+                    0,
+                    130 + MediaQuery.of(context).padding.bottom,
+                  ),
+                  isOpen: showUi,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutQuad,
+                  reverseCurve: Curves.easeOutQuad,
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(size: c.size),
+                    child: SlidingUpPanel(
+                      controller: c.panelController,
+                      boxShadow: null,
+                      color: PlatformUtils.isIOS && WebUtils.isSafari
+                          ? const Color(0xDD165084)
+                          : const Color(0x9D165084),
+                      backdropEnabled: true,
+                      backdropOpacity: 0,
+                      minHeight: min(c.size.height - 45, 130),
+                      maxHeight: panelHeight,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                      panel: ConditionalBackdropFilter(
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                         ),
-                        panel: ConditionalBackdropFilter(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10),
-                          ),
-                          condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 12),
-                              Center(
-                                child: Container(
-                                  width: 60,
-                                  height: 3,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x99FFFFFF),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                        condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12),
+                            Center(
+                              child: Container(
+                                width: 60,
+                                height: 3,
+                                decoration: BoxDecoration(
+                                  color: const Color(0x99FFFFFF),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                              Expanded(child: Column(children: panelChildren)),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 12),
+                            Expanded(child: Column(children: panelChildren)),
+                          ],
                         ),
-                        onPanelSlide: (d) {
-                          c.keepUi(true);
-                          c.isPanelOpen.value = d > 0;
-                        },
-                        onPanelOpened: () {
-                          c.keepUi(true);
-                          c.isPanelOpen.value = true;
-                        },
-                        onPanelClosed: () {
-                          c.keepUi();
-                          c.isPanelOpen.value = false;
-                        },
                       ),
                     ),
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 30),
-                          child: AnimatedSlider(
-                            isOpen: showUi,
-                            duration: const Duration(milliseconds: 400),
-                            beginOffset: Offset(
-                              0,
-                              150 + MediaQuery.of(context).padding.bottom,
-                            ),
-                            child: _buttons(
-                              isOutgoing
-                                  ? [
-                                      if (PlatformUtils.isMobile)
-                                        _padding(
-                                          c.videoState.value.isEnabled()
-                                              ? SwitchButton(c)
-                                                  .build(blur: true)
-                                              : SpeakerButton(c)
-                                                  .build(blur: true),
-                                        ),
+                  ))
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 30),
+                        child: AnimatedSlider(
+                          isOpen: showUi,
+                          duration: const Duration(milliseconds: 400),
+                          beginOffset: Offset(
+                            0,
+                            150 + MediaQuery.of(context).padding.bottom,
+                          ),
+                          child: _buttons(
+                            isOutgoing
+                                ? [
+                                    if (PlatformUtils.isMobile)
                                       _padding(
-                                          AudioButton(c).build(blur: true)),
-                                      _padding(
-                                          VideoButton(c).build(blur: true)),
-                                      _padding(
-                                          CancelButton(c).build(blur: true)),
-                                    ]
-                                  : [
-                                      _padding(AcceptAudioButton(c)
-                                          .build(expanded: true)),
-                                      _padding(AcceptVideoButton(c)
-                                          .build(expanded: true)),
-                                      _padding(DeclineButton(c)
-                                          .build(expanded: true)),
-                                    ],
-                            ),
+                                        c.videoState.value.isEnabled()
+                                            ? SwitchButton(c).build(blur: true)
+                                            : SpeakerButton(c)
+                                                .build(blur: true),
+                                      ),
+                                    _padding(AudioButton(c).build(blur: true)),
+                                    _padding(VideoButton(c).build(blur: true)),
+                                    _padding(CancelButton(c).build(blur: true)),
+                                  ]
+                                : [
+                                    _padding(AcceptAudioButton(c)
+                                        .build(expanded: true)),
+                                    _padding(AcceptVideoButton(c)
+                                        .build(expanded: true)),
+                                    _padding(
+                                        DeclineButton(c).build(expanded: true)),
+                                  ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-          );
-        }),
-      ),
+                ),
+        );
+      }),
     ];
 
     // Combines all the stackable content into [Scaffold].
@@ -590,7 +564,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     if (c.minimized.value) {
       c.applyConstraints(context);
     } else {
-      c.applySecondaryConstraints(context);
+      c.applySecondaryConstraints();
     }
 
     return MinimizableView(
@@ -936,6 +910,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         fit: StackFit.expand,
         children: [
           Positioned(
+            key: c.secondaryKey,
             left: left,
             right: right,
             top: top,
@@ -1202,7 +1177,6 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
             child: DragTarget<_DragData>(
               onAccept: (_DragData d) {
                 c.secondaryAlignment.value = null;
-                c.secondaryKeepAlignment.value = true;
                 c.secondaryLeft.value = null;
                 c.secondaryTop.value = null;
                 c.secondaryRight.value = 10;
