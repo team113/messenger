@@ -35,11 +35,11 @@ class MinimizableView extends StatefulWidget {
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
 
-  /// [Widget] to minimize.
-  final Widget child;
-
   /// Distance between start drag position and position to start minimizing.
   final double startMinimizeDifference;
+
+  /// [Widget] to minimize.
+  final Widget child;
 
   @override
   State<MinimizableView> createState() => _MinimizableViewState();
