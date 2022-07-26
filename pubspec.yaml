@@ -46,11 +46,7 @@ dependencies:
   hive: ^2.1.0
   http: ^0.13.4
   http_parser: ^4.0.0
-  image_picker:
-    git:
-      url: https://github.com/krida2000/image_picker
-      ref: main
-      path: packages/image_picker/image_picker/
+  image_picker: ^0.8.5+3
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
