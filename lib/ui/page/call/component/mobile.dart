@@ -79,6 +79,8 @@ Widget mobileCall(CallController c, BuildContext context) {
           }
 
           return GestureDetector(
+            //dragStartBehavior: DragStartBehavior.start,
+            //behavior: HitTestBehavior.deferToChild,
             // onPanStart: (d) {
             //   c.calculateSecondaryPanning(d.globalPosition);
             //
@@ -103,7 +105,17 @@ Widget mobileCall(CallController c, BuildContext context) {
             //   c.updateSecondaryOffset(d.globalPosition);
             //   c.applySecondaryConstraints();
             // },
+            //  onPanDown: (_) {
+            //    print('onPanDown');
+            //  },
+            // onPanCancel: () {
+            //   print('onPanCancel');
+            //   c.secondaryDragged.value = false;
+            //   c.secondaryScaled.value = false;
+            //   c.updateSecondaryAttach();
+            // },
             onScaleStart: (d) {
+              print('onScaleStart');
               c.secondaryLeft.value ??= c.size.width -
                   c.secondaryWidth.value -
                   (c.secondaryRight.value ?? 0);
@@ -124,25 +136,28 @@ Widget mobileCall(CallController c, BuildContext context) {
               } else if (d.pointerCount == 2) {
                 print('two point');
                 c.secondaryScaled.value = true;
-                c.sWidthBeforeScale = c.secondaryWidth.value;
-                c.sHeightBeforeScale = c.secondaryHeight.value;
-                c.sLeftBeforeScale = c.secondaryLeft.value;
-                c.sTopBeforeScale = c.secondaryTop.value;
+                c.sSizeBeforeScale =
+                    max(c.secondaryWidth.value, c.secondaryHeight.value);
               }
             },
             onScaleUpdate: (d) {
-              if (d.pointerCount == 1 && c.secondaryDragged.isTrue) {
+              if (d.pointerCount == 1) {
                 c.updateSecondaryOffset(d.focalPoint);
                 c.applySecondaryConstraints();
-              } else if (d.pointerCount == 2 && c.secondaryScaled.isTrue) {
+              } else if (d.pointerCount == 2) {
                 c.scaleSecondary(d.scale);
-                //print(d.scale);
               }
             },
             onScaleEnd: (d) {
+              print('onScaleEnd');
+              if (d.pointerCount == 1) {
                 c.secondaryDragged.value = false;
+              } else if (d.pointerCount == 2) {
                 c.secondaryScaled.value = false;
-                c.updateSecondaryAttach();
+                c.sSizeBeforeScale = null;
+              }
+
+              c.updateSecondaryAttach();
             },
             child: _secondaryView(c, context),
           );
@@ -938,6 +953,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
       return Stack(
         fit: StackFit.expand,
         children: [
+          // Display shadow.
           Positioned(
             key: c.secondaryKey,
             left: left,
@@ -969,6 +985,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
+          // Display background.
           Positioned(
             left: left,
             right: right,

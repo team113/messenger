@@ -1298,22 +1298,41 @@ class CallController extends GetxController {
     updateSecondaryAttach();
   }
 
-  double? sWidthBeforeScale;
-  double? sHeightBeforeScale;
-  double? sLeftBeforeScale;
-  double? sTopBeforeScale;
+  /// Secondary view size before scaling started.
+  double? sSizeBeforeScale;
 
+  /// Scales secondary view according to [scale].
   void scaleSecondary(double scale) {
-    secondaryWidth.value = _applySWidth(sWidthBeforeScale! * scale);
-    secondaryHeight.value = _applySHeight(sHeightBeforeScale! * scale);
+    _scaleSWidth(scale);
+    _scaleSHeight(scale);
+  }
 
-    double widthDifference = secondaryWidth.value - sWidthBeforeScale!;
-    double heightDifference = secondaryHeight.value - sHeightBeforeScale!;
+  /// Scales [secondaryWidth] according to [scale].
+  void _scaleSWidth(double scale) {
+    var width = _applySWidth(sSizeBeforeScale! * scale);
+    if (width != secondaryWidth.value) {
+      double widthDifference =
+          width - secondaryWidth.value;
 
-    secondaryLeft.value = _applySLeft(sHeightBeforeScale! - widthDifference / 2);
-    secondaryTop.value = _applySTop(sTopBeforeScale! - heightDifference / 2);
+      secondaryWidth.value = width;
 
-    applySecondaryConstraints();
+      secondaryLeft.value =
+          _applySLeft(secondaryLeft.value! - widthDifference / 2);
+    }
+  }
+
+  /// Scales [secondaryHeight] according to [scale].
+  void _scaleSHeight(double scale) {
+    var height = _applySHeight(sSizeBeforeScale! * scale);
+    if (height != secondaryHeight.value) {
+      double heightDifference =
+          height - secondaryHeight.value; // - sWidthBeforeScale!;
+
+      secondaryHeight.value = height;
+
+      secondaryTop.value =
+          _applySTop(secondaryTop.value! - heightDifference / 2);
+    }
   }
 
   /// Returns corrected according to secondary constraints [width] value.
