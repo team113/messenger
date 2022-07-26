@@ -758,9 +758,11 @@ packages:
   image_picker:
     dependency: "direct main"
     description:
-      name: image_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "packages/image_picker/image_picker"
+      ref: main
+      resolved-ref: "903cf07c5c8e90b85eb624a1cc4ed049c37661b5"
+      url: "https://github.com/krida2000/image_picker"
+    source: git
     version: "0.8.5+3"
   image_picker_android:
     dependency: transitive
@@ -779,9 +781,11 @@ packages:
   image_picker_ios:
     dependency: transitive
     description:
-      name: image_picker_ios
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "7e5052a2c1b050234c150df74c7641c95e441a09"
+      url: "https://github.com/krida2000/image_picker_ios.git"
+    source: git
     version: "0.8.5+6"
   image_picker_platform_interface:
     dependency: transitive
