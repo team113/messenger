@@ -312,7 +312,7 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make test.e2e start-app=yes device=web-server dockerized=yes
+      - run: make test.e2e start-app=yes device=web-server dockerized=no
              tag=docker-${{ github.run_number }}
         env:
           COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
