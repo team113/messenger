@@ -37,7 +37,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
-        - Mobile minimization gesture being too rapid ([#45]);
+        - Mobile minimization gesture being too rapid ([#45]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4
