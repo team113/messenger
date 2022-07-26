@@ -480,17 +480,14 @@ class _GalleryPopupState extends State<GalleryPopup>
               width: 50,
               height: 50,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: _dismiss,
                 withBlur: true,
-                children: const [
-                  Icon(
-                    Icons.close_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  )
-                ],
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
             ),
           ),
@@ -517,7 +514,6 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayLeft ? 1 : 0,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: left
                     ? () {
@@ -530,16 +526,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 1),
-                    child: Icon(
-                      Icons.keyboard_arrow_left_rounded,
-                      color: left ? Colors.white : Colors.grey,
-                      size: 36,
-                    ),
-                  )
-                ],
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 1),
+                  child: Icon(
+                    Icons.keyboard_arrow_left_rounded,
+                    color: left ? Colors.white : Colors.grey,
+                    size: 36,
+                  ),
+                ),
               ),
             ),
           ),
@@ -552,7 +546,6 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayRight ? 1 : 0,
               child: RoundFloatingButton(
-                scale: 0.8,
                 color: const Color(0x66000000),
                 onPressed: right
                     ? () {
@@ -565,16 +558,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 1),
-                    child: Icon(
-                      Icons.keyboard_arrow_right_rounded,
-                      color: right ? Colors.white : Colors.grey,
-                      size: 36,
-                    ),
-                  )
-                ],
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 1),
+                  child: Icon(
+                    Icons.keyboard_arrow_right_rounded,
+                    color: right ? Colors.white : Colors.grey,
+                    size: 36,
+                  ),
+                ),
               ),
             ),
           ),
@@ -774,20 +765,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns a [Rect] of an [Object] identified by the provided initial
   /// [GlobalKey].
-  Rect? _calculatePosition() {
-    final keyContext = widget.initialKey?.currentContext;
-    if (keyContext != null) {
-      RenderBox? box;
-      try {
-        box = keyContext.findRenderObject() as RenderBox?;
-      } catch (e) {
-        // [RenderObject] may not exist, which is ok.
-      }
-      return box?.paintBounds.shift(-box.globalToLocal(Offset.zero));
-    }
-
-    return null;
-  }
+  Rect? _calculatePosition() => widget.initialKey?.globalPaintBounds;
 
   /// Sets the [_ignorePageSnapping] to `true` and restarts the
   /// [_ignoreSnappingTimer].
@@ -797,5 +775,23 @@ class _GalleryPopupState extends State<GalleryPopup>
     _ignoreSnappingTimer = Timer(250.milliseconds, () {
       setState(() => _ignorePageSnapping = false);
     });
+  }
+}
+
+/// Extension of a [GlobalKey] allowing getting global
+/// [RenderObject.paintBounds].
+extension GlobalKeyExtension on GlobalKey {
+  /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
+  /// [Object] this [GlobalKey] represents.
+  Rect? get globalPaintBounds {
+    final renderObject = currentContext?.findRenderObject();
+    final matrix = renderObject?.getTransformTo(null);
+
+    if (matrix != null && renderObject?.paintBounds != null) {
+      final rect = MatrixUtils.transformRect(matrix, renderObject!.paintBounds);
+      return rect;
+    } else {
+      return null;
+    }
   }
 }

@@ -28,6 +28,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show
         NotChatMemberException,
@@ -62,7 +63,7 @@ class HiveRxChat implements RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  final RxMap<UserId, Rx<User>> members = RxMap<UserId, Rx<User>>();
+  final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
 
   @override
   final RxString title = RxString('');
@@ -79,13 +80,14 @@ class HiveRxChat implements RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.value.callCover;
+        callCover = members.values.firstOrNull?.user.value.callCover;
         break;
 
       case ChatKind.dialog:
         callCover = members.values
-            .firstWhereOrNull((e) => e.value.id != me)
-            ?.value
+            .firstWhereOrNull((e) => e.id != me)
+            ?.user
+            .value
             .callCover;
         break;
 
@@ -122,7 +124,7 @@ class HiveRxChat implements RxChat {
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
-  StreamIterator? _remoteSubscription;
+  StreamIterator<ChatEvents>? _remoteSubscription;
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
@@ -193,7 +195,7 @@ class HiveRxChat implements RxChat {
       for (HiveChatItem item in _local.messages) {
         var i = items.indexWhere((e) => e.value.id == item.value.id);
         if (i == -1) {
-          _local.remove(item.value.timestamp.toString());
+          _local.remove(item.value.timestamp);
         }
       }
 
@@ -247,7 +249,7 @@ class HiveRxChat implements RxChat {
         ChatItem? message =
             messages.firstWhereOrNull((e) => e.value.id == itemId)?.value;
         if (message != null) {
-          _local.remove(message.timestamp.toString());
+          _local.remove(message.timestamp);
 
           HiveChat? chatEntity = _chatLocal.get(id);
           if (chatEntity?.value.lastItem?.id == message.id) {
@@ -256,7 +258,7 @@ class HiveRxChat implements RxChat {
             chatEntity!.value.lastItem = lastItem?.value;
             if (lastItem != null) {
               chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.timestamp.toString())?.cursor;
+                  _local.get(lastItem.value.timestamp)?.cursor;
             } else {
               chatEntity.lastItemCursor = null;
             }
@@ -335,7 +337,7 @@ class HiveRxChat implements RxChat {
     if (chat.value.name == null) {
       var users = members.values.take(3);
       _userWorkers.removeWhere((k, v) {
-        if (!users.any((u) => u.value.id == k)) {
+        if (!users.any((u) => u.id == k)) {
           v.dispose();
           return true;
         }
@@ -343,11 +345,11 @@ class HiveRxChat implements RxChat {
         return false;
       });
 
-      for (Rx<User> u in users) {
-        if (!_userWorkers.containsKey(u.value.id)) {
+      for (RxUser u in users) {
+        if (!_userWorkers.containsKey(u.id)) {
           // TODO: Title should be updated only if [User.name] had actually
           // changed.
-          _userWorkers[u.value.id] = ever(u, (_) => _updateTitle());
+          _userWorkers[u.id] = ever(u.user, (_) => _updateTitle());
         }
       }
 
@@ -358,14 +360,14 @@ class HiveRxChat implements RxChat {
   /// Updates the [title].
   void _updateTitle([Iterable<User>? users]) {
     title.value = chat.value.getTitle(
-      users?.take(3) ?? members.values.take(3).map((e) => e.value),
+      users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
       me,
     );
   }
 
   /// Updates the [avatar].
   void _updateAvatar() {
-    Rx<User>? member;
+    RxUser? member;
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
@@ -373,7 +375,7 @@ class HiveRxChat implements RxChat {
         break;
 
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.value.id != me);
+        member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
@@ -386,8 +388,8 @@ class HiveRxChat implements RxChat {
     }
 
     if (member != null) {
-      avatar.value = member.value.avatar;
-      _userWorker = ever(member, (User u) => avatar.value = u.avatar);
+      avatar.value = member.user.value.avatar;
+      _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
     }
   }
 
@@ -413,7 +415,7 @@ class HiveRxChat implements RxChat {
     }
   }
 
-  /// Initializes [_chatEvents] subscription.
+  /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription(
     ChatId chatId, {
     bool noVersion = false,
@@ -445,7 +447,7 @@ class HiveRxChat implements RxChat {
     _remoteSubscriptionInitialized = false;
   }
 
-  /// Handles [ChatEvent]s from the [_chatEvents] subscription.
+  /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:

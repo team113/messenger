@@ -358,6 +358,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.6"
+  dough:
+    dependency: "direct main"
+    description:
+      path: "packages/dough"
+      ref: HEAD
+      resolved-ref: b30c3ff3ec1db5730e09c2ca28a7178c4e7b9fde
+      url: "https://github.com/krida2000/dough"
+    source: git
+    version: "1.0.3"
   email_validator:
     dependency: "direct main"
     description:
@@ -421,6 +430,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  fluent:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "3e29b9c77f8ebc56d582ed2337050fa1c65c1c90"
+      url: "https://github.com/sagudev/fluent-dart.git"
+    source: git
+    version: "1.1.0+0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1175,6 +1193,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.3"
+  sensors:
+    dependency: transitive
+    description:
+      name: sensors
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   sentry:
     dependency: transitive
     description:

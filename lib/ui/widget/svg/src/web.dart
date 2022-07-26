@@ -16,6 +16,8 @@
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
+import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:js' as js;
@@ -49,19 +51,21 @@ Widget svgFromAsset(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _AssetSvgLoader(asset, package: package),
-      alignment: alignment,
-      color: color,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) {
+  String path = package == null ? asset : 'packages/$package/$asset';
+  return _BrowserSvg(
+    key: key,
+    loader: _AssetSvgLoader(path),
+    alignment: alignment,
+    color: color,
+    excludeFromSemantics: excludeFromSemantics,
+    fit: fit,
+    height: height,
+    placeholderBuilder: placeholderBuilder,
+    semanticsLabel: semanticsLabel,
+    width: width,
+  );
+}
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -128,25 +132,50 @@ Widget svgFromFile(
 /// SVG picture loader.
 abstract class _SvgLoader {
   /// Returns an [Uint8List] of the SVG file this loader represents.
-  Future<Uint8List> load();
+  FutureOr<Uint8List> load();
 }
 
 /// SVG picture loader from an asset.
 class _AssetSvgLoader implements _SvgLoader {
-  _AssetSvgLoader(this.asset, {this.package});
-
-  /// Optional package of the SVG picture.
-  final String? package;
+  const _AssetSvgLoader(this.asset);
 
   /// Asset path of the SVG picture.
   final String asset;
 
+  /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
+  ///
+  /// FIFO policy is used, meaning if [_cache] exceeds its [_cacheSize], then
+  /// the first inserted element is removed.
+  static final LinkedHashMap<String, Uint8List> _cache = LinkedHashMap();
+
+  /// Maximum allowed length of the [_cache].
+  static const _cacheSize = 50;
+
   @override
-  Future<Uint8List> load() async {
-    String image = await rootBundle
-        .loadString(package == null ? asset : 'packages/$package/$asset');
-    return Uint8List.fromList(utf8.encode(image));
+  FutureOr<Uint8List> load() {
+    if (_cache[asset] != null) {
+      return _cache[asset]!;
+    }
+
+    return Future(() async {
+      String image = await rootBundle.loadString(asset);
+      Uint8List bytes = Uint8List.fromList(utf8.encode(image));
+
+      _cache[asset] = bytes;
+      if (_cache.length > _cacheSize) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      return bytes;
+    });
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is _AssetSvgLoader && other.asset == asset;
+
+  @override
+  int get hashCode => asset.hashCode;
 }
 
 /// SVG picture loader from raw bytes.
@@ -260,7 +289,13 @@ class _BrowserSvgState extends State<_BrowserSvg> {
     var idx = _loadIndex;
 
     try {
-      _imageBytes = await widget.loader.load();
+      FutureOr<Uint8List> future = widget.loader.load();
+      if (future is Uint8List) {
+        _imageBytes = future;
+      } else {
+        _imageBytes = await future;
+      }
+
       if (idx == _loadIndex) {
         var b64 = base64.encode(_imageBytes!.toList());
         _image = 'data:image/svg+xml;base64,$b64';

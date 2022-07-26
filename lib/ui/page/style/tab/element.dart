@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '../widget/caption.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/auth/widget/outlined_rounded_button.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/round_button.dart';
@@ -86,11 +87,11 @@ class ElementStyleTabView extends StatelessWidget {
                 asset: 'assets/icons/start.svg',
                 child: OutlinedRoundedButton(
                   title: Text(
-                    'Start chatting'.tr,
+                    'Start chatting'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    'no registration'.tr,
+                    'no registration'.l10n,
                     style: const TextStyle(color: Colors.white),
                   ),
                   leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
@@ -263,7 +264,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/add_user.svg',
                                     'add_user.svg',
                                   ),
-                                  hint: 'btn_add_participant'.tr,
+                                  hint: 'btn_add_participant'.l10n,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 2),
                                     child: SvgLoader.asset(
@@ -279,7 +280,7 @@ class ElementStyleTabView extends StatelessWidget {
                                     '/assets/assets/icons/settings.svg',
                                     'settings.svg',
                                   ),
-                                  hint: 'btn_call_settings'.tr,
+                                  hint: 'btn_call_settings'.l10n,
                                   child: SvgLoader.asset(
                                     'assets/icons/settings.svg',
                                     color: const Color(0xFFBBBBBB),
@@ -334,13 +335,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Принять звонок с аудио.',
                 asset: 'assets/icons/audio_call_start.svg',
                 child: RoundFloatingButton(
+                  asset: 'audio_call_start',
                   onPressed: () {},
                   text: 'Answer\nwith audio',
                   color: const Color(0xDD34B139),
-                  children: [
-                    SvgLoader.asset('assets/icons/audio_call_start.svg',
-                        width: 29)
-                  ],
                 ),
               ),
               _element(
@@ -348,12 +346,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Принять звонок с видео.',
                 asset: 'assets/icons/video_on.svg',
                 child: RoundFloatingButton(
+                  asset: 'video_on',
                   onPressed: () {},
                   text: 'Answer\nwith video',
                   color: const Color(0xDD34B139),
-                  children: [
-                    SvgLoader.asset('assets/icons/video_on.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -361,12 +357,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Отклонить звонок.',
                 asset: 'assets/icons/call_end.svg',
                 child: RoundFloatingButton(
+                  asset: 'call_end',
                   onPressed: () {},
                   text: 'Decline',
                   color: const Color(0xDDFF0000),
-                  children: [
-                    SvgLoader.asset('assets/icons/call_end.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -374,12 +368,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Положить/отменить звонок.',
                 asset: 'assets/icons/call_end.svg',
                 child: RoundFloatingButton(
+                  asset: 'call_end',
                   onPressed: () {},
                   hint: 'End call',
                   color: const Color(0xDDFF0000),
-                  children: [
-                    SvgLoader.asset('assets/icons/call_end.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -387,12 +379,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Выключить камеру в звонке.',
                 asset: 'assets/icons/video_on.svg',
                 child: RoundFloatingButton(
+                  asset: 'video_on',
                   onPressed: () {},
                   hint: 'Turn video off',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/video_on.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -400,12 +390,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Включить камеру в звонке.',
                 asset: 'assets/icons/video_off.svg',
                 child: RoundFloatingButton(
+                  asset: 'video_off',
                   onPressed: () {},
                   hint: 'Turn video on',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/video_off.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -413,12 +401,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Выключить микрофон в звонке.',
                 asset: 'assets/icons/microphone_on.svg',
                 child: RoundFloatingButton(
+                  asset: 'microphone_on',
                   onPressed: () {},
                   hint: 'Mute',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/microphone_on.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -426,13 +412,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Включить микрофон в звонке.',
                 asset: 'assets/icons/microphone_off.svg',
                 child: RoundFloatingButton(
+                  asset: 'microphone_off',
                   onPressed: () {},
                   hint: 'Unmute',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/microphone_off.svg',
-                        width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -440,13 +423,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Выключить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_on.svg',
                 child: RoundFloatingButton(
+                  asset: 'screen_share_on',
                   onPressed: () {},
                   hint: 'Share screen',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/screen_share_on.svg',
-                        width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -454,13 +434,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Включить демонстрацию экрана в звонке.',
                 asset: 'assets/icons/screen_share_off.svg',
                 child: RoundFloatingButton(
+                  asset: 'screen_share_off',
                   onPressed: () {},
                   hint: 'Stop sharing',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/screen_share_off.svg',
-                        width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -468,11 +445,9 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Выключить динамик в звонке.',
                 asset: 'assets/icons/speaker_on.svg',
                 child: RoundFloatingButton(
+                  asset: 'speaker_on',
                   onPressed: () {},
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/speaker_on.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -480,11 +455,9 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Включить динамик в звонке.',
                 asset: 'assets/icons/speaker_off.svg',
                 child: RoundFloatingButton(
+                  asset: 'speaker_off',
                   onPressed: () {},
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/speaker_off.svg', width: 60)
-                  ],
                 ),
               ),
               _element(
@@ -492,11 +465,9 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Переключить камеру на заднюю в звонке.',
                 asset: 'assets/icons/camera_front.svg',
                 child: RoundFloatingButton(
+                  asset: 'camera_front',
                   onPressed: () {},
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/camera_front.svg', width: 28)
-                  ],
                 ),
               ),
               _element(
@@ -504,11 +475,9 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Переключить камеру на переднюю в звонке.',
                 asset: 'assets/icons/camera_back.svg',
                 child: RoundFloatingButton(
+                  asset: 'camera_back',
                   onPressed: () {},
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/camera_back.svg', width: 28)
-                  ],
                 ),
               ),
               _element(
@@ -627,14 +596,8 @@ class ElementStyleTabView extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: RoundFloatingButton(
+                            asset: 'add_user',
                             onPressed: () {},
-                            scale: 0.75,
-                            children: [
-                              SvgLoader.asset(
-                                'assets/icons/add_user.svg',
-                                width: 22,
-                              )
-                            ],
                           ),
                         ),
                         Expanded(
@@ -706,34 +669,34 @@ class ElementStyleTabView extends StatelessWidget {
                   actions: [
                     AnimatedFabAction(
                       icon: const Icon(Icons.call, color: Colors.blue),
-                      label: 'label_audio_call'.tr,
+                      label: 'label_audio_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.video_call, color: Colors.blue),
-                      label: 'label_video_call'.tr,
+                      label: 'label_video_call'.l10n,
                       onTap: () {},
                       noAnimation: true,
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.person, color: Colors.blue),
-                      label: 'label_contact'.tr,
+                      label: 'label_contact'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.attachment, color: Colors.blue),
-                      label: 'label_file'.tr,
+                      label: 'label_file'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.photo, color: Colors.blue),
-                      label: 'label_photo'.tr,
+                      label: 'label_photo'.l10n,
                       onTap: () {},
                     ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.camera, color: Colors.blue),
-                      label: 'label_camera'.tr,
+                      label: 'label_camera'.l10n,
                       onTap: () {},
                     ),
                   ],
@@ -746,12 +709,10 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Открыть настройки в звонке.',
                 asset: 'assets/icons/settings.svg',
                 child: RoundFloatingButton(
+                  asset: 'settings',
                   onPressed: () {},
                   hint: 'Settings',
                   color: const Color(0xDD818181),
-                  children: [
-                    SvgLoader.asset('assets/icons/settings.svg', width: 32)
-                  ],
                 ),
               ),
               const SizedBox(height: 60),

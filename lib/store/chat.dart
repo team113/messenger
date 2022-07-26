@@ -32,6 +32,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show GraphQlProviderExceptions, ResubscriptionRequiredException;
 import '/provider/gql/graphql.dart';
@@ -323,7 +324,7 @@ class ChatRepository implements AbstractChatRepository {
       _graphQlProvider.keepTyping(chatId);
 
   /// Returns an [User] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userRepo.get(id);
+  Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent _chatEvent(ChatEventsVersionedMixin$Events e) {
