@@ -7,7 +7,7 @@ services:
     build:
       context: .
     ports:
-      - "82:80"        # nginx http
+      - "80:80"        # nginx http
       - "4444:4444"    # webdriver chrome
     volumes:
       - ./.cache/minio/data/files/:/var/www-files/files/:ro
@@ -17,7 +17,7 @@ services:
       - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
-    image: ${COMPOSE_BACKEND_IMAGE}
+    image: ${COMPOSE_BACKEND}
     depends_on: ["cockroachdb"]
     environment:
       CONF.MODE.DEBUG: "true"
@@ -41,7 +41,7 @@ services:
       - ./dev/backend.toml:/config.toml:ro
   medea:
     container_name: ${COMPOSE_PROJECT_NAME}-medea
-    image: ${COMPOSE_MEDEA_IMAGE}
+    image: ${COMPOSE_MEDEA}
     depends_on: ["medea-coturn"]
     environment:
       MEDEA__CONF: /config.toml
@@ -69,7 +69,7 @@ services:
     network_mode: service:backend
   cockroachdb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb
-    image: ${COMPOSE_COCKROACH_IMAGE}
+    image: ${COMPOSE_COCKROACH}
     command:
       - start-single-node
       - --insecure

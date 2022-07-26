@@ -49,5 +49,5 @@ app.*.map.json
 /test_driver/build/
 /test_driver/report.json
 
-# Sensitive
+# Development related
 .env

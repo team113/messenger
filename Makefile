@@ -228,6 +228,25 @@ endif
 # Testing commands #
 ####################
 
+# Run Flutter unit tests.
+#
+# Usage:
+#	make test.unit [dockerized=(no|yes)]
+
+test.unit:
+ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
+	@make flutter.gen overwrite=yes dockerized=$(dockerized)
+endif
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make test.unit dockerized=no
+else
+	flutter test
+endif
+
+
 # Run Flutter E2E tests.
 #
 # Usage:
@@ -247,11 +266,11 @@ ifeq ($(start-app),yes)
 	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
 	                background=yes log=no
 	while ! timeout 1 bash -c "echo > /dev/tcp/localhost/4444"; do sleep 1; done
-	docker logs -f socmob-webdriver-chrome &
+	docker logs -f $(COMPOSE_PROJECT_NAME)-webdriver-chrome &
 endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
-	           --network=container:socmob-mobile \
+	           --network=container:${COMPOSE_PROJECT_NAME}-frontend \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make test.e2e dockerized=no start-app=no gen=no device=$(device)
@@ -263,24 +282,6 @@ else
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
-endif
-
-# Run Flutter unit tests.
-#
-# Usage:
-#	make test.unit [dockerized=(no|yes)]
-
-test.unit:
-ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
-	@make flutter.gen overwrite=yes dockerized=$(dockerized)
-endif
-ifeq ($(dockerized),yes)
-	docker run --rm -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make test.unit dockerized=no
-else
-	flutter test
 endif
 
 
@@ -331,6 +332,7 @@ endif
 clean.e2e:
 	rm -rf .dart_tool/build/generated/messenger/integration_test \
 	       test/e2e/gherkin/reports/
+
 
 clean.flutter: flutter.clean
 
