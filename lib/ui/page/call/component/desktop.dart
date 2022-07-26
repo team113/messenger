@@ -1052,8 +1052,7 @@ Widget _primaryView(CallController c) {
                             menu: ContextMenu(
                               key: ObjectKey(participant),
                               actions: [
-                                if (participant.video.value?.isEnabled ==
-                                    true) ...[
+                                if (participant.video.value != null) ...[
                                   if (participant.source ==
                                       MediaSourceKind.Device)
                                     ContextMenuButton(
@@ -1080,15 +1079,13 @@ Widget _primaryView(CallController c) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
-                                if (participant.video.value != null)
-                                  ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
-                                  ),
+                                ContextMenuButton(
+                                  label: !participant.isVideoDisabled.value
+                                      ? 'btn_call_disable_video'.l10n
+                                      : 'btn_call_enable_video'.l10n,
+                                  onPressed: () =>
+                                      c.toggleVideoEnabled(participant),
+                                ),
                               ],
                             ),
                             child: IgnorePointer(
@@ -1565,20 +1562,18 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                             MediaOwnerKind.local ||
                                         participant.source !=
                                             MediaSourceKind.Display) &&
-                                    participant.video.value?.isEnabled == true)
+                                    participant.video.value != null)
                                   ContextMenuButton(
                                     label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
-                                if (participant.video.value != null)
-                                  ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
-                                  )
+                                ContextMenuButton(
+                                  label: !participant.isVideoDisabled.value
+                                      ? 'btn_call_disable_video'.l10n
+                                      : 'btn_call_enable_video'.l10n,
+                                  onPressed: () =>
+                                      c.toggleVideoEnabled(participant),
+                                )
                               ],
                             ),
                             child: IgnorePointer(

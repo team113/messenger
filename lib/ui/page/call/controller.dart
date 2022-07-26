@@ -377,7 +377,8 @@ class CallController extends GetxController {
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
   /// Reactive map of the current call [RemoteMemberId]s.
-  RxObsMap<RemoteMemberId, bool> get members => _currentCall.value.members;
+  RxObsMap<RemoteMemberId, RemoteMemberData> get members =>
+      _currentCall.value.members;
 
   /// Indicator whether the inbound video in the current [OngoingCall] is
   /// enabled or not.
@@ -429,8 +430,14 @@ class CallController extends GetxController {
 
     void _onChat(RxChat? v) {
       chat.value = v;
-
-      _putParticipant(RemoteMemberId(me, null));
+      _putParticipant(
+        RemoteMemberId(me, null),
+        conn: _currentCall.value.members[RemoteMemberId(me, null)]?.conn,
+        handRaised:
+            _currentCall.value.members[RemoteMemberId(me, null)]?.isHandRaised,
+        hasVideo:
+            _currentCall.value.members[RemoteMemberId(me, null)]?.hasVideo,
+      );
       _insureCorrectGrouping();
 
       // TODO: Temporary solution.
@@ -547,7 +554,12 @@ class CallController extends GetxController {
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _putParticipant(e.key!, handRaised: e.value);
+          _putParticipant(
+            e.key!,
+            conn: e.value?.conn,
+            handRaised: e.value?.isHandRaised,
+            hasVideo: e.value?.hasVideo,
+          );
           _insureCorrectGrouping();
           break;
 
@@ -565,7 +577,12 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _putParticipant(e.key!, handRaised: e.value);
+          _putParticipant(
+            e.key!,
+            conn: e.value?.conn,
+            handRaised: e.value?.isHandRaised,
+            hasVideo: e.value?.hasVideo,
+          );
           _insureCorrectGrouping();
           break;
       }
@@ -788,10 +805,22 @@ class CallController extends GetxController {
   Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
   /// Toggles the provided [renderer]'s enabled status on and off.
-  Future<void> toggleRendererEnabled(Rx<RtcVideoRenderer?> renderer) async {
-    if (renderer.value != null) {
-      await renderer.value!.setEnabled(!renderer.value!.isEnabled);
-      renderer.refresh();
+  // Future<void> toggleRendererEnabled(Rx<RtcVideoRenderer?> renderer) async {
+  //   if (renderer.value != null) {
+  //     await renderer.value!.setEnabled(!renderer.value!.isEnabled);
+  //     renderer.refresh();
+  //   }
+  // }
+
+  Future<void> toggleVideoEnabled(Participant participant) async {
+    if (participant.conn.value != null) {
+      if (participant.video.value != null) {
+        participant.isVideoDisabled.value = true;
+        await participant.conn.value!.disableRemoteVideo();
+      } else {
+        participant.isVideoDisabled.value = false;
+        await participant.conn.value!.enableRemoteVideo();
+      }
     }
   }
 
@@ -1338,9 +1367,12 @@ class CallController extends GetxController {
   /// Creates a new [Participant] if it doesn't exist.
   void _putParticipant(
     RemoteMemberId id, {
+    ConnectionHandle? conn,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
+    bool? hasVideo,
+    bool? isVideoDisabled,
   }) {
     Participant? participant = findParticipant(
       id,
@@ -1359,9 +1391,11 @@ class CallController extends GetxController {
       participant = Participant(
         id,
         owner,
+        conn: conn,
         video: video,
         audio: audio,
         handRaised: handRaised,
+        hasVideo: hasVideo,
       );
 
       _userService
@@ -1398,6 +1432,10 @@ class CallController extends GetxController {
           break;
       }
     } else {
+      participant.conn.value = conn ?? participant.conn.value;
+      participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
+      participant.isVideoDisabled.value =
+          isVideoDisabled ?? participant.isVideoDisabled.value;
       participant.audio.value = audio ?? participant.audio.value;
       participant.video.value = video ?? participant.video.value;
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
@@ -1447,12 +1485,16 @@ class Participant {
     this.id,
     this.owner, {
     RxUser? user,
+    ConnectionHandle? conn,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
-  })  : video = Rx(video),
+    bool? hasVideo,
+  })  : conn = Rx(conn),
+        video = Rx(video),
         audio = Rx(audio),
         handRaised = Rx(handRaised ?? false),
+        hasVideo = Rx(hasVideo ?? false),
         user = Rx(user),
         source = video?.source ?? audio?.source ?? MediaSourceKind.Device;
 
@@ -1470,6 +1512,12 @@ class Participant {
 
   /// Media source kind of this [Participant].
   final MediaSourceKind source;
+
+  final Rx<ConnectionHandle?> conn;
+
+  final Rx<bool> hasVideo;
+
+  final Rx<bool> isVideoDisabled = Rx(false);
 
   /// Reactive video renderer of this [Participant].
   late final Rx<RtcVideoRenderer?> video;

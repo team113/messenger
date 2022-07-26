@@ -202,8 +202,8 @@ class OngoingCall {
 
   /// Reactive map of [RemoteMemberId]s and their hand raised indicators of this
   /// call.
-  final RxObsMap<RemoteMemberId, bool> members =
-      RxObsMap<RemoteMemberId, bool>();
+  final RxObsMap<RemoteMemberId, RemoteMemberData> members =
+      RxObsMap<RemoteMemberId, RemoteMemberData>();
 
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
@@ -310,11 +310,12 @@ class OngoingCall {
 
       _room!.onNewConnection((conn) {
         var id = RemoteMemberId.fromString(conn.getRemoteMemberId());
-        members[id] = call.value?.members
-                .firstWhereOrNull((e) => e.user.id == id.userId)
-                ?.handRaised ??
-            false;
-
+        members[id] = RemoteMemberData(
+            conn: conn,
+            isHandRaised: call.value?.members
+                    .firstWhereOrNull((e) => e.user.id == id.userId)
+                    ?.handRaised ??
+                false);
         conn.onClose(() => members.remove(id));
         conn.onRemoteTrackAdded((track) async {
           var renderer = await _addRemoteTrack(conn, track);
@@ -323,12 +324,10 @@ class OngoingCall {
             renderer.muted = true;
             _emitRendererUpdate(renderer);
           });
-
           track.onUnmuted(() {
             renderer.muted = false;
             _emitRendererUpdate(renderer);
           });
-
           track.onMediaDirectionChanged((TrackMediaDirection d) {
             switch (d) {
               case TrackMediaDirection.SendRecv:
@@ -340,6 +339,11 @@ class OngoingCall {
                 _removeRemoteTrack(track);
                 break;
             }
+            members.update(
+                id,
+                (value) => value
+                  ..hasVideo = d == TrackMediaDirection.SendRecv ||
+                      d == TrackMediaDirection.SendOnly);
           });
 
           track.onStopped(() => _removeRemoteTrack(track));
@@ -438,7 +442,8 @@ class OngoingCall {
                   var node = event as EventChatCallHandLowered;
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
-                    members[m.key] = false;
+                    members.update(
+                        m.key, (value) => value..isHandRaised = false);
                   }
                   break;
 
@@ -446,7 +451,8 @@ class OngoingCall {
                   var node = event as EventChatCallHandRaised;
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
-                    members[m.key] = true;
+                    members.update(
+                        m.key, (value) => value..isHandRaised = true);
                   }
                   break;
 
@@ -1137,6 +1143,10 @@ class OngoingCall {
       }
     }
   }
+
+  Future<void> disableVideo(ConnectionHandle conn) async {
+    await conn.disableRemoteVideo();
+  }
 }
 
 /// Possible kinds of a media ownership.
@@ -1166,12 +1176,6 @@ abstract class RtcRenderer {
 
   /// Returns enabled state of the [track].
   bool get isEnabled => track.isEnabled();
-
-  /// Sets enabled state of the [track].
-  ///
-  /// If `false` is provided then blank (black screen for video and `0dB` for
-  /// audio) media will be transmitted.
-  Future<void> setEnabled(bool enabled) => track.setEnabled(enabled);
 }
 
 /// Convenience wrapper around a [webrtc.VideoRenderer].
@@ -1284,6 +1288,17 @@ class RemoteMemberId {
           runtimeType == other.runtimeType &&
           userId == other.userId &&
           deviceId == other.deviceId;
+}
+
+class RemoteMemberData {
+  RemoteMemberData({
+    required this.conn,
+    this.isHandRaised = false,
+    this.hasVideo = true,
+  });
+  bool hasVideo;
+  bool isHandRaised;
+  ConnectionHandle conn;
 }
 
 extension DevicesList on InputDevices {

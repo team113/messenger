@@ -88,8 +88,6 @@ class ParticipantWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
-      bool hasVideo = participant.video.value?.isEnabled == true;
 
       List<Widget> additionally = [];
 
@@ -105,7 +103,7 @@ class ParticipantWidget extends StatelessWidget {
         );
       }
 
-      if (isVideoDisabled ||
+      if ((participant.isVideoDisabled.value && participant.hasVideo.value) ||
           participant.video.value?.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
@@ -158,32 +156,41 @@ class ParticipantWidget extends StatelessWidget {
               ];
       }
 
+      print('///');
+      print(participant.user.value?.user.value.name);
+      print('hasVideo: ' + participant.hasVideo.value.toString());
+      print('video: ' + participant.video.value.toString());
+
       return Stack(
         children: [
-          if (!hasVideo) ..._background(),
+          ..._background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child: !hasVideo
-                ? Container()
-                : Center(
-                    child: RtcVideoView(
-                      participant.video.value!,
-                      key: participant.videoKey,
-                      mirror: participant.owner == MediaOwnerKind.local &&
-                          participant.source == MediaSourceKind.Device,
-                      fit: fit,
-                      borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      outline: outline,
-                      onSizeDetermined: onSizeDetermined,
-                      enableContextMenu: false,
-                      respectAspectRatio: respectAspectRatio,
-                      offstageUntilDetermined: offstageUntilDetermined,
-                      framelessBuilder: () => Stack(children: _background()),
-                    ),
-                  ),
+            child:
+                // participant.hasVideo.value &&
+                participant.video.value != null
+                    ? Center(
+                        child: RtcVideoView(
+                          participant.video.value!,
+                          key: participant.videoKey,
+                          mirror: participant.owner == MediaOwnerKind.local &&
+                              participant.source == MediaSourceKind.Device,
+                          fit: fit,
+                          borderRadius:
+                              borderRadius ?? BorderRadius.circular(10),
+                          outline: outline,
+                          onSizeDetermined: onSizeDetermined,
+                          enableContextMenu: false,
+                          respectAspectRatio: respectAspectRatio,
+                          offstageUntilDetermined: offstageUntilDetermined,
+                          framelessBuilder: () =>
+                              Stack(children: _background()),
+                        ),
+                      )
+                    : Container(),
           ),
           Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
         ],
@@ -238,7 +245,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
+      bool isVideoDisabled = participant.video.value == null;
 
       List<Widget> additionally = [];
 
