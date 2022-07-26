@@ -24,7 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
-    this.startMinimizeDistance = 50,
+    this.minimizationDelta = 50,
     required this.child,
   }) : super(key: key);
 
@@ -35,8 +35,9 @@ class MinimizableView extends StatefulWidget {
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
 
-  /// Distance between start drag position and position to start minimizing.
-  final double startMinimizeDistance;
+  /// Distance to travel in order for the panning to be recognized as a
+  /// minimization gesture.
+  final double minimizationDelta;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -82,7 +83,7 @@ class _MinimizableViewState extends State<MinimizableView>
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
 
-  /// Distance between start and current dragging positions.
+  /// Current panning distance.
   double _panningDistance = 0;
 
   /// [DecorationTween] of this view.
@@ -159,14 +160,16 @@ class _MinimizableViewState extends State<MinimizableView>
                 onPanUpdate: (d) {
                   _panningDistance = _panningDistance + d.delta.dy;
 
-                  if (_panningDistance < widget.startMinimizeDistance &&
+                  if (_panningDistance < widget.minimizationDelta &&
                       _controller.value == 0) {
                     return;
                   }
 
                   if (_drag != null && _value != null) {
                     _controller.value = _value! +
-                        (d.localPosition.dy - _drag!.dy) *
+                        (d.localPosition.dy -
+                                _drag!.dy -
+                                widget.minimizationDelta) *
                             (1 / constraints.maxHeight);
                   } else {
                     setState(() {
