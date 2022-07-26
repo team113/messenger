@@ -78,88 +78,53 @@ Widget mobileCall(CallController c, BuildContext context) {
             return Container();
           }
 
-          return GestureDetector(
-            //dragStartBehavior: DragStartBehavior.start,
-            //behavior: HitTestBehavior.deferToChild,
-            // onPanStart: (d) {
-            //   c.calculateSecondaryPanning(d.globalPosition);
-            //
-            //   c.secondaryLeft.value ??= c.size.width -
-            //       c.secondaryWidth.value -
-            //       (c.secondaryRight.value ?? 0);
-            //   c.secondaryTop.value ??= c.size.height -
-            //       c.secondaryHeight.value -
-            //       (c.secondaryBottom.value ?? 0);
-            //
-            //   c.secondaryRight.value = null;
-            //   c.secondaryBottom.value = null;
-            //
-            //   c.applySecondaryConstraints();
-            // },
-            // onPanEnd: (d) {
-            //   c.secondaryDragged.value = false;
-            //   c.updateSecondaryAttach();
-            // },
-            // onPanUpdate: (d) {
-            //   c.secondaryDragged.value = true;
-            //   c.updateSecondaryOffset(d.globalPosition);
-            //   c.applySecondaryConstraints();
-            // },
-            //  onPanDown: (_) {
-            //    print('onPanDown');
-            //  },
-            // onPanCancel: () {
-            //   print('onPanCancel');
-            //   c.secondaryDragged.value = false;
-            //   c.secondaryScaled.value = false;
-            //   c.updateSecondaryAttach();
-            // },
-            onScaleStart: (d) {
-              print('onScaleStart');
-              c.secondaryLeft.value ??= c.size.width -
-                  c.secondaryWidth.value -
-                  (c.secondaryRight.value ?? 0);
-              c.secondaryTop.value ??= c.size.height -
-                  c.secondaryHeight.value -
-                  (c.secondaryBottom.value ?? 0);
+          return Listener(
+            onPointerDown: (_) => c.minimizingEnabled.value = false,
+            onPointerUp: (_) => c.minimizingEnabled.value = true,
+            child: GestureDetector(
+              onScaleStart: (d) {
+                c.secondaryLeft.value ??= c.size.width -
+                    c.secondaryWidth.value -
+                    (c.secondaryRight.value ?? 0);
+                c.secondaryTop.value ??= c.size.height -
+                    c.secondaryHeight.value -
+                    (c.secondaryBottom.value ?? 0);
 
-              c.secondaryRight.value = null;
-              c.secondaryBottom.value = null;
+                c.secondaryRight.value = null;
+                c.secondaryBottom.value = null;
 
-              if (d.pointerCount == 1) {
-                print('one point');
-                c.secondaryDragged.value = true;
+                if (d.pointerCount == 1) {
+                  c.secondaryDragged.value = true;
 
-                c.calculateSecondaryPanning(d.focalPoint);
+                  c.calculateSecondaryPanning(d.focalPoint);
 
-                c.applySecondaryConstraints();
-              } else if (d.pointerCount == 2) {
-                print('two point');
-                c.secondaryScaled.value = true;
-                c.sSizeBeforeScale =
-                    max(c.secondaryWidth.value, c.secondaryHeight.value);
-              }
-            },
-            onScaleUpdate: (d) {
-              if (d.pointerCount == 1) {
-                c.updateSecondaryOffset(d.focalPoint);
-                c.applySecondaryConstraints();
-              } else if (d.pointerCount == 2) {
-                c.scaleSecondary(d.scale);
-              }
-            },
-            onScaleEnd: (d) {
-              print('onScaleEnd');
-              if (d.pointerCount == 1) {
-                c.secondaryDragged.value = false;
-              } else if (d.pointerCount == 2) {
-                c.secondaryScaled.value = false;
-                c.sSizeBeforeScale = null;
-              }
+                  c.applySecondaryConstraints();
+                } else if (d.pointerCount == 2) {
+                  c.secondaryScaled.value = true;
+                  c.sSizeBeforeScale =
+                      max(c.secondaryWidth.value, c.secondaryHeight.value);
+                }
+              },
+              onScaleUpdate: (d) {
+                if (d.pointerCount == 1) {
+                  c.updateSecondaryOffset(d.focalPoint);
+                  c.applySecondaryConstraints();
+                } else if (d.pointerCount == 2) {
+                  c.scaleSecondary(d.scale);
+                }
+              },
+              onScaleEnd: (d) {
+                if (d.pointerCount == 1) {
+                  c.secondaryDragged.value = false;
+                } else if (d.pointerCount == 2) {
+                  c.secondaryScaled.value = false;
+                  c.sSizeBeforeScale = null;
+                }
 
-              c.updateSecondaryAttach();
-            },
-            child: _secondaryView(c, context),
+                c.updateSecondaryAttach();
+              },
+              child: _secondaryView(c, context),
+            ),
           );
         }),
       ]);
@@ -616,26 +581,29 @@ Widget mobileCall(CallController c, BuildContext context) {
       c.applySecondaryConstraints();
     }
 
-    return MinimizableView(
-      onInit: (animation) {
-        c.minimizedAnimation = animation;
-        animation.addListener(() {
-          if (animation.value != 0) {
-            c.keepUi(false);
-          }
-          c.minimized.value = animation.value == 1;
-          if (c.minimized.value) {
-            c.hoveredRenderer.value = null;
-          }
-        });
-      },
-      onDispose: () => c.minimizedAnimation = null,
-      child: Obx(() {
-        return IgnorePointer(
-          ignoring: c.minimized.value,
-          child: scaffold,
-        );
-      }),
+    return Obx(
+      () => MinimizableView(
+        enabled: c.minimizingEnabled.value,
+        onInit: (animation) {
+          c.minimizedAnimation = animation;
+          animation.addListener(() {
+            if (animation.value != 0) {
+              c.keepUi(false);
+            }
+            c.minimized.value = animation.value == 1;
+            if (c.minimized.value) {
+              c.hoveredRenderer.value = null;
+            }
+          });
+        },
+        onDispose: () => c.minimizedAnimation = null,
+        child: Obx(() {
+          return IgnorePointer(
+            ignoring: c.minimized.value,
+            child: scaffold,
+          );
+        }),
+      ),
     );
   });
 }
@@ -783,7 +751,7 @@ Widget _primaryView(CallController c, BuildContext context) {
             return true;
           },
           onLeave: (b) => c.primaryTargets.value = 0,
-          allowDraggingLast: true,
+          allowDraggingLast: false,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
             c.isHintDismissed.value = true;

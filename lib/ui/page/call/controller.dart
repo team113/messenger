@@ -61,6 +61,9 @@ class CallController extends GetxController {
   /// Reactive [Chat] that this [OngoingCall] is happening in.
   final Rx<RxChat?> chat = Rx<RxChat?>(null);
 
+  /// Indicator whether the view can be minimized.
+  final RxBool minimizingEnabled = RxBool(true);
+
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
@@ -214,6 +217,9 @@ class CallController extends GetxController {
 
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
+
+  /// Secondary view maximal size before scaling started.
+  double? sSizeBeforeScale;
 
   /// [Alignment] of the secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
@@ -1298,9 +1304,6 @@ class CallController extends GetxController {
     updateSecondaryAttach();
   }
 
-  /// Secondary view size before scaling started.
-  double? sSizeBeforeScale;
-
   /// Scales secondary view according to [scale].
   void scaleSecondary(double scale) {
     _scaleSWidth(scale);
@@ -1311,8 +1314,7 @@ class CallController extends GetxController {
   void _scaleSWidth(double scale) {
     var width = _applySWidth(sSizeBeforeScale! * scale);
     if (width != secondaryWidth.value) {
-      double widthDifference =
-          width - secondaryWidth.value;
+      double widthDifference = width - secondaryWidth.value;
 
       secondaryWidth.value = width;
 

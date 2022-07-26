@@ -24,6 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.enabled = true,
     required this.child,
   }) : super(key: key);
 
@@ -33,6 +34,9 @@ class MinimizableView extends StatefulWidget {
 
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
+
+  /// Indicator whether minimizing is enabled.
+  final bool enabled;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -149,20 +153,24 @@ class _MinimizableViewState extends State<MinimizableView>
                         FocusManager.instance.primaryFocus?.unfocus();
                       }
                     : null,
-                onPanUpdate: (d) {
-                  if (_drag != null && _value != null) {
-                    _controller.value = _value! +
-                        (d.localPosition.dy - _drag!.dy) *
-                            (1 / constraints.maxHeight);
-                  } else {
-                    setState(() {
-                      _right = _right - d.delta.dx;
-                      _bottom = _bottom - d.delta.dy;
-                      _applyConstraints(biggest);
-                    });
-                  }
-                },
-                onPanStart: _controller.value == 0
+                onPanUpdate:
+                    (_drag != null && _value != null && widget.enabled) ||
+                            _controller.value == 1
+                        ? (d) {
+                            if (_drag != null && _value != null) {
+                              _controller.value = _value! +
+                                  (d.localPosition.dy - _drag!.dy) *
+                                      (1 / constraints.maxHeight);
+                            } else {
+                              setState(() {
+                                _right = _right - d.delta.dx;
+                                _bottom = _bottom - d.delta.dy;
+                                _applyConstraints(biggest);
+                              });
+                            }
+                          }
+                        : null,
+                onPanStart: _controller.value == 0 && widget.enabled
                     ? (d) {
                         _controller.stop();
                         _drag = d.localPosition;
@@ -170,8 +178,9 @@ class _MinimizableViewState extends State<MinimizableView>
                         setState(() {});
                       }
                     : null,
-                onPanEnd:
-                    _drag != null && _value != null ? _onVerticalDragEnd : null,
+                onPanEnd: _drag != null && _value != null && widget.enabled
+                    ? _onVerticalDragEnd
+                    : null,
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),
