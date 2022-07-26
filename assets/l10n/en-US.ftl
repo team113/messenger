@@ -79,6 +79,7 @@ btn_call_hand_up = Hand up
 btn_call_hand_up_desc =
     Hand
     up
+btn_call_more = More
 btn_call_remote_audio_off = Disable incoming audio
 btn_call_remote_audio_off_desc =
     Disable
@@ -352,7 +353,8 @@ label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden
 label_hide_for_me = Delete for me
-label_hint_from_gapopa = Hint from Gapopa
+label_hint_drag_n_drop_buttons =
+    Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
     Just drag to:
 
@@ -361,6 +363,7 @@ label_hint_drag_n_drop_video =
     • attach one or more videos to any side;
 
     • move one or more videos to a separate panel.
+label_hint_from_gapopa = Hint from Gapopa
 label_incoming_call = Incoming call
 label_last_seen = Last seen
 label_login = Login
