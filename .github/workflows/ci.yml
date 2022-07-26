@@ -315,12 +315,12 @@ jobs:
       - run: make test.e2e start-app=yes device=web-server dockerized=yes
              tag=docker-${{ github.run_number }}
         env:
-          COMPOSE_BACKEND=${{ secrets.E2E_BACKEND }}
-          COMPOSE_COCKROACH=${{ secrets.E2E_COCKROACH }}
-          COMPOSE_FRONTEND_IMAGE=ghcr.io/team113/messenger
-          COMPOSE_FRONTEND_TAG=dev
-          COMPOSE_MEDEA=${{ secrets.E2E_MEDEA }}
-          COMPOSE_PROJECT_NAME=messenger
+          COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
+          COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+          COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
+          COMPOSE_FRONTEND_TAG: dev
+          COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+          COMPOSE_PROJECT_NAME: messenger
 
 
 
