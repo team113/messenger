@@ -18,7 +18,8 @@ All user visible changes to this project will be documented in this file. This p
     - Menu:
         - Language selection ([#23]).
     - Media panel:
-        - Reorderable buttons dock on desktop ([#9], [#6]).
+        - Reorderable buttons dock on desktop ([#9], [#6]);
+        - Ability to resize secondary view on mobile ([#47], [#46]).
 
 ### Changed
 
@@ -50,6 +51,8 @@ All user visible changes to this project will be documented in this file. This p
 [#34]: /../../pull/34
 [#41]: /../../issues/41
 [#42]: /../../pull/42
+[#46]: /../../issues/46
+[#47]: /../../pull/47
 
 
 
