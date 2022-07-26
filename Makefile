@@ -505,7 +505,6 @@ ifeq ($(rebuild),yes)
 endif
 ifeq ($(wildcard .cache/minio),)
 	@mkdir -p .cache/minio/data/
-	@chown -R 1001:1001 .cache/minio/
 endif
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
 	docker-compose up \
