@@ -20,10 +20,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
 ///
@@ -846,7 +846,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
           });
         } else {
           from.entry = OverlayEntry(builder: (context) {
-            return _AnimatedTransition(
+            return AnimatedTransition(
               key: from.entryKey,
               beginRect: beginRect,
               endRect: endRect,
@@ -896,7 +896,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         });
       } else {
         to.entry = OverlayEntry(builder: (context) {
-          return _AnimatedTransition(
+          return AnimatedTransition(
             key: to.entryKey,
             curve: Curves.linearToEaseOut,
             beginRect: beginRect,
@@ -976,6 +976,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
       _ReorderableDraggableState<T>();
 }
 
+/// State of a [_ReorderableDraggable] maintaining the [isDragged] indicator.
 class _ReorderableDraggableState<T extends Object>
     extends State<_ReorderableDraggable<T>> {
   /// Indicator whether this [_ReorderableDraggable] is dragged.
@@ -1059,8 +1060,8 @@ class _ReorderableItem<T> {
   final UniqueKey sharedKey = UniqueKey();
 
   /// [GlobalKey] of the [entry].
-  final GlobalKey<_AnimatedTransitionState> entryKey =
-      GlobalKey<_AnimatedTransitionState>();
+  final GlobalKey<AnimatedTransitionState> entryKey =
+      GlobalKey<AnimatedTransitionState>();
 
   /// [OverlayEntry] of this [_ReorderableItem] used to animate the [item]
   /// changing its position.
@@ -1076,69 +1077,4 @@ class _ReorderableItem<T> {
   @override
   bool operator ==(Object other) =>
       other is _ReorderableItem<T> && other.item == item;
-}
-
-/// Animated transform of the provided [child] from the [beginRect] to the
-/// [endRect].
-class _AnimatedTransition extends StatefulWidget {
-  const _AnimatedTransition({
-    Key? key,
-    required this.beginRect,
-    required this.endRect,
-    required this.child,
-    this.onEnd,
-    this.curve,
-  }) : super(key: key);
-
-  /// Initial [Rect] this [child] takes.
-  final Rect beginRect;
-
-  /// Target [Rect] to animate this [child] to.
-  final Rect endRect;
-
-  /// Callback, called when animation ends.
-  final VoidCallback? onEnd;
-
-  /// [Widget] to transform around.
-  final Widget child;
-
-  /// [Curve] of animation.
-  final Curve? curve;
-
-  @override
-  State<_AnimatedTransition> createState() => _AnimatedTransitionState();
-}
-
-/// State of an [_AnimatedTransition] changing the [rect].
-class _AnimatedTransitionState extends State<_AnimatedTransition>
-    with SingleTickerProviderStateMixin {
-  /// [Rect] that [_AnimatedTransition.child] occupies.
-  late Rect rect;
-
-  @override
-  void initState() {
-    rect = widget.beginRect;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => rect = widget.endRect);
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedPositioned.fromRect(
-          rect: rect,
-          duration: const Duration(milliseconds: 200),
-          curve: widget.curve ?? Curves.linear,
-          onEnd: widget.onEnd,
-          child: widget.child,
-        ),
-      ],
-    );
-  }
 }

@@ -14,51 +14,57 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-/// [AnimatedSwitcher] with an optional [delay].
-class AnimatedDelayedSwitcher extends StatefulWidget {
-  const AnimatedDelayedSwitcher({
+/// [AnimatedContainer] changing its width.
+class AnimatedDelayedWidth extends StatefulWidget {
+  const AnimatedDelayedWidth({
     Key? key,
     this.delay = Duration.zero,
+    required this.beginWidth,
+    required this.endWidth,
     this.duration = const Duration(milliseconds: 300),
-    required this.child,
   }) : super(key: key);
 
   /// [Duration] of the delay.
   final Duration delay;
 
-  /// [Duration] of the switching animation.
+  /// [Duration] of the [AnimatedContainer].
   final Duration duration;
 
-  /// [Widget] to switch to.
-  final Widget child;
+  /// Initial width of the [AnimatedContainer].
+  final double beginWidth;
+
+  /// Target width of the [AnimatedContainer].
+  final double endWidth;
 
   @override
-  State<AnimatedDelayedSwitcher> createState() =>
-      _AnimatedDelayedSwitcherState();
+  State<AnimatedDelayedWidth> createState() => _AnimatedDelayedWidthState();
 }
 
-/// [State] of an [AnimatedDelayedSwitcher] switching the [Widget].
-class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
-  /// Indicator whether the [AnimatedSwitcher] should be enabled.
-  bool _show = false;
+/// State of an [AnimatedDelayedWidth] maintaining its [width].
+class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
+  /// Current width value.
+  late double width;
 
   @override
   void initState() {
     super.initState();
+
+    width = widget.beginWidth;
     Future.delayed(widget.delay, () {
       if (mounted) {
-        setState(() => _show = true);
+        setState(() => width = widget.endWidth);
       }
     });
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedSwitcher(
-        duration: widget.duration,
-        child: _show ? widget.child : Container(),
-      );
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: widget.duration,
+      width: width,
+      curve: Curves.ease,
+    );
+  }
 }
