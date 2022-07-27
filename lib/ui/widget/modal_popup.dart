@@ -19,15 +19,16 @@ import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
 
-/// Class which is responsible for showing popups.
+/// Stylized modal popup.
+///
+/// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
-  /// Shows popup depend to current platform.
-  static Future<T?> show<T>(
-    BuildContext context,
-    Widget child, {
-    double contentMaxWidth = 300,
-    double layoutMaxWidth = 420,
-    double horizontalPadding = 10,
+  /// Opens a new [ModalPopup] wrapping the provided [child].
+  static Future<T?> show<T>({
+    required BuildContext context,
+    required Widget child,
+    BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
+    BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
   }) {
     if (context.isMobile) {
       return showModalBottomSheet(
@@ -81,11 +82,9 @@ abstract class ModalPopup {
           children: [
             Center(
               child: Container(
-                constraints: BoxConstraints(maxWidth: layoutMaxWidth),
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: 10,
-                ),
+                constraints: modalConstraints,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -109,7 +108,7 @@ abstract class ModalPopup {
                       ],
                     ),
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                      constraints: desktopConstraints,
                       child: Center(child: child),
                     ),
                   ],

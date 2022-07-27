@@ -63,11 +63,14 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
-  /// Indicates [newPassword] obscuring.
+  /// Indicator whether the [password] should be obscured.
+  final RxBool obscurePassword = RxBool(true);
+
+  /// Indicator whether the [newPassword] should be obscured.
   final RxBool obscureNewPassword = RxBool(true);
 
-  /// Indicates [repeatPassword] obscuring.
-  final RxBool obscureRepeat = RxBool(true);
+  /// Indicator whether the [repeatPassword] should be obscured.
+  final RxBool obscureRepeatPassword = RxBool(true);
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage?> stage = Rx(null);
@@ -200,7 +203,19 @@ class LoginController extends GetxController {
     } on FormatException {
       password.error.value = 'err_incorrect_password'.l10n;
     } on CreateSessionException catch (e) {
-      login.error.value = e.toMessage();
+      switch (e.code) {
+        case CreateSessionErrorCode.unknownUser:
+          login.error.value = e.toMessage();
+          break;
+
+        case CreateSessionErrorCode.wrongPassword:
+          password.error.value = e.toMessage();
+          break;
+
+        case CreateSessionErrorCode.artemisUnknown:
+          password.error.value = 'err_data_transfer'.l10n;
+          rethrow;
+      }
     } on ConnectionException {
       password.unsubmit();
       password.error.value = 'err_data_transfer'.l10n;
@@ -220,7 +235,6 @@ class LoginController extends GetxController {
     recovery.editable.value = false;
     recovery.status.value = RxStatus.loading();
     recovery.error.value = null;
-    recovery.unsubmit();
 
     _recoveryLogin = _recoveryNum = _recoveryPhone = _recoveryEmail = null;
 

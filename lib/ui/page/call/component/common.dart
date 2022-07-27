@@ -22,245 +22,408 @@ import '../widget/call_title.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
-import '/ui/widget/svg/svg.dart';
+import '/routes.dart';
 
-/// [RoundFloatingButton] accepting a call without video.
-Widget acceptAudioButton(CallController c) => RoundFloatingButton(
-      onPressed: () => c.join(withVideo: false),
-      text: 'btn_call_answer_with_audio'.l10n,
-      color: CallController.acceptColor,
-      withBlur: true,
-      children: [
-        SizedBox(
-          width: 60,
-          height: 60,
-          child: Center(
-            child:
-                SvgLoader.asset('assets/icons/audio_call_start.svg', width: 29),
-          ),
-        )
-      ],
+/// Button in a [CallView].
+///
+/// Intended to be placed in a [Dock] to be reordered around.
+abstract class CallButton {
+  const CallButton(this.c);
+
+  /// [CallController] owning this [CallButton], used for changing the state.
+  final CallController c;
+
+  /// Indicates whether this [CallButton] can be removed from the [Dock].
+  bool get isRemovable => true;
+
+  /// Returns a text-represented hint for this [CallButton].
+  String get hint;
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CallButton && runtimeType == other.runtimeType;
+
+  /// Builds the [Widget] representation of this [CallButton].
+  Widget build({bool hinted = true});
+
+  /// Returns a styled [RoundFloatingButton] with the provided parameters.
+  Widget _common({
+    required String asset,
+    VoidCallback? onPressed,
+    bool hinted = true,
+    bool expanded = false,
+    bool withBlur = false,
+    Color color = const Color(0x794E5A78),
+    double assetWidth = 60,
+  }) {
+    return RoundFloatingButton(
+      asset: asset,
+      assetWidth: assetWidth,
+      color: color,
+      hint: !expanded && hinted ? hint : null,
+      text: expanded ? hint : null,
+      withBlur: withBlur,
+      onPressed: onPressed,
     );
+  }
+}
 
-/// [RoundFloatingButton] accepting a call with video.
-Widget acceptVideoButton(CallController c) => RoundFloatingButton(
-      onPressed: () => c.join(withVideo: true),
-      text: 'btn_call_answer_with_video'.l10n,
-      color: CallController.acceptColor,
-      withBlur: true,
-      children: [SvgLoader.asset('assets/icons/video_on.svg', width: 60)],
+/// [CallButton] toggling a more panel.
+class MoreButton extends CallButton {
+  const MoreButton(CallController c) : super(c);
+
+  @override
+  bool get isRemovable => false;
+
+  @override
+  String get hint => 'btn_call_more'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'more',
+      hinted: hinted,
+      onPressed: c.toggleMore,
     );
+  }
+}
 
-/// [RoundFloatingButton] declining a call.
-Widget declineButton(CallController c) => RoundFloatingButton(
-      onPressed: c.decline,
-      text: 'btn_call_decline'.l10n,
-      color: CallController.endColor,
-      withBlur: true,
-      children: [SvgLoader.asset('assets/icons/call_end.svg', width: 60)],
-    );
+/// [CallButton] toggling a local video.
+class VideoButton extends CallButton {
+  const VideoButton(CallController c) : super(c);
 
-/// [RoundFloatingButton] dropping a call.
-Widget dropButton(CallController c, [double? scale]) => RoundFloatingButton(
-      hint: 'btn_call_end'.l10n,
-      onPressed: c.drop,
-      color: CallController.endColor,
-      scale: scale ?? 1,
-      children: [SvgLoader.asset('assets/icons/call_end.svg', width: 60)],
-    );
+  @override
+  String get hint {
+    bool isVideo = c.videoState.value == LocalTrackState.enabled ||
+        c.videoState.value == LocalTrackState.enabling;
+    return isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n;
+  }
 
-/// [RoundFloatingButton] canceling an outgoing call.
-Widget cancelButton(CallController c) => RoundFloatingButton(
-      hint: 'btn_call_cancel'.l10n,
-      onPressed: c.drop,
-      color: CallController.endColor,
-      withBlur: true,
-      children: [SvgLoader.asset('assets/icons/call_end.svg', width: 60)],
-    );
-
-/// [RoundFloatingButton] toggling a local video.
-Widget videoButton(CallController c, [double? scale]) => Obx(() {
+  @override
+  Widget build({bool hinted = true, bool blur = false}) {
+    return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
-      return RoundFloatingButton(
-        hint: isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n,
+      return _common(
+        asset: 'video_${isVideo ? 'on' : 'off'}',
+        hinted: hinted,
+        withBlur: blur,
         onPressed: c.toggleVideo,
-        scale: scale ?? 1,
-        withBlur: c.state.value != OngoingCallState.active &&
-            c.state.value != OngoingCallState.joining,
-        children: [
-          SvgLoader.asset(
-            'assets/icons/video_${isVideo ? 'on' : 'off'}.svg',
-            width: 60,
-          ),
-        ],
       );
     });
+  }
+}
 
-/// [RoundFloatingButton] toggling a local audio.
-Widget audioButton(CallController c, [double? scale]) => Obx(() {
+/// [CallButton] toggling a local audio.
+class AudioButton extends CallButton {
+  const AudioButton(CallController c) : super(c);
+
+  @override
+  String get hint {
+    bool isAudio = c.audioState.value == LocalTrackState.enabled ||
+        c.audioState.value == LocalTrackState.enabling;
+    return isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n;
+  }
+
+  @override
+  Widget build({bool hinted = true, bool blur = false}) {
+    return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
-      return RoundFloatingButton(
-        hint: isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n,
+      return _common(
+        asset: 'microphone_${isAudio ? 'on' : 'off'}',
+        hinted: hinted,
+        withBlur: blur,
         onPressed: c.toggleAudio,
-        scale: scale ?? 1,
-        withBlur: c.state.value != OngoingCallState.active &&
-            c.state.value != OngoingCallState.joining,
-        children: [
-          SvgLoader.asset(
-            'assets/icons/microphone_${isAudio ? 'on' : 'off'}.svg',
-            width: 60,
-          ),
-        ],
       );
     });
+  }
+}
+
+/// [CallButton] toggling a local screen-sharing.
+class ScreenButton extends CallButton {
+  const ScreenButton(CallController c) : super(c);
+
+  @override
+  String get hint {
+    bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
+        c.screenShareState.value == LocalTrackState.enabling;
+    return isScreen ? 'btn_call_screen_off'.l10n : 'btn_call_screen_on'.l10n;
+  }
+
+  @override
+  Widget build({bool hinted = true}) {
+    return Obx(() {
+      bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
+          c.screenShareState.value == LocalTrackState.enabling;
+      return _common(
+        asset: 'screen_share_${isScreen ? 'off' : 'on'}',
+        hinted: hinted,
+        onPressed: c.toggleScreenShare,
+      );
+    });
+  }
+}
+
+/// [CallButton] toggling hand.
+class HandButton extends CallButton {
+  const HandButton(CallController c) : super(c);
+
+  @override
+  String get hint => c.isHandRaised.value
+      ? 'btn_call_hand_down'.l10n
+      : 'btn_call_hand_up'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return Obx(() {
+      return _common(
+        asset: 'hand_${c.isHandRaised.value ? 'down' : 'up'}',
+        hinted: hinted,
+        onPressed: c.toggleHand,
+      );
+    });
+  }
+}
+
+/// [CallButton] invoking the [CallController.openSettings].
+class SettingsButton extends CallButton {
+  const SettingsButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_settings'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'settings_small',
+      hinted: hinted,
+      onPressed: () => c.openSettings(router.context!),
+    );
+  }
+}
+
+/// [CallButton] invoking the [CallController.openAddMember].
+class AddMemberCallButton extends CallButton {
+  const AddMemberCallButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_add_participant'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'add_user_small',
+      hinted: hinted,
+      onPressed: () => c.openAddMember(router.context!),
+    );
+  }
+}
+
+/// [CallButton] toggling the remote video.
+class RemoteVideoButton extends CallButton {
+  const RemoteVideoButton(CallController c) : super(c);
+
+  @override
+  String get hint => c.isRemoteVideoEnabled.value
+      ? 'btn_call_remote_video_off'.l10n
+      : 'btn_call_remote_video_on'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return Obx(() {
+      return _common(
+        asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
+        hinted: hinted,
+        onPressed: c.toggleRemoteVideos,
+      );
+    });
+  }
+}
+
+/// [CallButton] toggling the remote audio.
+class RemoteAudioButton extends CallButton {
+  const RemoteAudioButton(CallController c) : super(c);
+
+  @override
+  String get hint => c.isRemoteAudioEnabled.value
+      ? 'btn_call_remote_audio_off'.l10n
+      : 'btn_call_remote_audio_on'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return Obx(() {
+      return _common(
+        asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
+        hinted: hinted,
+        onPressed: c.toggleRemoteAudios,
+      );
+    });
+  }
+}
+
+/// [CallButton] accepting a call without video.
+class AcceptAudioButton extends CallButton {
+  const AcceptAudioButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_answer_with_audio'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool expanded = false}) {
+    return _common(
+      asset: 'audio_call_start',
+      assetWidth: 29,
+      color: CallController.acceptColor,
+      hinted: hinted,
+      expanded: expanded,
+      withBlur: expanded,
+      onPressed: () => c.join(withVideo: false),
+    );
+  }
+}
+
+/// [RoundFloatingButton] accepting a call with video.
+class AcceptVideoButton extends CallButton {
+  const AcceptVideoButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_answer_with_video'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool expanded = false}) {
+    return _common(
+      asset: 'video_on',
+      color: CallController.acceptColor,
+      hinted: hinted,
+      expanded: expanded,
+      withBlur: expanded,
+      onPressed: () => c.join(withVideo: true),
+    );
+  }
+}
+
+/// [RoundFloatingButton] declining a call.
+class DeclineButton extends CallButton {
+  const DeclineButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_decline'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool expanded = false}) {
+    return _common(
+      asset: 'call_end',
+      color: CallController.endColor,
+      hinted: hinted,
+      expanded: expanded,
+      withBlur: expanded,
+      onPressed: c.decline,
+    );
+  }
+}
+
+/// [RoundFloatingButton] dropping a call.
+class DropButton extends CallButton {
+  const DropButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_end'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'call_end',
+      color: CallController.endColor,
+      hinted: hinted,
+      onPressed: c.drop,
+    );
+  }
+}
+
+/// [RoundFloatingButton] canceling an outgoing call.
+class CancelButton extends CallButton {
+  const CancelButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_cancel'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool blur = false}) {
+    return _common(
+      asset: 'call_end',
+      color: CallController.endColor,
+      hinted: hinted,
+      withBlur: blur,
+      onPressed: c.drop,
+    );
+  }
+}
+
+/// [CallButton] ending the call.
+class EndCallButton extends CallButton {
+  const EndCallButton(CallController c) : super(c);
+
+  @override
+  bool get isRemovable => false;
+
+  @override
+  String get hint => 'btn_call_end'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'call_end',
+      color: CallController.endColor,
+      hinted: hinted,
+      onPressed: c.drop,
+    );
+  }
+}
 
 /// [RoundFloatingButton] switching a speaker output.
-Widget speakerButton(CallController c, [double? scale]) => RoundFloatingButton(
-      hint: 'btn_call_toggle_speaker'.l10n,
-      onPressed: c.toggleSpeaker,
-      scale: scale ?? 1,
-      withBlur: c.state.value != OngoingCallState.active &&
-          c.state.value != OngoingCallState.joining,
-      children: [
-        SvgLoader.asset(
-          'assets/icons/speaker_${c.speakerSwitched.value ? 'on' : 'off'}.svg',
-          width: 60,
-        ),
-      ],
-    );
+class SpeakerButton extends CallButton {
+  const SpeakerButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_call_toggle_speaker'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool blur = false}) {
+    return Obx(() {
+      return _common(
+        asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
+        hinted: hinted,
+        withBlur: blur,
+        onPressed: c.toggleSpeaker,
+      );
+    });
+  }
+}
 
 /// [RoundFloatingButton] switching a local video stream.
-Widget switchButton(CallController c, [double? scale]) => Obx(
-      () => RoundFloatingButton(
-        hint: 'btn_call_switch_camera'.l10n,
-        onPressed: c.switchCamera,
-        scale: scale ?? 1,
-        withBlur: c.state.value != OngoingCallState.active &&
-            c.state.value != OngoingCallState.joining,
-        children: [
-          SizedBox(
-            width: 60,
-            height: 60,
-            child: Center(
-              child: SvgLoader.asset(
-                'assets/icons/camera_${c.cameraSwitched.value ? 'front' : 'back'}.svg',
-                width: 28,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+class SwitchButton extends CallButton {
+  const SwitchButton(CallController c) : super(c);
 
-/// [RoundFloatingButton] toggling a local screen-sharing.
-Widget screenButton(CallController c, [double? scale]) => Obx(
-      () {
-        bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
-            c.screenShareState.value == LocalTrackState.enabling;
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            RoundFloatingButton(
-              hint: isScreen
-                  ? 'btn_call_screen_off'.l10n
-                  : 'btn_call_screen_on'.l10n,
-              onPressed: c.toggleScreenShare,
-              scale: scale ?? 1,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: SvgLoader.asset(
-                    'assets/icons/screen_share_${isScreen ? 'off' : 'on'}.svg',
-                    width: 60,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  String get hint => 'btn_call_switch_camera'.l10n;
 
-/// [RoundFloatingButton] raising a hand.
-Widget handButton(CallController c, [double? scale]) => Obx(
-      () => RoundFloatingButton(
-        hint: c.isHandRaised.value
-            ? 'btn_call_hand_down'.l10n
-            : 'btn_call_hand_up'.l10n,
-        onPressed: c.toggleHand,
-        scale: scale ?? 1,
-        children: [
-          SvgLoader.asset(
-            'assets/icons/hand_${c.isHandRaised.value ? 'down' : 'up'}.svg',
-            width: 60,
-          )
-        ],
-      ),
-    );
-
-/// [RoundFloatingButton] invoking the [CallController.openAddMember].
-Widget addParticipantButton(
-  CallController c,
-  BuildContext context, [
-  double? scale,
-]) =>
-    withDescription(
-      RoundFloatingButton(
-        onPressed: () => c.openAddMember(context),
-        scale: scale ?? 1,
-        children: [
-          SizedBox(
-            width: 60,
-            height: 60,
-            child: SvgLoader.asset(
-              'assets/icons/add_user_small.svg',
-              width: 60,
-            ),
-          )
-        ],
-      ),
-      Text('btn_add_participant_desc'.l10n),
-    );
-
-/// [RoundFloatingButton] disabling the remote video.
-Widget disableVideo(CallController c, [double? scale]) => Obx(
-      () => withDescription(
-        RoundFloatingButton(
-          onPressed: c.toggleRemoteVideos,
-          scale: scale ?? 1,
-          children: [
-            SvgLoader.asset(
-              'assets/icons/incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}.svg',
-              width: 60,
-            )
-          ],
-        ),
-        Text(c.isRemoteVideoEnabled.value
-            ? 'btn_call_remote_video_off_desc'.l10n
-            : 'btn_call_remote_video_on_desc'.l10n),
-      ),
-    );
-
-/// [RoundFloatingButton] disabling the remote audio.
-Widget disableAudio(CallController c, [double? scale]) => Obx(
-      () => withDescription(
-        RoundFloatingButton(
-          onPressed: c.toggleRemoteAudios,
-          scale: scale ?? 1,
-          children: [
-            SvgLoader.asset(
-              'assets/icons/speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}.svg',
-              width: 60,
-            )
-          ],
-        ),
-        Text(c.isRemoteAudioEnabled.value
-            ? 'btn_call_remote_audio_off_desc'.l10n
-            : 'btn_call_remote_audio_on_desc'.l10n),
-      ),
-    );
+  @override
+  Widget build({bool hinted = true, bool blur = false}) {
+    return Obx(() {
+      return _common(
+        asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
+        assetWidth: 28,
+        hinted: hinted,
+        withBlur: blur,
+        onPressed: c.toggleSpeaker,
+      );
+    });
+  }
+}
 
 /// Returns a [Column] consisting of the [child] with the provided
 /// [description].

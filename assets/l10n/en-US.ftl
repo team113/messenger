@@ -79,6 +79,7 @@ btn_call_hand_up = Hand up
 btn_call_hand_up_desc =
     Hand
     up
+btn_call_more = More
 btn_call_remote_audio_off = Disable incoming audio
 btn_call_remote_audio_off_desc =
     Disable
@@ -178,7 +179,8 @@ err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
 err_current_password_empty = Current password must not be empty
-err_data_transfer = Data transfer error
+err_data_transfer =
+    Data transfer error. Please, check your network connection.
 err_dimensions_too_big = Dimensions too big
 err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
@@ -340,13 +342,12 @@ label_duration_minute_short = m
 label_duration_second_short = s
 label_edit_message = Message editing
 label_edit_message_hint = No text
-label_email_confirmation_code_was_send =
+label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
-label_enter_it_bellow = Please, enter it below.
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
@@ -355,7 +356,8 @@ label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden
 label_hide_for_me = Delete for me
-label_hint_from_gapopa = Hint from Gapopa
+label_hint_drag_n_drop_buttons =
+    Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
     Just drag to:
 
@@ -364,6 +366,7 @@ label_hint_drag_n_drop_video =
     • attach one or more videos to any side;
 
     • move one or more videos to a separate panel.
+label_hint_from_gapopa = Hint from Gapopa
 label_incoming_call = Incoming call
 label_last_seen = Last seen
 label_login = Login
@@ -388,7 +391,7 @@ label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
 label_password_not_set = Password not set
-label_password_set_successfully = Password set successfully
+label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
