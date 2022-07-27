@@ -378,6 +378,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               duration: 200.milliseconds,
               child: isDocked
                   ? AnimatedSlider(
+                      animationStream: c.dockAnimationStream,
                       key: const Key('DockedPanelPadding'),
                       isOpen: showBottomUi,
                       duration: 400.milliseconds,
