@@ -23,7 +23,7 @@ import '/util/platform_utils.dart';
 ///
 /// Intended to be displayed with the [show] method.
 abstract class ModalPopup {
-  /// Opens a [ModalPopup] wrapping the provided [child].
+  /// Opens a new [ModalPopup] wrapping the provided [child].
   static Future<T?> show<T>({
     required BuildContext context,
     required Widget child,
