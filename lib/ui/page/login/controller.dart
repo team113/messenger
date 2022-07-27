@@ -16,6 +16,7 @@
 
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -47,9 +48,6 @@ class LoginController extends GetxController {
 
   /// [TextFieldState] of a password text input.
   late final TextFieldState password;
-
-  /// Indicates [password] obscuring.
-  final RxBool obscurePassword = RxBool(true);
 
   /// [TextFieldState] of a recovery text input.
   late final TextFieldState recovery;

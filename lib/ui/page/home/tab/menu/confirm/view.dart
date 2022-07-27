@@ -32,7 +32,7 @@ class ConfirmLogoutView extends StatelessWidget {
 
   /// Displays a [ConfirmLogoutView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) =>
-      ModalPopup.show(context, const ConfirmLogoutView());
+      ModalPopup.show(context: context, child: const ConfirmLogoutView());
 
   @override
   Widget build(BuildContext context) {
