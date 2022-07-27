@@ -23,15 +23,15 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - build
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - docker
-      - pubspec
+      # - build
+      # - copyright
+      # - dartanalyze
+      # - dartdoc
+      # - dartfmt
+      # - docker
+      # - pubspec
       - test-e2e
-      - test-unit
+      # - test-unit
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -43,53 +43,53 @@ jobs:
   # Linting and formatting #
   ##########################
 
-  copyright:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # copyright:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - run: make copyright check=yes
+  #     - run: make copyright check=yes
 
-  dartanalyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # dartanalyze:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make flutter.analyze
+  #     - run: make flutter.analyze
 
-  dartfmt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # dartfmt:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.fmt check=yes
+  #     - run: make flutter.fmt check=yes
 
-  pubspec:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # pubspec:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
-        run: git diff --exit-code
+  #     - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
+  #       run: git diff --exit-code
 
 
 
@@ -98,172 +98,172 @@ jobs:
   # Building #
   ############
 
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - apk
-          - appbundle
-          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
-          - linux
-          # TODO: Uncomment once `flutter_webrtc` supports macOS platform.
-          #- macos
-          - web
-          - windows
-    # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
-    runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                               && 'macos-latest')
-              || (matrix.platform == 'windows' && 'windows-latest')
-              || (matrix.platform == 'linux'   && 'ubuntu-22.04')
-              ||                                  'ubuntu-latest' }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # build:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       platform:
+  #         - apk
+  #         - appbundle
+  #         # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
+  #         #- ios
+  #         - linux
+  #         # TODO: Uncomment once `flutter_webrtc` supports macOS platform.
+  #         #- macos
+  #         - web
+  #         - windows
+  #   # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
+  #   runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
+  #                                              && 'macos-latest')
+  #             || (matrix.platform == 'windows' && 'windows-latest')
+  #             || (matrix.platform == 'linux'   && 'ubuntu-22.04')
+  #             ||                                  'ubuntu-latest' }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: sudo apt-get update -y
-        if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y
-                          ninja-build
-                          libunwind-dev
-                          libgtk-3-dev
-                          libgstreamer1.0-dev
-                          libgstreamer-plugins-base1.0-dev
-                          libpulse-dev
-        if: ${{ matrix.platform == 'linux' }}
+  #     - run: sudo apt-get update -y
+  #       if: ${{ matrix.platform == 'linux' }}
+  #     - run: sudo apt-get install -y
+  #                         ninja-build
+  #                         libunwind-dev
+  #                         libgtk-3-dev
+  #                         libgstreamer1.0-dev
+  #                         libgstreamer-plugins-base1.0-dev
+  #                         libpulse-dev
+  #       if: ${{ matrix.platform == 'linux' }}
 
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'windows' }}
+  #     - run: flutter config --enable-${{ matrix.platform }}-desktop
+  #       if: ${{ matrix.platform == 'linux'
+  #            || matrix.platform == 'macos'
+  #            || matrix.platform == 'windows' }}
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make flutter.build platform=${{ matrix.platform }}
-                                split-per-abi=yes
+  #     - run: make flutter.build platform=${{ matrix.platform }}
+  #                               split-per-abi=yes
 
-      - name: Parse application name from Git repository name
-        id: app
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.repository }}
-          regex: '^${{ github.repository_owner }}/(.+)$'
+  #     - name: Parse application name from Git repository name
+  #       id: app
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.repository }}
+  #         regex: '^${{ github.repository_owner }}/(.+)$'
 
-      - run: mkdir artifacts/
-      - run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-x86_64-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/bundle/release/app-release.aab
-                artifacts/${{ steps.app.outputs.group1 }}-android.aab
-        if: ${{ matrix.platform == 'appbundle' }}
-      - uses: thedoctor0/zip-release@0.6.2
-        with:
-          filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'linux'
-                          && 'build/linux/x64/release/bundle')
-                      || (matrix.platform == 'macos'
-                          && 'build/macos/Build/Products/Release/messenger.app')
-                      || (matrix.platform == 'windows'
-                          && 'build/windows/runner/Release')
-                      ||     'build/web'}}
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'web'
-             || matrix.platform == 'windows' }}
+  #     - run: mkdir artifacts/
+  #     - run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+  #               artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
+  #       if: ${{ matrix.platform == 'apk' }}
+  #     - run: mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+  #               artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
+  #       if: ${{ matrix.platform == 'apk' }}
+  #     - run: mv build/app/outputs/flutter-apk/app-x86_64-release.apk
+  #               artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
+  #       if: ${{ matrix.platform == 'apk' }}
+  #     - run: mv build/app/outputs/bundle/release/app-release.aab
+  #               artifacts/${{ steps.app.outputs.group1 }}-android.aab
+  #       if: ${{ matrix.platform == 'appbundle' }}
+  #     - uses: thedoctor0/zip-release@0.6.2
+  #       with:
+  #         filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
+  #         directory: ${{ (matrix.platform == 'linux'
+  #                         && 'build/linux/x64/release/bundle')
+  #                     || (matrix.platform == 'macos'
+  #                         && 'build/macos/Build/Products/Release/messenger.app')
+  #                     || (matrix.platform == 'windows'
+  #                         && 'build/windows/runner/Release')
+  #                     ||     'build/web'}}
+  #       if: ${{ matrix.platform == 'linux'
+  #            || matrix.platform == 'macos'
+  #            || matrix.platform == 'web'
+  #            || matrix.platform == 'windows' }}
 
-      - name: Generate SHA256 checksums
-        run: ${{ (runner.os == 'Windows'
-                  && 'forfiles /M *.zip /C "cmd /c sha256sum @file > @file.sha256sum"')
-              ||     'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
-        working-directory: artifacts/
-      - name: Show generated SHA256 checksums
-        run: ${{ (runner.os == 'Windows'
-                  && 'type *.sha256sum')
-              ||     'cat *.sha256sum' }}
-        working-directory: artifacts/
+  #     - name: Generate SHA256 checksums
+  #       run: ${{ (runner.os == 'Windows'
+  #                 && 'forfiles /M *.zip /C "cmd /c sha256sum @file > @file.sha256sum"')
+  #             ||     'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
+  #       working-directory: artifacts/
+  #     - name: Show generated SHA256 checksums
+  #       run: ${{ (runner.os == 'Windows'
+  #                 && 'type *.sha256sum')
+  #             ||     'cat *.sha256sum' }}
+  #       working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: build-${{ matrix.platform }}-${{ github.run_number }}
-          path: artifacts/
-          if-no-files-found: error
-          retention-days: 1
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: build-${{ matrix.platform }}-${{ github.run_number }}
+  #         path: artifacts/
+  #         if-no-files-found: error
+  #         retention-days: 1
 
-  dartdoc:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # dartdoc:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make docs.dart clean=yes
+  #     - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: doc/api
-          if-no-files-found: error
-        if: ${{ github.ref == 'refs/heads/main'
-             || startsWith(github.ref, 'refs/tags/v') }}
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: doc/api
+  #         if-no-files-found: error
+  #       if: ${{ github.ref == 'refs/heads/main'
+  #            || startsWith(github.ref, 'refs/tags/v') }}
 
-  docker:
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-buildx-action@v2
+  # docker:
+  #   needs: ["build"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: docker/setup-buildx-action@v2
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-      - run: mkdir -p build/web/
-      - run: unzip *.zip -d build/web/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-web-${{ github.run_number }}
+  #     - run: mkdir -p build/web/
+  #     - run: unzip *.zip -d build/web/
 
-      - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: build/web/artifacts/
+  #     - run: mkdir -p build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-apk-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-appbundle-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-linux-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-windows-${{ github.run_number }}
+  #         path: build/web/artifacts/
 
-      - run: make docker.image no-cache=yes
-                  tag=build-${{ github.run_number }}
+  #     - run: make docker.image no-cache=yes
+  #                 tag=build-${{ github.run_number }}
 
-      - run: make docker.tar to-file=.cache/image.tar
-                  tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-          path: .cache/image.tar
-          if-no-files-found: error
-          retention-days: 1
+  #     - run: make docker.tar to-file=.cache/image.tar
+  #                 tags=build-${{ github.run_number }}
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: docker-${{ github.run_number }}
+  #         path: .cache/image.tar
+  #         if-no-files-found: error
+  #         retention-days: 1
 
 
 
@@ -272,20 +272,20 @@ jobs:
   # Testing #
   ###########
 
-  test-unit:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
+  # test-unit:
+  #   name: Unit tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: $FLUTTER_VER
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make test.unit
+  #     - run: make test.unit
 
 
   test-e2e:
@@ -300,28 +300,28 @@ jobs:
           channel: stable
           cache: true
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-      - run: make docker.untar from-file=image.tar
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: docker-${{ github.run_number }}
+      # - run: make docker.untar from-file=image.tar
 
-      - name: Login to container registry
-        run: docker login -u ${{ secrets.E2E_USER }}
-                          -p ${{ secrets.E2E_PASS }}
-                             ${{ secrets.E2E_REGISTRY }}
+      # - name: Login to container registry
+      #   run: docker login -u ${{ secrets.E2E_USER }}
+      #                     -p ${{ secrets.E2E_PASS }}
+      #                        ${{ secrets.E2E_REGISTRY }}
 
       - run: make flutter.pub
 
-      - name: Populate .env file to use in Docker compose
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FRONTEND_IMAGE: team113/messenger
-          envkey_COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
-          envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
-          envkey_COMPOSE_PROJECT_NAME: messenger
-          fail_on_empty: true
+      # - name: Populate .env file to use in Docker compose
+      #   uses: SpicyPizza/create-envfile@v1.3
+      #   with:
+      #     envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
+      #     envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+      #     envkey_COMPOSE_FRONTEND_IMAGE: team113/messenger
+      #     envkey_COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
+      #     envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+      #     envkey_COMPOSE_PROJECT_NAME: messenger
+      #     fail_on_empty: true
 
       - run: make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
              tag=build-${{ github.run_number }}
@@ -334,208 +334,208 @@ jobs:
   # Releasing #
   #############
 
-  release-github:
-    name: Release on GitHub
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - release-docker
-      - test-unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # release-github:
+  #   name: Release on GitHub
+  #   if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  #   needs:
+  #     - build
+  #     - copyright
+  #     - dartanalyze
+  #     - dartdoc
+  #     - dartfmt
+  #     - release-docker
+  #     - test-unit
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-      - name: Verify Git tag version matches `pubspec.yaml` version
-        run: >
-          test "${{ steps.semver.outputs.group1 }}"
-            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #     - name: Verify Git tag version matches `pubspec.yaml` version
+  #       run: >
+  #         test "${{ steps.semver.outputs.group1 }}"
+  #           == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
 
-      - name: Parse CHANGELOG link
-        id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
-      - name: Parse milestone link
-        id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+  #     - name: Parse CHANGELOG link
+  #       id: changelog
+  #       run: echo ::set-output
+  #                 name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+  #     - name: Parse milestone link
+  #       id: milestone
+  #       run: echo ::set-output
+  #                 name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-apk-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-appbundle-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-linux-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-web-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-windows-${{ github.run_number }}
+  #         path: artifacts/
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.6.2
-        with:
-          filename: artifacts/docs.zip
-          path: .cache/dartdoc/
-      - name: Generate dartdoc SHA256 checksum
-        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
-        working-directory: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: .cache/dartdoc/
+  #     - uses: thedoctor0/zip-release@0.6.2
+  #       with:
+  #         filename: artifacts/docs.zip
+  #         path: .cache/dartdoc/
+  #     - name: Generate dartdoc SHA256 checksum
+  #       run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
+  #       working-directory: artifacts/
 
-      - name: Show artifacts SHA256 checksums
-        run: cat *.sha256sum
-        working-directory: artifacts/
+  #     - name: Show artifacts SHA256 checksums
+  #       run: cat *.sha256sum
+  #       working-directory: artifacts/
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ steps.semver.outputs.group1 }}
-          body: >
-            [Changelog](${{ steps.changelog.outputs.link }}) |
-            [Milestone](${{ steps.milestone.outputs.link }})
-          files: |
-            artifacts/*.apk
-            artifacts/*.aab
-            artifacts/*.zip
-            artifacts/*.sha256sum
-          fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+  #     - name: Create GitHub release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: ${{ steps.semver.outputs.group1 }}
+  #         body: >
+  #           [Changelog](${{ steps.changelog.outputs.link }}) |
+  #           [Milestone](${{ steps.milestone.outputs.link }})
+  #         files: |
+  #           artifacts/*.apk
+  #           artifacts/*.aab
+  #           artifacts/*.zip
+  #           artifacts/*.sha256sum
+  #         fail_on_unmatched_files: true
+  #         prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
-  release-docker:
-    name: Release Docker image
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - docker
-      - test-unit
-    strategy:
-      fail-fast: false
-      matrix:
-        registry: ["ghcr.io"]
-    runs-on: ubuntu-latest
-    steps:
-      # Skip if this is fork and no credentials are provided.
-      - id: skip
-        run: echo ::set-output name=no::${{ !(
-               github.repository_owner != 'team113'
-               && ((matrix.registry == 'quay.io'
-                    && secrets.QUAYIO_ROBOT_USER == '')
-                || (matrix.registry == 'docker.io'
-                    && secrets.DOCKERHUB_BOT_USER == ''))
-             ) }}
+  # release-docker:
+  #   name: Release Docker image
+  #   if: ${{ github.ref == 'refs/heads/main'
+  #        || startsWith(github.ref, 'refs/tags/v') }}
+  #   needs:
+  #     - copyright
+  #     - dartanalyze
+  #     - dartdoc
+  #     - dartfmt
+  #     - docker
+  #     - test-unit
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       registry: ["ghcr.io"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # Skip if this is fork and no credentials are provided.
+  #     - id: skip
+  #       run: echo ::set-output name=no::${{ !(
+  #              github.repository_owner != 'team113'
+  #              && ((matrix.registry == 'quay.io'
+  #                   && secrets.QUAYIO_ROBOT_USER == '')
+  #               || (matrix.registry == 'docker.io'
+  #                   && secrets.DOCKERHUB_BOT_USER == ''))
+  #            ) }}
 
-      - uses: actions/checkout@v3
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: actions/checkout@v3
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-          path: .cache/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - run: make docker.untar from-file=.cache/image.tar
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: docker-${{ github.run_number }}
+  #         path: .cache/
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.untar from-file=.cache/image.tar
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Login to ${{ matrix.registry }} container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ matrix.registry }}
-          username: ${{ (matrix.registry == 'docker.io'
-                         && secrets.DOCKERHUB_BOT_USER)
-                     || (matrix.registry == 'quay.io'
-                         && secrets.QUAYIO_ROBOT_USER)
-                     || github.repository_owner }}
-          password: ${{ (matrix.registry == 'docker.io'
-                         && secrets.DOCKERHUB_BOT_PASS)
-                     || (matrix.registry == 'quay.io'
-                         && secrets.QUAYIO_ROBOT_TOKEN)
-                     || secrets.GITHUB_TOKEN }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Login to ${{ matrix.registry }} container registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ${{ matrix.registry }}
+  #         username: ${{ (matrix.registry == 'docker.io'
+  #                        && secrets.DOCKERHUB_BOT_USER)
+  #                    || (matrix.registry == 'quay.io'
+  #                        && secrets.QUAYIO_ROBOT_USER)
+  #                    || github.repository_owner }}
+  #         password: ${{ (matrix.registry == 'docker.io'
+  #                        && secrets.DOCKERHUB_BOT_PASS)
+  #                    || (matrix.registry == 'quay.io'
+  #                        && secrets.QUAYIO_ROBOT_TOKEN)
+  #                    || secrets.GITHUB_TOKEN }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
-      - name: Form version Docker tags
-        id: tags
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            let versions = '${{ steps.semver.outputs.group1 }}';
-            if ('${{ steps.semver.outputs.group5 }}' === '') {
-              versions += ',${{ steps.semver.outputs.group3 }}';
-              if ('${{ steps.semver.outputs.group4 }}' !== '0') {
-                versions += ',${{ steps.semver.outputs.group4 }}';
-              }
-              versions += 'latest';
-            }
-            return versions;
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && startsWith(github.ref, 'refs/tags/v') }}
+  #     - name: Form version Docker tags
+  #       id: tags
+  #       uses: actions/github-script@v6
+  #       with:
+  #         result-encoding: string
+  #         script: |
+  #           let versions = '${{ steps.semver.outputs.group1 }}';
+  #           if ('${{ steps.semver.outputs.group5 }}' === '') {
+  #             versions += ',${{ steps.semver.outputs.group3 }}';
+  #             if ('${{ steps.semver.outputs.group4 }}' !== '0') {
+  #               versions += ',${{ steps.semver.outputs.group4 }}';
+  #             }
+  #             versions += 'latest';
+  #           }
+  #           return versions;
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && startsWith(github.ref, 'refs/tags/v') }}
 
-      - run: make docker.tags of=build-${{ github.run_number }}
-                  registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - run: make docker.push
-                  registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.tags of=build-${{ github.run_number }}
+  #                 registries=${{ matrix.registry }}
+  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
+  #                           && steps.tags.outputs.result)
+  #                       ||     'edge' }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.push
+  #                 registries=${{ matrix.registry }}
+  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
+  #                           && steps.tags.outputs.result)
+  #                       ||     'edge' }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      # On GitHub Container Registry README is automatically updated on pushes.
-      - name: Update README on Docker Hub
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: dockerhub
-          destination_container_repo: ${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'docker.io' }}
-      - name: Update README on Quay.io
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: quay
-          destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'quay.io' }}
+  #     # On GitHub Container Registry README is automatically updated on pushes.
+  #     - name: Update README on Docker Hub
+  #       uses: christian-korneck/update-container-description-action@v1
+  #       with:
+  #         provider: dockerhub
+  #         destination_container_repo: ${{ github.repository }}
+  #         readme_file: README.md
+  #       env:
+  #         DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
+  #         DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && matrix.registry == 'docker.io' }}
+  #     - name: Update README on Quay.io
+  #       uses: christian-korneck/update-container-description-action@v1
+  #       with:
+  #         provider: quay
+  #         destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
+  #         readme_file: README.md
+  #       env:
+  #         DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && matrix.registry == 'quay.io' }}
 
 
 
@@ -544,30 +544,30 @@ jobs:
   # Deploying #
   #############
 
-  deploy-docs:
-    name: Deploy documentation
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["dartdoc"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: gh-pages
+  # deploy-docs:
+  #   name: Deploy documentation
+  #   if: ${{ github.ref == 'refs/heads/main'
+  #        || startsWith(github.ref, 'refs/tags/v') }}
+  #   needs: ["dartdoc"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: gh-pages
 
-      - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
+  #     - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          commit_message: ${{ github.event.head_commit.message }}
-          force_orphan: true
-          keep_files: true
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
+  #     - uses: peaceiris/actions-gh-pages@v3
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: .
+  #         commit_message: ${{ github.event.head_commit.message }}
+  #         force_orphan: true
+  #         keep_files: true
+  #         user_name: github-actions[bot]
+  #         user_email: github-actions[bot]@users.noreply.github.com
