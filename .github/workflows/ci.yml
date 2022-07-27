@@ -290,7 +290,7 @@ jobs:
 
   test-e2e:
     name: E2E tests
-    needs: ["docker"]
+    # needs: ["docker"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
