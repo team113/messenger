@@ -46,10 +46,10 @@ class IntroductionController extends GetxController {
   /// Field for password repeat input.
   late final TextFieldState repeat;
 
-  /// Indicates obscuring of password field.
+  /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Indicates obscuring of repeat password field.
+  /// Indicator whether the [obscureRepeat] should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
   /// Current [MyUser].
