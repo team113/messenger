@@ -161,30 +161,30 @@ class _MinimizableViewState extends State<MinimizableView>
                         FocusManager.instance.primaryFocus?.unfocus();
                       }
                     : null,
-                onPanUpdate:
-                    (_drag != null && _value != null && widget.enabled) ||
-                            _controller.value == 1
-                        ? (d) {
-                            if (_panningDistance < widget.minimizationDelta &&
-                                _controller.value == 0) {
-                              return;
-                            }
+                onPanUpdate: widget.enabled || _controller.value == 1
+                    ? (d) {
+                        _panningDistance = _panningDistance + d.delta.dy;
 
-                            if (_drag != null && _value != null) {
-                              _controller.value = _value! +
-                                  (d.localPosition.dy -
-                                          _drag!.dy -
-                                          widget.minimizationDelta) *
-                                      (1 / constraints.maxHeight);
-                            } else {
-                              setState(() {
-                                _right = _right - d.delta.dx;
-                                _bottom = _bottom - d.delta.dy;
-                                _applyConstraints(biggest);
-                              });
-                            }
-                          }
-                        : null,
+                        if (_panningDistance < widget.minimizationDelta &&
+                            _controller.value == 0) {
+                          return;
+                        }
+
+                        if (_drag != null && _value != null) {
+                          _controller.value = _value! +
+                              (d.localPosition.dy -
+                                      _drag!.dy -
+                                      widget.minimizationDelta) *
+                                  (1 / constraints.maxHeight);
+                        } else {
+                          setState(() {
+                            _right = _right - d.delta.dx;
+                            _bottom = _bottom - d.delta.dy;
+                            _applyConstraints(biggest);
+                          });
+                        }
+                      }
+                    : null,
                 onPanStart: _controller.value == 0 && widget.enabled
                     ? (d) {
                         _controller.stop();
