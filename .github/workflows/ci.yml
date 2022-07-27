@@ -312,15 +312,19 @@ jobs:
 
       - run: make flutter.pub
 
+      - name: Populate .env file to use in Docker compose
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
+          envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+          envkey_COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
+          envkey_COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
+          envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+          envkey_COMPOSE_PROJECT_NAME: messenger
+          fail_on_empty: true
+
       - run: make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
              tag=build-${{ github.run_number }}
-        env:
-          COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
-          COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
-          COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
-          COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
-          COMPOSE_PROJECT_NAME: messenger
 
 
 
