@@ -65,7 +65,7 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional [IconData] to display instead of the [trailing].
   ///
-  /// If specified, [trailing] will be ignored.
+  /// If specified, the [trailing] will be ignored.
   final IconData? suffix;
 
   /// Optional prefix [Widget].

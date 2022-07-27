@@ -14,24 +14,28 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'conditional_backdrop.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
+import 'conditional_backdrop.dart';
 
-/// [FloatingActionButton] of [children] content with an optional [text] and
-/// [hint].
+/// [FloatingActionButton] of some [asset] or [child] content with an optional
+/// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     Key? key,
+    this.asset,
+    this.assetWidth = 60,
     this.onPressed,
     this.text,
-    this.children = const [],
-    this.color = const Color(0x7F818181),
+    this.color = const Color(0x794E5A78),
     this.hint,
-    this.scale = 1,
     this.withBlur = false,
+    this.child,
   }) : super(key: key);
 
   /// Callback, called when the button is tapped or activated other way.
@@ -45,11 +49,14 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Widgets to draw inside the button.
-  final List<Widget> children;
+  /// Name of the asset to place into the [SvgLoader.asset].
+  final String? asset;
 
-  /// Controls the scale of the button.
-  final double scale;
+  /// Width of the [asset].
+  final double assetWidth;
+
+  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  final Widget? child;
 
   /// Background color of the button.
   final Color? color;
@@ -61,49 +68,78 @@ class RoundFloatingButton extends StatefulWidget {
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
 }
 
-/// State of [RoundFloatingButton] used to keep the [showHint].
+/// State of [RoundFloatingButton] used to keep the [_hintEntry].
 class _RoundFloatingButtonState extends State<RoundFloatingButton> {
-  /// Indicator whether a hint should be displayed or not.
-  ///
-  /// Toggles on [InkWell] hover.
-  bool showHint = false;
+  /// [GlobalKey] of this [RoundFloatingButton] to place its [_hintEntry]
+  /// correctly.
+  final GlobalKey _key = GlobalKey();
+
+  /// [OverlayEntry] of the hint of this [RoundFloatingButton].
+  OverlayEntry? _hintEntry;
+
+  @override
+  void didUpdateWidget(covariant RoundFloatingButton oldWidget) {
+    if (widget.hint != oldWidget.hint || widget.hint == null) {
+      _hintEntry?.remove();
+      _hintEntry = null;
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _hintEntry?.remove();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter,
-      clipBehavior: Clip.none,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ConditionalBackdropFilter(
-              condition: !WebUtils.isSafari && widget.withBlur,
-              borderRadius: BorderRadius.circular(30),
-              child: Material(
-                elevation: 0,
-                color: widget.color,
-                type: MaterialType.circle,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(30),
-                  onHover: (b) => Future.delayed(
-                    Duration.zero,
-                    () => mounted ? setState(() => showHint = b) : null,
-                  ),
-                  onTap: widget.onPressed,
-                  child: SizedBox(
-                    width: 60 * widget.scale,
-                    height: 60 * widget.scale,
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: widget.children,
-                    ),
+    Widget button = ConditionalBackdropFilter(
+      condition: !WebUtils.isSafari && widget.withBlur,
+      borderRadius: BorderRadius.circular(60),
+      child: Material(
+        key: _key,
+        elevation: 0,
+        color: widget.color,
+        type: MaterialType.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(60),
+          onHover: widget.hint != null
+              ? (b) {
+                  if (b) {
+                    _populateOverlay();
+                  } else {
+                    _hintEntry?.remove();
+                    _hintEntry = null;
+                  }
+                }
+              : null,
+          onTap: widget.onPressed,
+          child: widget.child ??
+              SizedBox(
+                width: max(widget.assetWidth, 60),
+                height: max(widget.assetWidth, 60),
+                child: Center(
+                  child: SvgLoader.asset(
+                    'assets/icons/${widget.asset}.svg',
+                    width: widget.assetWidth,
                   ),
                 ),
               ),
-            ),
-            if (widget.text != null) const SizedBox(height: 5),
-            if (widget.text != null)
+        ),
+      ),
+    );
+
+    return widget.text == null
+        ? button
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              button,
+              const SizedBox(height: 5),
               Text(
                 widget.text!,
                 textAlign: TextAlign.center,
@@ -113,15 +149,49 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 ),
                 maxLines: 2,
               ),
-          ],
-        ),
-        if (widget.hint != null && showHint)
-          SizedBox(
-            width: 60 * widget.scale,
-            height: 60 * widget.scale,
-            child: IgnorePointer(
+            ],
+          );
+  }
+
+  /// Populates the [_hintEntry].
+  void _populateOverlay() {
+    if (!mounted || _hintEntry != null) return;
+
+    Offset offset = Offset.zero;
+    Size size = Size.zero;
+    final box = _key.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      offset = box.localToGlobal(Offset.zero);
+      size = box.size;
+    }
+
+    // Discard the first [LayoutBuilder] frame since no widget is drawn yet.
+    bool firstLayout = true;
+
+    // Add a rebuild to take possible animations into the account.
+    Future.delayed(300.milliseconds, _hintEntry?.markNeedsBuild);
+
+    _hintEntry = OverlayEntry(builder: (ctx) {
+      if (!firstLayout) {
+        final box = _key.currentContext?.findRenderObject() as RenderBox?;
+        if (box != null) {
+          offset = box.localToGlobal(Offset.zero);
+          size = box.size;
+        }
+      } else {
+        firstLayout = false;
+      }
+
+      return IgnorePointer(
+        child: Stack(
+          children: [
+            Positioned(
+              left: offset.dx,
+              top: offset.dy,
+              width: size.width,
+              height: size.height,
               child: Transform.translate(
-                offset: const Offset(0, -47),
+                offset: Offset(0, -size.height - 2),
                 child: UnconstrainedBox(
                   child: Text(
                     widget.hint!,
@@ -139,8 +209,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                 ),
               ),
             ),
-          ),
-      ],
-    );
+          ],
+        ),
+      );
+    });
+
+    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
   }
 }
