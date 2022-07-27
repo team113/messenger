@@ -317,7 +317,7 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
+          envkey_COMPOSE_FRONTEND_IMAGE: team113/messenger
           envkey_COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
           envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
           envkey_COMPOSE_PROJECT_NAME: messenger
