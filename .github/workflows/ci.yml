@@ -312,12 +312,13 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make test.e2e start-app=yes device=web-server
+      - run: make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
              tag=build-${{ github.run_number }}
         env:
           COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
           COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
+          COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
           COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
           COMPOSE_PROJECT_NAME: messenger
 

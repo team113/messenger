@@ -251,7 +251,7 @@ endif
 #
 # Usage:
 #	make test.e2e [( [start-app=no]
-#	               | start-app=yes [TAG=(dev|<docker-tag>)]
+#	               | start-app=yes [tag=(dev|<docker-tag>)]
 #	                               [no-cache=(no|yes)]
 #	                               [pull=(no|yes)] )]
 #	              [device=(chrome|web-server|macos|linux|windows|<device-id>)]
@@ -492,10 +492,9 @@ docker.down:
 #	                | background=yes [log=(no|yes)] )]
 
 docker.up: docker.down
-	echo $(tag)
 ifeq ($(pull),yes)
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
-	docker-compose pull --parallel --ignore-pull-failures
+	docker compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
@@ -508,11 +507,11 @@ ifeq ($(wildcard .cache/minio),)
 	@mkdir -p .cache/minio/data/
 endif
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
-	docker-compose up \
+	docker compose up \
 		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
 ifeq ($(background),yes)
 ifeq ($(log),yes)
-	docker-compose logs -f
+	docker compose logs -f
 endif
 endif
 
