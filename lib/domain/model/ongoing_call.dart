@@ -1301,7 +1301,7 @@ class RemoteMemberData {
   RemoteMemberData({
     required this.conn,
     this.isHandRaised = false,
-    this.hasVideo = true,
+    this.hasVideo = false,
   });
 
   /// Indicates whether this member emits outcoming video media track.
