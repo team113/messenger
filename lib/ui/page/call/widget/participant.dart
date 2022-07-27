@@ -103,7 +103,7 @@ class ParticipantWidget extends StatelessWidget {
         );
       }
 
-      if ((participant.isVideoDisabled.value && participant.hasVideo.value) ||
+      if ((participant.isVideoDisabled.value) ||
           participant.video.value?.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
@@ -158,14 +158,15 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          ..._background(),
+          if (participant.video.value == null) ..._background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child: participant.video.value != null
-                ? Center(
+            child: participant.video.value == null
+                ? Container()
+                : Center(
                     child: RtcVideoView(
                       participant.video.value!,
                       key: participant.videoKey,
@@ -180,8 +181,7 @@ class ParticipantWidget extends StatelessWidget {
                       offstageUntilDetermined: offstageUntilDetermined,
                       framelessBuilder: () => Stack(children: _background()),
                     ),
-                  )
-                : Container(),
+                  ),
           ),
           Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
         ],

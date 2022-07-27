@@ -458,6 +458,7 @@ class CallController extends GetxController {
       chat.value = v;
       RemoteMemberData? memberData =
           _currentCall.value.members[RemoteMemberId(me, null)];
+
       _putParticipant(
         RemoteMemberId(me, null),
         conn: memberData?.conn,
@@ -860,14 +861,7 @@ class CallController extends GetxController {
   /// Toggles inbound audio in the current [OngoingCall] on and off.
   Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
-  /// Toggles the provided [renderer]'s enabled status on and off.
-  // Future<void> toggleRendererEnabled(Rx<RtcVideoRenderer?> renderer) async {
-  //   if (renderer.value != null) {
-  //     await renderer.value!.setEnabled(!renderer.value!.isEnabled);
-  //     renderer.refresh();
-  //   }
-  // }
-
+  /// Toggles receiving of incoming video from the provided [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
     if (participant.conn != null) {
       if (participant.video.value != null) {
@@ -1688,10 +1682,14 @@ class Participant {
   /// Media source kind of this [Participant].
   final MediaSourceKind source;
 
+  /// [ConnectionHandle] of the current [Participant].
   final ConnectionHandle? conn;
 
+  /// Indicates whether the current [Participant] emits outcoming video track.
   final Rx<bool> hasVideo;
 
+  /// Indicates whether the receiving of this [Participant]'s video track was
+  ///  disabled on this client's side.
   final Rx<bool> isVideoDisabled = Rx(false);
 
   /// Reactive video renderer of this [Participant].
