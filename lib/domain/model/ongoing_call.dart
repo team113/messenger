@@ -200,7 +200,7 @@ class OngoingCall {
   /// Temporary stream of the errors happening in this [OngoingCall].
   Stream<String> get errors => _errors.stream;
 
-  /// Reactive map of [RemoteMemberId]s and their hand raised indicators of this
+  /// Reactive map of [RemoteMemberId]s and their [RemoteMemberData] of this
   /// call.
   final RxObsMap<RemoteMemberId, RemoteMemberData> members =
       RxObsMap<RemoteMemberId, RemoteMemberData>();
@@ -324,10 +324,12 @@ class OngoingCall {
             renderer.muted = true;
             _emitRendererUpdate(renderer);
           });
+
           track.onUnmuted(() {
             renderer.muted = false;
             _emitRendererUpdate(renderer);
           });
+
           track.onMediaDirectionChanged((TrackMediaDirection d) {
             switch (d) {
               case TrackMediaDirection.SendRecv:
@@ -339,11 +341,13 @@ class OngoingCall {
                 _removeRemoteTrack(track);
                 break;
             }
-            members.update(
-                id,
-                (value) => value
-                  ..hasVideo = d == TrackMediaDirection.SendRecv ||
-                      d == TrackMediaDirection.SendOnly);
+            if (track.kind() == MediaKind.Video) {
+              members.update(
+                  id,
+                  (value) => value
+                    ..hasVideo = d == TrackMediaDirection.SendRecv ||
+                        d == TrackMediaDirection.SendOnly);
+            }
           });
 
           track.onStopped(() => _removeRemoteTrack(track));
@@ -1144,8 +1148,13 @@ class OngoingCall {
     }
   }
 
+  /// Disables inbound video in this [conn].
   Future<void> disableVideo(ConnectionHandle conn) async {
-    await conn.disableRemoteVideo();
+    try {
+      await conn.disableRemoteVideo();
+    } catch (e) {
+      return;
+    }
   }
 }
 
@@ -1173,9 +1182,6 @@ abstract class RtcRenderer {
 
   /// Indicator whether this [RtcRenderer] is muted.
   bool muted = false;
-
-  /// Returns enabled state of the [track].
-  bool get isEnabled => track.isEnabled();
 }
 
 /// Convenience wrapper around a [webrtc.VideoRenderer].
@@ -1290,14 +1296,21 @@ class RemoteMemberId {
           deviceId == other.deviceId;
 }
 
+/// [RemoteMemberData] for [RemoteMemberId].
 class RemoteMemberData {
   RemoteMemberData({
     required this.conn,
     this.isHandRaised = false,
     this.hasVideo = true,
   });
+
+  /// Indicates whether this member emits outcoming video media track.
   bool hasVideo;
+
+  /// Hand raised indicator of this member.
   bool isHandRaised;
+
+  /// [ConnectionHandle] of this member.
   ConnectionHandle conn;
 }
 

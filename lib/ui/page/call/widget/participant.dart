@@ -156,11 +156,6 @@ class ParticipantWidget extends StatelessWidget {
               ];
       }
 
-      print('///');
-      print(participant.user.value?.user.value.name);
-      print('hasVideo: ' + participant.hasVideo.value.toString());
-      print('video: ' + participant.video.value.toString());
-
       return Stack(
         children: [
           ..._background(),
@@ -169,28 +164,24 @@ class ParticipantWidget extends StatelessWidget {
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child:
-                // participant.hasVideo.value &&
-                participant.video.value != null
-                    ? Center(
-                        child: RtcVideoView(
-                          participant.video.value!,
-                          key: participant.videoKey,
-                          mirror: participant.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.Device,
-                          fit: fit,
-                          borderRadius:
-                              borderRadius ?? BorderRadius.circular(10),
-                          outline: outline,
-                          onSizeDetermined: onSizeDetermined,
-                          enableContextMenu: false,
-                          respectAspectRatio: respectAspectRatio,
-                          offstageUntilDetermined: offstageUntilDetermined,
-                          framelessBuilder: () =>
-                              Stack(children: _background()),
-                        ),
-                      )
-                    : Container(),
+            child: participant.video.value != null
+                ? Center(
+                    child: RtcVideoView(
+                      participant.video.value!,
+                      key: participant.videoKey,
+                      mirror: participant.owner == MediaOwnerKind.local &&
+                          participant.source == MediaSourceKind.Device,
+                      fit: fit,
+                      borderRadius: borderRadius ?? BorderRadius.circular(10),
+                      outline: outline,
+                      onSizeDetermined: onSizeDetermined,
+                      enableContextMenu: false,
+                      respectAspectRatio: respectAspectRatio,
+                      offstageUntilDetermined: offstageUntilDetermined,
+                      framelessBuilder: () => Stack(children: _background()),
+                    ),
+                  )
+                : Container(),
           ),
           Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
         ],

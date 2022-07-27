@@ -456,13 +456,13 @@ class CallController extends GetxController {
 
     void _onChat(RxChat? v) {
       chat.value = v;
+      RemoteMemberData? memberData =
+          _currentCall.value.members[RemoteMemberId(me, null)];
       _putParticipant(
         RemoteMemberId(me, null),
-        conn: _currentCall.value.members[RemoteMemberId(me, null)]?.conn,
-        handRaised:
-            _currentCall.value.members[RemoteMemberId(me, null)]?.isHandRaised,
-        hasVideo:
-            _currentCall.value.members[RemoteMemberId(me, null)]?.hasVideo,
+        conn: memberData?.conn,
+        handRaised: memberData?.isHandRaised,
+        hasVideo: memberData?.hasVideo,
       );
       _insureCorrectGrouping();
 
@@ -869,13 +869,13 @@ class CallController extends GetxController {
   // }
 
   Future<void> toggleVideoEnabled(Participant participant) async {
-    if (participant.conn.value != null) {
+    if (participant.conn != null) {
       if (participant.video.value != null) {
         participant.isVideoDisabled.value = true;
-        await participant.conn.value!.disableRemoteVideo();
+        await participant.conn!.disableRemoteVideo();
       } else {
         participant.isVideoDisabled.value = false;
-        await participant.conn.value!.enableRemoteVideo();
+        await participant.conn!.enableRemoteVideo();
       }
     }
   }
@@ -1547,12 +1547,12 @@ class CallController extends GetxController {
   /// Creates a new [Participant] if it doesn't exist.
   void _putParticipant(
     RemoteMemberId id, {
-    ConnectionHandle? conn,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
-    bool? handRaised,
+    ConnectionHandle? conn,
     bool? hasVideo,
     bool? isVideoDisabled,
+    bool? handRaised,
   }) {
     Participant? participant = findParticipant(
       id,
@@ -1571,11 +1571,8 @@ class CallController extends GetxController {
       participant = Participant(
         id,
         owner,
-        conn: conn,
         video: video,
         audio: audio,
-        handRaised: handRaised,
-        hasVideo: hasVideo,
       );
 
       _userService
@@ -1612,7 +1609,6 @@ class CallController extends GetxController {
           break;
       }
     } else {
-      participant.conn.value = conn ?? participant.conn.value;
       participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
       participant.isVideoDisabled.value =
           isVideoDisabled ?? participant.isVideoDisabled.value;
@@ -1664,14 +1660,13 @@ class Participant {
   Participant(
     this.id,
     this.owner, {
+    this.conn,
     RxUser? user,
-    ConnectionHandle? conn,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
     bool? hasVideo,
-  })  : conn = Rx(conn),
-        video = Rx(video),
+  })  : video = Rx(video),
         audio = Rx(audio),
         handRaised = Rx(handRaised ?? false),
         hasVideo = Rx(hasVideo ?? false),
@@ -1693,7 +1688,7 @@ class Participant {
   /// Media source kind of this [Participant].
   final MediaSourceKind source;
 
-  final Rx<ConnectionHandle?> conn;
+  final ConnectionHandle? conn;
 
   final Rx<bool> hasVideo;
 
