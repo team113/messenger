@@ -114,12 +114,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                 }
               },
               onScaleEnd: (d) {
-                if (d.pointerCount == 1) {
-                  c.secondaryDragged.value = false;
-                } else if (d.pointerCount == 2) {
-                  c.secondaryScaled.value = false;
-                  c.sSizeBeforeScale = null;
-                }
+                c.secondaryDragged.value = false;
+                c.secondaryScaled.value = false;
+                c.sSizeBeforeScale = null;
 
                 c.updateSecondaryAttach();
               },
@@ -598,32 +595,34 @@ Widget mobileCall(CallController c, BuildContext context) {
       c.applySecondaryConstraints();
     }
 
-    return MinimizableView(
-      enabled: c.minimizingEnabled.value,
-      onInit: (animation) {
-        c.minimizedAnimation = animation;
-        animation.addListener(() {
-          if (c.state.value != OngoingCallState.joining &&
-              c.state.value != OngoingCallState.active) {
-            c.minimized.value = animation.value != 0;
-          } else {
-            if (animation.value != 0) {
-              c.keepUi(false);
+    return Obx(
+      () => MinimizableView(
+        enabled: c.minimizingEnabled.value,
+        onInit: (animation) {
+          c.minimizedAnimation = animation;
+          animation.addListener(() {
+            if (c.state.value != OngoingCallState.joining &&
+                c.state.value != OngoingCallState.active) {
+              c.minimized.value = animation.value != 0;
+            } else {
+              if (animation.value != 0) {
+                c.keepUi(false);
+              }
+              c.minimized.value = animation.value == 1;
+              if (c.minimized.value) {
+                c.hoveredRenderer.value = null;
+              }
             }
-            c.minimized.value = animation.value == 1;
-            if (c.minimized.value) {
-              c.hoveredRenderer.value = null;
-            }
-          }
-        });
-      },
-      onDispose: () => c.minimizedAnimation = null,
-      child: Obx(() {
-        return IgnorePointer(
-          ignoring: c.minimized.value,
-          child: scaffold,
-        );
-      }),
+          });
+        },
+        onDispose: () => c.minimizedAnimation = null,
+        child: Obx(() {
+          return IgnorePointer(
+            ignoring: c.minimized.value,
+            child: scaffold,
+          );
+        }),
+      ),
     );
   });
 }

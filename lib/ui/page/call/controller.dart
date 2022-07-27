@@ -237,7 +237,7 @@ class CallController extends GetxController {
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
-  /// Secondary view maximal size before scaling started.
+  /// Secondary view biggest side size before scaling started.
   double? sSizeBeforeScale;
 
   /// [Alignment] of the secondary view.
@@ -1355,7 +1355,7 @@ class CallController extends GetxController {
     updateSecondaryAttach();
   }
 
-  /// Scales secondary view according to [scale].
+  /// Scales secondary view size according to [scale].
   void scaleSecondary(double scale) {
     _scaleSWidth(scale);
     _scaleSHeight(scale);
