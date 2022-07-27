@@ -120,7 +120,7 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.5.0
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -312,13 +312,12 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make test.e2e start-app=yes device=web-server dockerized=no
+      - run: make test.e2e start-app=yes device=web-server
              tag=build-${{ github.run_number }}
         env:
           COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
           COMPOSE_FRONTEND_IMAGE: ghcr.io/team113/messenger
-          COMPOSE_FRONTEND_TAG: dev
           COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
           COMPOSE_PROJECT_NAME: messenger
 

@@ -492,6 +492,7 @@ docker.down:
 #	                | background=yes [log=(no|yes)] )]
 
 docker.up: docker.down
+	echo $(tag)
 ifeq ($(pull),yes)
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
 	docker-compose pull --parallel --ignore-pull-failures
