@@ -258,6 +258,9 @@ endif
 #	              [dockerized=(no|yes)]
 #	              [gen=(no|yes)]
 
+compose-project-name = $(strip $(shell grep 'COMPOSE_PROJECT_NAME=' .env \
+                                       | cut -d '=' -f2))
+
 test.e2e:
 ifeq ($(if $(call eq,$(gen),yes),,$(wildcard test/e2e/*.g.dart)),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
@@ -266,11 +269,11 @@ ifeq ($(start-app),yes)
 	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
 	                background=yes log=no
 	while ! timeout 1 bash -c "echo > /dev/tcp/localhost/4444"; do sleep 1; done
-	docker logs -f $(COMPOSE_PROJECT_NAME)-webdriver-chrome &
+	docker logs -f $(compose-project-name)-webdriver-chrome &
 endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
-	           --network=container:${COMPOSE_PROJECT_NAME}-frontend \
+	           --network=container:${compose-project-name}-frontend \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make test.e2e dockerized=no start-app=no gen=no device=$(device)
