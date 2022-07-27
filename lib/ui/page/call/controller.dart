@@ -456,15 +456,8 @@ class CallController extends GetxController {
 
     void _onChat(RxChat? v) {
       chat.value = v;
-      RemoteMemberData? memberData =
-          _currentCall.value.members[RemoteMemberId(me, null)];
 
-      _putParticipant(
-        RemoteMemberId(me, null),
-        conn: memberData?.conn,
-        handRaised: memberData?.isHandRaised,
-        hasVideo: memberData?.hasVideo,
-      );
+      _putParticipant(RemoteMemberId(me, null));
       _insureCorrectGrouping();
 
       if (!isGroup) {

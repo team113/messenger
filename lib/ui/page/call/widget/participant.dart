@@ -104,7 +104,7 @@ class ParticipantWidget extends StatelessWidget {
         );
       }
 
-      if ((hasVideoWhenDisabled) ||
+      if (hasVideoWhenDisabled ||
           participant.video.value?.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
@@ -253,7 +253,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if ((hasVideoWhenDisabled) ||
+      if (hasVideoWhenDisabled ||
           participant.video.value?.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
