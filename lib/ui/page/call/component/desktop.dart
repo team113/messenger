@@ -1270,13 +1270,14 @@ Widget _primaryView(CallController c) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
-                                ContextMenuButton(
-                                  label: !participant.isVideoDisabled.value
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                ),
+                                if (participant.hasVideo.value)
+                                  ContextMenuButton(
+                                    label: participant.video.value != null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  ),
                               ],
                             ),
                             child: IgnorePointer(
@@ -1758,13 +1759,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
-                                ContextMenuButton(
-                                  label: !participant.isVideoDisabled.value
-                                      ? 'btn_call_disable_video'.l10n
-                                      : 'btn_call_enable_video'.l10n,
-                                  onPressed: () =>
-                                      c.toggleVideoEnabled(participant),
-                                )
+                                if (participant.hasVideo.value)
+                                  ContextMenuButton(
+                                    label: participant.video.value != null
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
+                                  )
                               ],
                             ),
                             child: IgnorePointer(

@@ -865,10 +865,8 @@ class CallController extends GetxController {
   Future<void> toggleVideoEnabled(Participant participant) async {
     if (participant.conn != null) {
       if (participant.video.value != null) {
-        participant.isVideoDisabled.value = true;
         await participant.conn!.disableRemoteVideo();
       } else {
-        participant.isVideoDisabled.value = false;
         await participant.conn!.enableRemoteVideo();
       }
     }
@@ -1545,7 +1543,6 @@ class CallController extends GetxController {
     RtcAudioRenderer? audio,
     ConnectionHandle? conn,
     bool? hasVideo,
-    bool? isVideoDisabled,
     bool? handRaised,
   }) {
     Participant? participant = findParticipant(
@@ -1567,6 +1564,9 @@ class CallController extends GetxController {
         owner,
         video: video,
         audio: audio,
+        hasVideo: hasVideo,
+        handRaised: handRaised,
+        conn: conn,
       );
 
       _userService
@@ -1604,8 +1604,6 @@ class CallController extends GetxController {
       }
     } else {
       participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
-      participant.isVideoDisabled.value =
-          isVideoDisabled ?? participant.isVideoDisabled.value;
       participant.audio.value = audio ?? participant.audio.value;
       participant.video.value = video ?? participant.video.value;
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
@@ -1687,10 +1685,6 @@ class Participant {
 
   /// Indicates whether the current [Participant] emits outcoming video track.
   final Rx<bool> hasVideo;
-
-  /// Indicates whether the receiving of this [Participant]'s video track was
-  ///  disabled on this client's side.
-  final Rx<bool> isVideoDisabled = Rx(false);
 
   /// Reactive video renderer of this [Participant].
   late final Rx<RtcVideoRenderer?> video;
