@@ -323,7 +323,7 @@ jobs:
       #     envkey_COMPOSE_PROJECT_NAME: messenger
       #     fail_on_empty: true
 
-      - run: make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+      - run: make test.e2e start-app=no device=web-server pull=yes no-cache=yes
              tag=build-${{ github.run_number }}
 
 
