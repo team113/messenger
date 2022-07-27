@@ -95,11 +95,11 @@ class Themes {
               focusColor: colors.secondary,
               hoverColor: colors.secondary,
               fillColor: colors.secondary,
-              hintStyle: TextStyle(color: colors.primary),
-              labelStyle: TextStyle(color: colors.primary),
-              errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
+              hintStyle: GoogleFonts.roboto(color: colors.primary),
+              labelStyle: GoogleFonts.roboto(color: colors.primary),
+              errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
               errorMaxLines: 5,
-              floatingLabelStyle: TextStyle(color: colors.primary),
+              floatingLabelStyle: GoogleFonts.roboto(color: colors.primary),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(color: colors.secondary),
@@ -138,7 +138,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             primary: colors.primary,
-            textStyle: TextStyle(
+            textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 17,
             ),
@@ -153,7 +153,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             side: BorderSide(width: 1, color: colors.primary),
-            textStyle: TextStyle(
+            textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 17,
             ),
@@ -165,12 +165,26 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
-            textStyle: TextStyle(
+            textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 15,
             ),
           ),
         ),
+        sliderTheme: ThemeData.light().sliderTheme.copyWith(
+              trackHeight: 2,
+              activeTrackColor: Colors.blue,
+              inactiveTrackColor: Colors.white.withOpacity(.5),
+              thumbColor: Colors.blue,
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 6,
+              ),
+              overlayShape: SliderComponentShape.noOverlay,
+            ),
+        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
+              thickness: MaterialStateProperty.all(6),
+              // radius: Radius.zero,
+            ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),

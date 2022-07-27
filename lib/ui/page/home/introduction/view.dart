@@ -37,11 +37,7 @@ class IntroductionView extends StatelessWidget {
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context,
-      const IntroductionView(),
-      horizontalPadding: 0,
-    );
+    return ModalPopup.show(context: context, child: const IntroductionView());
   }
 
   @override
