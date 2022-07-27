@@ -103,7 +103,7 @@ class ConfirmLogoutController extends GetxController {
     super.onInit();
   }
 
-  /// Updates user password remotely.
+  /// Updates [User]'s password remotely.
   Future<void> setPassword() async {
     if (password.error.value != null ||
         repeat.error.value != null ||
