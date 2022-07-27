@@ -36,6 +36,8 @@ All user visible changes to this project will be documented in this file. This p
         - Missing avatars in group creation popup ([#15], [#2]).
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
+    - Media panel:
+        - Mobile minimization gesture being too rapid ([#45], [#44]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4
@@ -50,6 +52,8 @@ All user visible changes to this project will be documented in this file. This p
 [#34]: /../../pull/34
 [#41]: /../../issues/41
 [#42]: /../../pull/42
+[#44]: /../../issues/44
+[#45]: /../../pull/45
 
 
 
