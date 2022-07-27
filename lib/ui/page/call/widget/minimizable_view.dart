@@ -165,15 +165,16 @@ class _MinimizableViewState extends State<MinimizableView>
                     (_drag != null && _value != null && widget.enabled) ||
                             _controller.value == 1
                         ? (d) {
-                          if (_panningDistance < widget.minimizationDelta &&
-                      _controller.value == 0) {
-                    return;
-                  }
+                            if (_panningDistance < widget.minimizationDelta &&
+                                _controller.value == 0) {
+                              return;
+                            }
 
                             if (_drag != null && _value != null) {
                               _controller.value = _value! +
-                                  (d.localPosition.dy - _drag!.dy -
-                                widget.minimizationDelta) *
+                                  (d.localPosition.dy -
+                                          _drag!.dy -
+                                          widget.minimizationDelta) *
                                       (1 / constraints.maxHeight);
                             } else {
                               setState(() {
@@ -192,12 +193,14 @@ class _MinimizableViewState extends State<MinimizableView>
                         setState(() {});
                       }
                     : null,
-                onPanEnd: widget.enabled ? (d) {
-                  if (_drag != null && _value != null) {
-                    _onVerticalDragEnd(d);
-                  }
-                  _panningDistance = 0;
-                } : null,
+                onPanEnd: widget.enabled
+                    ? (d) {
+                        if (_drag != null && _value != null) {
+                          _onVerticalDragEnd(d);
+                        }
+                        _panningDistance = 0;
+                      }
+                    : null,
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),
