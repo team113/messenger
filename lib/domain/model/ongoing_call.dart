@@ -311,14 +311,24 @@ class OngoingCall {
       _room!.onNewConnection((conn) {
         var id = RemoteMemberId.fromString(conn.getRemoteMemberId());
         members[id] = RemoteMemberData(
-            conn: conn,
-            isHandRaised: call.value?.members
-                    .firstWhereOrNull((e) => e.user.id == id.userId)
-                    ?.handRaised ??
-                false);
+          conn: conn,
+          isHandRaised: call.value?.members
+                  .firstWhereOrNull((e) => e.user.id == id.userId)
+                  ?.handRaised ??
+              false,
+        );
         conn.onClose(() => members.remove(id));
         conn.onRemoteTrackAdded((track) async {
           var renderer = await _addRemoteTrack(conn, track);
+
+          TrackMediaDirection direction = track.mediaDirection();
+          if (track.kind() == MediaKind.Video) {
+            members.update(
+                id,
+                (value) => value
+                  ..hasVideo = direction == TrackMediaDirection.SendRecv ||
+                      direction == TrackMediaDirection.SendOnly);
+          }
 
           track.onMuted(() {
             renderer.muted = true;
