@@ -187,9 +187,6 @@ Widget desktopCall(CallController c, BuildContext context) {
             },
           ),
 
-          // Secondary panel itself.
-          _secondaryView(c, context),
-
           // Empty drop zone if [secondary] is empty.
           _secondaryTarget(c),
         ]);
@@ -553,44 +550,14 @@ Widget desktopCall(CallController c, BuildContext context) {
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: c.displayMore.value
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Display the hint, if not dismissed.
-                        Obx(() {
-                          return AnimatedSwitcher(
-                            duration: 150.milliseconds,
-                            child: !c.isMoreHintDismissed.value
-                                ? AnimatedDelayedSwitcher(
-                                    delay: const Duration(milliseconds: 500),
-                                    duration: const Duration(milliseconds: 200),
-                                    child: Align(
-                                      alignment: Alignment.topCenter,
-                                      child: SizedBox(
-                                        width: 290,
-                                        child: HintWidget(
-                                          text: 'label_hint_drag_n_drop_buttons'
-                                              .l10n,
-                                          onTap: () => c
-                                              .isMoreHintDismissed.value = true,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                          );
-                        }),
-                        const IgnorePointer(child: SizedBox(height: 30)),
-                        DragTarget<CallButton>(
-                          onAccept: (CallButton data) {
-                            c.buttons.remove(data);
-                            c.draggedButton.value = null;
-                          },
-                          onWillAccept: (CallButton? a) =>
-                              a?.c == c && a?.isRemovable == true,
-                          builder: _builder,
-                        )
-                      ],
+                  ? DragTarget<CallButton>(
+                      onAccept: (CallButton data) {
+                        c.buttons.remove(data);
+                        c.draggedButton.value = null;
+                      },
+                      onWillAccept: (CallButton? a) =>
+                          a?.c == c && a?.isRemovable == true,
+                      builder: _builder,
                     )
                   : Container(),
             );
@@ -601,45 +568,74 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  verticalDirection: VerticalDirection.up,
-                  children: [
-                    _dock(),
-                    _launchpad(),
-                  ],
+        Obx(
+          () => Align(
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    verticalDirection: VerticalDirection.up,
+                    children: [
+                      MouseRegion(
+                          onEnter: (d) => c.keepUi(true),
+                          onHover: (d) => c.keepUi(true),
+                          onExit: c.showUi.value && !c.displayMore.value
+                              ? (d) => c.keepUi(false)
+                              : null,
+                          child: _dock()),
+                      _launchpad(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
-        // Bottom [MouseRegion] that toggles UI on hover.
+        // Display the more hint, if not dismissed.
         Obx(() {
-          bool enabled = !c.displayMore.value &&
-              c.primaryDrags.value == 0 &&
-              c.secondaryDrags.value == 0;
-          return Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 100,
-              width: double.infinity,
-              child: MouseRegion(
-                opaque: false,
-                onEnter: enabled ? (d) => c.keepUi(true) : null,
-                onHover: enabled ? (d) => c.keepUi(true) : null,
-                onExit:
-                    c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
-              ),
-            ),
+          return AnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: !c.isMoreHintDismissed.value && c.displayMore.value
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedDelayedSwitcher(
+                          delay: const Duration(milliseconds: 500),
+                          duration: const Duration(milliseconds: 200),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Container(
+                              width: 290,
+                              padding: EdgeInsets.only(
+                                top: 10 +
+                                    (WebUtils.isPopup
+                                        ? 0
+                                        : CallController.titleHeight),
+                              ),
+                              child: HintWidget(
+                                text: 'label_hint_drag_n_drop_buttons'.l10n,
+                                onTap: () => c.isMoreHintDismissed.value = true,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Flexible(
+                          child: SizedBox(
+                            height: 420,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
           );
         }),
       ];
@@ -726,14 +722,32 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Sliding from the bottom buttons.
+        // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
-          if (c.minimized.value && !c.fullscreen.value) {
-            return Container();
-          }
-
-          return Stack(children: footer);
+          bool enabled = !c.displayMore.value &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: MouseRegion(
+                opaque: false,
+                onEnter: enabled ? (d) => c.keepUi(true) : null,
+                onHover: enabled ? (d) => c.keepUi(true) : null,
+                onExit:
+                    c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
+              ),
+            ),
+          );
         }),
+
+        // Secondary panel itself.
+        _secondaryView(c, context),
+
+        // Sliding from the bottom buttons.
+        Stack(children: footer),
       ];
 
       // Combines all the stackable content into [Scaffold].
@@ -989,7 +1003,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                         borderRadius: BorderRadius.circular(10),
                         child: scaffold,
                       ),
-                      ClipRect(child: Stack(children: footer)),
                     ],
                   ),
                 ),
