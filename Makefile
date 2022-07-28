@@ -257,9 +257,6 @@ endif
 #	              [dockerized=(no|yes)]
 #	              [gen=(no|yes)]
 
-compose-project-name = $(strip $(shell grep 'COMPOSE_PROJECT_NAME=' .env \
-                                       | cut -d '=' -f2))
-
 test.e2e:
 ifeq ($(if $(call eq,$(gen),yes),,$(wildcard test/e2e/*.g.dart)),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
@@ -269,7 +266,6 @@ ifeq ($(start-app),yes)
 endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
-	           --network=container:${compose-project-name}-frontend \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make test.e2e dockerized=no start-app=no gen=no device=$(device)
