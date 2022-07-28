@@ -268,8 +268,6 @@ endif
 ifeq ($(start-app),yes)
 	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
 	                background=yes log=no
-	while ! timeout 1 bash -c "echo > /dev/tcp/localhost/4444"; do sleep 1; done
-	docker logs -f $(compose-project-name)-webdriver-chrome &
 endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
@@ -479,7 +477,7 @@ docker.untar:
 #	make docker.down
 
 docker.down:
-	docker compose down --rmi=local -v
+	docker-compose down --rmi=local -v
 
 
 # Run Docker Compose development environment.
@@ -497,7 +495,7 @@ docker.down:
 docker.up: docker.down
 ifeq ($(pull),yes)
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
-	docker compose pull --parallel --ignore-pull-failures
+	docker-compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
@@ -510,11 +508,11 @@ ifeq ($(wildcard .cache/minio),)
 	@mkdir -p .cache/minio/data/
 endif
 	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
-	docker compose up \
+	docker-compose up \
 		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
 ifeq ($(background),yes)
 ifeq ($(log),yes)
-	docker compose logs -f
+	docker-compose logs -f
 endif
 endif
 

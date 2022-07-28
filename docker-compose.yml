@@ -13,7 +13,7 @@ services:
     volumes:
       - ./.cache/minio/data/files/:/var/www-files/files/:ro
       - ./assets/conf.toml:/var/www/conf.toml:ro
-      #- ./build/web/:/var/www/public/:ro
+      - ./build/web/:/var/www/public/:ro
       - ./dev/mailhog/mailhog.conf:/etc/nginx/conf.d/mailhog.conf:ro
       - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
   backend:
@@ -113,11 +113,3 @@ services:
       - "1025:1025"    # mailhog smtp
     volumes:
       - ./dev/mailhog/auth.passwd:/etc/auth.passwd:ro
-  webdriver-chrome:
-    container_name: ${COMPOSE_PROJECT_NAME}-webdriver-chrome
-    image: selenoid/chrome:latest
-    depends_on: ["frontend"]
-    environment:
-      DRIVER_ARGS: --enable-chrome-logs --disable-dev-shm-usage
-    shm_size: 2g
-    network_mode: service:frontend

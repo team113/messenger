@@ -323,6 +323,11 @@ jobs:
           envkey_COMPOSE_PROJECT_NAME: messenger
           fail_on_empty: true
 
+      - run: mkdir build
+
+      - uses: nanasess/setup-chromedriver@v1
+      - run: chromedriver --enable-chrome-logs --disable-dev-shm-usage &
+
       - run: make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
              tag=build-${{ github.run_number }}
 
