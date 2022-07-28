@@ -267,6 +267,9 @@ class CallController extends GetxController {
   /// Used to limit [shiftSecondaryView] calls to one time in frame.
   bool _secondaryShiftLocked = false;
 
+  /// Distance to bottom dock when secondary view is shifted.
+  final double _shiftPadding = 10;
+
   /// Height of the title bar.
   static const double titleHeight = 30;
 
@@ -277,10 +280,10 @@ class CallController extends GetxController {
   static const double _maxHeight = 0.99;
 
   /// Min width of the minimized view in pixels.
-  static const double _minWidth = 500;
+  static const double _minWidth = 550;
 
   /// Min height of the minimized view in pixels.
-  static const double _minHeight = 500;
+  static const double _minHeight = 550;
 
   /// Max width of the secondary view in percentage of the call width.
   static const double _maxSWidth = 0.95;
@@ -1080,44 +1083,46 @@ class CallController extends GetxController {
         secondaryDragged.isFalse &&
         secondaryScaled.isFalse &&
         !_secondaryShiftLocked) {
+      _secondaryShiftLocked = true;
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _secondaryShiftLocked = false;
       });
-      _secondaryShiftLocked = true;
 
       Rect secondaryBounds = secondaryKey.globalPaintBounds!;
       Rect dockBounds = buttonsDockKey.globalPaintBounds!;
       Rect intersect = secondaryBounds.intersect(dockBounds);
 
-      if (intersect.width > 0 && intersect.height > 0) {
+      double intersectHeight = intersect.height + _shiftPadding;
+
+      if (intersect.width > 0 && intersectHeight > 0) {
         if (secondaryBottom.value != null) {
-          secondaryBottom.value = secondaryBottom.value! + intersect.height;
+          secondaryBottom.value = secondaryBottom.value! + intersectHeight;
         } else {
-          secondaryTop.value = secondaryTop.value! - intersect.height;
+          secondaryTop.value = secondaryTop.value! - intersectHeight;
         }
 
         applySecondaryConstraints();
-      } else if (intersect.height < 0 &&
+      } else if ((intersectHeight < 0 || intersect.width < 0) &&
           secondaryBottomBeforeShift.value != null) {
         var bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
         if (bottom > secondaryBottomBeforeShift.value!) {
           var difference = bottom - secondaryBottomBeforeShift.value!;
           if (secondaryBottom.value != null) {
-            if (difference.abs() < intersect.height.abs() ||
+            if (difference.abs() < intersectHeight.abs() ||
                 intersect.width < 0) {
               secondaryBottom.value = secondaryBottomBeforeShift.value;
             } else {
-              secondaryBottom.value = secondaryBottom.value! + intersect.height;
+              secondaryBottom.value = secondaryBottom.value! + intersectHeight;
             }
           } else {
-            if (difference.abs() < intersect.height.abs() ||
+            if (difference.abs() < intersectHeight.abs() ||
                 intersect.width < 0) {
               secondaryTop.value = size.height -
                   secondaryHeight.value -
                   secondaryBottomBeforeShift.value!;
             } else {
-              secondaryTop.value = secondaryTop.value! - intersect.height;
+              secondaryTop.value = secondaryTop.value! - intersectHeight;
             }
           }
 

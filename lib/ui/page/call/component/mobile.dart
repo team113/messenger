@@ -1195,6 +1195,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
                 c.secondaryTop.value = null;
                 c.secondaryRight.value = 10;
                 c.secondaryBottom.value = 10;
+                c.secondaryBottomBeforeShift.value = 10;
                 c.secondaryTargets.value = 0;
                 c.unfocus(d.participant);
               },

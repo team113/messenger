@@ -403,7 +403,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             sigmaX: 15,
                             sigmaY: 15,
                           ),
-                          child: AnimatedContainer(
+                          child: Container(
                             decoration: BoxDecoration(
                               color: const Color(0x301D6AAE),
                               borderRadius: BorderRadius.circular(30),
@@ -412,7 +412,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                               vertical: 13,
                               horizontal: 5,
                             ),
-                            duration: const Duration(milliseconds: 150),
                             child: Dock<CallButton>(
                               items: c.buttons,
                               itemWidth: CallController.buttonSize,
@@ -422,8 +421,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                               onReorder: (buttons) {
                                 c.buttons.clear();
                                 c.buttons.addAll(buttons);
+                                c.shiftSecondaryView();
                               },
-                              onDragStarted: (b) => c.draggedButton.value = b,
+                              onDragStarted: (b) {
+                                c.isMoreHintDismissed.value = true;
+                                c.draggedButton.value = b;
+                              },
                               onDragEnded: (_) => c.draggedButton.value = null,
                               onLeave: (_) => c.displayMore.value = true,
                               onWillAccept: (d) => d?.c == c,
@@ -504,8 +507,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                                       ),
                                     ),
                                     data: e,
-                                    onDragStarted: () =>
-                                        c.draggedButton.value = e,
+                                    onDragStarted: () {
+                                      c.isMoreHintDismissed.value = true;
+                                      c.draggedButton.value = e;
+                                    },
                                     onDragCompleted: () =>
                                         c.draggedButton.value = null,
                                     onDragEnd: (_) =>
@@ -561,14 +566,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                                     duration: const Duration(milliseconds: 200),
                                     child: Align(
                                       alignment: Alignment.topCenter,
-                                      child: Container(
+                                      child: SizedBox(
                                         width: 290,
-                                        padding: EdgeInsets.only(
-                                          top: 10 +
-                                              (c.minimized.value
-                                                  ? CallController.titleHeight
-                                                  : 0),
-                                        ),
                                         child: HintWidget(
                                           text: 'label_hint_drag_n_drop_buttons'
                                               .l10n,
@@ -610,33 +609,13 @@ Widget desktopCall(CallController c, BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.deferToChild,
-                  onTap: () {
-                    if (c.state.value == OngoingCallState.active) {
-                      if (c.displayMore.value) {
-                        c.displayMore.value = false;
-                        c.keepUi(false);
-                      } else {
-                        if (c.showUi.isFalse) {
-                          c.keepUi();
-                        } else {
-                          c.keepUi(false);
-                        }
-                      }
-                    }
-                  },
-                  child: SingleChildScrollView(
-                    reverse: true,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      verticalDirection: VerticalDirection.up,
-                      children: [
-                        _dock(),
-                        _launchpad(),
-                      ],
-                    ),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  verticalDirection: VerticalDirection.up,
+                  children: [
+                    _dock(),
+                    _launchpad(),
+                  ],
                 ),
               ),
             ],
