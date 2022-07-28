@@ -532,7 +532,7 @@ class RecoverUserPasswordException
       case RecoverUserPasswordErrorCode.nowhereToSend:
         return 'err_nowhere_to_send'.l10n;
       case RecoverUserPasswordErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return 'err_account_not_found'.l10n;
     }
   }
 }

@@ -16,7 +16,7 @@
 
 alert_are_you_sure = Are you sure?
 alert_are_you_sure_want_to_delete_email =
-    Are you sure you want to delete this E-mail?
+    Are you sure you want to delete this Email?
 alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out =
@@ -118,6 +118,7 @@ btn_call_video_off_desc =
     Turn
     video off
 btn_call_video_on = Turn video on
+btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
     video on
@@ -134,6 +135,7 @@ btn_delete_from_contacts = Delete from contacts
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
+btn_forgot_password = Forgot password?
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -175,8 +177,10 @@ err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
 err_current_password_empty = Current password must not be empty
+err_data_transfer =
+    Data transfer error. Please, check your network connection.
 err_dimensions_too_big = Dimensions too big
-err_email_occupied = E-mail address is already occupied
+err_email_occupied = Email address is already occupied
 err_incorrect_chat_name = Incorrect name
 err_incorrect_input = Incorrect input
 err_incorrect_password = Incorrect Password
@@ -190,7 +194,7 @@ err_new_password_empty = New password must not be empty
 err_no_filename = File should have a name
 err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
-err_no_unconfirmed_email = No unconfirmed E-mails were found
+err_no_unconfirmed_email = No unconfirmed Emails were found
 err_no_unconfirmed_phone = No unconfirmed phone numbers were found
 err_not_author = Not an author
 err_not_call_member = Not a call member
@@ -198,13 +202,14 @@ err_not_dialog = Not a dialog
 err_not_group = Not a group
 err_not_member = Not a member
 err_nowhere_to_send = Account has no confirmed emails or phones
+err_password_empty = Please, enter the password
 err_passwords_mismatch = Passwords do not match
 err_phone_occupied = Phone number is already occupied
 err_quoted_message = Message was quoted
-err_repeat_password_empty = Repeated password must not be empty
+err_repeat_password_empty = Please, repeat the password
 err_size_too_big = File is too big. Maximum allowed size is 15 MiB
 err_stale_version = Provided version is too stale
-err_too_many_emails = Reached maximum allowed number of E-mail addresses
+err_too_many_emails = Reached maximum allowed number of Email addresses
 err_too_many_phones = Reached maximum allowed number of phone number
 err_unauthorized = Authentication required
 err_uneditable_message = You can\'t edit this message
@@ -223,9 +228,9 @@ err_uploaded_file_malformed = File is malformed
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_old_password = Wrong current password
 err_wrong_recovery_code = Provided code is wrong
-err_you_already_add_this_email = E-mail is already added
+err_you_already_add_this_email = Email is already added
 err_you_already_add_this_phone = Phone number is already added
-err_you_already_has_unconfirmed_email = You already has unconfirmed E-mail
+err_you_already_has_unconfirmed_email = You already has unconfirmed Email
 err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
@@ -235,6 +240,7 @@ label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88,
+label_account_created = Account is created
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -333,12 +339,13 @@ label_duration_minute_short = m
 label_duration_second_short = s
 label_edit_message = Message editing
 label_edit_message_hint = No text
-label_email_confirmation_code_was_send =
-      Confirmation code was send to your E-mail
+label_email_confirmation_code_was_sent =
+      Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
+label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
@@ -380,6 +387,7 @@ label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
+label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
@@ -390,7 +398,7 @@ label_presence_away = Away
 label_presence_hidden = Hidden
 label_presence_present = Last visit information
 label_read_by = Read by
-label_recover_account = Account access recovery
+label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
 label_search = Search
@@ -402,6 +410,7 @@ label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
+label_set_new_password = Set a new password to log into your account
 label_settings = Settings
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone

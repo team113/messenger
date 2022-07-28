@@ -7,6 +7,7 @@ environment:
   sdk: ">=2.16.0 <3.0.0"
 
 dependencies:
+  animated_size_and_fade: ^3.0.0
   async: ^2.8.2
   audioplayers: ^1.0.0-rc.4
   badges: ^2.0.2
@@ -48,9 +49,7 @@ dependencies:
   http_parser: ^4.0.0
   image_picker:
     git:
-      url: https://github.com/krida2000/image_picker
-      ref: main
-      path: packages/image_picker/image_picker/
+      url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
@@ -116,6 +115,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/conf.toml
+    - assets/fonts/
     - assets/icons/
     - assets/images/
     - assets/images/logo/
