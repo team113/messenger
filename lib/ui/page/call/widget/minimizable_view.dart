@@ -24,6 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.minimizationDelta = 50,
     required this.child,
   }) : super(key: key);
 
@@ -33,6 +34,10 @@ class MinimizableView extends StatefulWidget {
 
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
+
+  /// Distance to travel in order for the panning to be recognized as a
+  /// minimization gesture.
+  final double minimizationDelta;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -77,6 +82,9 @@ class _MinimizableViewState extends State<MinimizableView>
 
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
+
+  /// Current panning distance.
+  double _panningDistance = 0;
 
   /// [DecorationTween] of this view.
   final DecorationTween _decorationTween = DecorationTween(
@@ -150,9 +158,18 @@ class _MinimizableViewState extends State<MinimizableView>
                       }
                     : null,
                 onPanUpdate: (d) {
+                  _panningDistance = _panningDistance + d.delta.dy;
+
+                  if (_panningDistance < widget.minimizationDelta &&
+                      _controller.value == 0) {
+                    return;
+                  }
+
                   if (_drag != null && _value != null) {
                     _controller.value = _value! +
-                        (d.localPosition.dy - _drag!.dy) *
+                        (d.localPosition.dy -
+                                _drag!.dy -
+                                widget.minimizationDelta) *
                             (1 / constraints.maxHeight);
                   } else {
                     setState(() {
@@ -170,8 +187,12 @@ class _MinimizableViewState extends State<MinimizableView>
                         setState(() {});
                       }
                     : null,
-                onPanEnd:
-                    _drag != null && _value != null ? _onVerticalDragEnd : null,
+                onPanEnd: (d) {
+                  if (_drag != null && _value != null) {
+                    _onVerticalDragEnd(d);
+                  }
+                  _panningDistance = 0;
+                },
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),

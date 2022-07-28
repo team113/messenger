@@ -268,7 +268,7 @@ class MyProfileController extends GetxController {
 
           try {
             await _myUserService.addUserEmail(email!);
-            MessagePopup.success('label_email_confirmation_code_was_send'.l10n);
+            MessagePopup.success('label_email_confirmation_code_was_sent'.l10n);
             _setResendEmailTimer(true);
             s.clear();
           } on FormatException {
@@ -659,7 +659,7 @@ class MyProfileController extends GetxController {
     try {
       await _myUserService.resendEmail();
       _setResendEmailTimer(true);
-      MessagePopup.success('label_email_confirmation_code_was_send'.l10n);
+      MessagePopup.success('label_email_confirmation_code_was_sent'.l10n);
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
