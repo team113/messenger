@@ -269,6 +269,11 @@ ifeq ($(start-app),yes)
 	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
 	                background=yes log=no
 endif
+ifeq ($(or $(device),chrome),$(filter $(or $(device),chrome),chrome web-server))
+ifneq ($(start-driver),no)
+	chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
+endif
+endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
 	           --network=container:${compose-project-name}-frontend \
@@ -280,6 +285,11 @@ else
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart
+endif
+ifeq ($(or $(device),chrome),$(filter $(or $(device),chrome),chrome web-server))
+ifneq ($(start-driver),no)
+	pkill -SIGKILL chromedriver
+endif
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
