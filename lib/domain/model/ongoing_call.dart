@@ -200,10 +200,9 @@ class OngoingCall {
   /// Temporary stream of the errors happening in this [OngoingCall].
   Stream<String> get errors => _errors.stream;
 
-  /// Reactive map of [RemoteMemberId]s and their [RemoteMemberData] of this
-  /// call.
-  final RxObsMap<RemoteMemberId, RemoteMemberData> members =
-      RxObsMap<RemoteMemberId, RemoteMemberData>();
+  /// [RemoteMember]s of this call.
+  final RxObsMap<RemoteMemberId, RemoteMember> members =
+      RxObsMap<RemoteMemberId, RemoteMember>();
 
   /// Indicator whether this [OngoingCall] is [connect]ed to the remote updates
   /// or not.
@@ -310,7 +309,7 @@ class OngoingCall {
 
       _room!.onNewConnection((conn) {
         var id = RemoteMemberId.fromString(conn.getRemoteMemberId());
-        members[id] = RemoteMemberData(
+        members[id] = RemoteMember(
           conn: conn,
           isHandRaised: call.value?.members
                   .firstWhereOrNull((e) => e.user.id == id.userId)
@@ -1157,15 +1156,6 @@ class OngoingCall {
       }
     }
   }
-
-  /// Disables inbound video in this [conn].
-  Future<void> disableVideo(ConnectionHandle conn) async {
-    try {
-      await conn.disableRemoteVideo();
-    } catch (e) {
-      return;
-    }
-  }
 }
 
 /// Possible kinds of a media ownership.
@@ -1306,15 +1296,15 @@ class RemoteMemberId {
           deviceId == other.deviceId;
 }
 
-/// [RemoteMemberData] for [RemoteMemberId].
-class RemoteMemberData {
-  RemoteMemberData({
+/// Participant of an [OngoingCall].
+class RemoteMember {
+  RemoteMember({
     required this.conn,
     this.isHandRaised = false,
     this.hasVideo = false,
   });
 
-  /// Indicates whether this member emits outcoming video media track.
+  /// Indicates whether this member emits outgoing video media track.
   bool hasVideo;
 
   /// Hand raised indicator of this member.

@@ -402,8 +402,8 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
-  /// Reactive map of the current call [RemoteMemberId]s.
-  RxObsMap<RemoteMemberId, RemoteMemberData> get members =>
+  /// Reactive map of the current call [RemoteMember]s.
+  RxObsMap<RemoteMemberId, RemoteMember> get members =>
       _currentCall.value.members;
 
   /// Indicator whether the inbound video in the current [OngoingCall] is
