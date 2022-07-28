@@ -3,13 +3,11 @@ version: "2"
 services:
   frontend:
     container_name: ${COMPOSE_PROJECT_NAME}-frontend
-    image: nginx:stable-alpine
-    # image: ${COMPOSE_FRONTEND_IMAGE}:${COMPOSE_FRONTEND_TAG}
+    image: ${COMPOSE_FRONTEND_IMAGE}:${COMPOSE_FRONTEND_TAG}
     build:
       context: .
     ports:
       - "80:80"        # nginx http
-      # - "4444:4444"    # webdriver chrome
     volumes:
       - ./.cache/minio/data/files/:/var/www-files/files/:ro
       - ./assets/conf.toml:/var/www/conf.toml:ro
@@ -113,12 +111,3 @@ services:
       - "1025:1025"    # mailhog smtp
     volumes:
       - ./dev/mailhog/auth.passwd:/etc/auth.passwd:ro
-  # webdriver-chrome:
-  #   container_name: ${COMPOSE_PROJECT_NAME}-webdriver-chrome
-  #   image: sskorol/selenoid_chromium_vnc:100.0
-  #   # image: selenoid/chrome:latest
-  #   depends_on: ["frontend"]
-  #   environment:
-  #     DRIVER_ARGS: --enable-chrome-logs --disable-dev-shm-usage
-  #   shm_size: 2g
-  #   network_mode: "host"

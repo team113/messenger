@@ -251,8 +251,7 @@ endif
 #
 # Usage:
 #	make test.e2e [( [start-app=no]
-#	               | start-app=yes [tag=(dev|<docker-tag>)]
-#	                               [no-cache=(no|yes)]
+#	               | start-app=yes [no-cache=(no|yes)]
 #	                               [pull=(no|yes)] )]
 #	              [device=(chrome|web-server|macos|linux|windows|<device-id>)]
 #	              [dockerized=(no|yes)]
@@ -266,13 +265,7 @@ ifeq ($(if $(call eq,$(gen),yes),,$(wildcard test/e2e/*.g.dart)),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
 endif
 ifeq ($(start-app),yes)
-	@make docker.up tag=$(tag) no-cache=$(no-cache) pull=$(pull) \
-	                background=yes log=no
-endif
-ifeq ($(or $(device),chrome),$(filter $(or $(device),chrome),chrome web-server))
-ifneq ($(start-driver),no)
-	chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
-endif
+	@make docker.up no-cache=$(no-cache) pull=$(pull) background=yes log=no
 endif
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
@@ -285,11 +278,6 @@ else
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart
-endif
-ifeq ($(or $(device),chrome),$(filter $(or $(device),chrome),chrome web-server))
-ifneq ($(start-driver),no)
-	pkill -SIGKILL chromedriver
-endif
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
@@ -494,7 +482,6 @@ docker.down:
 #
 # Usage:
 #	make docker.up [pull=(no|yes)] [no-cache=(no|yes)]
-#	               [tag=(dev|<tag>)]
 #	               [rebuild=(no|yes)]
 #	               [( [rebuild=no]
 #	                | rebuild=yes [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
@@ -504,7 +491,6 @@ docker.down:
 
 docker.up: docker.down
 ifeq ($(pull),yes)
-	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
 	docker-compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
@@ -517,7 +503,6 @@ endif
 ifeq ($(wildcard .cache/minio),)
 	@mkdir -p .cache/minio/data/
 endif
-	COMPOSE_FRONTEND_TAG=$(or $(tag),dev) \
 	docker-compose up \
 		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
 ifeq ($(background),yes)
