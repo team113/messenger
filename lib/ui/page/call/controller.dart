@@ -246,7 +246,7 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// Global key of animated slider buttons panel.
+  /// Global key of animated slider buttons dock.
   final GlobalKey buttonsDockKey = GlobalKey();
 
   /// [Offset] the secondary view has relative to the pan gesture position.
@@ -259,7 +259,7 @@ class CallController extends GetxController {
   final StreamController dockAnimationStream = StreamController();
 
   /// Initial bottom position of the secondary view before changing position by
-  /// bottom bar.
+  /// shifting.
   final RxnDouble secondaryBottomBeforeShift = RxnDouble(null);
 
   /// Indicator whether [shiftSecondaryView] locked.
@@ -267,7 +267,8 @@ class CallController extends GetxController {
   /// Used to limit [shiftSecondaryView] calls to one time in frame.
   bool _secondaryShiftLocked = false;
 
-  /// Distance to bottom dock when secondary view is shifted.
+  /// Padding from secondary view to bottom dock when secondary view is
+  /// shifted.
   final double _shiftPadding = 10;
 
   /// Height of the title bar.
@@ -1075,7 +1076,7 @@ class CallController extends GetxController {
   }
 
   /// Moves secondary view up if it intersect with buttons dock, elsewhere
-  /// return to position before shift.
+  /// returns to position before shift.
   void shiftSecondaryView() {
     if (buttonsDockKey.currentContext?.findRenderObject() != null &&
         secondaryKey.currentContext?.findRenderObject() != null &&
