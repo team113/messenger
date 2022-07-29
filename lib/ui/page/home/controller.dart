@@ -124,8 +124,8 @@ class HomeController extends GetxController {
   void _displayIntroduction(MyUser myUser) {
     if (!myUser.hasPassword) {
       IntroductionView.show(router.context!);
+      _settingsRepository.setShowIntroduction(false);
     }
-    _settingsRepository.setShowIntroduction(false);
   }
 
   /// Refreshes the controller on [router] change.
