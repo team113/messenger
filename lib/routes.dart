@@ -51,7 +51,6 @@ import 'store/user.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
-import 'ui/page/login/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/widget/context_menu/overlay.dart';
@@ -75,7 +74,6 @@ class Routes {
   static const contact = '/contact';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
-  static const login = '/login';
   static const me = '/me';
   static const menu = '/menu';
   static const settings = '/settings';
@@ -198,19 +196,12 @@ class RouterState extends ChangeNotifier {
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.
-  /// - [Routes.login] is allowed to visit only on no auth status.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
     switch (to) {
       case Routes.home:
       case Routes.style:
         return to;
-      case Routes.login:
-        if (!_auth.status.value.isSuccess) {
-          return to;
-        } else {
-          return route;
-        }
       default:
         if (_auth.status.value.isSuccess) {
           return to;
@@ -551,13 +542,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
-    if (_state.route == Routes.login) {
-      pages.add(const MaterialPage(
-        key: ValueKey('LoginPage'),
-        name: Routes.login,
-        child: LoginView(),
-      ));
-    } else if (_state.route.startsWith(Routes.chat) ||
+    if (_state.route.startsWith(Routes.chat) ||
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
         _state.route == Routes.me ||
@@ -620,9 +605,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.auth] page.
   void auth() => go(Routes.auth);
-
-  /// Changes router location to the [Routes.login] page.
-  void login() => go(Routes.login);
 
   /// Changes router location to the [Routes.home] page.
   void home() => go(Routes.home);
