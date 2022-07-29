@@ -50,130 +50,134 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> children;
+          List<Widget> children = [];
 
-          if (c.displaySuccess.value) {
-            children = [
-              const SizedBox(height: 14),
-              Center(
-                child: Text(
-                  'label_password_set_successfully'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
+          switch (c.stage.value) {
+            case IntroductionViewStage.introduction:
+              children = [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        style: thin,
+                        text: 'label_password_not_set_description'.l10n,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
-              Center(
-                child: OutlinedRoundedButton(
-                  title: Text('btn_close'.l10n),
-                  onPressed: Navigator.of(context).pop,
-                  color: const Color(0xFFEEEEEE),
-                ),
-              ),
-            ];
-          } else if (c.displayPassword.value) {
-            children = [
-              const SizedBox(height: 14),
-              Center(
-                child: Text(
-                  'btn_set_password'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
-              ),
-              const SizedBox(height: 18),
-              ReactiveTextField(
-                state: c.password,
-                label: 'label_password'.l10n,
-                obscure: c.obscurePassword.value,
-                style: thin,
-                onSuffixPressed: c.obscurePassword.toggle,
-                treatErrorAsStatus: false,
-                trailing: SvgLoader.asset(
-                  'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                  width: 17.07,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ReactiveTextField(
-                state: c.repeat,
-                label: 'label_repeat_password'.l10n,
-                obscure: c.obscureRepeat.value,
-                style: thin,
-                onSuffixPressed: c.obscureRepeat.toggle,
-                treatErrorAsStatus: false,
-                trailing: SvgLoader.asset(
-                  'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
-                  width: 17.07,
-                ),
-              ),
-              const SizedBox(height: 25),
-              OutlinedRoundedButton(
-                title: Text(
-                  'btn_save'.l10n,
-                  style: thin?.copyWith(color: Colors.white),
-                ),
-                onPressed: c.setPassword,
-                height: 50,
-                leading: SvgLoader.asset(
-                  'assets/icons/save.svg',
-                  height: 25 * 0.7,
-                ),
-                color: const Color(0xFF63B4FF),
-              ),
-            ];
-          } else {
-            children = [
-              RichText(
-                text: TextSpan(
+                const SizedBox(height: 25),
+                Row(
                   children: [
-                    TextSpan(
-                      style: thin,
-                      text: 'label_password_not_set_description'.l10n,
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('IntroductionSetPasswordButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_set_password'.l10n,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onPressed: () {
+                          c.stage.value = IntroductionViewStage.password;
+                        },
+                        color: const Color(0xFF63B4FF),
+                      ),
                     ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('IntroductionCloseButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_close'.l10n,
+                          style: const TextStyle(),
+                        ),
+                        onPressed: Navigator.of(context).pop,
+                        color: const Color(0xFFEEEEEE),
+                      ),
+                    )
                   ],
                 ),
-              ),
-              const SizedBox(height: 25),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      key: const Key('IntroductionSetPasswordButton'),
-                      maxWidth: null,
-                      title: Text(
-                        'btn_set_password'.l10n,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      onPressed: () {
-                        c.displayPassword.value = true;
-                      },
-                      color: const Color(0xFF63B4FF),
-                    ),
+              ];
+              break;
+            case IntroductionViewStage.password:
+              children = [
+                const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    'btn_set_password'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedRoundedButton(
-                      key: const Key('IntroductionCloseButton'),
-                      maxWidth: null,
-                      title: Text(
-                        'btn_close'.l10n,
-                        style: const TextStyle(),
-                      ),
-                      onPressed: Navigator.of(context).pop,
-                      color: const Color(0xFFEEEEEE),
-                    ),
-                  )
-                ],
-              ),
-            ];
+                ),
+                const SizedBox(height: 18),
+                ReactiveTextField(
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  style: thin,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  state: c.repeat,
+                  label: 'label_repeat_password'.l10n,
+                  obscure: c.obscureRepeat.value,
+                  style: thin,
+                  onSuffixPressed: c.obscureRepeat.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                OutlinedRoundedButton(
+                  title: Text(
+                    'btn_save'.l10n,
+                    style: thin?.copyWith(color: Colors.white),
+                  ),
+                  onPressed: c.setPassword,
+                  height: 50,
+                  leading: SvgLoader.asset(
+                    'assets/icons/save.svg',
+                    height: 25 * 0.7,
+                  ),
+                  color: const Color(0xFF63B4FF),
+                ),
+              ];
+              break;
+            case IntroductionViewStage.success:
+              children = [
+                const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    'label_password_set_successfully'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: Text('btn_close'.l10n),
+                    onPressed: Navigator.of(context).pop,
+                    color: const Color(0xFFEEEEEE),
+                  ),
+                ),
+              ];
+              break;
           }
 
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
-              key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
+              key: Key('${c.stage.value}'),
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [

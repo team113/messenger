@@ -23,16 +23,20 @@ import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
+/// Possible [IntroductionViewStage] flow stage.
+enum IntroductionViewStage {
+  introduction,
+  password,
+  success,
+}
+
 /// Controller of an [IntroductionView].
 class IntroductionController extends GetxController {
   IntroductionController(this._myUser);
 
-  /// Indicates of displaying of widgets for password setting.
-  final RxBool displayPassword = RxBool(false);
-
-  /// Indicates of displaying of the text if the password was changed
-  /// successfully.
-  final RxBool displaySuccess = RxBool(false);
+  /// [IntroductionViewStage] currently being displayed.
+  final Rx<IntroductionViewStage> stage =
+      Rx(IntroductionViewStage.introduction);
 
   /// Uses for password updating.
   final MyUserService _myUser;
@@ -149,7 +153,7 @@ class IntroductionController extends GetxController {
       password.status.value = RxStatus.success();
       repeat.status.value = RxStatus.success();
       await Future.delayed(1.seconds);
-      displaySuccess.value = true;
+      stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
     } catch (e) {
