@@ -53,10 +53,10 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Size of the [ContextMenuOverlay].
   Size? _area;
 
-  /// Position of the [_menu].
+  /// Position of the [menu].
   Offset _position = Offset.zero;
 
-  /// Alignment of this [_menu].
+  /// Alignment of this [menu].
   ///
   /// See [alignment] for details.
   Alignment _alignment = Alignment.bottomRight;
@@ -64,10 +64,10 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Alignment of current context menu.
   ///
   /// May be:
-  /// - `bottomRight`, meaning [_menu] is placed in the bottom right quadrant.
-  /// - `bottomLeft`, meaning [_menu] is placed in the bottom left quadrant.
-  /// - `topRight`, meaning [_menu] is placed in the top right quadrant.
-  /// - `topLeft`, meaning [_menu] is placed in the top left quadrant.
+  /// - `bottomRight`, meaning [menu] is placed in the bottom right quadrant.
+  /// - `bottomLeft`, meaning [menu] is placed in the bottom left quadrant.
+  /// - `topRight`, meaning [menu] is placed in the top right quadrant.
+  /// - `topLeft`, meaning [menu] is placed in the top left quadrant.
   Alignment get alignment => _alignment;
 
   @override
@@ -97,11 +97,11 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
               children: [
                 widget.child,
                 if (menu.value != null) ...[
-                  // Listens for taps outside the [_menu].
+                  // Listens for taps outside the [menu].
                   Listener(
                     behavior: HitTestBehavior.opaque,
                     onPointerDown: (d) {
-                      // If [kSecondaryButton] was pressed outside the [_menu],
+                      // If [kSecondaryButton] was pressed outside the [menu],
                       // then simulate the [PointerUpDown] and [PointerUpEvent]
                       // for every [RenderPointerListener] on
                       // [BoxHitTestResult]'s path.
@@ -155,7 +155,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                       hide();
                     },
                   ),
-                  // Draws [_menu] at [_position] with [alignment] translation.
+                  // Draws [menu] at [_position] with [alignment] translation.
                   Positioned(
                     left: _position.dx,
                     top: _position.dy,
