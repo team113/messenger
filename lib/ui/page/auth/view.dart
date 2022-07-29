@@ -25,10 +25,11 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/widget/selector.dart';
+import '/ui/page/login/view.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'widget/outlined_rounded_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
@@ -189,7 +190,7 @@ class AuthView extends StatelessWidget {
               'assets/icons/sign_in.svg',
               width: 20 * 0.7,
             ),
-            onPressed: router.login,
+            onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
           if (isIosWeb)
