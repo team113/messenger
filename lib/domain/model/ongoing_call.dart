@@ -320,13 +320,19 @@ class OngoingCall {
         conn.onRemoteTrackAdded((track) async {
           var renderer = await _addRemoteTrack(conn, track);
 
-          TrackMediaDirection direction = track.mediaDirection();
+          bool isVideoAvailable =
+              track.mediaDirection() == TrackMediaDirection.SendRecv ||
+                  track.mediaDirection() == TrackMediaDirection.SendOnly;
+
           if (track.kind() == MediaKind.Video) {
-            members.update(
-                id,
-                (value) => value
-                  ..hasVideo = direction == TrackMediaDirection.SendRecv ||
-                      direction == TrackMediaDirection.SendOnly);
+            members.update(id, (value) {
+              switch (track.mediaSourceKind()) {
+                case MediaSourceKind.Device:
+                  return value..hasVideo = isVideoAvailable;
+                case MediaSourceKind.Display:
+                  return value..hasSharing.value = isVideoAvailable;
+              }
+            });
           }
 
           track.onMuted(() {
@@ -350,12 +356,19 @@ class OngoingCall {
                 _removeRemoteTrack(track);
                 break;
             }
+
             if (track.kind() == MediaKind.Video) {
-              members.update(
-                  id,
-                  (value) => value
-                    ..hasVideo = d == TrackMediaDirection.SendRecv ||
-                        d == TrackMediaDirection.SendOnly);
+              bool isVideoAvailable = d == TrackMediaDirection.SendRecv ||
+                  d == TrackMediaDirection.SendOnly;
+
+              members.update(id, (value) {
+                switch (track.mediaSourceKind()) {
+                  case MediaSourceKind.Device:
+                    return value..hasVideo = isVideoAvailable;
+                  case MediaSourceKind.Display:
+                    return value..hasSharing.value = isVideoAvailable;
+                }
+              });
             }
           });
 
@@ -767,6 +780,22 @@ class OngoingCall {
   /// Toggles inbound video in this [OngoingCall] on and off.
   Future<void> toggleRemoteVideo() =>
       setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
+
+  Future<void> setRemoteMemberVideoEnabled({
+    required bool value,
+    required RemoteMemberId id,
+    MediaSourceKind source = MediaSourceKind.Device,
+  }) async {
+    if (members[id] == null) {
+      return;
+    }
+
+    if (value) {
+      await members[id]!.conn.enableRemoteVideo(source);
+    } else {
+      await members[id]!.conn.disableRemoteVideo(source);
+    }
+  }
 
   /// Adds the provided [message] to the [errors] stream.
   ///
@@ -1302,10 +1331,13 @@ class RemoteMember {
     required this.conn,
     this.isHandRaised = false,
     this.hasVideo = false,
-  });
+    bool hasSharing = false,
+  }) : hasSharing = RxBool(hasSharing);
 
   /// Indicates whether this member emits outgoing video media track.
   bool hasVideo;
+
+  RxBool hasSharing;
 
   /// Hand raised indicator of this member.
   bool isHandRaised;

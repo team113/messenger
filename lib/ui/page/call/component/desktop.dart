@@ -1270,9 +1270,11 @@ Widget _primaryView(CallController c) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
-                                if (participant.hasVideo.value)
+                                if (participant.hasVideo.value ||
+                                    participant.source ==
+                                        MediaSourceKind.Display)
                                   ContextMenuButton(
-                                    label: participant.video.value != null
+                                    label: (participant.video.value != null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
                                     onPressed: () =>
@@ -1761,7 +1763,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   ),
                                 if (participant.hasVideo.value)
                                   ContextMenuButton(
-                                    label: participant.video.value != null
+                                    label: (participant.video.value != null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
                                     onPressed: () =>

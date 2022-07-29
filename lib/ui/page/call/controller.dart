@@ -601,9 +601,9 @@ class CallController extends GetxController {
         case OperationKind.added:
           _putParticipant(
             e.key!,
-            conn: e.value?.conn,
             handRaised: e.value?.isHandRaised,
             hasVideo: e.value?.hasVideo,
+            hasDisplaySharing: e.value?.hasSharing.value,
           );
           _insureCorrectGrouping();
           break;
@@ -624,9 +624,9 @@ class CallController extends GetxController {
         case OperationKind.updated:
           _putParticipant(
             e.key!,
-            conn: e.value?.conn,
             handRaised: e.value?.isHandRaised,
             hasVideo: e.value?.hasVideo,
+            hasDisplaySharing: e.value?.hasSharing.value,
           );
           _insureCorrectGrouping();
           break;
@@ -856,13 +856,11 @@ class CallController extends GetxController {
 
   /// Toggles receiving of incoming video from the provided [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
-    if (participant.conn != null) {
-      if (participant.video.value != null) {
-        await participant.conn!.disableRemoteVideo();
-      } else {
-        await participant.conn!.enableRemoteVideo();
-      }
-    }
+    await _currentCall.value.setRemoteMemberVideoEnabled(
+      value: participant.video.value == null,
+      id: participant.id,
+      source: participant.source,
+    );
   }
 
   /// Keeps UI open for some amount of time and then hides it if [enabled] is
@@ -1534,8 +1532,8 @@ class CallController extends GetxController {
     RemoteMemberId id, {
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
-    ConnectionHandle? conn,
     bool? hasVideo,
+    bool? hasDisplaySharing,
     bool? handRaised,
   }) {
     Participant? participant = findParticipant(
@@ -1558,8 +1556,8 @@ class CallController extends GetxController {
         video: video,
         audio: audio,
         hasVideo: hasVideo,
+        hasDisplaySharing: hasDisplaySharing,
         handRaised: handRaised,
-        conn: conn,
       );
 
       _userService
@@ -1597,6 +1595,8 @@ class CallController extends GetxController {
       }
     } else {
       participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
+      participant.hasDisplaySharing.value =
+          hasDisplaySharing ?? participant.hasDisplaySharing.value;
       participant.audio.value = audio ?? participant.audio.value;
       participant.video.value = video ?? participant.video.value;
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
@@ -1645,16 +1645,17 @@ class Participant {
   Participant(
     this.id,
     this.owner, {
-    this.conn,
     RxUser? user,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? handRaised,
     bool? hasVideo,
+    bool? hasDisplaySharing,
   })  : video = Rx(video),
         audio = Rx(audio),
         handRaised = Rx(handRaised ?? false),
         hasVideo = Rx(hasVideo ?? false),
+        hasDisplaySharing = Rx(hasDisplaySharing ?? false),
         user = Rx(user),
         source = video?.source ?? audio?.source ?? MediaSourceKind.Device;
 
@@ -1673,11 +1674,10 @@ class Participant {
   /// Media source kind of this [Participant].
   final MediaSourceKind source;
 
-  /// [ConnectionHandle] of the current [Participant].
-  final ConnectionHandle? conn;
-
   /// Indicates whether the current [Participant] emits outcoming video track.
   final Rx<bool> hasVideo;
+
+  final Rx<bool> hasDisplaySharing;
 
   /// Reactive video renderer of this [Participant].
   late final Rx<RtcVideoRenderer?> video;
