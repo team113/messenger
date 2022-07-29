@@ -71,6 +71,7 @@ dependencies:
       url: https://github.com/bluefireteam/photo_view
       ref: master
   platform_detect: ^2.0.3
+  rive: ^0.9.0
   sentry_flutter: ^6.5.1
   sliding_up_panel: ^2.0.0+1
   toml: ^0.12.0
