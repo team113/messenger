@@ -97,7 +97,6 @@ class HomeController extends GetxController {
     if (_settings?.showIntroduction ?? true) {
       if (_myUser.myUser.value != null) {
         _displayIntroduction(_myUser.myUser.value!);
-        _settingsRepository.setShowIntroduction(false);
       } else {
         Worker? worker;
         worker = ever(

@@ -85,7 +85,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> setShowIntroduction(bool show) =>
-      _settingsLocal.setIntroductionWasShowed(show);
+      _settingsLocal.setShowIntroduction(show);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
