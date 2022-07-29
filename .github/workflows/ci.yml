@@ -272,22 +272,6 @@ jobs:
   # Testing #
   ###########
 
-  test-unit:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: $FLUTTER_VER
-          channel: stable
-          cache: true
-
-      - run: make flutter.pub
-
-      - run: make test.unit
-
-
   test-e2e:
     name: E2E tests
     runs-on: ubuntu-latest
@@ -299,14 +283,16 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Login to container registry
-        run: docker login -u ${{ secrets.E2E_USER }}
-                          -p ${{ secrets.E2E_PASS }}
-                             ${{ secrets.E2E_REGISTRY }}
+      - name: Login to private E2E container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.E2E_REGISTRY }}
+          username: ${{ secrets.E2E_USER }}
+          password: ${{ secrets.E2E_PASS }}
 
       - run: make flutter.pub
 
-      - name: Populate .env file to use in Docker compose
+      - name: Prepare E2E environment
         uses: SpicyPizza/create-envfile@v1.3
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
@@ -324,6 +310,20 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
 
+  test-unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: $FLUTTER_VER
+          channel: stable
+          cache: true
+
+      - run: make flutter.pub
+
+      - run: make test.unit
 
 
 
@@ -331,94 +331,6 @@ jobs:
   #############
   # Releasing #
   #############
-
-  release-github:
-    name: Release on GitHub
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - release-docker
-      - test-e2e
-      - test-unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-      - name: Verify Git tag version matches `pubspec.yaml` version
-        run: >
-          test "${{ steps.semver.outputs.group1 }}"
-            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
-
-      - name: Parse CHANGELOG link
-        id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
-      - name: Parse milestone link
-        id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: artifacts/
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.6.2
-        with:
-          filename: artifacts/docs.zip
-          path: .cache/dartdoc/
-      - name: Generate dartdoc SHA256 checksum
-        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
-        working-directory: artifacts/
-
-      - name: Show artifacts SHA256 checksums
-        run: cat *.sha256sum
-        working-directory: artifacts/
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ steps.semver.outputs.group1 }}
-          body: >
-            [Changelog](${{ steps.changelog.outputs.link }}) |
-            [Milestone](${{ steps.milestone.outputs.link }})
-          files: |
-            artifacts/*.apk
-            artifacts/*.aab
-            artifacts/*.zip
-            artifacts/*.sha256sum
-          fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
   release-docker:
     name: Release Docker image
@@ -536,6 +448,94 @@ jobs:
           DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
         if: ${{ steps.skip.outputs.no == 'true'
              && matrix.registry == 'quay.io' }}
+
+  release-github:
+    name: Release on GitHub
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - release-docker
+      - test-e2e
+      - test-unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+      - name: Verify Git tag version matches `pubspec.yaml` version
+        run: >
+          test "${{ steps.semver.outputs.group1 }}"
+            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
+
+      - name: Parse CHANGELOG link
+        id: changelog
+        run: echo ::set-output
+                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+      - name: Parse milestone link
+        id: milestone
+        run: echo ::set-output
+                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-apk-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-appbundle-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-linux-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-web-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-windows-${{ github.run_number }}
+          path: artifacts/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: dartdoc-${{ github.run_number }}
+          path: .cache/dartdoc/
+      - uses: thedoctor0/zip-release@0.6.2
+        with:
+          filename: artifacts/docs.zip
+          path: .cache/dartdoc/
+      - name: Generate dartdoc SHA256 checksum
+        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
+        working-directory: artifacts/
+
+      - name: Show artifacts SHA256 checksums
+        run: cat *.sha256sum
+        working-directory: artifacts/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.semver.outputs.group1 }}
+          body: >
+            [Changelog](${{ steps.changelog.outputs.link }}) |
+            [Milestone](${{ steps.milestone.outputs.link }})
+          files: |
+            artifacts/*.apk
+            artifacts/*.aab
+            artifacts/*.zip
+            artifacts/*.sha256sum
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
 
 

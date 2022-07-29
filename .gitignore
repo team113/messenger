@@ -7,6 +7,9 @@
 /.cache/
 /artifacts/
 
+# Development related
+.env
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -48,6 +51,3 @@ app.*.map.json
 /test/e2e/reports/
 /test_driver/build/
 /test_driver/report.json
-
-# Development related
-.env

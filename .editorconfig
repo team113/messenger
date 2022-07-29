@@ -36,6 +36,10 @@ max_line_length = off
 indent_style = space
 indent_size = 2
 
+[*.toml]
+indent_style = space
+indent_size = 4
+
 [*.{yaml,yml}]
 indent_style = space
 indent_size = 2
@@ -43,6 +47,10 @@ indent_size = 2
 [*.xml]
 indent_style = space
 indent_size = 4
+
+[**/ngin{x,x/*,x.*}.conf]
+indent_style = space
+indent_size = 2
 
 [Makefile]
 indent_style = tab
