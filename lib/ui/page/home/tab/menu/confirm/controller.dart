@@ -22,16 +22,19 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/ui/widget/text_field.dart';
 
+/// Possible [ConfirmLogoutViewStage] flow stage.
+enum ConfirmLogoutViewStage {
+  alert,
+  password,
+  success,
+}
+
 /// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {
   ConfirmLogoutController(this._myUser);
 
-  /// Indicates of displaying of widgets for password setting.
-  final RxBool displayPassword = RxBool(false);
-
-  /// Indicates of displaying of the text if the password was changed
-  /// successfully.
-  final RxBool displaySuccess = RxBool(false);
+  /// [ConfirmLogoutViewStage] currently being displayed.
+  final Rx<ConfirmLogoutViewStage> stage = Rx(ConfirmLogoutViewStage.alert);
 
   /// Field for password input.
   late final TextFieldState password;
@@ -131,7 +134,7 @@ class ConfirmLogoutController extends GetxController {
       password.status.value = RxStatus.success();
       repeat.status.value = RxStatus.success();
       await Future.delayed(1.seconds);
-      displaySuccess.value = true;
+      stage.value = ConfirmLogoutViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
     } catch (e) {
