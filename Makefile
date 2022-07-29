@@ -239,7 +239,7 @@ endif
 # Usage:
 #	make test.e2e [device=(chrome|linux|macos|windows|web-server|<device-id>)]
 #	              [dockerized=(no|yes)]
-#	              [gen=(no|yes)] [clean=(no|yes)]
+#	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
 
@@ -247,7 +247,7 @@ test.e2e:
 ifeq ($(clean),yes)
 	@make clean.e2e
 endif
-ifeq ($(gen),yes)
+ifneq ($(gen),no)
 ifeq ($(wildcard test/e2e/*.g.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
 endif
