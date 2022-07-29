@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
-        - Language selection ([#23]);
+        - Language selection ([#23], [#29]).
         - Unspecified password reminder on logout ([#39]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
@@ -27,7 +27,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34]).
-    - Redesigned login interface ([#35]).
+    - Redesigned login interface ([#35]);
+    - Redesigned auth page ([#29]).
 
 ### Fixed
 
@@ -50,6 +51,7 @@ All user visible changes to this project will be documented in this file. This p
 [#15]: /../../pull/15
 [#23]: /../../pull/23
 [#26]: /../../pull/26
+[#29]: /../../pull/29
 [#31]: /../../pull/31
 [#34]: /../../pull/34
 [#35]: /../../pull/35
