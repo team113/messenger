@@ -48,7 +48,7 @@ class ContextMenuOverlay extends StatefulWidget {
 /// State of a [ContextMenuOverlay].
 class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Currently opened context menu.
-  final Rx<Widget?> _menu = Rx(null);
+  final Rx<Widget?> menu = Rx(null);
 
   /// Size of the [ContextMenuOverlay].
   Size? _area;
@@ -70,9 +70,6 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// - `topLeft`, meaning [_menu] is placed in the top left quadrant.
   Alignment get alignment => _alignment;
 
-  /// Returns this [_menu] widget.
-  Rx<Widget?> get menu => _menu;
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -81,7 +78,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
         // This is classic context menu behavior at the OS level.
         final Size size = constraints.biggest;
         if (size != _area) {
-          _menu.value = null;
+          menu.value = null;
           _area = size;
         }
 
@@ -99,7 +96,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
             body: Stack(
               children: [
                 widget.child,
-                if (_menu.value != null) ...[
+                if (menu.value != null) ...[
                   // Listens for taps outside the [_menu].
                   Listener(
                     behavior: HitTestBehavior.opaque,
@@ -167,7 +164,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                         _alignment.x > 0 ? 0 : -1,
                         _alignment.y > 0 ? 0 : -1,
                       ),
-                      child: IntrinsicWidth(child: _menu.value),
+                      child: IntrinsicWidth(child: menu.value),
                     ),
                   ),
                 ]
@@ -182,11 +179,11 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Sets the current menu to [child] at [position].
   void show(Widget child, Offset position) => setState(() {
         _position = position;
-        _menu.value = child;
+        menu.value = child;
       });
 
   /// Hides the current menu if there is one.
-  void hide() => setState(() => _menu.value = null);
+  void hide() => setState(() => menu.value = null);
 }
 
 /// [InheritedWidget] of a [_ContextMenuOverlayState] used to implement

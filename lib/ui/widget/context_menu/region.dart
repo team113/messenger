@@ -49,7 +49,8 @@ class ContextMenuRegion extends StatefulWidget {
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  /// On message select fill decoration.
+  /// [BoxDecoration] to put this [ContextMenuRegion] into when
+  /// [ContextMenuOverlay] displays this [menu].
   final BoxDecoration? decoration;
 
   @override
@@ -85,8 +86,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   child: widget.child,
                 ),
 
-                // Display a selection [decoration] over this
-                // [ContextMenuRegion] if it is displayed right now.
+                // Display the provided [decoration] over this
+                // [ContextMenuRegion], if [ContextMenuOverlay] show this [menu].
                 if (context.isMobile)
                   Positioned.fill(
                     child: Obx(() {

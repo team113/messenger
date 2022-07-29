@@ -25,8 +25,9 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
-/// Sharable text field that puts a [copy] of data into the clipboard on click
-/// or on context menu action.
+/// Sharable field opening a [Share] modal with its [copy] content.
+///
+/// Puts the [copy] into the clipboard from the [ContextMenu].
 class SharableTextField extends StatelessWidget {
   SharableTextField({
     Key? key,
@@ -44,26 +45,23 @@ class SharableTextField extends StatelessWidget {
   /// Reactive state of this [SharableTextField].
   late final TextFieldState state;
 
-  /// Data to put into the clipboard.
+  /// Data to share or put into the clipboard.
   final String? copy;
 
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Trailing of this [TextField].
+  /// Optional trailing [Widget].
   final Widget? trailing;
 
-  /// Leading of this [TextField].
+  /// Optional leading [Widget].
   final Widget? leading;
 
   /// Optional label of this [SharableTextField].
   final String? label;
 
-  /// [TextStyle] of this [TextField].
+  /// [TextStyle] of this [SharableTextField].
   final TextStyle? style;
-
-  /// [GlobalKey] of this [TextField].
-  final GlobalKey _key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +96,6 @@ class SharableTextField extends StatelessWidget {
                   (copy ?? state.text).isEmpty ? null : () => _share(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
-                  key: _key,
                   prefix: leading,
                   state: state,
                   suffix: trailing == null ? Icons.ios_share : null,
@@ -120,7 +117,7 @@ class SharableTextField extends StatelessWidget {
     MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
-  /// Summons the platform's share sheet to share text.
+  /// Opens a [Share] modal sharing the [copy].
   Future<void> _share(BuildContext context) async {
     Rect? rect;
 
@@ -130,7 +127,7 @@ class SharableTextField extends StatelessWidget {
         rect = box.localToGlobal(Offset.zero) & box.size;
       }
     } catch (e) {
-      //No-op.
+      // No-op.
     }
 
     await Share.share(copy ?? state.text, sharePositionOrigin: rect);

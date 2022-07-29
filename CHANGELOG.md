@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Language selection ([#23]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
-    - Introduction modal view for new users ([#38]).
+    - Introduction modal on sign up ([#38]).
 
 ### Changed
 

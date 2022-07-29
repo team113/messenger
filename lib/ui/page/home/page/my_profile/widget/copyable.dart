@@ -47,13 +47,13 @@ class CopyableTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Optional leading icon.
+  /// Optional leading [Widget].
   final Widget? leading;
 
   /// Optional label of this [CopyableTextField].
   final String? label;
 
-  /// TextStyle of this [TextField].
+  /// [TextStyle] of this [CopyableTextField].
   final TextStyle? style;
 
   @override

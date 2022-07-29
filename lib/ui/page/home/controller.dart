@@ -71,7 +71,7 @@ class HomeController extends GetxController {
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
-  /// Returns [ApplicationSettings] from the [AbstractSettingsRepository].
+  /// Returns the [ApplicationSettings] from the [AbstractSettingsRepository].
   ApplicationSettings? get _settings =>
       _settingsRepository.applicationSettings.value;
 

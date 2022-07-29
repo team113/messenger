@@ -171,20 +171,9 @@ class Themes {
             ),
           ),
         ),
-        sliderTheme: ThemeData.light().sliderTheme.copyWith(
-              trackHeight: 2,
-              activeTrackColor: Colors.blue,
-              inactiveTrackColor: Colors.white.withOpacity(.5),
-              thumbColor: Colors.blue,
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6,
-              ),
-              overlayShape: SliderComponentShape.noOverlay,
-            ),
-        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
-              thickness: MaterialStateProperty.all(6),
-              // radius: Radius.zero,
-            ),
+        scrollbarTheme: ThemeData.light()
+            .scrollbarTheme
+            .copyWith(thickness: MaterialStateProperty.all(6)),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
