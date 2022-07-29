@@ -168,8 +168,8 @@ class ConfirmLogoutView extends StatelessWidget {
           }
 
           return AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 150),
-            sizeDuration: const Duration(milliseconds: 200),
+            fadeDuration: const Duration(milliseconds: 250),
+            sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
               key: Key('${c.displayPassword.value}${c.displaySuccess.value}'),
               shrinkWrap: true,

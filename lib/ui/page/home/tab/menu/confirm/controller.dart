@@ -22,7 +22,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/ui/widget/text_field.dart';
 
-/// Controller of [ConfirmLogoutView].
+/// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {
   ConfirmLogoutController(this._myUser);
 
@@ -32,9 +32,6 @@ class ConfirmLogoutController extends GetxController {
   /// Indicates of displaying of the text if the password was changed
   /// successfully.
   final RxBool displaySuccess = RxBool(false);
-
-  /// Uses for password updating.
-  final MyUserService _myUser;
 
   /// Field for password input.
   late final TextFieldState password;
@@ -47,6 +44,9 @@ class ConfirmLogoutController extends GetxController {
 
   /// Indicates obscuring of repeat password field.
   final RxBool obscureRepeat = RxBool(true);
+
+  /// [MyUserService] updating the password.
+  final MyUserService _myUser;
 
   @override
   void onInit() {
