@@ -18,15 +18,14 @@ All user visible changes to this project will be documented in this file. This p
     - Menu:
         - Language selection ([#23]).
     - Media panel:
-        - Reorderable buttons dock on desktop ([#9], [#6]);
-        - Ability to resize secondary view on mobile ([#47], [#46]).
+        - Reorderable buttons dock on desktop ([#9], [#6]).
 
 ### Changed
 
 - UI:
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
-        - Redesigned mobile interface ([#31], [#34]).
+        - Redesigned mobile interface ([#31], [#34], [#47]).
     - Redesigned login interface ([#35]).
 
 ### Fixed
@@ -57,7 +56,6 @@ All user visible changes to this project will be documented in this file. This p
 [#42]: /../../pull/42
 [#44]: /../../issues/44
 [#45]: /../../pull/45
-[#46]: /../../issues/46
 [#47]: /../../pull/47
 
 

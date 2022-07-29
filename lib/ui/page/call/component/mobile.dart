@@ -79,8 +79,8 @@ Widget mobileCall(CallController c, BuildContext context) {
           }
 
           return Listener(
-            onPointerDown: (_) => c.minimizingEnabled.value = false,
-            onPointerUp: (_) => c.minimizingEnabled.value = true,
+            onPointerDown: (_) => c.secondaryManipulated.value = true,
+            onPointerUp: (_) => c.secondaryManipulated.value = false,
             child: GestureDetector(
               onScaleStart: (d) {
                 c.secondaryLeft.value ??= c.size.width -
@@ -95,13 +95,11 @@ Widget mobileCall(CallController c, BuildContext context) {
 
                 if (d.pointerCount == 1) {
                   c.secondaryDragged.value = true;
-
                   c.calculateSecondaryPanning(d.focalPoint);
-
                   c.applySecondaryConstraints();
                 } else if (d.pointerCount == 2) {
                   c.secondaryScaled.value = true;
-                  c.sSizeBeforeScale =
+                  c.secondaryUnscaledSize =
                       max(c.secondaryWidth.value, c.secondaryHeight.value);
                 }
               },
@@ -116,8 +114,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               onScaleEnd: (d) {
                 c.secondaryDragged.value = false;
                 c.secondaryScaled.value = false;
-                c.sSizeBeforeScale = null;
-
+                c.secondaryUnscaledSize = null;
                 c.updateSecondaryAttach();
               },
               child: _secondaryView(c, context),
@@ -595,9 +592,9 @@ Widget mobileCall(CallController c, BuildContext context) {
       c.applySecondaryConstraints();
     }
 
-    return Obx(
-      () => MinimizableView(
-        enabled: c.minimizingEnabled.value,
+    return Obx(() {
+      return MinimizableView(
+        minimizationEnabled: !c.secondaryManipulated.value,
         onInit: (animation) {
           c.minimizedAnimation = animation;
           animation.addListener(() {
@@ -622,8 +619,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             child: scaffold,
           );
         }),
-      ),
-    );
+      );
+    });
   });
 }
 
@@ -940,7 +937,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
       return Stack(
         fit: StackFit.expand,
         children: [
-          // Display shadow.
+          // Display a shadow below the view.
           Positioned(
             key: c.secondaryKey,
             left: left,
@@ -972,7 +969,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
-          // Display background.
+          // Display the background.
           Positioned(
             left: left,
             right: right,

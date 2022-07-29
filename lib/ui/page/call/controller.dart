@@ -62,9 +62,6 @@ class CallController extends GetxController {
   /// Reactive [Chat] that this [OngoingCall] is happening in.
   final Rx<RxChat?> chat = Rx<RxChat?>(null);
 
-  /// Indicator whether the view can be minimized.
-  final RxBool minimizingEnabled = RxBool(true);
-
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
@@ -94,6 +91,10 @@ class CallController extends GetxController {
 
   /// Indicator whether the secondary view is being dragged.
   final RxBool secondaryDragged = RxBool(false);
+
+  /// Indicator whether the secondary view is being manipulated in any way, be
+  /// that scaling or panning.
+  final RxBool secondaryManipulated = RxBool(false);
 
   /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
@@ -237,8 +238,9 @@ class CallController extends GetxController {
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
-  /// Secondary view biggest side size before scaling started.
-  double? sSizeBeforeScale;
+  /// [secondaryWidth] or [secondaryHeight] of the secondary view before its
+  /// scaling.
+  double? secondaryUnscaledSize;
 
   /// [Alignment] of the secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
@@ -1355,34 +1357,29 @@ class CallController extends GetxController {
     updateSecondaryAttach();
   }
 
-  /// Scales secondary view size according to [scale].
+  /// Scales the secondary view by the provided [scale].
   void scaleSecondary(double scale) {
     _scaleSWidth(scale);
     _scaleSHeight(scale);
   }
 
-  /// Scales [secondaryWidth] according to [scale].
+  /// Scales the [secondaryWidth] according to the provided [scale].
   void _scaleSWidth(double scale) {
-    var width = _applySWidth(sSizeBeforeScale! * scale);
+    double width = _applySWidth(secondaryUnscaledSize! * scale);
     if (width != secondaryWidth.value) {
       double widthDifference = width - secondaryWidth.value;
-
       secondaryWidth.value = width;
-
       secondaryLeft.value =
           _applySLeft(secondaryLeft.value! - widthDifference / 2);
     }
   }
 
-  /// Scales [secondaryHeight] according to [scale].
+  /// Scales the [secondaryHeight] according to the provided [scale].
   void _scaleSHeight(double scale) {
-    var height = _applySHeight(sSizeBeforeScale! * scale);
+    double height = _applySHeight(secondaryUnscaledSize! * scale);
     if (height != secondaryHeight.value) {
-      double heightDifference =
-          height - secondaryHeight.value; // - sWidthBeforeScale!;
-
+      double heightDifference = height - secondaryHeight.value;
       secondaryHeight.value = height;
-
       secondaryTop.value =
           _applySTop(secondaryTop.value! - heightDifference / 2);
     }
