@@ -62,6 +62,9 @@ class CallController extends GetxController {
   /// Reactive [Chat] that this [OngoingCall] is happening in.
   final Rx<RxChat?> chat = Rx<RxChat?>(null);
 
+  /// Indicator whether the view is being minimized.
+  final RxBool minimizing = RxBool(false);
+
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
@@ -247,6 +250,12 @@ class CallController extends GetxController {
   /// Height of the title bar.
   static const double titleHeight = 30;
 
+  /// Width of the mobile minimized view in pixels.
+  static const double mobileMinimizedWidth = 150;
+
+  /// Height of the mobile minimized view in pixels.
+  static const double mobileMinimizedHeight = 150;
+
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
 
@@ -380,8 +389,8 @@ class CallController extends GetxController {
 
   /// Returns actual size of the call view.
   Size get size {
-    if (!fullscreen.value && minimized.value) {
-      return Size(width.value, height.value - titleHeight);
+    if (!fullscreen.value && minimized.value || minimizing.isTrue) {
+      return Size(width.value, height.value - (isMobile ? 0 : titleHeight));
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
@@ -433,19 +442,26 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
 
-    width = RxDouble(
-      min(
-        max(
-          min(
-            500,
-            size.shortestSide * _maxWidth,
+    if(isMobile) {
+      var mediaQuerySize = router.context!.mediaQuerySize;
+      width = RxDouble(mediaQuerySize.width);
+      height = RxDouble(mediaQuerySize.height);
+    } else {
+      width = RxDouble(
+        min(
+          max(
+            min(
+              500,
+              size.shortestSide * _maxWidth,
+            ),
+            _minWidth,
           ),
-          _minWidth,
+          size.height * _maxHeight,
         ),
-        size.height * _maxHeight,
-      ),
-    );
-    height = RxDouble(width.value);
+      );
+      height = RxDouble(width.value);
+    }
+
     left = size.width - width.value - 50 > 0
         ? RxDouble(size.width - width.value - 50)
         : RxDouble(size.width / 2 - width.value / 2);

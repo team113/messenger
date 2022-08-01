@@ -25,6 +25,8 @@ class MinimizableView extends StatefulWidget {
     this.onInit,
     this.onDispose,
     this.minimizationDelta = 50,
+    this.minimizedWidth = 150,
+    this.minimizedHeight = 150,
     required this.child,
   }) : super(key: key);
 
@@ -39,6 +41,12 @@ class MinimizableView extends StatefulWidget {
   /// minimization gesture.
   final double minimizationDelta;
 
+  /// Minimized width of this view.
+  final double minimizedWidth;
+
+  /// Minimized height of this view.
+  final double minimizedHeight;
+
   /// [Widget] to minimize.
   final Widget child;
 
@@ -49,12 +57,6 @@ class MinimizableView extends StatefulWidget {
 /// State of a [MinimizableView] used to animate its child.
 class _MinimizableViewState extends State<MinimizableView>
     with SingleTickerProviderStateMixin {
-  /// Minimized width of this view.
-  static const double _width = 150;
-
-  /// Minimized height of this view.
-  static const double _height = 150;
-
   /// [AnimationController] of this view.
   late final AnimationController _controller;
 
@@ -141,10 +143,10 @@ class _MinimizableViewState extends State<MinimizableView>
                 begin: RelativeRect.fill,
                 end: RelativeRect.fromSize(
                   Rect.fromLTWH(
-                    biggest.width - _width - _right,
-                    biggest.height - _height - _bottom - _padding.bottom,
-                    _width,
-                    _height,
+                    biggest.width - widget.minimizedWidth - _right,
+                    biggest.height - widget.minimizedHeight - _bottom - _padding.bottom,
+                    widget.minimizedWidth,
+                    widget.minimizedHeight,
                   ),
                   biggest,
                 ),

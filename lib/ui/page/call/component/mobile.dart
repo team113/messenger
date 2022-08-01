@@ -457,7 +457,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
                   child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(size: c.size),
+                    data: MediaQuery.of(context)
+                        .copyWith(size: c.size),
                     child: SlidingUpPanel(
                       controller: c.panelController,
                       boxShadow: null,
@@ -579,7 +580,12 @@ Widget mobileCall(CallController c, BuildContext context) {
       c.applySecondaryConstraints();
     }
 
+    double minimizedWidth = CallController.mobileMinimizedWidth;
+    double minimizedHeight = CallController.mobileMinimizedHeight;
+
     return MinimizableView(
+      minimizedWidth: minimizedWidth,
+      minimizedHeight: minimizedHeight,
       onInit: (animation) {
         c.minimizedAnimation = animation;
         animation.addListener(() {
@@ -589,11 +595,20 @@ Widget mobileCall(CallController c, BuildContext context) {
           } else {
             if (animation.value != 0) {
               c.keepUi(false);
-            }
-            c.minimized.value = animation.value == 1;
-            if (c.minimized.value) {
               c.hoveredRenderer.value = null;
             }
+            c.minimized.value = animation.value == 1;
+            if(animation.value == 1 || animation.value == 0) {
+              c.minimizing.value = false;
+            } else {
+              c.minimizing.value = true;
+            }
+
+            var mediaQuerySize = router.context!.mediaQuerySize;
+            c.width.value = mediaQuerySize.width -
+                (mediaQuerySize.width - minimizedWidth) * animation.value;
+            c.height.value = mediaQuerySize.height -
+                (mediaQuerySize.height - minimizedHeight) * animation.value;
           }
         });
       },
