@@ -393,40 +393,48 @@ Widget desktopCall(CallController c, BuildContext context) {
                           ],
                         ),
                         margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                        child: ConditionalBackdropFilter(
-                          key: c.buttonsDockKey,
-                          borderRadius: BorderRadius.circular(30),
-                          filter: ImageFilter.blur(
-                            sigmaX: 15,
-                            sigmaY: 15,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0x301D6AAE),
-                              borderRadius: BorderRadius.circular(30),
+                        child: MouseRegion(
+                          onEnter: (d) => c.keepUi(true),
+                          onHover: (d) => c.keepUi(true),
+                          onExit: c.showUi.value && !c.displayMore.value
+                              ? (d) => c.keepUi(false)
+                              : null,
+                          child: ConditionalBackdropFilter(
+                            key: c.buttonsDockKey,
+                            borderRadius: BorderRadius.circular(30),
+                            filter: ImageFilter.blur(
+                              sigmaX: 15,
+                              sigmaY: 15,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 13,
-                              horizontal: 5,
-                            ),
-                            child: Dock<CallButton>(
-                              items: c.buttons,
-                              itemWidth: CallController.buttonSize,
-                              itemBuilder: (e) => e.build(
-                                hinted: c.draggedButton.value == null,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0x301D6AAE),
+                                borderRadius: BorderRadius.circular(30),
                               ),
-                              onReorder: (buttons) {
-                                c.buttons.clear();
-                                c.buttons.addAll(buttons);
-                                c.shiftSecondaryView();
-                              },
-                              onDragStarted: (b) {
-                                c.isMoreHintDismissed.value = true;
-                                c.draggedButton.value = b;
-                              },
-                              onDragEnded: (_) => c.draggedButton.value = null,
-                              onLeave: (_) => c.displayMore.value = true,
-                              onWillAccept: (d) => d?.c == c,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 13,
+                                horizontal: 5,
+                              ),
+                              child: Dock<CallButton>(
+                                items: c.buttons,
+                                itemWidth: CallController.buttonSize,
+                                itemBuilder: (e) => e.build(
+                                  hinted: c.draggedButton.value == null,
+                                ),
+                                onReorder: (buttons) {
+                                  c.buttons.clear();
+                                  c.buttons.addAll(buttons);
+                                  c.shiftSecondaryView();
+                                },
+                                onDragStarted: (b) {
+                                  c.isMoreHintDismissed.value = true;
+                                  c.draggedButton.value = b;
+                                },
+                                onDragEnded: (_) =>
+                                    c.draggedButton.value = null,
+                                onLeave: (_) => c.displayMore.value = true,
+                                onWillAccept: (d) => d?.c == c,
+                              ),
                             ),
                           ),
                         ),
@@ -568,32 +576,24 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Footer part of the call with buttons.
       List<Widget> footer = [
         // Animated bottom buttons.
-        Obx(
-          () => Align(
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    verticalDirection: VerticalDirection.up,
-                    children: [
-                      MouseRegion(
-                          onEnter: (d) => c.keepUi(true),
-                          onHover: (d) => c.keepUi(true),
-                          onExit: c.showUi.value && !c.displayMore.value
-                              ? (d) => c.keepUi(false)
-                              : null,
-                          child: _dock()),
-                      _launchpad(),
-                    ],
-                  ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  verticalDirection: VerticalDirection.up,
+                  children: [
+                    _dock(),
+                    _launchpad(),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -614,12 +614,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             alignment: Alignment.topCenter,
                             child: Container(
                               width: 290,
-                              padding: EdgeInsets.only(
-                                top: 10 +
-                                    (WebUtils.isPopup
-                                        ? 0
-                                        : CallController.titleHeight),
-                              ),
+                              padding: const EdgeInsets.only(top: 10),
                               child: HintWidget(
                                 text: 'label_hint_drag_n_drop_buttons'.l10n,
                                 onTap: () => c.isMoreHintDismissed.value = true,
@@ -1706,148 +1701,155 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
-          ReorderableFit<_DragData>(
-            key: const Key('SecondaryFitView'),
-            onAdded: (d, i) => c.unfocus(d.participant),
-            onWillAccept: (d) {
-              if (d?.chatId == c.chatId) {
-                c.secondaryTargets.value = 1;
-                return true;
-              }
+          Obx(
+            () => MouseRegion(
+              opaque: c.secondaryAlignment.value == null,
+              child: ReorderableFit<_DragData>(
+                key: const Key('SecondaryFitView'),
+                onAdded: (d, i) => c.unfocus(d.participant),
+                onWillAccept: (d) {
+                  if (d?.chatId == c.chatId) {
+                    c.secondaryTargets.value = 1;
+                    return true;
+                  }
 
-              return false;
-            },
-            onLeave: (b) => c.secondaryTargets.value = 0,
-            onDragStarted: (r) {
-              c.draggedRenderer.value = r.participant;
-              c.isHintDismissed.value = true;
-              c.secondaryDrags.value = 1;
-              c.keepUi(false);
-            },
-            onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-            onDragEnd: _onDragEnded,
-            onDragCompleted: _onDragEnded,
-            onDraggableCanceled: _onDragEnded,
-            axis: axis,
-            width: width,
-            height: height,
-            left: left,
-            top: top,
-            right: right,
-            bottom: bottom,
-            onOffset: () {
-              if (c.minimized.value && !c.fullscreen.value) {
-                return Offset(-c.left.value, -c.top.value - 30);
-              } else if (!WebUtils.isPopup) {
-                return const Offset(0, -30);
-              }
+                  return false;
+                },
+                onLeave: (b) => c.secondaryTargets.value = 0,
+                onDragStarted: (r) {
+                  c.draggedRenderer.value = r.participant;
+                  c.isHintDismissed.value = true;
+                  c.secondaryDrags.value = 1;
+                  c.keepUi(false);
+                },
+                onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+                onDragEnd: _onDragEnded,
+                onDragCompleted: _onDragEnded,
+                onDraggableCanceled: _onDragEnded,
+                axis: axis,
+                width: width,
+                height: height,
+                left: left,
+                top: top,
+                right: right,
+                bottom: bottom,
+                onOffset: () {
+                  if (c.minimized.value && !c.fullscreen.value) {
+                    return Offset(-c.left.value, -c.top.value - 30);
+                  } else if (!WebUtils.isPopup) {
+                    return const Offset(0, -30);
+                  }
 
-              return Offset.zero;
-            },
-            overlayBuilder: (_DragData data) {
-              var participant = data.participant;
+                  return Offset.zero;
+                },
+                overlayBuilder: (_DragData data) {
+                  var participant = data.participant;
 
-              return Obx(() {
-                bool? muted = participant.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.source == MediaSourceKind.Display
-                        ? c
-                            .findParticipant(
-                                participant.id, MediaSourceKind.Device)
-                            ?.audio
-                            .value
-                            ?.muted
-                        : null;
+                  return Obx(() {
+                    bool? muted = participant.owner == MediaOwnerKind.local
+                        ? !c.audioState.value.isEnabled()
+                        : participant.source == MediaSourceKind.Display
+                            ? c
+                                .findParticipant(
+                                    participant.id, MediaSourceKind.Device)
+                                ?.audio
+                                .value
+                                ?.muted
+                            : null;
 
-                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                    c.primaryDrags.value != 0 ||
-                    c.secondaryDragged.value;
+                    bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                        c.primaryDrags.value != 0 ||
+                        c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredRenderer.value == participant &&
-                    !anyDragIsHappening;
+                    bool isHovered = c.hoveredRenderer.value == participant &&
+                        !anyDragIsHappening;
 
-                return MouseRegion(
-                  opaque: false,
-                  onEnter: (d) {
-                    if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
-                      c.isCursorHidden.value = false;
-                    }
-                  },
-                  onHover: (d) {
-                    if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
-                      c.isCursorHidden.value = false;
-                    }
-                  },
-                  onExit: (d) {
-                    c.hoveredRendererTimeout = 0;
-                    c.hoveredRenderer.value = null;
-                    c.isCursorHidden.value = false;
-                  },
-                  child: AnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: c.draggedRenderer.value == data.participant
-                        ? Container()
-                        : ContextMenuRegion(
-                            key: ObjectKey(participant),
-                            preventContextMenu: true,
-                            menu: ContextMenu(
-                              actions: [
-                                if ((participant.owner !=
-                                            MediaOwnerKind.local ||
-                                        participant.source !=
-                                            MediaSourceKind.Display) &&
-                                    participant.video.value?.isEnabled == true)
-                                  ContextMenuButton(
-                                    label: 'btn_call_center_video'.l10n,
-                                    onPressed: () => c.center(participant),
-                                  ),
-                                if (participant.video.value != null)
-                                  ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
-                                  )
-                              ],
-                            ),
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
+                    return MouseRegion(
+                      opaque: false,
+                      onEnter: (d) {
+                        if (c.draggedRenderer.value == null) {
+                          c.hoveredRenderer.value = data.participant;
+                          c.hoveredRendererTimeout = 5;
+                          c.isCursorHidden.value = false;
+                        }
+                      },
+                      onHover: (d) {
+                        if (c.draggedRenderer.value == null) {
+                          c.hoveredRenderer.value = data.participant;
+                          c.hoveredRendererTimeout = 5;
+                          c.isCursorHidden.value = false;
+                        }
+                      },
+                      onExit: (d) {
+                        c.hoveredRendererTimeout = 0;
+                        c.hoveredRenderer.value = null;
+                        c.isCursorHidden.value = false;
+                      },
+                      child: AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: c.draggedRenderer.value == data.participant
+                            ? Container()
+                            : ContextMenuRegion(
                                 key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
+                                preventContextMenu: true,
+                                menu: ContextMenu(
+                                  actions: [
+                                    if ((participant.owner !=
+                                                MediaOwnerKind.local ||
+                                            participant.source !=
+                                                MediaSourceKind.Display) &&
+                                        participant.video.value?.isEnabled ==
+                                            true)
+                                      ContextMenuButton(
+                                        label: 'btn_call_center_video'.l10n,
+                                        onPressed: () => c.center(participant),
+                                      ),
+                                    if (participant.video.value != null)
+                                      ContextMenuButton(
+                                        label:
+                                            participant.video.value?.isEnabled ==
+                                                    true
+                                                ? 'btn_call_disable_video'.l10n
+                                                : 'btn_call_enable_video'.l10n,
+                                        onPressed: () => c.toggleRendererEnabled(
+                                            participant.video),
+                                      )
+                                  ],
+                                ),
+                                child: IgnorePointer(
+                                  child: ParticipantOverlayWidget(
+                                    participant,
+                                    key: ObjectKey(participant),
+                                    muted: muted,
+                                    hovered: isHovered,
+                                    preferBackdrop:
+                                        !c.minimized.value || c.fullscreen.value,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                  ),
-                );
-              });
-            },
-            decoratorBuilder: (_DragData item) =>
-                const ParticipantDecoratorWidget(),
-            itemBuilder: (_DragData data) {
-              var participant = data.participant;
-              return Obx(
-                () => ParticipantWidget(
-                  participant,
-                  key: ObjectKey(participant),
-                  offstageUntilDetermined: true,
-                  respectAspectRatio: true,
-                  useCallCover: true,
-                  borderRadius: BorderRadius.zero,
-                  expanded: c.doughDraggedRenderer.value == participant,
-                ),
-              );
-            },
-            children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
+                      ),
+                    );
+                  });
+                },
+                decoratorBuilder: (_DragData item) =>
+                    const ParticipantDecoratorWidget(),
+                itemBuilder: (_DragData data) {
+                  var participant = data.participant;
+                  return Obx(
+                    () => ParticipantWidget(
+                      participant,
+                      key: ObjectKey(participant),
+                      offstageUntilDetermined: true,
+                      respectAspectRatio: true,
+                      useCallCover: true,
+                      borderRadius: BorderRadius.zero,
+                      expanded: c.doughDraggedRenderer.value == participant,
+                    ),
+                  );
+                },
+                children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
+              ),
+            ),
           ),
 
           // Discards the pointer when hovered over videos.
