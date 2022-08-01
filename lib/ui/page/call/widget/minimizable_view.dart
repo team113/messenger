@@ -161,6 +161,14 @@ class _MinimizableViewState extends State<MinimizableView>
                         FocusManager.instance.primaryFocus?.unfocus();
                       }
                     : null,
+                onPanStart: _controller.value == 0 && widget.minimizationEnabled
+                    ? (d) {
+                        _controller.stop();
+                        _drag = d.localPosition;
+                        _value = _controller.value;
+                        setState(() {});
+                      }
+                    : null,
                 onPanUpdate:
                     widget.minimizationEnabled || _controller.value == 1
                         ? (d) {
@@ -186,14 +194,6 @@ class _MinimizableViewState extends State<MinimizableView>
                             }
                           }
                         : null,
-                onPanStart: _controller.value == 0 && widget.minimizationEnabled
-                    ? (d) {
-                        _controller.stop();
-                        _drag = d.localPosition;
-                        _value = _controller.value;
-                        setState(() {});
-                      }
-                    : null,
                 onPanEnd: widget.minimizationEnabled
                     ? (d) {
                         if (_drag != null && _value != null) {
