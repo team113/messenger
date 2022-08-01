@@ -1371,6 +1371,8 @@ class CallController extends GetxController {
       secondaryWidth.value = width;
       secondaryLeft.value =
           _applySLeft(secondaryLeft.value! - widthDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(widthDifference / 2, 0);
     }
   }
 
@@ -1382,6 +1384,8 @@ class CallController extends GetxController {
       secondaryHeight.value = height;
       secondaryTop.value =
           _applySTop(secondaryTop.value! - heightDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(0, heightDifference / 2);
     }
   }
 

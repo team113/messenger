@@ -98,18 +98,19 @@ Widget mobileCall(CallController c, BuildContext context) {
                   c.calculateSecondaryPanning(d.focalPoint);
                   c.applySecondaryConstraints();
                 } else if (d.pointerCount == 2) {
-                  c.secondaryScaled.value = true;
                   c.secondaryUnscaledSize =
                       max(c.secondaryWidth.value, c.secondaryHeight.value);
+                  c.secondaryScaled.value = true;
+                  c.calculateSecondaryPanning(d.focalPoint);
                 }
               },
               onScaleUpdate: (d) {
-                if (d.pointerCount == 1) {
-                  c.updateSecondaryOffset(d.focalPoint);
-                  c.applySecondaryConstraints();
-                } else if (d.pointerCount == 2) {
+                c.updateSecondaryOffset(d.focalPoint);
+                if (d.pointerCount == 2) {
                   c.scaleSecondary(d.scale);
                 }
+
+                c.applySecondaryConstraints();
               },
               onScaleEnd: (d) {
                 c.secondaryDragged.value = false;
