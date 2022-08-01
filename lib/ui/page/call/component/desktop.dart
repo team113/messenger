@@ -380,25 +380,25 @@ Widget desktopCall(CallController c, BuildContext context) {
                       isOpen: showBottomUi,
                       duration: 400.milliseconds,
                       translate: false,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: const [
-                            CustomBoxShadow(
-                              color: Color(0x33000000),
-                              blurRadius: 8,
-                              blurStyle: BlurStyle.outer,
-                            )
-                          ],
-                        ),
-                        margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                        child: MouseRegion(
-                          onEnter: (d) => c.keepUi(true),
-                          onHover: (d) => c.keepUi(true),
-                          onExit: c.showUi.value && !c.displayMore.value
-                              ? (d) => c.keepUi(false)
-                              : null,
+                      child: MouseRegion(
+                        onEnter: (d) => c.keepUi(true),
+                        onHover: (d) => c.keepUi(true),
+                        onExit: c.showUi.value && !c.displayMore.value
+                            ? (d) => c.keepUi(false)
+                            : null,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: const [
+                              CustomBoxShadow(
+                                color: Color(0x33000000),
+                                blurRadius: 8,
+                                blurStyle: BlurStyle.outer,
+                              )
+                            ],
+                          ),
+                          margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                           child: ConditionalBackdropFilter(
                             key: c.buttonsDockKey,
                             borderRadius: BorderRadius.circular(30),
@@ -614,7 +614,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                             alignment: Alignment.topCenter,
                             child: Container(
                               width: 290,
-                              padding: const EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(
+                                  top: 10 +
+                                      (WebUtils.isPopup
+                                          ? 0
+                                          : CallController.titleHeight)),
                               child: HintWidget(
                                 text: 'label_hint_drag_n_drop_buttons'.l10n,
                                 onTap: () => c.isMoreHintDismissed.value = true,
@@ -739,10 +743,16 @@ Widget desktopCall(CallController c, BuildContext context) {
         }),
 
         // Secondary panel itself.
-        _secondaryView(c, context),
+        if (c.state.value == OngoingCallState.active)
+          _secondaryView(c, context),
 
-        // Sliding from the bottom buttons.
-        Stack(children: footer),
+        Obx(() {
+          if (c.minimized.value && !c.fullscreen.value) {
+            return Container();
+          }
+
+          return Stack(children: footer);
+        }),
       ];
 
       // Combines all the stackable content into [Scaffold].
@@ -998,6 +1008,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         borderRadius: BorderRadius.circular(10),
                         child: scaffold,
                       ),
+                      ClipRect(child: Stack(children: footer)),
                     ],
                   ),
                 ),

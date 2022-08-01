@@ -1081,6 +1081,7 @@ class CallController extends GetxController {
     if (buttonsDockKey.currentContext?.findRenderObject() != null &&
         secondaryKey.currentContext?.findRenderObject() != null &&
         scaled.isFalse &&
+        secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&
         secondaryScaled.isFalse &&
         !_secondaryShiftLocked) {
