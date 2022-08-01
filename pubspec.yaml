@@ -68,7 +68,7 @@ dependencies:
   #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
   photo_view:
     git:
-      url: https://github.com/bluefireteam/photo_view
+      url: https://github.com/bluefireteam/photo_view.git
       ref: master
   platform_detect: ^2.0.3
   sentry_flutter: ^6.5.1
