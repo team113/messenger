@@ -16,11 +16,15 @@
 
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rive/rive.dart' hide LinearGradient;
 
+import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/selector.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -35,220 +39,252 @@ class AuthView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       init: AuthController(Get.find()),
-      builder: (AuthController c) => Obx(
-        () {
-          if (c.authStatus.value.isEmpty) {
-            bool isWeb = PlatformUtils.isWeb;
-            bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
-            bool isIosWeb = isWeb && PlatformUtils.isIOS;
-            bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
+      builder: (AuthController c) {
+        bool isWeb = PlatformUtils.isWeb;
+        bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
+        bool isIosWeb = isWeb && PlatformUtils.isIOS;
+        bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
 
-            /// Header part of the page.
-            ///
-            /// All frames of the animation are drawn in offstage in order to
-            /// load all the images ahead of animation to reduce the possible
-            /// flickering.
-            List<Widget> header = [
-              ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-                  .map((e) => Offstage(child: SvgLoader.asset(e)))
-                  .toList(),
-              ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-                  .map((e) => Offstage(child: SvgLoader.asset(e)))
-                  .toList(),
-              const SizedBox(height: 30),
-              Text(
-                'Messenger',
-                style: context.textTheme.headline3,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'by Gapopa',
-                style: context.textTheme.headline5,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 25),
-            ];
+        final TextStyle? thin =
+            context.textTheme.caption?.copyWith(color: Colors.black);
+        final Color primary = Theme.of(context).colorScheme.primary;
 
-            /// Animated logo widget.
-            Widget logo = LayoutBuilder(builder: (context, constraints) {
-              return Obx(() {
-                Widget placeholder = SizedBox(
-                  height: constraints.maxHeight > 350
-                      ? 350
-                      : constraints.maxHeight <= 160
-                          ? 160
-                          : 350,
-                  child: const Center(child: CircularProgressIndicator()),
-                );
+        // Header part of the page.
+        //
+        // All frames of the animation are drawn in offstage in order to
+        // load all the images ahead of animation to reduce the possible
+        // flickering.
+        List<Widget> header = [
+          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
+              .map((e) => Offstage(child: SvgLoader.asset(e)))
+              .toList(),
+          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
+              .map((e) => Offstage(child: SvgLoader.asset(e)))
+              .toList(),
+          const SizedBox(height: 30),
+          Text(
+            'Messenger',
+            style: thin?.copyWith(fontSize: 24, color: primary),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'by Gapopa',
+            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          const SizedBox(height: 25),
+        ];
 
-                return ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 350),
-                    child: AnimatedSize(
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 200),
-                      child: SizedBox(
-                        height: constraints.maxHeight >= 350 ? 350 : 160,
-                        child: constraints.maxHeight >= 350
-                            ? Container(
-                                key: const ValueKey('logo'),
-                                child: SvgLoader.asset(
-                                  'assets/images/logo/logo000${c.logoFrame.value}.svg',
-                                  placeholderBuilder: (context) => placeholder,
-                                  height: 350,
-                                ),
-                              )
-                            : SvgLoader.asset(
-                                'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                placeholderBuilder: (context) => placeholder,
-                                height: 160,
-                              ),
-                      ),
-                    ));
-              });
-            });
+        const double height = 250;
 
-            /// Dropdown widget where user can choose application language.
-            Widget language = Obx(
-              () => DropdownButton<Language>(
-                key: const Key('LocalizationDropdown'),
-                value: L10n.chosen.value,
-                items: L10n.languages.map<DropdownMenuItem<Language>>((e) {
-                  return DropdownMenuItem(
-                    key: Key(e.toString()),
-                    value: e,
-                    child: Text('${e.locale.countryCode}, ${e.name}'),
-                  );
-                }).toList(),
-                onChanged: (d) => L10n.set(d!),
-                borderRadius: BorderRadius.circular(18),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 15,
-                ),
-                icon: const SizedBox(),
-                underline: const SizedBox(),
-              ),
-            );
+        // Animated logo widget.
+        Widget logo = LayoutBuilder(builder: (context, constraints) {
+          Widget placeholder = SizedBox(
+            height: constraints.maxHeight > 250
+                ? height
+                : constraints.maxHeight <= 140
+                    ? 140
+                    : height,
+            child: const Center(child: CircularProgressIndicator()),
+          );
 
-            /// Footer part of the page.
-            List<Widget> footer = [
-              const SizedBox(height: 25),
-              OutlinedRoundedButton(
-                key: const Key('StartChattingButton'),
-                title: Text(
-                  'btn_start_chatting'.l10n,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                subtitle: Text(
-                  'label_no_registration'.l10n,
-                  style: const TextStyle(color: Colors.white),
-                ),
-                leading: SvgLoader.asset('assets/icons/start.svg', width: 25),
-                onPressed: c.register,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF03A803), Color(0xFF20CD66)],
-                ),
-              ),
-              const SizedBox(height: 10),
-              OutlinedRoundedButton(
-                key: const Key('SignInButton'),
-                title: Text('btn_login'.l10n),
-                subtitle: Text('label_or_register'.l10n),
-                leading: SvgLoader.asset('assets/icons/sign_in.svg', width: 20),
-                onPressed: () => LoginView.show(context),
-              ),
-              const SizedBox(height: 10),
-              if (isIosWeb)
-                OutlinedRoundedButton(
-                  title: Text('btn_download'.l10n),
-                  subtitle: const Text('App Store'),
-                  leading: Padding(
-                    padding: const EdgeInsets.only(bottom: 3),
-                    child: SvgLoader.asset('assets/icons/apple.svg', width: 22),
-                  ),
-                  onPressed: () {},
-                ),
-              if (isAndroidWeb)
-                OutlinedRoundedButton(
-                  title: Text('btn_download'.l10n),
-                  subtitle: const Text('Google Play'),
-                  leading: Padding(
-                    padding: const EdgeInsets.only(left: 2),
-                    child:
-                        SvgLoader.asset('assets/icons/google.svg', width: 22),
-                  ),
-                  onPressed: () {},
-                ),
-              if (isDesktopWeb)
-                OutlinedRoundedButton(
-                  title: Text('btn_download'.l10n),
-                  subtitle: Text('label_application'.l10n),
-                  leading: PlatformUtils.isMacOS
-                      ? SvgLoader.asset('assets/icons/apple.svg', width: 22)
-                      : (PlatformUtils.isWindows)
-                          ? SvgLoader.asset('assets/icons/windows.svg',
-                              width: 22)
-                          : (PlatformUtils.isLinux)
-                              ? SvgLoader.asset('assets/icons/linux.svg',
-                                  width: 22)
-                              : null,
-                  onPressed: () {},
-                ),
-              const SizedBox(height: 20),
-              if (isWeb) language,
-            ];
+          return ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 350),
+              child: AnimatedSize(
+                curve: Curves.ease,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: constraints.maxHeight >= height ? height : 140,
+                  child: constraints.maxHeight >= height
+                      ? Container(
+                          key: const ValueKey('logo'),
+                          child: RiveAnimation.asset(
+                            'assets/images/logo/logo.riv',
+                            onInit: (a) {
+                              if (!Config.disableInfiniteAnimations) {
+                                final StateMachineController? machine =
+                                    StateMachineController.fromArtboard(
+                                        a, 'Machine');
+                                a.addController(machine!);
+                                c.blink = machine.findInput<bool>('blink')
+                                    as SMITrigger?;
 
-            return Stack(
-              key: const Key('AuthView'),
-              children: [
-                IgnorePointer(
-                  child: SvgLoader.asset(
-                    'assets/images/background_light.svg',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: c.animate,
-                  child: Scaffold(
-                    backgroundColor: Colors.transparent,
-                    body: Center(
-                      child: SingleChildScrollView(
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight:
-                                  max(550, MediaQuery.of(context).size.height),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ...header,
-                                Flexible(child: logo),
-                                ...footer,
-                              ],
-                            ),
+                                Future.delayed(
+                                  const Duration(milliseconds: 500),
+                                  c.animate,
+                                );
+                              }
+                            },
                           ),
+                        )
+                      : Obx(() {
+                          return SvgLoader.asset(
+                            'assets/images/logo/head000${c.logoFrame.value}.svg',
+                            placeholderBuilder: (context) => placeholder,
+                            height: 140,
+                          );
+                        }),
+                ),
+              ));
+        });
+
+        // Language selection popup.
+        Widget language = CupertinoButton(
+          key: c.languageKey,
+          child: Text(
+            '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+            style: thin?.copyWith(fontSize: 13, color: primary),
+          ),
+          onPressed: () => Selector.show<Language>(
+            context: context,
+            buttonKey: c.languageKey,
+            initial: L10n.chosen.value!,
+            items: L10n.languages,
+            onSelected: (l) => L10n.set(l),
+            debounce:
+                context.isMobile ? const Duration(milliseconds: 500) : null,
+            itemBuilder: (Language e) => Row(
+              children: [
+                Text(
+                  e.name,
+                  style: thin?.copyWith(fontSize: 15),
+                ),
+                const Spacer(),
+                Text(
+                  e.locale.languageCode.toUpperCase(),
+                  style: thin?.copyWith(fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        // Footer part of the page.
+        List<Widget> footer = [
+          const SizedBox(height: 25),
+          OutlinedRoundedButton(
+            key: const Key('StartChattingButton'),
+            title: Text(
+              'btn_start'.l10n,
+              style: const TextStyle(color: Colors.white),
+            ),
+            leading: Container(
+              child: SvgLoader.asset(
+                'assets/icons/start.svg',
+                width: 25 * 0.7,
+              ),
+            ),
+            onPressed: c.register,
+            color: const Color(0xFF63B4FF),
+          ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('SignInButton'),
+            title: Text('btn_login'.l10n),
+            leading: SvgLoader.asset(
+              'assets/icons/sign_in.svg',
+              width: 20 * 0.7,
+            ),
+            onPressed: () => LoginView.show(context),
+          ),
+          const SizedBox(height: 15),
+          if (isIosWeb)
+            OutlinedRoundedButton(
+              title: Text('btn_download'.l10n),
+              leading: Padding(
+                padding: const EdgeInsets.only(bottom: 3 * 0.7),
+                child: SvgLoader.asset(
+                  'assets/icons/apple.svg',
+                  width: 22 * 0.7,
+                ),
+              ),
+              onPressed: () {},
+            ),
+          if (isAndroidWeb)
+            OutlinedRoundedButton(
+              title: Text('btn_download'.l10n),
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 2 * 0.7),
+                child: SvgLoader.asset(
+                  'assets/icons/google.svg',
+                  width: 22 * 0.7,
+                ),
+              ),
+              onPressed: () {},
+            ),
+          if (isDesktopWeb)
+            OutlinedRoundedButton(
+              title: Text('btn_download'.l10n),
+              leading: PlatformUtils.isMacOS
+                  ? SvgLoader.asset(
+                      'assets/icons/apple.svg',
+                      width: 22 * 0.7,
+                    )
+                  : (PlatformUtils.isWindows)
+                      ? SvgLoader.asset(
+                          'assets/icons/windows.svg',
+                          width: 22 * 0.7,
+                        )
+                      : (PlatformUtils.isLinux)
+                          ? SvgLoader.asset(
+                              'assets/icons/linux.svg',
+                              width: 22 * 0.7,
+                            )
+                          : null,
+              onPressed: () {},
+            ),
+          const SizedBox(height: 20),
+          language,
+        ];
+
+        return Stack(
+          key: const Key('AuthView'),
+          children: [
+            IgnorePointer(
+              child: SvgLoader.asset(
+                'assets/images/background_light.svg',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            GestureDetector(
+              onTap: c.animate,
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                body: Center(
+                  child: SingleChildScrollView(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight:
+                              max(550, MediaQuery.of(context).size.height),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...header,
+                            Flexible(child: logo),
+                            ...footer,
+                            SizedBox(
+                              height: MediaQuery.of(context).viewPadding.bottom,
+                            )
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
-              ],
-            );
-          } else {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-        },
-      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
