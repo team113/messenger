@@ -1702,9 +1702,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
           )),
 
           Obx(
-            () => MouseRegion(
-              opaque: c.secondaryAlignment.value == null,
-              child: ReorderableFit<_DragData>(
+            () {
+              var reorderableFit = ReorderableFit<_DragData>(
                 key: const Key('SecondaryFitView'),
                 onAdded: (d, i) => c.unfocus(d.participant),
                 onWillAccept: (d) {
@@ -1722,7 +1721,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   c.secondaryDrags.value = 1;
                   c.keepUi(false);
                 },
-                onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+                onDoughBreak: (r) =>
+                    c.doughDraggedRenderer.value = r.participant,
                 onDragEnd: _onDragEnded,
                 onDragCompleted: _onDragEnded,
                 onDraggableCanceled: _onDragEnded,
@@ -1806,13 +1806,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       ),
                                     if (participant.video.value != null)
                                       ContextMenuButton(
-                                        label:
-                                            participant.video.value?.isEnabled ==
-                                                    true
-                                                ? 'btn_call_disable_video'.l10n
-                                                : 'btn_call_enable_video'.l10n,
-                                        onPressed: () => c.toggleRendererEnabled(
-                                            participant.video),
+                                        label: participant
+                                                    .video.value?.isEnabled ==
+                                                true
+                                            ? 'btn_call_disable_video'.l10n
+                                            : 'btn_call_enable_video'.l10n,
+                                        onPressed: () =>
+                                            c.toggleRendererEnabled(
+                                                participant.video),
                                       )
                                   ],
                                 ),
@@ -1822,8 +1823,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     key: ObjectKey(participant),
                                     muted: muted,
                                     hovered: isHovered,
-                                    preferBackdrop:
-                                        !c.minimized.value || c.fullscreen.value,
+                                    preferBackdrop: !c.minimized.value ||
+                                        c.fullscreen.value,
                                   ),
                                 ),
                               ),
@@ -1847,9 +1848,19 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     ),
                   );
                 },
-                children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
-              ),
-            ),
+                children:
+                    c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
+              );
+
+              if (c.secondaryAlignment.value == null) {
+                return reorderableFit;
+              } else {
+                return MouseRegion(
+                  opaque: false,
+                  child: reorderableFit,
+                );
+              }
+            },
           ),
 
           // Discards the pointer when hovered over videos.
