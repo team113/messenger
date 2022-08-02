@@ -356,7 +356,7 @@ class OngoingCall {
                     members[id]?.hasSharing == true
                         ? _removeRemoteTrack(track)
                         : _addRemoteTrack(conn, track).then((_) async =>
-                            await setRemoteMemberVideoEnabled(
+                            await setRemoteVideoEnabled(
                                 value: false,
                                 id: id,
                                 source: MediaSourceKind.Display));
@@ -773,7 +773,7 @@ class OngoingCall {
   /// Sets inbound video in this [OngoingCall] as [enabled] or not.
   ///
   /// No-op if [isRemoteVideoEnabled] is already [enabled].
-  Future<void> setRemoteVideoEnabled(bool enabled) async {
+  Future<void> setCallVideoEnabled(bool enabled) async {
     try {
       if (enabled && isRemoteVideoEnabled.isFalse) {
         await _room?.enableRemoteVideo();
@@ -793,9 +793,11 @@ class OngoingCall {
 
   /// Toggles inbound video in this [OngoingCall] on and off.
   Future<void> toggleRemoteVideo() =>
-      setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
+      setCallVideoEnabled(!isRemoteVideoEnabled.value);
 
-  Future<void> setRemoteMemberVideoEnabled({
+  /// Sets correct [TrackMediaDirection] for the [RemoteMember]'s track where
+  /// [MediaSourceKind] is equivalent to [source].
+  Future<void> setRemoteVideoEnabled({
     required bool value,
     required RemoteMemberId id,
     MediaSourceKind source = MediaSourceKind.Device,

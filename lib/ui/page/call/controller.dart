@@ -858,7 +858,7 @@ class CallController extends GetxController {
 
   /// Toggles receiving of incoming video from the provided [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
-    await _currentCall.value.setRemoteMemberVideoEnabled(
+    await _currentCall.value.setRemoteVideoEnabled(
       value: participant.video.value == null,
       id: participant.id,
       source: participant.source,
