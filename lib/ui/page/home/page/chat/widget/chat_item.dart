@@ -715,7 +715,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
                 child: AvatarWidget.fromUser(
-                  widget.user?.value ??
+                  widget.user?.user.value ??
                       widget.chat.value!.getUser(item.authorId),
                   radius: 15,
                 ),
