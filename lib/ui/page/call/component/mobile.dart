@@ -457,8 +457,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
                   child: MediaQuery(
-                    data: MediaQuery.of(context)
-                        .copyWith(size: c.size),
+                    data: MediaQuery.of(context).copyWith(size: c.size),
                     child: SlidingUpPanel(
                       controller: c.panelController,
                       boxShadow: null,
@@ -598,7 +597,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               c.hoveredRenderer.value = null;
             }
             c.minimized.value = animation.value == 1;
-            if(animation.value == 1 || animation.value == 0) {
+            if (animation.value == 1 || animation.value == 0) {
               c.minimizing.value = false;
             } else {
               c.minimizing.value = true;

@@ -144,7 +144,10 @@ class _MinimizableViewState extends State<MinimizableView>
                 end: RelativeRect.fromSize(
                   Rect.fromLTWH(
                     biggest.width - widget.minimizedWidth - _right,
-                    biggest.height - widget.minimizedHeight - _bottom - _padding.bottom,
+                    biggest.height -
+                        widget.minimizedHeight -
+                        _bottom -
+                        _padding.bottom,
                     widget.minimizedWidth,
                     widget.minimizedHeight,
                   ),

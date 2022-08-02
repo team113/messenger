@@ -442,7 +442,7 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
 
-    if(isMobile) {
+    if (isMobile) {
       var mediaQuerySize = router.context!.mediaQuerySize;
       width = RxDouble(mediaQuerySize.width);
       height = RxDouble(mediaQuerySize.height);
