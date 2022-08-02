@@ -24,6 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.minimizationEnabled = true,
     this.minimizationDelta = 50,
     required this.child,
   }) : super(key: key);
@@ -34,6 +35,9 @@ class MinimizableView extends StatefulWidget {
 
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
+
+  /// Indicator whether the minimizing gesture is enabled.
+  final bool minimizationEnabled;
 
   /// Distance to travel in order for the panning to be recognized as a
   /// minimization gesture.
@@ -157,29 +161,7 @@ class _MinimizableViewState extends State<MinimizableView>
                         FocusManager.instance.primaryFocus?.unfocus();
                       }
                     : null,
-                onPanUpdate: (d) {
-                  _panningDistance = _panningDistance + d.delta.dy;
-
-                  if (_panningDistance < widget.minimizationDelta &&
-                      _controller.value == 0) {
-                    return;
-                  }
-
-                  if (_drag != null && _value != null) {
-                    _controller.value = _value! +
-                        (d.localPosition.dy -
-                                _drag!.dy -
-                                widget.minimizationDelta) *
-                            (1 / constraints.maxHeight);
-                  } else {
-                    setState(() {
-                      _right = _right - d.delta.dx;
-                      _bottom = _bottom - d.delta.dy;
-                      _applyConstraints(biggest);
-                    });
-                  }
-                },
-                onPanStart: _controller.value == 0
+                onPanStart: _controller.value == 0 && widget.minimizationEnabled
                     ? (d) {
                         _controller.stop();
                         _drag = d.localPosition;
@@ -187,12 +169,39 @@ class _MinimizableViewState extends State<MinimizableView>
                         setState(() {});
                       }
                     : null,
-                onPanEnd: (d) {
-                  if (_drag != null && _value != null) {
-                    _onVerticalDragEnd(d);
-                  }
-                  _panningDistance = 0;
-                },
+                onPanUpdate:
+                    widget.minimizationEnabled || _controller.value == 1
+                        ? (d) {
+                            _panningDistance = _panningDistance + d.delta.dy;
+
+                            if (_panningDistance < widget.minimizationDelta &&
+                                _controller.value == 0) {
+                              return;
+                            }
+
+                            if (_drag != null && _value != null) {
+                              _controller.value = _value! +
+                                  (d.localPosition.dy -
+                                          _drag!.dy -
+                                          widget.minimizationDelta) *
+                                      (1 / constraints.maxHeight);
+                            } else {
+                              setState(() {
+                                _right = _right - d.delta.dx;
+                                _bottom = _bottom - d.delta.dy;
+                                _applyConstraints(biggest);
+                              });
+                            }
+                          }
+                        : null,
+                onPanEnd: widget.minimizationEnabled
+                    ? (d) {
+                        if (_drag != null && _value != null) {
+                          _onVerticalDragEnd(d);
+                        }
+                        _panningDistance = 0;
+                      }
+                    : null,
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),
