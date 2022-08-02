@@ -1532,7 +1532,6 @@ class CallController extends GetxController {
   /// Creates a new [Participant] if it doesn't exist.
   void _putParticipant(
     RemoteMemberId id, {
-    MediaSourceKind? source,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? hasVideo,
@@ -1540,7 +1539,7 @@ class CallController extends GetxController {
   }) {
     Participant? participant = findParticipant(
       id,
-      source ?? video?.source ?? audio?.source ?? MediaSourceKind.Device,
+      video?.source ?? audio?.source ?? MediaSourceKind.Device,
     );
 
     if (participant == null) {
