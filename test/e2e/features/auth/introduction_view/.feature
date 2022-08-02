@@ -27,13 +27,11 @@ Feature: Password setting in `IntroductionView`
     Then I fill `RepeatPasswordField` field with "123"
 
     And I tap `ChangePasswordButton` button
-
     And I wait until `IntroductionView_success` is present
+    When I tap `IntroductionCloseButton` button
 
-    Then I tap `IntroductionCloseButton` button
-    
+    Then I tap `MenuButton` button
+    And I tap `LogoutButton` button
+    Then I wait until `AuthView` is present
 
-
-
-
-
+    Then I pause for 10 seconds

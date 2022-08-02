@@ -34,6 +34,7 @@ enum WidgetKey {
   DeleteAccountButton,
   EmailsExpandable,
   HomeView,
+  IntroductionCloseButton,
   IntroductionSetPasswordButton,
   IntroductionView_introduction,
   IntroductionView_password,
