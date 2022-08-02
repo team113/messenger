@@ -14,6 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -22,6 +25,7 @@ import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
+import '/l10n/l10n.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
@@ -113,16 +117,36 @@ class _HomeViewState extends State<HomeView> {
                         : context.width * HomeController.sideBarWidthPercentage,
               ),
               child: Scaffold(
-                body: PageView(
-                  controller: c.pages,
-                  onPageChanged: (i) => router.tab = HomeTab.values[i],
+                body: Listener(
+                  onPointerSignal: (s) {
+                    if (s is PointerScrollEvent) {
+                      if (s.scrollDelta.dx.abs() < 3 &&
+                          (s.scrollDelta.dy.abs() > 3 ||
+                              c.verticalScrollTimer.value != null)) {
+                        c.verticalScrollTimer.value?.cancel();
+                        c.verticalScrollTimer.value =
+                            Timer(150.milliseconds, () {
+                          c.verticalScrollTimer.value = null;
+                        });
+                      }
+                    }
+                  },
+                  child: Obx(
+                    () => PageView(
+                      physics: c.verticalScrollTimer.value == null
+                          ? null
+                          : const NeverScrollableScrollPhysics(),
+                      controller: c.pages,
+                      onPageChanged: (i) => router.tab = HomeTab.values[i],
 
-                  /// [KeepAlivePage] used to keep the tabs' states.
-                  children: const [
-                    KeepAlivePage(child: ContactsTabView()),
-                    KeepAlivePage(child: ChatsTabView()),
-                    KeepAlivePage(child: MenuTabView()),
-                  ],
+                      // [KeepAlivePage] used to keep the tabs' states.
+                      children: const [
+                        KeepAlivePage(child: ContactsTabView()),
+                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(child: MenuTabView()),
+                      ],
+                    ),
+                  ),
                 ),
                 bottomNavigationBar: SafeArea(
                   child: Obx(
@@ -134,19 +158,19 @@ class _HomeViewState extends State<HomeView> {
                         CustomNavigationBarItem(
                           key: const Key('ContactsButton'),
                           icon: FontAwesomeIcons.solidCircleUser,
-                          label: 'label_tab_contacts'.tr,
+                          label: 'label_tab_contacts'.l10n,
                         ),
                         CustomNavigationBarItem(
                             key: const Key('ChatsButton'),
                             icon: FontAwesomeIcons.solidComment,
-                            label: 'label_tab_chats'.tr,
+                            label: 'label_tab_chats'.l10n,
                             badge: c.unreadChatsCount.value == 0
                                 ? null
                                 : '${c.unreadChatsCount.value}'),
                         CustomNavigationBarItem(
                           key: const Key('MenuButton'),
                           icon: FontAwesomeIcons.bars,
-                          label: 'label_tab_menu'.tr,
+                          label: 'label_tab_menu'.l10n,
                         ),
                       ],
                       currentIndex: router.tab.index,

@@ -32,6 +32,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -48,6 +49,7 @@ import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/contact.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -196,6 +198,11 @@ void main() async {
     when(graphQlProvider.myUserEvents(null))
         .thenAnswer((realInvocation) => Future.value(const Stream.empty()));
 
+    when(graphQlProvider.userEvents(
+      const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
+      UserVersion('1'),
+    )).thenAnswer((realInvocation) => Future.value(const Stream.empty()));
+
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
     when(graphQlProvider.incomingCallsTopEvents(3))
@@ -343,7 +350,7 @@ void main() async {
 
     expect(find.text('user name'), findsOneWidget);
     expect(find.text('user bio'), findsOneWidget);
-    expect(find.text('label_presence_present'), findsOneWidget);
+    expect(find.text('label_presence_present'.l10n), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserColumn')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));

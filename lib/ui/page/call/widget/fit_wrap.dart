@@ -18,13 +18,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'fit_view.dart';
+
 /// Places [children] into a shrinkable [Wrap].
+///
+/// Uses [FitView], if there's not enough space for the [Wrap].
 class FitWrap extends StatelessWidget {
   const FitWrap({
     Key? key,
     required this.children,
     required this.maxSize,
     this.axis = Axis.horizontal,
+    this.spacing = 1,
+    this.alignment = WrapAlignment.center,
   }) : super(key: key);
 
   /// Widgets to put inside a [Wrap].
@@ -36,6 +42,12 @@ class FitWrap extends StatelessWidget {
   /// Maximum size in pixels of a [Wrap]ped [children].
   final double maxSize;
 
+  /// Spacing between [children].
+  final double spacing;
+
+  /// Alignment of the [children].
+  final WrapAlignment alignment;
+
   /// Returns calculated size of a [FitWrap] with [maxSize], [constraints],
   /// [axis] and children [length].
   static double calculateSize({
@@ -43,13 +55,48 @@ class FitWrap extends StatelessWidget {
     required Size constraints,
     required Axis axis,
     required int length,
-  }) =>
-      min(
-        maxSize,
-        axis == Axis.horizontal
-            ? constraints.height / length
-            : constraints.width / length,
-      );
+  }) {
+    var size = min(
+      maxSize,
+      axis == Axis.horizontal
+          ? constraints.height / length
+          : constraints.width / length,
+    );
+
+    if (axis == Axis.horizontal) {
+      if (size * length >= constraints.height) {
+        size = constraints.width / 2;
+      }
+    } else {
+      if (size * length >= constraints.width) {
+        size = constraints.height / 2;
+      }
+    }
+
+    return size;
+  }
+
+  /// Indicates whether a [FitView] would be used with the provided [maxSize],
+  /// [constraints], [axis] and [length].
+  static bool useFitView({
+    required double maxSize,
+    required Size constraints,
+    required Axis axis,
+    required int length,
+  }) {
+    var size = min(
+      maxSize,
+      axis == Axis.horizontal
+          ? constraints.height / length
+          : constraints.width / length,
+    );
+
+    if (axis == Axis.horizontal) {
+      return (size * length >= constraints.height);
+    } else {
+      return (size * length >= constraints.width);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,22 +108,30 @@ class FitWrap extends StatelessWidget {
         axis: axis,
       );
 
-      return SizedBox(
-        width: axis == Axis.horizontal ? size : double.infinity,
-        height: axis == Axis.horizontal ? double.infinity : size,
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          runAlignment: WrapAlignment.center,
-          spacing: 1,
-          runSpacing: 1,
-          children: children
-              .map((e) => SizedBox(
-                    width: axis == Axis.horizontal ? size : size - 1,
-                    height: axis == Axis.horizontal ? size - 1 : size,
-                    child: e,
-                  ))
-              .toList(),
-        ),
+      bool fitView = useFitView(
+        maxSize: maxSize,
+        constraints: Size(constraints.maxWidth, constraints.maxHeight),
+        length: children.length,
+        axis: axis,
+      );
+
+      if (fitView) {
+        return FitView(children: children);
+      }
+
+      return Wrap(
+        direction: axis,
+        alignment: alignment,
+        runAlignment: alignment,
+        spacing: spacing,
+        runSpacing: spacing,
+        children: children
+            .map((e) => SizedBox(
+                  width: axis == Axis.horizontal ? size : size - spacing,
+                  height: axis == Axis.horizontal ? size - spacing : size,
+                  child: e,
+                ))
+            .toList(),
       );
     });
   }

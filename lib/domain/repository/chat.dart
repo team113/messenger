@@ -24,6 +24,7 @@ import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
+import '../repository/user.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
@@ -167,7 +168,7 @@ abstract class RxChat {
   RxList<User> get typingUsers;
 
   /// Reactive list of [User]s being members of this [chat].
-  RxMap<UserId, Rx<User>> get members;
+  RxMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;

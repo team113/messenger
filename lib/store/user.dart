@@ -19,17 +19,20 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/image_gallery_item.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/exceptions.dart' show GraphQlProviderExceptions;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
+import '/store/event/user.dart';
+import '/store/model/user.dart';
+import '/store/user_rx.dart';
 import '/util/new_type.dart';
 
 /// Implementation of an [AbstractUserRepository].
@@ -53,7 +56,10 @@ class UserRepository implements AbstractUserRepository {
   final RxBool _isReady = RxBool(false);
 
   /// [users] value.
-  final RxMap<UserId, Rx<User>> _users = RxMap<UserId, Rx<User>>();
+  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
+
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<UserId, Mutex> _locks = {};
 
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
@@ -62,13 +68,13 @@ class UserRepository implements AbstractUserRepository {
   RxBool get isReady => _isReady;
 
   @override
-  RxMap<UserId, Rx<User>> get users => RxMap.unmodifiable(_users);
+  RxMap<UserId, RxUser> get users => _users;
 
   @override
   Future<void> init() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = Rx<User>(c.value);
+        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -85,38 +91,41 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<List<Rx<User>>> searchByNum(UserNum num) => _search(num: num);
+  Future<List<RxUser>> searchByNum(UserNum num) => _search(num: num);
 
   @override
-  Future<List<Rx<User>>> searchByLogin(UserLogin login) =>
-      _search(login: login);
+  Future<List<RxUser>> searchByLogin(UserLogin login) => _search(login: login);
 
   @override
-  Future<List<Rx<User>>> searchByName(UserName name) => _search(name: name);
+  Future<List<RxUser>> searchByName(UserName name) => _search(name: name);
 
   @override
-  Future<List<Rx<User>>> searchByLink(ChatDirectLinkSlug link) =>
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) =>
       _search(link: link);
 
   @override
-  Future<Rx<User>?> get(UserId id) async {
-    Rx<User>? user = _users[id];
-    if (user == null) {
-      var query = (await _graphQlProvider.getUser(id)).user;
-      if (query != null) {
-        HiveUser stored = HiveUser(
-          _user(query),
-          query.ver,
-          query.isBlacklisted.ver,
-        );
-        put(stored);
-        var fetched = Rx<User>(stored.value);
-        users[id] = fetched;
-        user = fetched;
-      }
+  Future<RxUser?> get(UserId id) {
+    Mutex? mutex = _locks[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _locks[id] = mutex;
     }
 
-    return user;
+    return mutex.protect(() async {
+      RxUser? user = _users[id];
+      if (user == null) {
+        var query = (await _graphQlProvider.getUser(id)).user;
+        if (query != null) {
+          HiveUser stored = query.toHive();
+          put(stored);
+          var fetched = HiveRxUser(this, _userLocal, stored);
+          users[id] = fetched;
+          user = fetched;
+        }
+      }
+
+      return user;
+    });
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
@@ -126,6 +135,40 @@ class UserRepository implements AbstractUserRepository {
       _galleryItemLocal.put(item);
     }
     _putUser(user);
+  }
+
+  /// Returns a [Stream] of [UserEvent]s of the specified [User].
+  Future<Stream<UserEvents>> userEvents(
+    UserId id,
+    UserVersion? ver,
+  ) async {
+    return (await _graphQlProvider.userEvents(id, ver))
+        .asyncExpand((event) async* {
+      GraphQlProviderExceptions.fire(event);
+      var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
+        yield const UserEventsInitialized();
+      } else if (events.$$typename == 'User') {
+        var mixin = events as UserEvents$Subscription$UserEvents$User;
+        yield UserEventsUser(mixin.toHive());
+      } else if (events.$$typename == 'UserEventsVersioned') {
+        var mixin = events as UserEventsVersionedMixin;
+        yield UserEventsEvent(UserEventsVersioned(
+          mixin.events.map((e) => _userEvent(e)).toList(),
+          mixin.ver,
+        ));
+      } else if (events.$$typename == 'BlacklistEventsVersioned') {
+        var mixin = events as BlacklistEventsVersionedMixin;
+        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
+          mixin.events.map((e) => _blacklistEvent(e)).toList(),
+          mixin.myVer,
+        ));
+      } else if (events.$$typename == 'IsBlacklisted') {
+        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
+        yield UserEventsIsBlacklisted(node.blacklisted, node.myVer);
+      }
+    });
   }
 
   /// Puts the provided [user] to [Hive].
@@ -144,12 +187,12 @@ class UserRepository implements AbstractUserRepository {
       if (event.deleted) {
         _users.remove(UserId(event.key));
       } else {
-        Rx<User>? user = _users[UserId(event.key)];
+        RxUser? user = _users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] = Rx<User>(event.value.value);
+          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
-          user.value = event.value.value;
-          user.refresh();
+          user.user.value = event.value.value;
+          user.user.refresh();
         }
       }
     }
@@ -160,7 +203,7 @@ class UserRepository implements AbstractUserRepository {
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
   /// (be non-`null`).
-  Future<List<Rx<User>>> _search({
+  Future<List<RxUser>> _search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -176,11 +219,7 @@ class UserRepository implements AbstractUserRepository {
     ))
         .searchUsers
         .nodes
-        .map((c) => HiveUser(
-              _user(c),
-              c.ver,
-              c.isBlacklisted.ver,
-            ))
+        .map((c) => c.toHive())
         .toList();
 
     for (HiveUser user in result) {
@@ -188,56 +227,101 @@ class UserRepository implements AbstractUserRepository {
     }
     await Future.delayed(Duration.zero);
 
-    Iterable<Future<Rx<User>?>> futures = result.map((e) => get(e.value.id));
-    List<Rx<User>> rxUsers =
-        (await Future.wait(futures)).whereNotNull().toList();
+    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
+    List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
-    return rxUsers;
+    return users;
   }
 
-  /// Constructs a new [User] from the given [UserMixin].
-  User _user(UserMixin u) => User(
-        u.id,
-        u.num,
-        name: u.name,
-        bio: u.bio,
-        avatar: u.avatar == null
-            ? null
-            : UserAvatar(
-                galleryItemId: u.avatar!.galleryItemId,
-                full: u.avatar!.full,
-                big: u.avatar!.big,
-                medium: u.avatar!.medium,
-                small: u.avatar!.small,
-                original: u.avatar!.original,
-              ),
-        callCover: u.callCover == null
-            ? null
-            : UserCallCover(
-                galleryItemId: u.callCover!.galleryItemId,
-                full: u.callCover!.full,
-                vertical: u.callCover!.vertical,
-                square: u.callCover!.square,
-                original: u.callCover!.original,
-              ),
-        gallery: u.gallery.nodes.map((e) {
-          var imageData = e as UserMixin$Gallery$Nodes$ImageGalleryItem;
-          return ImageGalleryItem(
-            original: Original(imageData.original),
-            square: Square(imageData.square),
-            id: imageData.id,
-            addedAt: imageData.addedAt,
-          );
-        }).toList(),
-        mutualContactsCount: u.mutualContactsCount,
-        online: u.online?.$$typename == 'UserOnline',
-        lastSeenAt: u.online?.$$typename == 'UserOffline'
-            ? (u.online as UserMixin$Online$UserOffline).lastSeenAt
-            : null,
-        dialog: u.dialog == null ? null : Chat(u.dialog!.id),
-        presenceIndex: u.presence.index,
-        status: u.status,
-        isDeleted: u.isDeleted,
-        isBlacklisted: u.isBlacklisted.blacklisted,
+  /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
+  UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventUserAvatarDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
+      return EventUserAvatarDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserAvatarUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
+      return EventUserAvatarUpdated(
+        node.userId,
+        node.avatar.toModel(),
+        node.at,
       );
+    } else if (e.$$typename == 'EventUserBioDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
+      return EventUserBioDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserBioUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
+      return EventUserBioUpdated(node.userId, node.bio, node.at);
+    } else if (e.$$typename == 'EventUserCallCoverDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
+      return EventUserCallCoverDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserCallCoverUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
+      return EventUserCallCoverUpdated(
+        node.userId,
+        node.callCover.toModel(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventUserCameOffline') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
+      return EventUserCameOffline(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserCameOnline') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserCameOnline;
+      return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventUserDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
+      return EventUserDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserNameDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
+      return EventUserNameDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserGalleryItemAdded') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
+      return EventUserGalleryItemAdded(
+        node.userId,
+        node.galleryItem.toModel(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
+      var node =
+          e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
+      return EventUserGalleryItemDeleted(
+        node.userId,
+        node.galleryItemId,
+        node.at,
+      );
+    } else if (e.$$typename == 'EventUserNameUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
+      return EventUserNameUpdated(node.userId, node.name, node.at);
+    } else if (e.$$typename == 'EventUserPresenceUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
+      return EventUserPresenceUpdated(node.userId, node.presence, node.at);
+    } else if (e.$$typename == 'EventUserStatusDeleted') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
+      return EventUserStatusDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserStatusUpdated') {
+      var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
+      return EventUserStatusUpdated(node.userId, node.status, node.at);
+    } else {
+      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+    }
+  }
+
+  /// Constructs a [BlacklistEvent] from the
+  /// [BlacklistEventsVersionedMixin$Events].
+  BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventBlacklistRecordAdded') {
+      var node =
+          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordAdded;
+      return EventBlacklistRecordAdded(
+        node.userId,
+        node.user.toHive(),
+        node.at,
+      );
+    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
+      var node =
+          e as BlacklistEventsVersionedMixin$Events$EventBlacklistRecordRemoved;
+      return EventBlacklistRecordRemoved(node.userId, node.at);
+    } else {
+      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+    }
+  }
 }

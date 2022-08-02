@@ -17,7 +17,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/widget/selector.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.settings] page.
@@ -30,17 +33,17 @@ class SettingsView extends StatelessWidget {
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
         return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.tr)),
+          appBar: AppBar(title: Text('label_settings'.l10n)),
           body: ListView(
             children: [
               ListTile(
-                title: Text('btn_media_settings'.tr),
+                title: Text('btn_media_settings'.l10n),
                 onTap: router.settingsMedia,
               ),
               ListTile(
                 title: Row(
                   children: [
-                    Text('label_enable_popup_calls'.tr),
+                    Text('label_enable_popup_calls'.l10n),
                     const SizedBox(width: 10),
                     Obx(() {
                       return Switch(
@@ -49,6 +52,45 @@ class SettingsView extends StatelessWidget {
                       );
                     }),
                   ],
+                ),
+              ),
+              KeyedSubtree(
+                key: c.languageKey,
+                child: ListTile(
+                  key: const Key('LanguageDropdown'),
+                  title: Text(
+                    '${L10n.chosen.value!.locale.countryCode}, ${L10n.chosen.value!.name}',
+                  ),
+                  onTap: () async {
+                    final TextStyle? thin = context.textTheme.caption
+                        ?.copyWith(color: Colors.black);
+                    await Selector.show<Language>(
+                      context: context,
+                      buttonKey: c.languageKey,
+                      alignment: Alignment.bottomCenter,
+                      items: L10n.languages,
+                      initial: L10n.chosen.value!,
+                      onSelected: (l) => L10n.set(l),
+                      debounce: context.isMobile
+                          ? const Duration(milliseconds: 500)
+                          : null,
+                      itemBuilder: (Language e) => Row(
+                        key: Key(
+                            'Language_${e.locale.languageCode}${e.locale.countryCode}'),
+                        children: [
+                          Text(
+                            e.name,
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                          const Spacer(),
+                          Text(
+                            e.locale.languageCode.toUpperCase(),
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               )
             ],

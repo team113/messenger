@@ -36,6 +36,7 @@ import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/fill_field.dart';
+import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
@@ -44,8 +45,10 @@ import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
+import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_image_status.dart';
@@ -60,6 +63,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         attachFile,
         fillField,
+        goToUserPage,
         hasDialogWithMe,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -72,10 +76,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesAs,
         sendsMessageToMe,
         signInAs,
+        tapDropdownItem,
         tapText,
         tapWidget,
         twoUsers,
         untilTextExists,
+        updateBio,
         user,
         waitUntilFileStatus,
         waitUntilImageStatus,

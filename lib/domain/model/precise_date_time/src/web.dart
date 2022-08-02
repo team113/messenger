@@ -114,8 +114,11 @@ class PreciseDateTime extends NewType<DateTime>
   /// later.
   ///
   /// Be careful when working with dates in local time.
-  PreciseDateTime add(Duration duration) =>
-      PreciseDateTime(val.add(duration), microsecond: microsecond);
+  PreciseDateTime add(Duration duration) => PreciseDateTime(
+        val.add(duration),
+        microsecond: microsecond +
+            (duration.inMicroseconds - duration.inMilliseconds * 1000),
+      );
 
   /// Returns a new [PreciseDateTime] instance with [duration] subtracted from
   /// this [PreciseDateTime].

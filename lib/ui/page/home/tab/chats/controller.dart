@@ -28,6 +28,7 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -165,7 +166,7 @@ class ChatsTabController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {

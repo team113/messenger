@@ -57,7 +57,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// `ImageGalleryItem` local [Hive] storage.
+  /// [ImageGalleryItem] local [Hive] storage.
   final GalleryItemHiveProvider _galleryItemLocal;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
@@ -487,7 +487,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         }
       });
 
-  /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Event].
+  /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;

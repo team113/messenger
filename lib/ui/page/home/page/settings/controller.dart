@@ -14,14 +14,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 
 /// Controller of the [Routes.settings] page.
 class SettingsController extends GetxController {
   SettingsController(this._settingsRepo);
+
+  /// [GlobalKey] of a button opening the [Language] selection.
+  final GlobalKey languageKey = GlobalKey();
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -32,4 +37,8 @@ class SettingsController extends GetxController {
   /// Sets the [ApplicationSettings.enablePopups] value.
   Future<void> setPopupsEnabled(bool enabled) =>
       _settingsRepo.setPopupsEnabled(enabled);
+
+  /// Sets the [ApplicationSettings.locale] value.
+  Future<void> setLocale(Language? locale) =>
+      _settingsRepo.setLocale(locale!.toString());
 }

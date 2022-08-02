@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -73,7 +74,8 @@ class UserView extends StatelessWidget {
                               children: [
                                 const SizedBox(height: 10),
                                 _name(c, context),
-                                if (c.user?.value.bio != null) _bio(c, context),
+                                if (c.user?.user.value.bio != null)
+                                  _bio(c, context),
                                 const Divider(thickness: 2),
                                 _presence(c, context),
                                 _num(c, context),
@@ -101,7 +103,7 @@ class UserView extends StatelessWidget {
           } else if (c.status.value.isEmpty) {
             return Scaffold(
               appBar: AppBar(),
-              body: Center(child: Text('err_unknown_user'.tr)),
+              body: Center(child: Text('err_unknown_user'.l10n)),
             );
           } else {
             return Scaffold(
@@ -121,7 +123,7 @@ class UserView extends StatelessWidget {
   /// Returns a [CarouselGallery] of the [User.gallery].
   Widget _gallery(UserController c) => Obx(
         () => CarouselGallery(
-          items: c.user?.value.gallery,
+          items: c.user?.user.value.gallery,
           index: c.galleryIndex.value,
           onChanged: (i) => c.galleryIndex.value = i,
         ),
@@ -134,7 +136,7 @@ class UserView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AvatarWidget.fromUser(c.user?.value, radius: 29),
+            AvatarWidget.fromUser(c.user?.user.value, radius: 29),
             const SizedBox(width: 20),
             Expanded(
               child: Column(
@@ -142,7 +144,7 @@ class UserView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SelectableText(
-                    '${c.user?.value.name?.val ?? c.user?.value.num.val}',
+                    '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
                     style: const TextStyle(fontSize: 24),
                   ),
                   _onlineStatus(c),
@@ -155,7 +157,7 @@ class UserView extends StatelessWidget {
 
   /// Returns an online status subtitle of the [User] this [UserView] is about.
   Widget _onlineStatus(UserController c) {
-    final subtitle = c.user?.value.getStatus();
+    final subtitle = c.user?.user.value.getStatus();
     if (subtitle != null) {
       return Text(
         subtitle,
@@ -166,35 +168,37 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns a [User.bio] text.
-  Widget _bio(UserController c, BuildContext context) => ListTile(
-        key: const Key('UserBio'),
-        leading: _centered(const Icon(Icons.article)),
-        title: SelectableText(
-          '${c.user?.value.bio?.val}',
-          style: const TextStyle(fontSize: 17),
-        ),
-        subtitle: Text(
-          'label_biography'.tr,
-          style: const TextStyle(color: Color(0xFF888888)),
-        ),
-      );
+  Widget _bio(UserController c, BuildContext context) => Obx(() {
+        return ListTile(
+          key: const Key('UserBio'),
+          leading: _centered(const Icon(Icons.article)),
+          title: SelectableText(
+            '${c.user?.user.value.bio?.val}',
+            style: const TextStyle(fontSize: 17),
+          ),
+          subtitle: Text(
+            'label_biography'.l10n,
+            style: const TextStyle(color: Color(0xFF888888)),
+          ),
+        );
+      });
 
   /// Returns a [User.num] copyable field.
   Widget _num(UserController c, BuildContext context) => ListTile(
         key: const Key('UserNum'),
         leading: _centered(const Icon(Icons.fingerprint)),
         title: Text(
-          c.user!.value.num.val.replaceAllMapped(
+          c.user!.user.value.num.val.replaceAllMapped(
             RegExp(r'.{4}'),
             (match) => '${match.group(0)} ',
           ),
         ),
         subtitle: Text(
-          'label_num'.tr,
+          'label_num'.l10n,
           style: const TextStyle(color: Color(0xFF888888)),
         ),
         trailing: _centered(const Icon(Icons.copy)),
-        onTap: () => _copy(c.user!.value.num.val),
+        onTap: () => _copy(c.user!.user.value.num.val),
       );
 
   /// Returns a [User.presence] text.
@@ -202,11 +206,11 @@ class UserView extends StatelessWidget {
         key: const Key('UserPresence'),
         leading: _centered(const Icon(Icons.info)),
         title: Text(Presence.values
-            .firstWhere((e) => e.index == c.user?.value.presenceIndex)
+            .firstWhere((e) => e.index == c.user?.user.value.presenceIndex)
             .localizedString()
             .toString()),
         subtitle: Text(
-          'label_presence'.tr,
+          'label_presence'.l10n,
           style: const TextStyle(color: Color(0xFF888888)),
         ),
       );
@@ -222,8 +226,8 @@ class UserView extends StatelessWidget {
               ? const Icon(Icons.delete)
               : const Icon(Icons.person_add)),
           title: Text(c.inContacts.value
-              ? 'btn_delete_from_contacts'.tr
-              : 'btn_add_to_contacts'.tr),
+              ? 'btn_delete_from_contacts'.l10n
+              : 'btn_add_to_contacts'.l10n),
           onTap: c.status.value.isLoadingMore
               ? null
               : c.inContacts.value
@@ -235,35 +239,35 @@ class UserView extends StatelessWidget {
   /// Returns a [Chat]-dialog button opening the [User.dialog].
   Widget _dialog(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.chat)),
-        title: Text('btn_write_message'.tr),
+        title: Text('btn_write_message'.l10n),
         onTap: c.openChat,
       );
 
   /// Returns a button making an audio call with the [User].
   Widget _audioCall(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.call)),
-        title: Text('btn_audio_call'.tr),
+        title: Text('btn_audio_call'.l10n),
         onTap: () => c.call(false),
       );
 
   /// Returns a button making a video call with the [User].
   Widget _videoCall(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.video_call)),
-        title: Text('btn_video_call'.tr),
+        title: Text('btn_video_call'.l10n),
         onTap: () => c.call(true),
       );
 
   /// Returns a button blacklisting the [User] .
   Widget _blacklist(UserController c, BuildContext context) => ListTile(
         leading: _centered(const Icon(Icons.block)),
-        title: Text('btn_blacklist'.tr),
+        title: Text('btn_blacklist'.l10n),
         onTap: () => throw UnimplementedError(),
       );
 
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(String copy) {
     Clipboard.setData(ClipboardData(text: copy));
-    MessagePopup.success('label_copied_to_clipboard'.tr);
+    MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
   /// Returns the vertically centered [widget].

@@ -19,6 +19,13 @@ rwildcard = $(strip $(wildcard $(1)$(2))\
 # Project parameters #
 ######################
 
+NAME := $(strip $(shell grep -m1 'name: ' pubspec.yaml | cut -d ' ' -f2))
+OWNER := $(or $(GITHUB_REPOSITORY_OWNER),team113)
+REGISTRIES := $(strip $(subst $(comma), ,\
+	$(shell grep -m1 'registry: \["' .github/workflows/ci.yml \
+	        | cut -d':' -f2 | tr -d '"][')))
+
+VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d'"'))
@@ -51,6 +58,9 @@ gen: flutter.gen
 
 
 lint: flutter.analyze
+
+
+release: git.release
 
 
 run: flutter.run
@@ -87,7 +97,8 @@ endif
 # Build Flutter project from sources.
 #
 # Usage:
-#	make flutter.build [platform=(apk|web|linux|macos|windows)]
+#	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
+#	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 
@@ -100,6 +111,8 @@ ifeq ($(platform),macos)
 	$(error Dockerized macOS build is not supported)
 else ifeq ($(platform),windows)
 	$(error Dockerized Windows build is not supported)
+else ifeq ($(platform),ios)
+	$(error Dockerized iOS build is not supported)
 else
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
@@ -115,7 +128,10 @@ else
 #          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
-		$(if $(call eq,$(or $(platform),apk),apk),--split-debug-info=symbols,) \
+		$(if $(call eq,$(or $(platform),apk),apk),\
+		    --split-debug-info=symbols \
+		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
+		) \
 		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
@@ -291,6 +307,8 @@ copyright:
 				$(shell grep -v '#' .gitignore | sed 's/^\///' | grep '\S'),\
 					-ignore '$(pat)') \
 			$(call rwildcard,,*.dart) \
+			$(call rwildcard,,*.feature) $(call rwildcard,,.feature) \
+			$(call rwildcard,,*.ftl) \
 			$(call rwildcard,,*.graphql) \
 			$(call rwildcard,,*.kt) \
 			web/index.html \
@@ -299,14 +317,143 @@ copyright:
 
 
 
+###################
+# Docker commands #
+###################
+
+docker-env = $(strip $(if $(call eq,$(minikube),yes),\
+	$(subst export,,$(shell minikube docker-env | cut -d '\#' -f1)),))
+docker-registries = $(strip $(if $(call eq,$(registries),),\
+                            $(REGISTRIES),$(subst $(comma), ,$(registries))))
+docker-tags = $(strip $(if $(call eq,$(tags),),\
+                      $(VERSION),$(subst $(comma), ,$(tags))))
+
+
+# Build project Docker image.
+#
+# Usage:
+#	make docker.image [tag=(dev|<tag>)]
+#	                  [no-cache=(no|yes)]
+#	                  [minikube=(no|yes)]
+
+github_url := $(strip $(or $(GITHUB_SERVER_URL),https://github.com))
+github_repo := $(strip $(or $(GITHUB_REPOSITORY),$(OWNER)/$(NAME)))
+
+docker.image:
+ifeq ($(wildcard build/web),)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+	$(docker-env) \
+	docker build --network=host --force-rm \
+		$(if $(call eq,$(no-cache),yes),--no-cache --pull,) \
+		--label org.opencontainers.image.source=$(github_url)/$(github_repo) \
+		--label org.opencontainers.image.revision=$(strip \
+			$(shell git show --pretty=format:%H --no-patch)) \
+		--label org.opencontainers.image.version=$(strip $(VERSION)) \
+		-t $(OWNER)/$(NAME):$(or $(tag),dev) .
+# TODO: Enable after first release.
+#		--label org.opencontainers.image.version=$(subst v,,$(strip \
+			$(shell git describe --tags --dirty --match='v*')))
+
+
+# Push project Docker images to container registries.
+#
+# Usage:
+#	make docker.push [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
+#	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	                 [minikube=(no|yes)]
+
+docker.push:
+	$(foreach tag,$(subst $(comma), ,$(docker-tags)),\
+		$(foreach registry,$(subst $(comma), ,$(docker-registries)),\
+			$(call docker.push.do,$(registry),$(tag))))
+define docker.push.do
+	$(eval repo := $(strip $(1)))
+	$(eval tag := $(strip $(2)))
+	$(docker-env) \
+	docker push $(repo)/$(OWNER)/$(NAME):$(tag)
+endef
+
+
+# Tag project Docker image with given tags.
+#
+# Usage:
+#	make docker.tags [of=(dev|<docker-tag>)]
+#	                 [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
+#	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	                 [minikube=(no|yes)]
+
+docker.tags:
+	$(foreach tag,$(subst $(comma), ,$(docker-tags)),\
+		$(foreach registry,$(subst $(comma), ,$(docker-registries)),\
+			$(call docker.tags.do,$(or $(of),dev),$(registry),$(tag))))
+define docker.tags.do
+	$(eval from := $(strip $(1)))
+	$(eval repo := $(strip $(2)))
+	$(eval to := $(strip $(3)))
+	$(docker-env) \
+	docker tag $(OWNER)/$(NAME):$(from) $(repo)/$(OWNER)/$(NAME):$(to)
+endef
+
+
+# Save project Docker images to a tarball file.
+#
+# Usage:
+#	make docker.tar [to-file=(.cache/docker/image.tar|<file-path>)]
+#	                [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
+
+docker-tar-file = $(or $(to-file),.cache/docker/image.tar)
+
+docker.tar:
+	@mkdir -p $(dir $(docker-tar-file))
+	docker save -o $(docker-tar-file) \
+		$(foreach tag,$(subst $(comma), ,$(or $(tags),$(VERSION))),\
+			$(OWNER)/$(NAME):$(tag))
+
+
+# Load project Docker images from a tarball file.
+#
+# Usage:
+#	make docker.untar [from-file=(.cache/docker/image.tar|<file-path>)]
+
+docker.untar:
+	docker load -i $(or $(from-file),.cache/docker/image.tar)
+
+
+
+
+################
+# Git commands #
+################
+
+# Release project version (apply version tag and push).
+#
+# Usage:
+#	make git.release [ver=($(VERSION)|<proj-ver>)]
+
+git-release-tag = $(strip $(or $(ver),$(VERSION)))
+
+git.release:
+ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
+	$(error "Git tag $(git-release-tag) already exists")
+endif
+	git tag $(git-release-tag) main
+	git push origin refs/tags/$(git-release-tag)
+
+
+
+
 ##################
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs fmt gen lint run test \
+.PHONY: build clean deps docs fmt gen lint release run test \
         clean.flutter \
         copyright \
+        docker.image docker.push docker.tags docker.tar docker.untar \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-            flutter.pub flutter.run \
+        flutter.pub flutter.run \
+        git.release \
         test.unit
