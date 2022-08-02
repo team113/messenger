@@ -323,16 +323,15 @@ class OngoingCall {
           bool isVideoAvailable =
               track.mediaDirection() == TrackMediaDirection.SendRecv ||
                   track.mediaDirection() == TrackMediaDirection.SendOnly;
-          if (track.kind() == MediaKind.Video) {
+
+          members.update(id, (value) {
             switch (track.mediaSourceKind()) {
               case MediaSourceKind.Device:
-                members[id]?.hasVideo = isVideoAvailable;
-                break;
+                return value..hasVideo = isVideoAvailable;
               case MediaSourceKind.Display:
-                members[id]?.hasSharing = isVideoAvailable;
-                break;
+                return value..hasSharing = isVideoAvailable;
             }
-          }
+          });
 
           track.onMuted(() {
             renderer.muted = true;
@@ -1054,9 +1053,7 @@ class OngoingCall {
         }
         renderer.srcObject = track.getTrack();
         if (!track.muted() &&
-                track.mediaDirection() == TrackMediaDirection.SendRecv ||
-            (track.mediaSourceKind() == MediaSourceKind.Display &&
-                track.mediaDirection() == TrackMediaDirection.SendOnly)) {
+            track.mediaDirection() == TrackMediaDirection.SendRecv) {
           remoteVideos.add(renderer);
         }
         return renderer;
