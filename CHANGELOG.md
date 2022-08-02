@@ -39,8 +39,7 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
-        - Mobile minimization gesture being too rapid ([#45], [#44]);
-        - Secondary view overlaying by bottom dock ([#37], [#36]).
+        - Mobile minimization gesture being too rapid ([#45], [#44]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4
@@ -55,8 +54,6 @@ All user visible changes to this project will be documented in this file. This p
 [#31]: /../../pull/31
 [#34]: /../../pull/34
 [#35]: /../../pull/35
-[#36]: /../../issues/36
-[#37]: /../../pull/37
 [#41]: /../../issues/41
 [#42]: /../../pull/42
 [#44]: /../../issues/44

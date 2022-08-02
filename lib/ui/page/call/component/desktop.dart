@@ -375,11 +375,12 @@ Widget desktopCall(CallController c, BuildContext context) {
               duration: 200.milliseconds,
               child: isDocked
                   ? AnimatedSlider(
-                      animationStream: c.dockAnimationStream,
                       key: const Key('DockedPanelPadding'),
                       isOpen: showBottomUi,
                       duration: 400.milliseconds,
                       translate: false,
+                      listener: () =>
+                          Future.delayed(Duration.zero, c.relocateSecondary),
                       child: MouseRegion(
                         onEnter: (d) => c.keepUi(true),
                         onHover: (d) => c.keepUi(true),
@@ -400,7 +401,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           ),
                           margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                           child: ConditionalBackdropFilter(
-                            key: c.buttonsDockKey,
+                            key: c.dockKey,
                             borderRadius: BorderRadius.circular(30),
                             filter: ImageFilter.blur(
                               sigmaX: 15,
@@ -424,7 +425,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 onReorder: (buttons) {
                                   c.buttons.clear();
                                   c.buttons.addAll(buttons);
-                                  c.shiftSecondaryView();
+                                  c.relocateSecondary();
                                 },
                                 onDragStarted: (b) {
                                   c.isMoreHintDismissed.value = true;
@@ -796,28 +797,30 @@ Widget desktopCall(CallController c, BuildContext context) {
         // This includes the screen size changes.
         c.applyConstraints(context);
 
-        // Returns [Scaler] for scaling minimized view.
-        Widget _minimizedViewScaler({
+        // Returns a [Scaler] scaling the minimized view.
+        Widget _scaler({
           Key? key,
+          MouseCursor cursor = MouseCursor.defer,
           required Function(double, double) onDrag,
           double? width,
           double? height,
-          double? opacity,
         }) {
-          return Scaler(
-            key: key,
-            onDrag: onDrag,
-            onStart: (_) {
-              c.scaled.value = true;
-              c.secondaryBottomBeforeShift.value = null;
-            },
-            onEnd: (_) {
-              c.scaled.value = false;
-              c.updateSecondaryAttach();
-            },
-            width: width ?? Scaler.size,
-            height: height ?? Scaler.size,
-            opacity: opacity ?? 0,
+          return MouseRegion(
+            cursor: cursor,
+            child: Scaler(
+              key: key,
+              onDragStart: (_) {
+                c.secondaryScaled.value = true;
+                c.secondaryBottomShifted = null;
+              },
+              onDragUpdate: onDrag,
+              onDragEnd: (_) {
+                c.secondaryScaled.value = false;
+                c.updateSecondaryAttach();
+              },
+              width: width ?? Scaler.size,
+              height: height ?? Scaler.size,
+            ),
           );
         }
 
@@ -839,15 +842,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpDown,
-                  child: _minimizedViewScaler(
-                    width: c.width.value - Scaler.size,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.top,
-                      dy: dy,
-                    ),
+                  width: c.width.value - Scaler.size,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    dy: dy,
                   ),
                 ),
               );
@@ -857,15 +858,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeLeftRight,
-                  child: _minimizedViewScaler(
-                    height: c.height.value - Scaler.size,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      x: ScaleModeX.left,
-                      dx: dx,
-                    ),
+                  height: c.height.value - Scaler.size,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    x: ScaleModeX.left,
+                    dx: dx,
                   ),
                 ),
               );
@@ -875,15 +874,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
                 left: c.left.value + c.width.value - Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeLeftRight,
-                  child: _minimizedViewScaler(
-                    height: c.height.value - Scaler.size,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      x: ScaleModeX.right,
-                      dx: -dx,
-                    ),
+                  height: c.height.value - Scaler.size,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    x: ScaleModeX.right,
+                    dx: -dx,
                   ),
                 ),
               );
@@ -893,15 +890,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - Scaler.size / 2,
                 left: c.left.value + Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpDown,
-                  child: _minimizedViewScaler(
-                    width: c.width.value - Scaler.size,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.bottom,
-                      dy: -dy,
-                    ),
+                  width: c.width.value - Scaler.size,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    dy: -dy,
                   ),
                 ),
               );
@@ -912,18 +907,16 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpLeftDownRight,
-                  child: _minimizedViewScaler(
-                    width: Scaler.size * 2,
-                    height: Scaler.size * 2,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.top,
-                      x: ScaleModeX.left,
-                      dx: dx,
-                      dy: dy,
-                    ),
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    x: ScaleModeX.left,
+                    dx: dx,
+                    dy: dy,
                   ),
                 ),
               );
@@ -933,18 +926,16 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
-                  child: _minimizedViewScaler(
-                    width: Scaler.size * 2,
-                    height: Scaler.size * 2,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.top,
-                      x: ScaleModeX.right,
-                      dx: -dx,
-                      dy: dy,
-                    ),
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    x: ScaleModeX.right,
+                    dx: -dx,
+                    dy: dy,
                   ),
                 ),
               );
@@ -954,18 +945,16 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
-                  child: _minimizedViewScaler(
-                    width: Scaler.size * 2,
-                    height: Scaler.size * 2,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.bottom,
-                      x: ScaleModeX.left,
-                      dx: dx,
-                      dy: -dy,
-                    ),
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    x: ScaleModeX.left,
+                    dx: dx,
+                    dy: -dy,
                   ),
                 ),
               );
@@ -975,18 +964,16 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                child: MouseRegion(
+                child: _scaler(
                   cursor: SystemMouseCursors.resizeUpLeftDownRight,
-                  child: _minimizedViewScaler(
-                    width: Scaler.size * 2,
-                    height: Scaler.size * 2,
-                    onDrag: (dx, dy) => c.resize(
-                      context,
-                      y: ScaleModeY.bottom,
-                      x: ScaleModeX.right,
-                      dx: -dx,
-                      dy: -dy,
-                    ),
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) => c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    x: ScaleModeX.right,
+                    dx: -dx,
+                    dy: -dy,
                   ),
                 ),
               );
@@ -1438,139 +1425,128 @@ Widget _secondaryView(CallController c, BuildContext context) {
       }
 
       Widget _buildDragHandle(Alignment alignment) {
-        // Returns [Scaler] for scaling secondary view.
-        Widget _secondaryViewScaler({
+        // Returns a [Scaler] scaling the secondary view.
+        Widget _scaler({
           Key? key,
-          required Function(double, double) onDrag,
+          MouseCursor cursor = MouseCursor.defer,
+          Function(double, double)? onDrag,
           double? width,
           double? height,
-          double? opacity,
         }) {
-          return Scaler(
-            key: key,
-            onDrag: onDrag,
-            onStart: (_) {
-              c.secondaryBottomBeforeShift.value = null;
-              c.secondaryScaled.value = true;
-            },
-            onEnd: (_) {
-              c.secondaryScaled.value = false;
-              c.updateSecondaryAttach();
-            },
-            width: width ?? Scaler.size,
-            height: height ?? Scaler.size,
-            opacity: opacity ?? 0,
-          );
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
+              child: Scaler(
+                key: key,
+                onDragStart: (_) {
+                  c.secondaryBottomShifted = null;
+                  c.secondaryScaled.value = true;
+                },
+                onDragUpdate: onDrag,
+                onDragEnd: (_) {
+                  c.secondaryScaled.value = false;
+                  c.updateSecondaryAttach();
+                },
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
         }
 
         Widget widget = Container();
 
         if (alignment == Alignment.centerLeft) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeLeftRight,
-            child: _secondaryViewScaler(
-              height: height - Scaler.size,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                x: ScaleModeX.left,
-                dx: dx,
-              ),
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.left,
+              dx: dx,
             ),
           );
         } else if (alignment == Alignment.centerRight) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeLeftRight,
-            child: _secondaryViewScaler(
-              height: height - Scaler.size,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                x: ScaleModeX.right,
-                dx: -dx,
-              ),
+            height: height - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              x: ScaleModeX.right,
+              dx: -dx,
             ),
           );
         } else if (alignment == Alignment.bottomCenter) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpDown,
-            child: _secondaryViewScaler(
-              width: width - Scaler.size,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.bottom,
-                dy: -dy,
-              ),
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              dy: -dy,
             ),
           );
         } else if (alignment == Alignment.topCenter) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpDown,
-            child: _secondaryViewScaler(
-              width: width - Scaler.size,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.top,
-                dy: dy,
-              ),
+            width: width - Scaler.size,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              dy: dy,
             ),
           );
         } else if (alignment == Alignment.topLeft) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpLeftDownRight,
-            child: _secondaryViewScaler(
-              width: Scaler.size * 2,
-              height: Scaler.size * 2,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.top,
-                x: ScaleModeX.left,
-                dx: dx,
-                dy: dy,
-              ),
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: dy,
             ),
           );
         } else if (alignment == Alignment.topRight) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
-            child: _secondaryViewScaler(
-              width: Scaler.size * 2,
-              height: Scaler.size * 2,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.top,
-                x: ScaleModeX.right,
-                dx: -dx,
-                dy: dy,
-              ),
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.top,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: dy,
             ),
           );
         } else if (alignment == Alignment.bottomLeft) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
-            child: _secondaryViewScaler(
-              width: Scaler.size * 2,
-              height: Scaler.size * 2,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.bottom,
-                x: ScaleModeX.left,
-                dx: dx,
-                dy: -dy,
-              ),
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.left,
+              dx: dx,
+              dy: -dy,
             ),
           );
         } else if (alignment == Alignment.bottomRight) {
-          widget = MouseRegion(
+          widget = _scaler(
             cursor: SystemMouseCursors.resizeUpLeftDownRight,
-            child: _secondaryViewScaler(
-              width: Scaler.size * 2,
-              height: Scaler.size * 2,
-              onDrag: (dx, dy) => c.resizeSecondary(
-                context,
-                y: ScaleModeY.bottom,
-                x: ScaleModeX.right,
-                dx: -dx,
-                dy: -dy,
-              ),
+            width: Scaler.size * 2,
+            height: Scaler.size * 2,
+            onDrag: (dx, dy) => c.resizeSecondary(
+              context,
+              y: ScaleModeY.bottom,
+              x: ScaleModeX.right,
+              dx: -dx,
+              dy: -dy,
             ),
           );
         }
@@ -1712,166 +1688,149 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 : Container(),
           )),
 
-          Obx(
-            () {
-              var reorderableFit = ReorderableFit<_DragData>(
-                key: const Key('SecondaryFitView'),
-                onAdded: (d, i) => c.unfocus(d.participant),
-                onWillAccept: (d) {
-                  if (d?.chatId == c.chatId) {
-                    c.secondaryTargets.value = 1;
-                    return true;
-                  }
+          ReorderableFit<_DragData>(
+            key: const Key('SecondaryFitView'),
+            onAdded: (d, i) => c.unfocus(d.participant),
+            onWillAccept: (d) {
+              if (d?.chatId == c.chatId) {
+                c.secondaryTargets.value = 1;
+                return true;
+              }
 
-                  return false;
-                },
-                onLeave: (b) => c.secondaryTargets.value = 0,
-                onDragStarted: (r) {
-                  c.draggedRenderer.value = r.participant;
-                  c.isHintDismissed.value = true;
-                  c.secondaryDrags.value = 1;
-                  c.keepUi(false);
-                },
-                onDoughBreak: (r) =>
-                    c.doughDraggedRenderer.value = r.participant,
-                onDragEnd: _onDragEnded,
-                onDragCompleted: _onDragEnded,
-                onDraggableCanceled: _onDragEnded,
-                axis: axis,
-                width: width,
-                height: height,
-                left: left,
-                top: top,
-                right: right,
-                bottom: bottom,
-                onOffset: () {
-                  if (c.minimized.value && !c.fullscreen.value) {
-                    return Offset(-c.left.value, -c.top.value - 30);
-                  } else if (!WebUtils.isPopup) {
-                    return const Offset(0, -30);
-                  }
+              return false;
+            },
+            onLeave: (b) => c.secondaryTargets.value = 0,
+            onDragStarted: (r) {
+              c.draggedRenderer.value = r.participant;
+              c.isHintDismissed.value = true;
+              c.secondaryDrags.value = 1;
+              c.displayMore.value = false;
+              c.keepUi(false);
+            },
+            onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
+            onDragEnd: _onDragEnded,
+            onDragCompleted: _onDragEnded,
+            onDraggableCanceled: _onDragEnded,
+            axis: axis,
+            width: width,
+            height: height,
+            left: left,
+            top: top,
+            right: right,
+            bottom: bottom,
+            onOffset: () {
+              if (c.minimized.value && !c.fullscreen.value) {
+                return Offset(-c.left.value, -c.top.value - 30);
+              } else if (!WebUtils.isPopup) {
+                return const Offset(0, -30);
+              }
 
-                  return Offset.zero;
-                },
-                overlayBuilder: (_DragData data) {
-                  var participant = data.participant;
+              return Offset.zero;
+            },
+            overlayBuilder: (_DragData data) {
+              var participant = data.participant;
 
-                  return Obx(() {
-                    bool? muted = participant.owner == MediaOwnerKind.local
-                        ? !c.audioState.value.isEnabled()
-                        : participant.source == MediaSourceKind.Display
-                            ? c
-                                .findParticipant(
-                                    participant.id, MediaSourceKind.Device)
-                                ?.audio
-                                .value
-                                ?.muted
-                            : null;
+              return Obx(() {
+                bool? muted = participant.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled()
+                    : participant.source == MediaSourceKind.Display
+                        ? c
+                            .findParticipant(
+                                participant.id, MediaSourceKind.Device)
+                            ?.audio
+                            .value
+                            ?.muted
+                        : null;
 
-                    bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
-                        c.primaryDrags.value != 0 ||
-                        c.secondaryDragged.value;
+                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                    c.primaryDrags.value != 0 ||
+                    c.secondaryDragged.value;
 
-                    bool isHovered = c.hoveredRenderer.value == participant &&
-                        !anyDragIsHappening;
+                bool isHovered = c.hoveredRenderer.value == participant &&
+                    !anyDragIsHappening;
 
-                    return MouseRegion(
-                      opaque: false,
-                      onEnter: (d) {
-                        if (c.draggedRenderer.value == null) {
-                          c.hoveredRenderer.value = data.participant;
-                          c.hoveredRendererTimeout = 5;
-                          c.isCursorHidden.value = false;
-                        }
-                      },
-                      onHover: (d) {
-                        if (c.draggedRenderer.value == null) {
-                          c.hoveredRenderer.value = data.participant;
-                          c.hoveredRendererTimeout = 5;
-                          c.isCursorHidden.value = false;
-                        }
-                      },
-                      onExit: (d) {
-                        c.hoveredRendererTimeout = 0;
-                        c.hoveredRenderer.value = null;
-                        c.isCursorHidden.value = false;
-                      },
-                      child: AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: c.draggedRenderer.value == data.participant
-                            ? Container()
-                            : ContextMenuRegion(
-                                key: ObjectKey(participant),
-                                preventContextMenu: true,
-                                menu: ContextMenu(
-                                  actions: [
-                                    if ((participant.owner !=
-                                                MediaOwnerKind.local ||
-                                            participant.source !=
-                                                MediaSourceKind.Display) &&
-                                        participant.video.value?.isEnabled ==
-                                            true)
-                                      ContextMenuButton(
-                                        label: 'btn_call_center_video'.l10n,
-                                        onPressed: () => c.center(participant),
-                                      ),
-                                    if (participant.video.value != null)
-                                      ContextMenuButton(
-                                        label: participant
-                                                    .video.value?.isEnabled ==
-                                                true
-                                            ? 'btn_call_disable_video'.l10n
-                                            : 'btn_call_enable_video'.l10n,
-                                        onPressed: () =>
-                                            c.toggleRendererEnabled(
-                                                participant.video),
-                                      )
-                                  ],
-                                ),
-                                child: IgnorePointer(
-                                  child: ParticipantOverlayWidget(
-                                    participant,
-                                    key: ObjectKey(participant),
-                                    muted: muted,
-                                    hovered: isHovered,
-                                    preferBackdrop: !c.minimized.value ||
-                                        c.fullscreen.value,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    );
-                  });
-                },
-                decoratorBuilder: (_DragData item) =>
-                    const ParticipantDecoratorWidget(),
-                itemBuilder: (_DragData data) {
-                  var participant = data.participant;
-                  return Obx(
-                    () => ParticipantWidget(
-                      participant,
-                      key: ObjectKey(participant),
-                      offstageUntilDetermined: true,
-                      respectAspectRatio: true,
-                      useCallCover: true,
-                      borderRadius: BorderRadius.zero,
-                      expanded: c.doughDraggedRenderer.value == participant,
-                    ),
-                  );
-                },
-                children:
-                    c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
-              );
-
-              if (c.secondaryAlignment.value == null) {
-                return reorderableFit;
-              } else {
                 return MouseRegion(
                   opaque: false,
-                  child: reorderableFit,
+                  onEnter: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onHover: (d) {
+                    if (c.draggedRenderer.value == null) {
+                      c.hoveredRenderer.value = data.participant;
+                      c.hoveredRendererTimeout = 5;
+                      c.isCursorHidden.value = false;
+                    }
+                  },
+                  onExit: (d) {
+                    c.hoveredRendererTimeout = 0;
+                    c.hoveredRenderer.value = null;
+                    c.isCursorHidden.value = false;
+                  },
+                  child: AnimatedSwitcher(
+                    duration: 200.milliseconds,
+                    child: c.draggedRenderer.value == data.participant
+                        ? Container()
+                        : ContextMenuRegion(
+                            key: ObjectKey(participant),
+                            preventContextMenu: true,
+                            menu: ContextMenu(
+                              actions: [
+                                if ((participant.owner !=
+                                            MediaOwnerKind.local ||
+                                        participant.source !=
+                                            MediaSourceKind.Display) &&
+                                    participant.video.value?.isEnabled == true)
+                                  ContextMenuButton(
+                                    label: 'btn_call_center_video'.l10n,
+                                    onPressed: () => c.center(participant),
+                                  ),
+                                if (participant.video.value != null)
+                                  ContextMenuButton(
+                                    label: participant.video.value?.isEnabled ==
+                                            true
+                                        ? 'btn_call_disable_video'.l10n
+                                        : 'btn_call_enable_video'.l10n,
+                                    onPressed: () => c.toggleRendererEnabled(
+                                        participant.video),
+                                  )
+                              ],
+                            ),
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
+                            ),
+                          ),
+                  ),
                 );
-              }
+              });
             },
+            decoratorBuilder: (_DragData item) =>
+                const ParticipantDecoratorWidget(),
+            itemBuilder: (_DragData data) {
+              var participant = data.participant;
+              return Obx(
+                () => ParticipantWidget(
+                  participant,
+                  key: ObjectKey(participant),
+                  offstageUntilDetermined: true,
+                  respectAspectRatio: true,
+                  useCallCover: true,
+                  borderRadius: BorderRadius.zero,
+                  expanded: c.doughDraggedRenderer.value == participant,
+                ),
+              );
+            },
+            children: c.secondary.map((e) => _DragData(e, c.chatId)).toList(),
           ),
 
           // Discards the pointer when hovered over videos.
@@ -1912,8 +1871,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           : SystemMouseCursors.grab,
                       child: GestureDetector(
                         onPanStart: (d) {
-                          c.secondaryBottomBeforeShift.value = null;
+                          c.secondaryBottomShifted = null;
                           c.secondaryDragged.value = true;
+                          c.displayMore.value = false;
+                          c.keepUi(false);
 
                           c.calculateSecondaryPanning(d.globalPosition);
 
