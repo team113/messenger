@@ -603,7 +603,6 @@ class CallController extends GetxController {
             e.key!,
             handRaised: e.value?.isHandRaised,
             hasVideo: e.value?.hasVideo,
-            hasDisplaySharing: e.value?.hasSharing.value,
           );
           _insureCorrectGrouping();
           break;
@@ -622,12 +621,15 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _putParticipant(
-            e.key!,
-            handRaised: e.value?.isHandRaised,
-            hasVideo: e.value?.hasVideo,
-            hasDisplaySharing: e.value?.hasSharing.value,
-          );
+          if (!e.value!.isSharingAllowed && !e.value!.hasSharing) {
+            _removeParticipant(e.key!);
+          } else {
+            _putParticipant(
+              e.key!,
+              handRaised: e.value?.isHandRaised,
+              hasVideo: e.value?.hasVideo,
+            );
+          }
           _insureCorrectGrouping();
           break;
       }
@@ -1530,15 +1532,15 @@ class CallController extends GetxController {
   /// Creates a new [Participant] if it doesn't exist.
   void _putParticipant(
     RemoteMemberId id, {
+    MediaSourceKind? source,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
     bool? hasVideo,
-    bool? hasDisplaySharing,
     bool? handRaised,
   }) {
     Participant? participant = findParticipant(
       id,
-      video?.source ?? audio?.source ?? MediaSourceKind.Device,
+      source ?? video?.source ?? audio?.source ?? MediaSourceKind.Device,
     );
 
     if (participant == null) {
@@ -1556,7 +1558,6 @@ class CallController extends GetxController {
         video: video,
         audio: audio,
         hasVideo: hasVideo,
-        hasDisplaySharing: hasDisplaySharing,
         handRaised: handRaised,
       );
 
@@ -1595,8 +1596,6 @@ class CallController extends GetxController {
       }
     } else {
       participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
-      participant.hasDisplaySharing.value =
-          hasDisplaySharing ?? participant.hasDisplaySharing.value;
       participant.audio.value = audio ?? participant.audio.value;
       participant.video.value = video ?? participant.video.value;
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
@@ -1623,6 +1622,8 @@ class CallController extends GetxController {
       }
 
       if (participant.source == MediaSourceKind.Display &&
+          (members[id]?.hasSharing == false ||
+              participant.owner == MediaOwnerKind.local) &&
           participant.video.value == null &&
           participant.audio.value == null) {
         locals.remove(participant);
@@ -1650,12 +1651,10 @@ class Participant {
     RtcAudioRenderer? audio,
     bool? handRaised,
     bool? hasVideo,
-    bool? hasDisplaySharing,
   })  : video = Rx(video),
         audio = Rx(audio),
         handRaised = Rx(handRaised ?? false),
         hasVideo = Rx(hasVideo ?? false),
-        hasDisplaySharing = Rx(hasDisplaySharing ?? false),
         user = Rx(user),
         source = video?.source ?? audio?.source ?? MediaSourceKind.Device;
 
@@ -1676,8 +1675,6 @@ class Participant {
 
   /// Indicates whether the current [Participant] emits outcoming video track.
   final Rx<bool> hasVideo;
-
-  final Rx<bool> hasDisplaySharing;
 
   /// Reactive video renderer of this [Participant].
   late final Rx<RtcVideoRenderer?> video;

@@ -323,16 +323,15 @@ class OngoingCall {
           bool isVideoAvailable =
               track.mediaDirection() == TrackMediaDirection.SendRecv ||
                   track.mediaDirection() == TrackMediaDirection.SendOnly;
-
           if (track.kind() == MediaKind.Video) {
-            members.update(id, (value) {
-              switch (track.mediaSourceKind()) {
-                case MediaSourceKind.Device:
-                  return value..hasVideo = isVideoAvailable;
-                case MediaSourceKind.Display:
-                  return value..hasSharing.value = isVideoAvailable;
-              }
-            });
+            switch (track.mediaSourceKind()) {
+              case MediaSourceKind.Device:
+                members[id]?.hasVideo = isVideoAvailable;
+                break;
+              case MediaSourceKind.Display:
+                members[id]?.hasSharing = isVideoAvailable;
+                break;
+            }
           }
 
           track.onMuted(() {
@@ -351,6 +350,22 @@ class OngoingCall {
                 _addRemoteTrack(conn, track);
                 break;
               case TrackMediaDirection.SendOnly:
+                if (track.mediaSourceKind() == MediaSourceKind.Display) {
+                  if (members[id]?.isSharingAllowed == true) {
+                    _addRemoteTrack(conn, track);
+                  } else {
+                    members[id]?.hasSharing == true
+                        ? _removeRemoteTrack(track)
+                        : _addRemoteTrack(conn, track).then((_) async =>
+                            await setRemoteMemberVideoEnabled(
+                                value: false,
+                                id: id,
+                                source: MediaSourceKind.Display));
+                  }
+                } else {
+                  _removeRemoteTrack(track);
+                }
+                break;
               case TrackMediaDirection.RecvOnly:
               case TrackMediaDirection.Inactive:
                 _removeRemoteTrack(track);
@@ -366,7 +381,7 @@ class OngoingCall {
                   case MediaSourceKind.Device:
                     return value..hasVideo = isVideoAvailable;
                   case MediaSourceKind.Display:
-                    return value..hasSharing.value = isVideoAvailable;
+                    return value..hasSharing = isVideoAvailable;
                 }
               });
             }
@@ -789,6 +804,9 @@ class OngoingCall {
     if (members[id] == null) {
       return;
     }
+    if (source == MediaSourceKind.Display) {
+      members[id]!.isSharingAllowed = value;
+    }
 
     if (value) {
       await members[id]!.conn.enableRemoteVideo(source);
@@ -1030,10 +1048,15 @@ class OngoingCall {
         var renderer = RtcVideoRenderer.remote(
             track, RemoteMemberId.fromString(conn.getRemoteMemberId()));
         await renderer.initialize();
+        if (track.mediaSourceKind() == MediaSourceKind.Display &&
+            track.mediaDirection() != TrackMediaDirection.SendRecv) {
+          await conn.enableRemoteVideo(track.mediaSourceKind());
+        }
         renderer.srcObject = track.getTrack();
-
         if (!track.muted() &&
-            track.mediaDirection() == TrackMediaDirection.SendRecv) {
+                track.mediaDirection() == TrackMediaDirection.SendRecv ||
+            (track.mediaSourceKind() == MediaSourceKind.Display &&
+                track.mediaDirection() == TrackMediaDirection.SendOnly)) {
           remoteVideos.add(renderer);
         }
         return renderer;
@@ -1331,13 +1354,21 @@ class RemoteMember {
     required this.conn,
     this.isHandRaised = false,
     this.hasVideo = false,
-    bool hasSharing = false,
-  }) : hasSharing = RxBool(hasSharing);
+    this.isSharingAllowed = true,
+    this.hasSharing = false,
+  });
 
-  /// Indicates whether this member emits outgoing video media track.
+  /// Indicates whether this member emits outgoing video media track where
+  /// source is [MediaSourceKind.Device].
   bool hasVideo;
 
-  RxBool hasSharing;
+  /// Indicates whether this member emits outgoing video media track where
+  /// source is [MediaSourceKind.Display].
+  bool hasSharing;
+
+  /// Indicates whether client side will receive incoming video media track where
+  /// source is [MediaSourceKind.Display] from this member.
+  bool isSharingAllowed;
 
   /// Hand raised indicator of this member.
   bool isHandRaised;
