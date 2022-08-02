@@ -56,7 +56,6 @@ dependencies:
   medea_jason:
     git:
       url: https://github.com/instrumentisto/medea-jason.git
-      ref: master
       path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0
@@ -110,6 +109,7 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.0.0
+  ffi: ">= 2.0.0 <3.0.0"
 
 flutter:
   uses-material-design: true

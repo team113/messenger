@@ -403,7 +403,7 @@ packages:
     source: hosted
     version: "1.3.0"
   ffi:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: ffi
       url: "https://pub.dartlang.org"
@@ -894,8 +894,8 @@ packages:
     dependency: "direct main"
     description:
       path: flutter
-      ref: master
-      resolved-ref: f1c58b074119e769078d02e3cfb8251323852252
+      ref: HEAD
+      resolved-ref: e031fc8540b88e3fd40b899a633f8388842dc15e
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
