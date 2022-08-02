@@ -37,7 +37,11 @@ class IntroductionView extends StatelessWidget {
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const IntroductionView());
+    return ModalPopup.show(
+        context: context,
+        child: const IntroductionView(
+          key: Key('IntroductionView'),
+        ));
   }
 
   @override
@@ -112,6 +116,7 @@ class IntroductionView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 ReactiveTextField(
+                  key: const Key('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
@@ -125,6 +130,7 @@ class IntroductionView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 ReactiveTextField(
+                  key: const Key('RepeatPasswordField'),
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
@@ -138,6 +144,7 @@ class IntroductionView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
+                  key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_save'.l10n,
                     style: thin?.copyWith(color: Colors.white),
@@ -164,6 +171,7 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
+                    key: const Key('IntroductionCloseButton'),
                     title: Text('btn_close'.l10n),
                     onPressed: Navigator.of(context).pop,
                     color: const Color(0xFFEEEEEE),
@@ -172,12 +180,11 @@ class IntroductionView extends StatelessWidget {
               ];
               break;
           }
-
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
-              key: Key('${c.stage.value}'),
+              key: Key('IntroductionView_${c.stage.value.name}'),
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [
