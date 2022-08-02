@@ -116,7 +116,8 @@ class NotificationService extends DisposableService {
         lang: payload,
         icon: icon,
       ).onError((_, __) => false);
-    } else {
+      // TODO: implement notifications for windows
+    } else if (!PlatformUtils.isWindows) {
       await _plugin!.show(
         Random().nextInt(1 << 31),
         title,

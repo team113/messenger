@@ -320,7 +320,6 @@ class HiveRxChat implements RxChat {
 
       if (event != null && event.item.firstOrNull is HiveChatMessage) {
         remove(message.value.id, message.value.timestamp);
-        _pending.remove(message.value);
         message = event.item.first as HiveChatMessage;
       }
     } catch (e) {

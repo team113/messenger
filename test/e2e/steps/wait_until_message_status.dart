@@ -14,38 +14,62 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until message with provided status is present.
+/// Waits until message in chat with provided user, status and text is present.
 ///
 /// Examples:
-/// - Then I wait until message status is sending
-/// - Then I wait until message status is error
-/// - Then I wait until message status is sent
+/// - Then I wait until message with text "123" in chat with Bob status is
+/// sending
+/// - Then I wait until message with text "123" in chat with Bob status is error
+/// - Then I wait until message with text "123" in chat with Bob status is sent
 final StepDefinitionGeneric waitUntilMessageStatus =
-    then1<SendingStatus, CustomWorld>(
-  'I wait until message status is {sendingStatus}',
-  (status, context) async {
+    then3<String, TestUser, SendingStatus, CustomWorld>(
+  'I wait until message with text {string} in chat with {user} status is {sendingStatus}',
+  (text, user, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-        return status == SendingStatus.sending
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage('SendingMessage'),
-              )
-            : status == SendingStatus.error
-                ? context.world.appDriver.isPresent(
-                    context.world.appDriver
-                        .findByKeySkipOffstage('ErrorMessage'),
-                  )
-                : context.world.appDriver.isPresent(
-                    context.world.appDriver
-                        .findByKeySkipOffstage('SentMessage'),
-                  );
+        ChatService service = Get.find();
+        var chat = service.chats[context.world.sessions[user.name]!.dialog!];
+        var message = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhere((e) => e.text?.val == text);
+        var messageFinder = context.world.appDriver
+            .findByKeySkipOffstage('Message_${message.id}');
+
+        if (await context.world.appDriver.isPresent(messageFinder)) {
+          return status == SendingStatus.sending
+              ? context.world.appDriver.isPresent(
+                  context.world.appDriver.findByDescendant(
+                      messageFinder,
+                      context.world.appDriver
+                          .findByKeySkipOffstage('SendingMessage')),
+                )
+              : status == SendingStatus.error
+                  ? context.world.appDriver.isPresent(
+                      context.world.appDriver.findByDescendant(
+                          messageFinder,
+                          context.world.appDriver
+                              .findByKeySkipOffstage('ErrorMessage')),
+                    )
+                  : context.world.appDriver.isPresent(
+                      context.world.appDriver.findByDescendant(
+                          messageFinder,
+                          context.world.appDriver
+                              .findByKeySkipOffstage('SentMessage')),
+                    );
+        }
+        return false;
       },
     );
   },

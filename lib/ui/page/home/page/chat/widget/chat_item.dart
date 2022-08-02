@@ -318,19 +318,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                                 fit: BoxFit.cover,
                                                 height: 300,
                                               )
-                                        : Image.network(
-                                            '${Config.url}/files${e.original}',
-                                            key: _galleryKeys[i],
-                                            fit: BoxFit.cover,
-                                            height: 300,
-                                            errorBuilder: (_, __, ___) =>
-                                                const SizedBox(
-                                              width: 300.0,
-                                              height: 300.0,
-                                              child: Center(
-                                                child: Icon(
-                                                  Icons.error,
-                                                  color: Colors.red,
+                                        : Container(
+                                            key: const Key('SentImage'),
+                                            child: Image.network(
+                                              '${Config.url}/files${e.original}',
+                                              key: _galleryKeys[i],
+                                              fit: BoxFit.cover,
+                                              height: 300,
+                                              errorBuilder: (_, __, ___) =>
+                                                  const SizedBox(
+                                                width: 300.0,
+                                                height: 300.0,
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.error,
+                                                    color: Colors.red,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -756,21 +759,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
-                              onPressed: () => widget.onReply?.call(),
-                            ),
-                            if (widget.item.value is ChatMessage &&
-                                fromMe &&
-                                (widget.item.value.at
-                                        .add(ChatController.editMessageTimeout)
-                                        .isAfter(PreciseDateTime.now()) ||
-                                    !isRead))
                               ContextMenuButton(
-                                key: const Key('EditButton'),
-                                label: 'btn_edit'.l10n,
-                                onPressed: () => widget.onEdit?.call(),
+                                key: const Key('ReplyButton'),
+                                label: 'btn_reply'.l10n,
+                                onPressed: () => widget.onReply?.call(),
                               ),
                               if (item is ChatMessage &&
                                   fromMe &&
@@ -781,7 +773,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       !isRead))
                                 ContextMenuButton(
                                   key: const Key('EditButton'),
-                                  label: 'btn_edit'.tr,
+                                  label: 'btn_edit'.l10n,
                                   onPressed: () => widget.onEdit?.call(),
                                 ),
                               ContextMenuButton(

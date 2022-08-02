@@ -480,6 +480,8 @@ class ChatController extends GetxController {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
         MessagePopup.error(e);
+      } on ConnectionException {
+        // No-op.
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -673,7 +675,7 @@ class ChatController extends GetxController {
         // No-op.
       }
     } else {
-      MessagePopup.error('err_size_too_big'.tr);
+      MessagePopup.error('err_size_too_big'.l10n);
     }
   }
 

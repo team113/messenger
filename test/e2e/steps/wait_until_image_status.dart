@@ -14,43 +14,64 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until image attachment with provided status is present.
+/// Waits until image in chat with provided user, status and name is present.
 ///
 /// Examples:
-/// - Then I wait until image status is sending
-/// - Then I wait until image status is error
-/// - Then I wait until image status is sent
+/// - Then I wait until image with name "test.jpg" in chat with Bob status is
+/// sending
+/// - Then I wait until image with name "test.jpg" in chat with Bob status is
+/// error
+/// - Then I wait until image with name "test.jpg" in chat with Bob status is
+/// sent
 final StepDefinitionGeneric waitUntilImageStatus =
-    then1<SendingStatus, CustomWorld>(
-  'I wait until image status is {sendingStatus}',
-  (status, context) async {
+    then3<String, TestUser, SendingStatus, CustomWorld>(
+  'I wait until image with name {string} in chat with {user} status is {sendingStatus}',
+  (name, user, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-        return status == SendingStatus.sending
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage('SendingImage'),
-              )
-            : status == SendingStatus.error
-                ? context.world.appDriver.isPresent(
-                    context.world.appDriver.findByKeySkipOffstage('ErrorImage'),
-                  )
-                : Future.value(
-                    await context.world.appDriver.isAbsent(
+        ChatService service = Get.find();
+        var chat = service.chats[context.world.sessions[user.name]!.dialog!];
+        var message = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhere((e) => e.attachments.any((a) => a.filename == name));
+        var messageFinder = context.world.appDriver
+            .findByKeySkipOffstage('Message_${message.id}');
+
+        if (await context.world.appDriver.isPresent(messageFinder)) {
+          return status == SendingStatus.sending
+              ? context.world.appDriver.isPresent(
+                  context.world.appDriver.findByDescendant(
+                      messageFinder,
+                      context.world.appDriver
+                          .findByKeySkipOffstage('SendingImage')),
+                )
+              : status == SendingStatus.error
+                  ? context.world.appDriver.isPresent(
+                      context.world.appDriver.findByDescendant(
+                          messageFinder,
                           context.world.appDriver
-                              .findByKeySkipOffstage('SendingImage'),
-                        ) &&
-                        await context.world.appDriver.isAbsent(
+                              .findByKeySkipOffstage('ErrorImage')),
+                    )
+                  : context.world.appDriver.isPresent(
+                      context.world.appDriver.findByDescendant(
+                          messageFinder,
                           context.world.appDriver
-                              .findByKeySkipOffstage('ErrorImage'),
-                        ),
-                  );
+                              .findByKeySkipOffstage('SentImage')),
+                    );
+        }
+        return false;
       },
     );
   },
