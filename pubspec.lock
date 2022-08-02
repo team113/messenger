@@ -548,7 +548,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.30.0"
+    version: "1.36.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -571,7 +571,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: a443208aea93761a4f7f2fabc543e216ec56c80a
+      resolved-ref: "758f0ad90cbcfe24a25b4e9def635e7a8834f2b9"
       url: "https://github.com/instrumentisto/flutter-webrtc.git"
     source: git
     version: "0.8.0-dev"
@@ -588,7 +588,7 @@ packages:
       name: freezed_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "2.1.0"
   frontend_server_client:
     dependency: transitive
     description:
