@@ -181,9 +181,6 @@ class CallController extends GetxController {
   /// Timeout of a [error] being shown.
   final RxInt errorTimeout = RxInt(0);
 
-  /// Indicator whether the minimized view is being scaled.
-  final RxBool scaled = RxBool(false);
-
   /// Minimized view current width.
   late final RxDouble width;
 
@@ -204,6 +201,9 @@ class CallController extends GetxController {
 
   /// [CallButton]s placed in the [Dock].
   late final RxList<CallButton> buttons;
+
+  /// [GlobalKey] of the [Dock].
+  final GlobalKey dockKey = GlobalKey();
 
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
@@ -246,30 +246,19 @@ class CallController extends GetxController {
   /// while dragging the secondary view.
   final Rx<Alignment?> possibleSecondaryAlignment = Rx(null);
 
-  /// Global key of animated slider buttons dock.
-  final GlobalKey buttonsDockKey = GlobalKey();
-
   /// [Offset] the secondary view has relative to the pan gesture position.
   Offset? secondaryPanningOffset;
 
   /// [GlobalKey] of the secondary view.
   final GlobalKey secondaryKey = GlobalKey();
 
-  /// [StreamController] of the button dock sliding animation.
-  final StreamController dockAnimationStream = StreamController();
+  /// [secondaryBottom] value before the secondary view got relocated with the
+  /// [relocateSecondary] method.
+  double? secondaryBottomShifted;
 
-  /// Initial bottom position of the secondary view before changing position by
-  /// shifting.
-  final RxnDouble secondaryBottomBeforeShift = RxnDouble(null);
-
-  /// Indicator whether [shiftSecondaryView] locked.
-  ///
-  /// Used to limit [shiftSecondaryView] calls to one time in frame.
-  bool _secondaryShiftLocked = false;
-
-  /// Padding from secondary view to bottom dock when secondary view is
-  /// shifted.
-  final double _shiftPadding = 10;
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
 
   /// Height of the title bar.
   static const double titleHeight = 30;
@@ -444,8 +433,6 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    dockAnimationStream.stream.listen((_) => shiftSecondaryView());
-
     _currentCall.value.init(_chatService.me);
 
     Size size = router.context!.mediaQuerySize;
@@ -494,7 +481,7 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
-        secondaryBottomBeforeShift.value = 10;
+        secondaryBottomShifted = secondaryBottom.value;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -561,9 +548,8 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          shiftSecondaryView();
-        });
+        SchedulerBinding.instance
+            .addPostFrameCallback((_) => relocateSecondary());
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -729,7 +715,6 @@ class CallController extends GetxController {
   @override
   void onClose() {
     super.onClose();
-    dockAnimationStream.close();
     _durationTimer?.cancel();
     _showUiWorker.dispose();
     _uiTimer?.cancel();
@@ -869,7 +854,8 @@ class CallController extends GetxController {
       fullscreen.value = true;
       await PlatformUtils.enterFullscreen();
     }
-    shiftSecondaryView();
+
+    relocateSecondary();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1075,62 +1061,66 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
-  /// Moves secondary view up if it intersect with buttons dock, elsewhere
-  /// returns to position before shift.
-  void shiftSecondaryView() {
-    if (buttonsDockKey.currentContext?.findRenderObject() != null &&
-        secondaryKey.currentContext?.findRenderObject() != null &&
-        scaled.isFalse &&
-        secondaryAlignment.value == null &&
+  /// Relocates the secondary view according to the possible intersections.
+  void relocateSecondary() {
+    if (secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&
         secondaryScaled.isFalse &&
-        !_secondaryShiftLocked) {
-      _secondaryShiftLocked = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _secondaryShiftLocked = false;
-      });
+        !_secondaryRelocated) {
+      _secondaryRelocated = true;
 
-      Rect secondaryBounds = secondaryKey.globalPaintBounds!;
-      Rect dockBounds = buttonsDockKey.globalPaintBounds!;
-      Rect intersect = secondaryBounds.intersect(dockBounds);
+      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
+      final Rect? dockBounds = dockKey.globalPaintBounds;
+      Rect intersect =
+          secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
 
-      double intersectHeight = intersect.height + _shiftPadding;
+      intersect = Rect.fromLTWH(
+        intersect.left,
+        intersect.top,
+        intersect.width,
+        intersect.height + 10,
+      );
 
-      if (intersect.width > 0 && intersectHeight > 0) {
+      if (intersect.width > 0 && intersect.height > 0) {
+        // Intersection is non-zero, so move the secondary panel up.
         if (secondaryBottom.value != null) {
-          secondaryBottom.value = secondaryBottom.value! + intersectHeight;
+          secondaryBottom.value = secondaryBottom.value! + intersect.height;
         } else {
-          secondaryTop.value = secondaryTop.value! - intersectHeight;
+          secondaryTop.value = secondaryTop.value! - intersect.height;
         }
 
         applySecondaryConstraints();
-      } else if ((intersectHeight < 0 || intersect.width < 0) &&
-          secondaryBottomBeforeShift.value != null) {
-        var bottom = secondaryBottom.value ??
+      } else if ((intersect.height < 0 || intersect.width < 0) &&
+          secondaryBottomShifted != null) {
+        // Intersection is less than zero and the secondary panel is higher than
+        // it was before, so move it to its original position.
+        double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
-        if (bottom > secondaryBottomBeforeShift.value!) {
-          var difference = bottom - secondaryBottomBeforeShift.value!;
+        if (bottom > secondaryBottomShifted!) {
+          double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
-            if (difference.abs() < intersectHeight.abs() ||
+            if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              secondaryBottom.value = secondaryBottomBeforeShift.value;
+              secondaryBottom.value = secondaryBottomShifted;
             } else {
-              secondaryBottom.value = secondaryBottom.value! + intersectHeight;
+              secondaryBottom.value = secondaryBottom.value! + intersect.height;
             }
           } else {
-            if (difference.abs() < intersectHeight.abs() ||
+            if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
-              secondaryTop.value = size.height -
-                  secondaryHeight.value -
-                  secondaryBottomBeforeShift.value!;
+              secondaryTop.value =
+                  size.height - secondaryHeight.value - secondaryBottomShifted!;
             } else {
-              secondaryTop.value = secondaryTop.value! - intersectHeight;
+              secondaryTop.value = secondaryTop.value! - intersect.height;
             }
           }
 
           applySecondaryConstraints();
         }
       }
+
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => _secondaryRelocated = false);
     }
   }
 
@@ -1204,9 +1194,9 @@ class CallController extends GetxController {
           : 0;
     }
 
-    secondaryBottomBeforeShift.value =
+    secondaryBottomShifted =
         secondaryBottom.value ?? size.height - top - secondaryHeight.value;
-    shiftSecondaryView();
+    relocateSecondary();
   }
 
   /// Calculates the [secondaryPanningOffset] based on the provided [offset].
