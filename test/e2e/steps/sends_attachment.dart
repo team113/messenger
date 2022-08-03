@@ -37,7 +37,8 @@ final StepDefinitionGeneric sendsAttachmentToMe =
   (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
-    var type = MimeResolver.lookup(filename);
+
+    String? type = MimeResolver.lookup(filename);
     var response = await provider.uploadAttachment(
       dio.MultipartFile.fromBytes(
         Uint8List.fromList([1, 1]),

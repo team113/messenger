@@ -47,16 +47,16 @@ import '/util/web/web_utils.dart';
 class GalleryItem {
   const GalleryItem({
     required this.link,
-    this.name,
+    required this.name,
     this.isVideo = false,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, {String? name}) =>
+  factory GalleryItem.image(String link, String name) =>
       GalleryItem(link: link, name: name, isVideo: false);
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, {String? name}) =>
+  factory GalleryItem.video(String link, String name) =>
       GalleryItem(link: link, name: name, isVideo: true);
 
   /// Indicator whether this [GalleryItem] is treated as a video.
@@ -65,13 +65,8 @@ class GalleryItem {
   /// Original URL to the file this [GalleryItem] represents.
   final String link;
 
-  /// Name of this [GalleryItem].
-  final String? name;
-
-  /// Returns filename of this [GalleryItem].
-  String get filename =>
-      name ??
-      '${isVideo ? 'VID' : 'IMG'}_${DateTime.now().millisecondsSinceEpoch}.${link.split('.').last}';
+  /// File name associated with this [GalleryItem].
+  final String name;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -350,90 +345,85 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
-          menu: ContextMenu(
-            actions: [
-              ContextMenuButton(
-                label: 'btn_save_to_gallery'.tr,
-                onPressed: () {
-                  var item = widget.children[_page];
-                  saveToGallery(item);
-                },
-              ),
-              ContextMenuButton(
-                label: 'btn_share'.tr,
-                onPressed: () {
-                  var item = widget.children[_page];
-                  share(item);
-                },
-              ),
-              ContextMenuButton(
-                label: 'btn_info'.tr,
-                onPressed: () {},
-              ),
-            ],
-          ),
-          child: PhotoViewGallery.builder(
-            scrollPhysics: const BouncingScrollPhysics(),
-            wantKeepAlive: false,
-            builder: (BuildContext context, int index) {
-              GalleryItem e = widget.children[index];
-              if (!e.isVideo) {
-                return PhotoViewGalleryPageOptions(
-                  imageProvider: NetworkImage(e.link),
-                  initialScale: PhotoViewComputedScale.contained * 0.99,
-                  minScale: PhotoViewComputedScale.contained * 0.99,
-                  maxScale: PhotoViewComputedScale.contained * 3,
-                );
-              }
+        menu: ContextMenu(
+          actions: [
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.tr,
+              onPressed: () => _saveToGallery(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_share'.tr,
+              onPressed: () => _share(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.tr,
+              onPressed: () {},
+            ),
+          ],
+        ),
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          wantKeepAlive: false,
+          builder: (BuildContext context, int index) {
+            GalleryItem e = widget.children[index];
 
-              return PhotoViewGalleryPageOptions.customChild(
-                disableGestures: e.isVideo,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: e.isVideo
-                      ? Video(
-                          e.link,
-                          onClose: _dismiss,
-                          isFullscreen: _isFullscreen,
-                          toggleFullscreen: () {
-                            node.requestFocus();
-                            _toggleFullscreen();
-                          },
-                          onController: (c) {
-                            if (c == null) {
-                              _videoControllers.remove(index);
-                            } else {
-                              _videoControllers[index] = c;
-                            }
-                          },
-                        )
-                      : Image.network(e.link),
-                ),
-                minScale: PhotoViewComputedScale.contained,
+            if (!e.isVideo) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(e.link),
+                initialScale: PhotoViewComputedScale.contained * 0.99,
+                minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
               );
-            },
-            itemCount: widget.children.length,
-            loadingBuilder: (context, event) => Center(
-              child: SizedBox(
-                width: 20.0,
-                height: 20.0,
-                child: CircularProgressIndicator(
-                  value: event == null
-                      ? 0
-                      : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                ),
+            }
+
+            return PhotoViewGalleryPageOptions.customChild(
+              disableGestures: e.isVideo,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? Video(
+                        e.link,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                      )
+                    : Image.network(e.link),
+              ),
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.contained * 3,
+            );
+          },
+          itemCount: widget.children.length,
+          loadingBuilder: (context, event) => Center(
+            child: SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
               ),
             ),
-            backgroundDecoration:
-                const BoxDecoration(color: Colors.transparent),
-            pageController: _pageController,
-            onPageChanged: (i) {
-              setState(() => _page = i);
-              _bounds = _calculatePosition() ?? _bounds;
-              widget.onPageChanged?.call(i);
-            },
-          ));
+          ),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          pageController: _pageController,
+          onPageChanged: (i) {
+            setState(() => _page = i);
+            _bounds = _calculatePosition() ?? _bounds;
+            widget.onPageChanged?.call(i);
+          },
+        ),
+      );
     }
 
     // Otherwise use the default [PageView].
@@ -475,10 +465,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         actions: [
                           ContextMenuButton(
                             label: 'btn_download'.tr,
-                            onPressed: () {
-                              var item = widget.children[_page];
-                              download(item);
-                            },
+                            onPressed: () => _download(widget.children[_page]),
                           ),
                           ContextMenuButton(
                             label: 'btn_info'.tr,
@@ -817,37 +804,47 @@ class _GalleryPopupState extends State<GalleryPopup>
       setState(() => _ignorePageSnapping = false);
     });
   }
-}
 
-/// Downloads provided [GalleryItem].
-Future<void> download(GalleryItem item) async {
-  await PlatformUtils.download(item.link, item.filename);
-  MessagePopup.success(
-      item.isVideo ? 'label_video_downloaded'.tr : 'label_image_downloaded'.tr);
-}
+  /// Downloads the provided [GalleryItem].
+  Future<void> _download(GalleryItem item) async {
+    try {
+      await PlatformUtils.download(item.link, item.name);
+      MessagePopup.success(item.isVideo
+          ? 'label_video_downloaded'.tr
+          : 'label_image_downloaded'.tr);
+    } catch (_) {
+      MessagePopup.success('err_could_not_download'.tr);
+    }
+  }
 
-/// Downloads provided [GalleryItem] and save it ot gallery.
-Future<void> saveToGallery(GalleryItem item) async {
-  var filename = item.filename;
-  var appDocDir = await getTemporaryDirectory();
-  String savePath = '${appDocDir.path}/$filename';
-  await Dio().download(item.link, savePath);
-  await ImageGallerySaver.saveFile(savePath, name: filename);
-  File(savePath).delete();
-  MessagePopup.success(
-    item.isVideo
-        ? 'label_video_saved_to_gallery'.tr
-        : 'label_image_saved_to_gallery'.tr,
-  );
-}
+  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  Future<void> _saveToGallery(GalleryItem item) async {
+    try {
+      Directory temp = await getTemporaryDirectory();
 
-/// Downloads provided [GalleryItem] and open `Share` dialog with it.
-Future<void> share(GalleryItem item) async {
-  var appDocDir = await getTemporaryDirectory();
-  String savePath = '${appDocDir.path}/${item.filename}';
-  await Dio().download(item.link, savePath);
-  await Share.shareFiles([savePath]);
-  File(savePath).delete();
+      String path = '${temp.path}/${item.name}';
+      await Dio().download(item.link, path);
+      await ImageGallerySaver.saveFile(path, name: item.name);
+      File(path).delete();
+
+      MessagePopup.success(
+        item.isVideo
+            ? 'label_video_saved_to_gallery'.tr
+            : 'label_image_saved_to_gallery'.tr,
+      );
+    } catch (_) {
+      MessagePopup.success('err_could_not_download'.tr);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and opens a share dialog with it.
+  Future<void> _share(GalleryItem item) async {
+    var appDocDir = await getTemporaryDirectory();
+    String savePath = '${appDocDir.path}/${item.name}';
+    await Dio().download(item.link, savePath);
+    await Share.shareFiles([savePath]);
+    File(savePath).delete();
+  }
 }
 
 /// Extension of a [GlobalKey] allowing getting global

@@ -431,10 +431,10 @@ class WebUtils {
     return null;
   }
 
-  /// Downloads the file by provided [url].
-  static downloadFile(String url, String fileName) {
+  /// Downloads the file from the provided [url].
+  static void downloadFile(String url, String name) {
     html.AnchorElement anchorElement = html.AnchorElement(href: url);
-    anchorElement.download = fileName;
+    anchorElement.download = name;
     anchorElement.click();
   }
 

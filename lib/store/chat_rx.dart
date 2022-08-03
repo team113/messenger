@@ -320,10 +320,8 @@ class HiveRxChat implements RxChat {
 
   /// Initialize the [messages] attachments downloaded status.
   Future<void> _initAttachmentsDownloaded() async {
-    for (var message in messages) {
-      if (message.value is ChatMessage) {
-        await _setAttachmentsDownloaded(message.value as ChatMessage);
-      }
+    for (var message in messages.where((e) => e.value is ChatMessage)) {
+      await _setAttachmentsDownloaded(message.value as ChatMessage);
     }
   }
 
@@ -331,32 +329,32 @@ class HiveRxChat implements RxChat {
   Future<void> _setAttachmentsDownloaded(ChatMessage message) async {
     var attachments = message.attachments.whereType<FileAttachment>();
     if (attachments.isNotEmpty) {
-      String path = await PlatformUtils.downloadPath;
-      for (var attachment in attachments) {
-        if (attachment.localPath != null) {
-          var file = File(attachment.localPath!);
+      String path = await PlatformUtils.downloadsDirectory;
+      for (FileAttachment attachment in attachments) {
+        if (attachment.local != null) {
+          var file = File(attachment.local!);
           if (await file.exists() && await file.length() == attachment.size) {
-            attachment.downloadingStatus.value = DownloadingStatus.downloaded;
+            attachment.downloading.value = DownloadingStatus.downloaded;
             return;
           }
         }
 
         String name = p.basenameWithoutExtension(attachment.filename);
-        String extension = p.extension(attachment.filename);
+        String ext = p.extension(attachment.filename);
+        File file = File('$path/${attachment.filename}');
 
-        var file = File('$path/${attachment.filename}');
-        int i = 1;
-        while (await file.exists() && await file.length() != attachment.size) {
-          file = File('$path/$name ($i)$extension');
-          i++;
+        for (int i = 1;
+            await file.exists() && await file.length() != attachment.size;
+            ++i) {
+          file = File('$path/$name ($i)$ext');
         }
 
         if (await file.exists()) {
-          attachment.downloadingStatus.value = DownloadingStatus.downloaded;
-          attachment.localPath = file.path;
+          attachment.downloading.value = DownloadingStatus.downloaded;
+          attachment.local = file.path;
         } else {
-          attachment.downloadingStatus.value = DownloadingStatus.empty;
-          attachment.localPath = null;
+          attachment.downloading.value = DownloadingStatus.empty;
+          attachment.local = null;
         }
       }
     }

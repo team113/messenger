@@ -180,6 +180,7 @@ err_contact_not_group = Чат с указанным ID не является г
 err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
 err_contact_unknown_user = Пользователь с указанным ID не существует
+err_could_not_download = При загрузке произошла ошибка
 err_current_password_empty = Текущий пароль не должен быть пустым
 err_data_transfer =
     Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.

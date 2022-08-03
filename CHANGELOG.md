@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chat page:
-        - Attachments downloading and sharing ([#12]).
+        - Attachments downloading and sharing ([#12], [#11]).
 
 ### Changed
 
@@ -48,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#6]: /../../issues/6
 [#7]: /../../pull/7
 [#9]: /../../pull/9
+[#11]: /../../issues/11
 [#12]: /../../pull/12
 [#14]: /../../pull/14
 [#15]: /../../pull/15
