@@ -62,9 +62,6 @@ class CallController extends GetxController {
   /// Reactive [Chat] that this [OngoingCall] is happening in.
   final Rx<RxChat?> chat = Rx<RxChat?>(null);
 
-  /// Indicator whether the view is being minimized.
-  final RxBool minimizing = RxBool(false);
-
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
@@ -261,11 +258,14 @@ class CallController extends GetxController {
   /// Height of the title bar.
   static const double titleHeight = 30;
 
-  /// Width of the mobile minimized view in pixels.
-  static const double mobileMinimizedWidth = 150;
+  /// Indicator whether the [MinimizableView] is being minimized.
+  final RxBool minimizing = RxBool(false);
 
-  /// Height of the mobile minimized view in pixels.
-  static const double mobileMinimizedHeight = 150;
+  /// Width of the [MinimizableView] in pixels.
+  static const double minimizedWidth = 150;
+
+  /// Height of the [MinimizableView] in pixels.
+  static const double minimizedHeight = 150;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -454,9 +454,9 @@ class CallController extends GetxController {
     isMobile = router.context!.isMobile;
 
     if (isMobile) {
-      var mediaQuerySize = router.context!.mediaQuerySize;
-      width = RxDouble(mediaQuerySize.width);
-      height = RxDouble(mediaQuerySize.height);
+      Size size = router.context!.mediaQuerySize;
+      width = RxDouble(size.width);
+      height = RxDouble(size.height);
     } else {
       width = RxDouble(
         min(

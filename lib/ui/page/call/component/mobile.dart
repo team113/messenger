@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
+import 'dart:ui' show lerpDouble;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -593,13 +594,10 @@ Widget mobileCall(CallController c, BuildContext context) {
       c.applySecondaryConstraints();
     }
 
-    double minimizedWidth = CallController.mobileMinimizedWidth;
-    double minimizedHeight = CallController.mobileMinimizedHeight;
-
     return Obx(() {
       return MinimizableView(
-        minimizedWidth: minimizedWidth,
-        minimizedHeight: minimizedHeight,
+        minimizedWidth: CallController.minimizedWidth,
+        minimizedHeight: CallController.minimizedHeight,
         minimizationEnabled: !c.secondaryManipulated.value,
         onInit: (animation) {
           c.minimizedAnimation = animation;
@@ -609,8 +607,8 @@ Widget mobileCall(CallController c, BuildContext context) {
               c.minimized.value = animation.value != 0;
             } else {
               if (animation.value != 0) {
-                c.keepUi(false);
                 c.hoveredRenderer.value = null;
+                c.keepUi(false);
               }
               c.minimized.value = animation.value == 1;
               if (animation.value == 1 || animation.value == 0) {
@@ -619,11 +617,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                 c.minimizing.value = true;
               }
 
-              var mediaQuerySize = router.context!.mediaQuerySize;
-              c.width.value = mediaQuerySize.width -
-                  (mediaQuerySize.width - minimizedWidth) * animation.value;
-              c.height.value = mediaQuerySize.height -
-                  (mediaQuerySize.height - minimizedHeight) * animation.value;
+              Size size = router.context!.mediaQuerySize;
+              c.width.value = lerpDouble(
+                  size.width, CallController.minimizedWidth, animation.value)!;
+              c.height.value = lerpDouble(size.height,
+                  CallController.minimizedHeight, animation.value)!;
             }
           });
         },

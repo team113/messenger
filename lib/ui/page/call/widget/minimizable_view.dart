@@ -45,10 +45,10 @@ class MinimizableView extends StatefulWidget {
   /// minimization gesture.
   final double minimizationDelta;
 
-  /// Minimized width of this view.
+  /// Width of this [MinimizableView] in its minimized state.
   final double minimizedWidth;
 
-  /// Minimized height of this view.
+  /// Height of this [MinimizableView] in its minimized state.
   final double minimizedHeight;
 
   /// [Widget] to minimize.
