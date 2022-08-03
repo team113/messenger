@@ -72,9 +72,8 @@ class Routes {
   static const chat = '/chat';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
-  static const contact = '/contact'; // TODO: check is needed
-  static const home = '/'; // TODO: check is needed
-  static const login = '/login'; // TODO: check is needed
+  static const contact = '/contact';
+  static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
   static const settings = '/settings';

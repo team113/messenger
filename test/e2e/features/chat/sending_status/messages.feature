@@ -45,7 +45,7 @@ Feature: Chat messages has correct sending status
     Then I long press message with text "123" in chat with Bob
     And I wait until `Delete` is present
     And I tap `Delete` button
-    And I wait until `ErrorMessage` is absent
+    And I wait until text "123" is absent
 
   Scenario: User resends message
     Given I am Alice

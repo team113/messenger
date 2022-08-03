@@ -53,7 +53,7 @@ import 'steps/users.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_image_status.dart';
 import 'steps/wait_until_message_status.dart';
-import 'steps/wait_until_text_exists.dart';
+import 'steps/wait_until_text.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -155,4 +155,8 @@ extension SkipOffstageExtension on AppDriverAdapter {
   /// Finds widget by provided [key] with `skipOffstage`: `false`.
   Finder findByKeySkipOffstage(String key) =>
       find.byKey(Key(key), skipOffstage: false);
+
+  /// Finds widget by provided [text] with `skipOffstage`: `false`.
+  Finder findByTextSkipOffstage(String text) =>
+      find.text(text, skipOffstage: false);
 }
