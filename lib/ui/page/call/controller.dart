@@ -621,15 +621,16 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
+          _putParticipant(
+            e.key!,
+            handRaised: e.value?.isHandRaised,
+            hasVideo: e.value?.hasVideo,
+          );
+
           if (!e.value!.isSharingAllowed && !e.value!.hasSharing) {
             _removeParticipant(e.key!);
-          } else {
-            _putParticipant(
-              e.key!,
-              handRaised: e.value?.isHandRaised,
-              hasVideo: e.value?.hasVideo,
-            );
           }
+
           _insureCorrectGrouping();
           break;
       }

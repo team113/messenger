@@ -347,6 +347,19 @@ class OngoingCall {
           });
 
           track.onMediaDirectionChanged((TrackMediaDirection d) {
+            if (track.kind() == MediaKind.Video) {
+              bool isVideoAvailable = d == TrackMediaDirection.SendRecv ||
+                  d == TrackMediaDirection.SendOnly;
+              members.update(id, (value) {
+                switch (track.mediaSourceKind()) {
+                  case MediaSourceKind.Device:
+                    return value..hasVideo = isVideoAvailable;
+                  case MediaSourceKind.Display:
+                    return value..hasSharing = isVideoAvailable;
+                }
+              });
+            }
+
             switch (d) {
               case TrackMediaDirection.SendRecv:
                 _addRemoteTrack(conn, track);
@@ -365,19 +378,6 @@ class OngoingCall {
               case TrackMediaDirection.Inactive:
                 _removeRemoteTrack(track);
                 break;
-            }
-
-            if (track.kind() == MediaKind.Video) {
-              bool isVideoAvailable = d == TrackMediaDirection.SendRecv ||
-                  d == TrackMediaDirection.SendOnly;
-              members.update(id, (value) {
-                switch (track.mediaSourceKind()) {
-                  case MediaSourceKind.Device:
-                    return value..hasVideo = isVideoAvailable;
-                  case MediaSourceKind.Display:
-                    return value..hasSharing = isVideoAvailable;
-                }
-              });
             }
           });
           if (track.mediaSourceKind() == MediaSourceKind.Display &&
@@ -1070,7 +1070,9 @@ class OngoingCall {
             track, RemoteMemberId.fromString(conn.getRemoteMemberId()));
         await renderer.initialize();
         renderer.srcObject = track.getTrack();
-        if (!track.muted()) {
+        if (!track.muted() &&
+            (track.mediaDirection() == TrackMediaDirection.SendRecv ||
+                track.mediaSourceKind() == MediaSourceKind.Display)) {
           remoteVideos.add(renderer);
         }
         return renderer;
