@@ -84,7 +84,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             child: GestureDetector(
               onScaleStart: (d) {
                 c.secondaryBottomShifted = null;
-                
+
                 c.secondaryLeft.value ??= c.size.width -
                     c.secondaryWidth.value -
                     (c.secondaryRight.value ?? 0);
