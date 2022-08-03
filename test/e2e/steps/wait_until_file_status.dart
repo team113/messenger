@@ -24,7 +24,8 @@ import '../parameters/sending_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until file in chat with provided user, status and name is present.
+/// Waits until file with provided status and name in chat with provided user is
+/// present.
 ///
 /// Examples:
 /// - Then I wait until image with name "test.txt" in chat with Bob status is
@@ -71,6 +72,7 @@ final StepDefinitionGeneric waitUntilFileStatus =
                               .findByKeySkipOffstage('SentFile')),
                     );
         }
+
         return false;
       },
     );

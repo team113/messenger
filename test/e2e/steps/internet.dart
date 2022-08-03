@@ -52,7 +52,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   }),
 );
 
-/// Replaces [GraphQlProvider] to [MockGraphQlProvider] with `hasError`: true.
+/// Adds throwing exceptions on all `GraphQL` requests.
 ///
 /// Examples:
 /// - I do not have Internet

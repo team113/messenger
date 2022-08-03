@@ -23,7 +23,7 @@ import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Long press message in chat with provided user and text.
+/// Long press message with provided text in chat with provided user.
 ///
 /// Examples:
 /// - Then I long press message with text "123" in chat with Bob
@@ -46,7 +46,7 @@ final StepDefinitionGeneric longPressMessageByText =
   },
 );
 
-/// Long press message in chat with provided user and text.
+/// Long press message with provided attachment name in chat with provided user.
 ///
 /// Examples:
 /// - Then I long press message with attachment "test.jpg" in chat with Bob

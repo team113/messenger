@@ -1,6 +1,6 @@
 Feature: Chat attachments has correct sending status
 
-  Scenario: User sends a file attachment
+  Scenario: File attachment status changes from `sending` to `sent`
     Given I am Alice
     And user Bob
     And Bob has dialog with me
@@ -15,7 +15,7 @@ Feature: Chat attachments has correct sending status
     And I wait until file with name "test.txt" in chat with Bob status is sending
     And I wait until file with name "test.txt" in chat with Bob status is sent
 
-  Scenario: User sends an image attachment
+  Scenario: Image attachment status changes from `sending` to `sent`
     Given I am Alice
     And user Bob
     And Bob has dialog with me

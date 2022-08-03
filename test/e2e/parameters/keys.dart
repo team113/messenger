@@ -35,7 +35,6 @@ enum WidgetKey {
   Delete,
   DeleteAccountButton,
   EmailsExpandable,
-  ErrorMessage,
   HomeView,
   Language_enUS,
   Language_ruRU,

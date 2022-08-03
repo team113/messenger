@@ -24,7 +24,8 @@ import '../parameters/sending_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until message in chat with provided user, status and text is present.
+/// Waits until message with provided status and text in chat with provided user
+/// is present.
 ///
 /// Examples:
 /// - Then I wait until message with text "123" in chat with Bob status is
@@ -69,6 +70,7 @@ final StepDefinitionGeneric waitUntilMessageStatus =
                               .findByKeySkipOffstage('SentMessage')),
                     );
         }
+
         return false;
       },
     );

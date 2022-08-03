@@ -24,7 +24,8 @@ import '../parameters/sending_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until image in chat with provided user, status and name is present.
+/// Waits until image with provided status and name in chat with provided user
+/// is present.
 ///
 /// Examples:
 /// - Then I wait until image with name "test.jpg" in chat with Bob status is
@@ -71,6 +72,7 @@ final StepDefinitionGeneric waitUntilImageStatus =
                               .findByKeySkipOffstage('SentImage')),
                     );
         }
+
         return false;
       },
     );
