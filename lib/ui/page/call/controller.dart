@@ -1273,7 +1273,9 @@ class CallController extends GetxController {
     secondaryWidth.value = _applySWidth(secondaryWidth.value);
     secondaryHeight.value = _applySHeight(secondaryHeight.value);
     secondaryLeft.value = _applySLeft(secondaryLeft.value);
+    secondaryRight.value = _applySRight(secondaryRight.value);
     secondaryTop.value = _applySTop(secondaryTop.value);
+    secondaryBottom.value = _applySBottom(secondaryBottom.value);
 
     // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
@@ -1511,6 +1513,19 @@ class CallController extends GetxController {
     return left;
   }
 
+  /// Returns corrected according to secondary constraints [right] value.
+  double? _applySRight(double? right) {
+    if (right != null) {
+      if (right + secondaryWidth.value > size.width) {
+        return size.width - secondaryWidth.value;
+      } else if (right < 0) {
+        return 0;
+      }
+    }
+
+    return right;
+  }
+
   /// Returns corrected according to secondary constraints [top] value.
   double? _applySTop(double? top) {
     if (top != null) {
@@ -1522,6 +1537,19 @@ class CallController extends GetxController {
     }
 
     return top;
+  }
+
+  /// Returns corrected according to secondary constraints [bottom] value.
+  double? _applySBottom(double? bottom) {
+    if (bottom != null) {
+      if (bottom + secondaryHeight.value > size.height) {
+        return size.height - secondaryHeight.value;
+      } else if (bottom < 0) {
+        return 0;
+      }
+    }
+
+    return bottom;
   }
 
   /// Returns corrected according to constraints [width] value.
