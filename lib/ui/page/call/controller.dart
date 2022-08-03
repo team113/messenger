@@ -83,11 +83,18 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
+  /// Indicator whether the secondary view is being scaled.
+  final RxBool secondaryScaled = RxBool(false);
+
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
   /// Indicator whether the secondary view is being dragged.
   final RxBool secondaryDragged = RxBool(false);
+
+  /// Indicator whether the secondary view is being manipulated in any way, be
+  /// that scaling or panning.
+  final RxBool secondaryManipulated = RxBool(false);
 
   /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
@@ -230,6 +237,10 @@ class CallController extends GetxController {
 
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
+
+  /// [secondaryWidth] or [secondaryHeight] of the secondary view before its
+  /// scaling.
+  double? secondaryUnscaledSize;
 
   /// [Alignment] of the secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
@@ -1344,6 +1355,38 @@ class CallController extends GetxController {
 
     applySecondaryConstraints();
     updateSecondaryAttach();
+  }
+
+  /// Scales the secondary view by the provided [scale].
+  void scaleSecondary(double scale) {
+    _scaleSWidth(scale);
+    _scaleSHeight(scale);
+  }
+
+  /// Scales the [secondaryWidth] according to the provided [scale].
+  void _scaleSWidth(double scale) {
+    double width = _applySWidth(secondaryUnscaledSize! * scale);
+    if (width != secondaryWidth.value) {
+      double widthDifference = width - secondaryWidth.value;
+      secondaryWidth.value = width;
+      secondaryLeft.value =
+          _applySLeft(secondaryLeft.value! - widthDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(widthDifference / 2, 0);
+    }
+  }
+
+  /// Scales the [secondaryHeight] according to the provided [scale].
+  void _scaleSHeight(double scale) {
+    double height = _applySHeight(secondaryUnscaledSize! * scale);
+    if (height != secondaryHeight.value) {
+      double heightDifference = height - secondaryHeight.value;
+      secondaryHeight.value = height;
+      secondaryTop.value =
+          _applySTop(secondaryTop.value! - heightDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(0, heightDifference / 2);
+    }
   }
 
   /// Returns corrected according to secondary constraints [width] value.
