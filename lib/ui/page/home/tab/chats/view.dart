@@ -76,7 +76,7 @@ class ChatsTabView extends StatelessWidget {
                               .map(
                                 (e) => KeyedSubtree(
                                   key: Key('Chat_${e.chat.value.id}'),
-                                  child: buildChatTile(c, e),
+                                  child: buildChatTile(c, e, context),
                                 ),
                               )
                               .toList(),
@@ -90,7 +90,9 @@ class ChatsTabView extends StatelessWidget {
   }
 
   /// Reactive [ListTile] with [chat]'s information.
-  Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
+  Widget buildChatTile(
+          ChatsTabController c, RxChat rxChat, BuildContext context) =>
+      Obx(() {
         Chat chat = rxChat.chat.value;
 
         const Color subtitleColor = Color(0xFF666666);
@@ -100,7 +102,7 @@ class ChatsTabView extends StatelessWidget {
             .where((e) => e.id != c.me)
             .map((e) => e.name?.val ?? e.num.val);
 
-        if (chat.currentCall == null) {
+        if (chat.currentCall != null) {
           if (typings.isNotEmpty) {
             subtitle = [
               Expanded(
@@ -135,7 +137,7 @@ class ChatsTabView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
                       onPressed: () => c.joinCall(chat.id),
-                      child: Text('btn_chat_join_call'.l10n),
+                      child: Text('btn_join_call'.l10n),
                     ),
                   ),
                 ];
@@ -203,15 +205,37 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
                   onPressed: () => c.joinCall(chat.id),
-                  child: Text(
-                    'btn_chat_join_call'.l10n,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(
+                      Icons.call,
+                      size: 21,
+                      color: Colors.white,
+                    ),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: Text(
+                          'btn_join_call'.l10n,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ]),
                 ),
               ),
             ),
-            // TODO: Implement join call button with video
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
+              child: ElevatedButton(
+                onPressed: () {},
+                child: const Icon(
+                  Icons.video_call,
+                  size: 22,
+                  color: Colors.white,
+                ),
+              ),
+            )
           ];
         }
 
