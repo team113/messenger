@@ -24,6 +24,7 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.onSizeChanged,
     this.minimizationEnabled = true,
     this.minimizationDelta = 50,
     required this.child,
@@ -35,6 +36,9 @@ class MinimizableView extends StatefulWidget {
 
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
+
+  /// Callback, called when [Size] of this [MinimizableView] is changed.
+  final void Function(Size)? onSizeChanged;
 
   /// Indicator whether the minimizing gesture is enabled.
   final bool minimizationEnabled;
@@ -53,11 +57,8 @@ class MinimizableView extends StatefulWidget {
 /// State of a [MinimizableView] used to animate its child.
 class _MinimizableViewState extends State<MinimizableView>
     with SingleTickerProviderStateMixin {
-  /// Minimized width of this view.
-  static const double _width = 150;
-
-  /// Minimized height of this view.
-  static const double _height = 150;
+  /// [Size] of this [MinimizableView] in its minimized state.
+  static const Size _size = Size(150, 150);
 
   /// [AnimationController] of this view.
   late final AnimationController _controller;
@@ -145,10 +146,10 @@ class _MinimizableViewState extends State<MinimizableView>
                 begin: RelativeRect.fill,
                 end: RelativeRect.fromSize(
                   Rect.fromLTWH(
-                    biggest.width - _width - _right,
-                    biggest.height - _height - _bottom - _padding.bottom,
-                    _width,
-                    _height,
+                    biggest.width - _size.width - _right,
+                    biggest.height - _size.height - _bottom - _padding.bottom,
+                    _size.width,
+                    _size.height,
                   ),
                   biggest,
                 ),
@@ -224,6 +225,9 @@ class _MinimizableViewState extends State<MinimizableView>
       begin: BorderRadius.zero,
       end: BorderRadius.circular(10),
     ).evaluate(_controller);
+
+    widget.onSizeChanged?.call(
+        SizeTween(begin: _lastBiggest, end: _size).evaluate(_controller)!);
 
     setState(() {});
   }
