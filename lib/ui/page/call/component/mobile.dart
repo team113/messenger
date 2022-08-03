@@ -610,16 +610,23 @@ Widget mobileCall(CallController c, BuildContext context) {
               c.minimized.value = animation.value != 0;
             } else {
               if (animation.value != 0) {
+                c.hoveredRenderer.value = null;
                 c.keepUi(false);
               }
               c.minimized.value = animation.value == 1;
-              if (c.minimized.value) {
-                c.hoveredRenderer.value = null;
+              if (animation.value == 1 || animation.value == 0) {
+                c.minimizing.value = false;
+              } else {
+                c.minimizing.value = true;
               }
             }
           });
         },
         onDispose: () => c.minimizedAnimation = null,
+        onSizeChanged: (s) {
+          c.width.value = s.width;
+          c.height.value = s.height;
+        },
         child: Obx(() {
           return IgnorePointer(
             ignoring: c.minimized.value,
