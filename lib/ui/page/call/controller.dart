@@ -261,12 +261,6 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
-  /// Width of the [MinimizableView] in pixels.
-  static const double minimizedWidth = 150;
-
-  /// Height of the [MinimizableView] in pixels.
-  static const double minimizedHeight = 150;
-
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
 
@@ -400,7 +394,7 @@ class CallController extends GetxController {
 
   /// Returns actual size of the call view.
   Size get size {
-    if (!fullscreen.value && minimized.value || minimizing.isTrue) {
+    if ((!fullscreen.value && minimized.value) || minimizing.value) {
       return Size(width.value, height.value - (isMobile ? 0 : titleHeight));
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       // TODO: Account [BuildContext.mediaQueryPadding].

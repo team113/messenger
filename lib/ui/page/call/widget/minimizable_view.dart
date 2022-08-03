@@ -24,10 +24,9 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.onSizeChanged,
     this.minimizationEnabled = true,
     this.minimizationDelta = 50,
-    this.minimizedWidth = 150,
-    this.minimizedHeight = 150,
     required this.child,
   }) : super(key: key);
 
@@ -38,18 +37,15 @@ class MinimizableView extends StatefulWidget {
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
 
+  /// Callback, called when [Size] of this [MinimizableView] is changed.
+  final void Function(Size)? onSizeChanged;
+
   /// Indicator whether the minimizing gesture is enabled.
   final bool minimizationEnabled;
 
   /// Distance to travel in order for the panning to be recognized as a
   /// minimization gesture.
   final double minimizationDelta;
-
-  /// Width of this [MinimizableView] in its minimized state.
-  final double minimizedWidth;
-
-  /// Height of this [MinimizableView] in its minimized state.
-  final double minimizedHeight;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -61,6 +57,9 @@ class MinimizableView extends StatefulWidget {
 /// State of a [MinimizableView] used to animate its child.
 class _MinimizableViewState extends State<MinimizableView>
     with SingleTickerProviderStateMixin {
+  /// [Size] of this [MinimizableView] in its minimized state.
+  static const Size _size = Size(150, 150);
+
   /// [AnimationController] of this view.
   late final AnimationController _controller;
 
@@ -147,13 +146,10 @@ class _MinimizableViewState extends State<MinimizableView>
                 begin: RelativeRect.fill,
                 end: RelativeRect.fromSize(
                   Rect.fromLTWH(
-                    biggest.width - widget.minimizedWidth - _right,
-                    biggest.height -
-                        widget.minimizedHeight -
-                        _bottom -
-                        _padding.bottom,
-                    widget.minimizedWidth,
-                    widget.minimizedHeight,
+                    biggest.width - _size.width - _right,
+                    biggest.height - _size.height - _bottom - _padding.bottom,
+                    _size.width,
+                    _size.height,
                   ),
                   biggest,
                 ),
@@ -229,6 +225,9 @@ class _MinimizableViewState extends State<MinimizableView>
       begin: BorderRadius.zero,
       end: BorderRadius.circular(10),
     ).evaluate(_controller);
+
+    widget.onSizeChanged?.call(
+        SizeTween(begin: _lastBiggest, end: _size).evaluate(_controller)!);
 
     setState(() {});
   }

@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
-import 'dart:ui' show lerpDouble;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -596,8 +595,6 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     return Obx(() {
       return MinimizableView(
-        minimizedWidth: CallController.minimizedWidth,
-        minimizedHeight: CallController.minimizedHeight,
         minimizationEnabled: !c.secondaryManipulated.value,
         onInit: (animation) {
           c.minimizedAnimation = animation;
@@ -616,16 +613,14 @@ Widget mobileCall(CallController c, BuildContext context) {
               } else {
                 c.minimizing.value = true;
               }
-
-              Size size = router.context!.mediaQuerySize;
-              c.width.value = lerpDouble(
-                  size.width, CallController.minimizedWidth, animation.value)!;
-              c.height.value = lerpDouble(size.height,
-                  CallController.minimizedHeight, animation.value)!;
             }
           });
         },
         onDispose: () => c.minimizedAnimation = null,
+        onSizeChanged: (s) {
+          c.width.value = s.width;
+          c.height.value = s.height;
+        },
         child: Obx(() {
           return IgnorePointer(
             ignoring: c.minimized.value,
