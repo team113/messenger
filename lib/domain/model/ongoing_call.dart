@@ -315,23 +315,26 @@ class OngoingCall {
                   .firstWhereOrNull((e) => e.user.id == id.userId)
                   ?.handRaised ??
               false,
+          isSharingAllowed: isRemoteVideoEnabled.value,
         );
         conn.onClose(() => members.remove(id));
         conn.onRemoteTrackAdded((track) async {
           var renderer = await _addRemoteTrack(conn, track);
 
-          bool isVideoAvailable =
-              track.mediaDirection() == TrackMediaDirection.SendRecv ||
-                  track.mediaDirection() == TrackMediaDirection.SendOnly;
+          if (track.kind() == MediaKind.Video) {
+            bool isVideoAvailable =
+                track.mediaDirection() == TrackMediaDirection.SendRecv ||
+                    track.mediaDirection() == TrackMediaDirection.SendOnly;
 
-          members.update(id, (value) {
-            switch (track.mediaSourceKind()) {
-              case MediaSourceKind.Device:
-                return value..hasVideo = isVideoAvailable;
-              case MediaSourceKind.Display:
-                return value..hasSharing = isVideoAvailable;
-            }
-          });
+            members.update(id, (value) {
+              switch (track.mediaSourceKind()) {
+                case MediaSourceKind.Device:
+                  return value..hasVideo = isVideoAvailable;
+                case MediaSourceKind.Display:
+                  return value..hasSharing = isVideoAvailable;
+              }
+            });
+          }
 
           track.onMuted(() {
             renderer.muted = true;
@@ -350,20 +353,13 @@ class OngoingCall {
                 break;
               case TrackMediaDirection.SendOnly:
                 if (track.mediaSourceKind() == MediaSourceKind.Display) {
-                  if (members[id]?.isSharingAllowed == true) {
-                    _addRemoteTrack(conn, track);
-                  } else {
-                    members[id]?.hasSharing == true
-                        ? _removeRemoteTrack(track)
-                        : _addRemoteTrack(conn, track).then((_) async =>
-                            await setRemoteVideoEnabled(
-                                value: false,
-                                id: id,
-                                source: MediaSourceKind.Display));
-                  }
-                } else {
-                  _removeRemoteTrack(track);
+                  _addRemoteTrack(conn, track).then((_) {
+                    if (members[id]?.isSharingAllowed == false) {
+                      _removeRemoteTrack(track);
+                    }
+                  });
                 }
+                _removeRemoteTrack(track);
                 break;
               case TrackMediaDirection.RecvOnly:
               case TrackMediaDirection.Inactive:
@@ -374,7 +370,6 @@ class OngoingCall {
             if (track.kind() == MediaKind.Video) {
               bool isVideoAvailable = d == TrackMediaDirection.SendRecv ||
                   d == TrackMediaDirection.SendOnly;
-
               members.update(id, (value) {
                 switch (track.mediaSourceKind()) {
                   case MediaSourceKind.Device:
@@ -385,7 +380,11 @@ class OngoingCall {
               });
             }
           });
-
+          if (track.mediaSourceKind() == MediaSourceKind.Display &&
+              members[id]?.isSharingAllowed == false) {
+            setRemoteVideoEnabled(
+                value: false, id: id, source: MediaSourceKind.Display);
+          }
           track.onStopped(() => _removeRemoteTrack(track));
         });
       });
@@ -771,18 +770,37 @@ class OngoingCall {
   }
 
   /// Sets inbound video in this [OngoingCall] as [enabled] or not.
-  ///
-  /// No-op if [isRemoteVideoEnabled] is already [enabled].
   Future<void> setCallVideoEnabled(bool enabled) async {
     try {
-      if (enabled && isRemoteVideoEnabled.isFalse) {
-        await _room?.enableRemoteVideo();
-        isRemoteVideoEnabled.toggle();
-      } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        await _room?.disableRemoteVideo();
-        isRemoteVideoEnabled.toggle();
+      if (!enabled) {
+        members.forEach((id, m) {
+          if (m.hasVideo) {
+            setRemoteVideoEnabled(
+                value: enabled, id: id, source: MediaSourceKind.Device);
+          }
+          if (m.hasSharing) {
+            setRemoteVideoEnabled(
+                value: enabled, id: id, source: MediaSourceKind.Display);
+          } else {
+            members[id]?.isSharingAllowed = enabled;
+          }
+        });
+      } else {
+        members.forEach((id, m) {
+          if (m.isVideoAllowed == false) {
+            setRemoteVideoEnabled(
+                value: enabled, id: id, source: MediaSourceKind.Device);
+          }
+          if (m.isSharingAllowed == false) {
+            setRemoteVideoEnabled(
+                value: enabled, id: id, source: MediaSourceKind.Display);
+          } else {
+            members[id]?.isVideoAllowed = enabled;
+          }
+        });
       }
-    } on MediaStateTransitionException catch (_) {
+      isRemoteVideoEnabled.value = enabled;
+    } catch (e) {
       // No-op.
     }
   }
@@ -807,6 +825,8 @@ class OngoingCall {
     }
     if (source == MediaSourceKind.Display) {
       members[id]!.isSharingAllowed = value;
+    } else if (source == MediaSourceKind.Device) {
+      members[id]!.isVideoAllowed = value;
     }
 
     if (value) {
@@ -1049,13 +1069,8 @@ class OngoingCall {
         var renderer = RtcVideoRenderer.remote(
             track, RemoteMemberId.fromString(conn.getRemoteMemberId()));
         await renderer.initialize();
-        if (track.mediaSourceKind() == MediaSourceKind.Display &&
-            track.mediaDirection() != TrackMediaDirection.SendRecv) {
-          await conn.enableRemoteVideo(track.mediaSourceKind());
-        }
         renderer.srcObject = track.getTrack();
-        if (!track.muted() &&
-            track.mediaDirection() == TrackMediaDirection.SendRecv) {
+        if (!track.muted()) {
           remoteVideos.add(renderer);
         }
         return renderer;
@@ -1354,6 +1369,7 @@ class RemoteMember {
     this.isHandRaised = false,
     this.hasVideo = false,
     this.isSharingAllowed = true,
+    this.isVideoAllowed = true,
     this.hasSharing = false,
   });
 
@@ -1368,6 +1384,10 @@ class RemoteMember {
   /// Indicates whether client side will receive incoming video media track where
   /// source is [MediaSourceKind.Display] from this member.
   bool isSharingAllowed;
+
+  /// Indicates whether client side will receive incoming video media track where
+  /// source is [MediaSourceKind.Device] from this member.
+  bool isVideoAllowed;
 
   /// Hand raised indicator of this member.
   bool isHandRaised;
