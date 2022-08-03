@@ -211,6 +211,7 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ),
             ),
+            // TODO: Implement join call button with video
           ];
         }
 
