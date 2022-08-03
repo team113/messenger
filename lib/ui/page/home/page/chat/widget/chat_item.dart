@@ -38,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -210,278 +211,244 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      Row(
+      Column(
         key: const Key('ChatMessage'),
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (msg.text != null) Text(msg.text!.val),
-                if (msg.text != null && msg.attachments.isNotEmpty)
-                  const SizedBox(height: 5),
-                if (media.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: msg.authorId == widget.me
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
-                    children: media.mapIndexed(
-                      (i, e) {
-                        bool isLocal = e is LocalAttachment;
+          if (msg.text != null) Text(msg.text!.val),
+          if (msg.text != null && msg.attachments.isNotEmpty)
+            const SizedBox(height: 5),
+          if (media.isNotEmpty)
+            Column(
+              crossAxisAlignment: msg.authorId == widget.me
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: media.mapIndexed(
+                (i, e) {
+                  bool isLocal = e is LocalAttachment;
 
-                        bool isVideo;
-                        if (isLocal) {
-                          isVideo = e.file.isVideo;
-                        } else {
-                          isVideo = e is FileAttachment;
-                        }
+                  bool isVideo;
+                  if (isLocal) {
+                    isVideo = e.file.isVideo;
+                  } else {
+                    isVideo = e is FileAttachment;
+                  }
 
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onTap: isLocal
-                                ? null
-                                : () {
-                                    List<Attachment> attachments =
-                                        widget.onGallery?.call() ?? media;
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: isLocal
+                          ? null
+                          : () {
+                              List<Attachment> attachments =
+                                  widget.onGallery?.call() ?? media;
 
-                                    int initial = attachments.indexOf(e);
-                                    if (initial == -1) {
-                                      initial = 0;
-                                    }
+                              int initial = attachments.indexOf(e);
+                              if (initial == -1) {
+                                initial = 0;
+                              }
 
-                                    List<GalleryItem> gallery = [];
-                                    for (var o in attachments) {
-                                      var link =
-                                          '${Config.url}/files${o.original}';
-                                      if (o is FileAttachment) {
-                                        gallery.add(GalleryItem.video(link));
-                                      } else if (o is ImageAttachment) {
-                                        gallery.add(GalleryItem.image(link));
-                                      }
-                                    }
+                              List<GalleryItem> gallery = [];
+                              for (var o in attachments) {
+                                var link = '${Config.url}/files${o.original}';
+                                if (o is FileAttachment) {
+                                  gallery.add(GalleryItem.video(link));
+                                } else if (o is ImageAttachment) {
+                                  gallery.add(GalleryItem.image(link));
+                                }
+                              }
 
-                                    GalleryPopup.show(
-                                      context: context,
-                                      gallery: GalleryPopup(
-                                        children: gallery,
-                                        initial: initial,
-                                        initialKey: _galleryKeys[i],
-                                      ),
-                                    );
-                                  },
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                isVideo
-                                    ? Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          isLocal
-                                              ? e.file.bytes == null
-                                                  ? const CircularProgressIndicator()
-                                                  : VideoThumbnail.bytes(
-                                                      key: _galleryKeys[i],
-                                                      bytes: e.file.bytes!,
-                                                      height: 300,
-                                                    )
-                                              : VideoThumbnail.path(
-                                                  key: _galleryKeys[i],
-                                                  path:
-                                                      '${Config.url}/files${e.original}',
-                                                  height: 300,
-                                                ),
-                                          Container(
-                                            width: 60,
-                                            height: 60,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(0x80000000),
-                                            ),
-                                            child: const Icon(
-                                              Icons.play_arrow,
-                                              color: Colors.white,
-                                              size: 48,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : isLocal
+                              GalleryPopup.show(
+                                context: context,
+                                gallery: GalleryPopup(
+                                  children: gallery,
+                                  initial: initial,
+                                  initialKey: _galleryKeys[i],
+                                ),
+                              );
+                            },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          isVideo
+                              ? Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    isLocal
                                         ? e.file.bytes == null
                                             ? const CircularProgressIndicator()
-                                            : Image.memory(
-                                                e.file.bytes!,
+                                            : VideoThumbnail.bytes(
                                                 key: _galleryKeys[i],
-                                                fit: BoxFit.cover,
+                                                bytes: e.file.bytes!,
                                                 height: 300,
                                               )
-                                        : Container(
-                                            key: const Key('SentImage'),
-                                            child: Image.network(
-                                              '${Config.url}/files${e.original}',
-                                              key: _galleryKeys[i],
-                                              fit: BoxFit.cover,
-                                              height: 300,
-                                              errorBuilder: (_, __, ___) =>
-                                                  const SizedBox(
-                                                width: 300.0,
-                                                height: 300.0,
-                                                child: Center(
-                                                  child: Icon(
-                                                    Icons.error,
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ),
+                                        : VideoThumbnail.path(
+                                            key: _galleryKeys[i],
+                                            path:
+                                                '${Config.url}/files${e.original}',
+                                            height: 300,
+                                          ),
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0x80000000),
+                                      ),
+                                      child: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 48,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : isLocal
+                                  ? e.file.bytes == null
+                                      ? const CircularProgressIndicator()
+                                      : Image.memory(
+                                          e.file.bytes!,
+                                          key: _galleryKeys[i],
+                                          fit: BoxFit.cover,
+                                          height: 300,
+                                        )
+                                  : Container(
+                                      key: const Key('SentImage'),
+                                      child: Image.network(
+                                        '${Config.url}/files${e.original}',
+                                        key: _galleryKeys[i],
+                                        fit: BoxFit.cover,
+                                        height: 300,
+                                        errorBuilder: (_, __, ___) =>
+                                            const SizedBox(
+                                          width: 300.0,
+                                          height: 300.0,
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.error,
+                                              color: Colors.red,
                                             ),
                                           ),
-                                if (isLocal)
-                                  ElasticAnimatedSwitcher(
-                                    child: e.status.value == SendingStatus.sent
-                                        ? const Icon(
-                                            Icons.check_circle,
-                                            size: 48,
-                                            color: Colors.green,
-                                          )
-                                        : e.status.value ==
-                                                SendingStatus.sending
-                                            ? CircularProgressIndicator(
-                                                key: const Key('SendingImage'),
-                                                value: e.progress.value,
-                                                backgroundColor: Colors.white,
-                                                strokeWidth: 10,
-                                              )
-                                            : const Icon(
-                                                Icons.error,
-                                                key: Key('ErrorImage'),
-                                                size: 48,
-                                                color: Colors.red,
-                                              ),
-                                  )
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ).toList(),
-                  ),
-                if (media.isNotEmpty && files.isNotEmpty)
-                  const SizedBox(height: 6),
-                ...files.map(
-                  (e) {
-                    bool isLocal = e is LocalAttachment;
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
-                      child: InkWell(
-                        onTap: () => throw UnimplementedError(),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-                              child: isLocal
-                                  ? ElasticAnimatedSwitcher(
-                                      child: e.status.value ==
-                                              SendingStatus.sent
-                                          ? const Icon(
-                                              Icons.check_circle,
-                                              size: 18,
-                                              color: Colors.green,
-                                            )
-                                          : e.status.value ==
-                                                  SendingStatus.sending
-                                              ? SizedBox.square(
-                                                  key: const Key('SendingFile'),
-                                                  dimension: 18,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    value: e.progress.value,
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    strokeWidth: 5,
-                                                  ),
-                                                )
-                                              : const Icon(
-                                                  Icons.error_outline,
-                                                  key: Key('ErrorFile'),
-                                                  size: 18,
-                                                  color: Colors.red,
-                                                ),
-                                    )
-                                  : const Icon(
-                                      Icons.attach_file,
-                                      key: Key('SentFile'),
-                                      size: 18,
-                                      color: Colors.blue,
+                                        ),
+                                      ),
                                     ),
-                            ),
-                            Flexible(
-                              child: Text(
-                                e.filename,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                          if (isLocal)
+                            ElasticAnimatedSwitcher(
+                              child: e.status.value == SendingStatus.sent
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      size: 48,
+                                      color: Colors.green,
+                                    )
+                                  : e.status.value == SendingStatus.sending
+                                      ? CircularProgressIndicator(
+                                          key: const Key('SendingImage'),
+                                          value: e.progress.value,
+                                          backgroundColor: Colors.white,
+                                          strokeWidth: 10,
+                                        )
+                                      : const Icon(
+                                          Icons.error,
+                                          key: Key('ErrorImage'),
+                                          size: 48,
+                                          color: Colors.red,
+                                        ),
+                            )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ).toList(),
+            ),
+          if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
+          ...files.map(
+            (e) {
+              bool isLocal = e is LocalAttachment;
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
+                child: InkWell(
+                  onTap: () => throw UnimplementedError(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
+                        child: isLocal
+                            ? ElasticAnimatedSwitcher(
+                                child: e.status.value == SendingStatus.sent
+                                    ? const Icon(
+                                        Icons.check_circle,
+                                        size: 18,
+                                        color: Colors.green,
+                                      )
+                                    : e.status.value == SendingStatus.sending
+                                        ? SizedBox.square(
+                                            key: const Key('SendingFile'),
+                                            dimension: 18,
+                                            child: CircularProgressIndicator(
+                                              value: e.progress.value,
+                                              backgroundColor: Colors.white,
+                                              strokeWidth: 5,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.error_outline,
+                                            key: Key('ErrorFile'),
+                                            size: 18,
+                                            color: Colors.red,
+                                          ),
+                              )
+                            : const Icon(
+                                Icons.attach_file,
+                                key: Key('SentFile'),
+                                size: 18,
+                                color: Colors.blue,
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 1),
-                              child: Text(
-                                '${e.size ~/ 1024} KB',
-                                style: const TextStyle(
-                                  color: Color(0xFF888888),
-                                  fontSize: 13,
-                                ),
-                                maxLines: 1,
-                              ),
-                            ),
-                          ],
+                      ),
+                      Flexible(
+                        child: Text(
+                          e.filename,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    );
-                  },
-                ),
-                if (msg.repliesTo != null) ...[
-                  if (msg.text != null || msg.attachments.isNotEmpty)
-                    const SizedBox(height: 5),
-                  InkWell(
-                    onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(height: 18, width: 2, color: Colors.blue),
-                        const SizedBox(width: 4),
-                        Flexible(child: _repliedMessage(msg.repliesTo!)),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          ElasticAnimatedSwitcher(
-            child: msg.status.value == SendingStatus.sending
-                ? const Padding(
-                    key: Key('SendingMessage'),
-                    padding: EdgeInsets.only(left: 8),
-                    child: Icon(Icons.access_alarm, size: 15),
-                  )
-                : msg.status.value == SendingStatus.error
-                    ? const Padding(
-                        key: Key('ErrorMessage'),
-                        padding: EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.error_outline,
-                          size: 15,
-                          color: Colors.red,
+                      const SizedBox(width: 10),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 1),
+                        child: Text(
+                          '${e.size ~/ 1024} KB',
+                          style: const TextStyle(
+                            color: Color(0xFF888888),
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
                         ),
-                      )
-                    : Container(key: const Key('SentMessage')),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
+          if (msg.repliesTo != null) ...[
+            if (msg.text != null || msg.attachments.isNotEmpty)
+              const SizedBox(height: 5),
+            InkWell(
+              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(height: 18, width: 2, color: Colors.blue),
+                  const SizedBox(width: 4),
+                  Flexible(child: _repliedMessage(msg.repliesTo!)),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -705,12 +672,41 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           fromMe &&
           widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && (!fromMe || isRead),
+      isError: widget.item.value.status.value == SendingStatus.error,
+      isSending: widget.item.value.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisAlignment:
             fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
+          if (fromMe)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: AnimatedDelayedSwitcher(
+                delay: widget.item.value.status.value == SendingStatus.sending
+                    ? const Duration(seconds: 2)
+                    : Duration.zero,
+                child: widget.item.value.status.value == SendingStatus.sending
+                    ? const Padding(
+                        key: Key('SendingMessage'),
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(Icons.access_alarm, size: 15),
+                      )
+                    : widget.item.value.status.value == SendingStatus.error
+                        ? const Padding(
+                            key: Key('ErrorMessage'),
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(
+                              Icons.error_outline,
+                              size: 15,
+                              color: Colors.red,
+                            ),
+                          )
+                        : Container(key: const Key('SentMessage')),
+              ),
+            ),
           if (!fromMe && widget.chat.value!.isGroup)
             Padding(
               padding: const EdgeInsets.only(top: 9),

@@ -152,11 +152,11 @@ Future<Session> createUser(
 
 /// Extension adding ability to find widget with `skipOffstage`: `false`.
 extension SkipOffstageExtension on AppDriverAdapter {
-  /// Finds widget by provided [key] with `skipOffstage`: `false`.
+  /// Finds the [Widget] by its [key] without skipping the offstage.
   Finder findByKeySkipOffstage(String key) =>
       find.byKey(Key(key), skipOffstage: false);
 
-  /// Finds widget by provided [text] with `skipOffstage`: `false`.
+  /// Finds the [Widget] by its [text] without skipping the offstage.
   Finder findByTextSkipOffstage(String text) =>
       find.text(text, skipOffstage: false);
 }

@@ -20,7 +20,7 @@ import 'package:messenger/routes.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Changes router location to the chat page with provided user.
+/// Changes [RouterState.route] to the [Routes.chat] with provided user.
 ///
 /// Examples:
 /// - Given I am in chat with Bob

@@ -78,38 +78,6 @@ class HiveRxChat implements RxChat {
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
-  @override
-  UserId? get me => _chatRepository.me;
-
-  @override
-  UserCallCover? get callCover {
-    UserCallCover? callCover;
-
-    switch (chat.value.kind) {
-      case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.user.value.callCover;
-        break;
-
-      case ChatKind.dialog:
-        callCover = members.values
-            .firstWhereOrNull((e) => e.id != me)
-            ?.user
-            .value
-            .callCover;
-        break;
-
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
-        return null;
-    }
-
-    callCover ??= chat.value.getCallCover(me);
-    return callCover;
-  }
-
-  /// List of [ChatItem]s being in [SendingStatus.sending] state.
-  final List<ChatItem> _pending = [];
-
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
@@ -143,8 +111,40 @@ class HiveRxChat implements RxChat {
   /// initialized used in [subscribe].
   bool _remoteSubscriptionInitialized = false;
 
+  /// List of [ChatItem]s being in [SendingStatus.sending] state.
+  final List<ChatItem> _pending = [];
+
   /// Returns [ChatId] of the [chat].
   ChatId get id => chat.value.id;
+
+  @override
+  UserId? get me => _chatRepository.me;
+
+  @override
+  UserCallCover? get callCover {
+    UserCallCover? callCover;
+
+    switch (chat.value.kind) {
+      case ChatKind.monolog:
+        callCover = members.values.firstOrNull?.user.value.callCover;
+        break;
+
+      case ChatKind.dialog:
+        callCover = members.values
+            .firstWhereOrNull((e) => e.id != me)
+            ?.user
+            .value
+            .callCover;
+        break;
+
+      case ChatKind.group:
+      case ChatKind.artemisUnknown:
+        return null;
+    }
+
+    callCover ??= chat.value.getCallCover(me);
+    return callCover;
+  }
 
   /// Initializes this [HiveRxChat].
   Future<void> init() {
@@ -525,10 +525,10 @@ class HiveRxChat implements RxChat {
         messages.removeAt(i);
       } else {
         if (i == -1) {
-          var chatItem = Rx<ChatItem>(event.value.value);
+          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
           messages.insertAfter(
-            chatItem,
-            (e) => chatItem.value.at.compareTo(e.value.at) == 1,
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
           );
         } else {
           messages[i].value = event.value.value;
@@ -756,6 +756,9 @@ class HiveRxChat implements RxChat {
                         (item.value as ChatMessage).isEquals(e),
                   );
 
+                  // If any [ChatMessage] sharing the same fields as the posted
+                  // one is found in the [_pending] messages, and this message
+                  // is not yet added to the store, then remove the [pending].
                   if (pending != null &&
                       await get(
                             item.value.id,

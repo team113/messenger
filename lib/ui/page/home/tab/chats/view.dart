@@ -201,12 +201,18 @@ class ChatsTabView extends StatelessWidget {
                 Flexible(child: Text(desc.toString(), maxLines: 2)),
                 ElasticAnimatedSwitcher(
                   child: item.status.value == SendingStatus.sending
-                      ? const Icon(Icons.access_alarm, size: 15)
+                      ? const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.access_alarm, size: 15),
+                        )
                       : item.status.value == SendingStatus.error
-                          ? const Icon(
-                              Icons.error_outline,
-                              size: 15,
-                              color: Colors.red,
+                          ? const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(
+                                Icons.error_outline,
+                                size: 15,
+                                color: Colors.red,
+                              ),
                             )
                           : Container(),
                 ),

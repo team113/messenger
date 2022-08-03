@@ -663,9 +663,9 @@ class ChatController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(attachment);
 
-        var uploaded = await _chatService.uploadAttachment(attachment);
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-        var index = attachments.indexOf(attachment);
+        int index = attachments.indexOf(attachment);
         if (index != -1) {
           attachments[index] = uploaded;
         }

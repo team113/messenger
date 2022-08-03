@@ -22,7 +22,7 @@ import 'package:messenger/routes.dart';
 
 import '../world/custom_world.dart';
 
-/// Restarts application.
+/// Restarts the application.
 ///
 /// Examples:
 /// - Then I restart app

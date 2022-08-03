@@ -116,8 +116,9 @@ class NotificationService extends DisposableService {
         lang: payload,
         icon: icon,
       ).onError((_, __) => false);
-      // TODO: implement notifications for windows
     } else if (!PlatformUtils.isWindows) {
+      // TODO: `flutter_local_notifications` should support Windows:
+      //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(
         Random().nextInt(1 << 31),
         title,

@@ -21,7 +21,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
-/// Sets requests delay to provided.
+/// Sets the provided delay to all [GraphQlProvider] requests.
 ///
 /// Examples:
 /// - I have Internet with delay 1 second
@@ -37,7 +37,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
   }),
 );
 
-/// Removes requests delay.
+/// Sets no delay to all [GraphQlProvider] requests.
 ///
 /// Examples:
 /// - I have Internet without delay
@@ -52,7 +52,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   }),
 );
 
-/// Adds throwing exceptions on all `GraphQL` requests.
+/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
 ///
 /// Examples:
 /// - I do not have Internet

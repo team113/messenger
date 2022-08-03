@@ -196,7 +196,7 @@ class NativeFile {
       if (content != null) {
         List<int> data = [];
 
-        var queue = StreamQueue(content);
+        StreamQueue queue = StreamQueue(content);
         while (await queue.hasNext) {
           data.addAll(await queue.next);
         }

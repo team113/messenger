@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:mutex/mutex.dart';
 
-/// Mocked [GraphQlProvider] containing [MockGraphQlClient].
+/// Mocked [GraphQlProvider] containing its [MockGraphQlClient].
 class MockGraphQlProvider extends GraphQlProvider {
   /// Mocked [GraphQlClient].
   final MockGraphQlClient _client = MockGraphQlClient();
@@ -61,7 +61,7 @@ class MockGraphQlClient extends GraphQlClient {
 
   /// Indicator whether requests should throw [ConnectionException]s or not.
   ///
-  /// Intended to be used to simulate connection loss.
+  /// Intended to be used to simulate a connection loss.
   bool throwException = false;
 
   @override

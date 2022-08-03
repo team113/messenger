@@ -37,7 +37,7 @@ final StepDefinitionGeneric attachFile =
   (name, attachmentType, user, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    ChatController? chat = Get.find<ChatController>(
+    ChatController chat = Get.find<ChatController>(
       tag: context.world.sessions[user.name]!.dialog!.val,
     );
 

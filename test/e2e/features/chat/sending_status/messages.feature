@@ -9,7 +9,6 @@ Feature: Chat messages has correct sending status
 
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
-
     Then I tap `Send` widget
     And I wait until message with text "123" in chat with Bob status is sent
 
@@ -20,10 +19,9 @@ Feature: Chat messages has correct sending status
     And I am in chat with Bob
     And I wait until `MessageField` is present
 
+    Given I have Internet with delay 2 second
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
-
-    Given I have Internet with delay 2 second
     Then I tap `Send` widget
     And I wait until message with text "123" in chat with Bob status is sending
     And I wait until message with text "123" in chat with Bob status is sent
@@ -35,10 +33,9 @@ Feature: Chat messages has correct sending status
     And I am in chat with Bob
     And I wait until `MessageField` is present
 
+    Given I do not have Internet
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
-
-    Given I do not have Internet
     Then I tap `Send` widget
     And I wait until message with text "123" in chat with Bob status is error
 
