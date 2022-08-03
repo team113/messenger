@@ -24,6 +24,9 @@ class MinimizableView extends StatefulWidget {
     Key? key,
     this.onInit,
     this.onDispose,
+    this.onSizeChanged,
+    this.minimizationEnabled = true,
+    this.minimizationDelta = 50,
     required this.child,
   }) : super(key: key);
 
@@ -33,6 +36,16 @@ class MinimizableView extends StatefulWidget {
 
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
+
+  /// Callback, called when [Size] of this [MinimizableView] is changed.
+  final void Function(Size)? onSizeChanged;
+
+  /// Indicator whether the minimizing gesture is enabled.
+  final bool minimizationEnabled;
+
+  /// Distance to travel in order for the panning to be recognized as a
+  /// minimization gesture.
+  final double minimizationDelta;
 
   /// [Widget] to minimize.
   final Widget child;
@@ -44,11 +57,8 @@ class MinimizableView extends StatefulWidget {
 /// State of a [MinimizableView] used to animate its child.
 class _MinimizableViewState extends State<MinimizableView>
     with SingleTickerProviderStateMixin {
-  /// Minimized width of this view.
-  static const double _width = 150;
-
-  /// Minimized height of this view.
-  static const double _height = 150;
+  /// [Size] of this [MinimizableView] in its minimized state.
+  static const Size _size = Size(150, 150);
 
   /// [AnimationController] of this view.
   late final AnimationController _controller;
@@ -77,6 +87,9 @@ class _MinimizableViewState extends State<MinimizableView>
 
   /// View padding of the screen.
   EdgeInsets _padding = EdgeInsets.zero;
+
+  /// Current panning distance.
+  double _panningDistance = 0;
 
   /// [DecorationTween] of this view.
   final DecorationTween _decorationTween = DecorationTween(
@@ -133,10 +146,10 @@ class _MinimizableViewState extends State<MinimizableView>
                 begin: RelativeRect.fill,
                 end: RelativeRect.fromSize(
                   Rect.fromLTWH(
-                    biggest.width - _width - _right,
-                    biggest.height - _height - _bottom - _padding.bottom,
-                    _width,
-                    _height,
+                    biggest.width - _size.width - _right,
+                    biggest.height - _size.height - _bottom - _padding.bottom,
+                    _size.width,
+                    _size.height,
                   ),
                   biggest,
                 ),
@@ -149,20 +162,7 @@ class _MinimizableViewState extends State<MinimizableView>
                         FocusManager.instance.primaryFocus?.unfocus();
                       }
                     : null,
-                onPanUpdate: (d) {
-                  if (_drag != null && _value != null) {
-                    _controller.value = _value! +
-                        (d.localPosition.dy - _drag!.dy) *
-                            (1 / constraints.maxHeight);
-                  } else {
-                    setState(() {
-                      _right = _right - d.delta.dx;
-                      _bottom = _bottom - d.delta.dy;
-                      _applyConstraints(biggest);
-                    });
-                  }
-                },
-                onPanStart: _controller.value == 0
+                onPanStart: _controller.value == 0 && widget.minimizationEnabled
                     ? (d) {
                         _controller.stop();
                         _drag = d.localPosition;
@@ -170,8 +170,39 @@ class _MinimizableViewState extends State<MinimizableView>
                         setState(() {});
                       }
                     : null,
-                onPanEnd:
-                    _drag != null && _value != null ? _onVerticalDragEnd : null,
+                onPanUpdate:
+                    widget.minimizationEnabled || _controller.value == 1
+                        ? (d) {
+                            _panningDistance = _panningDistance + d.delta.dy;
+
+                            if (_panningDistance < widget.minimizationDelta &&
+                                _controller.value == 0) {
+                              return;
+                            }
+
+                            if (_drag != null && _value != null) {
+                              _controller.value = _value! +
+                                  (d.localPosition.dy -
+                                          _drag!.dy -
+                                          widget.minimizationDelta) *
+                                      (1 / constraints.maxHeight);
+                            } else {
+                              setState(() {
+                                _right = _right - d.delta.dx;
+                                _bottom = _bottom - d.delta.dy;
+                                _applyConstraints(biggest);
+                              });
+                            }
+                          }
+                        : null,
+                onPanEnd: widget.minimizationEnabled
+                    ? (d) {
+                        if (_drag != null && _value != null) {
+                          _onVerticalDragEnd(d);
+                        }
+                        _panningDistance = 0;
+                      }
+                    : null,
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),
@@ -194,6 +225,9 @@ class _MinimizableViewState extends State<MinimizableView>
       begin: BorderRadius.zero,
       end: BorderRadius.circular(10),
     ).evaluate(_controller);
+
+    widget.onSizeChanged?.call(
+        SizeTween(begin: _lastBiggest, end: _size).evaluate(_controller)!);
 
     setState(() {});
   }

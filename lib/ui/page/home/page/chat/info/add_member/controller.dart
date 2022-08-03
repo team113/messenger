@@ -21,8 +21,10 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -53,7 +55,7 @@ class AddChatMemberController extends GetxController {
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   /// Reactive list of the selected [ChatContact]s.
-  final RxList<Rx<ChatContact>> selectedContacts = RxList<Rx<ChatContact>>([]);
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
@@ -67,8 +69,8 @@ class AddChatMemberController extends GetxController {
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
 
-  /// Returns the current reactive observable map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  /// Returns the current reactive observable map of [RxChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Subscription for the [ChatService.chats] changes.
@@ -115,7 +117,8 @@ class AddChatMemberController extends GetxController {
     try {
       List<Future> futures = [];
       for (var id in [
-        ...selectedContacts.expand((e) => e.value.users.map((u) => u.id)),
+        ...selectedContacts
+            .expand((e) => e.contact.value.users.map((u) => u.id)),
         ...selectedUsers.map((u) => u.id),
       ]) {
         futures.add(_chatService.addChatMember(chatId, id));
@@ -135,7 +138,7 @@ class AddChatMemberController extends GetxController {
   }
 
   /// Selects or unselects the specified [contact].
-  void selectContact(Rx<ChatContact> contact) {
+  void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
       selectedContacts.remove(contact);
     } else {
@@ -161,7 +164,7 @@ class AddChatMemberController extends GetxController {
   void _fetchChat() async {
     chat.value = (await _chatService.get(chatId))?.chat;
     if (chat.value == null) {
-      MessagePopup.error('err_unknown_chat'.tr);
+      MessagePopup.error('err_unknown_chat'.l10n);
       pop();
     }
   }

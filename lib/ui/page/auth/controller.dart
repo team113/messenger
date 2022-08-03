@@ -16,7 +16,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
+import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -34,11 +36,23 @@ class AuthController extends GetxController {
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
 
-  /// Timer that periodically increases [logoFrame].
+  /// [SMITrigger] triggering the blinking animation.
+  SMITrigger? blink;
+
+  /// [GlobalKey] of the button opening the [Language] selection.
+  final GlobalKey languageKey = GlobalKey();
+
+  /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  @override
+  void onClose() {
+    _animationTimer?.cancel();
+    super.onClose();
+  }
 
   @override
   void onReady() => Future.delayed(const Duration(milliseconds: 500), animate);
@@ -54,13 +68,18 @@ class AuthController extends GetxController {
     }
   }
 
-  /// Resets the [logoFrame] and starts the animation.
+  /// Resets the [logoFrame] and starts the blinking animation.
   void animate() {
+    blink?.fire();
+
     logoFrame.value = 1;
     _animationTimer?.cancel();
-    _animationTimer = Timer.periodic(const Duration(milliseconds: 45), (t) {
-      ++logoFrame.value;
-      if (logoFrame >= 9) t.cancel();
-    });
+    _animationTimer = Timer.periodic(
+      const Duration(milliseconds: 45),
+      (t) {
+        ++logoFrame.value;
+        if (logoFrame >= 9) t.cancel();
+      },
+    );
   }
 }

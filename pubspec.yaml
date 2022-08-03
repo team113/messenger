@@ -7,6 +7,7 @@ environment:
   sdk: ">=2.16.0 <3.0.0"
 
 dependencies:
+  animated_size_and_fade: ^3.0.0
   async: ^2.8.2
   audioplayers: ^1.0.0-rc.4
   badges: ^2.0.2
@@ -16,9 +17,15 @@ dependencies:
   collection: ^1.16.0
   desktop_drop: ^0.3.3
   dio: ^4.0.6
+  dough:
+    git:
+      url: https://github.com/krida2000/dough
+      path: packages/dough/
   email_validator: ^2.0.1
   expandable: ^5.0.1
   file_picker: ^4.5.1
+  fluent:
+    git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
   flutter_background_service: ^2.0.0
@@ -43,9 +50,7 @@ dependencies:
   image_gallery_saver: ^1.7.1
   image_picker:
     git:
-      url: https://github.com/krida2000/image_picker
-      ref: main
-      path: packages/image_picker/image_picker/
+      url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
@@ -62,8 +67,14 @@ dependencies:
   path_provider_ios: ^2.0.9
   permission_handler: ^9.2.0
   phone_numbers_parser: ^5.0.3
-  photo_view: ^0.14.0
+  # TODO: Switch to pub.dev version when the following commit is merged into it:
+  #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
+  photo_view:
+    git:
+      url: https://github.com/bluefireteam/photo_view.git
+      ref: master
   platform_detect: ^2.0.3
+  rive: ^0.9.0
   sentry_flutter: ^6.5.1
   share_plus: ^4.0.4
   sliding_up_panel: ^2.0.0+1
@@ -75,10 +86,10 @@ dependencies:
   visibility_detector: ^0.3.3
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.3
-  yaml: ^3.1.0
 
 dev_dependencies:
   artemis: ^7.7.0-beta
+  build: ^2.3.0
   build_runner: ^2.1.10
   dartdoc: ^5.0.1
   flutter_driver:
@@ -98,6 +109,7 @@ dev_dependencies:
   mockito: ^5.1.0
   network_image_mock: ^2.1.0
   sentry_dart_plugin: ^1.0.0-beta.2
+  yaml: ^3.1.0
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
@@ -106,12 +118,13 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
+    - assets/audio/
     - assets/conf.toml
+    - assets/fonts/
+    - assets/icons/
     - assets/images/
     - assets/images/logo/
-    - assets/icons/
-    - assets/audio/
-    - pubspec.yaml
+    - assets/l10n/
 
 sentry:
   upload_native_symbols: true

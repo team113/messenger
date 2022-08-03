@@ -48,6 +48,11 @@ class Config {
 
   /// Directory name to save downloaded files in.
   static String downloadingDirectory = 'messenger';
+  
+  /// Indicator whether all looped animations should be disabled.
+  ///
+  /// Intended to be used in E2E testing.
+  static bool disableInfiniteAnimations = false;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):

@@ -14,33 +14,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-import 'en_us.dart';
-import 'ru_ru.dart';
+import '../parameters/users.dart';
+import '../world/custom_world.dart';
 
-/// Localization of this application.
-abstract class L10n {
-  /// Supported languages as locales with its names.
-  static Map<String, String> languages = const {
-    'en_US': 'English',
-    'ru_RU': 'Русский',
-  };
-
-  /// Translated phrases for each supported locale.
-  static Map<String, Map<String, String>> phrases = {
-    'en_US': enUS,
-    'ru_RU': ruRU,
-  };
-
-  // TODO: Make it reactive.
-  // TODO: Should be persisted in storage.
-  /// Currently selected locale.
-  static String chosen = 'ru_RU';
-
-  /// Supported locales.
-  static Map<String, Locale> locales = const {
-    'en_US': Locale('en', 'US'),
-    'ru_RU': Locale('ru', 'RU'),
-  };
-}
+/// Updates the [UserBio] of the provided [TestUser].
+final StepDefinitionGeneric updateBio = then2<TestUser, String, CustomWorld>(
+  RegExp(r'{user} updates (?:his|her) bio with {string}$'),
+  (TestUser user, String newBio, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+    await provider.updateUserBio(UserBio(newBio));
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);

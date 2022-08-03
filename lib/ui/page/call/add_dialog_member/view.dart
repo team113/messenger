@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/widget/add_contact_list_tile.dart';
 import '/ui/page/home/page/chat/widget/add_user_list_tile.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -92,7 +93,7 @@ class AddDialogMemberView extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Text(
-                                    'label_add_chat_member'.tr,
+                                    'label_add_chat_member'.l10n,
                                     style: font17,
                                   ),
                                   const Spacer(),
@@ -139,10 +140,10 @@ class AddDialogMemberView extends StatelessWidget {
                     (e) => AddUserListTile(e, () => c.unselectUser(e)),
                   ),
                   ...c.contacts.entries
-                      .where((e) => e.value.value.users.isNotEmpty)
+                      .where((e) => e.value.contact.value.users.isNotEmpty)
                       .where((e) =>
                           c.chat.value!.value.members.firstWhereOrNull((m) =>
-                              e.value.value.users
+                              e.value.contact.value.users
                                   .firstWhereOrNull((u) => u.id == m.user.id) !=
                               null) ==
                           null)
@@ -170,9 +171,9 @@ class AddDialogMemberView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        '${'label_create_group_selected'.tr}'
+                        '${'label_create_group_selected'.l10n}'
                         ' ${c.selectedContacts.length + c.selectedUsers.length} '
-                        '${'label_create_group_users'.tr}',
+                        '${'label_create_group_users'.l10n}',
                         style: font13,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -183,7 +184,7 @@ class AddDialogMemberView extends StatelessWidget {
                       ? Expanded(
                           child: Center(
                             child: Text(
-                              c.status.value.errorMessage ?? 'err_unknown'.tr,
+                              c.status.value.errorMessage ?? 'err_unknown'.l10n,
                               style: font13.copyWith(color: Colors.red),
                             ),
                           ),
@@ -196,7 +197,7 @@ class AddDialogMemberView extends StatelessWidget {
                             ? null
                             : c.transformDialogCallIntoGroupCall,
                     child: Text(
-                      'btn_add_participant'.tr,
+                      'btn_add_participant'.l10n,
                       style:
                           c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
                               ? font17.copyWith(color: Colors.grey)

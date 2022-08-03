@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
@@ -65,7 +66,7 @@ class CopyableTextField extends StatelessWidget {
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(
-                  label: 'label_copy'.tr,
+                  label: 'label_copy'.l10n,
                   onPressed: () => _copy(context),
                 ),
               ],
@@ -90,6 +91,6 @@ class CopyableTextField extends StatelessWidget {
   /// Puts a [copy] of data into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: copy ?? state.text));
-    MessagePopup.success('label_copied_to_clipboard'.tr);
+    MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 }

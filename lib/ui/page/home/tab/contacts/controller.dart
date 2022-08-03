@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
@@ -26,9 +28,11 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateChatContactNameException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -41,7 +45,6 @@ class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatRepository,
     this._contactService,
-    this._userService,
     this._calls,
   );
 
@@ -57,18 +60,21 @@ class ContactsTabController extends GetxController {
   /// Address book used to get [ChatContact]s list.
   final ContactService _contactService;
 
-  /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
-
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
+  /// [Worker]s to [RxChatContact.user] reacting on its changes.
+  final Map<ChatContactId, Worker> _userWorkers = {};
+
+  /// [StreamSubscription]s to the [contacts] updates.
+  StreamSubscription? _contactsSubscription;
+
   /// Returns current reactive [ChatContact]s map.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Returns the current reactive favorite [ChatContact]s map.
-  RxMap<ChatContactId, Rx<ChatContact>> get favorites =>
+  RxMap<ChatContactId, RxChatContact> get favorites =>
       _contactService.favorites;
 
   /// Indicates whether [ContactService] is ready to be used.
@@ -80,13 +86,13 @@ class ContactsTabController extends GetxController {
       onChanged: (s) async {
         s.error.value = null;
 
-        Rx<ChatContact>? contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+        RxChatContact? contact = contacts.values.firstWhereOrNull(
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
         if (contact == null) return;
 
-        if (contact.value.name.val == s.text) {
+        if (contact.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
@@ -96,7 +102,7 @@ class ContactsTabController extends GetxController {
         try {
           name = UserName(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.tr;
+          s.error.value = 'err_incorrect_input'.l10n;
         }
 
         if (s.error.value == null) {
@@ -124,17 +130,27 @@ class ContactsTabController extends GetxController {
       },
       onSubmitted: (s) {
         var contact = contacts.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value) ??
+                (e) => e.contact.value.id == contactToChangeNameOf.value) ??
             favorites.values.firstWhereOrNull(
-                (e) => e.value.id == contactToChangeNameOf.value);
-        if (contact?.value.name.val == s.text) {
+                (e) => e.contact.value.id == contactToChangeNameOf.value);
+        if (contact?.contact.value.name.val == s.text) {
           contactToChangeNameOf.value = null;
           return;
         }
       },
     );
 
+    _initUsersUpdates();
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    contacts.forEach((_, c) => c.user.value?.stopUpdates());
+    _contactsSubscription?.cancel();
+    _userWorkers.forEach((_, v) => v.dispose());
+    super.onClose();
   }
 
   /// Starts an audio [ChatCall] with a [to] [User].
@@ -150,13 +166,10 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.tr) == true) {
+    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
       await _contactService.deleteContact(contact.id);
     }
   }
-
-  /// Returns an [User] from the [UserService] by the provided [id].
-  Future<Rx<User>?> getUser(UserId id) => _userService.get(id);
 
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
@@ -173,5 +186,38 @@ class ContactsTabController extends GetxController {
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
+  }
+
+  /// Maintains an interest in updates of every [RxChatContact.user] in the
+  /// [contacts] list.
+  void _initUsersUpdates() {
+    /// States an interest in updates of the specified [RxChatContact.user].
+    void _listen(RxChatContact c) {
+      RxUser? rxUser = c.user.value?..listenUpdates();
+      _userWorkers[c.id] = ever(c.user, (RxUser? user) {
+        if (rxUser?.id != user?.id) {
+          rxUser?.stopUpdates();
+          rxUser = user?..listenUpdates();
+        }
+      });
+    }
+
+    contacts.forEach((_, c) => _listen(c));
+    _contactsSubscription = contacts.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          _listen(e.value!);
+          break;
+
+        case OperationKind.removed:
+          e.value?.user.value?.stopUpdates();
+          _userWorkers.remove(e.key)?.dispose();
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
   }
 }

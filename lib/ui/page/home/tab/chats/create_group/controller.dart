@@ -19,8 +19,10 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -41,7 +43,7 @@ class CreateGroupController extends GetxController {
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   /// Reactive list of the selected [ChatContact]s.
-  final RxList<Rx<ChatContact>> selectedContacts = RxList<Rx<ChatContact>>([]);
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
@@ -59,7 +61,7 @@ class CreateGroupController extends GetxController {
   final Function() pop;
 
   /// Returns the current reactive map of [ChatContact]s.
-  RxObsMap<ChatContactId, Rx<ChatContact>> get contacts =>
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
 
   /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
@@ -73,7 +75,8 @@ class CreateGroupController extends GetxController {
 
       var chat = (await _chatService.createGroupChat(
         [
-          ...selectedContacts.expand((e) => e.value.users.map((u) => u.id)),
+          ...selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...selectedUsers.map((e) => e.id),
         ],
         name: chatName,
@@ -85,7 +88,7 @@ class CreateGroupController extends GetxController {
       status.value = RxStatus.error(e.toMessage());
     } on FormatException catch (_) {
       status.value = RxStatus.empty();
-      MessagePopup.error('err_incorrect_chat_name'.tr);
+      MessagePopup.error('err_incorrect_chat_name'.l10n);
     } catch (e) {
       status.value = RxStatus.empty();
       MessagePopup.error(e);
@@ -94,7 +97,7 @@ class CreateGroupController extends GetxController {
   }
 
   /// Selects or unselects the provided [contact].
-  void selectContact(Rx<ChatContact> contact) {
+  void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
       selectedContacts.remove(contact);
     } else {

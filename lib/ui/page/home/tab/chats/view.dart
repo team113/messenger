@@ -15,14 +15,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
@@ -45,7 +47,7 @@ class ChatsTabView extends StatelessWidget {
       builder: (ChatsTabController c) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('label_chats'.tr),
+            title: Text('label_chats'.l10n),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(0.5),
               child: Container(
@@ -66,12 +68,18 @@ class ChatsTabView extends StatelessWidget {
           body: Obx(
             () => c.chatsReady.value
                 ? c.chats.isEmpty
-                    ? Center(child: Text('label_no_chats'.tr))
+                    ? Center(child: Text('label_no_chats'.l10n))
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
-                          children:
-                              c.chats.map((e) => buildChatTile(c, e)).toList(),
+                          children: c.chats
+                              .map(
+                                (e) => KeyedSubtree(
+                                  key: Key('Chat_${e.chat.value.id}'),
+                                  child: buildChatTile(c, e),
+                                ),
+                              )
+                              .toList(),
                         ),
                       )
                 : const Center(child: CircularProgressIndicator()),
@@ -110,8 +118,8 @@ class ChatsTabView extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     Text(typings.length > 1
-                        ? 'label_typings'.tr
-                        : 'label_typing'.tr),
+                        ? 'label_typings'.l10n
+                        : 'label_typing'.l10n),
                     const AnimatedDots(color: Colors.black)
                   ],
                 ),
@@ -120,14 +128,14 @@ class ChatsTabView extends StatelessWidget {
           } else if (chat.lastItem != null) {
             if (chat.lastItem is ChatCall) {
               var item = chat.lastItem as ChatCall;
-              String description = 'label_chat_call_ended'.tr;
+              String description = 'label_chat_call_ended'.l10n;
               if (item.finishedAt == null && item.finishReason == null) {
                 subtitle = [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
                       onPressed: () => c.joinCall(chat.id),
-                      child: Text('btn_chat_join_call'.tr),
+                      child: Text('btn_chat_join_call'.l10n),
                     ),
                   ),
                 ];
@@ -149,30 +157,30 @@ class ChatsTabView extends StatelessWidget {
               var desc = StringBuffer();
 
               if (!chat.isGroup && item.authorId == c.me) {
-                desc.write('${'label_you'.tr}: ');
+                desc.write('${'label_you'.l10n}: ');
               }
 
               if (item.text != null) {
                 desc.write(item.text!.val);
                 if (item.attachments.isNotEmpty) {
                   desc.write(
-                      ' [${item.attachments.length} ${'label_attachments'.tr}]');
+                      ' [${item.attachments.length} ${'label_attachments'.l10n}]');
                 }
               } else if (item.attachments.isNotEmpty) {
                 desc.write(
-                    '[${item.attachments.length} ${'label_attachments'.tr}]');
+                    '[${item.attachments.length} ${'label_attachments'.l10n}]');
               }
 
               subtitle = [
                 if (chat.isGroup)
                   Padding(
                     padding: const EdgeInsets.only(right: 5),
-                    child: FutureBuilder<Rx<User>?>(
+                    child: FutureBuilder<RxUser?>(
                       future: c.getUser(item.authorId),
                       builder: (_, snapshot) => snapshot.data != null
                           ? Obx(
                               () => AvatarWidget.fromUser(
-                                snapshot.data!.value,
+                                snapshot.data!.user.value,
                                 radius: 10,
                               ),
                             )
@@ -196,7 +204,7 @@ class ChatsTabView extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => c.joinCall(chat.id),
                   child: Text(
-                    'btn_chat_join_call'.tr,
+                    'btn_chat_join_call'.l10n,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -213,19 +221,42 @@ class ChatsTabView extends StatelessWidget {
             actions: [
               ContextMenuButton(
                 key: const Key('ButtonHideChat'),
-                label: 'btn_hide_chat'.tr,
+                label: 'btn_hide_chat'.l10n,
                 onPressed: () => c.hideChat(chat.id),
               ),
               if (chat.isGroup)
                 ContextMenuButton(
                   key: const Key('ButtonLeaveChat'),
-                  label: 'btn_leave_chat'.tr,
+                  label: 'btn_leave_chat'.l10n,
                   onPressed: () => c.leaveChat(chat.id),
                 ),
             ],
           ),
           child: ListTile(
-            leading: AvatarWidget.fromRxChat(rxChat),
+            leading: Obx(
+              () => Badge(
+                showBadge: rxChat.chat.value.isDialog &&
+                    rxChat.members.values
+                            .firstWhereOrNull((e) => e.id != c.me)
+                            ?.user
+                            .value
+                            .online ==
+                        true,
+                badgeContent: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.green,
+                  ),
+                  padding: const EdgeInsets.all(5),
+                ),
+                padding: const EdgeInsets.all(2),
+                badgeColor: Colors.white,
+                animationType: BadgeAnimationType.scale,
+                position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+                elevation: 0,
+                child: AvatarWidget.fromRxChat(rxChat),
+              ),
+            ),
             title: Text(
               rxChat.title.value,
               overflow: TextOverflow.ellipsis,

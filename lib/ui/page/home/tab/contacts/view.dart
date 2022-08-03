@@ -14,12 +14,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/contact.dart';
-import '/domain/model/user.dart';
+import '/domain/repository/contact.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/user_search_bar/view.dart';
@@ -51,11 +52,10 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
         appBar: AppBar(
-          title: Text('label_contacts'.tr),
+          title: Text('label_contacts'.l10n),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.5),
             child: Container(
@@ -73,7 +73,7 @@ class ContactsTabView extends StatelessWidget {
             onTrailingTap: c.addToContacts,
             body: c.contactsReady.value
                 ? c.favorites.isEmpty && c.contacts.isEmpty
-                    ? Center(child: Text('label_no_contacts'.tr))
+                    ? Center(child: Text('label_no_contacts'.l10n))
                     : ContextMenuInterceptor(
                         child: ListView(
                           controller: ScrollController(),
@@ -82,15 +82,15 @@ class ContactsTabView extends StatelessWidget {
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.tr),
+                                child: Text('label_favorite_contacts'.l10n),
                               ),
                               ...c.favorites.entries
-                                  .map((e) => _contact(e.value.value, c))
+                                  .map((e) => _contact(e.value, c))
                             ],
                             if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
                               ...divider,
                             ...c.contacts.entries
-                                .map((e) => _contact(e.value.value, c))
+                                .map((e) => _contact(e.value, c))
                           ],
                         ),
                       )
@@ -102,30 +102,30 @@ class ContactsTabView extends StatelessWidget {
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(ChatContact contact, ContactsTabController c) =>
+  Widget _contact(RxChatContact contact, ContactsTabController c) =>
       ContextMenuRegion(
         preventContextMenu: false,
         menu: ContextMenu(
           actions: [
             ContextMenuButton(
-              label: 'btn_change_contact_name'.tr,
+              label: 'btn_change_contact_name'.l10n,
               onPressed: () {
-                c.contactToChangeNameOf.value = contact.id;
+                c.contactToChangeNameOf.value = contact.contact.value.id;
                 c.contactName.clear();
-                c.contactName.unchecked = contact.name.val;
+                c.contactName.unchecked = contact.contact.value.name.val;
                 SchedulerBinding.instance.addPostFrameCallback(
                     (_) => c.contactName.focus.requestFocus());
               },
             ),
             ContextMenuButton(
-              label: 'btn_delete_from_contacts'.tr,
-              onPressed: () => c.deleteFromContacts(contact),
+              label: 'btn_delete_from_contacts'.l10n,
+              onPressed: () => c.deleteFromContacts(contact.contact.value),
             ),
           ],
         ),
-        child: c.contactToChangeNameOf.value == contact.id
+        child: c.contactToChangeNameOf.value == contact.contact.value.id
             ? Container(
-                key: Key(contact.id.val),
+                key: Key(contact.contact.value.id.val),
                 padding: const EdgeInsets.all(3),
                 child: Row(
                   children: [
@@ -146,41 +146,49 @@ class ContactsTabView extends StatelessWidget {
                 ),
               )
             : ListTile(
-                key: Key(contact.id.val),
-                leading: contact.users.isNotEmpty
-                    ? FutureBuilder<Rx<User>?>(
-                        future: c.getUser(contact.users.first.id),
-                        builder: (_, u) => u.hasData
-                            ? Obx(
-                                () => AvatarWidget.fromContact(
-                                  contact,
-                                  avatar: u.data?.value.avatar,
-                                ),
-                              )
-                            : AvatarWidget.fromContact(contact),
-                      )
-                    : AvatarWidget.fromContact(contact),
-                title: Text(contact.name.val),
-                trailing: contact.users.isNotEmpty
+                key: Key(contact.contact.value.id.val),
+                leading: Obx(
+                  () => Badge(
+                    showBadge: contact.user.value?.user.value.online == true,
+                    badgeContent: Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.green,
+                      ),
+                      padding: const EdgeInsets.all(5),
+                    ),
+                    padding: const EdgeInsets.all(2),
+                    badgeColor: Colors.white,
+                    animationType: BadgeAnimationType.scale,
+                    position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+                    elevation: 0,
+                    child: AvatarWidget.fromContact(
+                      contact.contact.value,
+                      avatar: contact.user.value?.user.value.avatar,
+                    ),
+                  ),
+                ),
+                title: Text(contact.contact.value.name.val),
+                trailing: contact.contact.value.users.isNotEmpty
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () =>
-                                c.startAudioCall(contact.users.first),
+                            onPressed: () => c.startAudioCall(
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.call),
                           ),
                           IconButton(
-                            onPressed: () =>
-                                c.startVideoCall(contact.users.first),
+                            onPressed: () => c.startVideoCall(
+                                contact.contact.value.users.first),
                             icon: const Icon(Icons.video_call),
                           )
                         ],
                       )
                     : null,
-                onTap: contact.users.isNotEmpty
+                onTap: contact.contact.value.users.isNotEmpty
                     // TODO: Open [Routes.contact] page when it's implemented.
-                    ? () => router.user(contact.users.first.id)
+                    ? () => router.user(contact.contact.value.users.first.id)
                     : null,
               ),
       );
