@@ -16,31 +16,32 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Waits until message with provided status and text in chat with provided user
 /// is present.
 ///
 /// Examples:
-/// - Then I wait until message with text "123" in chat with Bob status is
+/// - Then I wait until message with text "123" status is
 /// sending
-/// - Then I wait until message with text "123" in chat with Bob status is error
-/// - Then I wait until message with text "123" in chat with Bob status is sent
+/// - Then I wait until message with text "123" status is error
+/// - Then I wait until message with text "123" status is sent
 final StepDefinitionGeneric waitUntilMessageStatus =
-    then3<String, TestUser, SendingStatus, CustomWorld>(
-  'I wait until message with text {string} in chat with {user} status is {sendingStatus}',
-  (text, user, status, context) async {
+    then2<String, SendingStatus, CustomWorld>(
+  'I wait until message with text {string} status is {sendingStatus}',
+  (text, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
         ChatService service = Get.find();
-        var chat = service.chats[context.world.sessions[user.name]!.dialog!];
+        var chat = service.chats[ChatId(router.route.split('/').last)];
         var message = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()

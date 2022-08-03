@@ -16,24 +16,25 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Long press message with provided text in chat with provided user.
 ///
 /// Examples:
-/// - Then I long press message with text "123" in chat with Bob
+/// - Then I long press message with text "123"
 final StepDefinitionGeneric longPressMessageByText =
-    then2<String, TestUser, CustomWorld>(
-  'I long press message with text {string} in chat with {user}',
-  (text, user, context) async {
+    then1<String, CustomWorld>(
+  'I long press message with text {string}',
+  (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
     ChatService service = Get.find();
-    var chat = service.chats[context.world.sessions[user.name]!.dialog!];
+    var chat = service.chats[ChatId(router.route.split('/').last)];
     var message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
@@ -49,15 +50,15 @@ final StepDefinitionGeneric longPressMessageByText =
 /// Long press message with provided attachment name in chat with provided user.
 ///
 /// Examples:
-/// - Then I long press message with attachment "test.jpg" in chat with Bob
-/// - Then I long press message with attachment "test.txt" in chat with Bob
+/// - Then I long press message with attachment "test.jpg"
+/// - Then I long press message with attachment "test.txt"
 final StepDefinitionGeneric longPressMessageByAttachment =
-    then2<String, TestUser, CustomWorld>(
-  'I long press message with attachment {string} in chat with {user}',
-  (name, user, context) async {
+    then1<String, CustomWorld>(
+  'I long press message with attachment {string}',
+  (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
     ChatService service = Get.find();
-    var chat = service.chats[context.world.sessions[user.name]!.dialog!];
+    var chat = service.chats[ChatId(router.route.split('/').last)];
     var message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()

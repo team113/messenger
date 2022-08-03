@@ -10,7 +10,7 @@ Feature: Chat messages has correct sending status
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until message with text "123" in chat with Bob status is sent
+    And I wait until message with text "123" status is sent
 
   Scenario: Message status changes from `sending` to `sent`
     Given I am Alice
@@ -19,12 +19,12 @@ Feature: Chat messages has correct sending status
     And I am in chat with Bob
     And I wait until `MessageField` is present
 
-    Given I have Internet with delay 2 second
+    Given I have Internet with delay 3 seconds
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until message with text "123" in chat with Bob status is sending
-    And I wait until message with text "123" in chat with Bob status is sent
+    And I wait until message with text "123" status is sending
+    And I wait until message with text "123" status is sent
 
   Scenario: User deletes non-sent message
     Given I am Alice
@@ -37,9 +37,9 @@ Feature: Chat messages has correct sending status
     Then I fill `MessageField` field with "123"
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until message with text "123" in chat with Bob status is error
+    And I wait until message with text "123" status is error
 
-    Then I long press message with text "123" in chat with Bob
+    Then I long press message with text "123"
     And I wait until `Delete` is present
     And I tap `Delete` button
     And I wait until text "123" is absent
@@ -56,14 +56,14 @@ Feature: Chat messages has correct sending status
 
     Given I do not have Internet
     Then I tap `Send` widget
-    And I wait until message with text "123" in chat with Bob status is error
+    And I wait until message with text "123" status is error
 
-    Given I have Internet with delay 2 second
-    Then I long press message with text "123" in chat with Bob
+    Given I have Internet with delay 3 seconds
+    Then I long press message with text "123"
     And I wait until `Resend` is present
     And I tap `Resend` button
-    And I wait until message with text "123" in chat with Bob status is sending
-    And I wait until message with text "123" in chat with Bob status is sent
+    And I wait until message with text "123" status is sending
+    And I wait until message with text "123" status is sent
 
   Scenario: Non-sent messages are persisted
     Given I am Alice
@@ -77,10 +77,10 @@ Feature: Chat messages has correct sending status
 
     Given I do not have Internet
     Then I tap `Send` widget
-    And I wait until message with text "123" in chat with Bob status is error
+    And I wait until message with text "123" status is error
 
-    Given I have Internet with delay 1 second
+    Given I have Internet with delay 3 seconds
     Then I restart app
     And I wait until `HomeView` is present
     And I am in chat with Bob
-    And I wait until message with text "123" in chat with Bob status is error
+    And I wait until message with text "123" status is error

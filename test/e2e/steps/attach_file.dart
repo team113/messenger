@@ -20,25 +20,25 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../parameters/attachment_type.dart';
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Attaches an [Attachment] with the provided name and type.
 ///
 /// Examples:
-/// - Then I attach "test.txt" file in chat with "Bob"
-/// - Then I attach "test.png" image in chat with "Bob"
+/// - Then I attach "test.txt" file
+/// - Then I attach "test.png" image
 final StepDefinitionGeneric attachFile =
-    then3<String, AttachmentType, TestUser, CustomWorld>(
-  'I attach {string} {attachmentType} in chat with {user}',
-  (name, attachmentType, user, context) async {
+    then2<String, AttachmentType, CustomWorld>(
+  'I attach {string} {attachmentType}',
+  (name, attachmentType, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
     ChatController chat = Get.find<ChatController>(
-      tag: context.world.sessions[user.name]!.dialog!.val,
+      tag: router.route.split('/').last,
     );
 
     attachmentType == AttachmentType.file
