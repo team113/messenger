@@ -16,7 +16,8 @@
 
 import 'package:flutter/material.dart';
 
-/// Draggable widget reporting delta of a dragging through [onDrag] callback.
+/// Draggable widget reporting delta of a dragging through [onDragUpdate]
+/// callback.
 class Scaler extends StatefulWidget {
   const Scaler({
     Key? key,
