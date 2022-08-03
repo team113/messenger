@@ -190,44 +190,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           // Empty drop zone if [secondary] is empty.
           _secondaryTarget(c),
         ]);
-
-        // Show a hint if any renderer is draggable.
-        content.add(Obx(() {
-          bool hideSecondary = c.size.width < 500 && c.size.height < 500;
-          bool mayDragVideo = !hideSecondary &&
-              (c.focused.length > 1 ||
-                  (c.focused.isEmpty &&
-                      c.primary.length + c.secondary.length > 1));
-
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: !c.isHintDismissed.value && mayDragVideo
-                ? Padding(
-                    padding: EdgeInsets.only(
-                      top: c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value == Alignment.topCenter
-                          ? 10 + c.secondaryHeight.value
-                          : 10,
-                      right: c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value ==
-                                  Alignment.centerRight
-                          ? 10 + c.secondaryWidth.value
-                          : 10,
-                    ),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: 'label_hint_drag_n_drop_video'.l10n,
-                          onTap: c.isHintDismissed.toggle,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }));
       } else {
         // Call is not active.
         content.add(Obx(() {
@@ -273,41 +235,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           }),
         );
       }
-
-      // If there's any error to show, display it.
-      content.add(Obx(() {
-        return AnimatedSwitcher(
-          duration: 150.milliseconds,
-          child: c.errorTimeout.value != 0
-              ? Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value == Alignment.topCenter
-                          ? 10 + c.secondaryHeight.value
-                          : 10,
-                      right: c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value ==
-                                  Alignment.centerRight
-                          ? 10 + c.secondaryWidth.value
-                          : 10,
-                    ),
-                    child: SizedBox(
-                      width: 320,
-                      child: HintWidget(
-                        text: '${c.error}.',
-                        onTap: () {
-                          c.errorTimeout.value = 0;
-                        },
-                        isError: true,
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        );
-      }));
 
       _padding(Widget child) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -742,9 +669,85 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Secondary panel itself.
-        if (c.state.value == OngoingCallState.active)
+        if (c.state.value == OngoingCallState.active) ...[
+          // Secondary panel itself.
           _secondaryView(c, context),
+
+          // Show a hint if any renderer is draggable.
+          Obx(() {
+            bool hideSecondary = c.size.width < 500 && c.size.height < 500;
+            bool mayDragVideo = !hideSecondary &&
+                (c.focused.length > 1 ||
+                    (c.focused.isEmpty &&
+                        c.primary.length + c.secondary.length > 1));
+
+            return AnimatedSwitcher(
+              duration: 150.milliseconds,
+              child: !c.isHintDismissed.value && mayDragVideo
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                        top: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.topCenter
+                            ? 10 + c.secondaryHeight.value
+                            : 10,
+                        right: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerRight
+                            ? 10 + c.secondaryWidth.value
+                            : 10,
+                      ),
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: SizedBox(
+                          width: 320,
+                          child: HintWidget(
+                            text: 'label_hint_drag_n_drop_video'.l10n,
+                            onTap: c.isHintDismissed.toggle,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
+            );
+          }),
+        ],
+
+        // If there's any error to show, display it.
+        Obx(() {
+          return AnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: c.errorTimeout.value != 0
+                ? Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.topCenter
+                            ? 10 + c.secondaryHeight.value
+                            : 10,
+                        right: c.secondary.isNotEmpty &&
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerRight
+                            ? 10 + c.secondaryWidth.value
+                            : 10,
+                      ),
+                      child: SizedBox(
+                        width: 320,
+                        child: HintWidget(
+                          text: '${c.error}.',
+                          onTap: () {
+                            c.errorTimeout.value = 0;
+                          },
+                          isError: true,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
+          );
+        }),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
