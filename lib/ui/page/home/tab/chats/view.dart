@@ -102,7 +102,7 @@ class ChatsTabView extends StatelessWidget {
             .where((e) => e.id != c.me)
             .map((e) => e.name?.val ?? e.num.val);
 
-        if (chat.currentCall != null) {
+        if (chat.currentCall == null) {
           if (typings.isNotEmpty) {
             subtitle = [
               Expanded(
@@ -136,7 +136,7 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
-                      onPressed: () => c.joinCall(chat.id),
+                      onPressed: () => c.joinCallWithoutVideo(chat.id),
                       child: Text('btn_join_call'.l10n),
                     ),
                   ),
@@ -204,7 +204,7 @@ class ChatsTabView extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
-                  onPressed: () => c.joinCall(chat.id),
+                  onPressed: () => c.joinCallWithoutVideo(chat.id),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(
                       Icons.call,
@@ -228,7 +228,7 @@ class ChatsTabView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => c.joinCallWithVideo(chat.id),
                 child: const Icon(
                   Icons.video_call,
                   size: 22,
