@@ -25,6 +25,7 @@ Feature: Password setting in `IntroductionView`
 
     Then I fill `PasswordField` field with "123"
     Then I fill `RepeatPasswordField` field with "123"
+    Then I save value of `NumCopyable` field to clipboard
 
     And I tap `ChangePasswordButton` button
     And I wait until `IntroductionView_success` is present
@@ -34,4 +35,11 @@ Feature: Password setting in `IntroductionView`
     And I tap `LogoutButton` button
     Then I wait until `AuthView` is present
 
-    Then I pause for 10 seconds
+    When I tap `SignInButton` button
+    And I wait until `LoginView` is present
+
+    Then I fill `UsernameField` field with clipboard value
+    Then I fill `PasswordField` field with "123"
+
+    When I tap `LoginButton` button
+    And I wait until `HomeView` is present

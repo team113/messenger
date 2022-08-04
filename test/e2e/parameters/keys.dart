@@ -36,6 +36,7 @@ enum WidgetKey {
   HomeView,
   IntroductionCloseButton,
   IntroductionSetPasswordButton,
+  IntroductionView,
   IntroductionView_introduction,
   IntroductionView_password,
   IntroductionView_success,

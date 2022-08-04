@@ -23,7 +23,7 @@ part 'suite.g.dart';
 
 /// Entry point of E2E tests.
 @GherkinTestSuite(
-    featurePaths: ['test/e2e/features/auth/introduction_view/**.feature'])
+    featurePaths: ['test/e2e/features/auth/introduction_view**.feature'])
 void main() async {
   executeTestSuite(
     gherkinTestConfiguration,
