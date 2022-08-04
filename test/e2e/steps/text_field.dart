@@ -33,7 +33,8 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   fillTextField,
 );
 
-/// Puts the value from [CustomWorld.clipboardValue] to the textfield.
+/// Enters the [CustomWorld.clipboardValue] text into the widget with the
+/// provided [WidgetKey].
 StepDefinitionGeneric fillFieldFromClipboard = when1<WidgetKey, CustomWorld>(
   'I fill {key} field with clipboard value',
   (key, context) async {
@@ -74,6 +75,8 @@ StepDefinitionGeneric saveFieldTextToClipboard = when1<WidgetKey, CustomWorld>(
   },
 );
 
+/// Function for the entering of the [value] text into the widget with the
+/// provided [WidgetKey].
 Future<void> fillTextField(
     WidgetKey key, String value, StepContext<FlutterWorld> context) async {
   await context.world.appDriver.waitForAppToSettle();
