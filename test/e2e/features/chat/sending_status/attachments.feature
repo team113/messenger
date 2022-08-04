@@ -7,12 +7,12 @@ Feature: Chat attachments has correct sending status
     And I am in chat with Bob
     And I wait until `MessageField` is present
 
-    Given I have Internet with delay 3 seconds
+    Given I have Internet with delay of 3 seconds
     Then I attach "test.txt" file
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until file with name "test.txt" status is sending
-    And I wait until file with name "test.txt" status is sent
+    And I wait until status of "test.txt" attachment is sending
+    And I wait until status of "test.txt" attachment is sent
 
   Scenario: Image attachment status changes from `sending` to `sent`
     Given I am Alice
@@ -21,12 +21,12 @@ Feature: Chat attachments has correct sending status
     And I am in chat with Bob
     And I wait until `MessageField` is present
 
-    Given I have Internet with delay 3 seconds
+    Given I have Internet with delay of 3 seconds
     Then I attach "test.jpg" image
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until image with name "test.jpg" status is sending
-    And I wait until image with name "test.jpg" status is sent
+    And I wait until status of "test.jpg" attachment is sending
+    And I wait until status of "test.jpg" attachment is sent
 
   Scenario: User resends file attachment
     Given I am Alice
@@ -39,14 +39,14 @@ Feature: Chat attachments has correct sending status
     Then I attach "test.txt" file
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until file with name "test.txt" status is error
+    And I wait until status of "test.txt" attachment is error
 
-    Given I have Internet with delay 3 seconds
-    Then I long press message with attachment "test.txt"
+    Given I have Internet with delay of 3 seconds
+    Then I long press message with "test.txt"
     And I wait until `Resend` is present
     And I tap `Resend` button
-    And I wait until file with name "test.txt" status is sending
-    And I wait until file with name "test.txt" status is sent
+    And I wait until status of "test.txt" attachment is sending
+    And I wait until status of "test.txt" attachment is sent
 
   Scenario: User resends image attachment
     Given I am Alice
@@ -59,11 +59,11 @@ Feature: Chat attachments has correct sending status
     Then I attach "test.jpg" image
     And I wait until `Send` is present
     Then I tap `Send` widget
-    And I wait until image with name "test.jpg" status is error
+    And I wait until status of "test.jpg" attachment is error
 
-    Given I have Internet with delay 3 seconds
-    Then I long press message with attachment "test.jpg"
+    Given I have Internet with delay of 3 seconds
+    Then I long press message with "test.jpg"
     And I wait until `Resend` is present
     And I tap `Resend` button
-    And I wait until image with name "test.jpg" status is sending
-    And I wait until image with name "test.jpg" status is sent
+    And I wait until status of "test.jpg" attachment is sending
+    And I wait until status of "test.jpg" attachment is sent

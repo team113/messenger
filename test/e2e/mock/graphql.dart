@@ -25,7 +25,7 @@ import 'package:mutex/mutex.dart';
 
 /// Mocked [GraphQlProvider] containing its [MockGraphQlClient].
 class MockGraphQlProvider extends GraphQlProvider {
-  /// Mocked [GraphQlClient].
+  /// Mocked [GraphQlClient] itself.
   final MockGraphQlClient _client = MockGraphQlClient();
 
   @override

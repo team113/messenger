@@ -14,66 +14,66 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Long press message with provided text.
+/// Long presses a [ChatMessage] with the provided text in the currently opened
+/// [Chat].
 ///
 /// Examples:
-/// - Then I long press message with text "123"
+/// - Then I long press "123" message
 final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
-  'I long press message with text {string}',
+  'I long press {string} message',
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    ChatService service = Get.find();
-    var chat = service.chats[ChatId(router.route.split('/').last)];
-    var message = chat!.messages
+
+    RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    ChatMessage message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
-    var messageFinder =
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
-    var messageBody = context.world.appDriver.findByDescendant(
-      messageFinder,
-      context.world.appDriver.findByKeySkipOffstage('MessageBody'),
-    );
 
-    await context.world.appDriver.nativeDriver.longPress(messageBody);
+    Finder finder =
+        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+
+    await context.world.appDriver.nativeDriver.longPress(finder);
     await context.world.appDriver.waitForAppToSettle();
   },
 );
 
-/// Long press message with provided attachment name.
+/// Long presses a [ChatMessage] with the provided attachment attached to it in
+/// the currently opened [Chat].
 ///
 /// Examples:
-/// - Then I long press message with attachment "test.jpg"
-/// - Then I long press message with attachment "test.txt"
+/// - Then I long press message with "test.jpg"
+/// - Then I long press message with "test.txt"
 final StepDefinitionGeneric longPressMessageByAttachment =
     then1<String, CustomWorld>(
-  'I long press message with attachment {string}',
+  'I long press message with {string}',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    ChatService service = Get.find();
-    var chat = service.chats[ChatId(router.route.split('/').last)];
-    var message = chat!.messages
+
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    final ChatMessage message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .firstWhere((e) => e.attachments.any((a) => a.filename == name));
-    var messageFinder =
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
-    var messageBody = context.world.appDriver.findByDescendant(
-      messageFinder,
-      context.world.appDriver.findByKeySkipOffstage('MessageBody'),
-    );
 
-    await context.world.appDriver.nativeDriver.longPress(messageBody);
+    final Finder finder =
+        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+
+    await context.world.appDriver.nativeDriver.longPress(finder);
     await context.world.appDriver.waitForAppToSettle();
   },
 );

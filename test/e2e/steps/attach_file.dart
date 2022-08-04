@@ -23,40 +23,42 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
-import '../parameters/attachment_type.dart';
+import '../parameters/attachment.dart';
 import '../world/custom_world.dart';
 
-/// Attaches an [Attachment] with the provided name and type.
+/// Attaches an [Attachment] with the provided filename and [AttachmentType] to
+/// the currently opened [Chat].
 ///
 /// Examples:
 /// - Then I attach "test.txt" file
 /// - Then I attach "test.png" image
 final StepDefinitionGeneric attachFile =
     then2<String, AttachmentType, CustomWorld>(
-  'I attach {string} {attachmentType}',
+  'I attach {string} {attachment}',
   (name, attachmentType, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    ChatController chat = Get.find<ChatController>(
-      tag: router.route.split('/').last,
-    );
+    final ChatController chat =
+        Get.find<ChatController>(tag: router.route.split('/').last);
 
-    attachmentType == AttachmentType.file
-        ? chat.addPlatformAttachment(
-            PlatformFile(
-              name: name,
-              size: 2,
-              bytes: Uint8List.fromList([1, 1]),
-            ),
-          )
-        : chat.addPlatformAttachment(
-            PlatformFile(
-              name: name,
-              size: 2,
-              bytes: base64Decode(
-                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-              ),
-            ),
-          );
+    if (attachmentType == AttachmentType.file) {
+      chat.addPlatformAttachment(
+        PlatformFile(
+          name: name,
+          size: 2,
+          bytes: Uint8List.fromList([1, 1]),
+        ),
+      );
+    } else {
+      chat.addPlatformAttachment(
+        PlatformFile(
+          name: name,
+          size: 2,
+          bytes: base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+          ),
+        ),
+      );
+    }
   },
 );

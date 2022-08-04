@@ -29,7 +29,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
-import 'parameters/attachment_type.dart';
+import 'parameters/attachment.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
@@ -50,8 +50,7 @@ import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
-import 'steps/wait_until_file_status.dart';
-import 'steps/wait_until_image_status.dart';
+import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_widget.dart';
@@ -84,8 +83,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         updateBio,
         user,
-        waitUntilFileStatus,
-        waitUntilImageStatus,
+        waitUntilAttachmentStatus,
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
@@ -150,7 +148,8 @@ Future<Session> createUser(
   );
 }
 
-/// Extension adding ability to find widget without skipping the offstage.
+/// Extension adding an ability to find the [Widget]s without skipping the
+/// offstage to [AppDriverAdapter].
 extension SkipOffstageExtension on AppDriverAdapter {
   /// Finds the [Widget] by its [key] without skipping the offstage.
   Finder findByKeySkipOffstage(String key) =>

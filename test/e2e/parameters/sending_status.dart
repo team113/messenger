@@ -15,21 +15,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/sending_status.dart';
 
-/// Available sending statuses of the [SendingStatusParameter].
-enum SendingStatus {
-  sending,
-  error,
-  sent,
-}
-
-/// [CustomParameter] representing a sending status of an [Attachment] or
-/// [ChatItem].
+/// [CustomParameter] representing a [SendingStatus].
 class SendingStatusParameter extends CustomParameter<SendingStatus> {
   SendingStatusParameter()
       : super(
-          'sendingStatus',
+          'sending',
           RegExp(
             '(${SendingStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: true,

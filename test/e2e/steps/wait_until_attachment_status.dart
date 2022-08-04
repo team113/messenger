@@ -14,64 +14,72 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:gherkin/gherkin.dart';
+import 'package:gherkin/gherkin.dart' hide Attachment;
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/sending_status.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
-import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
-/// Waits until image with provided status and name is present.
+/// Waits until [LocalAttachment.status] of the specified [Attachment] becomes
+/// the provided [SendingStatus].
 ///
 /// Examples:
-/// - Then I wait until image with name "test.jpg" status is sending
-/// - Then I wait until image with name "test.jpg" status is error
-/// - Then I wait until image with name "test.jpg" status is sent
-final StepDefinitionGeneric waitUntilImageStatus =
+/// - Then I wait until status of "test.txt" attachment is sending
+/// - Then I wait until status of "test.jpg" attachment is error
+/// - Then I wait until status of "test.doc" attachment is sent
+final StepDefinitionGeneric waitUntilAttachmentStatus =
     then2<String, SendingStatus, CustomWorld>(
-  'I wait until image with name {string} status is {sendingStatus}',
+  'I wait until status of {string} attachment is {sending}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-        ChatService service = Get.find();
-        var chat = service.chats[ChatId(router.route.split('/').last)];
-        var message = chat!.messages
+
+        RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        Attachment attachment = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
-            .firstWhere((e) => e.attachments.any((a) => a.filename == name));
-        var messageFinder = context.world.appDriver
-            .findByKeySkipOffstage('Message_${message.id}');
+            .expand((e) => e.attachments)
+            .firstWhere((a) => a.filename == name);
 
-        if (await context.world.appDriver.isPresent(messageFinder)) {
+        Finder finder = context.world.appDriver
+            .findByKeySkipOffstage('AttachmentStatus_${attachment.id}');
+
+        if (await context.world.appDriver.isPresent(finder)) {
           return status == SendingStatus.sending
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
-                      messageFinder,
-                      context.world.appDriver
-                          .findByKeySkipOffstage('SendingImage')),
+                    finder,
+                    context.world.appDriver.findByKeySkipOffstage('Sending'),
+                  ),
                 )
               : status == SendingStatus.error
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
-                          messageFinder,
-                          context.world.appDriver
-                              .findByKeySkipOffstage('ErrorImage')),
+                        finder,
+                        context.world.appDriver.findByKeySkipOffstage('Error'),
+                      ),
                     )
                   : context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
-                          messageFinder,
-                          context.world.appDriver
-                              .findByKeySkipOffstage('SentImage')),
+                        finder,
+                        context.world.appDriver.findByKeySkipOffstage('Sent'),
+                      ),
                     );
         }
 
         return false;
       },
+      timeout: context.configuration.timeout ?? const Duration(seconds: 30),
     );
   },
 );

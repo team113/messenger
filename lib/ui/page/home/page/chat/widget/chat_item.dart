@@ -333,28 +333,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         ),
                                       ),
                                     ),
-                          if (isLocal)
-                            ElasticAnimatedSwitcher(
-                              child: e.status.value == SendingStatus.sent
-                                  ? const Icon(
-                                      Icons.check_circle,
-                                      size: 48,
-                                      color: Colors.green,
-                                    )
-                                  : e.status.value == SendingStatus.sending
-                                      ? CircularProgressIndicator(
-                                          key: const Key('SendingImage'),
-                                          value: e.progress.value,
-                                          backgroundColor: Colors.white,
-                                          strokeWidth: 10,
-                                        )
-                                      : const Icon(
-                                          Icons.error,
-                                          key: Key('ErrorImage'),
-                                          size: 48,
-                                          color: Colors.red,
-                                        ),
-                            )
+                          ElasticAnimatedSwitcher(
+                            key: Key('AttachmentStatus_${e.id}'),
+                            child: !isLocal ||
+                                    (isLocal &&
+                                        e.status.value == SendingStatus.sent)
+                                ? Container(key: const Key('Sent'))
+                                : e.status.value == SendingStatus.sending
+                                    ? CircularProgressIndicator(
+                                        key: const Key('Sending'),
+                                        value: e.progress.value,
+                                        backgroundColor: Colors.white,
+                                        strokeWidth: 10,
+                                      )
+                                    : const Icon(
+                                        Icons.error,
+                                        key: Key('Error'),
+                                        size: 48,
+                                        color: Colors.red,
+                                      ),
+                          )
                         ],
                       ),
                     ),
@@ -375,18 +373,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Padding(
+                        key: Key('AttachmentStatus_${e.id}'),
                         padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
                         child: isLocal
                             ? ElasticAnimatedSwitcher(
                                 child: e.status.value == SendingStatus.sent
                                     ? const Icon(
                                         Icons.check_circle,
+                                        key: Key('Sent'),
                                         size: 18,
                                         color: Colors.green,
                                       )
                                     : e.status.value == SendingStatus.sending
                                         ? SizedBox.square(
-                                            key: const Key('SendingFile'),
+                                            key: const Key('Sending'),
                                             dimension: 18,
                                             child: CircularProgressIndicator(
                                               value: e.progress.value,
@@ -396,14 +396,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                           )
                                         : const Icon(
                                             Icons.error_outline,
-                                            key: Key('ErrorFile'),
+                                            key: Key('Error'),
                                             size: 18,
                                             color: Colors.red,
                                           ),
                               )
                             : const Icon(
                                 Icons.attach_file,
-                                key: Key('SentFile'),
+                                key: Key('Sent'),
                                 size: 18,
                                 color: Colors.blue,
                               ),
@@ -676,7 +676,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isSending: widget.item.value.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
-        key: Key('Message_${item.id}'),
         crossAxisAlignment:
             fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisAlignment:
@@ -684,6 +683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         children: [
           if (fromMe)
             Padding(
+              key: Key('MessageStatus_${item.id}'),
               padding: const EdgeInsets.only(bottom: 16),
               child: AnimatedDelayedSwitcher(
                 delay: widget.item.value.status.value == SendingStatus.sending
@@ -691,13 +691,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Duration.zero,
                 child: widget.item.value.status.value == SendingStatus.sending
                     ? const Padding(
-                        key: Key('SendingMessage'),
+                        key: Key('Sending'),
                         padding: EdgeInsets.only(left: 8),
                         child: Icon(Icons.access_alarm, size: 15),
                       )
                     : widget.item.value.status.value == SendingStatus.error
                         ? const Padding(
-                            key: Key('ErrorMessage'),
+                            key: Key('Error'),
                             padding: EdgeInsets.only(left: 8),
                             child: Icon(
                               Icons.error_outline,
@@ -705,7 +705,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               color: Colors.red,
                             ),
                           )
-                        : Container(key: const Key('SentMessage')),
+                        : Container(key: const Key('Sent')),
               ),
             ),
           if (!fromMe && widget.chat.value!.isGroup)
@@ -722,7 +722,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             ),
           Flexible(
-            key: const Key('MessageBody'),
+            key: Key('Message_${item.id}'),
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
                 constraints: BoxConstraints(

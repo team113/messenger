@@ -26,7 +26,7 @@ enum AttachmentType {
 class AttachmentTypeParameter extends CustomParameter<AttachmentType> {
   AttachmentTypeParameter()
       : super(
-          'attachmentType',
+          'attachment',
           RegExp(
             '(${AttachmentType.values.map((e) => e.name).join('|')})',
             caseSensitive: true,

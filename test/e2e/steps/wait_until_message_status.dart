@@ -14,65 +14,70 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/sending_status.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
-import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
-/// Waits until message with provided status and text is present.
+/// Waits until [ChatItem.status] of the specified [ChatMessage] becomes the
+/// provided [SendingStatus].
 ///
 /// Examples:
-/// - Then I wait until message with text "123" status is
-/// sending
-/// - Then I wait until message with text "123" status is error
-/// - Then I wait until message with text "123" status is sent
+/// - Then I wait until status of "123" message is sending
+/// - Then I wait until status of "123" message is error
+/// - Then I wait until status of "123" message is sent
 final StepDefinitionGeneric waitUntilMessageStatus =
     then2<String, SendingStatus, CustomWorld>(
-  'I wait until message with text {string} status is {sendingStatus}',
+  'I wait until status of {string} message is {sending}',
   (text, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-        ChatService service = Get.find();
-        var chat = service.chats[ChatId(router.route.split('/').last)];
-        var message = chat!.messages
+
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        final ChatMessage message = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .firstWhere((e) => e.text?.val == text);
-        var messageFinder = context.world.appDriver
-            .findByKeySkipOffstage('Message_${message.id}');
 
-        if (await context.world.appDriver.isPresent(messageFinder)) {
+        final Finder finder = context.world.appDriver
+            .findByKeySkipOffstage('MessageStatus_${message.id}');
+
+        if (await context.world.appDriver.isPresent(finder)) {
           return status == SendingStatus.sending
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
-                      messageFinder,
-                      context.world.appDriver
-                          .findByKeySkipOffstage('SendingMessage')),
+                    finder,
+                    context.world.appDriver.findByKeySkipOffstage('Sending'),
+                  ),
                 )
               : status == SendingStatus.error
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
-                          messageFinder,
-                          context.world.appDriver
-                              .findByKeySkipOffstage('ErrorMessage')),
+                        finder,
+                        context.world.appDriver.findByKeySkipOffstage('Error'),
+                      ),
                     )
                   : context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
-                          messageFinder,
-                          context.world.appDriver
-                              .findByKeySkipOffstage('SentMessage')),
+                        finder,
+                        context.world.appDriver.findByKeySkipOffstage('Sent'),
+                      ),
                     );
         }
 
         return false;
       },
+      timeout: context.configuration.timeout ?? const Duration(seconds: 30),
     );
   },
 );

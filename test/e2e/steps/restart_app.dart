@@ -30,7 +30,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
   'I restart app',
   (context) async {
     // Going to [Routes.restart] page ensures all [GetxController]s are properly
-    // released since they depend on [router]'s state.
+    // released since they depend on the [router].
     router.go(Routes.restart);
     await context.world.appDriver.waitForAppToSettle();
 

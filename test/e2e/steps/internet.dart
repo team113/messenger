@@ -24,12 +24,12 @@ import '../world/custom_world.dart';
 /// Sets the provided delay to all [GraphQlProvider] requests.
 ///
 /// Examples:
-/// - I have Internet with delay 1 second
-/// - I have Internet with delay 2 seconds
+/// - I have Internet with delay of 1 second
+/// - I have Internet with delay of 2 seconds
 final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
-  'I have Internet with delay {int} second(s)?',
+  'I have Internet with delay of {int} second(s)?',
   (int delay, context) => Future.sync(() {
-    GraphQlProvider provider = Get.find();
+    final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
@@ -37,14 +37,14 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
   }),
 );
 
-/// Sets no delay to all [GraphQlProvider] requests.
+/// Removes delay from the [GraphQlProvider] requests.
 ///
 /// Examples:
 /// - I have Internet without delay
 final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   'I have Internet without delay',
   (context) => Future.sync(() {
-    GraphQlProvider provider = Get.find();
+    final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
       provider.client.throwException = false;
@@ -59,7 +59,7 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
 final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   'I do not have Internet',
   (context) => Future.sync(() {
-    GraphQlProvider provider = Get.find();
+    final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
       provider.client.throwException = true;

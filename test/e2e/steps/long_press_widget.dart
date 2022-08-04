@@ -20,7 +20,7 @@ import '../configuration.dart';
 import '../parameters/keys.dart';
 import '../world/custom_world.dart';
 
-/// Long press the widget found with the given [WidgetKey].
+/// Long presses the [Widget] found with the given [WidgetKey].
 ///
 /// Examples:
 /// - When I long press `WidgetKey` button
