@@ -202,9 +202,7 @@ class ChatsTabView extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
-                  onPressed: () => c.joinCall(
-                    chat.id,
-                  ),
+                  onPressed: () => c.joinCall(chat.id),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(
                       Icons.call,
