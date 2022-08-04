@@ -76,10 +76,7 @@ class ChatsTabView extends StatelessWidget {
                               .map(
                                 (e) => KeyedSubtree(
                                   key: Key('Chat_${e.chat.value.id}'),
-                                  child: buildChatTile(
-                                    c,
-                                    e,
-                                  ),
+                                  child: buildChatTile(c, e),
                                 ),
                               )
                               .toList(),
@@ -93,11 +90,7 @@ class ChatsTabView extends StatelessWidget {
   }
 
   /// Reactive [ListTile] with [chat]'s information.
-  Widget buildChatTile(
-    ChatsTabController c,
-    RxChat rxChat,
-  ) =>
-      Obx(() {
+  Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
         Chat chat = rxChat.chat.value;
 
         const Color subtitleColor = Color(0xFF666666);
@@ -141,9 +134,7 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
-                      onPressed: () => c.joinCall(
-                        chat.id,
-                      ),
+                      onPressed: () => c.joinCall(chat.id),
                       child: Text('btn_join_call'.l10n),
                     ),
                   ),
