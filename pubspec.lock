@@ -895,7 +895,7 @@ packages:
     description:
       path: flutter
       ref: HEAD
-      resolved-ref: e031fc8540b88e3fd40b899a633f8388842dc15e
+      resolved-ref: f1c58b074119e769078d02e3cfb8251323852252
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"

@@ -123,9 +123,9 @@ class HomeController extends GetxController {
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
   void _displayIntroduction(MyUser myUser) {
     if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!);
+      IntroductionView.show(router.context!)
+          .then((_) => _settingsRepository.setShowIntroduction(false));
     }
-    _settingsRepository.setShowIntroduction(false);
   }
 
   /// Refreshes the controller on [router] change.
