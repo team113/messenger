@@ -68,9 +68,10 @@ dependencies:
   #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
   photo_view:
     git:
-      url: https://github.com/bluefireteam/photo_view
+      url: https://github.com/bluefireteam/photo_view.git
       ref: master
   platform_detect: ^2.0.3
+  rive: ^0.9.0
   sentry_flutter: ^6.5.1
   sliding_up_panel: ^2.0.0+1
   toml: ^0.12.0

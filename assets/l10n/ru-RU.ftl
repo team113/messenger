@@ -124,7 +124,6 @@ btn_call_video_on_desc =
     камеру
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
-btn_chat_join_call = Присоединиться к звонку
 btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy_text = Скопировать текст
@@ -151,7 +150,7 @@ btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_saved_messages = Сохранённые сообщения
 btn_settings = Настройки
-btn_start_chatting = Начать общение
+btn_start = Начать
 btn_submit = Применить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
