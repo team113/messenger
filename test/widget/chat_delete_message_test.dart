@@ -373,9 +373,13 @@ void main() async {
       const Key('Message_3a8547a2-bb2a-43bf-a8af-9e3b1d3a21f1'),
       skipOffstage: false,
     );
+    var messageBody = find.descendant(
+      of: message,
+      matching: find.byKey(const Key('MessageBody'), skipOffstage: false),
+    );
     expect(message, findsOneWidget);
 
-    await tester.longPress(message);
+    await tester.longPress(messageBody);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('DeleteForAll')));
@@ -393,9 +397,13 @@ void main() async {
       const Key('Message_91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
       skipOffstage: false,
     );
+    var hiddenMessageBody = find.descendant(
+      of: hidden,
+      matching: find.byKey(const Key('MessageBody'), skipOffstage: false),
+    );
     expect(hidden, findsOneWidget);
 
-    await tester.longPress(hidden);
+    await tester.longPress(hiddenMessageBody);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('HideForMe')));
