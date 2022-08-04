@@ -124,7 +124,6 @@ btn_call_video_on_desc =
     video on
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
-btn_chat_join_call = Join the call
 btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text

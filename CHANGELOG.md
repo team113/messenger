@@ -19,6 +19,8 @@ All user visible changes to this project will be documented in this file. This p
         - Language selection ([#23], [#29]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
+    - Chats tab:
+        - Button joining call with video ([#56], [#51]).
     - Introduction modal on sign up ([#38]).
 
 ### Changed
@@ -61,7 +63,9 @@ All user visible changes to this project will be documented in this file. This p
 [#44]: /../../issues/44
 [#45]: /../../pull/45
 [#47]: /../../pull/47
+[#51]: /../../issues/51
 [#53]: /../../pull/53
+[#56]: /../../pull/56
 
 
 
