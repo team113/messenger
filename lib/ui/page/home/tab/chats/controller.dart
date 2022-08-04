@@ -122,10 +122,11 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  /// Joins the call in the [Chat] identified by the provided [id].
-  Future<void> joinCall(ChatId id) async {
+  /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
+  /// or without.
+  Future<void> joinCall(ChatId id, {bool withVideo = false}) async {
     try {
-      await _callService.join(id, withVideo: false);
+      await _callService.join(id, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallDoesNotExistException catch (e) {

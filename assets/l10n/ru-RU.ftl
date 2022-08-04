@@ -124,7 +124,6 @@ btn_call_video_on_desc =
     камеру
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
-btn_chat_join_call = Присоединиться к звонку
 btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy_text = Скопировать текст
