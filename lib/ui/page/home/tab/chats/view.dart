@@ -76,7 +76,10 @@ class ChatsTabView extends StatelessWidget {
                               .map(
                                 (e) => KeyedSubtree(
                                   key: Key('Chat_${e.chat.value.id}'),
-                                  child: buildChatTile(c, e, context),
+                                  child: buildChatTile(
+                                    c,
+                                    e,
+                                  ),
                                 ),
                               )
                               .toList(),
@@ -91,7 +94,9 @@ class ChatsTabView extends StatelessWidget {
 
   /// Reactive [ListTile] with [chat]'s information.
   Widget buildChatTile(
-          ChatsTabController c, RxChat rxChat, BuildContext context) =>
+    ChatsTabController c,
+    RxChat rxChat,
+  ) =>
       Obx(() {
         Chat chat = rxChat.chat.value;
 
@@ -136,7 +141,7 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
-                      onPressed: () => c.joinCallWithoutVideo(chat.id),
+                      onPressed: () => c.joinCall(chat.id, withVideo: false),
                       child: Text('btn_join_call'.l10n),
                     ),
                   ),
@@ -204,7 +209,7 @@ class ChatsTabView extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
-                  onPressed: () => c.joinCallWithoutVideo(chat.id),
+                  onPressed: () => c.joinCall(chat.id, withVideo: false),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(
                       Icons.call,
@@ -228,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
               child: ElevatedButton(
-                onPressed: () => c.joinCallWithVideo(chat.id),
+                onPressed: () => c.joinCall(chat.id, withVideo: true),
                 child: const Icon(
                   Icons.video_call,
                   size: 22,
