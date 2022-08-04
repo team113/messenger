@@ -110,7 +110,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a cancel download action of a [FileAttachment] of
   /// this [ChatItem] is triggered.
-  final Function(AttachmentId)? onDownloadCancel;
+  final Function(FileAttachment)? onDownloadCancel;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -300,7 +300,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               switch (e.downloading.value) {
                 case DownloadingStatus.downloading:
                   leading = InkWell(
-                    onTap: () => widget.onDownloadCancel?.call(e.id),
+                    onTap: () => widget.onDownloadCancel?.call(e),
                     child: Stack(
                       alignment: AlignmentDirectional.center,
                       children: [

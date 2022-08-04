@@ -20,21 +20,26 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import 'web/web_utils.dart';
 
-// TODO: Remove when jonataslaw/getx#1936 is fixed:
-//       https://github.com/jonataslaw/getx/issues/1936
-/// [GetPlatform] adapter that fixes incorrect [GetPlatform.isMacOS] detection.
+/// Helper providing access to platform related features.
 class PlatformUtils {
+  /// Path to the download directory.
+  static String? _downloadDirectory;
+
   /// Indicates whether application is running in a web browser.
   static bool get isWeb => GetPlatform.isWeb;
 
+  // TODO: Remove when jonataslaw/getx#1936 is fixed:
+  //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
   static bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
 
@@ -82,8 +87,12 @@ class PlatformUtils {
     return const Stream.empty();
   }
 
-  /// Returns a path to the downloads directory.
-  static Future<String> get downloadsDirectory async {
+  /// Returns a path to the download directory.
+  static Future<String> get downloadDirectory async {
+    if (_downloadDirectory != null) {
+      return _downloadDirectory!;
+    }
+
     String path;
 
     if (PlatformUtils.isMobile) {
@@ -92,7 +101,8 @@ class PlatformUtils {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    return '$path/${Config.downloads}';
+    _downloadDirectory = '$path/${Config.downloads}';
+    return _downloadDirectory!;
   }
 
   /// Enters fullscreen mode.
@@ -126,7 +136,7 @@ class PlatformUtils {
   }
 
   /// Downloads the file from the provided [url].
-  static Future<File?> download(
+  static FutureOr<File?> download(
     String url,
     String filename, {
     Function(int count, int total)? onReceiveProgress,
@@ -139,7 +149,7 @@ class PlatformUtils {
       String name = p.basenameWithoutExtension(filename);
       String extension = p.extension(filename);
 
-      String path = await downloadsDirectory;
+      String path = await downloadDirectory;
 
       var file = File('$path/$filename');
 
@@ -156,6 +166,27 @@ class PlatformUtils {
 
       return file;
     }
+  }
+
+  /// Downloads the image with provided [url] and saves it to the gallery.
+  static Future<void> saveToGallery(String url, String name) async {
+    if(isMobile && !isWeb) {
+      Directory temp = await getTemporaryDirectory();
+
+      String path = '${temp.path}/$name';
+      await Dio().download(url, path);
+      await ImageGallerySaver.saveFile(path, name: name);
+      File(path).delete();
+    }
+  }
+
+  /// Downloads the file with provided [url] and opens share dialog with it.
+  static Future<void> share(String url, String name) async {
+    var appDocDir = await getTemporaryDirectory();
+    String savePath = '${appDocDir.path}/$name';
+    await Dio().download(url, savePath);
+    await Share.shareFiles([savePath]);
+    File(savePath).delete();
   }
 }
 

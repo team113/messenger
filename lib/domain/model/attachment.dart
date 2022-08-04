@@ -18,6 +18,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:open_file/open_file.dart';
 import 'package:universal_io/io.dart';
 import 'package:path/path.dart' as p;
 
@@ -103,12 +104,13 @@ class FileAttachment extends Attachment {
   /// Progress of this [FileAttachment] downloading.
   RxDouble progress = RxDouble(0);
 
+  /// [CancelToken] of this [FileAttachment] downloading.
   CancelToken? _token;
 
   /// Indicates whether this [FileAttachment] is downloading.
   bool get isDownloading => downloading.value == DownloadingStatus.downloading;
 
-  // TODO(review): clean it and use in store and controller
+  /// Initializes this [FileAttachment.downloading] status.
   Future<void> init() async {
     if (local != null) {
       var file = File(local!);
@@ -118,7 +120,7 @@ class FileAttachment extends Attachment {
       }
     }
 
-    String downloads = await PlatformUtils.downloadsDirectory;
+    String downloads = await PlatformUtils.downloadDirectory;
     String name = p.basenameWithoutExtension(filename);
     String ext = p.extension(filename);
     File file = File('$downloads/$filename');
@@ -136,6 +138,7 @@ class FileAttachment extends Attachment {
     }
   }
 
+  /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
       downloading.value = DownloadingStatus.downloading;
@@ -161,6 +164,20 @@ class FileAttachment extends Attachment {
       downloading.value = DownloadingStatus.empty;
       local = null;
     }
+  }
+
+  /// Opens this [FileAttachment], if downloaded, or otherwise downloads it.
+  Future<void> open() async {
+    if (local != null) {
+      File file = File(local!);
+
+      if (await file.exists() && await file.length() == size) {
+        await OpenFile.open(local!);
+        return;
+      }
+    }
+
+    await download();
   }
 
   void cancelDownload() => _token?.cancel();

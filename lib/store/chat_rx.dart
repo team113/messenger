@@ -15,13 +15,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
-import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction, ChatKind;
 import '/domain/model/attachment.dart';
@@ -328,35 +326,9 @@ class HiveRxChat implements RxChat {
   /// Initialize downloaded status of the provided [ChatMessage]'s attachments.
   Future<void> _setAttachmentsDownloaded(ChatMessage message) async {
     var attachments = message.attachments.whereType<FileAttachment>();
-    if (attachments.isNotEmpty) {
-      String path = await PlatformUtils.downloadsDirectory;
-      for (FileAttachment attachment in attachments) {
-        if (attachment.local != null) {
-          var file = File(attachment.local!);
-          if (await file.exists() && await file.length() == attachment.size) {
-            attachment.downloading.value = DownloadingStatus.downloaded;
-            return;
-          }
-        }
 
-        String name = p.basenameWithoutExtension(attachment.filename);
-        String ext = p.extension(attachment.filename);
-        File file = File('$path/${attachment.filename}');
-
-        for (int i = 1;
-            await file.exists() && await file.length() != attachment.size;
-            ++i) {
-          file = File('$path/$name ($i)$ext');
-        }
-
-        if (await file.exists()) {
-          attachment.downloading.value = DownloadingStatus.downloaded;
-          attachment.local = file.path;
-        } else {
-          attachment.downloading.value = DownloadingStatus.empty;
-          attachment.local = null;
-        }
-      }
+    for (FileAttachment attachment in attachments) {
+      attachment.init();
     }
   }
 

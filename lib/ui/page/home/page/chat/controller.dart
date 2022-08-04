@@ -27,7 +27,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:open_file/open_file.dart';
 import 'package:universal_io/io.dart';
 
 import '/api/backend/schema.dart';
@@ -134,9 +133,6 @@ class ChatController extends GetxController {
   ///
   /// Indicates currently ongoing horizontal scroll of a view.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
-
-  /// [Map] of [CancelToken]s of [Attachment]s downloading.
-  final Map<AttachmentId, CancelToken> _downloadingAttachments = {};
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -672,58 +668,19 @@ class ChatController extends GetxController {
   /// otherwise opens it.
   ///
   /// No-op, if download of the [attachment] is in progress.
-  Future<void> downloadFile(FileAttachment attachment) async {
+  Future<void> onAttachmentTap(FileAttachment attachment) async {
     if (attachment.isDownloading) {
       return;
-    }
-
-    if (attachment.local == null) {
-      await _downloadFile(attachment);
+    } else if (attachment.local != null) {
+      attachment.open();
     } else {
-      File file = File(attachment.local!);
-      if (await file.exists() && await file.length() == attachment.size) {
-        await OpenFile.open(attachment.local!);
-      } else {
-        await _downloadFile(attachment);
-      }
-    }
-  }
-
-  /// Downloads the provided [attachment].
-  Future<void> _downloadFile(FileAttachment attachment) async {
-    try {
-      attachment.downloading.value = DownloadingStatus.downloading;
-      attachment.progress.value = 0;
-
-      CancelToken token = CancelToken();
-      _downloadingAttachments[attachment.id] = token;
-
-      File? file = await PlatformUtils.download(
-        attachment.original.val,
-        attachment.filename,
-        onReceiveProgress: (count, total) =>
-            attachment.progress.value = count / total,
-        cancelToken: token,
-      );
-
-      if (token.isCancelled || file == null) {
-        attachment.downloading.value = DownloadingStatus.empty;
-        attachment.local = null;
-      } else {
-        attachment.downloading.value = DownloadingStatus.downloaded;
-        attachment.local = file.path;
-      }
-    } catch (_) {
-      attachment.downloading.value = DownloadingStatus.empty;
-      attachment.local = null;
-    } finally {
-      _downloadingAttachments.remove(attachment.id);
+      attachment.download();
     }
   }
 
   /// Cancels downloading of the [Attachment] with provided [id].
-  void cancelDownloading(AttachmentId id) {
-    _downloadingAttachments[id]?.cancel();
+  void cancelDownloading(FileAttachment attachment) {
+    attachment.cancelDownload();
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it

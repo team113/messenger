@@ -813,37 +813,31 @@ class _GalleryPopupState extends State<GalleryPopup>
           ? 'label_video_downloaded'.tr
           : 'label_image_downloaded'.tr);
     } catch (_) {
-      MessagePopup.success('err_could_not_download'.tr);
+      MessagePopup.error('err_could_not_download'.tr);
     }
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      Directory temp = await getTemporaryDirectory();
-
-      String path = '${temp.path}/${item.name}';
-      await Dio().download(item.link, path);
-      await ImageGallerySaver.saveFile(path, name: item.name);
-      File(path).delete();
-
+      await PlatformUtils.saveToGallery(item.link, item.name);
       MessagePopup.success(
         item.isVideo
             ? 'label_video_saved_to_gallery'.tr
             : 'label_image_saved_to_gallery'.tr,
       );
     } catch (_) {
-      MessagePopup.success('err_could_not_download'.tr);
+      MessagePopup.error('err_could_not_download'.tr);
     }
   }
 
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
-    var appDocDir = await getTemporaryDirectory();
-    String savePath = '${appDocDir.path}/${item.name}';
-    await Dio().download(item.link, savePath);
-    await Share.shareFiles([savePath]);
-    File(savePath).delete();
+    try {
+      await PlatformUtils.share(item.link, item.name);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.tr);
+    }
   }
 }
 
