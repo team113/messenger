@@ -203,23 +203,20 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
                   onPressed: () => c.joinCall(chat.id),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(
-                      Icons.call,
-                      size: 21,
-                      color: Colors.white,
-                    ),
-                    Flexible(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.call, size: 21, color: Colors.white),
+                      const SizedBox(width: 5),
+                      Flexible(
                         child: Text(
                           'btn_join_call'.l10n,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -227,13 +224,10 @@ class ChatsTabView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
               child: ElevatedButton(
                 onPressed: () => c.joinCall(chat.id, withVideo: true),
-                child: const Icon(
-                  Icons.video_call,
-                  size: 22,
-                  color: Colors.white,
-                ),
+                child:
+                    const Icon(Icons.video_call, size: 22, color: Colors.white),
               ),
-            )
+            ),
           ];
         }
 
