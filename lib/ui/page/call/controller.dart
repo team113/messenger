@@ -83,11 +83,18 @@ class CallController extends GetxController {
   /// [Participant]s in `panel` mode.
   final RxList<Participant> paneled = RxList([]);
 
+  /// Indicator whether the secondary view is being scaled.
+  final RxBool secondaryScaled = RxBool(false);
+
   /// Indicator whether the secondary view is being hovered.
   final RxBool secondaryHovered = RxBool(false);
 
   /// Indicator whether the secondary view is being dragged.
   final RxBool secondaryDragged = RxBool(false);
+
+  /// Indicator whether the secondary view is being manipulated in any way, be
+  /// that scaling or panning.
+  final RxBool secondaryManipulated = RxBool(false);
 
   /// [Participant] being dragged currently.
   final Rx<Participant?> draggedRenderer = Rx(null);
@@ -231,6 +238,10 @@ class CallController extends GetxController {
   /// Secondary view current height.
   late final RxDouble secondaryHeight;
 
+  /// [secondaryWidth] or [secondaryHeight] of the secondary view before its
+  /// scaling.
+  double? secondaryUnscaledSize;
+
   /// [Alignment] of the secondary view.
   final Rx<Alignment?> secondaryAlignment = Rx(Alignment.centerRight);
 
@@ -246,6 +257,9 @@ class CallController extends GetxController {
 
   /// Height of the title bar.
   static const double titleHeight = 30;
+
+  /// Indicator whether the [MinimizableView] is being minimized.
+  final RxBool minimizing = RxBool(false);
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -380,8 +394,8 @@ class CallController extends GetxController {
 
   /// Returns actual size of the call view.
   Size get size {
-    if (!fullscreen.value && minimized.value) {
-      return Size(width.value, height.value - titleHeight);
+    if ((!fullscreen.value && minimized.value) || minimizing.value) {
+      return Size(width.value, height.value - (isMobile ? 0 : titleHeight));
     } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
@@ -433,19 +447,26 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
 
-    width = RxDouble(
-      min(
-        max(
-          min(
-            500,
-            size.shortestSide * _maxWidth,
+    if (isMobile) {
+      Size size = router.context!.mediaQuerySize;
+      width = RxDouble(size.width);
+      height = RxDouble(size.height);
+    } else {
+      width = RxDouble(
+        min(
+          max(
+            min(
+              500,
+              size.shortestSide * _maxWidth,
+            ),
+            _minWidth,
           ),
-          _minWidth,
+          size.height * _maxHeight,
         ),
-        size.height * _maxHeight,
-      ),
-    );
-    height = RxDouble(width.value);
+      );
+      height = RxDouble(width.value);
+    }
+
     left = size.width - width.value - 50 > 0
         ? RxDouble(size.width - width.value - 50)
         : RxDouble(size.width / 2 - width.value / 2);
@@ -1344,6 +1365,38 @@ class CallController extends GetxController {
 
     applySecondaryConstraints();
     updateSecondaryAttach();
+  }
+
+  /// Scales the secondary view by the provided [scale].
+  void scaleSecondary(double scale) {
+    _scaleSWidth(scale);
+    _scaleSHeight(scale);
+  }
+
+  /// Scales the [secondaryWidth] according to the provided [scale].
+  void _scaleSWidth(double scale) {
+    double width = _applySWidth(secondaryUnscaledSize! * scale);
+    if (width != secondaryWidth.value) {
+      double widthDifference = width - secondaryWidth.value;
+      secondaryWidth.value = width;
+      secondaryLeft.value =
+          _applySLeft(secondaryLeft.value! - widthDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(widthDifference / 2, 0);
+    }
+  }
+
+  /// Scales the [secondaryHeight] according to the provided [scale].
+  void _scaleSHeight(double scale) {
+    double height = _applySHeight(secondaryUnscaledSize! * scale);
+    if (height != secondaryHeight.value) {
+      double heightDifference = height - secondaryHeight.value;
+      secondaryHeight.value = height;
+      secondaryTop.value =
+          _applySTop(secondaryTop.value! - heightDifference / 2);
+      secondaryPanningOffset =
+          secondaryPanningOffset?.translate(0, heightDifference / 2);
+    }
   }
 
   /// Returns corrected according to secondary constraints [width] value.

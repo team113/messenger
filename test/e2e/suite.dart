@@ -16,6 +16,7 @@
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/config.dart';
 
 import 'configuration.dart';
 
@@ -25,6 +26,7 @@ part 'suite.g.dart';
 @GherkinTestSuite(
     featurePaths: ['test/e2e/features/auth/introduction_view**.feature'])
 void main() async {
+  Config.disableInfiniteAnimations = true;
   executeTestSuite(
     gherkinTestConfiguration,
     appInitializationFn,
