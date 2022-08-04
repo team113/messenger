@@ -676,11 +676,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isSending: widget.item.value.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
+        key: Key('Message_${item.id}'),
         crossAxisAlignment:
             fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisAlignment:
             fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
+          if (fromMe)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: AnimatedDelayedSwitcher(
+                delay: widget.item.value.status.value == SendingStatus.sending
+                    ? const Duration(seconds: 2)
+                    : Duration.zero,
+                child: widget.item.value.status.value == SendingStatus.sending
+                    ? const Padding(
+                        key: Key('SendingMessage'),
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(Icons.access_alarm, size: 15),
+                      )
+                    : widget.item.value.status.value == SendingStatus.error
+                        ? const Padding(
+                            key: Key('ErrorMessage'),
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(
+                              Icons.error_outline,
+                              size: 15,
+                              color: Colors.red,
+                            ),
+                          )
+                        : Container(key: const Key('SentMessage')),
+              ),
+            ),
           if (!fromMe && widget.chat.value!.isGroup)
             Padding(
               padding: const EdgeInsets.only(top: 9),
@@ -694,143 +721,105 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               ),
             ),
-          Row(
-            key: Key('Message_${item.id}'),
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (fromMe)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: AnimatedDelayedSwitcher(
-                    delay:
-                        widget.item.value.status.value == SendingStatus.sending
-                            ? const Duration(seconds: 2)
-                            : Duration.zero,
-                    child: widget.item.value.status.value ==
-                            SendingStatus.sending
-                        ? const Padding(
-                            key: Key('SendingMessage'),
-                            padding: EdgeInsets.only(left: 8),
-                            child: Icon(Icons.access_alarm, size: 15),
-                          )
-                        : widget.item.value.status.value == SendingStatus.error
-                            ? const Padding(
-                                key: Key('ErrorMessage'),
-                                padding: EdgeInsets.only(left: 8),
-                                child: Icon(
-                                  Icons.error_outline,
-                                  size: 15,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : Container(key: const Key('SentMessage')),
+          Flexible(
+            key: const Key('MessageBody'),
+            child: LayoutBuilder(builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: min(
+                    550,
+                    constraints.maxWidth * 0.84 +
+                        (fromMe ? SwipeableStatus.width : 0),
                   ),
                 ),
-              Flexible(
-                child: LayoutBuilder(builder: (context, constraints) {
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: min(
-                        550,
-                        constraints.maxWidth * 0.84 +
-                            (fromMe ? SwipeableStatus.width : 0),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: isRead
-                            ? 1
-                            : fromMe
-                                ? 0.65
-                                : 0.8,
-                        child: Material(
-                          elevation: 6,
-                          shadowColor: const Color(0x33000000),
-                          borderRadius: BorderRadius.circular(15),
-                          child: ContextMenuRegion(
-                            preventContextMenu: false,
-                            menu: ContextMenu(
-                              actions: [
-                                if (copyable != null)
-                                  ContextMenuButton(
-                                    key: const Key('CopyButton'),
-                                    label: 'btn_copy_text'.l10n,
-                                    onPressed: () =>
-                                        widget.onCopy?.call(copyable!),
-                                  ),
-                                if (item.status.value ==
-                                    SendingStatus.sent) ...[
-                                  ContextMenuButton(
-                                    key: const Key('ReplyButton'),
-                                    label: 'btn_reply'.l10n,
-                                    onPressed: () => widget.onReply?.call(),
-                                  ),
-                                  if (item is ChatMessage &&
-                                      fromMe &&
-                                      (item.at
-                                              .add(ChatController
-                                                  .editMessageTimeout)
-                                              .isAfter(PreciseDateTime.now()) ||
-                                          !isRead))
-                                    ContextMenuButton(
-                                      key: const Key('EditButton'),
-                                      label: 'btn_edit'.l10n,
-                                      onPressed: () => widget.onEdit?.call(),
-                                    ),
-                                  ContextMenuButton(
-                                    key: const Key('HideForMe'),
-                                    label: 'btn_hide_for_me'.l10n,
-                                    onPressed: () => widget.onHide?.call(),
-                                  ),
-                                  if (item.authorId == widget.me &&
-                                      !widget.chat.value!
-                                          .isRead(item, widget.me) &&
-                                      (item is ChatMessage ||
-                                          item is ChatForward))
-                                    ContextMenuButton(
-                                      key: const Key('DeleteForAll'),
-                                      label: 'btn_delete_for_all'.l10n,
-                                      onPressed: () => widget.onDelete?.call(),
-                                    ),
-                                ],
-                                if (item.status.value ==
-                                    SendingStatus.error) ...[
-                                  ContextMenuButton(
-                                    key: const Key('Resend'),
-                                    label: 'btn_resend_message'.l10n,
-                                    onPressed: () => widget.onResend?.call(),
-                                  ),
-                                  ContextMenuButton(
-                                    key: const Key('Delete'),
-                                    label: 'btn_delete_message'.l10n,
-                                    onPressed: () => widget.onDelete?.call(),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: fromMe
-                                    ? const Color(0xFFDCE9FD)
-                                    : const Color(0xFFFFFFFF),
-                                borderRadius: BorderRadius.circular(15),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.65
+                            : 0.8,
+                    child: Material(
+                      elevation: 6,
+                      shadowColor: const Color(0x33000000),
+                      borderRadius: BorderRadius.circular(15),
+                      child: ContextMenuRegion(
+                        preventContextMenu: false,
+                        menu: ContextMenu(
+                          actions: [
+                            if (copyable != null)
+                              ContextMenuButton(
+                                key: const Key('CopyButton'),
+                                label: 'btn_copy_text'.l10n,
+                                onPressed: () => widget.onCopy?.call(copyable!),
                               ),
-                              child: DefaultTextStyle.merge(
-                                style: const TextStyle(fontSize: 16),
-                                child: child,
+                            if (item.status.value == SendingStatus.sent) ...[
+                              ContextMenuButton(
+                                key: const Key('ReplyButton'),
+                                label: 'btn_reply'.l10n,
+                                onPressed: () => widget.onReply?.call(),
                               ),
-                            ),
+                              if (item is ChatMessage &&
+                                  fromMe &&
+                                  (item.at
+                                          .add(
+                                              ChatController.editMessageTimeout)
+                                          .isAfter(PreciseDateTime.now()) ||
+                                      !isRead))
+                                ContextMenuButton(
+                                  key: const Key('EditButton'),
+                                  label: 'btn_edit'.l10n,
+                                  onPressed: () => widget.onEdit?.call(),
+                                ),
+                              ContextMenuButton(
+                                key: const Key('HideForMe'),
+                                label: 'btn_hide_for_me'.l10n,
+                                onPressed: () => widget.onHide?.call(),
+                              ),
+                              if (item.authorId == widget.me &&
+                                  !widget.chat.value!.isRead(item, widget.me) &&
+                                  (item is ChatMessage || item is ChatForward))
+                                ContextMenuButton(
+                                  key: const Key('DeleteForAll'),
+                                  label: 'btn_delete_for_all'.l10n,
+                                  onPressed: () => widget.onDelete?.call(),
+                                ),
+                            ],
+                            if (item.status.value == SendingStatus.error) ...[
+                              ContextMenuButton(
+                                key: const Key('Resend'),
+                                label: 'btn_resend_message'.l10n,
+                                onPressed: () => widget.onResend?.call(),
+                              ),
+                              ContextMenuButton(
+                                key: const Key('Delete'),
+                                label: 'btn_delete_message'.l10n,
+                                onPressed: () => widget.onDelete?.call(),
+                              ),
+                            ],
+                          ],
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: fromMe
+                                ? const Color(0xFFDCE9FD)
+                                : const Color(0xFFFFFFFF),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: DefaultTextStyle.merge(
+                            style: const TextStyle(fontSize: 16),
+                            child: child,
                           ),
                         ),
                       ),
                     ),
-                  );
-                }),
-              ),
-            ],
+                  ),
+                ),
+              );
+            }),
           ),
         ],
       ),

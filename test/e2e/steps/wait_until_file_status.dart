@@ -25,8 +25,7 @@ import '../configuration.dart';
 import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
-/// Waits until file with provided status and name in chat with provided user is
-/// present.
+/// Waits until file with provided status and name is present.
 ///
 /// Examples:
 /// - Then I wait until image with name "test.txt" status is sending

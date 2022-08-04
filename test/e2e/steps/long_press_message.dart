@@ -24,12 +24,11 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Long press message with provided text in chat with provided user.
+/// Long press message with provided text.
 ///
 /// Examples:
 /// - Then I long press message with text "123"
-final StepDefinitionGeneric longPressMessageByText =
-    then1<String, CustomWorld>(
+final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
   'I long press message with text {string}',
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
@@ -41,13 +40,17 @@ final StepDefinitionGeneric longPressMessageByText =
         .firstWhere((e) => e.text?.val == text);
     var messageFinder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+    var messageBody = context.world.appDriver.findByDescendant(
+      messageFinder,
+      context.world.appDriver.findByKeySkipOffstage('MessageBody'),
+    );
 
-    await context.world.appDriver.nativeDriver.longPress(messageFinder);
+    await context.world.appDriver.nativeDriver.longPress(messageBody);
     await context.world.appDriver.waitForAppToSettle();
   },
 );
 
-/// Long press message with provided attachment name in chat with provided user.
+/// Long press message with provided attachment name.
 ///
 /// Examples:
 /// - Then I long press message with attachment "test.jpg"
@@ -65,8 +68,12 @@ final StepDefinitionGeneric longPressMessageByAttachment =
         .firstWhere((e) => e.attachments.any((a) => a.filename == name));
     var messageFinder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+    var messageBody = context.world.appDriver.findByDescendant(
+      messageFinder,
+      context.world.appDriver.findByKeySkipOffstage('MessageBody'),
+    );
 
-    await context.world.appDriver.nativeDriver.longPress(messageFinder);
+    await context.world.appDriver.nativeDriver.longPress(messageBody);
     await context.world.appDriver.waitForAppToSettle();
   },
 );

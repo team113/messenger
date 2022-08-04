@@ -25,8 +25,7 @@ import '../configuration.dart';
 import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
-/// Waits until message with provided status and text in chat with provided user
-/// is present.
+/// Waits until message with provided status and text is present.
 ///
 /// Examples:
 /// - Then I wait until message with text "123" status is
