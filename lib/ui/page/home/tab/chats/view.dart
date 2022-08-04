@@ -141,7 +141,9 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
-                      onPressed: () => c.joinCall(chat.id, withVideo: false),
+                      onPressed: () => c.joinCall(
+                        chat.id,
+                      ),
                       child: Text('btn_join_call'.l10n),
                     ),
                   ),
@@ -209,7 +211,9 @@ class ChatsTabView extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                 child: ElevatedButton(
-                  onPressed: () => c.joinCall(chat.id, withVideo: false),
+                  onPressed: () => c.joinCall(
+                    chat.id,
+                  ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Icon(
                       Icons.call,
