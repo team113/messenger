@@ -74,6 +74,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedRoundedButton(
+                        key: const Key('ConfirmLogoutSetPasswordButton'),
                         maxWidth: null,
                         title: Text(
                           'btn_set_password'.l10n,
@@ -112,6 +113,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 ReactiveTextField(
+                  key: const Key('ConfirmLogoutPasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
@@ -125,6 +127,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 ReactiveTextField(
+                  key: const Key('ConfirmLogoutRepeatPasswordField'),
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
@@ -138,6 +141,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
+                  key: const Key('ConfirmLogoutSavePasswordButton'),
                   title: Text(
                     'btn_save'.l10n,
                     style: thin?.copyWith(color: Colors.white),
@@ -164,6 +168,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
+                    key: const Key('ConfirmLogoutCloseButton'),
                     title: Text('btn_close'.l10n),
                     onPressed: Navigator.of(context).pop,
                     color: const Color(0xFFEEEEEE),
@@ -177,7 +182,7 @@ class ConfirmLogoutView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
-              key: Key('${c.stage.value}'),
+              key: Key('ConfirmLogoutView_${c.stage.value.name}'),
               shrinkWrap: true,
               children: [
                 const SizedBox(height: 12),

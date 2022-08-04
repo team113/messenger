@@ -23,6 +23,9 @@ import 'package:messenger/domain/model/user.dart';
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
   Map<String, CustomUser> sessions = {};
+
+  /// Field that allows to save some [String] value and get it if needed.
+  String? clipboardValue;
 }
 
 /// [Session] with some additional info about the [User] it represents.
