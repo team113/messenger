@@ -136,7 +136,7 @@ class ParticipantWidget extends StatelessWidget {
                       width: expanded ? 180 : 120,
                       height: expanded ? 180 : 120,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(90),
+                        shape: BoxShape.circle,
                         boxShadow: expanded
                             ? [
                                 const CustomBoxShadow(
