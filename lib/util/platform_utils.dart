@@ -112,13 +112,14 @@ class PlatformUtilsImpl {
   }
 
   /// Enters fullscreen mode.
-  void enterFullscreen() {
+  Future<void> enterFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(true);
     } else if (isDesktop) {
-      WindowManager.instance.setFullScreen(true);
+      await WindowManager.instance.setFullScreen(true);
     } else if (isMobile) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+          overlays: []);
     }
   }
 
@@ -134,7 +135,7 @@ class PlatformUtilsImpl {
       Size size = await WindowManager.instance.getSize();
       await WindowManager.instance.setSize(Size(size.width + 1, size.height));
     } else if (isMobile) {
-      SystemChrome.setEnabledSystemUIMode(
+      await SystemChrome.setEnabledSystemUIMode(
         SystemUiMode.manual,
         overlays: SystemUiOverlay.values,
       );

@@ -29,6 +29,7 @@ class AnimatedSlider extends StatefulWidget {
     this.beginOffset = const Offset(0.0, 1.55),
     this.endOffset = const Offset(0.0, 0.0),
     this.translate = true,
+    this.listener,
   }) : super(key: key);
 
   /// Widget to animate on [isOpen] changes.
@@ -59,6 +60,9 @@ class AnimatedSlider extends StatefulWidget {
   /// [SlideTransition] or not.
   final bool translate;
 
+  /// Callback, called every time the value of the animation changes.
+  final void Function()? listener;
+
   @override
   State<AnimatedSlider> createState() => _AnimatedSliderState();
 }
@@ -78,11 +82,18 @@ class _AnimatedSliderState extends State<AnimatedSlider>
       duration: widget.duration,
       reverseDuration: widget.reverseDuration,
     );
+
+    if (widget.listener != null) {
+      animation.addListener(widget.listener!);
+    }
   }
 
   @override
   void dispose() {
     animation.dispose();
+    if (widget.listener != null) {
+      animation.removeListener(widget.listener!);
+    }
     super.dispose();
   }
 
