@@ -1136,7 +1136,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: "23063d535909027b8e198c2cffa83bf8f0480c96"
-      url: "https://github.com/bluefireteam/photo_view"
+      url: "https://github.com/bluefireteam/photo_view.git"
     source: git
     version: "0.13.0"
   platform:

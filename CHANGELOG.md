@@ -20,13 +20,15 @@ All user visible changes to this project will be documented in this file. This p
         - Unspecified password reminder on logout ([#39]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
+    - Chats tab:
+        - Button joining call with video ([#56], [#51]).
 
 ### Changed
 
 - UI:
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
-        - Redesigned mobile interface ([#31], [#34]).
+        - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
     - Redesigned login interface ([#35]);
     - Redesigned auth page ([#29]).
 
@@ -60,6 +62,10 @@ All user visible changes to this project will be documented in this file. This p
 [#42]: /../../pull/42
 [#44]: /../../issues/44
 [#45]: /../../pull/45
+[#47]: /../../pull/47
+[#51]: /../../issues/51
+[#53]: /../../pull/53
+[#56]: /../../pull/56
 
 
 
