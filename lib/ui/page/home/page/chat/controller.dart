@@ -287,6 +287,7 @@ class ChatController extends GetxController {
 
     _unreadCountWorker = ever(lastVisibleItem, (ChatItem? item) {
       if (chat != null &&
+          chat!.messages.isNotEmpty &&
           chat!.messages.last.value.authorId != me &&
           lastVisibleItem.value != null) {
         int lastReadIndex =
@@ -452,10 +453,11 @@ class ChatController extends GetxController {
           }
 
           if (chat != null &&
+              chat!.messages.isNotEmpty &&
               chat!.messages.last.value.authorId != me &&
               lastVisibleItem.value != null) {
-            int lastReadIndex = chat!.messages
-                .indexWhere((m) => m.value == lastVisibleItem.value);
+            int lastReadIndex = 0;
+            chat!.messages.indexWhere((m) => m.value == lastVisibleItem.value);
             if (lastReadIndex != -1) {
               // If user has his own unread messages, they will be included.
               var unreadAll = chat!.messages.skip(lastReadIndex);
