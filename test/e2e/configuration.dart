@@ -30,6 +30,7 @@ import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
+import 'steps/in_chat_with.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
@@ -50,6 +51,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasDialogWithMe,
         iAm,
+        iAmInChatWith,
         pasteToField,
         seesAs,
         sendsMessageToMe,
