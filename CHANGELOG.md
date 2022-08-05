@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
+    - Introduction modal ([#38]).
 
 ### Changed
 
@@ -56,6 +57,7 @@ All user visible changes to this project will be documented in this file. This p
 [#31]: /../../pull/31
 [#34]: /../../pull/34
 [#35]: /../../pull/35
+[#38]: /../../pull/38
 [#41]: /../../issues/41
 [#42]: /../../pull/42
 [#44]: /../../issues/44
