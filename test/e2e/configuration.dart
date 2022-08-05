@@ -45,12 +45,12 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        copyFromField,
         fillField,
-        fillFieldFromClipboard,
         goToUserPage,
         hasDialogWithMe,
         iAm,
-        saveFieldTextToClipboard,
+        pasteToField,
         seesAs,
         sendsMessageToMe,
         signInAs,

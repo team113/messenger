@@ -25,14 +25,12 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
-/// Sharable field opening a [Share] modal with its [copy] content.
-///
-/// Puts the [copy] into the clipboard from the [ContextMenu].
+/// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
     Key? key,
     required String? text,
-    this.copy,
+    this.share,
     this.icon,
     this.label,
     this.style,
@@ -46,7 +44,7 @@ class SharableTextField extends StatelessWidget {
   late final TextFieldState state;
 
   /// Data to share or put into the clipboard.
-  final String? copy;
+  final String? share;
 
   /// Optional leading icon.
   final IconData? icon;
@@ -78,10 +76,8 @@ class SharableTextField extends StatelessWidget {
           ),
         Expanded(
           child: ContextMenuRegion(
-            enabled: (copy ?? state.text).isNotEmpty,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-            ),
+            enabled: (share ?? state.text).isNotEmpty,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(
@@ -93,7 +89,7 @@ class SharableTextField extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
               onTap:
-                  (copy ?? state.text).isEmpty ? null : () => _share(context),
+                  (share ?? state.text).isEmpty ? null : () => _share(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   prefix: leading,
@@ -111,13 +107,13 @@ class SharableTextField extends StatelessWidget {
     );
   }
 
-  /// Puts a [copy] of data into the clipboard and shows a snackbar.
+  /// Puts the [share] into the clipboard and shows a snackbar.
   void _copy(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: copy ?? state.text));
+    Clipboard.setData(ClipboardData(text: share ?? state.text));
     MessagePopup.success('label_copied_to_clipboard'.l10n);
   }
 
-  /// Opens a [Share] modal sharing the [copy].
+  /// Opens a [Share] modal sharing the [share].
   Future<void> _share(BuildContext context) async {
     Rect? rect;
 
@@ -130,6 +126,6 @@ class SharableTextField extends StatelessWidget {
       // No-op.
     }
 
-    await Share.share(copy ?? state.text, sharePositionOrigin: rect);
+    await Share.share(share ?? state.text, sharePositionOrigin: rect);
   }
 }

@@ -32,7 +32,7 @@ export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser, this._settingsRepository);
+  HomeController(this._auth, this._myUser, this._settings);
 
   /// Maximum screen's width in pixels until side bar will be expanding.
   static double maxSideBarExpandWidth = 860;
@@ -63,17 +63,13 @@ class HomeController extends GetxController {
 
   /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
   /// determine whether an [IntroductionView] was already shown.
-  final AbstractSettingsRepository _settingsRepository;
+  final AbstractSettingsRepository _settings;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
-
-  /// Returns the [ApplicationSettings] from the [AbstractSettingsRepository].
-  ApplicationSettings? get _settings =>
-      _settingsRepository.applicationSettings.value;
 
   @override
   void onInit() {
@@ -94,7 +90,7 @@ class HomeController extends GetxController {
     pages.jumpToPage(router.tab.index);
     refresh();
 
-    if (_settings?.showIntroduction ?? true) {
+    if (_settings.applicationSettings.value?.showIntroduction ?? true) {
       if (_myUser.myUser.value != null) {
         _displayIntroduction(_myUser.myUser.value!);
       } else {
@@ -120,14 +116,6 @@ class HomeController extends GetxController {
     _myUserSubscription.cancel();
   }
 
-  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
-  void _displayIntroduction(MyUser myUser) {
-    if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!)
-          .then((_) => _settingsRepository.setShowIntroduction(false));
-    }
-  }
-
   /// Refreshes the controller on [router] change.
   ///
   /// Required in order for the [BottomNavigatorBar] to rebuild.
@@ -137,6 +125,16 @@ class HomeController extends GetxController {
         pages.jumpToPage(router.tab.index);
       }
       refresh();
+    }
+  }
+
+  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
+  void _displayIntroduction(MyUser myUser) {
+    if (!myUser.hasPassword) {
+      IntroductionView.show(router.context!)
+          .then((_) => _settings.setShowIntroduction(false));
+    } else {
+      _settings.setShowIntroduction(false);
     }
   }
 }

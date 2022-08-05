@@ -86,8 +86,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   child: widget.child,
                 ),
 
-                // Display the provided [decoration] over this
-                // [ContextMenuRegion], if [ContextMenuOverlay] show this [menu].
+                // Display the provided [decoration] if [menu] is opened.
                 if (context.isMobile)
                   Positioned.fill(
                     child: Obx(() {
@@ -96,10 +95,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                         return Container(
                           width: double.infinity,
                           height: double.infinity,
-                          decoration: widget.decoration?.copyWith(
-                                color: const Color(0x11000000),
-                              ) ??
-                              const BoxDecoration(color: Color(0x22000000)),
+                          decoration: widget.decoration
+                                  ?.copyWith(color: const Color(0x11000000)) ??
+                              const BoxDecoration(color: Color(0x11000000)),
                         );
                       }
 

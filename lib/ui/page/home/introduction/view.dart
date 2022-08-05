@@ -37,11 +37,7 @@ class IntroductionView extends StatelessWidget {
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-        context: context,
-        child: const IntroductionView(
-          key: Key('IntroductionView'),
-        ));
+    return ModalPopup.show(context: context, child: const IntroductionView());
   }
 
   @override
@@ -51,60 +47,13 @@ class IntroductionView extends StatelessWidget {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('IntroductionView'),
       init: IntroductionController(Get.find()),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> children = [];
+          List<Widget> children;
 
           switch (c.stage.value) {
-            case IntroductionViewStage.introduction:
-              children = [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        style: thin,
-                        text: 'label_password_not_set_description'.l10n,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('IntroductionSetPasswordButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_set_password'.l10n,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        onPressed: () {
-                          c.stage.value = IntroductionViewStage.password;
-                        },
-                        color: const Color(0xFF63B4FF),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('IntroductionCloseButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_close'.l10n,
-                          style: const TextStyle(),
-                        ),
-                        onPressed: Navigator.of(context).pop,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    )
-                  ],
-                ),
-              ];
-              break;
             case IntroductionViewStage.password:
               children = [
                 const SizedBox(height: 14),
@@ -159,6 +108,7 @@ class IntroductionView extends StatelessWidget {
                 ),
               ];
               break;
+
             case IntroductionViewStage.success:
               children = [
                 const SizedBox(height: 14),
@@ -171,7 +121,7 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
-                    key: const Key('IntroductionCloseButton'),
+                    key: const Key('CloseButton'),
                     title: Text('btn_close'.l10n),
                     onPressed: Navigator.of(context).pop,
                     color: const Color(0xFFEEEEEE),
@@ -179,12 +129,59 @@ class IntroductionView extends StatelessWidget {
                 ),
               ];
               break;
+
+            default:
+              children = [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        style: thin,
+                        text: 'label_password_not_set_description'.l10n,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('SetPasswordButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_set_password'.l10n,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () =>
+                            c.stage.value = IntroductionViewStage.password,
+                        color: const Color(0xFF63B4FF),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('CloseButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_close'.l10n,
+                          style: const TextStyle(),
+                        ),
+                        onPressed: Navigator.of(context).pop,
+                        color: const Color(0xFFEEEEEE),
+                      ),
+                    )
+                  ],
+                ),
+              ];
+              break;
           }
+
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
-              key: Key('IntroductionView_${c.stage.value.name}'),
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
               children: [
@@ -201,7 +198,7 @@ class IntroductionView extends StatelessWidget {
                     key: const Key('NumCopyable'),
                     text: c.num.text,
                     label: 'label_num'.l10n,
-                    copy: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                    share: 'Gapopa ID: ${c.myUser.value?.num.val}',
                     trailing:
                         SvgLoader.asset('assets/icons/share.svg', width: 18),
                     style: thin,

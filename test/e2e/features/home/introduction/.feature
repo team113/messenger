@@ -14,27 +14,31 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Account creation
+Feature: Introduction
 
-  Scenario: User creates a new account and deletes it
+  Scenario: Introduction is displayed and password can be set
     When I tap `StartButton` button
-    And I wait until `HomeView` is present
+    Then I wait until `IntroductionView` is present
 
-    Then I tap `MenuButton` button
-    And I tap `MyProfileButton` button
-    And I wait until `MyProfileView` is present
+    Then I tap `SetPasswordButton` button
+    And I wait until `PasswordStage` is present
 
-    Then I fill `NameField` field with "Alice"
-
-    When I tap `PasswordExpandable` widget
-    Then I fill `NewPasswordField` field with "123"
+    Then I fill `PasswordField` field with "123"
     And I fill `RepeatPasswordField` field with "123"
+    And I copy from `NumCopyable` field
 
     Then I tap `ChangePasswordButton` button
-    And I wait until `CurrentPasswordField` is present
+    And I wait until `SuccessStage` is present
+    And I tap `CloseButton` button
 
-    When I tap `DeleteAccountButton` button
-    And I wait until `AlertDialog` is present
-    And I tap `AlertYesButton` button
+    When I tap `MenuButton` button
+    Then I tap `LogoutButton` button
+    And I wait until `AuthView` is present
 
-    Then I wait until `AuthView` is present
+    Then I tap `SignInButton` button
+    And I wait until `LoginView` is present
+    And I paste to `UsernameField` field
+    And I fill `PasswordField` field with "123"
+
+    When I tap `LoginButton` button
+    Then I wait until `HomeView` is present

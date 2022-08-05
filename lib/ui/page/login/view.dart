@@ -37,9 +37,7 @@ class LoginView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(maxWidth: 400),
       modalConstraints: const BoxConstraints(maxWidth: 520),
-      child: const LoginView(
-        key: Key('LoginView'),
-      ),
+      child: const LoginView(),
     );
   }
 
@@ -48,6 +46,7 @@ class LoginView extends StatelessWidget {
     TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
+      key: const Key('LoginView'),
       init: LoginController(Get.find()),
       builder: (LoginController c) {
         return Obx(() {

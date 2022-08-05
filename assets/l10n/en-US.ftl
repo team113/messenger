@@ -390,7 +390,7 @@ label_outgoing_call = Outgoing call
 label_password = Password
 label_password_set_successfully = Password successfully set
 label_password_not_set_description =
-    Password not set. Access to an account without a password is retained for one year from the time the account was created or until:
+    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
 
         • You will not delete user data from the application (browser);
 
