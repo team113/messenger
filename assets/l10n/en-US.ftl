@@ -124,7 +124,6 @@ btn_call_video_on_desc =
     video on
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
-btn_chat_join_call = Join the call
 btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text
@@ -150,6 +149,7 @@ btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_saved_messages = Saved messages
+btn_set_password = Set password
 btn_settings = Settings
 btn_start = Start
 btn_submit = Submit
@@ -203,6 +203,7 @@ err_not_group = Not a group
 err_not_member = Not a member
 err_nowhere_to_send = Account has no confirmed emails or phones
 err_password_empty = Please, enter the password
+err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
 err_phone_occupied = Phone number is already occupied
 err_quoted_message = Message was quoted
@@ -365,6 +366,14 @@ label_hint_drag_n_drop_video =
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
 label_incoming_call = Incoming call
+label_introduction_description =
+    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
+
+        • You will not delete user data from the application (browser);
+
+        • You will not press the "Logout" button.
+
+    In order not to lose access to your account, set a password.
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login
