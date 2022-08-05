@@ -1079,7 +1079,7 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
-  /// Relocates the secondary view according to the possible intersections.
+  /// Relocates the secondary view accounting the possible intersections.
   void relocateSecondary() {
     if (secondaryAlignment.value == null &&
         secondaryDragged.isFalse &&

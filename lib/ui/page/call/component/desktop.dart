@@ -554,11 +554,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             ),
                           ),
                         ),
-                        const Flexible(
-                          child: SizedBox(
-                            height: 420,
-                          ),
-                        ),
+                        const Flexible(child: SizedBox(height: 420)),
                       ],
                     ),
                   )
