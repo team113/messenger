@@ -73,6 +73,7 @@ dependencies:
   platform_detect: ^2.0.3
   rive: ^0.9.0
   sentry_flutter: ^6.5.1
+  share_plus: ^4.0.9
   sliding_up_panel: ^2.0.0+1
   toml: ^0.13.1
   universal_io: ^2.0.4

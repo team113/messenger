@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -24,8 +25,8 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
   Map<String, CustomUser> sessions = {};
 
-  /// Field that allows to save some [String] value and get it if needed.
-  String? clipboardValue;
+  /// [ClipboardData] currently stored in this [CustomWorld].
+  ClipboardData? clipboard;
 }
 
 /// [Session] with some additional info about the [User] it represents.
