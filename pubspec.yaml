@@ -31,6 +31,9 @@ dependencies:
   flutter_background_service: ^2.0.0
   flutter_background_service_android: ^2.0.0
   flutter_background_service_ios: ^2.0.0
+  gif:
+    git:
+      url: https://github.com/LisisFd/flutter_gif.git
   flutter_list_view: ^1.1.12
   flutter_local_notifications: ^10.0.0-dev.13
   flutter_svg: ^1.0.3

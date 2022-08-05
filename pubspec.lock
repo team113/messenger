@@ -615,6 +615,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.8"
+  gif:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "4e92f8d59791f1b8da942f8598a420d97396e77d"
+      url: "https://github.com/LisisFd/flutter_gif.git"
+    source: git
+    version: "2.1.1"
   glob:
     dependency: transitive
     description:
@@ -747,7 +756,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.4"
+    version: "0.13.5"
   http_multi_server:
     dependency: transitive
     description:
