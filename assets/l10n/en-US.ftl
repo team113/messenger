@@ -366,6 +366,14 @@ label_hint_drag_n_drop_video =
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
 label_incoming_call = Incoming call
+label_introduction_description =
+    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
+
+        • You will not delete user data from the application (browser);
+
+        • You will not press the "Logout" button.
+
+    In order not to lose access to your account, set a password.
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login
@@ -389,14 +397,6 @@ label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
 label_password_set_successfully = Password successfully set
-label_password_not_set_description =
-    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
-
-        • You will not delete user data from the application (browser);
-
-        • You will not press the "Logout" button.
-
-    In order not to lose access to your account, set a password.
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number

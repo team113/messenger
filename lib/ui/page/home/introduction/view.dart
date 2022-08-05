@@ -132,16 +132,7 @@ class IntroductionView extends StatelessWidget {
 
             default:
               children = [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        style: thin,
-                        text: 'label_password_not_set_description'.l10n,
-                      ),
-                    ],
-                  ),
-                ),
+                Text('label_introduction_description'.l10n, style: thin),
                 const SizedBox(height: 25),
                 Row(
                   children: [
@@ -151,7 +142,7 @@ class IntroductionView extends StatelessWidget {
                         maxWidth: null,
                         title: Text(
                           'btn_set_password'.l10n,
-                          style: const TextStyle(color: Colors.white),
+                          style: thin?.copyWith(color: Colors.white),
                         ),
                         onPressed: () =>
                             c.stage.value = IntroductionViewStage.password,
@@ -163,10 +154,7 @@ class IntroductionView extends StatelessWidget {
                       child: OutlinedRoundedButton(
                         key: const Key('CloseButton'),
                         maxWidth: null,
-                        title: Text(
-                          'btn_close'.l10n,
-                          style: const TextStyle(),
-                        ),
+                        title: Text('btn_close'.l10n, style: thin),
                         onPressed: Navigator.of(context).pop,
                         color: const Color(0xFFEEEEEE),
                       ),

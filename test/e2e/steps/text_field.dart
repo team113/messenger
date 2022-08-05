@@ -50,7 +50,7 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
   },
 );
 
-/// Copies the value of the widget with the provided [WidgetKey] to
+/// Copies the value of the widget with the provided [WidgetKey] to the
 /// [CustomWorld.clipboard].
 ///
 /// Examples:

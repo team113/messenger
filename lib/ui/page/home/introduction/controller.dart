@@ -114,8 +114,7 @@ class IntroductionController extends GetxController {
     super.onInit();
   }
 
-  /// Validates and updates the [password] of the currently authenticated
-  /// [MyUser].
+  /// Validates and sets the [password] of the currently authenticated [MyUser].
   Future<void> setPassword() async {
     if (password.error.value != null ||
         repeat.error.value != null ||

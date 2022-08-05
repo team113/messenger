@@ -360,7 +360,6 @@ label_emails = Эл.почта
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
-label_enter_it_bellow = Пожалуйста, введите его ниже.
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
@@ -381,6 +380,14 @@ label_hint_drag_n_drop_video =
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
 label_incoming_call = Входящий звонок
+label_introduction_description =
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+
+        • Вы не удалите пользовательские данные из приложения (браузера);
+
+        • Вы не нажмёте кнопку "Выйти".
+
+    Чтобы не потерять доступ к аккаунту, задайте пароль.
 label_last_seen = Был(а)
 label_login = Логин
 label_login_hint = Ваш уникальный логин
@@ -403,14 +410,6 @@ label_online = Онлайн
 label_outgoing_call = Исходящий звонок
 label_or_register = или регистрация
 label_password = Пароль
-label_password_not_set_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
-
-        • Вы не удалите пользовательские данные из приложения (браузера);
-
-        • Вы не нажмёте кнопку "Выйти".
-
-    Чтобы не потерять доступ к аккаунту, задайте пароль.
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
 label_phone_confirmation_code_was_send =
