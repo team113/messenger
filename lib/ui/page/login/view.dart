@@ -46,6 +46,7 @@ class LoginView extends StatelessWidget {
     TextTheme theme = Theme.of(context).textTheme;
 
     return GetBuilder(
+      key: const Key('LoginView'),
       init: LoginController(Get.find()),
       builder: (LoginController c) {
         return Obx(() {

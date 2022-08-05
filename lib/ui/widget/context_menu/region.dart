@@ -15,9 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/util/platform_utils.dart';
 import 'overlay.dart';
 
 /// Region of a context [menu] over a [child], showed on a secondary mouse click
@@ -29,6 +32,7 @@ class ContextMenuRegion extends StatefulWidget {
     required this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
+    this.decoration,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -44,6 +48,10 @@ class ContextMenuRegion extends StatefulWidget {
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
+
+  /// [BoxDecoration] to put this [ContextMenuRegion] into when
+  /// [ContextMenuOverlay] displays this [menu].
+  final BoxDecoration? decoration;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -69,11 +77,34 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 ContextMenuOverlay.of(context).show(widget.menu, d.position);
               }
             },
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onLongPressStart: (d) => ContextMenuOverlay.of(context)
-                  .show(widget.menu, d.globalPosition),
-              child: widget.child,
+            child: Stack(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onLongPressStart: (d) => ContextMenuOverlay.of(context)
+                      .show(widget.menu, d.globalPosition),
+                  child: widget.child,
+                ),
+
+                // Display the provided [decoration] if [menu] is opened.
+                if (context.isMobile)
+                  Positioned.fill(
+                    child: Obx(() {
+                      if (ContextMenuOverlay.of(context).menu.value ==
+                          widget.menu) {
+                        return Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: widget.decoration
+                                  ?.copyWith(color: const Color(0x11000000)) ??
+                              const BoxDecoration(color: Color(0x11000000)),
+                        );
+                      }
+
+                      return Container();
+                    }),
+                  ),
+              ],
             ),
           ),
         )
