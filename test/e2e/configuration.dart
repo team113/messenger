@@ -33,7 +33,6 @@ import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/download_file.dart';
-import 'steps/fill_field.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
@@ -42,6 +41,7 @@ import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_widget.dart';
+import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_file_status.dart';
@@ -54,11 +54,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         cancelDownloadingFile,
+        copyFromField,
         fillField,
         goToUserPage,
         hasDialogWithMe,
         iAm,
         iAmInChatWith,
+        pasteToField,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,

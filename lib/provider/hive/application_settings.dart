@@ -47,4 +47,9 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
   Future<void> setLocale(String locale) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
+
+  /// Stores a new [show] value of [ApplicationSettings.showIntroduction] to
+  /// [Hive].
+  Future<void> setShowIntroduction(bool show) => putSafe(
+      0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
 }
