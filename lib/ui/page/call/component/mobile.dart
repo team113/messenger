@@ -83,6 +83,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             onPointerUp: (_) => c.secondaryManipulated.value = false,
             child: GestureDetector(
               onScaleStart: (d) {
+                c.secondaryBottomShifted = null;
+
                 c.secondaryLeft.value ??= c.size.width -
                     c.secondaryWidth.value -
                     (c.secondaryRight.value ?? 0);
@@ -470,6 +472,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutQuad,
                   reverseCurve: Curves.easeOutQuad,
+                  listener: () =>
+                      Future.delayed(Duration.zero, c.relocateSecondary),
                   child: MediaQuery(
                     data: MediaQuery.of(context).copyWith(size: c.size),
                     child: SlidingUpPanel(
@@ -487,6 +491,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         topRight: Radius.circular(10),
                       ),
                       panel: ConditionalBackdropFilter(
+                        key: c.dockKey,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
@@ -513,6 +518,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       onPanelSlide: (d) {
                         c.keepUi(true);
                         c.isPanelOpen.value = d > 0;
+                        c.relocateSecondary();
                       },
                       onPanelOpened: () {
                         c.keepUi(true);
@@ -1219,6 +1225,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
                 c.secondaryTop.value = null;
                 c.secondaryRight.value = 10;
                 c.secondaryBottom.value = 10;
+                c.secondaryBottomShifted = c.secondaryBottom.value;
                 c.secondaryTargets.value = 0;
                 c.unfocus(d.participant);
               },
