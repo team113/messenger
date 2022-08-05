@@ -156,6 +156,7 @@ class _ChatViewState extends State<ChatView>
                                         color: Colors.blue),
                                   ),
                                   IconButton(
+                                    key: const Key('StartAudioCall'),
                                     onPressed: () => c.call(false),
                                     icon: const Icon(Icons.call,
                                         color: Colors.blue),

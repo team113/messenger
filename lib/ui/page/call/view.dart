@@ -34,6 +34,7 @@ class CallView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
+      key: const Key('Call'),
       init: CallController(
         _call,
         Get.find(),

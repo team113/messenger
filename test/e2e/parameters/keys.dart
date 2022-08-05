@@ -20,11 +20,14 @@ import 'package:gherkin/gherkin.dart';
 /// [Key]s available in the [WidgetKeyParameter].
 enum WidgetKey {
   AlertDialog,
+  StartAudioCall,
   AlertNoButton,
   AlertYesButton,
   AuthView,
   BioField,
   ChangePasswordButton,
+  Call,
+  Calladasd,
   ChatDirectLinkExpandable,
   ChatsButton,
   ChatsTab,
