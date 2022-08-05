@@ -27,13 +27,16 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'mock/platform_utils.dart';
+import 'parameters/downloading_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
-import 'steps/downloading_attachment.dart';
+import 'steps/download_file.dart';
 import 'steps/fill_field.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
+import 'steps/in_chat_with.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -42,6 +45,7 @@ import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
@@ -50,16 +54,17 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        cancelDownloadFile,
         fillField,
-        finishDownloading,
         goToUserPage,
         hasDialogWithMe,
         iAm,
+        iAmInChatWith,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
-        startDownloading,
+        startDownloadFile,
         tapDropdownItem,
         tapText,
         tapWidget,
@@ -67,6 +72,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         updateBio,
         user,
+        waitUntilFileStatus,
         waitUntilKeyExists,
       ]
       ..hooks = [ResetAppHook()]
@@ -86,6 +92,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        DownloadingStatusParameter(),
         OnlineStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
@@ -93,7 +100,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) => Future.sync(app.main);
+Future<void> appInitializationFn(World world) {
+  PlatformUtils = PlatformUtilsMock();
+  return Future.sync(app.main);
+}
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
 Future<Session> createUser(

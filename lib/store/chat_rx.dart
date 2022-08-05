@@ -160,7 +160,9 @@ class HiveRxChat implements RxChat {
 
       _initLocalSubscription();
       if (!PlatformUtils.isWeb) {
-        _initAttachmentsDownloaded();
+        for (var message in messages.where((e) => e.value is ChatMessage)) {
+          await _setAttachmentsDownloaded(message.value as ChatMessage);
+        }
       }
 
       status.value = RxStatus.success();
@@ -316,18 +318,9 @@ class HiveRxChat implements RxChat {
     );
   }
 
-  /// Initialize the [messages] attachments downloaded status.
-  Future<void> _initAttachmentsDownloaded() async {
-    for (var message in messages.where((e) => e.value is ChatMessage)) {
-      await _setAttachmentsDownloaded(message.value as ChatMessage);
-    }
-  }
-
   /// Initialize downloaded status of the provided [ChatMessage]'s attachments.
   Future<void> _setAttachmentsDownloaded(ChatMessage message) async {
-    var attachments = message.attachments.whereType<FileAttachment>();
-
-    for (FileAttachment attachment in attachments) {
+    for (var attachment in message.attachments.whereType<FileAttachment>()) {
       attachment.init();
     }
   }

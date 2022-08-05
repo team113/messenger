@@ -48,7 +48,7 @@ class Config {
 
   /// Directory to download files to.
   static late String downloads;
-  
+
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.

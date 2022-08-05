@@ -15,22 +15,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
@@ -348,15 +344,15 @@ class _GalleryPopupState extends State<GalleryPopup>
         menu: ContextMenu(
           actions: [
             ContextMenuButton(
-              label: 'btn_save_to_gallery'.tr,
+              label: 'btn_save_to_gallery'.l10n,
               onPressed: () => _saveToGallery(widget.children[_page]),
             ),
             ContextMenuButton(
-              label: 'btn_share'.tr,
+              label: 'btn_share'.l10n,
               onPressed: () => _share(widget.children[_page]),
             ),
             ContextMenuButton(
-              label: 'btn_info'.tr,
+              label: 'btn_info'.l10n,
               onPressed: () {},
             ),
           ],
@@ -464,11 +460,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                       menu: ContextMenu(
                         actions: [
                           ContextMenuButton(
-                            label: 'btn_download'.tr,
+                            label: 'btn_download'.l10n,
                             onPressed: () => _download(widget.children[_page]),
                           ),
                           ContextMenuButton(
-                            label: 'btn_info'.tr,
+                            label: 'btn_info'.l10n,
                             onPressed: () {},
                           ),
                         ],
@@ -810,10 +806,10 @@ class _GalleryPopupState extends State<GalleryPopup>
     try {
       await PlatformUtils.download(item.link, item.name);
       MessagePopup.success(item.isVideo
-          ? 'label_video_downloaded'.tr
-          : 'label_image_downloaded'.tr);
+          ? 'label_video_downloaded'.l10n
+          : 'label_image_downloaded'.l10n);
     } catch (_) {
-      MessagePopup.error('err_could_not_download'.tr);
+      MessagePopup.error('err_could_not_download'.l10n);
     }
   }
 
@@ -823,11 +819,11 @@ class _GalleryPopupState extends State<GalleryPopup>
       await PlatformUtils.saveToGallery(item.link, item.name);
       MessagePopup.success(
         item.isVideo
-            ? 'label_video_saved_to_gallery'.tr
-            : 'label_image_saved_to_gallery'.tr,
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n,
       );
     } catch (_) {
-      MessagePopup.error('err_could_not_download'.tr);
+      MessagePopup.error('err_could_not_download'.l10n);
     }
   }
 
@@ -836,7 +832,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     try {
       await PlatformUtils.share(item.link, item.name);
     } catch (_) {
-      MessagePopup.error('err_could_not_download'.tr);
+      MessagePopup.error('err_could_not_download'.l10n);
     }
   }
 }

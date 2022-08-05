@@ -307,11 +307,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         SizedBox.square(
                           dimension: 22,
                           child: CircularProgressIndicator(
-                            key: const Key('DownloadingFile'),
+                            key: const Key('Downloading'),
                             value: e.progress.value,
                           ),
                         ),
-                        const Icon(Icons.clear, size: 20),
+                        const Icon(
+                          Icons.clear,
+                          key: Key('CancelDownloading'),
+                          size: 20,
+                        ),
                       ],
                     ),
                   );
@@ -320,7 +324,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 case DownloadingStatus.downloaded:
                   leading = const Icon(
                     Icons.attach_file,
-                    key: Key('DownloadedFile'),
+                    key: Key('Downloaded'),
                     size: 18,
                     color: Colors.blue,
                   );
@@ -329,7 +333,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 case DownloadingStatus.empty:
                   leading = const Icon(
                     Icons.download,
-                    key: Key('DownloadFile'),
+                    key: Key('Download'),
                     size: 18,
                     color: Colors.blue,
                   );
@@ -337,6 +341,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               }
 
               return Padding(
+                key: Key('File_${e.id}'),
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
                   onTap:

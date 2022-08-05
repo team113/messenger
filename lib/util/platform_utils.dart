@@ -30,40 +30,46 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import 'web/web_utils.dart';
 
+/// Global entry to access platform utils.
+// ignore: non_constant_identifier_names
+PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
+
 /// Helper providing access to platform related features.
-class PlatformUtils {
+///
+/// Used to add ability to mock [PlatformUtils].
+class PlatformUtilsImpl {
   /// Path to the download directory.
-  static String? _downloadDirectory;
+  String? _downloadDirectory;
 
   /// Indicates whether application is running in a web browser.
-  static bool get isWeb => GetPlatform.isWeb;
+  bool get isWeb => GetPlatform.isWeb;
 
   // TODO: Remove when jonataslaw/getx#1936 is fixed:
   //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
-  static bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
+  bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
 
   /// Indicates whether device's OS is Windows.
-  static bool get isWindows => GetPlatform.isWindows;
+  bool get isWindows => GetPlatform.isWindows;
 
   /// Indicates whether device's OS is Linux.
-  static bool get isLinux => GetPlatform.isLinux;
+  bool get isLinux => GetPlatform.isLinux;
 
   /// Indicates whether device's OS is Android.
-  static bool get isAndroid => GetPlatform.isAndroid;
+  bool get isAndroid => GetPlatform.isAndroid;
 
   /// Indicates whether device's OS is iOS.
-  static bool get isIOS => GetPlatform.isIOS;
+  bool get isIOS => GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  static bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
+  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
-  static bool get isDesktop =>
+  bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   /// Returns a stream broadcasting fullscreen changes.
-  static Stream<bool> get onFullscreenChange {
+  Stream<bool> get onFullscreenChange {
     if (isWeb) {
       return WebUtils.onFullscreenChange;
     } else if (isDesktop) {
@@ -88,7 +94,7 @@ class PlatformUtils {
   }
 
   /// Returns a path to the download directory.
-  static Future<String> get downloadDirectory async {
+  Future<String> get downloadDirectory async {
     if (_downloadDirectory != null) {
       return _downloadDirectory!;
     }
@@ -106,7 +112,7 @@ class PlatformUtils {
   }
 
   /// Enters fullscreen mode.
-  static void enterFullscreen() {
+  void enterFullscreen() {
     if (isWeb) {
       WebUtils.toggleFullscreen(true);
     } else if (isDesktop) {
@@ -117,7 +123,7 @@ class PlatformUtils {
   }
 
   /// Exits fullscreen mode.
-  static Future<void> exitFullscreen() async {
+  Future<void> exitFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(false);
     } else if (isDesktop) {
@@ -136,7 +142,7 @@ class PlatformUtils {
   }
 
   /// Downloads the file from the provided [url].
-  static FutureOr<File?> download(
+  FutureOr<File?> download(
     String url,
     String filename, {
     Function(int count, int total)? onReceiveProgress,
@@ -169,9 +175,9 @@ class PlatformUtils {
   }
 
   /// Downloads the image with provided [url] and saves it to the gallery.
-  static Future<void> saveToGallery(String url, String name) async {
-    if(isMobile && !isWeb) {
-      Directory temp = await getTemporaryDirectory();
+  Future<void> saveToGallery(String url, String name) async {
+    if (isMobile && !isWeb) {
+      var temp = await getTemporaryDirectory();
 
       String path = '${temp.path}/$name';
       await Dio().download(url, path);
@@ -181,7 +187,7 @@ class PlatformUtils {
   }
 
   /// Downloads the file with provided [url] and opens share dialog with it.
-  static Future<void> share(String url, String name) async {
+  Future<void> share(String url, String name) async {
     var appDocDir = await getTemporaryDirectory();
     String savePath = '${appDocDir.path}/$name';
     await Dio().download(url, savePath);
