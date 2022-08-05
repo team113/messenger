@@ -965,10 +965,12 @@ packages:
   open_file:
     dependency: "direct main"
     description:
-      name: open_file
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.2.1"
+      path: "."
+      ref: HEAD
+      resolved-ref: "9c7273ee8a1a5e124f69e770cba846ae66de68e1"
+      url: "https://github.com/adaptolearning/open_file"
+    source: git
+    version: "3.2.2"
   package_config:
     dependency: transitive
     description:
