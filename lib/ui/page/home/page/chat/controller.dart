@@ -286,14 +286,19 @@ class ChatController extends GetxController {
     _initAudio();
 
     _unreadCountWorker = ever(lastVisibleItem, (ChatItem? item) {
-      if (chat != null && item != null) {
-        // If user has his own unread messages, they will be included.
-        var unreadAll = chat!.messages.skip(
-            chat!.messages.indexWhere((m) => m.value == lastVisibleItem.value));
+      if (chat != null &&
+          chat!.messages.last.value.authorId != me &&
+          lastVisibleItem.value != null) {
+        int lastReadIndex =
+            chat!.messages.indexWhere((m) => m.value == lastVisibleItem.value);
+        if (lastReadIndex != -1) {
+          // If user has his own unread messages, they will be included.
+          var unreadAll = chat!.messages.skip(lastReadIndex);
 
-        chat!.unreadCount.value = unreadAll.length -
-            unreadAll.where((m) => m.value.authorId == me).length -
-            1;
+          chat!.unreadCount.value = unreadAll.length -
+              unreadAll.where((m) => m.value.authorId == me).length -
+              1;
+        }
       }
     });
 
@@ -449,13 +454,16 @@ class ChatController extends GetxController {
           if (chat != null &&
               chat!.messages.last.value.authorId != me &&
               lastVisibleItem.value != null) {
-            // If user has his own unread messages, they will be included.
-            var unreadAll = chat!.messages.skip(chat!.messages
-                .indexWhere((m) => m.value == lastVisibleItem.value));
+            int lastReadIndex = chat!.messages
+                .indexWhere((m) => m.value == lastVisibleItem.value);
+            if (lastReadIndex != -1) {
+              // If user has his own unread messages, they will be included.
+              var unreadAll = chat!.messages.skip(lastReadIndex);
 
-            chat!.unreadCount.value = unreadAll.length -
-                unreadAll.where((m) => m.value.authorId == me).length -
-                1;
+              chat!.unreadCount.value = unreadAll.length -
+                  unreadAll.where((m) => m.value.authorId == me).length -
+                  1;
+            }
           }
         },
       );

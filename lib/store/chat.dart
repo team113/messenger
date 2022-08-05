@@ -193,8 +193,16 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> renameChat(ChatId id, ChatName? name) =>
+  Future<void> renameChat(ChatId id, ChatName? name) async {
+    ChatName? oldValue = chats[id]?.chat.value.name;
+    try {
+      chats[id]?.chat.update((c) => c?..name = name);
       _graphQlProvider.renameChat(id, name);
+    } catch (e) {
+      chats[id]?.chat.update((c) => c?..name = oldValue);
+      rethrow;
+    }
+  }
 
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) =>
@@ -202,11 +210,20 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    var response = await _graphQlProvider.removeChatMember(chatId, userId);
+    RxUser? oldValue = chats[chatId]?.members[userId];
+    try {
+      chats[chatId]?.members.removeWhere((key, value) => key == userId);
+      var response = await _graphQlProvider.removeChatMember(chatId, userId);
 
-    // Response is `null` if [MyUser] removed himself (left the chat).
-    if (response == null) {
-      _chatLocal.remove(chatId);
+      // Response is `null` if [MyUser] removed himself (left the chat).
+      if (response == null) {
+        _chatLocal.remove(chatId);
+      }
+    } catch (e) {
+      if (oldValue != null) {
+        chats[chatId]?.members.addAll({userId: oldValue});
+      }
+      rethrow;
     }
   }
 
@@ -222,12 +239,36 @@ class ChatRepository implements AbstractChatRepository {
       _graphQlProvider.editChatMessageText(id, text);
 
   @override
-  Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) =>
+  Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) async {
+    Rx<ChatItem>? oldValue = _chats[chatId]
+        ?.messages
+        .firstWhereOrNull((item) => item.value.id == id);
+    try {
+      _chats[chatId]?.messages.removeWhere((item) => item.value.id == id);
       _graphQlProvider.deleteChatMessage(id);
+    } catch (e) {
+      if (oldValue != null) {
+        _chats[chatId]?.messages.add(oldValue);
+      }
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id) =>
+  Future<void> deleteChatForward(ChatId chatId, ChatItemId id) async {
+    Rx<ChatItem>? oldValue = _chats[chatId]
+        ?.messages
+        .firstWhereOrNull((item) => item.value.id == id);
+    try {
+      _chats[chatId]?.messages.removeWhere((item) => item.value.id == id);
       _graphQlProvider.deleteChatForward(id);
+    } catch (e) {
+      if (oldValue != null) {
+        _chats[chatId]?.messages.add(oldValue);
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<void> hideChatItem(ChatId chatId, ChatItemId id) =>
