@@ -47,7 +47,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         copyFromField,
         fillField,
-        fillFieldFromClipboard,
         goToUserPage,
         hasDialogWithMe,
         iAm,

@@ -24,7 +24,6 @@ import '/ui/widget/text_field.dart';
 
 /// Possible [ConfirmLogoutViewStage] flow stage.
 enum ConfirmLogoutViewStage {
-  alert,
   password,
   success,
 }
@@ -34,7 +33,7 @@ class ConfirmLogoutController extends GetxController {
   ConfirmLogoutController(this._myUser);
 
   /// [ConfirmLogoutViewStage] currently being displayed.
-  final Rx<ConfirmLogoutViewStage> stage = Rx(ConfirmLogoutViewStage.alert);
+  final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
 
   /// Field for password input.
   late final TextFieldState password;

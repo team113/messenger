@@ -42,67 +42,13 @@ class ConfirmLogoutView extends StatelessWidget {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
+      key: const Key('ConfirmLogoutView'),
       init: ConfirmLogoutController(Get.find()),
       builder: (ConfirmLogoutController c) {
         return Obx(() {
           List<Widget> children = [];
 
           switch (c.stage.value) {
-            case ConfirmLogoutViewStage.alert:
-              children = [
-                Center(
-                  child: Text(
-                    'label_password_not_set'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          style: thin,
-                          text: 'label_account_access_will_be_lost'.l10n,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('ConfirmLogoutSetPasswordButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'btn_set_password'.l10n,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                        onPressed: () =>
-                            c.stage.value = ConfirmLogoutViewStage.password,
-                        color: const Color(0xFF63B4FF),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        maxWidth: null,
-                        title: Text(
-                          'btn_logout'.l10n,
-                          style: const TextStyle(),
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    )
-                  ],
-                ),
-              ];
-              break;
             case ConfirmLogoutViewStage.password:
               children = [
                 Center(
@@ -113,7 +59,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 ReactiveTextField(
-                  key: const Key('ConfirmLogoutPasswordField'),
+                  key: const Key('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
@@ -127,7 +73,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 ReactiveTextField(
-                  key: const Key('ConfirmLogoutRepeatPasswordField'),
+                  key: const Key('RepeatPasswordField'),
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
@@ -141,7 +87,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
-                  key: const Key('ConfirmLogoutSavePasswordButton'),
+                  key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_save'.l10n,
                     style: thin?.copyWith(color: Colors.white),
@@ -168,11 +114,67 @@ class ConfirmLogoutView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Center(
                   child: OutlinedRoundedButton(
-                    key: const Key('ConfirmLogoutCloseButton'),
+                    key: const Key('CloseButton'),
                     title: Text('btn_close'.l10n),
                     onPressed: Navigator.of(context).pop,
                     color: const Color(0xFFEEEEEE),
                   ),
+                ),
+              ];
+              break;
+            default:
+              children = [
+                Center(
+                  child: Text(
+                    'label_password_not_set'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          style: thin,
+                          text: 'label_account_access_will_be_lost'.l10n,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('SetPasswordButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_set_password'.l10n,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onPressed: () =>
+                            c.stage.value = ConfirmLogoutViewStage.password,
+                        color: const Color(0xFF63B4FF),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('LogoutConfirmedButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'btn_logout'.l10n,
+                          style: const TextStyle(),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        color: const Color(0xFFEEEEEE),
+                      ),
+                    )
+                  ],
                 ),
               ];
               break;
@@ -182,7 +184,7 @@ class ConfirmLogoutView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: ListView(
-              key: Key('ConfirmLogoutView_${c.stage.value.name}'),
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               shrinkWrap: true,
               children: [
                 const SizedBox(height: 12),
