@@ -662,13 +662,13 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Downloads the provided [attachment], if not downloaded already, or
+  /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it.
   ///
   /// No-op, if download of the [attachment] is in progress.
-  Future<void> onAttachmentTap(FileAttachment attachment) async {
+  Future<void> onFileTap(FileAttachment attachment) async {
     if (attachment.isDownloading) {
-      return;
+      // No-op.
     } else if (attachment.local != null) {
       attachment.open();
     } else {
@@ -676,7 +676,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Cancels downloading of the [Attachment] with provided [id].
+  /// Cancels downloading of the provided [attachment].
   void cancelDownloading(FileAttachment attachment) {
     attachment.cancelDownload();
   }

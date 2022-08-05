@@ -27,14 +27,14 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Presses a download button of the [FileAttachment] with provided name in the
+/// Presses download button of the [FileAttachment] with provided name in the
 /// currently opened [Chat].
 ///
 /// Examples:
 /// - Then I start downloading "test.txt" file
 /// - Then I start downloading "test.pdf" file
 /// - Then I start downloading "test.doc" file
-final StepDefinitionGeneric startDownloadFile = then1<String, CustomWorld>(
+final StepDefinitionGeneric startDownloadingFile = then1<String, CustomWorld>(
   'I start downloading {string} file',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
@@ -58,14 +58,14 @@ final StepDefinitionGeneric startDownloadFile = then1<String, CustomWorld>(
   },
 );
 
-/// Presses a cancel download button of the [FileAttachment] with provided name
-/// in the currently opened [Chat].
+/// Presses cancel download button of the [FileAttachment] with provided name in
+/// the currently opened [Chat].
 ///
 /// Examples:
 /// - Then I cancel downloading "test.txt" file
 /// - Then I cancel downloading "test.pdf" file
 /// - Then I cancel downloading "test.doc" file
-final StepDefinitionGeneric cancelDownloadFile = then1<String, CustomWorld>(
+final StepDefinitionGeneric cancelDownloadingFile = then1<String, CustomWorld>(
   'I cancel downloading {string} file',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();

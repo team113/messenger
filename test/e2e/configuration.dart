@@ -41,7 +41,6 @@ import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
-import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
@@ -54,7 +53,7 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
-        cancelDownloadFile,
+        cancelDownloadingFile,
         fillField,
         goToUserPage,
         hasDialogWithMe,
@@ -64,9 +63,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
-        startDownloadFile,
+        startDownloadingFile,
         tapDropdownItem,
-        tapText,
         tapWidget,
         twoUsers,
         untilTextExists,
@@ -135,10 +133,10 @@ Future<Session> createUser(
   );
 }
 
-/// Extension adding ability to find a widget not skipping the offstage.
+/// Extension adding an ability to find the [Widget]s without skipping the
+/// offstage to [AppDriverAdapter].
 extension SkipOffstageExtension on AppDriverAdapter {
-  /// Finds a widget by the provided [key] not skipping offstage.
-  Finder findByKeySkipOffstage(String key) {
-    return find.byKey(Key(key), skipOffstage: false);
-  }
+  /// Finds the [Widget] by its [key] without skipping the offstage.
+  Finder findByKeySkipOffstage(String key) =>
+      find.byKey(Key(key), skipOffstage: false);
 }

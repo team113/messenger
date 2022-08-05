@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:universal_io/io.dart';
 
+/// Mocked [PlatformUtilsImpl].
 class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
   FutureOr<File?> download(

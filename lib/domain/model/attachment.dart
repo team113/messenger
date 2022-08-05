@@ -17,13 +17,13 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:universal_io/io.dart';
 import 'package:path/path.dart' as p;
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'image_gallery_item.dart';
 
 part 'attachment.g.dart';
