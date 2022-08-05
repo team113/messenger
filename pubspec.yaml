@@ -60,7 +60,11 @@ dependencies:
       path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0
-  open_file: ^3.2.1
+  # TODO: Switch to pub.dev version when the following pull request is merged into it:
+  #       https://github.com/crazecoder/open_file/pull/205
+  open_file:
+    git:
+      url: https://github.com/adaptolearning/open_file
   path: ^1.8.1
   path_provider: ^2.0.10
   path_provider_android: ^2.0.14
