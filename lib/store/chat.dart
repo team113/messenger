@@ -245,22 +245,23 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    HiveRxChat? chat = _chats[chatId];
-    if (chat != null &&
-        chat.messages.isNotEmpty &&
-        chat.messages.last.value.authorId != me) {
+    HiveRxChat? rxChat = _chats[chatId];
+    if (rxChat != null &&
+        rxChat.messages.isNotEmpty &&
+        rxChat.messages.last.value.authorId != me) {
       int lastReadIndex =
-          chat.messages.indexWhere((m) => m.value.id == untilId);
+          rxChat.messages.indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
         // If user has his own unread messages, they will be included.
-        var unreadAll = chat.messages.skip(lastReadIndex);
+        var unreadAll = rxChat.messages.skip(lastReadIndex);
 
-        _chats.update(chatId, (chat) {
-          chat.chat.value.unreadCount = unreadAll.length -
+        HiveChat? chat = _chatLocal.get(chatId);
+        if (chat != null) {
+          chat.value.unreadCount = unreadAll.length -
               unreadAll.where((m) => m.value.authorId == me).length -
               1;
-          return chat;
-        });
+          _chatLocal.put(chat);
+        }
       }
     }
     await _graphQlProvider.readChat(chatId, untilId);

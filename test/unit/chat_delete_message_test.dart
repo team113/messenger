@@ -207,10 +207,6 @@ void main() async {
       )),
       throwsA(isA<DeleteChatMessageException>()),
     );
-
-    verify(graphQlProvider.deleteChatMessage(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ));
   });
 
   test('ChatService successfully hide ChatItem', () async {
