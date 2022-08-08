@@ -168,7 +168,7 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
-            key: const Key('StartChattingButton'),
+            key: const Key('StartButton'),
             title: Text(
               'btn_start'.l10n,
               style: const TextStyle(color: Colors.white),
