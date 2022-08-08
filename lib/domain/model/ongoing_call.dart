@@ -317,6 +317,7 @@ class OngoingCall {
               false,
           isSharingAllowed: isRemoteVideoEnabled.value,
         );
+
         conn.onClose(() => members.remove(id));
         conn.onRemoteTrackAdded((track) async {
           var renderer = await _addRemoteTrack(conn, track);
@@ -336,6 +337,15 @@ class OngoingCall {
             });
           }
 
+          if (track.mediaSourceKind() == MediaSourceKind.Display &&
+              members[id]?.isSharingAllowed == false) {
+            setMemberVideoEnabled(
+              id: id,
+              value: false,
+              source: MediaSourceKind.Display,
+            );
+          }
+
           track.onMuted(() {
             renderer.muted = true;
             _emitRendererUpdate(renderer);
@@ -350,12 +360,12 @@ class OngoingCall {
             if (track.kind() == MediaKind.Video) {
               bool isVideoAvailable = d == TrackMediaDirection.SendRecv ||
                   d == TrackMediaDirection.SendOnly;
-              members.update(id, (value) {
+              members.update(id, (v) {
                 switch (track.mediaSourceKind()) {
                   case MediaSourceKind.Device:
-                    return value..hasVideo = isVideoAvailable;
+                    return v..hasVideo = isVideoAvailable;
                   case MediaSourceKind.Display:
-                    return value..hasSharing = isVideoAvailable;
+                    return v..hasSharing = isVideoAvailable;
                 }
               });
             }
@@ -364,6 +374,7 @@ class OngoingCall {
               case TrackMediaDirection.SendRecv:
                 _addRemoteTrack(conn, track);
                 break;
+
               case TrackMediaDirection.SendOnly:
                 if (track.mediaSourceKind() == MediaSourceKind.Display) {
                   _addRemoteTrack(conn, track).then((_) {
@@ -372,19 +383,18 @@ class OngoingCall {
                     }
                   });
                 }
+
+                // TODO(review): why add, then remove?
                 _removeRemoteTrack(track);
                 break;
+
               case TrackMediaDirection.RecvOnly:
               case TrackMediaDirection.Inactive:
                 _removeRemoteTrack(track);
                 break;
             }
           });
-          if (track.mediaSourceKind() == MediaSourceKind.Display &&
-              members[id]?.isSharingAllowed == false) {
-            setRemoteVideoEnabled(
-                value: false, id: id, source: MediaSourceKind.Display);
-          }
+
           track.onStopped(() => _removeRemoteTrack(track));
         });
       });
@@ -481,8 +491,7 @@ class OngoingCall {
                   var node = event as EventChatCallHandLowered;
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
-                    members.update(
-                        m.key, (value) => value..isHandRaised = false);
+                    members.update(m.key, (v) => v..isHandRaised = false);
                   }
                   break;
 
@@ -490,8 +499,7 @@ class OngoingCall {
                   var node = event as EventChatCallHandRaised;
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
-                    members.update(
-                        m.key, (value) => value..isHandRaised = true);
+                    members.update(m.key, (v) => v..isHandRaised = true);
                   }
                   break;
 
@@ -770,17 +778,25 @@ class OngoingCall {
   }
 
   /// Sets inbound video in this [OngoingCall] as [enabled] or not.
-  Future<void> setCallVideoEnabled(bool enabled) async {
+  Future<void> setRemoteVideoEnabled(bool enabled) async {
     try {
+      // TODO(review): why do it manually, when [RoomHandle.enableRemoteVideo]
+      //               does it for yourself?
       if (!enabled) {
         members.forEach((id, m) {
           if (m.hasVideo) {
-            setRemoteVideoEnabled(
-                value: enabled, id: id, source: MediaSourceKind.Device);
+            setMemberVideoEnabled(
+              value: enabled,
+              id: id,
+              source: MediaSourceKind.Device,
+            );
           }
           if (m.hasSharing) {
-            setRemoteVideoEnabled(
-                value: enabled, id: id, source: MediaSourceKind.Display);
+            setMemberVideoEnabled(
+              value: enabled,
+              id: id,
+              source: MediaSourceKind.Display,
+            );
           } else {
             members[id]?.isSharingAllowed = enabled;
           }
@@ -788,17 +804,24 @@ class OngoingCall {
       } else {
         members.forEach((id, m) {
           if (m.isVideoAllowed == false) {
-            setRemoteVideoEnabled(
-                value: enabled, id: id, source: MediaSourceKind.Device);
+            setMemberVideoEnabled(
+              value: enabled,
+              id: id,
+              source: MediaSourceKind.Device,
+            );
           }
           if (m.isSharingAllowed == false) {
-            setRemoteVideoEnabled(
-                value: enabled, id: id, source: MediaSourceKind.Display);
+            setMemberVideoEnabled(
+              value: enabled,
+              id: id,
+              source: MediaSourceKind.Display,
+            );
           } else {
             members[id]?.isVideoAllowed = enabled;
           }
         });
       }
+
       isRemoteVideoEnabled.value = enabled;
     } catch (e) {
       // No-op.
@@ -811,18 +834,20 @@ class OngoingCall {
 
   /// Toggles inbound video in this [OngoingCall] on and off.
   Future<void> toggleRemoteVideo() =>
-      setCallVideoEnabled(!isRemoteVideoEnabled.value);
+      setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
 
   /// Sets correct [TrackMediaDirection] for the [RemoteMember]'s track where
   /// [MediaSourceKind] is equivalent to [source].
-  Future<void> setRemoteVideoEnabled({
-    required bool value,
+  Future<void> setMemberVideoEnabled({
     required RemoteMemberId id,
+    required bool value,
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
+    // TODO(review): why triple `members[id]`?
     if (members[id] == null) {
       return;
     }
+
     if (source == MediaSourceKind.Display) {
       members[id]!.isSharingAllowed = value;
     } else if (source == MediaSourceKind.Device) {
@@ -1394,6 +1419,7 @@ class RemoteMember {
   /// Hand raised indicator of this member.
   bool isHandRaised;
 
+  // TODO(review): why not private?
   /// [ConnectionHandle] of this member.
   ConnectionHandle conn;
 }

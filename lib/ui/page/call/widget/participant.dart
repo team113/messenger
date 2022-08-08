@@ -88,7 +88,7 @@ class ParticipantWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool hasVideoWhenDisabled =
+      bool hasVideo =
           participant.video.value == null && participant.hasVideo.value;
       List<Widget> additionally = [];
 
@@ -104,7 +104,7 @@ class ParticipantWidget extends StatelessWidget {
         );
       }
 
-      if (hasVideoWhenDisabled ||
+      if (hasVideo ||
           participant.video.value?.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
@@ -237,7 +237,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool hasVideoWhenDisabled =
+      bool hasVideo =
           participant.video.value == null && participant.hasVideo.value;
       List<Widget> additionally = [];
 
@@ -253,8 +253,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (hasVideoWhenDisabled ||
-          participant.source == MediaSourceKind.Display) {
+      if (hasVideo || participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
