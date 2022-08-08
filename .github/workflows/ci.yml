@@ -274,7 +274,6 @@ jobs:
 
   test-e2e:
     name: E2E tests
-    needs: ["docker"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -293,18 +292,13 @@ jobs:
 
       - run: make flutter.pub
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-      - run: make docker.untar from-file=image.tar
-
       - name: Prepare E2E environment
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FRONTEND_IMAGE: team113/messenger
-          envkey_COMPOSE_FRONTEND_TAG: build-${{ github.run_number }}
+          envkey_COMPOSE_FRONTEND_IMAGE: nginx
+          envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
           envkey_COMPOSE_PROJECT_NAME: messenger
           fail_on_empty: true
