@@ -124,7 +124,6 @@ btn_call_video_on_desc =
     камеру
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
-btn_chat_join_call = Присоединиться к звонку
 btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy_text = Скопировать текст
@@ -149,6 +148,8 @@ btn_next = Далее
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
+btn_save = Сохранить
+btn_set_password = Задать пароль
 btn_saved_messages = Сохранённые сообщения
 btn_settings = Настройки
 btn_start = Начать
@@ -204,6 +205,8 @@ err_not_group = Не группа
 err_not_member = Не участник чата
 err_nowhere_to_send = У аккаунта нет подтверждённой почты или телефона
 err_password_empty = Пожалуйста, введите пароль
+err_password_incorrect =
+    Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_phone_occupied = Телефон уже привязан к другому аккаунту
 err_quoted_message = Сообщение было процитировано
@@ -377,6 +380,14 @@ label_hint_drag_n_drop_video =
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
 label_incoming_call = Входящий звонок
+label_introduction_description =
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
+
+        • Вы не удалите пользовательские данные из приложения (браузера);
+
+        • Вы не нажмёте кнопку "Выйти".
+
+    Чтобы не потерять доступ к аккаунту, задайте пароль.
 label_last_seen = Был(а)
 label_login = Логин
 label_login_hint = Ваш уникальный логин

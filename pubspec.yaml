@@ -23,7 +23,7 @@ dependencies:
       path: packages/dough/
   email_validator: ^2.0.1
   expandable: ^5.0.1
-  file_picker: ^4.5.1
+  file_picker: ^5.0.0
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -68,13 +68,14 @@ dependencies:
   #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
   photo_view:
     git:
-      url: https://github.com/bluefireteam/photo_view
+      url: https://github.com/bluefireteam/photo_view.git
       ref: master
   platform_detect: ^2.0.3
   rive: ^0.9.0
   sentry_flutter: ^6.5.1
+  share_plus: ^4.0.9
   sliding_up_panel: ^2.0.0+1
-  toml: ^0.12.0
+  toml: ^0.13.1
   universal_io: ^2.0.4
   uuid: ^3.0.6
   vibration: ^1.7.4-nullsafety.0
