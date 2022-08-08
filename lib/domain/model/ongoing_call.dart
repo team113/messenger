@@ -228,6 +228,9 @@ class OngoingCall {
   /// Local media tracks of this [OngoingCall].
   final List<LocalMediaTrack> _tracks = [];
 
+  /// Remote media tracks of this [OngoingCall].
+  final List<RemoteMediaTrack> _remoteTracks = [];
+
   /// Heartbeat subscription indicating that [MyUser] is connected and this
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
@@ -294,63 +297,13 @@ class OngoingCall {
         _pickOutputDevice();
       });
 
-      _room = _jason!.initRoom();
-
-      _room!.onFailedLocalMedia((e) {
-        Log.print('onFailedLocalMedia', 'CALL');
-        _errors.add('Local media acquisition error $e');
-      });
-      _room!.onConnectionLoss((e) async {
-        Log.print('onConnectionLoss', 'CALL');
-        _errors.add('Connection with media server lost $e');
-        await e.reconnectWithBackoff(500, 2, 5000);
-        _errors.add('Connection restored'); // for notification
-      });
-      _room!.onLocalTrack((e) => _addLocalTrack(e));
-
-      _room!.onNewConnection((conn) {
-        var id = RemoteMemberId.fromString(conn.getRemoteMemberId());
-        members[id] = call.value?.members
-                .firstWhereOrNull((e) => e.user.id == id.userId)
-                ?.handRaised ??
-            false;
-
-        conn.onClose(() => members.remove(id));
-        conn.onRemoteTrackAdded((track) async {
-          var renderer = await _addRemoteTrack(conn, track);
-
-          track.onMuted(() {
-            renderer.muted = true;
-            _emitRendererUpdate(renderer);
-          });
-
-          track.onUnmuted(() {
-            renderer.muted = false;
-            _emitRendererUpdate(renderer);
-          });
-
-          track.onMediaDirectionChanged((TrackMediaDirection d) {
-            switch (d) {
-              case TrackMediaDirection.SendRecv:
-                _addRemoteTrack(conn, track);
-                break;
-              case TrackMediaDirection.SendOnly:
-              case TrackMediaDirection.RecvOnly:
-              case TrackMediaDirection.Inactive:
-                _removeRemoteTrack(track);
-                break;
-            }
-          });
-
-          track.onStopped(() => _removeRemoteTrack(track));
-        });
-      });
+      _initRoom();
 
       await _initLocalMedia();
 
       if (state.value == OngoingCallState.active &&
           call.value?.joinLink != null) {
-        await _room?.join('${call.value!.joinLink}/$me.$deviceId?token=$creds');
+        _joinRoom(call.value!.joinLink!);
       }
     }
   }
@@ -364,6 +317,8 @@ class OngoingCall {
       return;
     }
 
+    _room?.onClose((reason) => calls.remove(chatId.value));
+
     connected = true;
     _heartbeat?.cancel();
     _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
@@ -375,9 +330,6 @@ class OngoingCall {
 
           case ChatCallEventsKind.chatCall:
             var node = e as ChatCallEventsChatCall;
-
-            call.value = node.call;
-            call.refresh();
 
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
@@ -391,12 +343,15 @@ class OngoingCall {
 
               if (node.call.joinLink != null) {
                 if (!_background) {
-                  await _room?.join(
-                      '${node.call.joinLink}/${calls.me}.$deviceId?token=$creds');
+                  _joinRoom(node.call.joinLink!);
                 }
                 state.value = OngoingCallState.active;
               }
             }
+
+            call.value = node.call;
+            call.refresh();
+
             break;
 
           case ChatCallEventsKind.event:
@@ -406,13 +361,13 @@ class OngoingCall {
                 case ChatCallEventKind.roomReady:
                   var node = event as EventChatCallRoomReady;
 
+                  if (!_background) {
+                    _joinRoom(node.joinLink);
+                  }
+
                   call.value?.joinLink = node.joinLink;
                   call.refresh();
 
-                  if (!_background) {
-                    await _room?.join(
-                        '${node.joinLink}/${calls.me}.$deviceId?token=$creds');
-                  }
                   state.value = OngoingCallState.active;
                   break;
 
@@ -789,6 +744,66 @@ class OngoingCall {
     return settings;
   }
 
+  /// Initializes [_room].
+  void _initRoom() {
+    _room = _jason!.initRoom();
+
+    _room!.onFailedLocalMedia((e) {
+      Log.print('onFailedLocalMedia', 'CALL');
+      _errors.add('Local media acquisition error $e');
+    });
+    _room!.onConnectionLoss((e) async {
+      Log.print('onConnectionLoss', 'CALL');
+      _errors.add('Connection with media server lost $e');
+      await e.reconnectWithBackoff(500, 2, 5000);
+      _errors.add('Connection restored'); // for notification
+    });
+    _room!.onLocalTrack((e) => _addLocalTrack(e));
+
+    _room!.onNewConnection((conn) {
+      var id = RemoteMemberId.fromString(conn.getRemoteMemberId());
+      members[id] = call.value?.members
+              .firstWhereOrNull((e) => e.user.id == id.userId)
+              ?.handRaised ??
+          false;
+
+      conn.onClose(() => members.remove(id));
+      conn.onRemoteTrackAdded((track) async {
+        var renderer = await _addRemoteTrack(conn, track);
+
+        track.onMuted(() {
+          renderer.muted = true;
+          _emitRendererUpdate(renderer);
+        });
+
+        track.onUnmuted(() {
+          renderer.muted = false;
+          _emitRendererUpdate(renderer);
+        });
+
+        track.onMediaDirectionChanged((TrackMediaDirection d) {
+          switch (d) {
+            case TrackMediaDirection.SendRecv:
+              _addRemoteTrack(conn, track);
+              break;
+
+            case TrackMediaDirection.SendOnly:
+            case TrackMediaDirection.RecvOnly:
+            case TrackMediaDirection.Inactive:
+              _removeRemoteTrack(track);
+              break;
+          }
+        });
+
+        // TODO: Keep [track]s to free them in [dispose].
+        track.onStopped(() {
+          _removeRemoteTrack(track);
+          track.free();
+        });
+      });
+    });
+  }
+
   /// Initializes the local media tracks and renderers before the call has
   /// started.
   ///
@@ -918,6 +933,37 @@ class OngoingCall {
     _tracks.clear();
   }
 
+  /// Joins the [_room] by the provided [ChatCallRoomJoinLink].
+  ///
+  /// Reinitialize [_room] if join link was changed.
+  Future<void> _joinRoom(ChatCallRoomJoinLink room) async {
+    if (call.value?.joinLink != null && call.value?.joinLink != room) {
+      if (_room != null) {
+        _jason?.closeRoom(_room!);
+        _room = null;
+      }
+
+      for (var v in remoteVideos) {
+        v.inner.dispose();
+      }
+
+      for (var v in remoteAudios) {
+        v.inner.dispose();
+      }
+
+      remoteVideos.clear();
+      remoteAudios.clear();
+
+      for (var t in _remoteTracks) {
+        t.free();
+      }
+
+      _initRoom();
+    }
+
+    await _room?.join('$room/$me.$deviceId?token=$creds');
+  }
+
   /// Updates the local media settings with [audioDevice] or [videoDevice].
   Future<void> _updateSettings({
     String? audioDevice,
@@ -977,6 +1023,8 @@ class OngoingCall {
     ConnectionHandle conn,
     RemoteMediaTrack track,
   ) async {
+    _remoteTracks.add(track);
+
     switch (track.kind()) {
       case MediaKind.Video:
         var renderer = RtcVideoRenderer.remote(
@@ -1006,6 +1054,8 @@ class OngoingCall {
   /// [remoteVideos] or updates its [RtcVideoRenderer.muted] value in the
   /// [remoteAudios].
   void _removeRemoteTrack(RemoteMediaTrack track) {
+    _remoteTracks.remove(track);
+
     switch (track.kind()) {
       case MediaKind.Audio:
         remoteAudios.removeWhere((r) => track.getTrack().id() == r.track.id());
