@@ -16,6 +16,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/avatar_image.dart';
@@ -42,6 +43,7 @@ class AvatarWidget extends StatelessWidget {
     this.title,
     this.color,
     this.opacity = 1,
+    this.avatarImageController,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -128,6 +130,7 @@ class AvatarWidget extends StatelessWidget {
     double? radius,
     double? maxRadius,
     double? minRadius,
+    AvatarImageController? avatarImageController,
     double opacity = 1,
   }) =>
       chat != null
@@ -140,6 +143,7 @@ class AvatarWidget extends StatelessWidget {
                 maxRadius: maxRadius,
                 minRadius: minRadius,
                 opacity: opacity,
+                avatarImageController: avatarImageController,
               ),
             )
           : AvatarWidget(
@@ -147,6 +151,7 @@ class AvatarWidget extends StatelessWidget {
               maxRadius: maxRadius,
               minRadius: minRadius,
               opacity: opacity,
+              avatarImageController: avatarImageController,
             );
 
   /// [Avatar] to display.
@@ -186,6 +191,8 @@ class AvatarWidget extends StatelessWidget {
 
   /// Opacity of this [AvatarWidget].
   final double opacity;
+
+  final AvatarImageController? avatarImageController;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -228,13 +235,8 @@ class AvatarWidget extends StatelessWidget {
           );
   }
 
-
-
-
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    AvatarImage image = const AvatarImage();
-
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
@@ -289,7 +291,9 @@ class AvatarWidget extends StatelessWidget {
                 );
               })
             : ClipOval(
-                child:  image),
+                child: AvatarImage(
+                controller: avatarImageController,
+              )),
       );
     });
   }
@@ -336,5 +340,3 @@ extension _LightenColorExtension on Color {
     return hslLight.toColor();
   }
 }
-
-

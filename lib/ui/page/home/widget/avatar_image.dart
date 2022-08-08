@@ -14,18 +14,53 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gif/gif.dart';
 
 enum AnimationConfig { always, standard, never }
 
+class AvatarImageController extends GetxController {
+  AvatarImageController({
+    Key? key,
+  });
+
+  late Rx<GifController> gifController;
+  Function(PointerEvent)? onHover;
+  Function()? onTap;
+
+  void setGifController(GifController controller) {
+    gifController = Rx<GifController>(controller);
+  }
+
+  void setOnHover() => onHover = _onHover;
+
+  void setOnTap() => onTap = _onTap;
+
+  void _onHover(PointerEvent event) {
+    if (event is PointerEnterEvent) {
+      gifController.value.repeat();
+      return;
+    }
+    gifController.value.reset();
+  }
+
+  void _onTap() {
+    gifController.value.forward(from: 0);
+  }
+}
+
 class AvatarImage extends StatefulWidget {
-  const AvatarImage({Key? key, this.config = AnimationConfig.standard})
-      : super(key: key);
+  AvatarImage(
+      {Key? key,
+      AvatarImageController? controller,
+      this.config = AnimationConfig.standard})
+      : controller = controller ?? AvatarImageController(),
+        super(key: key);
 
   final AnimationConfig config;
+  final AvatarImageController controller;
 
   @override
   State<AvatarImage> createState() => _AvatarImageState();
@@ -33,58 +68,42 @@ class AvatarImage extends StatefulWidget {
 
 class _AvatarImageState extends State<AvatarImage>
     with TickerProviderStateMixin {
-  late GifController _controller;
-
-  void Function()? tapAnimation;
-
-  void Function(PointerEvent)? hoverAnimation;
-
   late Autostart _autostart;
 
   @override
   void initState() {
     super.initState();
+    widget.controller.setGifController(GifController(vsync: this));
     switch (widget.config) {
       case AnimationConfig.always:
         _autostart = Autostart.loop;
         break;
       case AnimationConfig.standard:
         _autostart = Autostart.once;
-        tapAnimation = _onTap;
-        hoverAnimation = _onHover;
+        widget.controller.setOnHover();
+        widget.controller.setOnTap();
         break;
       case AnimationConfig.never:
         _autostart = Autostart.no;
         break;
     }
-
-    _controller = GifController(vsync: this);
-  }
-
-  void _onHover(PointerEvent event) {
-    if (event is PointerEnterEvent) {
-      _controller.repeat();
-      return;
-    }
-    _controller.reset();
-  }
-
-  void _onTap() {
-    _controller.forward(from: 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _onTap,
-      child: MouseRegion(
-        onEnter: (event) => _onHover(event),
-        onExit: (event) => _onHover(event),
-        child: Gif(
-          image: const NetworkImage(
-              'https://gapopa.net/files/47/17/35/83/bb/de/a3/f1/51/2d/d6/2d/6a/8f/31/ac/orig.gif'),
-          controller: _controller,
-          autostart: _autostart,
+    return GetBuilder(
+      init: widget.controller,
+      builder: (AvatarImageController c) => GestureDetector(
+        onTap: c.onTap,
+        child: MouseRegion(
+          onEnter: c.onHover,
+          onExit: c.onHover,
+          child: Gif(
+            image: const NetworkImage(
+                'https://gapopa.net/files/47/17/35/83/bb/de/a3/f1/51/2d/d6/2d/6a/8f/31/ac/orig.gif'),
+            controller: c.gifController.value,
+            autostart: _autostart,
+          ),
         ),
       ),
     );
