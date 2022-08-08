@@ -37,7 +37,7 @@ All user visible changes to this project will be documented in this file. This p
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
 - Web:
-    - Popup call bottom dock not close when mouse leaves window ([#60]).
+    - UI not hiding on window focus loses ([#60]).
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).

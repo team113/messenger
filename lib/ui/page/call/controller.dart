@@ -334,7 +334,8 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.errors] stream.
   StreamSubscription? _errorsSubscription;
 
-  /// Subscription for [WebUtils.onWindowFocus] changes hiding the bottom dock.
+  /// Subscription for [WebUtils.onWindowFocus] changes hiding the UI on focus
+  /// lose.
   StreamSubscription? _onWindowFocus;
 
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
@@ -510,15 +511,6 @@ class CallController extends GetxController {
         _titleSubscription?.cancel();
         _durationSubscription?.cancel();
 
-        _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
-          if (!e) {
-            hoveredRenderer.value = null;
-            if (_uiTimer?.isActive == false) {
-              keepUi(false);
-            }
-          }
-        });
-
         if (v != null) {
           void _updateTitle() {
             final Map<String, String> args = {
@@ -612,6 +604,15 @@ class CallController extends GetxController {
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
       applySecondaryConstraints();
+    });
+
+    _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
+      if (!e) {
+        hoveredRenderer.value = null;
+        if (_uiTimer?.isActive != true) {
+          keepUi(false);
+        }
+      }
     });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
