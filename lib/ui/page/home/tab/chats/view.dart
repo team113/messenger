@@ -289,7 +289,7 @@ class ChatsTabView extends StatelessWidget {
                       child: Row(children: subtitle),
                     ),
                   ),
-            trailing: rxChat.chat.value.unreadCount == 0
+            trailing: chat.unreadCount == 0
                 ? null
                 : Badge(
                     toAnimate: false,
@@ -297,7 +297,7 @@ class ChatsTabView extends StatelessWidget {
                     badgeContent: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Text(
-                        '${rxChat.chat.value.unreadCount}',
+                        '${chat.unreadCount}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
