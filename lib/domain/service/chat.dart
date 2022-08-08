@@ -232,18 +232,13 @@ class ChatService extends DisposableService {
   /// followed with a posted [ChatMessage] containing that text.
   ///
   /// The maximum number of forwarded [ChatItem]s at once is 100.
-  Future<void> forwardChatItems(
+  Future<void> forwardChatItem(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    ChatItemQuote item, {
     ChatMessageText? text,
   }) {
-    if (items.length >= 100) {
-      throw ForwardChatItemsException(
-        ForwardChatItemsErrorCode.wrongItemsCount,
-      );
-    }
 
-    return _chatRepository.forwardChatItems(from, to, items, text: text);
+    return _chatRepository.forwardChatItem(from, to, item, text: text);
   }
 }

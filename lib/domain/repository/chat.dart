@@ -157,10 +157,10 @@ abstract class AbstractChatRepository {
   /// followed with a posted [ChatMessage] containing that text.
   ///
   /// The maximum number of forwarded [ChatItem]s at once is 100.
-  Future<void> forwardChatItems(
+  Future<void> forwardChatItem(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    ChatItemQuote item, {
     ChatMessageText? text,
   });
 }

@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -624,6 +625,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: 'btn_reply'.l10n,
                               onPressed: () => widget.onReply?.call(),
                             ),
+                            ContextMenuButton(
+                                key: const Key('ForwardMessage'),
+                                label: 'label_forward'.tr,
+                                onPressed: () async {}),
                             if (widget.item.value is ChatMessage &&
                                 fromMe &&
                                 (widget.item.value.at
