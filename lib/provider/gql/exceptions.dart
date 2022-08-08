@@ -1214,3 +1214,40 @@ class TransformDialogCallIntoGroupCallException
     }
   }
 }
+
+/// Exception of `Mutation.forwardChatItems` described in the [code].
+class ForwardChatItemsException
+    with LocalizedExceptionMixin
+    implements Exception {
+  ForwardChatItemsException(this.code);
+
+  /// Reason of why the mutation has failed.
+  ForwardChatItemsErrorCode code;
+
+  @override
+  String toString() => 'ForwardChatItemsException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ForwardChatItemsErrorCode.blacklisted:
+        return 'err_blacklisted'.tr;
+      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+        return 'err_no_text_and_no_attachment'.tr;
+      case ForwardChatItemsErrorCode.unknownChat:
+        return 'err_unknown_chat'.tr;
+      case ForwardChatItemsErrorCode.wrongItemsCount:
+        return 'err_wrong_items_count'.tr;
+      case ForwardChatItemsErrorCode.unknownForwardedAttachment:
+        return 'err_unknown_forwarded_attachment'.tr;
+      case ForwardChatItemsErrorCode.unsupportedForwardedItem:
+        return 'err_unsupported_forwarded_item'.tr;
+      case ForwardChatItemsErrorCode.unknownForwardedItem:
+        return 'err_unknown_forwarded_item'.tr;
+      case ForwardChatItemsErrorCode.unknownAttachment:
+        return 'err_unknown_attachment'.tr;
+      case ForwardChatItemsErrorCode.artemisUnknown:
+        return 'err_unknown'.tr;
+    }
+  }
+}

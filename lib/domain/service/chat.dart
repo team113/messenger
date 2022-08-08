@@ -222,4 +222,28 @@ class ChatService extends DisposableService {
       await _chatRepository.remove(id);
     }
   }
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] argument is specified then the forwarded [ChatItem]s will be
+  /// followed with a posted [ChatMessage] containing that text.
+  ///
+  /// The maximum number of forwarded [ChatItem]s at once is 100.
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+  }) {
+    if (items.length >= 100) {
+      throw ForwardChatItemsException(
+        ForwardChatItemsErrorCode.wrongItemsCount,
+      );
+    }
+
+    return _chatRepository.forwardChatItems(from, to, items, text: text);
+  }
 }
