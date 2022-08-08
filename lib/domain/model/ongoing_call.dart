@@ -933,9 +933,9 @@ class OngoingCall {
     _tracks.clear();
   }
 
-  /// Joins the [_room] by the provided [ChatCallRoomJoinLink].
+  /// Joins to the [_room] by the provided [ChatCallRoomJoinLink].
   ///
-  /// Reinitialize [_room] if join link was changed.
+  /// Reinitialize the [_room] if call room was changed.
   Future<void> _joinRoom(ChatCallRoomJoinLink room) async {
     if (call.value?.joinLink != null && call.value?.joinLink != room) {
       if (_room != null) {
