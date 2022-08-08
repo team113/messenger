@@ -187,13 +187,6 @@ abstract class RxChat {
   /// Returns an actual [UserCallCover] of this [RxChat].
   UserCallCover? get callCover;
 
-  /// Reactive value of the count of [ChatItem]s unread by the authenticated
-  ///  [MyUser] in this [chat].
-  RxInt get unreadCount;
-
-  /// Indicates whether [ChatView] displaying this [chat].
-  RxBool get isOpenedNow;
-
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages(ChatId chatId);
 

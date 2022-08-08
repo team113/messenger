@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -194,12 +195,19 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
-    ChatName? oldValue = chats[id]?.chat.value.name;
+    HiveChat? chat = _chatLocal.get(id);
+    ChatName? oldValue = chat?.value.name;
     try {
-      chats[id]?.chat.update((c) => c?..name = name);
-      _graphQlProvider.renameChat(id, name);
+      if (chat != null) {
+        chat.value.name = name;
+        await _chatLocal.put(chat);
+      }
+      await _graphQlProvider.renameChat(id, name);
     } catch (e) {
-      chats[id]?.chat.update((c) => c?..name = oldValue);
+      if (chat != null) {
+        chat.value.name = oldValue;
+        await _chatLocal.put(chat);
+      }
       rethrow;
     }
   }
@@ -210,18 +218,23 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    RxUser? oldValue = chats[chatId]?.members[userId];
+    HiveChat? chat = _chatLocal.get(chatId);
+    ChatMember? oldValue = chat?.value.members
+        .firstWhereIndexedOrNull((index, m) => m.user.id == userId);
     try {
-      chats[chatId]?.members.removeWhere((key, value) => key == userId);
+      if (chat != null && oldValue != null) {
+        chat.value.members.remove(oldValue);
+        await _chatLocal.put(chat);
+      }
       var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
       // Response is `null` if [MyUser] removed himself (left the chat).
       if (response == null) {
         _chatLocal.remove(chatId);
       }
     } catch (e) {
-      if (oldValue != null) {
-        chats[chatId]?.members.addAll({userId: oldValue});
+      if (chat != null && oldValue != null) {
+        chat.value.members.add(oldValue);
+        await _chatLocal.put(chat);
       }
       rethrow;
     }
@@ -231,8 +244,27 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> hideChat(ChatId id) => _graphQlProvider.hideChat(id);
 
   @override
-  Future<void> readChat(ChatId chatId, ChatItemId untilId) =>
-      _graphQlProvider.readChat(chatId, untilId);
+  Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
+    HiveRxChat? chat = _chats[chatId];
+    if (chat != null &&
+        chat.messages.isNotEmpty &&
+        chat.messages.last.value.authorId != me) {
+      int lastReadIndex =
+          chat.messages.indexWhere((m) => m.value.id == untilId);
+      if (lastReadIndex != -1) {
+        // If user has his own unread messages, they will be included.
+        var unreadAll = chat.messages.skip(lastReadIndex);
+
+        _chats.update(chatId, (chat) {
+          chat.chat.value.unreadCount = unreadAll.length -
+              unreadAll.where((m) => m.value.authorId == me).length -
+              1;
+          return chat;
+        });
+      }
+    }
+    await _graphQlProvider.readChat(chatId, untilId);
+  }
 
   @override
   Future<void> editChatMessageText(ChatItemId id, ChatMessageText? text) =>
@@ -240,15 +272,16 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) async {
-    Rx<ChatItem>? oldValue = _chats[chatId]
-        ?.messages
-        .firstWhereOrNull((item) => item.value.id == id);
+    HiveRxChat? chat = _chats[chatId];
+    HiveChatItem? oldValue = await chat?.get(id);
     try {
-      _chats[chatId]?.messages.removeWhere((item) => item.value.id == id);
-      _graphQlProvider.deleteChatMessage(id);
+      if (chat != null && oldValue != null) {
+        await chat.remove(id);
+      }
+      await _graphQlProvider.deleteChatMessage(id);
     } catch (e) {
-      if (oldValue != null) {
-        _chats[chatId]?.messages.add(oldValue);
+      if (chat != null && oldValue != null) {
+        await chat.put(oldValue);
       }
       rethrow;
     }
@@ -256,15 +289,16 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> deleteChatForward(ChatId chatId, ChatItemId id) async {
-    Rx<ChatItem>? oldValue = _chats[chatId]
-        ?.messages
-        .firstWhereOrNull((item) => item.value.id == id);
+    HiveRxChat? chat = _chats[chatId];
+    HiveChatItem? oldValue = await chat?.get(id);
     try {
-      _chats[chatId]?.messages.removeWhere((item) => item.value.id == id);
-      _graphQlProvider.deleteChatForward(id);
+      if (chat != null && oldValue != null) {
+        await chat.remove(id);
+      }
+      await _graphQlProvider.deleteChatForward(id);
     } catch (e) {
-      if (oldValue != null) {
-        _chats[chatId]?.messages.add(oldValue);
+      if (chat != null && oldValue != null) {
+        await chat.put(oldValue);
       }
       rethrow;
     }

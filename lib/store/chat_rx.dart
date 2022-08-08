@@ -75,12 +75,6 @@ class HiveRxChat implements RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxInt unreadCount = RxInt(0);
-
-  @override
-  RxBool isOpenedNow = RxBool(false);
-
-  @override
   UserCallCover? get callCover {
     UserCallCover? callCover;
 
@@ -320,10 +314,6 @@ class HiveRxChat implements RxChat {
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
       _updateTitle();
-    }
-
-    if (!isOpenedNow.value) {
-      unreadCount.value = chat.value.unreadCount;
     }
 
     if (chat.value.isGroup) {

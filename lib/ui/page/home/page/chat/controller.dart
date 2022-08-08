@@ -179,10 +179,6 @@ class ChatController extends GetxController {
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
-  /// Worker performing a changing of [chat.unreadCount] value on [lastVisible]
-  ///  changes.
-  Worker? _unreadCountWorker;
-
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
@@ -284,34 +280,13 @@ class ChatController extends GetxController {
     listController.addListener(_updateFabStates);
     _fetchChat();
     _initAudio();
-
-    _unreadCountWorker = ever(lastVisibleItem, (ChatItem? item) {
-      if (chat != null &&
-          chat!.messages.isNotEmpty &&
-          chat!.messages.last.value.authorId != me &&
-          lastVisibleItem.value != null) {
-        int lastReadIndex =
-            chat!.messages.indexWhere((m) => m.value == lastVisibleItem.value);
-        if (lastReadIndex != -1) {
-          // If user has his own unread messages, they will be included.
-          var unreadAll = chat!.messages.skip(lastReadIndex);
-
-          chat!.unreadCount.value = unreadAll.length -
-              unreadAll.where((m) => m.value.authorId == me).length -
-              1;
-        }
-      }
-    });
-
     super.onReady();
   }
 
   @override
   void onClose() {
-    chat?.isOpenedNow.value = false;
     _messagesWorker?.dispose();
     _readWorker?.dispose();
-    _unreadCountWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -426,7 +401,6 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      chat?.isOpenedNow.value = true;
       _messagesWorker ??= ever(
         chat!.messages,
         (List<Rx<ChatItem>> msgs) {
@@ -450,22 +424,6 @@ class ChatController extends GetxController {
                 },
               ),
             );
-          }
-
-          if (chat != null &&
-              chat!.messages.isNotEmpty &&
-              chat!.messages.last.value.authorId != me &&
-              lastVisibleItem.value != null) {
-            int lastReadIndex = 0;
-            chat!.messages.indexWhere((m) => m.value == lastVisibleItem.value);
-            if (lastReadIndex != -1) {
-              // If user has his own unread messages, they will be included.
-              var unreadAll = chat!.messages.skip(lastReadIndex);
-
-              chat!.unreadCount.value = unreadAll.length -
-                  unreadAll.where((m) => m.value.authorId == me).length -
-                  1;
-            }
           }
         },
       );
