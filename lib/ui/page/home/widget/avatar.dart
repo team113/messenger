@@ -228,8 +228,13 @@ class AvatarWidget extends StatelessWidget {
           );
   }
 
+
+
+
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
+    AvatarImage image = const AvatarImage();
+
     return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
@@ -283,9 +288,8 @@ class AvatarWidget extends StatelessWidget {
                   ),
                 );
               })
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: const AvatarImage()),
+            : ClipOval(
+                child:  image),
       );
     });
   }
