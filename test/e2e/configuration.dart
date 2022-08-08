@@ -37,7 +37,9 @@ import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
+import 'steps/user_accept_call.dart';
 import 'steps/users.dart';
+import 'steps/wait.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
@@ -62,7 +64,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         updateBio,
         user,
+        userAcceptCall,
         waitUntilKeyExists,
+        wait,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [

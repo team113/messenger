@@ -17,6 +17,7 @@
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 
@@ -44,4 +45,10 @@ class CustomUser {
 
   /// ID of the [Chat]-dialog with the authenticated [MyUser].
   ChatId? dialog;
+
+  /// ID of the [Chat]-group with the authenticated [MyUser].
+  ChatId? group;
+
+  /// Currently active call ot this [CustomUser].
+  OngoingCall? call;
 }
