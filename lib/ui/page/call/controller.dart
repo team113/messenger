@@ -334,7 +334,7 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.errors] stream.
   StreamSubscription? _errorsSubscription;
 
-  /// Subscription for [WebUtils.onWindowFocus] changes hiding the UI on focus
+  /// Subscription for [WebUtils.onWindowFocus] changes hiding the UI on a focus
   /// lose.
   StreamSubscription? _onWindowFocus;
 
