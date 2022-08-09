@@ -283,15 +283,15 @@ class AvatarWidget extends StatelessWidget {
                 );
               })
             : SizedBox(
-              width: maxWidth,
-              height: maxHeight,
-              child: ClipOval(
-                  child: AvatarImage(
+                width: maxWidth,
+                height: maxHeight,
+                child: ClipOval(
+                    child: AvatarImage(
                   imageUrl:
                       'https://gapopa.net/files/65/93/69/99/cb/79/27/41/63/c2/9e/62/46/98/b6/c2/orig.gif',
                   controller: avatarImageController,
                 )),
-            ),
+              ),
         //${Config.url}:${Config.port}/files${avatar?.original}
       );
     });

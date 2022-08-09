@@ -33,16 +33,17 @@ enum AnimationConfig {
 
 /// User image with or not animation
 class AvatarImage extends StatefulWidget {
-  AvatarImage(
-      {Key? key,
-      AvatarImageController? controller,
-      this.config = AnimationConfig.standard,
-      required this.imageUrl,})
-      : controller = controller ?? AvatarImageController(),
+  AvatarImage({
+    Key? key,
+    AvatarImageController? controller,
+    this.config = AnimationConfig.standard,
+    required this.imageUrl,
+  })  : controller = controller ?? AvatarImageController(),
         super(key: key);
 
   /// Image link
   final String imageUrl;
+
   /// Customizing animation behavior
   ///
   /// Defines behavior [controller]
@@ -79,16 +80,18 @@ class _AvatarImageState extends State<AvatarImage>
         break;
     }
   }
+
   @override
   void didChangeDependencies() {
     widget.controller.gifController ??= Rx(GifController(vsync: this));
     super.didChangeDependencies();
   }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
       init: widget.controller,
-      builder: (AvatarImageController c){
+      builder: (AvatarImageController c) {
         return GestureDetector(
           onTap: c.onTap,
           child: MouseRegion(
@@ -96,8 +99,10 @@ class _AvatarImageState extends State<AvatarImage>
             onExit: c.onHover,
             child: Gif(
               fit: BoxFit.fill,
-              image: NetworkImage(widget.imageUrl,),
-              controller: c.gifController?.value ,
+              image: NetworkImage(
+                widget.imageUrl,
+              ),
+              controller: c.gifController?.value,
               autostart: _autostart,
             ),
           ),

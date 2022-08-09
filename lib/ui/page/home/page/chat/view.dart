@@ -163,7 +163,8 @@ class _ChatViewState extends State<ChatView>
                                   const SizedBox(width: 10),
                                 ],
                                 Padding(
-                                  padding: const EdgeInsets.only(top:8,bottom:8 ,right: 10),
+                                  padding: const EdgeInsets.only(
+                                      top: 8, bottom: 8, right: 10),
                                   child: Material(
                                     elevation: 6,
                                     type: MaterialType.circle,
@@ -171,15 +172,16 @@ class _ChatViewState extends State<ChatView>
                                     color: Colors.white,
                                     child: Container(
                                       constraints: const BoxConstraints(
-                                          minWidth: 40,
-                                          maxHeight: 40
-                                      ),
+                                          minWidth: 40, maxHeight: 40),
                                       child: InkWell(
                                         customBorder: const CircleBorder(),
                                         onTap: onDetailsTap,
-                                        child: AvatarWidget.fromRxChat(
-                                          c.chat,
-                                          radius: 17,
+                                        child: IgnorePointer(
+                                          ignoring: true,
+                                          child: AvatarWidget.fromRxChat(
+                                            c.chat,
+                                            radius: 17,
+                                          ),
                                         ),
                                       ),
                                     ),
