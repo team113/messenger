@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -37,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -204,6 +206,9 @@ class CallController extends GetxController {
   /// [CallButton]s placed in the [Dock].
   late final RxList<CallButton> buttons;
 
+  /// [GlobalKey] of the [Dock].
+  final GlobalKey dockKey = GlobalKey();
+
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
@@ -255,6 +260,14 @@ class CallController extends GetxController {
   /// [GlobalKey] of the secondary view.
   final GlobalKey secondaryKey = GlobalKey();
 
+  /// [secondaryBottom] value before the secondary view got relocated with the
+  /// [relocateSecondary] method.
+  double? secondaryBottomShifted;
+
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
+
   /// Height of the title bar.
   static const double titleHeight = 30;
 
@@ -274,10 +287,10 @@ class CallController extends GetxController {
   static const double _minHeight = 500;
 
   /// Max width of the secondary view in percentage of the call width.
-  static const double _maxSWidth = 0.95;
+  static const double _maxSWidth = 0.80;
 
   /// Max height of the secondary view in percentage of the call height.
-  static const double _maxSHeight = 0.95;
+  static const double _maxSHeight = 0.80;
 
   /// Min width of the secondary view in pixels.
   static const double _minSWidth = 100;
@@ -320,6 +333,10 @@ class CallController extends GetxController {
 
   /// Subscription for [OngoingCall.errors] stream.
   StreamSubscription? _errorsSubscription;
+
+  /// Subscription for [WebUtils.onWindowFocus] changes hiding the UI on a focus
+  /// lose.
+  StreamSubscription? _onWindowFocus;
 
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
   final RxMap<String, BoxFit?> rendererBoxFit = RxMap<String, BoxFit?>();
@@ -486,6 +503,7 @@ class CallController extends GetxController {
         secondaryTop.value = null;
         secondaryRight.value = 10;
         secondaryBottom.value = 10;
+        secondaryBottomShifted = secondaryBottom.value;
       }
 
       // Update the [WebUtils.title] if this call is in a popup.
@@ -552,6 +570,8 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
+        SchedulerBinding.instance
+            .addPostFrameCallback((_) => relocateSecondary());
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
@@ -584,6 +604,15 @@ class CallController extends GetxController {
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
       applySecondaryConstraints();
+    });
+
+    _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
+      if (!e) {
+        hoveredRenderer.value = null;
+        if (_uiTimer?.isActive != true) {
+          keepUi(false);
+        }
+      }
     });
 
     _errorsSubscription = _currentCall.value.errors.listen((e) {
@@ -724,6 +753,7 @@ class CallController extends GetxController {
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
     _errorsSubscription?.cancel();
+    _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
 
@@ -848,14 +878,16 @@ class CallController extends GetxController {
   }
 
   /// Toggles fullscreen on and off.
-  void toggleFullscreen() {
+  Future<void> toggleFullscreen() async {
     if (fullscreen.isTrue) {
       fullscreen.value = false;
-      PlatformUtils.exitFullscreen();
+      await PlatformUtils.exitFullscreen();
     } else {
       fullscreen.value = true;
-      PlatformUtils.enterFullscreen();
+      await PlatformUtils.enterFullscreen();
     }
+
+    relocateSecondary();
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
@@ -1061,6 +1093,69 @@ class CallController extends GetxController {
     top.value = _applyTop(context, top.value);
   }
 
+  /// Relocates the secondary view accounting the possible intersections.
+  void relocateSecondary() {
+    if (secondaryAlignment.value == null &&
+        secondaryDragged.isFalse &&
+        secondaryScaled.isFalse &&
+        !_secondaryRelocated) {
+      _secondaryRelocated = true;
+
+      final Rect? secondaryBounds = secondaryKey.globalPaintBounds;
+      final Rect? dockBounds = dockKey.globalPaintBounds;
+      Rect intersect =
+          secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
+
+      intersect = Rect.fromLTWH(
+        intersect.left,
+        intersect.top,
+        intersect.width,
+        intersect.height + 10,
+      );
+
+      if (intersect.width > 0 && intersect.height > 0) {
+        // Intersection is non-zero, so move the secondary panel up.
+        if (secondaryBottom.value != null) {
+          secondaryBottom.value = secondaryBottom.value! + intersect.height;
+        } else {
+          secondaryTop.value = secondaryTop.value! - intersect.height;
+        }
+
+        applySecondaryConstraints();
+      } else if ((intersect.height < 0 || intersect.width < 0) &&
+          secondaryBottomShifted != null) {
+        // Intersection is less than zero and the secondary panel is higher than
+        // it was before, so move it to its original position.
+        double bottom = secondaryBottom.value ??
+            size.height - secondaryTop.value! - secondaryHeight.value;
+        if (bottom > secondaryBottomShifted!) {
+          double difference = bottom - secondaryBottomShifted!;
+          if (secondaryBottom.value != null) {
+            if (difference.abs() < intersect.height.abs() ||
+                intersect.width < 0) {
+              secondaryBottom.value = secondaryBottomShifted;
+            } else {
+              secondaryBottom.value = secondaryBottom.value! + intersect.height;
+            }
+          } else {
+            if (difference.abs() < intersect.height.abs() ||
+                intersect.width < 0) {
+              secondaryTop.value =
+                  size.height - secondaryHeight.value - secondaryBottomShifted!;
+            } else {
+              secondaryTop.value = secondaryTop.value! - intersect.height;
+            }
+          }
+
+          applySecondaryConstraints();
+        }
+      }
+
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => _secondaryRelocated = false);
+    }
+  }
+
   /// Calculates the appropriate [secondaryLeft], [secondaryRight],
   /// [secondaryTop] and [secondaryBottom] values according to the nearest edge.
   void updateSecondaryAttach() {
@@ -1130,6 +1225,10 @@ class CallController extends GetxController {
           ? size.height - top - secondaryHeight.value
           : 0;
     }
+
+    secondaryBottomShifted =
+        secondaryBottom.value ?? size.height - top - secondaryHeight.value;
+    relocateSecondary();
   }
 
   /// Calculates the [secondaryPanningOffset] based on the provided [offset].
@@ -1198,7 +1297,9 @@ class CallController extends GetxController {
     secondaryWidth.value = _applySWidth(secondaryWidth.value);
     secondaryHeight.value = _applySHeight(secondaryHeight.value);
     secondaryLeft.value = _applySLeft(secondaryLeft.value);
+    secondaryRight.value = _applySRight(secondaryRight.value);
     secondaryTop.value = _applySTop(secondaryTop.value);
+    secondaryBottom.value = _applySBottom(secondaryBottom.value);
 
     // Limit the width and height if docked.
     if (secondaryAlignment.value == Alignment.centerRight ||
@@ -1287,7 +1388,6 @@ class CallController extends GetxController {
         break;
     }
 
-    updateSecondaryAttach();
     applySecondaryConstraints();
   }
 
@@ -1298,6 +1398,8 @@ class CallController extends GetxController {
         size.width - secondaryWidth.value - (secondaryRight.value ?? 0);
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
+    secondaryBottom.value = null;
+    secondaryRight.value = null;
 
     switch (x) {
       case ScaleModeX.left:
@@ -1364,7 +1466,6 @@ class CallController extends GetxController {
     }
 
     applySecondaryConstraints();
-    updateSecondaryAttach();
   }
 
   /// Scales the secondary view by the provided [scale].
@@ -1436,6 +1537,19 @@ class CallController extends GetxController {
     return left;
   }
 
+  /// Returns corrected according to secondary constraints [right] value.
+  double? _applySRight(double? right) {
+    if (right != null) {
+      if (right + secondaryWidth.value > size.width) {
+        return size.width - secondaryWidth.value;
+      } else if (right < 0) {
+        return 0;
+      }
+    }
+
+    return right;
+  }
+
   /// Returns corrected according to secondary constraints [top] value.
   double? _applySTop(double? top) {
     if (top != null) {
@@ -1447,6 +1561,19 @@ class CallController extends GetxController {
     }
 
     return top;
+  }
+
+  /// Returns corrected according to secondary constraints [bottom] value.
+  double? _applySBottom(double? bottom) {
+    if (bottom != null) {
+      if (bottom + secondaryHeight.value > size.height) {
+        return size.height - secondaryHeight.value;
+      } else if (bottom < 0) {
+        return 0;
+      }
+    }
+
+    return bottom;
   }
 
   /// Returns corrected according to constraints [width] value.

@@ -7,6 +7,9 @@
 /.cache/
 /artifacts/
 
+# Development related
+.env
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
