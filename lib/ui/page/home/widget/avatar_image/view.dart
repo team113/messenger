@@ -37,13 +37,12 @@ class AvatarImage extends StatefulWidget {
       {Key? key,
       AvatarImageController? controller,
       this.config = AnimationConfig.standard,
-      required this.imageUrl})
+      required this.imageUrl,})
       : controller = controller ?? AvatarImageController(),
         super(key: key);
 
   /// Image link
   final String imageUrl;
-
   /// Customizing animation behavior
   ///
   /// Defines behavior [controller]
@@ -65,7 +64,7 @@ class _AvatarImageState extends State<AvatarImage>
   @override
   void initState() {
     super.initState();
-    widget.controller.setGifController(GifController(vsync: this));
+    widget.controller.gifController ??= Rx(GifController(vsync: this));
     switch (widget.config) {
       case AnimationConfig.always:
         _autostart = Autostart.loop;
@@ -80,23 +79,30 @@ class _AvatarImageState extends State<AvatarImage>
         break;
     }
   }
-
+  @override
+  void didChangeDependencies() {
+    widget.controller.gifController ??= Rx(GifController(vsync: this));
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
       init: widget.controller,
-      builder: (AvatarImageController c) => GestureDetector(
-        onTap: c.onTap,
-        child: MouseRegion(
-         onHover: c.onHover,
-          onExit: c.onHover,
-          child: Gif(
-            image: NetworkImage(widget.imageUrl),
-            controller: c.gifController.value,
-            autostart: _autostart,
+      builder: (AvatarImageController c){
+        return GestureDetector(
+          onTap: c.onTap,
+          child: MouseRegion(
+            onHover: c.onHover,
+            onExit: c.onHover,
+            child: Gif(
+              fit: BoxFit.fill,
+              image: NetworkImage(widget.imageUrl,),
+              controller: c.gifController?.value ,
+              autostart: _autostart,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

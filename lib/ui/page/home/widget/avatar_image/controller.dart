@@ -28,7 +28,7 @@ class AvatarImageController extends GetxController {
   });
 
   /// [Gif]'s controller in [AvatarImage]
-  late Rx<GifController> gifController;
+  Rx<GifController?>? gifController;
 
   /// Hover callback for [MouseRegion]
   Function(PointerEvent)? onHover;
@@ -36,10 +36,10 @@ class AvatarImageController extends GetxController {
   /// Tap callback
   Function()? onTap;
 
-  /// Defining a [GifController] for the [Gif] that we will control
-  void setGifController(GifController controller) {
-    gifController = Rx<GifController>(controller);
-  }
+  // /// Defining a [GifController] for the [Gif] that we will control
+  // void setGifController(GifController controller) {
+  //   gifController = Rx<GifController>(controller);
+  // }
 
   /// [onHover] callback
   void setOnHover() => onHover = _onHover;
@@ -50,14 +50,14 @@ class AvatarImageController extends GetxController {
   ///Default [gifController] behavior on hover
   void _onHover(PointerEvent event) {
     if (event is PointerHoverEvent) {
-      gifController.value.repeat();
+      gifController!.value!.repeat();
       return;
     }
-    gifController.value.reset();
+    gifController!.value!.reset();
   }
 
   ///Default [gifController] behavior on tap
   void _onTap() {
-    gifController.value.forward(from: 0);
+    gifController!.value!.forward(from: 0);
   }
 }
