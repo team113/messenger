@@ -18,7 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image.dart';
+import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -251,71 +251,72 @@ class ChatsTabView extends StatelessWidget {
             ],
           ),
           child: GetBuilder(
-            init: AvatarImageController(),
-            builder: (AvatarImageController avatarController) => MouseRegion(
-              onEnter: avatarController.onHover,
-              onExit: avatarController.onHover,
-              child: ListTile(
-                leading: Obx(
-                  () => Badge(
-                    showBadge: rxChat.chat.value.isDialog &&
-                        rxChat.members.values
-                                .firstWhereOrNull((e) => e.id != c.me)
-                                ?.user
-                                .value
-                                .online ==
-                            true,
-                    badgeContent: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.green,
-                      ),
-                      padding: const EdgeInsets.all(5),
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    badgeColor: Colors.white,
-                    animationType: BadgeAnimationType.scale,
-                    position: BadgePosition.bottomEnd(bottom: 0, end: 0),
-                    elevation: 0,
-                    child: AvatarWidget.fromRxChat(rxChat,
-                        avatarImageController: avatarController),
-                  ),
-                ),
-                title: Text(
-                  rxChat.title.value,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                subtitle: subtitle == null
-                    ? null
-                    : DefaultTextStyle.merge(
-                        style: const TextStyle(color: subtitleColor),
-                        overflow: TextOverflow.ellipsis,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Row(children: subtitle),
+              init: AvatarImageController(),
+              builder: (AvatarImageController avatarController) {
+                return MouseRegion(
+                  onHover: avatarController.onHover,
+                  onExit: avatarController.onHover,
+                  child: ListTile(
+                    leading: Obx(
+                      () => Badge(
+                        showBadge: rxChat.chat.value.isDialog &&
+                            rxChat.members.values
+                                    .firstWhereOrNull((e) => e.id != c.me)
+                                    ?.user
+                                    .value
+                                    .online ==
+                                true,
+                        badgeContent: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.green,
+                          ),
+                          padding: const EdgeInsets.all(5),
                         ),
-                      ),
-                trailing: chat.unreadCount == 0
-                    ? null
-                    : Badge(
-                        toAnimate: false,
+                        padding: const EdgeInsets.all(2),
+                        badgeColor: Colors.white,
+                        animationType: BadgeAnimationType.scale,
+                        position: BadgePosition.bottomEnd(bottom: 0, end: 0),
                         elevation: 0,
-                        badgeContent: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Text(
-                            '${chat.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
+                        child: AvatarWidget.fromRxChat(rxChat,
+                            avatarImageController: avatarController),
+                      ),
+                    ),
+                    title: Text(
+                      rxChat.title.value,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    subtitle: subtitle == null
+                        ? null
+                        : DefaultTextStyle.merge(
+                            style: const TextStyle(color: subtitleColor),
+                            overflow: TextOverflow.ellipsis,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Row(children: subtitle),
                             ),
                           ),
-                        ),
-                      ),
-                onTap: () => router.chat(chat.id),
-              ),
-            ),
-          ),
+                    trailing: chat.unreadCount == 0
+                        ? null
+                        : Badge(
+                            toAnimate: false,
+                            elevation: 0,
+                            badgeContent: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Text(
+                                '${chat.unreadCount}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                    onTap: () => router.chat(chat.id),
+                  ),
+                );
+              }),
         );
       });
 }

@@ -29,7 +29,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
     - Redesigned login interface ([#35]);
-    - Redesigned auth page ([#29]).
+    - Redesigned auth page ([#29]);
+    - Reconfigure user avatar animation ([#61], [54]).
 
 ### Fixed
 
@@ -63,7 +64,10 @@ All user visible changes to this project will be documented in this file. This p
 [#47]: /../../pull/47
 [#51]: /../../issues/51
 [#53]: /../../pull/53
+[#54]: /../../issues/54
 [#56]: /../../pull/56
+[#61]: /../../pull/61
+
 
 
 

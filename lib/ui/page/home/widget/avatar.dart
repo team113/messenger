@@ -16,10 +16,10 @@
 
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image.dart';
+import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
+import 'package:messenger/ui/page/home/widget/avatar_image/view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -192,6 +192,7 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
+  /// [AvatarImage]'s controller
   final AvatarImageController? avatarImageController;
 
   /// Avatar color swatches.
@@ -266,15 +267,6 @@ class AvatarWidget extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [gradient.lighten(), gradient],
           ),
-          image: avatar == null
-              ? null
-              : const DecorationImage(
-                  image: NetworkImage(
-                    'https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/5eeea355389655.59822ff824b72.gif',
-                  ),
-                  fit: BoxFit.cover,
-                  isAntiAlias: true,
-                ),
           shape: BoxShape.circle,
         ),
         child: avatar != null
@@ -292,6 +284,8 @@ class AvatarWidget extends StatelessWidget {
               })
             : ClipOval(
                 child: AvatarImage(
+                imageUrl:
+                    'https://w7.pngwing.com/pngs/605/905/png-transparent-free-pic-web-design-label-text.png',
                 controller: avatarImageController,
               )),
       );

@@ -14,52 +14,43 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gif/gif.dart';
+import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
 
-enum AnimationConfig { always, standard, never }
+/// Animation behavior type
+enum AnimationConfig {
+  /// Animation loops and custom actions disabled
+  always,
 
-class AvatarImageController extends GetxController {
-  AvatarImageController({
-    Key? key,
-  });
+  /// Animation plays once and then only plays when clicked or hovered
+  standard,
 
-  late Rx<GifController> gifController;
-  Function(PointerEvent)? onHover;
-  Function()? onTap;
-
-  void setGifController(GifController controller) {
-    gifController = Rx<GifController>(controller);
-  }
-
-  void setOnHover() => onHover = _onHover;
-
-  void setOnTap() => onTap = _onTap;
-
-  void _onHover(PointerEvent event) {
-    if (event is PointerEnterEvent) {
-      gifController.value.repeat();
-      return;
-    }
-    gifController.value.reset();
-  }
-
-  void _onTap() {
-    gifController.value.forward(from: 0);
-  }
+  /// Animation not playing and custom actions disabled
+  never,
 }
 
+/// User image with or not animation
 class AvatarImage extends StatefulWidget {
   AvatarImage(
       {Key? key,
       AvatarImageController? controller,
-      this.config = AnimationConfig.standard})
+      this.config = AnimationConfig.standard,
+      required this.imageUrl})
       : controller = controller ?? AvatarImageController(),
         super(key: key);
 
+  /// Image link
+  final String imageUrl;
+
+  /// Customizing animation behavior
+  ///
+  /// Defines behavior [controller]
+  /// By default matters [AnimationConfig.standard]
   final AnimationConfig config;
+
+  /// [AvatarImage]'s controller
   final AvatarImageController controller;
 
   @override
@@ -68,6 +59,7 @@ class AvatarImage extends StatefulWidget {
 
 class _AvatarImageState extends State<AvatarImage>
     with TickerProviderStateMixin {
+  /// Initial animation behavior for [Gif]
   late Autostart _autostart;
 
   @override
@@ -96,11 +88,10 @@ class _AvatarImageState extends State<AvatarImage>
       builder: (AvatarImageController c) => GestureDetector(
         onTap: c.onTap,
         child: MouseRegion(
-          onEnter: c.onHover,
+         onHover: c.onHover,
           onExit: c.onHover,
           child: Gif(
-            image: const NetworkImage(
-                'https://gapopa.net/files/47/17/35/83/bb/de/a3/f1/51/2d/d6/2d/6a/8f/31/ac/orig.gif'),
+            image: NetworkImage(widget.imageUrl),
             controller: c.gifController.value,
             autostart: _autostart,
           ),
