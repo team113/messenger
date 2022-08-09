@@ -196,18 +196,21 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
     HiveChat? chat = _chatLocal.get(id);
-    ChatName? oldValue = chat?.value.name;
+    ChatName? previous = chat?.value.name;
+
     try {
       if (chat != null) {
         chat.value.name = name;
-        await _chatLocal.put(chat);
+        _chatLocal.put(chat);
       }
+
       await _graphQlProvider.renameChat(id, name);
-    } catch (e) {
+    } catch (_) {
       if (chat != null) {
-        chat.value.name = oldValue;
-        await _chatLocal.put(chat);
+        chat.value.name = previous;
+        _chatLocal.put(chat);
       }
+
       rethrow;
     }
   }
@@ -219,23 +222,26 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
     HiveChat? chat = _chatLocal.get(chatId);
-    ChatMember? oldValue = chat?.value.members
+    ChatMember? member = chat?.value.members
         .firstWhereIndexedOrNull((index, m) => m.user.id == userId);
+
     try {
-      if (chat != null && oldValue != null) {
-        chat.value.members.remove(oldValue);
-        await _chatLocal.put(chat);
+      if (chat != null && member != null) {
+        chat.value.members.remove(member);
+        _chatLocal.put(chat);
       }
+
       var response = await _graphQlProvider.removeChatMember(chatId, userId);
       // Response is `null` if [MyUser] removed himself (left the chat).
       if (response == null) {
         _chatLocal.remove(chatId);
       }
-    } catch (e) {
-      if (chat != null && oldValue != null) {
-        chat.value.members.add(oldValue);
-        await _chatLocal.put(chat);
+    } catch (_) {
+      if (chat != null && member != null) {
+        chat.value.members.add(member);
+        _chatLocal.put(chat);
       }
+
       rethrow;
     }
   }
@@ -246,14 +252,15 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     HiveRxChat? rxChat = _chats[chatId];
-    if (rxChat != null &&
-        rxChat.messages.isNotEmpty &&
-        rxChat.messages.last.value.authorId != me) {
-      int lastReadIndex =
-          rxChat.messages.indexWhere((m) => m.value.id == untilId);
+
+    if (rxChat != null && rxChat.messages.lastOrNull?.value.authorId != me) {
+      int lastReadIndex = rxChat.messages.reversed
+          .toList()
+          .indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
         // If user has his own unread messages, they will be included.
-        var unreadAll = rxChat.messages.skip(lastReadIndex);
+        Iterable<Rx<ChatItem>> unreadAll =
+            rxChat.messages.skip(rxChat.messages.length - lastReadIndex - 1);
 
         HiveChat? chat = _chatLocal.get(chatId);
         if (chat != null) {
@@ -264,6 +271,7 @@ class ChatRepository implements AbstractChatRepository {
         }
       }
     }
+
     await _graphQlProvider.readChat(chatId, untilId);
   }
 
@@ -274,16 +282,19 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) async {
     HiveRxChat? chat = _chats[chatId];
-    HiveChatItem? oldValue = await chat?.get(id);
+    HiveChatItem? item = await chat?.get(id);
+
     try {
-      if (chat != null && oldValue != null) {
-        await chat.remove(id);
+      if (chat != null && item != null) {
+        chat.remove(id);
       }
+
       await _graphQlProvider.deleteChatMessage(id);
-    } catch (e) {
-      if (chat != null && oldValue != null) {
-        await chat.put(oldValue);
+    } catch (_) {
+      if (chat != null && item != null) {
+        chat.put(item);
       }
+
       rethrow;
     }
   }
@@ -291,16 +302,19 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> deleteChatForward(ChatId chatId, ChatItemId id) async {
     HiveRxChat? chat = _chats[chatId];
-    HiveChatItem? oldValue = await chat?.get(id);
+    HiveChatItem? item = await chat?.get(id);
+
     try {
-      if (chat != null && oldValue != null) {
-        await chat.remove(id);
+      if (chat != null && item != null) {
+        chat.remove(id);
       }
+
       await _graphQlProvider.deleteChatForward(id);
-    } catch (e) {
-      if (chat != null && oldValue != null) {
-        await chat.put(oldValue);
+    } catch (_) {
+      if (chat != null && item != null) {
+        chat.put(item);
       }
+
       rethrow;
     }
   }
