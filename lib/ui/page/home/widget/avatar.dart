@@ -288,7 +288,7 @@ class AvatarWidget extends StatelessWidget {
                 child: ClipOval(
                     child: AvatarImage(
                   imageUrl:
-                      'https://gapopa.net/files/65/93/69/99/cb/79/27/41/63/c2/9e/62/46/98/b6/c2/orig.gif',
+                      '${Config.url}:${Config.port}/files${avatar?.original}',
                   controller: avatarImageController,
                 )),
               ),
