@@ -303,10 +303,10 @@ jobs:
           envkey_COMPOSE_PROJECT_NAME: messenger
           fail_on_empty: true
 
-      - run: mkdir build
+      - run: mkdir build/
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
-      # device does not produce any progression logs, yet `--enable-chrome-logs`
+      # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
       - uses: nanasess/setup-chromedriver@v1
       - run: |
