@@ -23,10 +23,21 @@ import '../world/custom_world.dart';
 /// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
 ///
 /// Examples:
-/// - Given I am in chat with Bob
+/// - Given I am in dialog with Bob
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
-  'I am in chat with {user}',
+  'I am in dialog with {user}',
   (TestUser user, context) => Future.sync(() {
     router.chat(context.world.sessions[user.name]!.dialog!);
+  }),
+);
+
+/// Routes the [router] to the [Chat]-group page with the provided [TestUser].
+///
+/// Examples:
+/// - Given I am in group with Bob
+final StepDefinitionGeneric iAmInGroupWith = given1<TestUser, CustomWorld>(
+  'I am in group with {user}',
+      (TestUser user, context) => Future.sync(() {
+    router.chat(context.world.sessions[user.name]!.group!);
   }),
 );

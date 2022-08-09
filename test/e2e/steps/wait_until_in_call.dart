@@ -14,34 +14,37 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
-import '../parameters/keys.dart';
+import '../parameters/users.dart';
+import '../world/custom_world.dart';
 
-/// Waits until the provided [WidgetKey] is present or absent.
+/// Waits until the provided user is present or absent in currently active call.
 ///
 /// Examples:
-/// - Then I wait until `WidgetKey` is absent
-/// - Then I wait until `WidgetKey` is present
-final StepDefinitionGeneric waitUntilKeyExists =
-    then2<WidgetKey, Existence, FlutterWorld>(
-  'I wait until {key} is {existence}',
-  (key, existence, context) async {
+/// - Then I wait until Bob is absent in call
+/// - Then I wait until Bob is present in call
+final StepDefinitionGeneric untilUserInCallExists =
+    then2<TestUser, Existence, CustomWorld>(
+  'I wait until {user} is {existence} in call',
+  (user, existence, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
+        String userKey =
+            'CallParticipant_${context.world.sessions[user.name]!.userId}';
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findByKeySkipOffstage(userKey),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findByKeySkipOffstage(userKey),
               );
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

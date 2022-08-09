@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/model/user.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
@@ -90,6 +91,7 @@ class ParticipantWidget extends StatelessWidget {
       bool isMuted = muted ?? participant.audio.value?.muted ?? false;
       bool isVideoDisabled = participant.video.value?.isEnabled == false;
       bool hasVideo = participant.video.value?.isEnabled == true;
+      UserId? userId = participant.user.value?.id;
 
       List<Widget> additionally = [];
 
@@ -159,6 +161,7 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       return Stack(
+        key: userId != null ? Key('CallParticipant_$userId') : null,
         children: [
           if (!hasVideo) ..._background(),
           AnimatedSwitcher(

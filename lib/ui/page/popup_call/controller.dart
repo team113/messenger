@@ -115,7 +115,7 @@ class PopupCallController extends GetxController {
   /// [CallService.join] method.
   void _tryToConnect() {
     if (call.value.caller?.id == me || call.value.isActive) {
-      call.value.connect(_calls);
+      call.value.connect(_calls, _calls);
     }
   }
 }

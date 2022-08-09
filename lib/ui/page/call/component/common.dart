@@ -52,6 +52,7 @@ abstract class CallButton {
   /// Returns a styled [RoundFloatingButton] with the provided parameters.
   Widget _common({
     required String asset,
+    Key? key,
     VoidCallback? onPressed,
     bool hinted = true,
     bool expanded = false,
@@ -60,6 +61,7 @@ abstract class CallButton {
     double assetWidth = 60,
   }) {
     return RoundFloatingButton(
+      key: key,
       asset: asset,
       assetWidth: assetWidth,
       color: color,
@@ -275,6 +277,7 @@ class AcceptAudioButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
     return _common(
+      key: const Key('AcceptCallAudio'),
       asset: 'audio_call_start',
       assetWidth: 29,
       color: CallController.acceptColor,
@@ -316,6 +319,7 @@ class DeclineButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool expanded = false}) {
     return _common(
+      key: const Key('DeclineCall'),
       asset: 'call_end',
       color: CallController.endColor,
       hinted: hinted,
@@ -336,6 +340,7 @@ class DropButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      key: const Key('EndCall'),
       asset: 'call_end',
       color: CallController.endColor,
       hinted: hinted,

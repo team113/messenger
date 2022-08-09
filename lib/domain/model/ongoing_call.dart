@@ -25,6 +25,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/call.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
@@ -359,14 +360,14 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(CallService calls) async {
+  Future<void> connect(CallService calls, AbstractCallHeartbeat heartbeat) async {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
+    _heartbeat = (await heartbeat.heartbeat(callChatItemId!, deviceId!)).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
@@ -392,7 +393,7 @@ class OngoingCall {
               if (node.call.joinLink != null) {
                 if (!_background) {
                   await _room?.join(
-                      '${node.call.joinLink}/${calls.me}.$deviceId?token=$creds');
+                      '${node.call.joinLink}/${heartbeat.me}.$deviceId?token=$creds');
                 }
                 state.value = OngoingCallState.active;
               }
@@ -411,7 +412,7 @@ class OngoingCall {
 
                   if (!_background) {
                     await _room?.join(
-                        '${node.joinLink}/${calls.me}.$deviceId?token=$creds');
+                        '${node.joinLink}/${heartbeat.me}.$deviceId?token=$creds');
                   }
                   state.value = OngoingCallState.active;
                   break;
@@ -425,7 +426,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
-                  if (calls.me == node.user.id) {
+                  if (heartbeat.me == node.user.id) {
                     calls.remove(chatId.value);
                   }
                   break;
@@ -460,7 +461,7 @@ class OngoingCall {
                   call.value = node.newCall;
 
                   connected = false;
-                  connect(calls);
+                  connect(calls, heartbeat);
 
                   calls.moveCall(node.chatId, node.newChatId);
                   break;
@@ -472,7 +473,7 @@ class OngoingCall {
       onError: (e) {
         if (e is ResubscriptionRequiredException) {
           connected = false;
-          connect(calls);
+          connect(calls, heartbeat);
         } else {
           Log.print(e.toString(), 'CALL');
           calls.remove(chatId.value);

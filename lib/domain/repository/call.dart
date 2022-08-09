@@ -101,6 +101,23 @@ abstract class AbstractCallRepository {
   Future<Stream<IncomingChatCallsTopEvent>> events(int count);
 }
 
+/// [OngoingCall]s heartbeat interface.
+abstract class AbstractCallHeartbeat {
+  UserId get me;
+
+  /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
+  ///
+  /// This subscription is mandatory to be created after executing [start] or
+  /// [join] as represents a heartbeat indication of the authenticated
+  /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
+  /// subscription without leaving the [OngoingCall] will end up by kicking the
+  /// authenticated [MyUser] from this [OngoingCall] by timeout.
+  Future<Stream<ChatCallEvents>> heartbeat(
+      ChatItemId id,
+      ChatCallDeviceId deviceId,
+      );
+}
+
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists
 /// already.
 class CallAlreadyExistsException

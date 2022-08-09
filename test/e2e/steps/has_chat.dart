@@ -41,3 +41,23 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Creates a [Chat]-group of the provided [User] with the authenticated
+/// [MyUser].
+///
+/// Examples:
+/// - Given Bob has dialog with me.
+final StepDefinitionGeneric hasGroupWithMe = given1<TestUser, CustomWorld>(
+  '{user} has group with me',
+      (TestUser user, context) async {
+    final AuthService authService = Get.find();
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+    var group =
+    await provider.createGroupChat([authService.credentials.value!.userId]);
+    context.world.sessions[user.name]?.group = group.id;
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
