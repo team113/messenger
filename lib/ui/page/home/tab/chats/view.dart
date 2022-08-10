@@ -18,7 +18,6 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -93,7 +92,6 @@ class ChatsTabView extends StatelessWidget {
   /// Reactive [ListTile] with [chat]'s information.
   Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
         Chat chat = rxChat.chat.value;
-
         const Color subtitleColor = Color(0xFF666666);
         List<Widget>? subtitle;
 
@@ -231,7 +229,6 @@ class ChatsTabView extends StatelessWidget {
             ),
           ];
         }
-
         return ContextMenuRegion(
           key: Key('ContextMenuRegion_${chat.id}'),
           preventContextMenu: false,
@@ -250,73 +247,69 @@ class ChatsTabView extends StatelessWidget {
                 ),
             ],
           ),
-          child: GetBuilder(
-              init: AvatarImageController(),
-              builder: (AvatarImageController avatarController) {
-                return MouseRegion(
-                  onHover: avatarController.onHover,
-                  onExit: avatarController.onHover,
-                  child: ListTile(
-                    leading: Obx(
-                      () => Badge(
-                        showBadge: rxChat.chat.value.isDialog &&
-                            rxChat.members.values
-                                    .firstWhereOrNull((e) => e.id != c.me)
-                                    ?.user
-                                    .value
-                                    .online ==
-                                true,
-                        badgeContent: Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green,
-                          ),
-                          padding: const EdgeInsets.all(5),
-                        ),
-                        padding: const EdgeInsets.all(2),
-                        badgeColor: Colors.white,
-                        animationType: BadgeAnimationType.scale,
-                        position: BadgePosition.bottomEnd(bottom: 0, end: 0),
-                        elevation: 0,
-                        child: AvatarWidget.fromRxChat(rxChat,
-                            avatarImageController: avatarController),
+          child: MouseRegion(
+            onHover: (_) => c.hoveredChat.value = rxChat,
+            onExit: (_) => c.hoveredChat.value = null,
+            child: ListTile(
+              leading: Obx(
+                () => Badge(
+                  showBadge: rxChat.chat.value.isDialog &&
+                      rxChat.members.values
+                              .firstWhereOrNull((e) => e.id != c.me)
+                              ?.user
+                              .value
+                              .online ==
+                          true,
+                  badgeContent: Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                    ),
+                    padding: const EdgeInsets.all(5),
+                  ),
+                  padding: const EdgeInsets.all(2),
+                  badgeColor: Colors.white,
+                  animationType: BadgeAnimationType.scale,
+                  position: BadgePosition.bottomEnd(bottom: 0, end: 0),
+                  elevation: 0,
+                  child: AvatarWidget.fromRxChat(rxChat,
+                      animate: c.hoveredChat.value == rxChat),
+                ),
+              ),
+              title: Text(
+                rxChat.title.value,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              subtitle: subtitle == null
+                  ? null
+                  : DefaultTextStyle.merge(
+                      style: const TextStyle(color: subtitleColor),
+                      overflow: TextOverflow.ellipsis,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Row(children: subtitle),
                       ),
                     ),
-                    title: Text(
-                      rxChat.title.value,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+              trailing: chat.unreadCount == 0
+                  ? null
+                  : Badge(
+                      toAnimate: false,
+                      elevation: 0,
+                      badgeContent: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Text(
+                          '${chat.unreadCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
                     ),
-                    subtitle: subtitle == null
-                        ? null
-                        : DefaultTextStyle.merge(
-                            style: const TextStyle(color: subtitleColor),
-                            overflow: TextOverflow.ellipsis,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 3),
-                              child: Row(children: subtitle),
-                            ),
-                          ),
-                    trailing: chat.unreadCount == 0
-                        ? null
-                        : Badge(
-                            toAnimate: false,
-                            elevation: 0,
-                            badgeContent: Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: Text(
-                                '${chat.unreadCount}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ),
-                    onTap: () => router.chat(chat.id),
-                  ),
-                );
-              }),
+              onTap: () => router.chat(chat.id),
+            ),
+          ),
         );
       });
 }

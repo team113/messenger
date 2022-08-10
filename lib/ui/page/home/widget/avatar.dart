@@ -18,8 +18,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image/view.dart';
+import 'package:messenger/ui/page/home/widget/avatar_image.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -43,8 +42,9 @@ class AvatarWidget extends StatelessWidget {
     this.title,
     this.color,
     this.opacity = 1,
-    this.avatarImageController,
-  }) : super(key: key);
+    bool? animate,
+  })  : animate = animate ?? false,
+        super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
@@ -130,7 +130,7 @@ class AvatarWidget extends StatelessWidget {
     double? radius,
     double? maxRadius,
     double? minRadius,
-    AvatarImageController? avatarImageController,
+    bool? animate,
     double opacity = 1,
   }) =>
       chat != null
@@ -143,7 +143,7 @@ class AvatarWidget extends StatelessWidget {
                 maxRadius: maxRadius,
                 minRadius: minRadius,
                 opacity: opacity,
-                avatarImageController: avatarImageController,
+                animate: animate ?? false,
               ),
             )
           : AvatarWidget(
@@ -151,7 +151,7 @@ class AvatarWidget extends StatelessWidget {
               maxRadius: maxRadius,
               minRadius: minRadius,
               opacity: opacity,
-              avatarImageController: avatarImageController,
+              animate: animate ?? false,
             );
 
   /// [Avatar] to display.
@@ -192,8 +192,8 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
-  /// [AvatarImage]'s controller
-  final AvatarImageController? avatarImageController;
+  /// Flag for [AvatarImage] animation
+  final bool animate;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -269,7 +269,7 @@ class AvatarWidget extends StatelessWidget {
           ),
           shape: BoxShape.circle,
         ),
-        child: avatar == null
+        child: avatar != null
             ? LayoutBuilder(builder: (context, constraints) {
                 return Center(
                   child: Text(
@@ -286,13 +286,13 @@ class AvatarWidget extends StatelessWidget {
                 width: maxWidth,
                 height: maxHeight,
                 child: ClipOval(
-                    child: AvatarImage(
-                  imageUrl:
-                      '${Config.url}:${Config.port}/files${avatar?.original}',
-                  controller: avatarImageController,
-                )),
+                  child: AvatarImage(
+                    imageUrl:
+                        '${Config.url}:${Config.port}/files${avatar?.original}',
+                    animate: animate,
+                  ),
+                ),
               ),
-        //${Config.url}:${Config.port}/files${avatar?.original}
       );
     });
   }

@@ -73,6 +73,9 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// [Chat] pointed to by the user
+  final Rx<RxChat?> hoveredChat = Rx(null);
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _myUserService.myUser.value?.id;
 

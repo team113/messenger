@@ -15,9 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:gif/gif.dart';
-import 'package:messenger/ui/page/home/widget/avatar_image/controller.dart';
 
 /// Animation behavior type
 enum AnimationConfig {
@@ -33,25 +31,23 @@ enum AnimationConfig {
 
 /// User image with or not animation
 class AvatarImage extends StatefulWidget {
-  AvatarImage({
+  const AvatarImage({
     Key? key,
-    AvatarImageController? controller,
-    this.config = AnimationConfig.standard,
+    required this.animate,
     required this.imageUrl,
-  })  : controller = controller ?? AvatarImageController(),
-        super(key: key);
+    this.config = AnimationConfig.standard,
+  }) : super(key: key);
 
   /// Image link
   final String imageUrl;
 
+  /// Flag for [AvatarImage] animation
+  final bool animate;
+
   /// Customizing animation behavior
   ///
-  /// Defines behavior [controller]
   /// By default matters [AnimationConfig.standard]
   final AnimationConfig config;
-
-  /// [AvatarImage]'s controller
-  final AvatarImageController controller;
 
   @override
   State<AvatarImage> createState() => _AvatarImageState();
@@ -62,18 +58,20 @@ class _AvatarImageState extends State<AvatarImage>
   /// Initial animation behavior for [Gif]
   late Autostart _autostart;
 
+  /// [_controller] for [Gif]
+  late GifController _controller;
+
   @override
   void initState() {
     super.initState();
-    widget.controller.gifController ??= Rx(GifController(vsync: this));
+    _controller = GifController(vsync: this);
+
     switch (widget.config) {
       case AnimationConfig.always:
         _autostart = Autostart.loop;
         break;
       case AnimationConfig.standard:
         _autostart = Autostart.once;
-        widget.controller.setOnHover();
-        widget.controller.setOnTap();
         break;
       case AnimationConfig.never:
         _autostart = Autostart.no;
@@ -82,32 +80,38 @@ class _AvatarImageState extends State<AvatarImage>
   }
 
   @override
-  void didChangeDependencies() {
-    widget.controller.gifController ??= Rx(GifController(vsync: this));
-    super.didChangeDependencies();
+  void didUpdateWidget(covariant AvatarImage oldWidget) {
+    if (!mounted) return;
+    if (widget.animate && widget.config == AnimationConfig.standard) {
+      _controller.repeat();
+    } else {
+      _controller.reset();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      init: widget.controller,
-      builder: (AvatarImageController c) {
-        return GestureDetector(
-          onTap: c.onTap,
-          child: MouseRegion(
-            onHover: c.onHover,
-            onExit: c.onHover,
-            child: Gif(
-              fit: BoxFit.fill,
-              image: NetworkImage(
-                widget.imageUrl,
-              ),
-              controller: c.gifController?.value,
-              autostart: _autostart,
-            ),
+    return GestureDetector(
+      onTap: () => widget.config == AnimationConfig.standard
+          ? _controller.forward(from: 0)
+          : null,
+      child: MouseRegion(
+        onHover: (_) => widget.config == AnimationConfig.standard
+            ? _controller.repeat()
+            : null,
+        onExit: (_) => widget.config == AnimationConfig.standard
+            ? _controller.reset()
+            : null,
+        child: Gif(
+          fit: BoxFit.cover,
+          image: NetworkImage(
+            widget.imageUrl,
           ),
-        );
-      },
+          controller: _controller,
+          autostart: _autostart,
+        ),
+      ),
     );
   }
 }
