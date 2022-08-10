@@ -934,22 +934,23 @@ class OngoingCall {
     _tracks.clear();
   }
 
-  /// Joins to the [_room] by the provided [ChatCallRoomJoinLink].
+  /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
-  /// Reinitialize the [_room] if call room was changed.
-  Future<void> _joinRoom(ChatCallRoomJoinLink room) async {
+  /// Re-initializes the [_room], if this [link] is different from the currently
+  /// used [ChatCall.joinLink].
+  Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     Log.print('Joining the room...', 'CALL');
-    if (call.value?.joinLink != null && call.value?.joinLink != room) {
+    if (call.value?.joinLink != null && call.value?.joinLink != link) {
       Log.print('Closing the previous one and connecting to the new', 'CALL');
       _closeRoom();
       _initRoom();
     }
 
-    await _room?.join('$room/$me.$deviceId?token=$creds');
-    Log.print('Room connected!', 'CALL');
+    await _room?.join('$link/$me.$deviceId?token=$creds');
+    Log.print('Room joined!', 'CALL');
   }
 
-  /// Closes the [_room] and releases associated resources.
+  /// Closes the [_room] and releases the associated resources.
   void _closeRoom() {
     if (_room != null) {
       try {
