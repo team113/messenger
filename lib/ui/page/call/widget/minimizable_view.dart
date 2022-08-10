@@ -37,7 +37,7 @@ class MinimizableView extends StatefulWidget {
   /// Callback, called when the state of this [MinimizableView] is disposed.
   final void Function()? onDispose;
 
-  /// Callback, called when [Size] of this [MinimizableView] is changed.
+  /// Callback, called when the [Size] of this [MinimizableView] is changed.
   final void Function(Size)? onSizeChanged;
 
   /// Indicator whether the minimizing gesture is enabled.
