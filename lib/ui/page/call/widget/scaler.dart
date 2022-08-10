@@ -16,11 +16,14 @@
 
 import 'package:flutter/material.dart';
 
-/// Draggable widget reporting delta of a dragging through [onDrag] callback.
+/// Draggable widget reporting delta of a dragging through [onDragUpdate]
+/// callback.
 class Scaler extends StatefulWidget {
   const Scaler({
     Key? key,
-    required this.onDrag,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
     this.width = size,
     this.height = size,
     this.opacity = 0,
@@ -29,8 +32,14 @@ class Scaler extends StatefulWidget {
   /// Size of the draggable area, used by default on [width] and [height].
   static const double size = 20;
 
-  /// Callback reporting `x` and `y` drag deltas.
-  final Function(double, double) onDrag;
+  /// Callback, called when dragging is started.
+  final Function(DragStartDetails details)? onDragStart;
+
+  /// Callback reporting the `x` and `y` drag deltas.
+  final Function(double, double)? onDragUpdate;
+
+  /// Callback, called when dragging is ended.
+  final Function(DragEndDetails details)? onDragEnd;
 
   /// Width of the draggable area.
   final double width;
@@ -56,17 +65,22 @@ class _ScalerState extends State<Scaler> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanStart: (details) => setState(() {
-        initX = details.globalPosition.dx;
-        initY = details.globalPosition.dy;
-      }),
+      onPanStart: (details) {
+        setState(() {
+          initX = details.globalPosition.dx;
+          initY = details.globalPosition.dy;
+        });
+
+        widget.onDragStart?.call(details);
+      },
       onPanUpdate: (details) {
         var dx = details.globalPosition.dx - initX;
         var dy = details.globalPosition.dy - initY;
         initX = details.globalPosition.dx;
         initY = details.globalPosition.dy;
-        widget.onDrag(dx, dy);
+        widget.onDragUpdate?.call(dx, dy);
       },
+      onPanEnd: widget.onDragEnd,
       child: Opacity(
         opacity: widget.opacity,
         child: Container(

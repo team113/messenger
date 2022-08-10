@@ -1,0 +1,5 @@
+[server.client.http]
+public_url = "ws://localhost/api/medea/ws"
+bind_port = 8090
+[server.control.grpc]
+bind_port = 8091

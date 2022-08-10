@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
+    - Introduction modal window ([#38]).
 
 ### Changed
 
@@ -30,12 +31,14 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
     - Redesigned login interface ([#35]);
     - Redesigned auth page ([#29]);
-    - Reconfigure user avatar animation ([#61], [54]).
+    - Reconfigure user avatar animation ([#61], [#54]).
 
 ### Fixed
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]).
+- Web:
+    - UI not hiding on window focus loses ([#60]).
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
@@ -57,6 +60,7 @@ All user visible changes to this project will be documented in this file. This p
 [#31]: /../../pull/31
 [#34]: /../../pull/34
 [#35]: /../../pull/35
+[#38]: /../../pull/38
 [#41]: /../../issues/41
 [#42]: /../../pull/42
 [#44]: /../../issues/44
@@ -66,6 +70,7 @@ All user visible changes to this project will be documented in this file. This p
 [#53]: /../../pull/53
 [#54]: /../../issues/54
 [#56]: /../../pull/56
+[#60]: /../../pull/60
 [#61]: /../../pull/61
 
 

@@ -40,13 +40,19 @@ FLUTTER_VER ?= $(strip \
 build: flutter.build
 
 
-clean: clean.flutter
+clean: clean.flutter clean.test.e2e
 
 
 deps: flutter.pub
 
 
 docs: docs.dart
+
+
+down: docker.down
+
+
+e2e: test.e2e
 
 
 fmt: flutter.fmt
@@ -65,6 +71,9 @@ run: flutter.run
 
 
 test: test.unit
+
+
+up: docker.up
 
 
 
@@ -225,6 +234,44 @@ endif
 # Testing commands #
 ####################
 
+# Run Flutter E2E tests.
+#
+# Usage:
+#	make test.e2e [device=(chrome|linux|macos|windows|web-server|<device-id>)]
+#	              [dockerized=(no|yes)]
+#	              [gen=(yes|no)] [clean=(no|yes)]
+#	              [( [start-app=no]
+#	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
+
+test.e2e:
+ifeq ($(clean),yes)
+	@make clean.e2e
+endif
+ifneq ($(gen),no)
+ifeq ($(wildcard test/e2e/*.g.dart),)
+	@make flutter.gen overwrite=yes dockerized=$(dockerized)
+endif
+endif
+ifeq ($(start-app),yes)
+	@make docker.up no-cache=$(no-cache) pull=$(pull) background=yes log=no
+endif
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make test.e2e device=$(device) \
+			              dockerized=no gen=no clean=no start-app=no
+else
+	flutter drive --headless -d $(or $(device),chrome) \
+		--web-renderer html --web-port 50000 \
+		--driver=test_driver/integration_test_driver.dart \
+		--target=test/e2e/suite.dart
+endif
+ifeq ($(start-app),yes)
+	@make docker.down
+endif
+
+
 # Run Flutter unit tests.
 #
 # Usage:
@@ -283,7 +330,20 @@ endif
 # Cleaning commands #
 #####################
 
+clean.e2e: clean.test.e2e
+
+
 clean.flutter: flutter.clean
+
+
+# Clean E2E tests generated cache.
+#
+# Usage:
+#	make clean.e2e
+
+clean.test.e2e:
+	rm -rf .dart_tool/build/generated/messenger/integration_test \
+	       test/e2e/gherkin/reports/
 
 
 
@@ -325,6 +385,15 @@ docker-registries = $(strip $(if $(call eq,$(registries),),\
                             $(REGISTRIES),$(subst $(comma), ,$(registries))))
 docker-tags = $(strip $(if $(call eq,$(tags),),\
                       $(VERSION),$(subst $(comma), ,$(tags))))
+
+
+# Stop Docker Compose development environment and remove all related containers.
+#
+# Usage:
+#	make docker.down
+
+docker.down:
+	-docker-compose down --rmi=local -v
 
 
 # Build project Docker image.
@@ -419,6 +488,39 @@ docker.untar:
 	docker load -i $(or $(from-file),.cache/docker/image.tar)
 
 
+# Run Docker Compose development environment.
+#
+# Usage:
+#	make docker.up [pull=(no|yes)] [no-cache=(no|yes)]
+#	               [( [rebuild=no]
+#	                | rebuild=yes [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
+#	                              [dockerized=(no|yes)] )]
+#	               [( [background=no]
+#	                | background=yes [log=(no|yes)] )]
+
+docker.up: docker.down
+ifeq ($(pull),yes)
+	docker-compose pull --parallel --ignore-pull-failures
+endif
+ifeq ($(no-cache),yes)
+	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
+endif
+ifeq ($(wildcard .cache/minio),)
+	@mkdir -p .cache/minio/data/
+endif
+ifeq ($(rebuild),yes)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+	docker-compose up \
+		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
+ifeq ($(background),yes)
+ifeq ($(log),yes)
+	docker-compose logs -f
+endif
+endif
+
+
 
 
 ################
@@ -446,12 +548,13 @@ endif
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs fmt gen lint release run test \
-        clean.flutter \
+.PHONY: build clean deps docs down e2e fmt gen lint release run test up \
+        clean.e2e clean.flutter clean.test.e2e \
         copyright \
-        docker.image docker.push docker.tags docker.tar docker.untar \
+        docker.down docker.image docker.push docker.tags docker.tar \
+        docker.untar docker.up \
         docs.dart \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
-        test.unit
+        test.e2e test.unit
