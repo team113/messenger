@@ -33,9 +33,9 @@ enum AnimationConfig {
 class AvatarImage extends StatefulWidget {
   const AvatarImage({
     Key? key,
-    required this.animate,
     required this.imageUrl,
     this.config = AnimationConfig.standard,
+    this.animate = false,
   }) : super(key: key);
 
   /// Image link

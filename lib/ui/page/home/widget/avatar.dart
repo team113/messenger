@@ -269,7 +269,7 @@ class AvatarWidget extends StatelessWidget {
           ),
           shape: BoxShape.circle,
         ),
-        child: avatar != null
+        child: avatar == null
             ? LayoutBuilder(builder: (context, constraints) {
                 return Center(
                   child: Text(
