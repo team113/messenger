@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 
 import '../controller.dart'
@@ -183,7 +184,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    return _rounded(context, Text('label_forwarded_message'.l10n));
+    ChatForward msg = widget.item.value as ChatForward;
+    return _rounded(
+      context,
+      InkWell(
+        child: Row(
+          children: [
+            Container(
+              width: 2,
+              color: Colors.blue,
+            ),
+            Flexible(
+                child: _repliedMessage((msg.item as ChatMessage),
+                    showFullMessage: true)),
+          ],
+        ),
+      ),
+    );
   }
 
   /// Renders [widget.item] as [ChatMessage].
@@ -453,25 +470,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _repliedMessage(ChatItem item) {
+  Widget _repliedMessage(ChatItem item, {bool showFullMessage = true}) {
+    Style style = Theme.of(context).extension<Style>()!;
+
+    Widget? content;
+    List<Widget> additional = [];
+
     if (item is ChatMessage) {
       var desc = StringBuffer();
 
       if (item.text != null) {
         desc.write(item.text!.val);
-        if (item.attachments.isNotEmpty) {
-          desc.write(
-              ' [${item.attachments.length} ${'label_attachments'.l10n}]');
-        }
-      } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
+      } else if (item.attachments.isNotEmpty) {}
+
+      if (item.attachments.isNotEmpty) {
+        additional = item.attachments.map((a) {
+          ImageAttachment? image;
+
+          if (a is ImageAttachment) {
+            image = a;
+          }
+
+          return Container(
+            margin: const EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE7E7E7),
+              borderRadius: BorderRadius.circular(4),
+              image: image == null
+                  ? null
+                  : DecorationImage(
+                      image: NetworkImage('${Config.url}/files${image.small}'),
+                    ),
+            ),
+            width: 30,
+            height: 30,
+            child:
+                image == null ? const Icon(Icons.attach_file, size: 16) : null,
+          );
+        }).toList();
       }
 
-      return Text(
-        desc.toString(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          maxLines: showFullMessage ? null : 1,
+          overflow: showFullMessage ? null : TextOverflow.ellipsis,
+          style: style.boldBody,
+        );
+      }
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
       String? time;
@@ -493,7 +539,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             : 'label_incoming_call'.l10n;
       }
 
-      return Row(
+      content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -517,7 +563,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
+                style: style.boldBody,
               ),
             ),
           ],
@@ -525,13 +571,84 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      return Text(item.action.toString());
+      content = Text(item.action.toString(), style: style.boldBody);
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      return const Text('Forwarded message');
+      content = Text('Forwarded message', style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
-    return Text('err_unknown'.l10n);
+    Color color = AvatarWidget.colors[
+        (widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(width: 12),
+        Flexible(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  width: 2,
+                  color: color,
+                ),
+              ),
+            ),
+            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+            padding: const EdgeInsets.only(left: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Builder(
+                  builder: (context) {
+                    String? name;
+
+                    if (widget.user?.user.value != null) {
+                      return Obx(() {
+                        Color color = AvatarWidget.colors[
+                            widget.user!.user.value.num.val.sum() %
+                                AvatarWidget.colors.length];
+
+                        return Text(
+                          widget.user!.user.value.name?.val ??
+                              widget.user!.user.value.num.val,
+                          style: style.boldBody.copyWith(color: color),
+                        );
+                      });
+                    }
+
+                    return Text(
+                      name ?? '...',
+                      style: style.boldBody
+                          .copyWith(color: const Color(0xFF63B4FF)),
+                    );
+                  },
+                ),
+                if (content != null) ...[
+                  const SizedBox(height: 2),
+                  DefaultTextStyle.merge(
+                    maxLines: showFullMessage ? null : 1,
+                    child: content,
+                  ),
+                ],
+                if (additional.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: additional,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -627,8 +744,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                             ContextMenuButton(
                                 key: const Key('ForwardMessage'),
-                                label: 'label_forward'.tr,
-                                onPressed: () async {}),
+                                label: 'label_forward',
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                      context,
+                                      widget.chat.value!.id,
+                                      ChatItemQuote(
+                                          item: widget.item.value,
+                                          withText: true,
+                                          attachments: []));
+                                }),
                             if (widget.item.value is ChatMessage &&
                                 fromMe &&
                                 (widget.item.value.at

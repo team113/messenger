@@ -16,6 +16,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -32,6 +34,7 @@ export 'view.dart';
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
+    this._userService,
     this.fromId,
     this.forwardItem,
   );
@@ -54,8 +57,14 @@ class ChatForwardController extends GetxController {
   /// [Chat]s service used to add members to a [Chat].
   final ChatService _chatService;
 
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   @override
   void onInit() {
@@ -70,15 +79,17 @@ class ChatForwardController extends GetxController {
 
         try {
           var futures = selectedChats.map(
-            (e) => _chatService.forwardChatItem(
-              fromId,
-              e,
-              forwardItem,
-              text: s.text == '' ? null : ChatMessageText(s.text),
-            ),
+            (e) {
+              return _chatService.forwardChatItem(
+                fromId,
+                e,
+                forwardItem,
+                text: s.text == '' ? null : ChatMessageText(s.text),
+              );
+            },
           );
 
-          Future.wait(futures);
+          await Future.wait(futures);
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
