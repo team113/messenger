@@ -317,7 +317,7 @@ class OngoingCall {
       return;
     }
 
-    _room?.onClose((reason) => calls.remove(chatId.value));
+    _room?.onClose((_) => calls.remove(chatId.value));
 
     connected = true;
     _heartbeat?.cancel();
@@ -764,6 +764,7 @@ class OngoingCall {
         connectionLost = false;
       }
     });
+
     _room!.onLocalTrack((e) => _addLocalTrack(e));
 
     _room!.onNewConnection((conn) {
