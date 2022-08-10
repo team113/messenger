@@ -749,11 +749,20 @@ class OngoingCall {
       Log.print('onFailedLocalMedia', 'CALL');
       _errors.add('Local media acquisition error $e');
     });
+
+    bool connectionLost = false;
     _room!.onConnectionLoss((e) async {
       Log.print('onConnectionLoss', 'CALL');
-      _errors.add('Connection with media server lost $e');
-      await e.reconnectWithBackoff(500, 2, 5000);
-      _errors.add('Connection restored'); // for notification
+
+      if (!connectionLost) {
+        connectionLost = true;
+
+        _errors.add('Connection with media server lost $e');
+        await e.reconnectWithBackoff(500, 2, 5000);
+        _errors.add('Connection restored'); // for notification
+
+        connectionLost = false;
+      }
     });
     _room!.onLocalTrack((e) => _addLocalTrack(e));
 
@@ -944,9 +953,13 @@ class OngoingCall {
   /// Closes the [_room] and releases associated resources.
   void _closeRoom() {
     if (_room != null) {
-      _jason?.closeRoom(_room!);
-      _room = null;
+      try {
+        _jason?.closeRoom(_room!);
+      } catch (_) {
+        // No-op, as the room might be in a detached state.
+      }
     }
+    _room = null;
 
     for (RemoteMediaTrack t in List.from(_remoteTracks, growable: false)) {
       _removeRemoteTrack(t);
