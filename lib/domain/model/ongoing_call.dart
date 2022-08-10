@@ -317,8 +317,6 @@ class OngoingCall {
       return;
     }
 
-    _room?.onClose((_) => calls.remove(chatId.value));
-
     connected = true;
     _heartbeat?.cancel();
     _heartbeat = (await calls.heartbeat(callChatItemId!, deviceId!)).listen(
