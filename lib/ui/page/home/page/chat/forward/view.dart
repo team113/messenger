@@ -125,7 +125,7 @@ Widget _chat(
       .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
   return Container(
     color: const Color(0XFFD9D9D9),
-    padding: EdgeInsets.all(5),
+    padding: const EdgeInsets.all(5),
     child: ListTile(
         leading: AvatarWidget.fromChat(
           chat.chat.value,
