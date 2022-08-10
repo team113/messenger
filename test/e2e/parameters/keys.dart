@@ -42,6 +42,7 @@ enum WidgetKey {
   EndCall,
   HomeView,
   IntroductionView,
+  JoinCall,
   LanguageDropdown,
   Language_enUS,
   Language_ruRU,
@@ -70,8 +71,8 @@ enum WidgetKey {
   SettingsButton,
   SignInButton,
   StartAudioCall,
-  StartVideoCall,
   StartButton,
+  StartVideoCall,
   SuccessStage,
   UsernameField,
 }

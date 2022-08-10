@@ -51,7 +51,9 @@ Feature: Calls test
     Then I wait until `Call` is present
     And I tap `DeclineCall` button
     And I wait until `Call` is absent
-    And Bob accept call
+    And I wait until `JoinCall` is present
+    Then I tap `JoinCall` button
+    And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Cancel outgoing dialog call
