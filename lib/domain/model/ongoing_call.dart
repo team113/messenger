@@ -445,10 +445,7 @@ class OngoingCall {
       if (_jason != null) {
         _mediaManager!.free();
         _mediaManager = null;
-        if (_room != null) {
-          _jason!.closeRoom(_room!);
-          _room = null;
-        }
+        _closeRoom();
         _jason!.free();
         _jason = null;
       }
@@ -744,7 +741,7 @@ class OngoingCall {
     return settings;
   }
 
-  /// Initializes [_room].
+  /// Initializes the [_room].
   void _initRoom() {
     _room = _jason!.initRoom();
 
@@ -795,11 +792,7 @@ class OngoingCall {
           }
         });
 
-        // TODO: Keep [track]s to free them in [dispose].
-        track.onStopped(() {
-          _removeRemoteTrack(track);
-          track.free();
-        });
+        track.onStopped(() => _removeRemoteTrack(track));
       });
     });
   }
@@ -937,31 +930,30 @@ class OngoingCall {
   ///
   /// Reinitialize the [_room] if call room was changed.
   Future<void> _joinRoom(ChatCallRoomJoinLink room) async {
+    Log.print('Joining the room...', 'CALL');
     if (call.value?.joinLink != null && call.value?.joinLink != room) {
-      if (_room != null) {
-        _jason?.closeRoom(_room!);
-        _room = null;
-      }
-
-      for (var v in remoteVideos) {
-        v.inner.dispose();
-      }
-
-      for (var v in remoteAudios) {
-        v.inner.dispose();
-      }
-
-      remoteVideos.clear();
-      remoteAudios.clear();
-
-      for (var t in _remoteTracks) {
-        t.free();
-      }
-
+      Log.print('Closing the previous one and connecting to the new', 'CALL');
+      _closeRoom();
       _initRoom();
     }
 
     await _room?.join('$room/$me.$deviceId?token=$creds');
+    Log.print('Room connected!', 'CALL');
+  }
+
+  /// Closes the [_room] and releases associated resources.
+  void _closeRoom() {
+    if (_room != null) {
+      _jason?.closeRoom(_room!);
+      _room = null;
+    }
+
+    for (RemoteMediaTrack t in List.from(_remoteTracks, growable: false)) {
+      _removeRemoteTrack(t);
+    }
+
+    remoteVideos.clear();
+    remoteAudios.clear();
   }
 
   /// Updates the local media settings with [audioDevice] or [videoDevice].
