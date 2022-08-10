@@ -118,8 +118,8 @@ class ChatMessage extends ChatItem {
   @HiveField(8)
   List<Attachment> attachments;
 
-  /// Indicates whether the [other] message shares the same values as this
-  /// [ChatMessage] except its [id] and [at].
+  /// Indicates whether the [other] message shares the same [text], [repliesTo],
+  /// [authorId], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
         repliesTo?.id == other.repliesTo?.id &&
