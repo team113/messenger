@@ -230,9 +230,9 @@ err_unknown_gallery_item = Неизвестный элемент галереи
 err_unknown_replying_chat_item = Цитируемого сообщения не существует
 err_unknown_user = Неизвестный пользователь
 err_unsupported_format = Неподдерживаемый формат
-'err_unsupported_forwarded_item': 'Неподдерживаемое пересылаемое сообщение',
+err_unsupported_forwarded_item = Неподдерживаемое пересылаемое сообщение,
 err_uploaded_file_malformed = Файл повреждён
-'err_wrong_items_count': 'Неправильное количество сообщений',
+err_wrong_items_count = Неправильное количество сообщений,
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный текущий пароль
 err_wrong_recovery_code = Неверный код
@@ -368,7 +368,7 @@ label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
 label_file = Файл
-'label_forward': 'Переслать',
+label_forward = Переслать,
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_hidden = Статус скрыт
