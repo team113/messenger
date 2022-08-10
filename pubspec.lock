@@ -620,7 +620,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "46efb76e27f0777d81ee7fe647d65de3a62fda7f"
+      resolved-ref: "3d0dcbc515869c9570401415725387801b1b44da"
       url: "https://github.com/LisisFd/flutter_gif.git"
     source: git
     version: "2.1.1"
