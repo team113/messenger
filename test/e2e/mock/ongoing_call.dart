@@ -84,7 +84,6 @@ class OngoingCallMock extends OngoingCall {
               }
 
               if (node.call.joinLink != null) {
-                print('mock room join 1');
                 await room
                     ?.join('${node.call.joinLink}/$me.$deviceId?token=$creds');
                 state.value = OngoingCallState.active;
@@ -102,7 +101,6 @@ class OngoingCallMock extends OngoingCall {
                   call.value?.joinLink = node.joinLink;
                   call.refresh();
 
-                  print('mock room join 2');
                   await room
                       ?.join('${node.joinLink}/$me.$deviceId?token=$creds');
                   state.value = OngoingCallState.active;
