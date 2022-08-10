@@ -1231,23 +1231,23 @@ class ForwardChatItemsException
   String toMessage() {
     switch (code) {
       case ForwardChatItemsErrorCode.blacklisted:
-        return 'err_blacklisted'.tr;
+        return 'err_blacklisted'.l10n;
       case ForwardChatItemsErrorCode.noTextAndNoAttachment:
-        return 'err_no_text_and_no_attachment'.tr;
+        return 'err_no_text_and_no_attachment'.l10n;
       case ForwardChatItemsErrorCode.unknownChat:
-        return 'err_unknown_chat'.tr;
+        return 'err_unknown_chat'.l10n;
       case ForwardChatItemsErrorCode.wrongItemsCount:
-        return 'err_wrong_items_count'.tr;
+        return 'err_wrong_items_count'.l10n;
       case ForwardChatItemsErrorCode.unknownForwardedAttachment:
-        return 'err_unknown_forwarded_attachment'.tr;
+        return 'err_unknown_forwarded_attachment'.l10n;
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
-        return 'err_unsupported_forwarded_item'.tr;
+        return 'err_unsupported_forwarded_item'.l10n;
       case ForwardChatItemsErrorCode.unknownForwardedItem:
-        return 'err_unknown_forwarded_item'.tr;
+        return 'err_unknown_forwarded_item'.l10n;
       case ForwardChatItemsErrorCode.unknownAttachment:
-        return 'err_unknown_attachment'.tr;
+        return 'err_unknown_attachment'.l10n;
       case ForwardChatItemsErrorCode.artemisUnknown:
-        return 'err_unknown'.tr;
+        return 'err_unknown'.l10n;
     }
   }
 }

@@ -16,26 +16,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.graphql.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/domain/model/attachment.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/chat/forward/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/animated_fab.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import '/api/backend/schema.graphql.dart';
+import '/config.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/forward/controller.dart';
+import '/ui/page/home/page/chat/widget/animated_fab.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/platform_utils.dart';
 
 /// View of the forward messages modal.
 class ChatForwardView extends StatelessWidget {
@@ -45,10 +45,13 @@ class ChatForwardView extends StatelessWidget {
     required this.forwardItem,
   }) : super(key: key);
 
+  /// [ChatId] of the chat from where forward is sending.
   final ChatId fromId;
 
+  /// Quote of the [ChatItem] to be forwarded.
   final ChatItemQuote forwardItem;
 
+  /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
     ChatId fromId,
@@ -338,10 +341,7 @@ Widget _forwardMessage(
                                                 snapshot
                                                     .data!.user.value.num.val,
                                             style: style.boldBody
-                                                .copyWith(color: color)
-                                            // style: style.boldBody
-                                            // .copyWith(color: const Color(0xFF63B4FF)),
-                                            );
+                                                .copyWith(color: color));
                                       });
                                     }
                                   }
@@ -384,7 +384,7 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
     padding: const EdgeInsets.symmetric(horizontal: 8),
     child: Container(
       decoration: const BoxDecoration(
-          color: const Color(0xFFFFFFFF),
+          color: Color(0xFFFFFFFF),
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(10))),
       padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
       child: SafeArea(

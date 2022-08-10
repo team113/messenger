@@ -744,7 +744,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                             ContextMenuButton(
                                 key: const Key('ForwardMessage'),
-                                label: 'label_forward',
+                                label: 'label_forward'.l10n,
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                       context,
