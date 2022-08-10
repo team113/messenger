@@ -41,7 +41,7 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
-class CallService extends DisposableService implements AbstractCallHeartbeat {
+class CallService extends DisposableService {
   CallService(this._authService, this._settingsRepo, this._callsRepo);
 
   /// Unmodifiable map of the current [OngoingCall]s.
@@ -60,7 +60,6 @@ class CallService extends DisposableService implements AbstractCallHeartbeat {
   StreamSubscription? _events;
 
   /// Returns ID of the authenticated [MyUser].
-  @override
   UserId get me => _authService.credentials.value!.userId;
 
   /// Returns the current [MediaSettings] value.
@@ -113,7 +112,7 @@ class CallService extends DisposableService implements AbstractCallHeartbeat {
         ),
       );
       await _callsRepo.start(call);
-      call.value.connect(this, this);
+      call.value.connect(this, heartbeat);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -162,14 +161,14 @@ class CallService extends DisposableService implements AbstractCallHeartbeat {
 
         _callsRepo.add(call);
         await _callsRepo.join(call);
-        call.value.connect(this, this);
+        call.value.connect(this, heartbeat);
       } else if (stored.value.state.value != OngoingCallState.active) {
         stored.value.state.value = OngoingCallState.joining;
         stored.value.setAudioEnabled(withAudio);
         stored.value.setVideoEnabled(withVideo);
         stored.value.setScreenShareEnabled(withScreen);
         await _callsRepo.join(stored);
-        stored.value.connect(this, this);
+        stored.value.connect(this, heartbeat);
       }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
@@ -285,7 +284,6 @@ class CallService extends DisposableService implements AbstractCallHeartbeat {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  @override
   Future<Stream<ChatCallEvents>> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,

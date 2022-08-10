@@ -19,23 +19,18 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/call.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/api/backend/extension/call.dart';
-import 'package:messenger/api/backend/extension/user.dart';
-import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/store/event/chat_call.dart';
 import 'package:uuid/uuid.dart';
 
+import '../mock/call_heartbeat.dart';
+import '../mock/ongoing_call.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Accepts call by provided user in the currently opened [Chat].
+/// Accepts call by provided user in [Chat] with the authenticated [MyUser]
 ///
 /// Examples:
 /// - Then Bob accept call
@@ -46,8 +41,8 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    var ongoingCall = OngoingCall(
-      ChatId(router.route.split('/').last),
+    var ongoingCall = OngoingCallMock(
+      customUser.chat!,
       customUser.userId,
       withAudio: false,
       withVideo: false,
@@ -68,7 +63,9 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     await ongoingCall.init(customUser.userId);
 
     await ongoingCall.connect(
-        Get.find(), CallHeartbeat(provider, customUser.userId));
+      Get.find(),
+      CallHeartbeatMock(provider).heartbeat,
+    );
 
     customUser.call = ongoingCall;
     provider.disconnect();
@@ -77,7 +74,7 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Decline call by provided user in the currently opened [Chat].
+/// Decline call by provided user in [Chat] with the authenticated [MyUser].
 ///
 /// Examples:
 /// - Then Bob decline call
@@ -87,14 +84,14 @@ final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]!.session.token;
 
-    await provider.declineChatCall(ChatId(router.route.split('/').last));
+    await provider.declineChatCall(context.world.sessions[user.name]!.chat!);
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Starts call by provided user in the currently opened [Chat].
+/// Starts call by provided user in [Chat] with the authenticated [MyUser].
 ///
 /// Examples:
 /// - Then Bob start call
@@ -105,8 +102,8 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    var ongoingCall = OngoingCall(
-      ChatId(router.route.split('/').last),
+    var ongoingCall = OngoingCallMock(
+      customUser.chat!,
       customUser.userId,
       withAudio: false,
       withVideo: false,
@@ -127,7 +124,9 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     await ongoingCall.init(customUser.userId);
 
     await ongoingCall.connect(
-        Get.find(), CallHeartbeat(provider, customUser.userId));
+      Get.find(),
+      CallHeartbeatMock(provider).heartbeat,
+    );
 
     customUser.call = ongoingCall;
     provider.disconnect();
@@ -136,13 +135,13 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Ends call by provided user in the currently opened [Chat].
+/// Ends call by provided user in [Chat] with the authenticated [MyUser]
 ///
 /// Examples:
 /// - Then Bob leave call
 final StepDefinitionGeneric userEndCall = and1<TestUser, CustomWorld>(
   '{user} leave call',
-      (TestUser user, context) async {
+  (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
@@ -162,7 +161,6 @@ ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
   for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
     if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-
       return node.call.toModel();
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
@@ -171,134 +169,4 @@ ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
   }
 
   return null;
-}
-
-class CallHeartbeat implements AbstractCallHeartbeat {
-  CallHeartbeat(this._graphQlProvider, this._me);
-
-  final GraphQlProvider _graphQlProvider;
-
-  final UserId _me;
-
-  @override
-  UserId get me => _me;
-
-  @override
-  Future<Stream<ChatCallEvents>> heartbeat(
-      ChatItemId id, ChatCallDeviceId deviceId) async {
-    return (await _graphQlProvider.callEvents(id, deviceId))
-        .asyncExpand((event) async* {
-      GraphQlProviderExceptions.fire(event);
-      var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
-
-      if (events.$$typename == 'SubscriptionInitialized') {
-        yield const ChatCallEventsInitialized();
-      } else if (events.$$typename == 'ChatCall') {
-        var call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
-        yield ChatCallEventsChatCall(call.toModel(), call.ver);
-      } else if (events.$$typename == 'ChatCallEventsVersioned') {
-        var mixin = events as ChatCallEventsVersionedMixin;
-        yield ChatCallEventsEvent(
-          CallEventsVersioned(
-            mixin.events.map((e) => _callEvent(e)).toList(),
-            mixin.ver,
-          ),
-        );
-      }
-    });
-  }
-
-  /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
-  ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
-
-      return EventChatCallFinished(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.reason,
-      );
-    } else if (e.$$typename == 'EventChatCallRoomReady') {
-      var node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
-      return EventChatCallRoomReady(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.joinLink,
-      );
-    } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberLeft;
-
-      return EventChatCallMemberLeft(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberJoined;
-
-      return EventChatCallMemberJoined(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatCallHandLowered') {
-      var node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
-
-      return EventChatCallHandLowered(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
-
-      return EventChatCallMoved(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-        node.newChatId,
-        node.newChat.toModel(),
-        node.newCallId,
-        node.newCall.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatCallHandRaised') {
-      var node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallHandRaised;
-
-      return EventChatCallHandRaised(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-      );
-    } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
-
-      return EventChatCallDeclined(
-        node.callId,
-        node.chatId,
-        node.at,
-        node.call.toModel(),
-        node.user.toModel(),
-      );
-    } else {
-      throw UnimplementedError('Unknown ChatCallEvent: ${e.$$typename}');
-    }
-  }
 }

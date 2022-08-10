@@ -16,46 +16,38 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-dialog of the provided [User] with the authenticated
-/// [MyUser].
+/// Creates a [Chat] of the provided [User] with provided type and the
+/// authenticated [MyUser].
 ///
 /// Examples:
 /// - Given Bob has dialog with me.
-final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
-  '{user} has dialog with me',
-  (TestUser user, context) async {
+/// - Given Bob has group with me.
+final StepDefinitionGeneric hasChatWithMe =
+    given2<TestUser, ChatType, CustomWorld>(
+  '{user} has {chat} with me',
+  (TestUser user, ChatType chatType, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
-    var chat =
-        await provider.createDialogChat(authService.credentials.value!.userId);
-    context.world.sessions[user.name]?.dialog = chat.id;
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+    ChatMixin chat;
 
-/// Creates a [Chat]-group of the provided [User] with the authenticated
-/// [MyUser].
-///
-/// Examples:
-/// - Given Bob has dialog with me.
-final StepDefinitionGeneric hasGroupWithMe = given1<TestUser, CustomWorld>(
-  '{user} has group with me',
-      (TestUser user, context) async {
-    final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    var group =
-    await provider.createGroupChat([authService.credentials.value!.userId]);
-    context.world.sessions[user.name]?.group = group.id;
+    if (chatType == ChatType.dialog) {
+      chat = await provider
+          .createDialogChat(authService.credentials.value!.userId);
+    } else {
+      chat = await provider
+          .createGroupChat([authService.credentials.value!.userId]);
+    }
+
+    context.world.sessions[user.name]!.chat = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

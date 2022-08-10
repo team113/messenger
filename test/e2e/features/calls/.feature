@@ -20,7 +20,7 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I am in dialog with Bob
+    And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
     Then I tap `StartAudioCall` button
@@ -33,20 +33,43 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
+    And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
     Then I tap `StartAudioCall` button
     And I wait until `Call` is present
-    And Bob accept call
     And I wait until `ActiveCall` is present
+    And Bob accept call
     And I wait until Bob is present in call
+
+  Scenario: Join to active group call
+    Given I am Alice
+    And user Bob
+    And Bob has group with me
+    And Bob start call
+
+    Then I wait until `Call` is present
+    And I tap `DeclineCall` button
+    And I wait until `Call` is absent
+    And Bob accept call
+    And I wait until Bob is present in call
+
+  Scenario: Cancel outgoing dialog call
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
+    And I wait until `StartAudioCall` is present
+
+    Then I tap `StartAudioCall` button
+    And I wait until `Call` is present
+    And I tap `CancelCall` button
+    And I wait until `Call` is absent
 
   Scenario: Incoming dialog call changes state correctly
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I am in dialog with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -58,7 +81,6 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -66,11 +88,10 @@ Feature: Calls test
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
-  Scenario: Drop active dialog call
+  Scenario: End active dialog call
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I am in dialog with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -80,11 +101,10 @@ Feature: Calls test
     And I tap `EndCall` button
     And I wait until `Call` is absent
 
-  Scenario: Drop active group call
+  Scenario: End active group call
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -98,7 +118,6 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -109,7 +128,6 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
 
     Then Bob start call
     And I wait until `Call` is present
@@ -120,7 +138,7 @@ Feature: Calls test
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I am in dialog with Bob
+    And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
     Then I tap `StartAudioCall` button
@@ -128,11 +146,11 @@ Feature: Calls test
     And Bob decline call
     And I wait until `Call` is absent
 
-  Scenario: User leave active dialog call
+  Scenario: Dialog call ends when user leaves
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I am in dialog with Bob
+    And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
     Then I tap `StartAudioCall` button
@@ -143,11 +161,11 @@ Feature: Calls test
     Then Bob leave call
     And I wait until `Call` is absent
 
-  Scenario: User leave active group call
+  Scenario: Group call doesn't ends when user leaves
     Given I am Alice
     And user Bob
     And Bob has group with me
-    And I am in group with Bob
+    And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
     Then I tap `StartAudioCall` button
@@ -157,3 +175,4 @@ Feature: Calls test
     And I wait until Bob is present in call
     Then Bob leave call
     And I wait until Bob is absent in call
+    And I wait until `Call` is present

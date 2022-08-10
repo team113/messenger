@@ -411,7 +411,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 )),
                 _padding(withDescription(
-                  DropButton(c).build(),
+                  EndCallButton(c).build(),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,

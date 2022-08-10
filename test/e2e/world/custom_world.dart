@@ -43,11 +43,8 @@ class CustomUser {
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
-  /// ID of the [Chat]-dialog with the authenticated [MyUser].
-  ChatId? dialog;
-
-  /// ID of the [Chat]-group with the authenticated [MyUser].
-  ChatId? group;
+  /// ID of the [Chat] with the authenticated [MyUser].
+  ChatId? chat;
 
   /// Currently active call ot this [CustomUser].
   OngoingCall? call;

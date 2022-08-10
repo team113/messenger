@@ -27,6 +27,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'parameters/chat.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
@@ -41,7 +42,6 @@ import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/user_call.dart';
 import 'steps/users.dart';
-import 'steps/wait.dart';
 import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_text_exists.dart';
 import 'steps/wait_until_widget.dart';
@@ -54,11 +54,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         copyFromField,
         fillField,
         goToUserPage,
-        hasDialogWithMe,
-        hasGroupWithMe,
+        hasChatWithMe,
         iAm,
         iAmInChatWith,
-        iAmInGroupWith,
         pasteToField,
         seesAs,
         sendsMessageToMe,
@@ -74,7 +72,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         userEndCall,
         userJoinCall,
         userStartCall,
-        wait,
         waitUntilKeyExists,
       ]
       ..hooks = [ResetAppHook()]
@@ -94,6 +91,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        ChatTypeParameter(),
         OnlineStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

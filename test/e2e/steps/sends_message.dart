@@ -34,7 +34,7 @@ final StepDefinitionGeneric sendsMessageToMe =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
     await provider.postChatMessage(
-      context.world.sessions[user.name]!.dialog!,
+      context.world.sessions[user.name]!.chat!,
       text: ChatMessageText(msg),
     );
     provider.disconnect();

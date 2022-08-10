@@ -330,25 +330,6 @@ class DeclineButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] dropping a call.
-class DropButton extends CallButton {
-  const DropButton(CallController c) : super(c);
-
-  @override
-  String get hint => 'btn_call_end'.l10n;
-
-  @override
-  Widget build({bool hinted = true}) {
-    return _common(
-      key: const Key('EndCall'),
-      asset: 'call_end',
-      color: CallController.endColor,
-      hinted: hinted,
-      onPressed: c.drop,
-    );
-  }
-}
-
 /// [RoundFloatingButton] canceling an outgoing call.
 class CancelButton extends CallButton {
   const CancelButton(CallController c) : super(c);
@@ -359,6 +340,7 @@ class CancelButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool blur = false}) {
     return _common(
+      key: const Key('CancelCall'),
       asset: 'call_end',
       color: CallController.endColor,
       hinted: hinted,
@@ -381,6 +363,7 @@ class EndCallButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      key: const Key('EndCall'),
       asset: 'call_end',
       color: CallController.endColor,
       hinted: hinted,
