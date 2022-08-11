@@ -187,6 +187,30 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Returns a stream broadcasting the browser's window focus changes.
+  static Stream<bool> get onWindowFocus {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on mouse enter events.
+    void _enterListener(html.Event event) => controller!.add(true);
+
+    // Event listener reacting on mouse leave events.
+    void _leaveListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.document.addEventListener('mouseenter', _enterListener);
+        html.document.addEventListener('mouseleave', _leaveListener);
+      },
+      onCancel: () {
+        html.document.removeEventListener('mouseenter', _enterListener);
+        html.document.removeEventListener('mouseleave', _leaveListener);
+      },
+    );
+
+    return controller.stream;
+  }
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     if (creds == null) {

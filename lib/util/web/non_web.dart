@@ -45,6 +45,9 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's storage changes.
   static Stream<WebStorageEvent> get onStorageChange => const Stream.empty();
 
+  /// Returns a stream broadcasting the browser's window focus changes.
+  static Stream<bool> get onWindowFocus => const Stream.empty();
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     // No-op.

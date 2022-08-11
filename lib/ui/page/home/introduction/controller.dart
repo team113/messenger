@@ -39,16 +39,16 @@ class IntroductionController extends GetxController {
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState num;
 
-  /// [TextFieldState] for password input.
+  /// [TextFieldState] for a password input.
   late final TextFieldState password;
 
-  /// [TextFieldState] for repeat password input.
+  /// [TextFieldState] for a repeated password input.
   late final TextFieldState repeat;
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Indicator whether the [repeat] should be obscured.
+  /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
   /// [MyUserService] setting the password.
