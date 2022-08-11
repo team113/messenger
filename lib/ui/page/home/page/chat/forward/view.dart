@@ -81,8 +81,7 @@ class ChatForwardView extends StatelessWidget {
                 const SizedBox(
                   height: 25,
                 ),
-                SizedBox(
-                  height: 345,
+                Expanded(
                   child: Obx(
                     () => ListView(
                       shrinkWrap: true,
@@ -124,7 +123,9 @@ Widget _chat(
   TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
       .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
   return Container(
-    color: const Color(0XFFD9D9D9),
+    decoration: const BoxDecoration(
+        color: Color(0XFFD9D9D9),
+        borderRadius: BorderRadius.all(Radius.circular(10))),
     padding: const EdgeInsets.all(5),
     child: ListTile(
         leading: AvatarWidget.fromChat(

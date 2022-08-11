@@ -470,7 +470,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _repliedMessage(ChatItem item, {bool showFullMessage = true}) {
+  Widget _repliedMessage(ChatItem item, {bool showFullMessage = false}) {
     Style style = Theme.of(context).extension<Style>()!;
 
     Widget? content;
@@ -742,18 +742,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: 'btn_reply'.l10n,
                               onPressed: () => widget.onReply?.call(),
                             ),
-                            ContextMenuButton(
-                                key: const Key('ForwardMessage'),
-                                label: 'label_forward'.l10n,
-                                onPressed: () async {
-                                  await ChatForwardView.show(
-                                      context,
-                                      widget.chat.value!.id,
-                                      ChatItemQuote(
-                                          item: widget.item.value,
-                                          withText: true,
-                                          attachments: []));
-                                }),
+                            if (widget.item.value is ChatMessage)
+                              ContextMenuButton(
+                                  key: const Key('ForwardMessage'),
+                                  label: 'label_forward'.l10n,
+                                  onPressed: () async {
+                                    var msg = widget.item.value as ChatMessage;
+                                    await ChatForwardView.show(
+                                        context,
+                                        widget.chat.value!.id,
+                                        ChatItemQuote(
+                                            item: msg,
+                                            withText: msg.text != null,
+                                            attachments: msg.attachments
+                                                .map((attach) => attach.id)
+                                                .toList()));
+                                  }),
                             if (widget.item.value is ChatMessage &&
                                 fromMe &&
                                 (widget.item.value.at
