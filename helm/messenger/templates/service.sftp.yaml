@@ -1,0 +1,29 @@
+{{- if .Values.sftp.enabled }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-sftp" (include "messenger.fullname" .) | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    helm.sh/chart: {{ include "messenger.chart" . | quote }}
+    app.kubernetes.io/name: {{ include "messenger.name" . | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/component: sftp
+  {{- with .Values.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: {{ include "messenger.name" . | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+  ports:
+    - name: sftp
+      targetPort: sftp
+      port: 22
+    {{- with .Values.sftp.port }}
+      nodePort: {{ . | int }}
+    {{- end }}
+      protocol: TCP
+{{- end }}

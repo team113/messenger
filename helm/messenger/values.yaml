@@ -1,0 +1,94 @@
+image:
+  repository: ghcr.io/team113/messenger
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Remotely available application configuration: assets/conf.toml.
+conf: {}
+
+# Additional labels to apply to all Kubernetes resources created by this chart.
+labels: {}
+  # app.kubernetes.io/part-of: messenger
+
+deployment:
+  replicas: 1
+  revisionHistoryLimit: 0
+
+  # Optional revision number to use for fine-grained Deployment rollouts.
+  revision: ""
+
+  annotations: {}
+    # kubernetes.io/change-cause=kubectl set ...
+
+  affinity: {}
+    # nodeAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     nodeSelectorTerms:
+    #       - matchExpressions:
+    #         - key: node-label-key
+    #           operator: In
+    #           values: ["node-label-value"]
+
+  tolerations: []
+    # - key: "node.alpha.kubernetes.io/unreachable"
+    #   operator: "Exists"
+    #   effect: "NoExecute"
+
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # Container sources may be mounted to the specified host path.
+  # This allows to develop the project without rebuilding container each time
+  # or using SFTP.
+  src:
+    hostPath: ""
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: yes
+
+  # Hosts must be specified without "www." part.
+  hosts:
+    - messenger.test
+
+  tls:
+    enabled: no
+    auto: no
+    # Not required when "auto" is enabled.
+    secretName:
+      messenger.test: messenger.test.tls
+
+  httpAuth:
+    enabled: no
+
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "30m"
+
+
+sftp:
+  enabled: no
+
+  image:
+    repository: atmoz/sftp
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  port: ""
+  user: user
+  pass: changeme
+
+  resources: {}
+    # limits:
+    #   cpu: 50m
+    #   memory: 5Mi
+    # requests:
+    #   cpu: 1m
+    #   memory: 1Mi

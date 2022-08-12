@@ -76,6 +76,20 @@ jobs:
 
       - run: make flutter.fmt check=yes
 
+  helm-lint:
+    name: Lint Helm chart
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ["messenger"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: azure/setup-helm@v3
+
+      - run: make helm.lint chart=${{ matrix.chart }}
+
   pubspec:
     runs-on: ubuntu-latest
     steps:
@@ -540,6 +554,107 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
+
+  release-helm:
+    name: Release Helm chart
+    if: ${{ startsWith(github.ref, 'refs/tags/helm/') }}
+    needs: ["helm-lint"]
+    strategy:
+      max-parallel: 1
+      matrix:
+        chart: ["messenger"]
+    runs-on: ubuntu-latest
+    steps:
+      - id: skip
+        run: echo ::set-output name=no::${{
+                 startsWith(github.ref,
+                            format('refs/tags/helm/{0}/', matrix.chart))
+             }}
+
+      - uses: actions/checkout@v3
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - uses: azure/setup-helm@v3
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/helm/${{ matrix.chart }}/((([0-9]+)\.[0-9]+)\.[0-9]+(-.+)?)$'
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - name: Verify Git tag version matches `Chart.yaml` version
+        run: |
+          test "${{ steps.semver.outputs.group1 }}" \
+            == "$(grep -m1 'version: ' helm/${{ matrix.chart }}/Chart.yaml \
+                  | cut -d' ' -f2)"
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - run: make helm.package chart=${{ matrix.chart }}
+                  out-dir=.cache/helm/ clean=yes
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      # Helm's digest is just SHA256 checksum:
+      # https://github.com/helm/helm/blob/v3.9.2/pkg/provenance/sign.go#L417-L418
+      - name: Generate SHA256 checksum
+        run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
+        working-directory: .cache/helm/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - name: Show generated SHA256 checksum
+        run: cat *.sha256sum
+        working-directory: .cache/helm/
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - name: Parse CHANGELOG link
+        id: changelog
+        run: echo ::set-output
+                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: helm/${{ matrix.chart }} ${{ steps.semver.outputs.group1 }}
+          body: >
+            [Changelog](${{ steps.changelog.outputs.link }}) |
+            [Overview](${{ github.server_url }}/${{ github.repository }}/tree/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}) |
+            [Values](${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/values.yaml)
+          files: |
+            .cache/helm/*.tgz
+            .cache/helm/*.sha256sum
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - name: Parse Git repository name
+        id: repo
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.repository }}
+          regex: '^${{ github.repository_owner }}/(.+)$'
+
+      # TODO: Find or write a tool to build index idempotently from GitHub
+      #       releases, and keep on GitHub Pages only the built index.
+      #       https://github.com/helm/chart-releaser/issues/133
+      - name: Update Helm repository index
+        run: |
+          set -ex
+
+          git config --local user.email 'actions+${{ github.run_number }}@github.com'
+          git config --local user.name 'GitHub Actions'
+
+          git fetch origin gh-pages:gh-pages
+          git checkout gh-pages
+          git reset --hard
+
+          mkdir -p helm/
+          cp -rf .cache/helm/*.tgz helm/
+          helm repo index helm/ --url=https://${{ github.repository_owner }}.github.io/${{ steps.repo.outputs.group1 }}/helm
+
+          git add -v helm/
+          git commit -m 'Release ${{ steps.semver.outputs.group1 }} version of `${{ matrix.chart }}` Helm chart'
+          git checkout -
+          git push origin gh-pages
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
 
 
