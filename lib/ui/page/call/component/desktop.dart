@@ -386,6 +386,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           List<dynamic> rejected,
         ) {
           return Container(
+            key: const Key('ButtonsPanel'),
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(30),

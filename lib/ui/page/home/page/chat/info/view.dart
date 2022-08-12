@@ -243,7 +243,7 @@ class ChatInfoView extends StatelessWidget {
               ),
               onTap: () => showDialog(
                 context: context,
-                builder: (c) => AddChatMemberView(id),
+                builder: (c) => AddGroupMemberView(id),
               ),
             ),
           ],

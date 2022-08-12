@@ -132,7 +132,6 @@ class OngoingCallMock extends OngoingCall {
                   break;
 
                 case ChatCallEventKind.declined:
-                  // TODO: Implement EventChatCallDeclined.
                   break;
 
                 case ChatCallEventKind.callMoved:
@@ -159,5 +158,11 @@ class OngoingCallMock extends OngoingCall {
         }
       },
     );
+  }
+
+  @override
+  Future<void> dispose() async {
+    await super.dispose();
+    _heartbeat?.cancel();
   }
 }

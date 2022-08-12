@@ -14,7 +14,18 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Calls test
+Feature: Start call tests
+
+  Scenario: Start video call
+    Given I am Alice
+    And user Bob
+    And Bob has group with me
+    And I am in chat with Bob
+    And I wait until `StartVideoCall` is present
+
+    Then I tap `StartVideoCall` button
+    And I wait until `Call` is present
+    And I wait until `PasswordExpandable` is present
 
   Scenario: Outgoing dialog call changes state correctly
     Given I am Alice
@@ -25,7 +36,8 @@ Feature: Calls test
 
     Then I tap `StartAudioCall` button
     And I wait until `Call` is present
-    And Bob accept call
+    And I wait until `ActiveCall` is absent
+    Then Bob accept call
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
@@ -39,7 +51,7 @@ Feature: Calls test
     Then I tap `StartAudioCall` button
     And I wait until `Call` is present
     And I wait until `ActiveCall` is present
-    And Bob accept call
+    Then Bob accept call
     And I wait until Bob is present in call
 
   Scenario: Join to active group call
@@ -47,9 +59,9 @@ Feature: Calls test
     And user Bob
     And Bob has group with me
     And Bob start call
+    And I wait until `Call` is present
 
-    Then I wait until `Call` is present
-    And I tap `DeclineCall` button
+    Then I tap `DeclineCall` button
     And I wait until `Call` is absent
     And I wait until `JoinCall` is present
     Then I tap `JoinCall` button
@@ -65,7 +77,7 @@ Feature: Calls test
 
     Then I tap `StartAudioCall` button
     And I wait until `Call` is present
-    And I tap `CancelCall` button
+    Then I tap `CancelCall` button
     And I wait until `Call` is absent
 
   Scenario: Incoming dialog call changes state correctly
@@ -75,7 +87,7 @@ Feature: Calls test
 
     Then Bob start call
     And I wait until `Call` is present
-    And I tap `AcceptCallAudio` button
+    Then I tap `AcceptCallAudio` button
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
@@ -86,44 +98,18 @@ Feature: Calls test
 
     Then Bob start call
     And I wait until `Call` is present
-    And I tap `AcceptCallAudio` button
+    Then I tap `AcceptCallAudio` button
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
-  Scenario: End active dialog call
+  Scenario: Decline incoming dialog call
     Given I am Alice
     And user Bob
     And Bob has dialog with me
 
     Then Bob start call
     And I wait until `Call` is present
-    And I tap `AcceptCallAudio` button
-    And I wait until `ActiveCall` is present
-    Then I wait until `EndCall` is present
-    And I tap `EndCall` button
-    And I wait until `Call` is absent
-
-  Scenario: End active group call
-    Given I am Alice
-    And user Bob
-    And Bob has group with me
-
-    Then Bob start call
-    And I wait until `Call` is present
-    And I tap `AcceptCallAudio` button
-    And I wait until `ActiveCall` is present
-    Then I wait until `EndCall` is present
-    And I tap `EndCall` button
-    And I wait until `Call` is absent
-
-  Scenario: Decline incoming dialog call
-    Given I am Alice
-    And user Bob
-    And Bob has group with me
-
-    Then Bob start call
-    And I wait until `Call` is present
-    And I tap `DeclineCall` button
+    Then I tap `DeclineCall` button
     And I wait until `Call` is absent
 
   Scenario: Decline incoming group call
@@ -133,7 +119,7 @@ Feature: Calls test
 
     Then Bob start call
     And I wait until `Call` is present
-    And I tap `DeclineCall` button
+    Then I tap `DeclineCall` button
     And I wait until `Call` is absent
 
   Scenario: User call to decline incoming dialog call
@@ -145,36 +131,5 @@ Feature: Calls test
 
     Then I tap `StartAudioCall` button
     And I wait until `Call` is present
-    And Bob decline call
+    Then Bob decline call
     And I wait until `Call` is absent
-
-  Scenario: Dialog call ends when user leaves
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
-
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
-    And Bob accept call
-    And I wait until `ActiveCall` is present
-    And I wait until Bob is present in call
-    Then Bob leave call
-    And I wait until `Call` is absent
-
-  Scenario: Group call doesn't ends when user leaves
-    Given I am Alice
-    And user Bob
-    And Bob has group with me
-    And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
-
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
-    And Bob accept call
-    And I wait until `ActiveCall` is present
-    And I wait until Bob is present in call
-    Then Bob leave call
-    And I wait until Bob is absent in call
-    And I wait until `Call` is present

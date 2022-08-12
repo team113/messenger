@@ -50,7 +50,7 @@ import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
-void main() async {
+Future<void> main() async {
   await Config.init();
 
   // Initializes and runs the [App].

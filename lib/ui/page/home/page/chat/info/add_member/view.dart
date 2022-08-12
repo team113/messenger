@@ -25,8 +25,8 @@ import '/ui/page/home/widget/user_search_bar/view.dart';
 import 'controller.dart';
 
 /// View of the chat member addition modal.
-class AddChatMemberView extends StatelessWidget {
-  const AddChatMemberView(this.chatId, {Key? key}) : super(key: key);
+class AddGroupMemberView extends StatelessWidget {
+  const AddGroupMemberView(this.chatId, {Key? key}) : super(key: key);
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
@@ -48,6 +48,7 @@ class AddChatMemberView extends StatelessWidget {
             color: Colors.black, fontSize: 13);
 
     return MediaQuery.removeViewInsets(
+      key: const Key('AddGroupMemberDialog'),
       removeLeft: true,
       removeTop: true,
       removeRight: true,
@@ -91,6 +92,7 @@ class AddChatMemberView extends StatelessWidget {
                                   ),
                                   const Spacer(),
                                   IconButton(
+                                    key: const Key('CloseAddGroupMember'),
                                     hoverColor: Colors.transparent,
                                     highlightColor: Colors.transparent,
                                     splashColor: Colors.transparent,

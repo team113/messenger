@@ -86,6 +86,7 @@ class MoreButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      key: const Key('More'),
       asset: 'more',
       hinted: hinted,
       onPressed: c.toggleMore,
@@ -201,6 +202,7 @@ class SettingsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      key: const Key('Settings'),
       asset: 'settings_small',
       hinted: hinted,
       onPressed: () => c.openSettings(router.context!),
@@ -218,6 +220,7 @@ class AddMemberCallButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return _common(
+      key: const Key('AddParticipant'),
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),

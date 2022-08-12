@@ -1063,13 +1063,13 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
+  /// Returns a result of the [showDialog] building an [AddGroupMemberView] or an
   /// [AddDialogMemberView].
   Future<dynamic> openAddMember(BuildContext context) {
     if (isGroup) {
       return showDialog(
         context: context,
-        builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
+        builder: (_) => AddGroupMemberView(chat.value!.chat.value.id),
       );
     } else if (isDialog) {
       return showDialog(

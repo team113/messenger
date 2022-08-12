@@ -30,8 +30,16 @@ import 'package:messenger/store/event/chat_call.dart';
 class CallHeartbeatMock {
   CallHeartbeatMock(this._graphQlProvider);
 
+  /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
+  ///
+  /// This subscription is mandatory to be created after executing [start] or
+  /// [join] as represents a heartbeat indication of the authenticated
+  /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
+  /// subscription without leaving the [OngoingCall] will end up by kicking the
+  /// authenticated [MyUser] from this [OngoingCall] by timeout.
   Future<Stream<ChatCallEvents>> heartbeat(
       ChatItemId id, ChatCallDeviceId deviceId) async {
     return (await _graphQlProvider.callEvents(id, deviceId))

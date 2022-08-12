@@ -153,6 +153,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
         );
 
     return MediaQuery.removeViewInsets(
+      key: const Key('CallSettings'),
       removeLeft: true,
       removeTop: true,
       removeRight: true,
@@ -207,6 +208,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                             const SizedBox(width: 16),
                           ],
                           IconButton(
+                            key: const Key('CloseSettings'),
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             splashColor: Colors.transparent,
