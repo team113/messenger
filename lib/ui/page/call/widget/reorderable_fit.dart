@@ -20,10 +20,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
+import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
 ///
@@ -61,6 +61,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     this.onOffset,
     this.useLongPress = false,
     this.allowEmptyTarget = false,
+    this.allowDraggingLast = true,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -120,6 +121,10 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
+
+  /// Indicator whether dragging is allowed when the [children] contain only one
+  /// item.
+  final bool allowDraggingLast;
 
   /// Left position of this view.
   final double? left;
@@ -368,6 +373,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onWillAccept: onWillAccept,
           onOffset: onOffset,
           useLongPress: useLongPress,
+          allowDraggingLast: allowDraggingLast,
         );
       }),
     );
@@ -406,6 +412,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.onWillAccept,
     this.onOffset,
     this.useLongPress = false,
+    this.allowDraggingLast = true,
   }) : super(key: key);
 
   /// Builder building the provided item.
@@ -461,6 +468,10 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
 
   /// Callback, specifying an [Offset] of this view.
   final Offset Function()? onOffset;
+
+  /// Indicator whether dragging is allowed when the [children] contain only one
+  /// item.
+  final bool allowDraggingLast;
 
   /// Hover color of the [DragTarget].
   final Color hoverColor;
@@ -579,7 +590,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     itemBuilder: widget.itemBuilder,
                     useLongPress: widget.useLongPress,
                     sharedKey: item.sharedKey,
-                    enabled: _items.map((e) => e.entry).whereNotNull().isEmpty,
+                    enabled:
+                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
+                            (widget.allowDraggingLast || _items.length != 1),
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
                       if (_doughDragged != null) {
@@ -833,7 +846,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
           });
         } else {
           from.entry = OverlayEntry(builder: (context) {
-            return _AnimatedTransition(
+            return AnimatedTransition(
               key: from.entryKey,
               beginRect: beginRect,
               endRect: endRect,
@@ -883,7 +896,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         });
       } else {
         to.entry = OverlayEntry(builder: (context) {
-          return _AnimatedTransition(
+          return AnimatedTransition(
             key: to.entryKey,
             curve: Curves.linearToEaseOut,
             beginRect: beginRect,
@@ -912,7 +925,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 }
 
 /// [_ReorderableItem] wrapped in a [DraggableDough].
-class _ReorderableDraggable<T extends Object> extends StatelessWidget {
+class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   const _ReorderableDraggable({
     Key? key,
     required this.item,
@@ -959,6 +972,17 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
   final bool enabled;
 
   @override
+  State<_ReorderableDraggable<T>> createState() =>
+      _ReorderableDraggableState<T>();
+}
+
+/// State of a [_ReorderableDraggable] maintaining the [isDragged] indicator.
+class _ReorderableDraggableState<T extends Object>
+    extends State<_ReorderableDraggable<T>> {
+  /// Indicator whether this [_ReorderableDraggable] is dragged.
+  bool isDragged = false;
+
+  @override
   Widget build(BuildContext context) {
     return DoughRecipe(
       data: DoughRecipeData(
@@ -966,35 +990,43 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
         viscosity: 2000,
         draggablePrefs: DraggableDoughPrefs(
           breakDistance: 50,
-          useHapticsOnBreak: true,
+          useHapticsOnBreak: false,
         ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          var widget = itemBuilder(item);
+          var child = widget.itemBuilder(widget.item);
           return DraggableDough<T>(
-            data: item,
-            longPress: useLongPress,
-            maxSimultaneousDrags: enabled ? 1 : 0,
-            onDragEnd: (d) => onDragEnd?.call(d.offset),
-            onDragStarted: onDragStarted,
-            onDragCompleted: onDragCompleted,
-            onDraggableCanceled: (_, d) => onDraggableCanceled?.call(d),
+            data: widget.item,
+            longPress: widget.useLongPress,
+            maxSimultaneousDrags: widget.enabled ? 1 : 0,
+            onDragEnd: (d) {
+              widget.onDragEnd?.call(d.offset);
+              isDragged = false;
+            },
+            onDragStarted: () {
+              widget.onDragStarted?.call();
+              HapticFeedback.lightImpact();
+              isDragged = true;
+            },
+            onDragCompleted: widget.onDragCompleted,
+            onDraggableCanceled: (_, d) => widget.onDraggableCanceled?.call(d),
             onDoughBreak: () {
-              if (enabled) {
-                onDoughBreak?.call();
+              if (widget.enabled && isDragged) {
+                widget.onDoughBreak?.call();
+                HapticFeedback.lightImpact();
               }
             },
             feedback: SizedBox(
               width: constraints.maxWidth,
               height: constraints.maxHeight,
               child: KeyedSubtree(
-                key: sharedKey,
-                child: widget,
+                key: widget.sharedKey,
+                child: child,
               ),
             ),
             childWhenDragging: KeyedSubtree(
-              key: sharedKey,
+              key: widget.sharedKey,
               child: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -1002,8 +1034,8 @@ class _ReorderableDraggable<T extends Object> extends StatelessWidget {
               ),
             ),
             child: KeyedSubtree(
-              key: sharedKey,
-              child: widget,
+              key: widget.sharedKey,
+              child: child,
             ),
           );
         },
@@ -1028,8 +1060,8 @@ class _ReorderableItem<T> {
   final UniqueKey sharedKey = UniqueKey();
 
   /// [GlobalKey] of the [entry].
-  final GlobalKey<_AnimatedTransitionState> entryKey =
-      GlobalKey<_AnimatedTransitionState>();
+  final GlobalKey<AnimatedTransitionState> entryKey =
+      GlobalKey<AnimatedTransitionState>();
 
   /// [OverlayEntry] of this [_ReorderableItem] used to animate the [item]
   /// changing its position.
@@ -1045,69 +1077,4 @@ class _ReorderableItem<T> {
   @override
   bool operator ==(Object other) =>
       other is _ReorderableItem<T> && other.item == item;
-}
-
-/// Animated transform of the provided [child] from the [beginRect] to the
-/// [endRect].
-class _AnimatedTransition extends StatefulWidget {
-  const _AnimatedTransition({
-    Key? key,
-    required this.beginRect,
-    required this.endRect,
-    required this.child,
-    this.onEnd,
-    this.curve,
-  }) : super(key: key);
-
-  /// Initial [Rect] this [child] takes.
-  final Rect beginRect;
-
-  /// Target [Rect] to animate this [child] to.
-  final Rect endRect;
-
-  /// Callback, called when animation ends.
-  final VoidCallback? onEnd;
-
-  /// [Widget] to transform around.
-  final Widget child;
-
-  /// [Curve] of animation.
-  final Curve? curve;
-
-  @override
-  State<_AnimatedTransition> createState() => _AnimatedTransitionState();
-}
-
-/// State of an [_AnimatedTransition] changing the [rect].
-class _AnimatedTransitionState extends State<_AnimatedTransition>
-    with SingleTickerProviderStateMixin {
-  /// [Rect] that [_AnimatedTransition.child] occupies.
-  late Rect rect;
-
-  @override
-  void initState() {
-    rect = widget.beginRect;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => rect = widget.endRect);
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedPositioned.fromRect(
-          rect: rect,
-          duration: const Duration(milliseconds: 200),
-          curve: widget.curve ?? Curves.linear,
-          onEnd: widget.onEnd,
-          child: widget.child,
-        ),
-      ],
-    );
-  }
 }

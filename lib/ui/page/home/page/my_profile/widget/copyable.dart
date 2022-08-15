@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -33,6 +34,8 @@ class CopyableTextField extends StatelessWidget {
     this.copy,
     this.icon,
     this.label,
+    this.style,
+    this.leading,
   }) : super(key: key);
 
   /// Reactive state of this [CopyableTextField].
@@ -44,8 +47,14 @@ class CopyableTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
+  /// Optional leading [Widget].
+  final Widget? leading;
+
   /// Optional label of this [CopyableTextField].
   final String? label;
+
+  /// [TextStyle] of this [CopyableTextField].
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +72,7 @@ class CopyableTextField extends StatelessWidget {
         Expanded(
           child: ContextMenuRegion(
             enabled: (copy ?? state.text).isNotEmpty,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(
@@ -76,9 +86,20 @@ class CopyableTextField extends StatelessWidget {
               onTap: (copy ?? state.text).isEmpty ? null : () => _copy(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
+                  prefix: leading,
                   state: state,
-                  suffix: Icons.copy,
+                  trailing: Transform.translate(
+                    offset: const Offset(0, -1),
+                    child: Transform.scale(
+                      scale: 1.15,
+                      child: SvgLoader.asset(
+                        'assets/icons/copy.svg',
+                        height: 15,
+                      ),
+                    ),
+                  ),
                   label: label,
+                  style: style,
                 ),
               ),
             ),

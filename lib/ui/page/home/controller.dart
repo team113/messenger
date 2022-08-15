@@ -20,15 +20,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
+import '/domain/model/my_user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/ui/page/home/introduction/view.dart';
 
 export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUser);
+  HomeController(this._auth, this._myUser, this._settings);
 
   /// Maximum screen's width in pixels until side bar will be expanding.
   static double maxSideBarExpandWidth = 860;
@@ -45,11 +49,21 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final Rx<int> unreadChatsCount = Rx<int>(0);
 
+  /// [Timer] for discarding any horizontal movement in a [PageView] when
+  /// non-`null`.
+  ///
+  /// Indicates currently ongoing vertical scroll of a view.
+  final Rx<Timer?> verticalScrollTimer = Rx(null);
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
   /// [MyUserService] to listen to the [MyUser] changes.
   final MyUserService _myUser;
+
+  /// [AbstractSettingsRepository] containing the [ApplicationSettings] used to
+  /// determine whether an [IntroductionView] was already shown.
+  final AbstractSettingsRepository _settings;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
@@ -75,6 +89,24 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
+
+    if (_settings.applicationSettings.value?.showIntroduction ?? true) {
+      if (_myUser.myUser.value != null) {
+        _displayIntroduction(_myUser.myUser.value!);
+      } else {
+        Worker? worker;
+        worker = ever(
+          _myUser.myUser,
+          (MyUser? myUser) {
+            if (myUser != null && worker != null) {
+              _displayIntroduction(myUser);
+              worker?.dispose();
+              worker = null;
+            }
+          },
+        );
+      }
+    }
   }
 
   @override
@@ -93,6 +125,16 @@ class HomeController extends GetxController {
         pages.jumpToPage(router.tab.index);
       }
       refresh();
+    }
+  }
+
+  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
+  void _displayIntroduction(MyUser myUser) {
+    if (!myUser.hasPassword) {
+      IntroductionView.show(router.context!)
+          .then((_) => _settings.setShowIntroduction(false));
+    } else {
+      _settings.setShowIntroduction(false);
     }
   }
 }

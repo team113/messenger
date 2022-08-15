@@ -14,221 +14,298 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View of the [Routes.login] page.
+/// View for logging in or recovering access on.
+///
+/// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
+
+  /// Displays a [LoginView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(BuildContext context) {
+    return ModalPopup.show(
+      context: context,
+      desktopConstraints: const BoxConstraints(maxWidth: 400),
+      modalConstraints: const BoxConstraints(maxWidth: 520),
+      child: const LoginView(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    TextTheme theme = Theme.of(context).textTheme;
+
     return GetBuilder(
+      key: const Key('LoginView'),
       init: LoginController(Get.find()),
-      builder: (LoginController c) => Obx(
-        () {
-          /// Application bar consisting of a "Back" button and a label.
-          Widget appBar = SizedBox(
-            height: 45,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      builder: (LoginController c) {
+        return Obx(() {
+          List<Widget> children;
+
+          // Returns a primary styled [OutlinedRoundedButton].
+          Widget _primaryButton({
+            Key? key,
+            String? title,
+            VoidCallback? onPressed,
+          }) {
+            return OutlinedRoundedButton(
+              key: key,
+              maxWidth: null,
+              title: Text(
+                title ?? '',
+                style: const TextStyle(color: Colors.white),
+              ),
+              onPressed: onPressed,
+              color: Theme.of(context).colorScheme.secondary,
+            );
+          }
+
+          // Returns a secondary styled [OutlinedRoundedButton].
+          Widget _secondaryButton({
+            Key? key,
+            String? title,
+            VoidCallback? onPressed,
+          }) {
+            return OutlinedRoundedButton(
+              key: key,
+              maxWidth: null,
+              title: Text(
+                title ?? '',
+                style: const TextStyle(color: Colors.black),
+              ),
+              onPressed: onPressed,
+              color: const Color(0xFFEEEEEE),
+            );
+          }
+
+          // Returns a [Row] with [a] and [b] placed in the [Expanded] widgets.
+          Row _spaced(Widget a, Widget b) {
+            return Row(
               children: [
-                TextButton(
-                  onPressed: router.auth,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.arrow_back_ios, color: Colors.grey),
-                      Text(
-                        'btn_back'.l10n,
-                        style: context.textTheme.bodyText1!
-                            .copyWith(color: Colors.grey, fontSize: 16),
-                      ),
-                    ],
+                Expanded(child: a),
+                const SizedBox(width: 10),
+                Expanded(child: b)
+              ],
+            );
+          }
+
+          switch (c.stage.value) {
+            case LoginViewStage.recovery:
+              children = [
+                Center(
+                  child: Text(
+                    'label_recover_account'.l10n,
+                    style: theme.headline3,
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  'label_sign_in'.l10n,
-                  style: context.textTheme.bodyText1!
-                      .copyWith(color: Colors.grey, fontSize: 16),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('RecoveryField'),
+                  state: c.recovery,
+                  label: 'label_sign_in_input'.l10n,
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryBackButton'),
+                    title: 'btn_back'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.recovery.submit,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoveryCode:
+              children = [
+                Center(
+                  child: Text(
+                    'label_email_confirmation_code_was_sent'.l10n,
+                    style: theme.headline3,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('RecoveryCodeField'),
+                  state: c.recoveryCode,
+                  label: 'label_recovery_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryCancelButton'),
+                    title: 'btn_cancel'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.recoveryCode.submit,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoveryPassword:
+              children = [
+                Center(
+                  child: Text(
+                    'label_set_new_password'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('PasswordField'),
+                  state: c.newPassword,
+                  label: 'label_new_password'.l10n,
+                  obscure: c.obscureNewPassword.value,
+                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const Key('RepeatPasswordField'),
+                  state: c.repeatPassword,
+                  label: 'label_repeat_password'.l10n,
+                  obscure: c.obscureRepeatPassword.value,
+                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 58),
+                _spaced(
+                  _secondaryButton(
+                    key: const Key('RecoveryCancelButton'),
+                    title: 'btn_cancel'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                  _primaryButton(
+                    key: const Key('RecoveryNextButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: c.resetUserPassword,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case LoginViewStage.recoverySuccess:
+              children = [
+                const SizedBox(height: 14),
+                Center(
+                  child: Text(
+                    'label_password_set_successfully'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Center(
+                  child: _primaryButton(
+                    key: const Key('RecoverySuccessButton'),
+                    title: 'btn_next'.l10n,
+                    onPressed: () => c.stage.value = null,
+                  ),
+                ),
+                const SizedBox(height: 13)
+              ];
+              break;
+
+            default:
+              children = [
+                Center(
+                  child: Text(
+                    'label_entrance'.l10n,
+                    style: theme.headline3,
+                  ),
+                ),
+                const SizedBox(height: 57),
+                ReactiveTextField(
+                  key: const Key('UsernameField'),
+                  state: c.login,
+                  label: 'label_sign_in_input'.l10n,
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const ValueKey('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgLoader.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                ),
+                const SizedBox(height: 52),
+                _spaced(
+                  _primaryButton(
+                    key: const Key('LoginButton'),
+                    title: 'btn_login'.l10n,
+                    onPressed: c.signIn,
+                  ),
+                  _secondaryButton(
+                    key: const Key('RecoveryButton'),
+                    title: 'btn_forgot_password'.l10n,
+                    onPressed: () {
+                      c.recovery.clear();
+                      c.recoveryCode.clear();
+                      c.newPassword.clear();
+                      c.repeatPassword.clear();
+                      c.recovery.unchecked = c.login.text;
+                      c.stage.value = LoginViewStage.recovery;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 250),
+            sizeDuration: const Duration(milliseconds: 250),
+            fadeInCurve: Curves.easeOut,
+            fadeOutCurve: Curves.easeOut,
+            sizeCurve: Curves.easeOut,
+            child: ListView(
+              key: Key('${c.stage.value}'),
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 12),
+                ...children,
+                const SizedBox(height: 12),
               ],
             ),
           );
-
-          /// Wrapper around "Next" button.
-          List<Widget> _nextButton({Key? key, VoidCallback? onPressed}) => [
-                const SizedBox(height: 8),
-                SizedBox(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Spacer(),
-                      TextButton(
-                        key: key,
-                        onPressed: onPressed,
-                        child: Text('btn_next'.l10n,
-                            style: context.textTheme.caption!
-                                .copyWith(color: Colors.grey, fontSize: 16)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ];
-
-          const EdgeInsets inputPadding = EdgeInsets.fromLTRB(10, 10, 10, 0);
-
-          return c.authStatus.value.isLoading
-              ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-              : IgnorePointer(
-                  ignoring: c.authStatus.value.isSuccess,
-                  child: Scaffold(
-                    key: const Key('LoginView'),
-                    body: SafeArea(
-                      child: SingleChildScrollView(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 400),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(height: 10),
-                                appBar,
-                                const Divider(thickness: 3),
-                                const ListTile(),
-                                Padding(
-                                  padding: inputPadding,
-                                  child: ReactiveTextField(
-                                    key: const Key('UsernameField'),
-                                    state: c.login,
-                                    label: 'label_sign_in_input'.l10n,
-                                    onChanged: () =>
-                                        c.showPwdSection.value = false,
-                                  ),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: c.showPwdSection.value
-                                      ? Padding(
-                                          padding: inputPadding,
-                                          child: ReactiveTextField(
-                                            key:
-                                                const ValueKey('PasswordField'),
-                                            obscure: true,
-                                            state: c.password,
-                                            label: 'label_password'.l10n,
-                                          ),
-                                        )
-                                      : Container(),
-                                ),
-                                ..._nextButton(
-                                  key: const Key('LoginNextTile'),
-                                  onPressed: () {
-                                    if (c.showPwdSection.value) {
-                                      c.password.submit();
-                                    } else {
-                                      c.login.submit();
-                                    }
-                                  },
-                                ),
-                                const Divider(thickness: 3),
-                                ListTile(
-                                  title: Text(
-                                    '${'label_recover_account'.l10n}:',
-                                    style:
-                                        context.textTheme.bodyText2!.copyWith(
-                                      fontSize: 18,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: inputPadding,
-                                  child: ReactiveTextField(
-                                    key: const ValueKey('RecoveryField'),
-                                    state: c.recovery,
-                                    label: 'label_sign_in_input'.l10n,
-                                    enabled: (c.showCodeSection.value)
-                                        ? false
-                                        : true,
-                                  ),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: c.showCodeSection.value
-                                      ? Padding(
-                                          padding: inputPadding,
-                                          child: ReactiveTextField(
-                                            key: const Key('RecoveryCodeField'),
-                                            state: c.recoveryCode,
-                                            label: 'label_recovery_code'.l10n,
-                                            type: TextInputType.number,
-                                            enabled:
-                                                (c.showNewPasswordSection.value)
-                                                    ? false
-                                                    : true,
-                                          ),
-                                        )
-                                      : Container(),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: c.showNewPasswordSection.value
-                                      ? Padding(
-                                          padding: inputPadding,
-                                          child: ReactiveTextField(
-                                            key: const Key('PasswordField'),
-                                            state: c.newPassword,
-                                            label: 'label_new_password'.l10n,
-                                            obscure: true,
-                                          ),
-                                        )
-                                      : Container(),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: c.showNewPasswordSection.value
-                                      ? Padding(
-                                          padding: inputPadding,
-                                          child: ReactiveTextField(
-                                            key: const Key(
-                                                'RepeatPasswordField'),
-                                            state: c.repeatPassword,
-                                            label: 'label_repeat_password'.l10n,
-                                            obscure: true,
-                                          ),
-                                        )
-                                      : Container(),
-                                ),
-                                ..._nextButton(
-                                  key: const ValueKey('RecoveryNextTile'),
-                                  onPressed: () {
-                                    if (c.showNewPasswordSection.value) {
-                                      c.resetUserPassword();
-                                    } else if (!c.showCodeSection.value) {
-                                      c.recovery.submit();
-                                    } else if (c.showCodeSection.value) {
-                                      c.recoveryCode.submit();
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-        },
-      ),
+        });
+      },
     );
   }
 }

@@ -10,6 +10,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   medea_jason
   permission_handler_windows
   sentry_flutter
+  url_launcher_windows
   window_manager
 )
 

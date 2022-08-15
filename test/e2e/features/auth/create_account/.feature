@@ -17,8 +17,9 @@
 Feature: Account creation
 
   Scenario: User creates a new account and deletes it
-    When I tap `StartChattingButton` button
-    And I wait until `HomeView` is present
+    When I tap `StartButton` button
+    And I wait until `IntroductionView` is present
+    And I tap `CloseButton` button
 
     Then I tap `MenuButton` button
     And I tap `MyProfileButton` button

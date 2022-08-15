@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -48,6 +49,7 @@ import '../mock/route_information_provider.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  Config.disableInfiniteAnimations = true;
   await L10n.init();
 
   Hive.init('./test/.temp_hive/auth_widget');
@@ -108,7 +110,7 @@ void main() async {
     await tester.tap(goToLoginButton);
     await tester.pumpAndSettle();
 
-    final loginTile = find.byKey(const ValueKey('LoginNextTile'));
+    final loginTile = find.byKey(const ValueKey('LoginButton'));
     expect(loginTile, findsOneWidget);
 
     final usernameField = find.byKey(const ValueKey('UsernameField'));
