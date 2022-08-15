@@ -16,8 +16,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';

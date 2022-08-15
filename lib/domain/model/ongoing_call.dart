@@ -17,8 +17,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -890,7 +890,7 @@ class OngoingCall {
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
 
-      // Initializes local tracks recursively.
+      // Initializes the local tracks recursively.
       Future<void> initLocalTracks() async {
         try {
           tracks = await _mediaManager!.initLocalTracks(_mediaStreamSettings(
