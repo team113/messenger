@@ -16,17 +16,6 @@
 
 Feature: Start call tests
 
-  Scenario: Start video call
-    Given I am Alice
-    And user Bob
-    And Bob has group with me
-    And I am in chat with Bob
-    And I wait until `StartVideoCall` is present
-
-    Then I tap `StartVideoCall` button
-    And I wait until `Call` is present
-    And I wait until `PasswordExpandable` is present
-
   Scenario: Outgoing dialog call changes state correctly
     Given I am Alice
     And user Bob

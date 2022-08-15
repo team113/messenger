@@ -48,7 +48,7 @@ class AddGroupMemberView extends StatelessWidget {
             color: Colors.black, fontSize: 13);
 
     return MediaQuery.removeViewInsets(
-      key: const Key('AddGroupMemberDialog'),
+      key: const Key('AddGroupMembers'),
       removeLeft: true,
       removeTop: true,
       removeRight: true,

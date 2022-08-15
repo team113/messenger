@@ -18,10 +18,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '../parameters/keys.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -32,6 +34,40 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
+);
+
+/// Enters the provided user's id into the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - Then I fill `EmailField` field with user Bob
+/// - Then I fill `NameField` field with user Charlie
+StepDefinitionGeneric fillFieldWithUser =
+    then2<WidgetKey, TestUser, CustomWorld>(
+  'I fill {key} field with user {user}',
+  (key, user, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    final finder = context.world.appDriver.findByDescendant(
+      context.world.appDriver.findBy(key.name, FindType.key),
+      context.world.appDriver.findBy(FloatingSearchAppBar, FindType.type),
+    );
+
+    await context.world.appDriver.scrollIntoView(finder);
+    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver
+        .tap(finder, timeout: context.configuration.timeout);
+    await context.world.appDriver.waitForAppToSettle();
+
+    await context.world.appDriver.scrollIntoView(finder);
+    await context.world.appDriver
+        .enterText(finder, context.world.sessions[user.name]!.userNum.val);
+
+    await context.world.appDriver.waitForAppToSettle();
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    //_fillField(key, context.world.sessions[user.name]!.userId.val, context);
+  },
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
@@ -101,10 +137,7 @@ Future<void> _fillField(
       .tap(finder, timeout: context.configuration.timeout);
   await context.world.appDriver.waitForAppToSettle();
 
-  final finder2 = context.world.appDriver.findBy(key.name, FindType.key);
-  await context.world.appDriver.scrollIntoView(finder2);
-  await context.world.appDriver.enterText(finder2, text);
-
+  await context.world.appDriver.enterText(finder, text);
   await context.world.appDriver.waitForAppToSettle();
 
   FocusManager.instance.primaryFocus?.unfocus();

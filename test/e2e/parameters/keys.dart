@@ -21,6 +21,10 @@ import 'package:gherkin/gherkin.dart';
 enum WidgetKey {
   AcceptCallAudio,
   ActiveCall,
+  AddDialogMembers,
+  AddDialogMembersButton,
+  AddGroupMembers,
+  AddParticipant,
   AlertDialog,
   AlertNoButton,
   AlertYesButton,
@@ -34,6 +38,7 @@ enum WidgetKey {
   ChatDirectLinkExpandable,
   ChatsButton,
   ChatsTab,
+  CloseAddGroupMember,
   CloseButton,
   CloseSettings,
   ContactsButton,
@@ -43,6 +48,8 @@ enum WidgetKey {
   DeleteAccountButton,
   EmailsExpandable,
   EndCall,
+  HandDown,
+  HandUp,
   HomeView,
   IntroductionView,
   JoinCall,
@@ -79,6 +86,7 @@ enum WidgetKey {
   StartButton,
   StartVideoCall,
   SuccessStage,
+  UserSearchBar,
   UsernameField,
 }
 

@@ -28,6 +28,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
 import 'parameters/chat.dart';
+import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
@@ -37,13 +38,17 @@ import 'steps/in_chat_with.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/user_call.dart';
+import 'steps/user_hand.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_text_exists.dart';
+import 'steps/wait_until_user_hand.dart';
+import 'steps/wait_until_user_search.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -53,19 +58,25 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         copyFromField,
         fillField,
+        fillFieldWithUser,
         goToUserPage,
         hasChatWithMe,
         iAm,
         iAmInChatWith,
         pasteToField,
+        raiseHand,
         seesAs,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
+        tapUserInSearch,
         tapWidget,
         twoUsers,
+        untilMyUserHand,
         untilTextExists,
+        untilUserHand,
         untilUserInCallExists,
+        untilUserInSearch,
         updateBio,
         user,
         userDeclineCall,
@@ -92,6 +103,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         ChatTypeParameter(),
+        HandStatusParameter(),
         OnlineStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

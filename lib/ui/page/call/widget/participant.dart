@@ -200,6 +200,7 @@ class ParticipantWidget extends StatelessWidget {
       duration: const Duration(milliseconds: 150),
       child: isRaised
           ? CircleAvatar(
+              key: const Key('RaisedHand'),
               radius: 45,
               backgroundColor: const Color(0xD8818181),
               child: SvgLoader.asset(

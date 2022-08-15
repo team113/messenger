@@ -53,6 +53,7 @@ class AddDialogMemberView extends StatelessWidget {
             color: Colors.black, fontSize: 13);
 
     return MediaQuery.removeViewInsets(
+      key: const Key('AddDialogMembers'),
       removeLeft: true,
       removeTop: true,
       removeRight: true,

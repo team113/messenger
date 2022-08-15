@@ -60,6 +60,7 @@ class UserSearchBar extends StatelessWidget {
       init: UserSearchBarController(Get.find()),
       builder: (UserSearchBarController c) => Obx(
         () => FloatingSearchBar(
+          key: const Key('UserSearchBar'),
           hint: 'label_search'.l10n,
           controller: searchController,
           scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
@@ -137,7 +138,7 @@ class UserSearchBar extends StatelessWidget {
 
   /// Returns a [ListTile] with the information of the provided [User].
   Widget _user(RxUser user, UserSearchBarController c) => ListTile(
-        key: Key('${user.id}'),
+        key: Key('FoundUser_${user.id}'),
         leading: AvatarWidget.fromUser(user.user.value),
         title: Text(user.user.value.name?.val ?? user.user.value.num.val),
         trailing: trailingIcon == null

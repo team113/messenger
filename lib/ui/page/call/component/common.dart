@@ -184,6 +184,7 @@ class HandButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
+        key: Key('Hand${c.isHandRaised.value ? 'Down' : 'Up'}'),
         asset: 'hand_${c.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
         onPressed: c.toggleHand,
