@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:mutex/mutex.dart';
 
-/// Mocked [GraphQlProvider] containing its [MockGraphQlClient].
+/// Mocked [GraphQlProvider] containing the [MockGraphQlClient].
 class MockGraphQlProvider extends GraphQlProvider {
   /// Mocked [GraphQlClient] itself.
   final MockGraphQlClient _client = MockGraphQlClient();

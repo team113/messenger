@@ -218,13 +218,14 @@ void main() async {
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
-      graphQlProvider,
-      Get.find(),
-      userRepository,
-      me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-    ));
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        Get.find(),
+        userRepository,
+        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+      ),
+    );
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
@@ -274,13 +275,14 @@ void main() async {
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
-      graphQlProvider,
-      Get.find(),
-      userRepository,
-      me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-    ));
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        Get.find(),
+        userRepository,
+        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+      ),
+    );
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 

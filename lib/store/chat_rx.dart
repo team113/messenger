@@ -111,7 +111,7 @@ class HiveRxChat implements RxChat {
   /// initialized used in [subscribe].
   bool _remoteSubscriptionInitialized = false;
 
-  /// List of [ChatItem]s being in [SendingStatus.sending] state.
+  /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
 
   /// Returns [ChatId] of the [chat].
@@ -206,9 +206,11 @@ class HiveRxChat implements RxChat {
 
     return _guard.protect(() async {
       for (HiveChatItem item in _local.messages) {
-        var i = items.indexWhere((e) => e.value.id == item.value.id);
-        if (i == -1 && item.value.status.value == SendingStatus.sent) {
-          _local.remove(item.value.timestamp);
+        if (item.value.status.value == SendingStatus.sent) {
+          int i = items.indexWhere((e) => e.value.id == item.value.id);
+          if (i == -1) {
+            _local.remove(item.value.timestamp);
+          }
         }
       }
 
@@ -277,7 +279,9 @@ class HiveRxChat implements RxChat {
                       put(message, ignoreVersion: true);
                     }
                   },
-                  onError: (_) {},
+                  onError: (_) {
+                    // No-op, as failed upload attempts are handled below.
+                  },
                 );
               }
             })

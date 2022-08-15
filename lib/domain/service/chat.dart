@@ -102,7 +102,7 @@ class ChatService extends DisposableService {
         repliesTo: repliesTo,
       );
 
-  /// Resend the specified [item].
+  /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
       _chatRepository.resendChatItem(item);
 

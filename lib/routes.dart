@@ -337,7 +337,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       return [
         const MaterialPage(
           key: ValueKey('RestartPage'),
-          name: Routes.style,
+          name: Routes.restart,
           child: Center(child: Text('Restarting...')),
         ),
       ];

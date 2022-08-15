@@ -1,4 +1,4 @@
-Feature: Chat attachments has correct sending status
+Feature: Chat attachments have correct sending status
 
   Scenario: File attachment status changes from `sending` to `sent`
     Given I am Alice

@@ -1,4 +1,4 @@
-Feature: Chat messages has correct sending status
+Feature: Chat messages have correct sending status
 
   Scenario: User sends message
     Given I am Alice

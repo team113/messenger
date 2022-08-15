@@ -24,7 +24,7 @@ class SendingStatusParameter extends CustomParameter<SendingStatus> {
           'sending',
           RegExp(
             '(${SendingStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: true,
+            caseSensitive: false,
           ),
           (c) => SendingStatus.values.firstWhere((e) => e.name == c),
         );

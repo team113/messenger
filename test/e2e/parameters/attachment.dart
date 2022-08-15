@@ -29,7 +29,7 @@ class AttachmentTypeParameter extends CustomParameter<AttachmentType> {
           'attachment',
           RegExp(
             '(${AttachmentType.values.map((e) => e.name).join('|')})',
-            caseSensitive: true,
+            caseSensitive: false,
           ),
           (c) => AttachmentType.values.firstWhere((e) => e.name == c),
         );

@@ -23,7 +23,7 @@ All user visible changes to this project will be documented in this file. This p
         - Button joining call with video ([#56], [#51]).
     - Introduction modal window ([#38]).
     - Chat page:
-        - Messages and attachments sending status ([#5], [#3]).
+        - Failed messages persistence ([#5], [#3]).
 
 ### Changed
 
@@ -33,6 +33,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
     - Redesigned login interface ([#35]);
     - Redesigned auth page ([#29]).
+    - Chat page:
+        - Messages and attachments sending status ([#5], [#3]).
 
 ### Fixed
 

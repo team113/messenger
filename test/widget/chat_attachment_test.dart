@@ -342,13 +342,14 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
         SettingsRepository(settingsProvider, applicationSettingsProvider));
-    AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
-      graphQlProvider,
-      chatProvider,
-      userRepository,
-      me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    ));
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        userRepository,
+        me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+      ),
+    );
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
 
