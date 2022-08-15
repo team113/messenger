@@ -110,9 +110,6 @@ dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^4.0.0
 
-  # TODO: Remove when `file_picker` updates.
-  ffi: ">=2.0.0 <3.0.0"
-
 flutter:
   uses-material-design: true
   assets:
