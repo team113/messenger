@@ -23,6 +23,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -78,9 +79,7 @@ class ChatForwardView extends StatelessWidget {
             color: const Color(0XFFF0F2F6),
             child: Column(
               children: [
-                const SizedBox(
-                  height: 25,
-                ),
+                const SizedBox(height: 25),
                 Expanded(
                   child: Obx(
                     () => ListView(
@@ -91,22 +90,16 @@ class ChatForwardView extends StatelessWidget {
                           (e) => Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 15),
-                            child: _chat(
-                              context,
-                              c,
-                              e,
-                            ),
+                            child: _chat(context, c, e),
                           ),
                         )
                       ],
                     ),
                   ),
                 ),
-                _forwardMessage(context, c, c.forwardItem.item),
+                _forwardedMessage(context, c, c.forwardItem.item),
                 _sendField(context, c),
-                const SizedBox(
-                  height: 5,
-                )
+                const SizedBox(height: 5)
               ],
             ),
           );
@@ -172,9 +165,13 @@ Widget _chat(
   );
 }
 
-Widget _forwardMessage(
-    BuildContext context, ChatForwardController c, ChatItem item) {
+Widget _forwardedMessage(
+  BuildContext context,
+  ChatForwardController c,
+  ChatItem item,
+) {
   Style style = Theme.of(context).extension<Style>()!;
+
   Widget? content;
   List<Widget> additional = [];
 
@@ -187,12 +184,7 @@ Widget _forwardMessage(
 
     if (item.attachments.isNotEmpty) {
       additional = item.attachments.map((a) {
-        ImageAttachment? image;
-
-        if (a is ImageAttachment) {
-          image = a;
-        }
-
+        ImageAttachment? image = a is ImageAttachment ? a : null;
         return Container(
           margin: const EdgeInsets.only(right: 2),
           decoration: BoxDecoration(
@@ -291,6 +283,7 @@ Widget _forwardMessage(
         children: [
           Expanded(
             child: FutureBuilder<RxUser?>(
+                key: Key('BuilderRxUser_${item.id}'),
                 future: c.getUser(item.authorId),
                 builder: (context, snapshot) {
                   Color color = AvatarWidget.colors[
@@ -301,11 +294,7 @@ Widget _forwardMessage(
                     children: [
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(
-                          Icons.reply,
-                          size: 30,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.reply, size: 30, color: Colors.white),
                       ),
                       Expanded(
                         child: Container(
@@ -327,6 +316,7 @@ Widget _forwardMessage(
                                 future: c.getUser(item.authorId),
                                 builder: (context, snapshot) {
                                   String? name;
+
                                   if (snapshot.hasData) {
                                     name = snapshot.data?.user.value.name?.val;
                                     if (snapshot.data?.user.value != null) {
@@ -385,8 +375,9 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
     padding: const EdgeInsets.symmetric(horizontal: 8),
     child: Container(
       decoration: const BoxDecoration(
-          color: Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10))),
+        color: Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+      ),
       padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
       child: SafeArea(
         child: Row(
@@ -396,16 +387,10 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
               padding: const EdgeInsets.only(bottom: 0.5),
               child: AnimatedFab(
                 labelStyle: const TextStyle(fontSize: 17),
-                closedIcon: const Icon(
-                  Icons.more_horiz,
-                  color: Colors.blue,
-                  size: 30,
-                ),
-                openedIcon: const Icon(
-                  Icons.close,
-                  color: Colors.blue,
-                  size: 30,
-                ),
+                closedIcon:
+                    const Icon(Icons.more_horiz, color: Colors.blue, size: 30),
+                openedIcon:
+                    const Icon(Icons.close, color: Colors.blue, size: 30),
                 height: PlatformUtils.isMobile && !PlatformUtils.isWeb
                     ? PlatformUtils.isIOS
                         ? 340

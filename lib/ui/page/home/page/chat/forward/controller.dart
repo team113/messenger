@@ -15,14 +15,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -80,9 +81,9 @@ class ChatForwardController extends GetxController {
           var futures = selectedChats.map(
             (e) {
               return _chatService.forwardChatItem(
-                fromId,
-                e,
-                forwardItem,
+                from: fromId,
+                to: e,
+                quote: forwardItem,
                 text: s.text == '' ? null : ChatMessageText(s.text),
               );
             },

@@ -22,6 +22,7 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -148,7 +149,7 @@ abstract class AbstractChatRepository {
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId id);
 
-  /// Forward [ChatItem] to the specified [Chat] by the authenticated
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
   /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].

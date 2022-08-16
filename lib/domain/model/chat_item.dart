@@ -17,7 +17,7 @@
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
-import '/api/backend/schema.dart' show ChatItemQuoteInput, ChatMemberInfoAction;
+import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
@@ -131,33 +131,4 @@ class ChatItemId extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(String val) : super(val);
-}
-
-/// Quote of the [ChatItem] to be forwarded.
-class ChatItemQuote {
-  ChatItemQuote({
-    required this.item,
-    required this.withText,
-    required this.attachments,
-  });
-
-  /// ID of the [ChatItem] to be forwarded.
-  final ChatItem item;
-
-  /// Indicator whether a forward should contain the full [ChatMessageText] of
-  /// the original [ChatItem] (if it contains any).
-  final bool withText;
-
-  /// IDs of the [ChatItem]'s Attachments to be forwarded.
-  ///
-  /// If no [Attachment]s are provided, then [ChatForward] will only contain a
-  /// [ChatMessageText].
-  final List<AttachmentId> attachments;
-
-  /// Returns [ChatItemQuoteInput].
-  ChatItemQuoteInput get quote => ChatItemQuoteInput(
-        id: item.id,
-        attachments: attachments,
-        withText: withText,
-      );
 }

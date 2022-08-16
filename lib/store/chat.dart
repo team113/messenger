@@ -28,6 +28,7 @@ import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
@@ -285,7 +286,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> forwardChatItem(
     ChatId from,
     ChatId to,
-    ChatItemQuote item, {
+    ChatItemQuote quote, {
     ChatMessageText? text,
   }) =>
       _graphQlProvider.forwardChatItems(
@@ -293,9 +294,10 @@ class ChatRepository implements AbstractChatRepository {
         to,
         [
           ChatItemQuoteInput(
-              id: item.item.id,
-              attachments: item.attachments,
-              withText: item.withText)
+            id: quote.item.id,
+            attachments: quote.attachments,
+            withText: quote.withText,
+          )
         ],
         text: text,
       );

@@ -21,9 +21,9 @@ All user visible changes to this project will be documented in this file. This p
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
-    - Chat page:
-        - Possibility to forward chat message ([#8], [#72]).
     - Introduction modal window ([#38]).
+    - Chat page:
+        - Message forwarding ([#72], [#8]).
 
 ### Changed
 

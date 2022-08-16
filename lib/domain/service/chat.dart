@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
@@ -223,19 +224,19 @@ class ChatService extends DisposableService {
     }
   }
 
-  /// Forwards [ChatItem] to the specified [Chat] by the authenticated
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
   /// Supported [ChatItem] are [ChatMessage] and [ChatForward].
   ///
   /// If [text] argument is specified then the forwarded [ChatItem]s will be
   /// followed with a posted [ChatMessage] containing that text.
-  Future<void> forwardChatItem(
-    ChatId from,
-    ChatId to,
-    ChatItemQuote item, {
+  Future<void> forwardChatItem({
+    required ChatId from,
+    required ChatId to,
+    required ChatItemQuote quote,
     ChatMessageText? text,
   }) {
-    return _chatRepository.forwardChatItem(from, to, item, text: text);
+    return _chatRepository.forwardChatItem(from, to, quote, text: text);
   }
 }

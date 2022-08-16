@@ -29,9 +29,10 @@ import '../controller.dart'
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -190,13 +191,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       InkWell(
         child: Row(
           children: [
-            Container(
-              width: 2,
-              color: Colors.blue,
-            ),
+            Container(width: 2, color: Colors.blue),
             Flexible(
-                child: _repliedMessage((msg.item as ChatMessage),
-                    showFullMessage: true)),
+              child: _repliedMessage(
+                (msg.item as ChatMessage),
+                showFullMessage: true,
+              ),
+            ),
           ],
         ),
       ),
@@ -485,12 +486,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.attachments.isNotEmpty) {
         additional = item.attachments.map((a) {
-          ImageAttachment? image;
-
-          if (a is ImageAttachment) {
-            image = a;
-          }
-
+          ImageAttachment? image = a is ImageAttachment ? a : null;
           return Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
@@ -749,14 +745,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   onPressed: () async {
                                     var msg = widget.item.value as ChatMessage;
                                     await ChatForwardView.show(
-                                        context,
-                                        widget.chat.value!.id,
-                                        ChatItemQuote(
-                                            item: msg,
-                                            withText: msg.text != null,
-                                            attachments: msg.attachments
-                                                .map((attach) => attach.id)
-                                                .toList()));
+                                      context,
+                                      widget.chat.value!.id,
+                                      ChatItemQuote(
+                                        item: msg,
+                                        withText: msg.text != null,
+                                        attachments: msg.attachments
+                                            .map((attach) => attach.id)
+                                            .toList(),
+                                      ),
+                                    );
                                   }),
                             if (widget.item.value is ChatMessage &&
                                 fromMe &&
