@@ -8,9 +8,9 @@ Messenger Helm chart
 
 ## Installation
 
-Add `@messenger` [Helm] charts repository:
+Add `@team113-messenger` [Helm] charts repository:
 ```shell
-helm repo add messenger https://team113.github.io/messenger/helm
+helm repo add team113-messenger https://team113.github.io/messenger/helm
 ```
 
 See [values file][values] for details.

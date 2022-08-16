@@ -88,8 +88,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: azure/setup-helm@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - run: make helm.lint chart=${{ matrix.chart }}
 
@@ -557,7 +555,6 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
-
   release-helm:
     name: Release Helm chart
     if: ${{ startsWith(github.ref, 'refs/tags/helm/') }}
@@ -578,8 +575,6 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: azure/setup-helm@v3
         if: ${{ steps.skip.outputs.no == 'true' }}
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -660,6 +655,7 @@ jobs:
           git checkout -
           git push origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
+
 
 
 

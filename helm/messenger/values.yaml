@@ -3,12 +3,13 @@ image:
   tag: latest
   pullPolicy: IfNotPresent
 
-# Remotely available application configuration: assets/conf.toml.
+# Remotely available application configuration.
+# See `assets/conf.toml` for details.
 conf: {}
 
 # Additional labels to apply to all Kubernetes resources created by this chart.
 labels: {}
-  # app.kubernetes.io/part-of: messenger
+  #app.kubernetes.io/part-of: messenger
 
 deployment:
   replicas: 1
@@ -18,29 +19,29 @@ deployment:
   revision: ""
 
   annotations: {}
-    # kubernetes.io/change-cause=kubectl set ...
+    #kubernetes.io/change-cause: kubectl set ...
 
   affinity: {}
-    # nodeAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     nodeSelectorTerms:
-    #       - matchExpressions:
-    #         - key: node-label-key
-    #           operator: In
-    #           values: ["node-label-value"]
+    #nodeAffinity:
+    #  requiredDuringSchedulingIgnoredDuringExecution:
+    #    nodeSelectorTerms:
+    #      - matchExpressions:
+    #        - key: node-label-key
+    #          operator: In
+    #          values: ["node-label-value"]
 
   tolerations: []
-    # - key: "node.alpha.kubernetes.io/unreachable"
-    #   operator: "Exists"
-    #   effect: "NoExecute"
+    #- key: "node.alpha.kubernetes.io/unreachable"
+    #  operator: "Exists"
+    #  effect: "NoExecute"
 
   resources: {}
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+    #limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    #requests:
+    #  cpu: 100m
+    #  memory: 128Mi
 
   # Container sources may be mounted to the specified host path.
   # This allows to develop the project without rebuilding container each time
@@ -86,9 +87,9 @@ sftp:
   pass: changeme
 
   resources: {}
-    # limits:
-    #   cpu: 50m
-    #   memory: 5Mi
-    # requests:
-    #   cpu: 1m
-    #   memory: 1Mi
+    #limits:
+    #  cpu: 50m
+    #  memory: 5Mi
+    #requests:
+    #  cpu: 1m
+    #  memory: 1Mi
