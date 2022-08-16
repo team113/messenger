@@ -144,7 +144,11 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
+        if: ${{ matrix.platform == 'web' }}
+      - run: make flutter.build platform=${{ matrix.platform }}
+                                dart-env=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }},SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }},SOCAPP_WS_URL=${{ secrets.BACKEND_WS }},SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                                 split-per-abi=yes
+        if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
         id: app
