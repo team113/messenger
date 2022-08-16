@@ -215,20 +215,24 @@ Widget mobileCall(CallController c, BuildContext context) {
     }
 
     // If there's any error to show, display it.
-    if (c.errorTimeout.value != 0) {
-      overlay.add(
-        Align(
-          alignment: Alignment.topRight,
-          child: SizedBox(
-            width: 280,
-            child: HintWidget(
-              text: '${c.error}.',
-              onTap: () => c.errorTimeout.value = 0,
+    overlay.add(
+      Obx(() {
+        if (c.errorTimeout.value != 0) {
+          return Align(
+            alignment: Alignment.topRight,
+            child: SizedBox(
+              width: 280,
+              child: HintWidget(
+                text: '${c.error}.',
+                onTap: () => c.errorTimeout.value = 0,
+              ),
             ),
-          ),
-        ),
-      );
-    }
+          );
+        }
+
+        return Container();
+      }),
+    );
 
     Widget _padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
