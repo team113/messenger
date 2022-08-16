@@ -108,8 +108,7 @@ jobs:
           # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
           #- ios
           - linux
-          # TODO: Uncomment once `flutter_webrtc` supports macOS platform.
-          #- macos
+          - macos
           - web
           - windows
     # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
@@ -167,13 +166,20 @@ jobs:
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
+      # `.app` executable is a folder needed to be put into the archive, so move
+      # the executable into the temporary folder and archive it instead.
+      - run: |
+          mkdir archive/
+          mv ${{ steps.app.outputs.group1 }}.app archive/${{ steps.app.outputs.group1 }}.app
+        working-directory: build/macos/Build/Products/Release
+        if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.6.2
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
-                          && 'build/macos/Build/Products/Release/messenger.app')
+                          && 'build/macos/Build/Products/Release/archive')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
@@ -185,6 +191,8 @@ jobs:
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
                   && 'forfiles /M *.zip /C "cmd /c sha256sum @file > @file.sha256sum"')
+              || (runner.os == 'macOS'
+                  && 'ls -1 | xargs -I {} sh -c "shasum -a 256 {} > {}.sha256sum"')
               ||     'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
         working-directory: artifacts/
       - name: Show generated SHA256 checksums
@@ -251,6 +259,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-windows-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
 
       - run: make docker.image no-cache=yes
@@ -507,6 +519,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: build-windows-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-macos-${{ github.run_number }}
           path: artifacts/
 
       - uses: actions/download-artifact@v3
