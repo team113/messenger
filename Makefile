@@ -508,7 +508,6 @@ endif
 ifeq ($(wildcard .cache/minio),)
 	@mkdir -p .cache/minio/data/files
 	@mkdir -p .cache/minio/certs/
-	@chown -R 1001:1001 .cache/minio/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
