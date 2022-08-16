@@ -146,8 +146,11 @@ jobs:
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
-                                dart-env=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }},SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }},SOCAPP_WS_URL=${{ secrets.BACKEND_WS }},SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                                split-per-abi=yes
+                  split-per-abi=yes
+                  dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
+                            SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -170,12 +173,8 @@ jobs:
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
-      # `.app` executable is a folder needed to be put into the archive, so move
-      # the executable into the temporary folder and archive it instead.
-      - run: |
-          mkdir archive/
-          mv Gapopa.app archive/Gapopa.app
-        working-directory: build/macos/Build/Products/Release
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.6.2
         with:
@@ -183,7 +182,7 @@ jobs:
           directory: ${{ (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
-                          && 'build/macos/Build/Products/Release/archive')
+                          && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
@@ -262,11 +261,11 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
-          name: build-windows-${{ github.run_number }}
+          name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
-          name: build-macos-${{ github.run_number }}
+          name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
       - run: make docker.image no-cache=yes
@@ -518,15 +517,15 @@ jobs:
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-macos-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-web-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-windows-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-macos-${{ github.run_number }}
           path: artifacts/
 
       - uses: actions/download-artifact@v3

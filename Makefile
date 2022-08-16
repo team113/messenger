@@ -4,8 +4,6 @@
 
 comma := ,
 
-space := $(subst ,, )
-
 # Checks two given strings for equality.
 eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
                                 $(findstring $(2),$(1))),1)
@@ -141,7 +139,7 @@ else
 		    --split-debug-info=symbols \
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
 		) \
-		$(foreach v,$(subst $(comma),$(space),$(dart-env)),--dart-define=$(v)) \
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
 
@@ -227,7 +225,7 @@ ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
 		$(if $(call eq,$(device),),,-d $(device)) \
-		$(foreach v,$(subst $(comma),$(space),$(dart-env)),--dart-define=$(v))
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 
 
 
