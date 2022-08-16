@@ -359,6 +359,9 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
 
+  /// [Map] of the [StreamSubscription] for the [CallMember.tracks] updates.
+  late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
+
   /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
 
@@ -387,9 +390,6 @@ class CallController extends GetxController {
 
   /// Indicates whether the current [OngoingCall] is with video or not.
   bool get withVideo => _currentCall.value.withVideo ?? false;
-
-  /// Returns remote audio track renderers.
-  ObsList<RtcAudioRenderer> get audios => _currentCall.value.remoteAudios;
 
   /// Returns local audio stream enabled flag.
   Rx<LocalTrackState> get audioState => _currentCall.value.audioState;
@@ -433,9 +433,8 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a group.
   bool get isGroup => chat.value?.chat.value.isGroup ?? false;
 
-  /// Reactive map of the current call [RemoteMember]s.
-  RxObsMap<RemoteMemberId, RemoteMember> get members =>
-      _currentCall.value.members;
+  /// Reactive map of the current call [CallMember]s.
+  RxObsMap<CallMemberId, CallMember> get members => _currentCall.value.members;
 
   /// Indicator whether the inbound video in the current [OngoingCall] is
   /// enabled or not.
@@ -449,7 +448,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    _currentCall.value.init(_chatService.me);
+    _currentCall.value.init();
 
     Size size = router.context!.mediaQuerySize;
 
@@ -495,7 +494,7 @@ class CallController extends GetxController {
     void _onChat(RxChat? v) {
       chat.value = v;
 
-      _putParticipant(RemoteMemberId(me, null));
+      _putParticipant(CallMemberId(me, null));
       _insureCorrectGrouping();
 
       if (!isGroup) {
@@ -646,14 +645,82 @@ class CallController extends GetxController {
       }
     });
 
+    members.forEach((key, value) {
+      _putMember(value);
+    });
+    _insureCorrectGrouping();
+
+    _membersTracksSubscriptions = _currentCall.value.members
+        .map((k, v) => MapEntry(k, v.tracks.changes.listen((e) {
+              switch (e.op) {
+                case OperationKind.added:
+                  _putParticipant(v.id,
+                      track: e.element,
+                      handRaised: v.isHandRaised.value,
+                      source: e.element.source);
+                  _insureCorrectGrouping();
+                  break;
+                case OperationKind.removed:
+                  if (e.element.source == MediaSourceKind.Display) {
+                    _removeParticipant(k, e.element.source);
+                  } else {
+                    if (e.element.kind == MediaKind.Video) {
+                      findParticipant(k, e.element.source)?.video.value = null;
+                    } else if (e.element.kind == MediaKind.Audio) {
+                      findParticipant(k, e.element.source)?.audio.value = null;
+                    }
+                  }
+                  _insureCorrectGrouping();
+                  break;
+                case OperationKind.updated:
+                  _putParticipant(v.id,
+                      track: e.element,
+                      handRaised: v.isHandRaised.value,
+                      source: e.element.source);
+                  _insureCorrectGrouping();
+                  break;
+              }
+            })));
+
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _putParticipant(
-            e.key!,
-            handRaised: e.value?.isHandRaised,
-            hasVideo: e.value?.hasVideo,
-          );
+          _membersTracksSubscriptions[e.key!] =
+              e.value!.tracks.changes.listen((changes) {
+            switch (changes.op) {
+              case OperationKind.added:
+                _putParticipant(e.value!.id,
+                    track: changes.element,
+                    handRaised: e.value!.isHandRaised.value,
+                    source: changes.element.source);
+                _insureCorrectGrouping();
+                break;
+              case OperationKind.removed:
+                if (changes.element.source == MediaSourceKind.Display) {
+                  _removeParticipant(e.key!, changes.element.source);
+                } else {
+                  if (changes.element.kind == MediaKind.Video) {
+                    findParticipant(e.key!, changes.element.source)
+                        ?.video
+                        .value = null;
+                  } else if (changes.element.kind == MediaKind.Audio) {
+                    findParticipant(e.key!, changes.element.source)
+                        ?.audio
+                        .value = null;
+                  }
+                }
+                _insureCorrectGrouping();
+                break;
+              case OperationKind.updated:
+                _putParticipant(e.value!.id,
+                    track: changes.element,
+                    handRaised: e.value!.isHandRaised.value,
+                    source: changes.element.source);
+                _insureCorrectGrouping();
+                break;
+            }
+          });
+          _putMember(e.value!);
           _insureCorrectGrouping();
           break;
 
@@ -663,6 +730,8 @@ class CallController extends GetxController {
           locals.removeWhere((m) => m.id == e.key);
           focused.removeWhere((m) => m.id == e.key);
           remotes.removeWhere((m) => m.id == e.key);
+          _membersTracksSubscriptions[e.key]?.cancel();
+          _membersTracksSubscriptions.remove(e.key);
           _insureCorrectGrouping();
           if (wasNotEmpty && primary.isEmpty) {
             focusAll();
@@ -671,87 +740,8 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _putParticipant(
-            e.key!,
-            handRaised: e.value?.isHandRaised,
-            hasVideo: e.value?.hasVideo,
-          );
-
-          if (!e.value!.isSharingAllowed && !e.value!.hasSharing) {
-            _removeParticipant(e.key!);
-          }
-
+          _putMember(e.value!);
           _insureCorrectGrouping();
-          break;
-      }
-    });
-
-    _localsSubscription = _currentCall.value.localVideos.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putParticipant(e.element.memberId, video: e.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          rendererBoxFit.remove(e.element.track.id);
-          _removeParticipant(e.element.memberId, video: e.element);
-          _insureCorrectGrouping();
-          Future.delayed(1.seconds, e.element.inner.dispose);
-          break;
-
-        case OperationKind.updated:
-          findParticipant(e.element.memberId, e.element.source)
-              ?.video
-              .refresh();
-          break;
-      }
-    });
-
-    _remotesSubscription = _currentCall.value.remoteVideos.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putParticipant(e.element.memberId, video: e.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          bool wasNotEmpty = primary.isNotEmpty;
-          rendererBoxFit.remove(e.element.track.id);
-          _removeParticipant(e.element.memberId, video: e.element);
-          _insureCorrectGrouping();
-          if (wasNotEmpty && primary.isEmpty) {
-            focusAll();
-          }
-
-          Future.delayed(1.seconds, e.element.inner.dispose);
-          break;
-
-        case OperationKind.updated:
-          findParticipant(e.element.memberId, e.element.source)
-              ?.video
-              .refresh();
-          break;
-      }
-    });
-
-    _audiosSubscription = _currentCall.value.remoteAudios.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putParticipant(e.element.memberId, audio: e.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          _removeParticipant(e.element.memberId, audio: e.element);
-          _insureCorrectGrouping();
-          e.element.inner.dispose();
-          break;
-
-        case OperationKind.updated:
-          findParticipant(e.element.memberId, e.element.source)
-              ?.audio
-              .refresh();
           break;
       }
     });
@@ -869,7 +859,7 @@ class CallController extends GetxController {
   Future<void> toggleHand() async {
     keepUi();
     isHandRaised.toggle();
-    _putParticipant(RemoteMemberId(me, null), handRaised: isHandRaised.value);
+    _putParticipant(CallMemberId(me, null), handRaised: isHandRaised.value);
     await _toggleHand();
   }
 
@@ -935,7 +925,7 @@ class CallController extends GetxController {
   }
 
   /// Returns a [Participant] identified by an [id] and a [source].
-  Participant? findParticipant(RemoteMemberId id, MediaSourceKind source) {
+  Participant? findParticipant(CallMemberId id, MediaSourceKind source) {
     return locals.firstWhereOrNull((e) => e.id == id && e.source == source) ??
         remotes.firstWhereOrNull((e) => e.id == id && e.source == source) ??
         paneled.firstWhereOrNull((e) => e.id == id && e.source == source) ??
@@ -1694,35 +1684,44 @@ class CallController extends GetxController {
         focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
   }
 
-  /// Returns all [Participant]s identified by an [id].
-  Iterable<Participant> _findParticipants(RemoteMemberId id) {
+  /// Returns all [Participant]s identified by an [id] and [source].
+  Iterable<Participant> _findParticipants(
+      CallMemberId id, MediaSourceKind source) {
     return [
-      ...locals.where((e) => e.id == id),
-      ...remotes.where((e) => e.id == id),
-      ...paneled.where((e) => e.id == id),
-      ...focused.where((e) => e.id == id),
+      ...locals.where((e) => e.id == id && e.source == source),
+      ...remotes.where((e) => e.id == id && e.source == source),
+      ...paneled.where((e) => e.id == id && e.source == source),
+      ...focused.where((e) => e.id == id && e.source == source),
     ];
   }
 
-  /// Puts a [video] and/or [audio] renderers to [Participant] identified by an
-  /// [id] with the same [MediaSourceKind] as a [video] or [audio].
+  void _putMember(CallMember member) {
+    for (var t in member.tracks) {
+      _putParticipant(
+        member.id,
+        source: t.source,
+        handRaised: member.isHandRaised.value,
+        track: t,
+      );
+    }
+  }
+
+  /// Puts a [track] renderers to [Participant] identified by an [id] with the
+  /// same [MediaSourceKind] as a [track].
   ///
-  /// Defaults to [MediaSourceKind.Device] if no [video] and [audio] is
-  /// provided.
+  /// Defaults to [MediaSourceKind.Device] if no [track] is provided.
   ///
   /// Creates a new [Participant] if it doesn't exist.
   void _putParticipant(
-    RemoteMemberId id, {
-    RtcVideoRenderer? video,
-    RtcAudioRenderer? audio,
-    bool? hasVideo,
+    CallMemberId id, {
+    Track? track,
+    MediaSourceKind? source,
     bool? handRaised,
   }) {
     Participant? participant = findParticipant(
       id,
-      video?.source ?? audio?.source ?? MediaSourceKind.Device,
+      source ?? MediaSourceKind.Device,
     );
-
     if (participant == null) {
       MediaOwnerKind owner;
 
@@ -1735,11 +1734,21 @@ class CallController extends GetxController {
       participant = Participant(
         id,
         owner,
-        video: video,
-        audio: audio,
-        hasVideo: hasVideo,
+        video: track?.kind == MediaKind.Video
+            ? track?.renderer.value as RtcVideoRenderer?
+            : null,
+        audio: track?.kind == MediaKind.Audio
+            ? track?.renderer.value as RtcAudioRenderer?
+            : null,
+        source: track?.source,
         handRaised: handRaised,
       );
+
+      if (track?.kind == MediaKind.Video) {
+        participant.hasVideo.value =
+            track?.direction.value == TrackMediaDirection.SendOnly ||
+                track?.direction.value == TrackMediaDirection.SendRecv;
+      }
 
       _userService
           .get(id.userId)
@@ -1775,42 +1784,38 @@ class CallController extends GetxController {
           break;
       }
     } else {
-      participant.hasVideo.value = hasVideo ?? participant.hasVideo.value;
-      participant.audio.value = audio ?? participant.audio.value;
-      participant.video.value = video ?? participant.video.value;
+      if (track != null) {
+        participant.audio.value = track.kind == MediaKind.Audio
+            ? track.renderer.value as RtcAudioRenderer?
+            : participant.audio.value;
+        participant.video.value = track.kind == MediaKind.Video
+            ? track.renderer.value as RtcVideoRenderer?
+            : participant.video.value;
+        participant.hasVideo.value = track.kind == MediaKind.Video
+            ? (track.direction.value == TrackMediaDirection.SendOnly ||
+                track.direction.value == TrackMediaDirection.SendRecv)
+            : participant.hasVideo.value;
+      }
+
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
     }
   }
 
-  /// Removes [video] and/or [audio] renderers from [Participant] identified by
-  /// an [id].
+  /// Removes [track] renderers from [Participant] identified by an [id].
   ///
   /// Removes the specified [Participant] from a corresponding list if it is
   /// [MediaSourceKind.Display] and has no non-`null` renderers.
   void _removeParticipant(
-    RemoteMemberId id, {
-    RtcVideoRenderer? video,
-    RtcAudioRenderer? audio,
+    CallMemberId id,
+    MediaSourceKind source, {
+    Track? track,
   }) {
-    for (var participant in _findParticipants(id)) {
-      if (participant.audio.value == audio) {
-        participant.audio.value = null;
-      }
-
-      if (participant.video.value == video) {
-        participant.video.value = null;
-      }
-
-      if (participant.source == MediaSourceKind.Display &&
-          (members[id]?.hasSharing == false ||
-              participant.owner == MediaOwnerKind.local) &&
-          participant.video.value == null &&
-          participant.audio.value == null) {
-        locals.remove(participant);
-        remotes.remove(participant);
-        paneled.remove(participant);
-        focused.remove(participant);
-      }
+    track?.removeRenderer();
+    for (var participant in _findParticipants(id, source)) {
+      locals.remove(participant);
+      remotes.remove(participant);
+      paneled.remove(participant);
+      focused.remove(participant);
     }
   }
 }
@@ -1829,6 +1834,7 @@ class Participant {
     RxUser? user,
     RtcVideoRenderer? video,
     RtcAudioRenderer? audio,
+    MediaSourceKind? source,
     bool? handRaised,
     bool? hasVideo,
   })  : video = Rx(video),
@@ -1836,10 +1842,11 @@ class Participant {
         handRaised = Rx(handRaised ?? false),
         hasVideo = Rx(hasVideo ?? false),
         user = Rx(user),
-        source = video?.source ?? audio?.source ?? MediaSourceKind.Device;
+        source =
+            source ?? video?.source ?? audio?.source ?? MediaSourceKind.Device;
 
-  /// [RemoteMemberId] of the [User] this [Participant] represents.
-  final RemoteMemberId id;
+  /// [CallMemberId] of the [User] this [Participant] represents.
+  final CallMemberId id;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;

@@ -39,12 +39,12 @@ class MediaSettingsController extends GetxController {
   /// Settings repository, used to update the [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// [StreamSubscription] to the [OngoingCall.localVideos] disposing the
-  /// removed [RtcRenderer]s.
-  late final StreamSubscription _localVideos;
+  /// [StreamSubscription] to the [OngoingCall.localTracks] disposing the
+  /// removed [Track]s.
+  late final StreamSubscription? _localTracks;
 
-  /// Returns local video track renderers.
-  ObsList<RtcVideoRenderer> get local => _call.value.localVideos;
+  /// Returns local video tracks.
+  ObsList<Track>? get localTracks => _call.value.localTracks;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
   InputDevices get devices => _call.value.devices;
@@ -71,7 +71,7 @@ class MediaSettingsController extends GetxController {
       mediaSettings: _settingsRepo.mediaSettings.value,
     ));
 
-    _localVideos = _call.value.localVideos.changes.listen((e) {
+    _localTracks = _call.value.localTracks?.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           // No-op.
@@ -79,7 +79,7 @@ class MediaSettingsController extends GetxController {
 
         case OperationKind.removed:
           SchedulerBinding.instance
-              .addPostFrameCallback((_) => e.element.inner.dispose());
+              .addPostFrameCallback((_) => e.element.dispose());
           break;
 
         case OperationKind.updated:
@@ -88,17 +88,17 @@ class MediaSettingsController extends GetxController {
       }
     });
 
-    _call.value.init(null);
+    _call.value.init();
   }
 
   @override
   void onClose() {
     super.onClose();
 
-    _localVideos.cancel();
-    for (var p in _call.value.localVideos) {
-      p.inner.dispose();
-    }
+    _localTracks?.cancel();
+    _call.value.localTracks?.forEach((t) {
+      t.dispose();
+    });
 
     _call.value.dispose();
   }

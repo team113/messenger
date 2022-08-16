@@ -111,10 +111,13 @@ class MediaSettingsView extends StatelessWidget {
               ),
               const SizedBox(height: 25),
               StreamBuilder(
-                stream: c.local.changes,
+                stream: c.localTracks?.changes,
                 builder: (context, snapshot) {
-                  RtcVideoRenderer? local = c.local.firstWhereOrNull(
-                      (e) => e.source == MediaSourceKind.Device);
+                  RtcVideoRenderer? local = c.localTracks
+                      ?.firstWhereOrNull((t) =>
+                          t.renderer.value?.source == MediaSourceKind.Device)
+                      ?.renderer
+                      .value as RtcVideoRenderer?;
                   return row(
                     Container(),
                     Center(
