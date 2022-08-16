@@ -406,7 +406,7 @@ void main() async {
     expect(find.text('text2'), findsOneWidget);
     await tester.tap(find.text('text2'));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.tap(find.byKey(const Key('AddChatMembersButton')));
+    await tester.tap(find.byKey(const Key('AddGroupMembersButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.byKey(const Key('DeleteChatMember')), findsOneWidget);

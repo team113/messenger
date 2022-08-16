@@ -24,30 +24,30 @@ import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat] of the provided [User] with provided type and the
-/// authenticated [MyUser].
+/// Creates a [Chat] of the provided [User] with provided type and provided
+/// [User].
 ///
 /// Examples:
-/// - Given Bob has dialog with me.
-/// - Given Bob has group with me.
+/// - Given Bob has dialog with Alice.
+/// - Given Bob has group with Bob.
 final StepDefinitionGeneric hasChatWithMe =
-    given2<TestUser, ChatType, CustomWorld>(
-  '{user} has {chat} with me',
-  (TestUser user, ChatType chatType, context) async {
-    final AuthService authService = Get.find();
+    given3<TestUser, ChatType, TestUser, CustomWorld>(
+  '{user} has {chat} with {user}',
+  (TestUser user, ChatType chatType,TestUser withUser, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
     ChatMixin chat;
 
     if (chatType == ChatType.dialog) {
       chat = await provider
-          .createDialogChat(authService.credentials.value!.userId);
+          .createDialogChat(context.world.sessions[withUser.name]!.userId);
     } else {
       chat = await provider
-          .createGroupChat([authService.credentials.value!.userId]);
+          .createGroupChat([context.world.sessions[withUser.name]!.userId]);
     }
 
     context.world.sessions[user.name]!.chat = chat.id;
+    context.world.sessions[withUser.name]!.chat = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

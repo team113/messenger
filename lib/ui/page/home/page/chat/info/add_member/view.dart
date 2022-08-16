@@ -186,7 +186,7 @@ class AddGroupMemberView extends StatelessWidget {
                         )
                       : const Spacer(),
                   TextButton(
-                    key: const Key('AddChatMembersButton'),
+                    key: const Key('AddGroupMembersButton'),
                     onPressed:
                         c.selectedContacts.isEmpty && c.selectedUsers.isEmpty
                             ? null

@@ -43,7 +43,7 @@ class CustomUser {
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
-  /// ID of the [Chat] with the authenticated [MyUser].
+  /// ID of the [Chat] with the authenticated [MyUser] or another [User].
   ChatId? chat;
 
   /// Currently active call ot this [CustomUser].

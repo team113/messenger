@@ -19,7 +19,7 @@ Feature: Start call tests
   Scenario: Outgoing dialog call changes state correctly
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob has dialog with Alice
     And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
@@ -33,7 +33,7 @@ Feature: Start call tests
   Scenario: Outgoing group call changes state correctly
     Given I am Alice
     And user Bob
-    And Bob has group with me
+    And Bob has group with Alice
     And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
@@ -46,7 +46,7 @@ Feature: Start call tests
   Scenario: Join to active group call
     Given I am Alice
     And user Bob
-    And Bob has group with me
+    And Bob has group with Alice
     And Bob start call
     And I wait until `Call` is present
 
@@ -60,7 +60,7 @@ Feature: Start call tests
   Scenario: Cancel outgoing dialog call
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob has dialog with Alice
     And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 
@@ -72,7 +72,7 @@ Feature: Start call tests
   Scenario: Incoming dialog call changes state correctly
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob has dialog with Alice
 
     Then Bob start call
     And I wait until `Call` is present
@@ -83,7 +83,7 @@ Feature: Start call tests
   Scenario: Incoming group call changes state correctly
     Given I am Alice
     And user Bob
-    And Bob has group with me
+    And Bob has group with Alice
 
     Then Bob start call
     And I wait until `Call` is present
@@ -94,7 +94,7 @@ Feature: Start call tests
   Scenario: Decline incoming dialog call
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob has dialog with Alice
 
     Then Bob start call
     And I wait until `Call` is present
@@ -104,7 +104,7 @@ Feature: Start call tests
   Scenario: Decline incoming group call
     Given I am Alice
     And user Bob
-    And Bob has group with me
+    And Bob has group with Alice
 
     Then Bob start call
     And I wait until `Call` is present
@@ -114,7 +114,7 @@ Feature: Start call tests
   Scenario: User call to decline incoming dialog call
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob has dialog with Alice
     And I am in chat with Bob
     And I wait until `StartAudioCall` is present
 

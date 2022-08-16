@@ -30,7 +30,7 @@ import '../mock/ongoing_call.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Accepts call by provided user in [Chat] with the authenticated [MyUser]
+/// Accepts incoming call by provided user.
 ///
 /// Examples:
 /// - Then Bob accept call
@@ -41,8 +41,9 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
+    var incomingCalls = await provider.incomingCalls();
     var ongoingCall = OngoingCallMock(
-      customUser.chat!,
+      incomingCalls.nodes.first.chatId,
       customUser.userId,
       withAudio: false,
       withVideo: false,
@@ -74,7 +75,7 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Decline call by provided user in [Chat] with the authenticated [MyUser].
+/// Decline incoming call by provided user.
 ///
 /// Examples:
 /// - Then Bob decline call
@@ -84,7 +85,8 @@ final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]!.session.token;
 
-    await provider.declineChatCall(context.world.sessions[user.name]!.chat!);
+    var incomingCalls = await provider.incomingCalls();
+    await provider.declineChatCall(incomingCalls.nodes.first.chatId);
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -135,7 +137,7 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Ends call by provided user in [Chat] with the authenticated [MyUser]
+/// Ends active call by provided user.
 ///
 /// Examples:
 /// - Then Bob leave call

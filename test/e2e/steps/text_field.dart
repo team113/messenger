@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
@@ -33,40 +34,31 @@ import '../world/custom_world.dart';
 /// - Then I fill `NameField` field with "Woody Johnson"
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
-  _fillField,
+  (key, text, context) => _fillField(
+    context.world.appDriver.findBy(key.name, FindType.key),
+    text,
+    context,
+  ),
 );
 
-/// Enters the provided user's id into the widget with the provided [WidgetKey].
+/// Enters the provided user's id into the users search field.
 ///
 /// Examples:
-/// - Then I fill `EmailField` field with user Bob
-/// - Then I fill `NameField` field with user Charlie
-StepDefinitionGeneric fillFieldWithUser =
-    then2<WidgetKey, TestUser, CustomWorld>(
-  'I fill {key} field with user {user}',
-  (key, user, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-
+/// - Then I fill users search field with user Bob
+/// - Then I fill users search field with user Charlie
+StepDefinitionGeneric fillFieldWithUser = then1<TestUser, CustomWorld>(
+  'I fill users search field with user {user}',
+  (user, context) async {
     final finder = context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy(key.name, FindType.key),
+      context.world.appDriver.findBy('UserSearchBar', FindType.key),
       context.world.appDriver.findBy(FloatingSearchAppBar, FindType.type),
     );
 
-    await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver
-        .tap(finder, timeout: context.configuration.timeout);
-    await context.world.appDriver.waitForAppToSettle();
-
-    await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver
-        .enterText(finder, context.world.sessions[user.name]!.userNum.val);
-
-    await context.world.appDriver.waitForAppToSettle();
-
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    //_fillField(key, context.world.sessions[user.name]!.userId.val, context);
+    await _fillField(
+      finder,
+      context.world.sessions[user.name]!.userNum.val,
+      context,
+    );
   },
 );
 
@@ -82,7 +74,11 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
       throw ArgumentError('Nothing to fill, clipboard contains no text.');
     }
 
-    await _fillField(key, context.world.clipboard!.text!, context);
+    await _fillField(
+      context.world.appDriver.findBy(key.name, FindType.key),
+      context.world.clipboard!.text!,
+      context,
+    );
   },
 );
 
@@ -124,12 +120,11 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
 
 /// Enters the given [text] into the widget with the provided [WidgetKey].
 Future<void> _fillField(
-  WidgetKey key,
+  Finder finder,
   String text,
   StepContext<FlutterWorld> context,
 ) async {
   await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findBy(key.name, FindType.key);
 
   await context.world.appDriver.scrollIntoView(finder);
   await context.world.appDriver.waitForAppToSettle();
