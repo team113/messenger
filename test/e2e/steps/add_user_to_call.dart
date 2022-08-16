@@ -15,37 +15,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat] of the provided [User] with provided type and provided
-/// [User].
+/// Accepts incoming call by provided user.
 ///
 /// Examples:
-/// - Given Bob has dialog with Alice.
-/// - Given Bob has group with Bob.
-final StepDefinitionGeneric hasChatWithMe =
-    given3<TestUser, ChatType, TestUser, CustomWorld>(
-  '{user} has {chat} with {user}',
-  (TestUser user, ChatType chatType, TestUser withUser, context) async {
+/// - Then Bob add Alice to group call
+final StepDefinitionGeneric addUserToCall =
+    and2<TestUser, TestUser, CustomWorld>(
+  '{user} add {user} to group call',
+  (TestUser user, TestUser addUser, context) async {
+    CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    ChatMixin chat;
+    provider.token = customUser.session.token;
 
-    if (chatType == ChatType.dialog) {
-      chat = await provider
-          .createDialogChat(context.world.sessions[withUser.name]!.userId);
-    } else {
-      chat = await provider
-          .createGroupChat([context.world.sessions[withUser.name]!.userId]);
-    }
+    provider.addChatMember(
+      customUser.call!.chatId.value,
+      context.world.sessions[addUser.name]!.userId,
+    );
 
-    context.world.sessions[user.name]!.chat = chat.id;
-    context.world.sessions[withUser.name]!.chat = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

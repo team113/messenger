@@ -198,19 +198,11 @@ Feature: Inside call tests
     And user Bob
     And user Charlie
     And Bob has group with Charlie
-    And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
+    And Bob start call
 
-    Then I tap `StartAudioCall` button
-    Then Bob accept call
-    And I wait until `More` is present
-    Then I tap `More` button
-    And I wait until `AddParticipant` is present
-    Then I tap `AddParticipant` button
-    And I wait until `UserSearchBar` is present
-    Then I fill users search field with user Charlie
-    And I wait until Charlie is present in search
-    Then I tap Charlie in search
-    And I tap `AddGroupMembersButton` button
     Then Charlie accept call
+    Then Bob add Alice to group call
+    And I wait until `Call` is present
+    Then I tap `AcceptCallAudio` button
     And I wait until Charlie is present in call
+    And I wait until Bob is present in call

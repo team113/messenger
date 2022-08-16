@@ -24,6 +24,7 @@ enum WidgetKey {
   AddDialogMembers,
   AddDialogMembersButton,
   AddGroupMembers,
+  AddGroupMembersButton,
   AddParticipant,
   AlertDialog,
   AlertNoButton,

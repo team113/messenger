@@ -29,8 +29,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I wait until my hand is lower
 /// - Then I wait until my hand is raise
-final StepDefinitionGeneric untilMyUserHand =
-    then1<HandStatus, CustomWorld>(
+final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
   'I wait until my hand is {hand}',
   (handStatus, context) async {
     await context.world.appDriver.waitUntil(

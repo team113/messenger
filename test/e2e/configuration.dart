@@ -32,6 +32,7 @@ import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
+import 'steps/add_user_to_call.dart';
 import 'steps/go_to.dart';
 import 'steps/has_chat.dart';
 import 'steps/in_chat_with.dart';
@@ -56,6 +57,7 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        addUserToCall,
         copyFromField,
         fillField,
         fillFieldWithUser,
