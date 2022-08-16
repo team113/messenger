@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
     - Chat page:
-        - Possibility to forward chat message ([#8],[#72]).
+        - Possibility to forward chat message ([#8], [#72]).
     - Introduction modal window ([#38]).
 
 ### Changed
