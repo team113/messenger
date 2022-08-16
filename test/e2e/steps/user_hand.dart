@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/hand_status.dart';
