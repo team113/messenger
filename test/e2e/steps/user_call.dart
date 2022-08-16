@@ -41,7 +41,7 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    await Future.delayed(100.milliseconds);
+    await Future.delayed(200.milliseconds);
     var incomingCalls = await provider.incomingCalls();
     var ongoingCall = OngoingCallMock(
       incomingCalls.nodes.first.chatId,

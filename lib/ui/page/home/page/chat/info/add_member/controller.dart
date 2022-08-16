@@ -60,7 +60,7 @@ class AddChatMemberController extends GetxController {
   /// Reactive list of the selected [User]s.
   final RxList<User> selectedUsers = RxList<User>([]);
 
-  /// Pops the [AddChatMemberView] this controller is bound to.
+  /// Pops the [AddGroupMemberView] this controller is bound to.
   final Function() pop;
 
   /// [Chat]s service used to add members to a [Chat].

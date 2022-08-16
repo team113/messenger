@@ -141,8 +141,6 @@ class OngoingCallMock extends OngoingCall {
 
                   connected = false;
                   connect(calls, heartbeat);
-
-                  calls.moveCall(node.chatId, node.newChatId);
                   break;
               }
             }
