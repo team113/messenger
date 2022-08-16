@@ -94,7 +94,7 @@ services:
     network_mode: service:cockroachdb
   minio:
     container_name: ${COMPOSE_PROJECT_NAME}-minio
-    image: bitnami/minio:latest
+    image: bitnami/minio:2022.5.26
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
