@@ -100,11 +100,13 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_DEFAULT_BUCKETS: files:download
       MINIO_FORCE_NEW_KEYS: "yes"
+      MINIO_SKIP_CLIENT: "yes"
     ports:
       - "9000:9000"    # minio s3
       - "9001:9001"    # minio auth
     volumes:
-      - ./.cache/minio/data/:/data/:z
+      - ./.cache/minio/data/:/data/
+      - ./.cache/minio/certs/:/certs/CAs
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest
