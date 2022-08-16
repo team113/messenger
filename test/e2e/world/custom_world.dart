@@ -43,9 +43,9 @@ class CustomUser {
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
-  /// ID of the [Chat] with the authenticated [MyUser] or another [User].
+  /// ID of the [Chat] this [CustomUser] is member.
   ChatId? chat;
 
-  /// Currently active call ot this [CustomUser].
+  /// Currently active call this [CustomUser] participate.
   OngoingCall? call;
 }

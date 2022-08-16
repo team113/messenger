@@ -20,12 +20,12 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Accepts incoming call by provided user.
+/// Adds provided user to group where active call placed.
 ///
 /// Examples:
 /// - Then Bob add Alice to group call
 final StepDefinitionGeneric addUserToCall =
-    and2<TestUser, TestUser, CustomWorld>(
+    then2<TestUser, TestUser, CustomWorld>(
   '{user} add {user} to group call',
   (TestUser user, TestUser addUser, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;

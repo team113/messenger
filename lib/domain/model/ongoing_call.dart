@@ -263,7 +263,7 @@ class OngoingCall {
   /// [User] that started this [OngoingCall].
   User? get caller => call.value?.caller;
 
-  /// Room on a media server representing this OngoingCall.
+  /// Room on a media server representing this [OngoingCall].
   RoomHandle? get room => _room;
 
   /// Indicator whether this [OngoingCall] is intended to start with video.

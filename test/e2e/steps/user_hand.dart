@@ -22,8 +22,7 @@ import '../parameters/hand_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Raises or lowers hand by provided user in call with the authenticated
-/// [MyUser].
+/// Raises or lowers hand by provided user in active call.
 ///
 /// Examples:
 /// - Then Bob raise hand

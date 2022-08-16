@@ -30,7 +30,6 @@ final StepDefinitionGeneric tapUserInSearch = then1<TestUser, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
 
     String userKey = 'FoundUser_${context.world.sessions[user.name]!.userId}';
-
     final finder = context.world.appDriver.findByKeySkipOffstage(userKey);
 
     await context.world.appDriver.scrollIntoView(finder);

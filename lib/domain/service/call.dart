@@ -75,8 +75,10 @@ class CallService extends DisposableService {
   void onClose() {
     super.onClose();
 
-    for (var call in List<Rx<OngoingCall>>.from(_callsRepo.calls.values,
-        growable: false)) {
+    for (var call in List<Rx<OngoingCall>>.from(
+      _callsRepo.calls.values,
+      growable: false,
+    )) {
       var removed = _callsRepo.remove(call.value.chatId.value);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();

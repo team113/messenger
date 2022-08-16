@@ -50,9 +50,9 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
 
     // Disabling opening calls in popup.
     await Get.put(MediaSettingsHiveProvider())
-        .init(userId: context.world.sessions[user.name]?.userId);
+        .init(userId: context.world.sessions[user.name]!.userId);
     await Get.put(ApplicationSettingsHiveProvider())
-        .init(userId: context.world.sessions[user.name]?.userId);
+        .init(userId: context.world.sessions[user.name]!.userId);
 
     AbstractSettingsRepository settingsRepository =
         Get.put<AbstractSettingsRepository>(

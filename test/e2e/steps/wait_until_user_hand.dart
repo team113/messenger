@@ -37,20 +37,14 @@ final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
         await context.world.appDriver.waitForAppToSettle();
 
         String userKey = 'CallParticipant_${Get.find<AuthService>().userId!}';
+        final finder = context.world.appDriver.findByDescendant(
+          context.world.appDriver.findByKeySkipOffstage(userKey),
+          context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
+        );
 
         return handStatus == HandStatus.lower
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByDescendant(
-                  context.world.appDriver.findByKeySkipOffstage(userKey),
-                  context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
-                ),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  context.world.appDriver.findByKeySkipOffstage(userKey),
-                  context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
-                ),
-              );
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
       },
       timeout: const Duration(seconds: 30),
     );
@@ -73,20 +67,14 @@ final StepDefinitionGeneric untilUserHand =
 
         String userKey =
             'CallParticipant_${context.world.sessions[user.name]!.userId}';
+        final finder = context.world.appDriver.findByDescendant(
+          context.world.appDriver.findByKeySkipOffstage(userKey),
+          context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
+        );
 
         return handStatus == HandStatus.lower
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByDescendant(
-                  context.world.appDriver.findByKeySkipOffstage(userKey),
-                  context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
-                ),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  context.world.appDriver.findByKeySkipOffstage(userKey),
-                  context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
-                ),
-              );
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
       },
       timeout: const Duration(seconds: 30),
     );

@@ -15,11 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/ui/page/call/controller.dart';
 
 /// [HandStatus]es available in an [ChatTypeParameter].
 enum HandStatus { lower, raise }
 
-/// [CustomParameter] representing a hand status.
+/// [CustomParameter] representing an [Participant.handRaised] status.
 class HandStatusParameter extends CustomParameter<HandStatus> {
   HandStatusParameter()
       : super(
