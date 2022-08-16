@@ -170,7 +170,7 @@ jobs:
       # the executable into the temporary folder and archive it instead.
       - run: |
           mkdir archive/
-          mv ${{ steps.app.outputs.group1 }}.app archive/${{ steps.app.outputs.group1 }}.app
+          mv Gapopa.app archive/Gapopa.app
         working-directory: build/macos/Build/Products/Release
         if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.6.2
