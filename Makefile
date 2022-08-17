@@ -369,8 +369,10 @@ copyright:
 			$(call rwildcard,,*.ftl) \
 			$(call rwildcard,,*.graphql) \
 			$(call rwildcard,,*.kt) \
-			$(call rwildcard,,*.tpl) \
-			$(call rwildcard,,helm/*.yaml) \
+			$(call rwildcard,helm/,*.conf) \
+			$(call rwildcard,helm/,*.tpl) $(call rwildcard,helm/,*.txt) \
+			$(call rwildcard,helm/,templates/*.yaml) \
+			$(call rwildcard,helm/,values.yaml) \
 			web/index.html \
 			Dockerfile
 

@@ -31,6 +31,6 @@ You should have received a copy of the [GNU Affero General Public License v3.0] 
 
 
 
-[GNU Affero General Public License v3.0]: https://github.com/team113/messenger/blob/main/LICENSE.md
+[GNU Affero General Public License v3.0]: https://github.com/team113/messenger/blob/main/helm/messenger/LICENSE
 [Helm]: https://helm.sh
 [values]: https://github.com/team113/messenger/blob/main/helm/messenger/values.yaml
