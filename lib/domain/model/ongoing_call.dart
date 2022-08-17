@@ -383,7 +383,7 @@ class OngoingCall {
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     members.update(m.key, (value) {
-                      value.isHandRaised.value = false;
+                      value.isHandRaised = false;
                       return value;
                     });
                   }
@@ -394,7 +394,7 @@ class OngoingCall {
                   for (var m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     members.update(m.key, (value) {
-                      value.isHandRaised.value = true;
+                      value.isHandRaised = true;
                       return value;
                     });
                   }
@@ -1310,7 +1310,7 @@ class CallMemberId {
 /// Participant of an [OngoingCall].
 class CallMember {
   CallMember({required this.id, bool? isHandRaised, bool? connected})
-      : isHandRaised = RxBool(isHandRaised ?? false);
+      : isHandRaised = isHandRaised ?? false;
 
   /// [CallMemberId] of the current [CallMember].
   CallMemberId id;
@@ -1319,7 +1319,7 @@ class CallMember {
   ObsList<Track> tracks = ObsList();
 
   /// Hand raised indicator of this member.
-  final RxBool isHandRaised;
+  bool isHandRaised;
 
   /// Indicates whether receiving of the tracks renderers where [Track.source]
   /// is [MediaSourceKind.Device] is enabled or not.

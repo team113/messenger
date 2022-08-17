@@ -658,7 +658,7 @@ class CallController extends GetxController {
                 case OperationKind.added:
                   _putParticipant(v.id,
                       track: e.element,
-                      handRaised: v.isHandRaised.value,
+                      handRaised: v.isHandRaised,
                       source: e.element.source);
                   _insureCorrectGrouping();
                   break;
@@ -682,15 +682,13 @@ class CallController extends GetxController {
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          print('member added');
-          print(e.key);
           _membersTracksSubscriptions[e.key!] =
               e.value!.tracks.changes.listen((changes) {
             switch (changes.op) {
               case OperationKind.added:
                 _putParticipant(e.value!.id,
                     track: changes.element,
-                    handRaised: e.value!.isHandRaised.value,
+                    handRaised: e.value!.isHandRaised,
                     source: changes.element.source);
                 _insureCorrectGrouping();
                 break;
@@ -734,7 +732,6 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          print('member updated');
           _putMember(e.value!);
           _insureCorrectGrouping();
           break;
@@ -1694,14 +1691,14 @@ class CallController extends GetxController {
     if (member.tracks.isEmpty) {
       _putParticipant(
         member.id,
-        handRaised: member.isHandRaised.value,
+        handRaised: member.isHandRaised,
       );
     }
     for (var t in member.tracks) {
       _putParticipant(
         member.id,
         source: t.source,
-        handRaised: member.isHandRaised.value,
+        handRaised: member.isHandRaised,
         track: t,
       );
     }
