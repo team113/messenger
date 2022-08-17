@@ -218,13 +218,19 @@ Widget mobileCall(CallController c, BuildContext context) {
     overlay.add(
       Obx(() {
         if (c.errorTimeout.value != 0) {
-          return Align(
-            alignment: Alignment.topRight,
-            child: SizedBox(
-              width: 280,
-              child: HintWidget(
-                text: '${c.error}.',
-                onTap: () => c.errorTimeout.value = 0,
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10, right: 10),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: SizedBox(
+                  width: 280,
+                  child: HintWidget(
+                    text: '${c.error}.',
+                    onTap: () => c.errorTimeout.value = 0,
+                    isError: true,
+                  ),
+                ),
               ),
             ),
           );

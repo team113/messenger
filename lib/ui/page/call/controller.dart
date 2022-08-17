@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -455,6 +456,7 @@ class CallController extends GetxController {
     if (router.context!.isMobile) {
       secondaryWidth = RxDouble(150);
       secondaryHeight = RxDouble(151);
+      BackButtonInterceptor.add(_onBack);
     } else {
       secondaryWidth = RxDouble(200);
       secondaryHeight = RxDouble(200);
@@ -761,6 +763,10 @@ class CallController extends GetxController {
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
+    }
+
+    if(router.context!.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
@@ -1618,6 +1624,17 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Minimizes call view if not minimized.
+  ///
+  /// Used to minimize call view on back button.
+  bool _onBack(bool _, RouteInfo __) {
+    if(minimized.isFalse) {
+      minimize();
+      return true;
+    }
+    return false;
   }
 
   /// Puts [participant] from its `default` group to [list].
