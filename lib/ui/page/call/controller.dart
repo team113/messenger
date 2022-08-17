@@ -371,6 +371,9 @@ class CallController extends GetxController {
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
+  /// [CallMemberId] of the current user.
+  late CallMemberId myId;
+
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   ChatId get chatId => _currentCall.value.chatId.value;
 
@@ -450,6 +453,8 @@ class CallController extends GetxController {
 
     _currentCall.value.init();
 
+    myId = CallMemberId(me, null);
+
     Size size = router.context!.mediaQuerySize;
 
     if (router.context!.isMobile) {
@@ -494,7 +499,7 @@ class CallController extends GetxController {
     void _onChat(RxChat? v) {
       chat.value = v;
 
-      _putParticipant(CallMemberId(me, null));
+      _putParticipant(myId);
       _insureCorrectGrouping();
 
       if (!isGroup) {
@@ -645,11 +650,9 @@ class CallController extends GetxController {
       }
     });
 
-    if (members.length > 1) {
-      members.forEach((key, value) {
-        _putMember(value);
-      });
-    }
+    members.forEach((key, value) {
+      if (key != myId) _putMember(value);
+    });
     _insureCorrectGrouping();
 
     _membersTracksSubscriptions = _currentCall.value.members
@@ -851,7 +854,7 @@ class CallController extends GetxController {
   Future<void> toggleHand() async {
     keepUi();
     isHandRaised.toggle();
-    _putParticipant(CallMemberId(me, null), handRaised: isHandRaised.value);
+    _putParticipant(myId, handRaised: isHandRaised.value);
     await _toggleHand();
   }
 
@@ -1687,6 +1690,9 @@ class CallController extends GetxController {
     ];
   }
 
+  /// Puts the member with tracks to [Participant]s identified by an [member]s
+  /// id.
+  /// Puts empty [Participant] if member has no tracks.
   void _putMember(CallMember member) {
     if (member.tracks.isEmpty) {
       _putParticipant(
@@ -1704,8 +1710,8 @@ class CallController extends GetxController {
     }
   }
 
-  /// Puts a [track] renderers to [Participant] identified by an [id] with the
-  /// same [MediaSourceKind] as a [track].
+  /// Puts a [track]s to [Participant] identified by an [id] with the same
+  /// [MediaSourceKind] as a [track].
   ///
   /// Defaults to [MediaSourceKind.Device] if no [track] is provided.
   ///

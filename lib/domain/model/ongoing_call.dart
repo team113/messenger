@@ -791,7 +791,6 @@ class OngoingCall {
                 .firstWhereOrNull((e) => e.user.id == id.userId)
                 ?.handRaised ??
             false,
-        connected: true,
       );
 
       conn.onClose(() => members.remove(id));
@@ -1029,6 +1028,8 @@ class OngoingCall {
     members.forEach((k, v) {
       v.tracks.clear();
     });
+
+    members.clear();
   }
 
   /// Updates the local media settings with [audioDevice] or [videoDevice].
@@ -1309,7 +1310,7 @@ class CallMemberId {
 
 /// Participant of an [OngoingCall].
 class CallMember {
-  CallMember({required this.id, bool? isHandRaised, bool? connected})
+  CallMember({required this.id, bool? isHandRaised})
       : isHandRaised = isHandRaised ?? false;
 
   /// [CallMemberId] of the current [CallMember].
@@ -1414,7 +1415,7 @@ class RemoteTrack extends Track {
 
 /// Class that represents [LocalTrack].
 class LocalTrack extends Track {
-  /// [LocalMediaTrack] that received from the local user's screen of device.
+  /// Received [LocalMediaTrack].
   LocalMediaTrack track;
 
   /// [CallMemberId] of the current user.
