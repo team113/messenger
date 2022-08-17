@@ -94,7 +94,7 @@ services:
     network_mode: service:cockroachdb
   minio:
     container_name: ${COMPOSE_PROJECT_NAME}-minio
-    image: bitnami/minio:2022.3.22
+    image: bitnami/minio:latest
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -105,8 +105,7 @@ services:
       - "9000:9000"    # minio s3
       - "9001:9001"    # minio auth
     volumes:
-      - ./.cache/minio/data/:/data/
-      - ./.cache/minio/certs/:/certs/CAs
+      - ./.cache/minio/data/:/data/:z
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest
