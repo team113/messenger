@@ -106,6 +106,7 @@ services:
       - "9001:9001"    # minio auth
     volumes:
       - ./.cache/minio/data/:/data/:z
+      - ./.cache/minio/certs/:/certs/CAs
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest
