@@ -243,7 +243,7 @@ class OngoingCall {
   /// [UserId] of this [OngoingCall].
   UserId get me => _me;
 
-  /// [List] of the current users local [Track]s.
+  /// Returns [List] of the current users local [Track]s.
   ObsList<Track>? get localTracks => members[myId]?.tracks;
 
   /// [User] that started this [OngoingCall].
@@ -674,10 +674,10 @@ class OngoingCall {
   /// Creates or removes this [OngoingCall] remote video renderers and sets the
   /// flags.
   Future<void> setRemoteVideoEnabled(bool enabled) async {
-    members.entries.where((e) => e.value.id != myId).forEach((e) {
-      e.value.tracks.forEach((t) async {
+    members.entries.where((e) => e.value.id != myId).forEach((e) async {
+      for (var t in e.value.tracks) {
         enabled ? await t.createRenderer() : t.removeRenderer();
-      });
+      }
       e.value.isSharingAllowed.value = enabled;
       e.value.isVideoAllowed.value = enabled;
     });
@@ -781,9 +781,7 @@ class OngoingCall {
 
     members[myId] = CallMember(id: myId);
 
-    _room!.onLocalTrack((e) {
-      _addLocalTrack(e);
-    });
+    _room!.onLocalTrack((e) => _addLocalTrack(e));
 
     _room!.onNewConnection((conn) {
       var id = CallMemberId.fromString(conn.getRemoteMemberId());
@@ -793,11 +791,12 @@ class OngoingCall {
                 .firstWhereOrNull((e) => e.user.id == id.userId)
                 ?.handRaised ??
             false,
+        connected: true,
       );
 
       conn.onClose(() => members.remove(id));
       conn.onRemoteTrackAdded((track) async {
-        Track t = RemoteTrack(track, conn);
+        final Track t = RemoteTrack(track, conn);
         final member = members[id];
 
         if (member != null) {
@@ -1066,9 +1065,10 @@ class OngoingCall {
     }
   }
 
-  /// Updates the local [_tracks] corresponding to the current media
+  /// Updates the local members tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
+    _disposeLocalMedia();
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled(),
@@ -1079,14 +1079,12 @@ class OngoingCall {
       ),
     );
 
-    _disposeLocalMedia();
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
   }
 
-  /// Adds local [track] to the [_tracks] and initializes video renderer if
-  /// required and adds it to the [localVideos].
+  /// Adds local [track] to the members tracks of the current user.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
     if (track.kind() == MediaKind.Video) {
       LocalTrackState state;
@@ -1118,13 +1116,12 @@ class OngoingCall {
     }
   }
 
-  /// Removes and disposes the [LocalMediaTrack]s that match the [kind] and
+  /// Removes and stops the [LocalMediaTrack]s that match the [kind] and
   /// [source] from the [members] where [CallMemberId] is equivalent to [myId].
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[myId]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.dispose();
-
+        t.stop();
         return true;
       }
       return false;
@@ -1312,7 +1309,7 @@ class CallMemberId {
 
 /// Participant of an [OngoingCall].
 class CallMember {
-  CallMember({required this.id, bool? isHandRaised})
+  CallMember({required this.id, bool? isHandRaised, bool? connected})
       : isHandRaised = RxBool(isHandRaised ?? false);
 
   /// [CallMemberId] of the current [CallMember].
@@ -1357,6 +1354,9 @@ abstract class Track {
 
   /// Removes the renderer for this [Track].
   void removeRenderer();
+
+  /// Removes the renderer for this [Track].
+  void stop();
 
   /// Disposes this [Track].
   void dispose() {}
@@ -1403,8 +1403,12 @@ class RemoteTrack extends Track {
 
   @override
   void dispose() {
+    track.free();
+  }
+
+  @override
+  void stop() {
     track.getTrack().stop();
-    removeRenderer();
   }
 }
 
@@ -1446,8 +1450,12 @@ class LocalTrack extends Track {
 
   @override
   void dispose() {
+    track.free();
+  }
+
+  @override
+  void stop() {
     track.getTrack().stop();
-    removeRenderer();
   }
 }
 

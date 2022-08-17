@@ -645,9 +645,11 @@ class CallController extends GetxController {
       }
     });
 
-    members.forEach((key, value) {
-      _putMember(value);
-    });
+    if (members.length > 1) {
+      members.forEach((key, value) {
+        _putMember(value);
+      });
+    }
     _insureCorrectGrouping();
 
     _membersTracksSubscriptions = _currentCall.value.members
@@ -680,6 +682,8 @@ class CallController extends GetxController {
     _membersSubscription = _currentCall.value.members.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
+          print('member added');
+          print(e.key);
           _membersTracksSubscriptions[e.key!] =
               e.value!.tracks.changes.listen((changes) {
             switch (changes.op) {
@@ -730,6 +734,7 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
+          print('member updated');
           _putMember(e.value!);
           _insureCorrectGrouping();
           break;
@@ -1686,6 +1691,12 @@ class CallController extends GetxController {
   }
 
   void _putMember(CallMember member) {
+    if (member.tracks.isEmpty) {
+      _putParticipant(
+        member.id,
+        handRaised: member.isHandRaised.value,
+      );
+    }
     for (var t in member.tracks) {
       _putParticipant(
         member.id,
@@ -1729,9 +1740,9 @@ class CallController extends GetxController {
         handRaised: handRaised,
       );
 
-      _userService
-          .get(id.userId)
-          .then((u) => participant?.user.value = u ?? participant.user.value);
+      _userService.get(id.userId).then((u) {
+        participant?.user.value = u ?? participant.user.value;
+      });
 
       switch (owner) {
         case MediaOwnerKind.local:
@@ -1825,15 +1836,16 @@ class Participant {
   /// Media ownership kind of this [Participant].
   final MediaOwnerKind owner;
 
-  /// Reactive video renderer of this [Participant].
+  /// Reactive video track of this [Participant].
   late final Rx<Track?> video;
 
-  /// Reactive audio renderer of this [Participant].
+  /// Reactive audio track of this [Participant].
   late final Rx<Track?> audio;
 
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
 
+  /// Returns the [MediaSourceKind] of this [Participant]'s video or audio.
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 }
