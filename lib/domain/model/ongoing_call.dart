@@ -576,7 +576,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive || members.isEmpty) {
+            if (!isActive || members.length <= 1) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
