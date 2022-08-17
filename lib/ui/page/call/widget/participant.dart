@@ -87,10 +87,14 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool hasVideoWhenDisabled = participant.video.value == null &&
-          participant.hasVideo.value &&
-          participant.id.deviceId != null;
+      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      bool hasVideoWhenDisabled =
+          participant.video.value?.renderer.value == null &&
+              (participant.video.value?.direction.value ==
+                      TrackMediaDirection.SendOnly ||
+                  participant.video.value?.direction.value ==
+                      TrackMediaDirection.SendRecv) &&
+              participant.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
       if (isMuted) {
@@ -160,17 +164,18 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          if (participant.video.value == null) ..._background(),
+          if (participant.video.value?.renderer.value == null) ..._background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child: participant.video.value == null
+            child: participant.video.value?.renderer.value == null
                 ? Container()
                 : Center(
                     child: RtcVideoView(
-                      participant.video.value!,
+                      participant.video.value?.renderer.value
+                          as RtcVideoRenderer,
                       key: participant.videoKey,
                       mirror: participant.owner == MediaOwnerKind.local &&
                           participant.source == MediaSourceKind.Device,
@@ -237,10 +242,14 @@ class ParticipantOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool hasVideoWhenDisabled = participant.video.value == null &&
-          participant.hasVideo.value &&
-          participant.id.deviceId != null;
+      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      bool hasVideoWhenDisabled =
+          participant.video.value?.renderer.value == null &&
+              (participant.video.value?.direction.value ==
+                      TrackMediaDirection.SendOnly ||
+                  participant.video.value?.direction.value ==
+                      TrackMediaDirection.SendRecv) &&
+              participant.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
       if (isMuted) {

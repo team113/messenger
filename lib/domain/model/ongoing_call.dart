@@ -677,7 +677,6 @@ class OngoingCall {
     members.entries.where((e) => e.value.id != myId).forEach((e) {
       e.value.tracks.forEach((t) async {
         enabled ? await t.createRenderer() : t.removeRenderer();
-        _emitRendererUpdate(e.key, t);
       });
       e.value.isSharingAllowed.value = enabled;
       e.value.isVideoAllowed.value = enabled;
@@ -713,7 +712,6 @@ class OngoingCall {
 
     member.tracks.where((t) => t.source == source).forEach((t) async {
       value ? await t.createRenderer() : t.removeRenderer();
-      _emitRendererUpdate(id, t);
     });
   }
 
@@ -826,17 +824,11 @@ class OngoingCall {
         member?.tracks.add(t);
 
         track.onMuted(() {
-          t.renderer.value?.muted = true;
-          t.renderer.refresh();
-          // t.isMuted.value = true;
-          _emitRendererUpdate(id, t);
+          t.isMuted.value = true;
         });
 
         track.onUnmuted(() {
-          t.renderer.value?.muted = false;
-          t.renderer.refresh();
-          // t.isMuted.value = false;
-          _emitRendererUpdate(id, t);
+          t.isMuted.value = false;
         });
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
@@ -866,8 +858,6 @@ class OngoingCall {
                 }
                 if (!member.tracks.contains(t)) {
                   member.tracks.add(t);
-                } else {
-                  _emitRendererUpdate(id, t);
                 }
               }
               break;
@@ -877,12 +867,10 @@ class OngoingCall {
                 member?.tracks.remove(t);
               } else {
                 t.removeRenderer();
-                _emitRendererUpdate(id, t);
               }
               break;
           }
         });
-        track.onStopped(() => member?.tracks.remove(t));
       });
     });
   }
@@ -1133,18 +1121,14 @@ class OngoingCall {
   /// Removes and disposes the [LocalMediaTrack]s that match the [kind] and
   /// [source] from the [members] where [CallMemberId] is equivalent to [myId].
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
-    members[myId]
-        ?.tracks
-        .removeWhere((t) => (t.kind == kind && t.source == source));
-  }
+    members[myId]?.tracks.removeWhere((t) {
+      if (t.kind == kind && t.source == source) {
+        t.dispose();
 
-  /// Emits a [ListChangeNotification.updated] action to the specified
-  /// [CallMember]'s track.
-  void _emitRendererUpdate(CallMemberId id, Track track) {
-    // int index = members[id]?.tracks.indexOf(track) ?? -1;
-    // if (index != -1) {
-    //   members[id]?.tracks.emit(ListChangeNotification.updated(track, index));
-    // }
+        return true;
+      }
+      return false;
+    });
   }
 
   /// Ensures the [audioDevice], [videoDevice] and [outputDevice] are present in
@@ -1419,8 +1403,8 @@ class RemoteTrack extends Track {
 
   @override
   void dispose() {
+    track.getTrack().stop();
     removeRenderer();
-    track.free();
   }
 }
 
@@ -1462,8 +1446,8 @@ class LocalTrack extends Track {
 
   @override
   void dispose() {
+    track.getTrack().stop();
     removeRenderer();
-    track.free();
   }
 }
 

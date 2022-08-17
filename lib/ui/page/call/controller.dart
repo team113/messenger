@@ -673,11 +673,6 @@ class CallController extends GetxController {
                   _insureCorrectGrouping();
                   break;
                 case OperationKind.updated:
-                  _putParticipant(v.id,
-                      track: e.element,
-                      handRaised: v.isHandRaised.value,
-                      source: e.element.source);
-                  _insureCorrectGrouping();
                   break;
               }
             })));
@@ -712,11 +707,6 @@ class CallController extends GetxController {
                 _insureCorrectGrouping();
                 break;
               case OperationKind.updated:
-                _putParticipant(e.value!.id,
-                    track: changes.element,
-                    handRaised: e.value!.isHandRaised.value,
-                    source: changes.element.source);
-                _insureCorrectGrouping();
                 break;
             }
           });
@@ -903,7 +893,7 @@ class CallController extends GetxController {
   /// Toggles receiving of incoming video from the provided [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
     await _currentCall.value.setMemberVideoEnabled(
-      value: participant.video.value == null,
+      value: participant.video.value?.renderer.value == null,
       id: participant.id,
       source: participant.source,
     );
@@ -1734,21 +1724,10 @@ class CallController extends GetxController {
       participant = Participant(
         id,
         owner,
-        video: track?.kind == MediaKind.Video
-            ? track?.renderer.value as RtcVideoRenderer?
-            : null,
-        audio: track?.kind == MediaKind.Audio
-            ? track?.renderer.value as RtcAudioRenderer?
-            : null,
-        source: track?.source,
+        video: track?.kind == MediaKind.Video ? track : null,
+        audio: track?.kind == MediaKind.Audio ? track : null,
         handRaised: handRaised,
       );
-
-      if (track?.kind == MediaKind.Video) {
-        participant.hasVideo.value =
-            track?.direction.value == TrackMediaDirection.SendOnly ||
-                track?.direction.value == TrackMediaDirection.SendRecv;
-      }
 
       _userService
           .get(id.userId)
@@ -1785,16 +1764,10 @@ class CallController extends GetxController {
       }
     } else {
       if (track != null) {
-        participant.audio.value = track.kind == MediaKind.Audio
-            ? track.renderer.value as RtcAudioRenderer?
-            : participant.audio.value;
-        participant.video.value = track.kind == MediaKind.Video
-            ? track.renderer.value as RtcVideoRenderer?
-            : participant.video.value;
-        participant.hasVideo.value = track.kind == MediaKind.Video
-            ? (track.direction.value == TrackMediaDirection.SendOnly ||
-                track.direction.value == TrackMediaDirection.SendRecv)
-            : participant.hasVideo.value;
+        participant.audio.value =
+            track.kind == MediaKind.Audio ? track : participant.audio.value;
+        participant.video.value =
+            track.kind == MediaKind.Video ? track : participant.video.value;
       }
 
       participant.handRaised.value = handRaised ?? participant.handRaised.value;
@@ -1832,18 +1805,13 @@ class Participant {
     this.id,
     this.owner, {
     RxUser? user,
-    RtcVideoRenderer? video,
-    RtcAudioRenderer? audio,
-    MediaSourceKind? source,
+    Track? video,
+    Track? audio,
     bool? handRaised,
-    bool? hasVideo,
   })  : video = Rx(video),
         audio = Rx(audio),
         handRaised = Rx(handRaised ?? false),
-        hasVideo = Rx(hasVideo ?? false),
-        user = Rx(user),
-        source =
-            source ?? video?.source ?? audio?.source ?? MediaSourceKind.Device;
+        user = Rx(user);
 
   /// [CallMemberId] of the [User] this [Participant] represents.
   final CallMemberId id;
@@ -1857,18 +1825,15 @@ class Participant {
   /// Media ownership kind of this [Participant].
   final MediaOwnerKind owner;
 
-  /// Media source kind of this [Participant].
-  final MediaSourceKind source;
-
-  /// Indicates whether the current [Participant] emits outcoming video track.
-  final Rx<bool> hasVideo;
-
   /// Reactive video renderer of this [Participant].
-  late final Rx<RtcVideoRenderer?> video;
+  late final Rx<Track?> video;
 
   /// Reactive audio renderer of this [Participant].
-  late final Rx<RtcAudioRenderer?> audio;
+  late final Rx<Track?> audio;
 
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
+
+  MediaSourceKind get source =>
+      video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 }

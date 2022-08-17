@@ -128,8 +128,10 @@ Widget mobileCall(CallController c, BuildContext context) {
     } else {
       // Call is not active.
       content.add(Obx(() {
-        RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
-            c.paneled.firstOrNull?.video.value;
+        RtcVideoRenderer? local =
+            (c.locals.firstOrNull?.video.value?.renderer.value ??
+                    c.paneled.firstOrNull?.video.value?.renderer.value)
+                as RtcVideoRenderer?;
 
         if (c.videoState.value != LocalTrackState.disabled && local != null) {
           return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
@@ -251,8 +253,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             duration: const Duration(milliseconds: 300),
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
-                    ([...c.primary, ...c.secondary]
-                            .firstWhereOrNull((e) => e.video.value != null) !=
+                    ([...c.primary, ...c.secondary].firstWhereOrNull(
+                            (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
                 ? Container(color: const Color(0x55000000))
@@ -810,7 +812,8 @@ Widget _primaryView(CallController c, BuildContext context) {
                                 participant.id, MediaSourceKind.Device)
                             ?.audio
                             .value
-                            ?.muted
+                            ?.isMuted
+                            .value
                         : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
@@ -873,7 +876,8 @@ Widget _primaryView(CallController c, BuildContext context) {
                 fit: c.minimized.value
                     ? BoxFit.cover
                     : c.rendererBoxFit[
-                        participant.video.value?.track.id() ?? ''],
+                        participant.video.value?.renderer.value?.track.id() ??
+                            ''],
                 expanded: c.draggedRenderer.value == participant,
               );
             });
@@ -1049,7 +1053,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 participant.id, MediaSourceKind.Device)
                             ?.audio
                             .value
-                            ?.muted
+                            ?.isMuted
+                            .value
                         : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
