@@ -669,10 +669,11 @@ jobs:
           cp -rf .cache/helm/*.tgz helm/
           helm repo index helm/ --url=https://${{ github.repository_owner }}.github.io/${{ steps.repo.outputs.group1 }}/helm
 
-          git add -v helm/
+          git checkout --orphan orphan-gh-pages
+          git add --all
           git commit -m 'Release ${{ steps.semver.outputs.group1 }} version of `${{ matrix.chart }}` Helm chart'
-          git checkout -
-          git push origin gh-pages
+          git branch -M orphan-gh-pages gh-pages
+          git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
 
 
