@@ -139,7 +139,7 @@ else
 		    --split-debug-info=symbols \
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
 		) \
-		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env)) \
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
 
@@ -225,7 +225,7 @@ ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
 		$(if $(call eq,$(device),),,-d $(device)) \
-		$(if $(call eq,$(dart-env),),,--dart-define=$(dart-env))
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 
 
 
