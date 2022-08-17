@@ -215,7 +215,7 @@ class NativeFile {
   }
 }
 
-/// [Hive] adapter for [MediaType].
+/// [Hive] adapter for a [MediaType].
 class MediaTypeAdapter extends TypeAdapter<MediaType> {
   @override
   int get typeId => ModelTypeId.mediaType;
