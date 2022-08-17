@@ -6,3 +6,5 @@ appVersion: "0.1.0-alpha.5"
 type: application
 sources:
   - https://github.com/team113/messenger
+annotations:
+  artifacthub.io/license: AGPL-3.0-or-later
