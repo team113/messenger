@@ -765,7 +765,7 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
-    if(router.context!.isMobile) {
+    if (router.context!.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -1630,7 +1630,7 @@ class CallController extends GetxController {
   ///
   /// Used to minimize call view on back button.
   bool _onBack(bool _, RouteInfo __) {
-    if(minimized.isFalse) {
+    if (minimized.isFalse) {
       minimize();
       return true;
     }
