@@ -424,7 +424,7 @@ class TextFieldState extends ReactiveFieldState {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
-    _previousText = null;
+    _previousText = '';
     _previousSubmit = null;
   }
 }
