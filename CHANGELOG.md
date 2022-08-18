@@ -37,7 +37,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Android:
-    - [ConnectionService] displaying call when application is in foreground ([#14]).
+    - [ConnectionService] displaying call when application is in foreground ([#14]);
+    - Back button not minimizing call ([#80], [#76]).
 - Web:
     - UI not hiding on window focus loses ([#60]).
 - UI:
@@ -74,7 +75,9 @@ All user visible changes to this project will be documented in this file. This p
 [#60]: /../../pull/60
 [#73]: /../../pull/73
 [#75]: /../../issues/75
+[#76]: /../../issues/76
 [#79]: /../../pull/79
+[#80]: /../../pull/80
 
 
 

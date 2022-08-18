@@ -10,6 +10,7 @@ dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.8.2
   audioplayers: ^1.0.1
+  back_button_interceptor: ^6.0.1
   badges: ^2.0.2
   callkeep: ^0.3.2
   carousel_slider: ^4.1.1
