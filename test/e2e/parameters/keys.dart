@@ -36,9 +36,9 @@ enum WidgetKey {
   EmailsExpandable,
   HomeView,
   IntroductionView,
+  LanguageDropdown,
   Language_enUS,
   Language_ruRU,
-  LanguageDropdown,
   LoginButton,
   LoginField,
   LoginView,
@@ -66,6 +66,7 @@ enum WidgetKey {
   StartButton,
   SuccessStage,
   UsernameField,
+  VideoView,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].
