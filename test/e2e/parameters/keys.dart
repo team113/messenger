@@ -24,7 +24,6 @@ enum WidgetKey {
   AlertYesButton,
   AuthView,
   BioField,
-  ButtonOk,
   ChangePasswordButton,
   ChatDirectLinkExpandable,
   ChatView,
