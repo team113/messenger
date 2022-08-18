@@ -19,29 +19,29 @@ import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart'
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
-import '../parameters/keys.dart';
 
-/// Waits until the provided [WidgetKey] is present or absent.
+/// Waits until the provided text is present or absent.
 ///
 /// Examples:
-/// - Then I wait until `WidgetKey` is absent
-/// - Then I wait until `WidgetKey` is present
-final StepDefinitionGeneric waitUntilKeyExists =
-    then2<WidgetKey, Existence, FlutterWorld>(
-  'I wait until {key} is {existence}',
-  (key, existence, context) async {
+/// - Then I wait until text "Dummy" is absent
+/// - Then I wait until text "Dummy" is present
+final StepDefinitionGeneric untilTextExists =
+    then2<String, Existence, FlutterWorld>(
+  'I wait until text {string} is {existence}',
+  (text, existence, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findByTextSkipOffstage(text),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findByTextSkipOffstage(text),
               );
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

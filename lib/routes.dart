@@ -68,17 +68,20 @@ late RouterState router;
 /// Application routes names.
 class Routes {
   static const auth = '/';
-  static const home = '/';
   static const call = '/call';
   static const chat = '/chat';
-  static const contact = '/contact';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
+  static const contact = '/contact';
+  static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
   static const settings = '/settings';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
+
+  // E2E tests related page, should not be used in non-test environment.
+  static const restart = '/restart';
 
   // TODO: Styles page related, should be removed at some point.
   static const style = '/style';
@@ -330,7 +333,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
-    if (_state.route == Routes.style) {
+    if (_state.route == Routes.restart) {
+      return [
+        const MaterialPage(
+          key: ValueKey('RestartPage'),
+          name: Routes.restart,
+          child: Center(child: Text('Restarting...')),
+        ),
+      ];
+    } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
           key: ValueKey('StylePage'),

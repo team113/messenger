@@ -510,7 +510,8 @@ ifeq ($(no-cache),yes)
 	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
 endif
 ifeq ($(wildcard .cache/minio),)
-	@mkdir -p .cache/minio/data/
+	@mkdir -p .cache/minio/data/files/
+	@mkdir -p .cache/minio/certs/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
