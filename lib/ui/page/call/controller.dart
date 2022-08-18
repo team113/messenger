@@ -456,10 +456,13 @@ class CallController extends GetxController {
     if (router.context!.isMobile) {
       secondaryWidth = RxDouble(150);
       secondaryHeight = RxDouble(151);
-      BackButtonInterceptor.add(_onBack);
     } else {
       secondaryWidth = RxDouble(200);
       secondaryHeight = RxDouble(200);
+    }
+
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.add(_onBack);
     }
 
     fullscreen = RxBool(false);
@@ -765,7 +768,7 @@ class CallController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
-    if (router.context!.isMobile) {
+    if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -1626,14 +1629,17 @@ class CallController extends GetxController {
     return top;
   }
 
-  /// Minimizes call view if not minimized.
+  /// Invokes [minimize], if not [minimized] already.
   ///
-  /// Used to minimize call view on back button.
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
   bool _onBack(bool _, RouteInfo __) {
     if (minimized.isFalse) {
       minimize();
       return true;
     }
+
     return false;
   }
 
