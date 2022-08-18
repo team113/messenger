@@ -25,11 +25,13 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'parameters/chat.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/users.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
+import 'steps/in_chat_with.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
@@ -48,8 +50,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         copyFromField,
         fillField,
         goToUserPage,
-        hasDialogWithMe,
+        hasChatWithMe,
         iAm,
+        iAmInChatWith,
         pasteToField,
         seesAs,
         sendsMessageToMe,
@@ -79,6 +82,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        ChatTypeParameter(),
         OnlineStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

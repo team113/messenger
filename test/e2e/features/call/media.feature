@@ -19,10 +19,9 @@ Feature: Calls media tests
   Scenario: Start video call
     Given I am Alice
     And user Bob
-    And Bob has group with me
+    And Bob has group with Alice
     And I am in chat with Bob
     And I wait until `StartVideoCall` is present
 
     When I tap `StartVideoCall` button
-    Then I wait until `Call` is present
     And I wait until `VideoView` is present

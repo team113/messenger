@@ -65,6 +65,8 @@ enum WidgetKey {
   SignInButton,
   StartButton,
   SuccessStage,
+  StartVideoCall,
+  Call,
   UsernameField,
   VideoView,
 }
