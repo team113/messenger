@@ -11,7 +11,7 @@ Feature: Chat attachments have correct sending status
     Given I have Internet with delay of 3 seconds
 
     When I attach "test.txt" file
-    And I tap `Send` widget
+    And I tap `Send` button
 
     Then I wait until status of "test.txt" attachment is sending
     And I wait until status of "test.txt" attachment is sent
@@ -20,7 +20,7 @@ Feature: Chat attachments have correct sending status
     Given I have Internet with delay of 3 seconds
 
     When I attach "test.jpg" image
-    And I tap `Send` widget
+    And I tap `Send` button
 
     Then I wait until status of "test.jpg" attachment is sending
     And I wait until status of "test.jpg" attachment is sent
@@ -28,7 +28,7 @@ Feature: Chat attachments have correct sending status
   Scenario: User resends file attachment
     Given I do not have Internet
     When I attach "test.txt" file
-    And I tap `Send` widget
+    And I tap `Send` button
     Then I wait until status of "test.txt" attachment is error
 
     Given I have Internet with delay of 3 seconds
@@ -40,7 +40,7 @@ Feature: Chat attachments have correct sending status
   Scenario: User resends image attachment
     Given I do not have Internet
     When I attach "test.jpg" image
-    And I tap `Send` widget
+    And I tap `Send` button
     Then I wait until status of "test.jpg" attachment is error
 
     Given I have Internet with delay of 3 seconds

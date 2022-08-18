@@ -9,7 +9,7 @@ Feature: Chat messages have correct sending status
 
   Scenario: User sends message
     When I fill `MessageField` field with "123"
-    And I tap `Send` widget
+    And I tap `Send` button
 
     Then I wait until status of "123" message is sent
 
@@ -17,7 +17,7 @@ Feature: Chat messages have correct sending status
     Given I have Internet with delay of 3 seconds
 
     When I fill `MessageField` field with "123"
-    And I tap `Send` widget
+    And I tap `Send` button
 
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
@@ -25,7 +25,7 @@ Feature: Chat messages have correct sending status
   Scenario: User deletes non-sent message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
-    And I tap `Send` widget
+    And I tap `Send` button
     Then I wait until status of "123" message is error
 
     When I long press "123" message
@@ -35,7 +35,7 @@ Feature: Chat messages have correct sending status
   Scenario: User resends message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
-    And I tap `Send` widget
+    And I tap `Send` button
     Then I wait until status of "123" message is error
 
     Given I have Internet with delay of 3 seconds
@@ -47,7 +47,7 @@ Feature: Chat messages have correct sending status
   Scenario: Non-sent messages are persisted
     Given I do not have Internet
     When I fill `MessageField` field with "123"
-    And I tap `Send` widget
+    And I tap `Send` button
     Then I wait until status of "123" message is error
 
     Given I have Internet with delay of 3 seconds
