@@ -36,7 +36,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
       await context.world.appDriver.waitForAppToSettle();
       final finder = context.world.appDriver.findBy(key.name, FindType.key);
 
-      if(await context.world.appDriver.isPresent(finder)){
+      if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);
         await context.world.appDriver.waitForAppToSettle();
         await context.world.appDriver.tap(
