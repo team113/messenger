@@ -124,16 +124,23 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  await context.world.appDriver.waitForAppToSettle();
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.waitForAppToSettle();
 
-  await context.world.appDriver.scrollIntoView(finder);
-  await context.world.appDriver.waitForAppToSettle();
-  await context.world.appDriver
-      .tap(finder, timeout: context.configuration.timeout);
-  await context.world.appDriver.waitForAppToSettle();
+    if (await context.world.appDriver.isPresent(finder)) {
+      await context.world.appDriver.scrollIntoView(finder);
+      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver
+          .tap(finder, timeout: context.configuration.timeout);
+      await context.world.appDriver.waitForAppToSettle();
 
-  await context.world.appDriver.enterText(finder, text);
-  await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.enterText(finder, text);
+      await context.world.appDriver.waitForAppToSettle();
 
-  FocusManager.instance.primaryFocus?.unfocus();
+      FocusManager.instance.primaryFocus?.unfocus();
+      return true;
+    }
+
+    return false;
+  });
 }

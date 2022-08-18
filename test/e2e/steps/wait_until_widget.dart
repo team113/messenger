@@ -18,7 +18,6 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
-import '../configuration.dart';
 import '../parameters/keys.dart';
 
 /// Waits until the provided [WidgetKey] is present or absent.
@@ -36,10 +35,10 @@ final StepDefinitionGeneric waitUntilKeyExists =
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findBy(key.name, FindType.key),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
+                context.world.appDriver.findBy(key.name, FindType.key),
               );
       },
     );

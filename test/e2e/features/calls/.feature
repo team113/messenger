@@ -16,109 +16,94 @@
 
 Feature: Start call tests
 
-  Scenario: Outgoing dialog call changes state correctly
+  Background:
     Given I am Alice
     And user Bob
-    And Bob has dialog with Alice
-    And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
 
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
+  Scenario: Outgoing dialog call changes state correctly
+    Given Bob has dialog with Alice
+    And I am in chat with Bob
+
+    When I tap `StartAudioCall` button
+    Then I wait until `Call` is present
     And I wait until `ActiveCall` is absent
-    Then Bob accept call
-    And I wait until `ActiveCall` is present
+
+    When Bob accept call
+    Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Outgoing group call changes state correctly
-    Given I am Alice
-    And user Bob
-    And Bob has group with Alice
+    Given Bob has group with Alice
     And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
 
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
+    When I tap `StartAudioCall` button
+    Then I wait until `Call` is present
     And I wait until `ActiveCall` is present
-    Then Bob accept call
-    And I wait until Bob is present in call
+
+    When Bob accept call
+    Then I wait until Bob is present in call
 
   Scenario: Join to active group call
-    Given I am Alice
-    And user Bob
-    And Bob has group with Alice
-    And Bob start call
-    And I wait until `Call` is present
+    Given Bob has group with Alice
 
-    Then I tap `DeclineCall` button
-    And I wait until `Call` is absent
-    And I wait until `JoinCall` is present
-    Then I tap `JoinCall` button
+    When Bob start call
+    And I tap `DeclineCall` button
+    Then I wait until `Call` is absent
+
+    When I tap `JoinCall` button
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Cancel outgoing dialog call
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with Alice
+    Given Bob has dialog with Alice
     And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
 
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
-    Then I tap `CancelCall` button
-    And I wait until `Call` is absent
+    When I tap `StartAudioCall` button
+    Then I wait until `Call` is present
+
+    When I tap `CancelCall` button
+    Then I wait until `Call` is absent
 
   Scenario: Incoming dialog call changes state correctly
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with Alice
+    Given Bob has dialog with Alice
 
-    Then Bob start call
-    And I wait until `Call` is present
-    Then I tap `AcceptCallAudio` button
-    And I wait until `ActiveCall` is present
+    When Bob start call
+    And I tap `AcceptCallAudio` button
+    Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Incoming group call changes state correctly
-    Given I am Alice
-    And user Bob
-    And Bob has group with Alice
+    Given Bob has group with Alice
 
-    Then Bob start call
-    And I wait until `Call` is present
-    Then I tap `AcceptCallAudio` button
-    And I wait until `ActiveCall` is present
+    When Bob start call
+    And I tap `AcceptCallAudio` button
+    Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
   Scenario: Decline incoming dialog call
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with Alice
+    Given Bob has dialog with Alice
 
-    Then Bob start call
-    And I wait until `Call` is present
-    Then I tap `DeclineCall` button
-    And I wait until `Call` is absent
+    When Bob start call
+    Then I wait until `Call` is present
+
+    When I tap `DeclineCall` button
+    Then I wait until `Call` is absent
 
   Scenario: Decline incoming group call
-    Given I am Alice
-    And user Bob
-    And Bob has group with Alice
+    Given Bob has group with Alice
 
-    Then Bob start call
-    And I wait until `Call` is present
-    Then I tap `DeclineCall` button
-    And I wait until `Call` is absent
+    When Bob start call
+    Then I wait until `Call` is present
+
+    When I tap `DeclineCall` button
+    Then I wait until `Call` is absent
 
   Scenario: User call to decline incoming dialog call
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with Alice
+    Given Bob has dialog with Alice
     And I am in chat with Bob
-    And I wait until `StartAudioCall` is present
 
-    Then I tap `StartAudioCall` button
-    And I wait until `Call` is present
-    Then Bob decline call
-    And I wait until `Call` is absent
+    When I tap `StartAudioCall` button
+    Then I wait until `Call` is present
+
+    When Bob decline call
+    Then I wait until `Call` is absent

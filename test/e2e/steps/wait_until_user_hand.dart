@@ -14,11 +14,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/auth.dart';
 
-import '../configuration.dart';
 import '../parameters/hand_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -38,8 +38,8 @@ final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
 
         String userKey = 'CallParticipant_${Get.find<AuthService>().userId!}';
         final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver.findByKeySkipOffstage(userKey),
-          context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
+          context.world.appDriver.findBy(userKey, FindType.key),
+          context.world.appDriver.findBy('RaisedHand', FindType.key),
         );
 
         return handStatus == HandStatus.lower
@@ -68,8 +68,8 @@ final StepDefinitionGeneric untilUserHand =
         String userKey =
             'CallParticipant_${context.world.sessions[user.name]!.userId}';
         final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver.findByKeySkipOffstage(userKey),
-          context.world.appDriver.findByKeySkipOffstage('RaisedHand'),
+          context.world.appDriver.findBy(userKey, FindType.key),
+          context.world.appDriver.findBy('RaisedHand', FindType.key),
         );
 
         return handStatus == HandStatus.lower

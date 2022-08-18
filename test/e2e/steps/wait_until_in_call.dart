@@ -14,10 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
-import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -38,10 +38,10 @@ final StepDefinitionGeneric untilUserInCallExists =
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(userKey),
+                context.world.appDriver.findBy(userKey, FindType.key),
               )
             : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(userKey),
+                context.world.appDriver.findBy(userKey, FindType.key),
               );
       },
       timeout: const Duration(seconds: 30),

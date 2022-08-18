@@ -23,21 +23,28 @@ import '../world/custom_world.dart';
 /// Taps provided user in users search result.
 ///
 /// Examples:
-/// - Then I tap Bob in search
+/// - Then I tap Bob in search results
 final StepDefinitionGeneric tapUserInSearch = then1<TestUser, CustomWorld>(
-  'I tap {user} in search',
+  'I tap {user} in search results',
   (user, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    String userKey = 'FoundUser_${context.world.sessions[user.name]!.userId}';
-    final finder = context.world.appDriver.findByKeySkipOffstage(userKey);
+      String userKey = 'FoundUser_${context.world.sessions[user.name]!.userId}';
+      final finder = context.world.appDriver.findByKeySkipOffstage(userKey);
 
-    await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver.tap(
-      finder,
-      timeout: context.configuration.timeout,
-    );
-    await context.world.appDriver.waitForAppToSettle();
+      if (await context.world.appDriver.isPresent(finder)) {
+        await context.world.appDriver.scrollIntoView(finder);
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
+        return true;
+      }
+
+      return false;
+    });
   },
 );
