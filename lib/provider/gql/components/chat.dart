@@ -915,8 +915,9 @@ abstract class ChatGraphQlMixin {
   ///
   /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
   ///
-  /// If [text] argument is specified then the forwarded [ChatItem]s will be
-  /// followed with a posted [ChatMessage] containing that text.
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
   ///
   /// The maximum number of forwarded [ChatItem]s at once is 100.
   ///

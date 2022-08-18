@@ -59,10 +59,11 @@ class ChatForwardView extends StatelessWidget {
     ChatItemQuote forwardItem,
   ) {
     return ModalPopup.show(
-        context: context,
-        desktopConstraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
-        modalConstraints: const BoxConstraints(maxWidth: 500),
-        child: ChatForwardView(fromId: fromId, forwardItem: forwardItem));
+      context: context,
+      desktopConstraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
+      modalConstraints: const BoxConstraints(maxWidth: 500),
+      child: ChatForwardView(fromId: fromId, forwardItem: forwardItem),
+    );
   }
 
   @override

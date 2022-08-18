@@ -192,7 +192,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 2, color: Colors.blue),
+            const Icon(Icons.reply, size: 26, color: Colors.white),
             Flexible(
               child: _repliedMessage(
                 (msg.item as ChatMessage),
@@ -352,15 +352,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               const SizedBox(height: 5),
             InkWell(
               onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(height: 18, width: 2, color: Colors.blue),
-                  const SizedBox(width: 4),
-                  Flexible(child: _repliedMessage(msg.repliesTo!)),
-                ],
-              ),
+              child: _repliedMessage(msg.repliesTo!),
             ),
           ],
         ],

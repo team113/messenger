@@ -154,9 +154,10 @@ abstract class AbstractChatRepository {
   ///
   /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
   ///
-  /// If [text] argument is specified then the forwarded [ChatItem]s will be
-  /// followed with a posted [ChatMessage] containing that text.
-  Future<void> forwardChatItem(
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
     List<ChatItemQuote> items, {

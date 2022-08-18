@@ -229,16 +229,22 @@ class ChatService extends DisposableService {
   ///
   /// Supported [ChatItem] are [ChatMessage] and [ChatForward].
   ///
-  /// If [text] argument is specified then the forwarded [ChatItem]s will be
-  /// followed with a posted [ChatMessage] containing that text.
-  Future<void> forwardChatItem({
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems({
     required ChatId from,
     required ChatId to,
     required List<ChatItemQuote> items,
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {
-    return _chatRepository.forwardChatItem(from, to, items,
-        text: text, attachments: attachments);
+    return _chatRepository.forwardChatItems(
+      from,
+      to,
+      items,
+      text: text,
+      attachments: attachments,
+    );
   }
 }

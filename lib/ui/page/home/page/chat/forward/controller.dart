@@ -72,9 +72,6 @@ class ChatForwardController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
-
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
@@ -105,12 +102,14 @@ class ChatForwardController extends GetxController {
                   attachmentIds.add(file.attachment!.id);
                 }
               }
-              return _chatService.forwardChatItem(
-                  from: fromId,
-                  to: e,
-                  items: [forwardItem],
-                  text: s.text == '' ? null : ChatMessageText(s.text),
-                  attachments: attachmentIds.isEmpty ? null : attachmentIds);
+
+              return _chatService.forwardChatItems(
+                from: fromId,
+                to: e,
+                items: [forwardItem],
+                text: s.text == '' ? null : ChatMessageText(s.text),
+                attachments: attachmentIds.isEmpty ? null : attachmentIds,
+              );
             },
           );
 
@@ -128,6 +127,9 @@ class ChatForwardController extends GetxController {
 
     super.onInit();
   }
+
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {

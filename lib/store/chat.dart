@@ -283,7 +283,7 @@ class ChatRepository implements AbstractChatRepository {
       _graphQlProvider.deleteChatDirectLink(groupId: groupId);
 
   @override
-  Future<void> forwardChatItem(
+  Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
     List<ChatItemQuote> items, {
@@ -294,11 +294,13 @@ class ChatRepository implements AbstractChatRepository {
           from,
           to,
           items
-              .map((i) => ChatItemQuoteInput(
-                    id: i.item.id,
-                    attachments: i.attachments,
-                    withText: i.withText,
-                  ))
+              .map(
+                (i) => ChatItemQuoteInput(
+                  id: i.item.id,
+                  attachments: i.attachments,
+                  withText: i.withText,
+                ),
+              )
               .toList(),
           text: text,
           attachments: attachments);
