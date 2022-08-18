@@ -32,7 +32,6 @@ class MessagePopup {
         content: Text(message),
         actions: [
           TextButton(
-            key: const Key('ButtonOk'),
             onPressed: () => Navigator.of(router.context!).pop(),
             child: Text('btn_ok'.l10n),
           )

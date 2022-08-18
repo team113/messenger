@@ -1,6 +1,6 @@
 Feature: Chat attachments have correct sending status
 
-  Background: User is logged in
+  Background: User is in dialog with Bob
     Given I am Alice
     And user Bob
     And Bob has dialog with me
