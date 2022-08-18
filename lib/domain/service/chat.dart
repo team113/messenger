@@ -234,9 +234,11 @@ class ChatService extends DisposableService {
   Future<void> forwardChatItem({
     required ChatId from,
     required ChatId to,
-    required ChatItemQuote quote,
+    required List<ChatItemQuote> items,
     ChatMessageText? text,
+    List<AttachmentId>? attachments,
   }) {
-    return _chatRepository.forwardChatItem(from, to, quote, text: text);
+    return _chatRepository.forwardChatItem(from, to, items,
+        text: text, attachments: attachments);
   }
 }

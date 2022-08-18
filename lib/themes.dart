@@ -38,10 +38,6 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            callDock: const Color(0xFF1E88E5),
-            cardRadius: BorderRadius.circular(14),
-            cardColor: Colors.white.withOpacity(0.95),
-            cardBlur: 5,
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
@@ -240,32 +236,16 @@ class CustomBoxShadow extends BoxShadow {
 
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.callDock,
-    required this.cardRadius,
-    required this.cardBlur,
-    required this.cardColor,
     required this.boldBody,
   });
 
-  final Color callDock;
-  final BorderRadius cardRadius;
-  final double cardBlur;
-  final Color cardColor;
   final TextStyle boldBody;
 
   @override
   ThemeExtension<Style> copyWith({
-    Color? callDock,
-    BorderRadius? cardRadius,
-    double? cardBlur,
-    Color? cardColor,
     TextStyle? boldBody,
   }) {
     return Style(
-      callDock: callDock ?? this.callDock,
-      cardRadius: cardRadius ?? this.cardRadius,
-      cardBlur: cardBlur ?? this.cardBlur,
-      cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
     );
   }
@@ -277,10 +257,6 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      callDock: Color.lerp(callDock, other.callDock, t)!,
-      cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
-      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
-      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
     );
   }

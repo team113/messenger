@@ -159,8 +159,9 @@ abstract class AbstractChatRepository {
   Future<void> forwardChatItem(
     ChatId from,
     ChatId to,
-    ChatItemQuote item, {
+    List<ChatItemQuote> items, {
     ChatMessageText? text,
+    List<AttachmentId>? attachments,
   });
 }
 

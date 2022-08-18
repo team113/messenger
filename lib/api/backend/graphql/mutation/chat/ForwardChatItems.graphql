@@ -19,12 +19,14 @@ mutation ForwardChatItems(
     $to: ChatId!
     $items: [ChatItemQuoteInput!]!
     $text: ChatMessageText
+    $attachments: [AttachmentId!]
 ) {
     forwardChatItems(
         from: $from
         to: $to
         items: $items
         text: $text
+        attachments: $attachments
     ) {
         __typename
         ... on ChatEventsVersioned {

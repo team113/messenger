@@ -21,8 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -38,6 +36,8 @@ import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -190,12 +190,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       context,
       InkWell(
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(width: 2, color: Colors.blue),
             Flexible(
               child: _repliedMessage(
                 (msg.item as ChatMessage),
-                showFullMessage: true,
+                maxLines: null,
               ),
             ),
           ],
@@ -471,7 +472,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _repliedMessage(ChatItem item, {bool showFullMessage = false}) {
+  Widget _repliedMessage(ChatItem item, {int? maxLines = 1}) {
     Style style = Theme.of(context).extension<Style>()!;
 
     Widget? content;
@@ -482,7 +483,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null) {
         desc.write(item.text!.val);
-      } else if (item.attachments.isNotEmpty) {}
+      }
 
       if (item.attachments.isNotEmpty) {
         additional = item.attachments.map((a) {
@@ -509,8 +510,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (desc.isNotEmpty) {
         content = Text(
           desc.toString(),
-          maxLines: showFullMessage ? null : 1,
-          overflow: showFullMessage ? null : TextOverflow.ellipsis,
+          maxLines: maxLines,
+          overflow: maxLines == null ? null : TextOverflow.ellipsis,
           style: style.boldBody,
         );
       }
@@ -578,7 +579,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Color color = AvatarWidget.colors[
         (widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -628,7 +628,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (content != null) ...[
                   const SizedBox(height: 2),
                   DefaultTextStyle.merge(
-                    maxLines: showFullMessage ? null : 1,
+                    maxLines: maxLines,
                     child: content,
                   ),
                 ],
@@ -741,7 +741,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             if (widget.item.value is ChatMessage)
                               ContextMenuButton(
                                   key: const Key('ForwardMessage'),
-                                  label: 'label_forward'.l10n,
+                                  label: 'btn_forward'.l10n,
                                   onPressed: () async {
                                     var msg = widget.item.value as ChatMessage;
                                     await ChatForwardView.show(

@@ -135,6 +135,7 @@ btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
 btn_forgot_password = Forgot password?
+btn_forward = Forward
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
@@ -354,7 +355,7 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
-label_forward = Forward
+
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden

@@ -937,12 +937,14 @@ abstract class ChatGraphQlMixin {
     ChatId to,
     List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
+    List<AttachmentId>? attachments,
   }) async {
     var variables = ForwardChatItemsArguments(
       from: from,
       to: to,
       items: items,
       text: text,
+      attachments: null,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(

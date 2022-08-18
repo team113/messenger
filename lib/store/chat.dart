@@ -286,21 +286,22 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> forwardChatItem(
     ChatId from,
     ChatId to,
-    ChatItemQuote quote, {
+    List<ChatItemQuote> items, {
     ChatMessageText? text,
+    List<AttachmentId>? attachments,
   }) =>
       _graphQlProvider.forwardChatItems(
-        from,
-        to,
-        [
-          ChatItemQuoteInput(
-            id: quote.item.id,
-            attachments: quote.attachments,
-            withText: quote.withText,
-          )
-        ],
-        text: text,
-      );
+          from,
+          to,
+          items
+              .map((i) => ChatItemQuoteInput(
+                    id: i.item.id,
+                    attachments: i.attachments,
+                    withText: i.withText,
+                  ))
+              .toList(),
+          text: text,
+          attachments: attachments);
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

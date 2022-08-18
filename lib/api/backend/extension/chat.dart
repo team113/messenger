@@ -198,7 +198,7 @@ extension ChatForwardConversion on ChatForwardMixin {
         ver,
         item.cursor,
       ),
-      ...nested.skip(1),
+      ...nested,
     ];
   }
 }

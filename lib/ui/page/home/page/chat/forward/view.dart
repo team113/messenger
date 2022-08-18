@@ -76,7 +76,6 @@ class ChatForwardView extends StatelessWidget {
         ),
         builder: (ChatForwardController c) {
           return Material(
-            color: const Color(0XFFF0F2F6),
             child: Column(
               children: [
                 const SizedBox(height: 25),
@@ -117,7 +116,7 @@ Widget _chat(
       .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
   return Container(
     decoration: const BoxDecoration(
-        color: Color(0XFFD9D9D9),
+        color: Color(0XFFF0F2F6),
         borderRadius: BorderRadius.all(Radius.circular(10))),
     padding: const EdgeInsets.all(5),
     child: ListTile(
@@ -145,7 +144,7 @@ Widget _chat(
                       ),
                     )
                   : const CircleAvatar(
-                      backgroundColor: Color(0XFFF0F2F6),
+                      backgroundColor: Colors.white,
                       radius: 12,
                       child: SizedBox(
                         width: 14,
@@ -180,7 +179,7 @@ Widget _forwardedMessage(
 
     if (item.text != null) {
       desc.write(item.text!.val);
-    } else if (item.attachments.isNotEmpty) {}
+    }
 
     if (item.attachments.isNotEmpty) {
       additional = item.attachments.map((a) {
@@ -188,7 +187,7 @@ Widget _forwardedMessage(
         return Container(
           margin: const EdgeInsets.only(right: 2),
           decoration: BoxDecoration(
-              color: const Color(0xFFE2E2E2),
+              color: const Color(0XFFF0F2F6),
               borderRadius: BorderRadius.circular(4),
               image: image == null
                   ? null
@@ -286,6 +285,8 @@ Widget _forwardedMessage(
                 key: Key('BuilderRxUser_${item.id}'),
                 future: c.getUser(item.authorId),
                 builder: (context, snapshot) {
+                  String? name;
+
                   Color color = AvatarWidget.colors[
                       (snapshot.data?.user.value.num.val.sum() ?? 3) %
                           AvatarWidget.colors.length];
@@ -312,11 +313,8 @@ Widget _forwardedMessage(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              FutureBuilder<RxUser?>(
-                                future: c.getUser(item.authorId),
-                                builder: (context, snapshot) {
-                                  String? name;
-
+                              Builder(
+                                builder: (context) {
                                   if (snapshot.hasData) {
                                     name = snapshot.data?.user.value.name?.val;
                                     if (snapshot.data?.user.value != null) {
@@ -410,6 +408,7 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
                   AnimatedFabAction(
                     icon: const Icon(Icons.attachment, color: Colors.blue),
                     label: 'label_file'.l10n,
+                    onTap: c.send.editable.value ? c.pickFile : null,
                   ),
                   if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
                     AnimatedFabAction(
@@ -451,7 +450,7 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
                 borderRadius: BorderRadius.circular(25),
                 child: ReactiveTextField(
                   key: const Key('MessageField'),
-                  state: c.sendForward,
+                  state: c.send,
                   hint: 'label_send_message_hint'.l10n,
                   minLines: 1,
                   maxLines: 6,
@@ -474,7 +473,7 @@ Widget _sendField(BuildContext context, ChatForwardController c) {
                 ),
               ),
               onTap: () {
-                c.sendForward.submit();
+                c.send.submit();
                 Navigator.of(context).pop();
               },
             ),
