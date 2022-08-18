@@ -27,6 +27,7 @@ enum WidgetKey {
   ButtonOk,
   ChangePasswordButton,
   ChatDirectLinkExpandable,
+  ChatView,
   ChatsButton,
   ChatsTab,
   CloseButton,

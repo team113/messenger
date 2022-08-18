@@ -79,6 +79,7 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatController>(
+      key: const Key('ChatView'),
       init: ChatController(
         widget.id,
         Get.find(),
