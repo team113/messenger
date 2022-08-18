@@ -290,12 +290,13 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byIcon(Icons.check), findsNothing);
-    expect(find.text('newname'), findsNWidgets(2));
 
     verify(graphQlProvider.renameChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatName('newname'),
     ));
+
+    expect(find.text('newname'), findsNWidgets(2));
 
     await Get.deleteAll(force: true);
   });
