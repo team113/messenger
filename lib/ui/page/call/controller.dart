@@ -17,10 +17,11 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -460,6 +461,10 @@ class CallController extends GetxController {
       secondaryHeight = RxDouble(200);
     }
 
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
@@ -761,6 +766,10 @@ class CallController extends GetxController {
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
+    }
+
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.remove(_onBack);
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
@@ -1618,6 +1627,20 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Invokes [minimize], if not [minimized] already.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (minimized.isFalse) {
+      minimize();
+      return true;
+    }
+
+    return false;
   }
 
   /// Puts [participant] from its `default` group to [list].

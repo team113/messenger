@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
     - Introduction modal window ([#38]).
+- Deployment:
+    - [Helm] chart ([#73]).
 
 ### Changed
 
@@ -35,7 +37,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Android:
-    - [ConnectionService] displaying call when application is in foreground ([#14]).
+    - [ConnectionService] displaying call when application is in foreground ([#14]);
+    - Back button not minimizing call ([#80], [#76]).
 - Web:
     - UI not hiding on window focus loses ([#60]).
 - UI:
@@ -44,7 +47,8 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
-        - Mobile minimization gesture being too rapid ([#45], [#44]).
+        - Mobile minimization gesture being too rapid ([#45], [#44]);
+        - Camera not enabling in empty call ([#79], [#75]).
 
 [#2]: /../../issues/2
 [#4]: /../../issues/4
@@ -69,9 +73,15 @@ All user visible changes to this project will be documented in this file. This p
 [#53]: /../../pull/53
 [#56]: /../../pull/56
 [#60]: /../../pull/60
+[#73]: /../../pull/73
+[#75]: /../../issues/75
+[#76]: /../../issues/76
+[#79]: /../../pull/79
+[#80]: /../../pull/80
 
 
 
 
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
+[Helm]: https://helm.sh
 [Semantic Versioning 2.0.0]: https://semver.org

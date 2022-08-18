@@ -63,49 +63,56 @@ packages:
       name: audioplayers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.4"
+    version: "1.0.1"
   audioplayers_android:
     dependency: transitive
     description:
       name: audioplayers_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.2"
+    version: "1.0.1"
   audioplayers_darwin:
     dependency: transitive
     description:
       name: audioplayers_darwin
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.4"
+    version: "1.0.1"
   audioplayers_linux:
     dependency: transitive
     description:
       name: audioplayers_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.3"
+    version: "1.0.0"
   audioplayers_platform_interface:
     dependency: transitive
     description:
       name: audioplayers_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.2"
+    version: "1.0.0"
   audioplayers_web:
     dependency: transitive
     description:
       name: audioplayers_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.3"
+    version: "1.0.0"
   audioplayers_windows:
     dependency: transitive
     description:
       name: audioplayers_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0-rc.3"
+    version: "1.0.0"
+  back_button_interceptor:
+    dependency: "direct main"
+    description:
+      name: back_button_interceptor
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "6.0.1"
   badges:
     dependency: "direct main"
     description:
@@ -548,7 +555,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.36.0"
+    version: "1.40.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -566,15 +573,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_webrtc:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "758f0ad90cbcfe24a25b4e9def635e7a8834f2b9"
-      url: "https://github.com/instrumentisto/flutter-webrtc.git"
-    source: git
-    version: "0.8.0-dev"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -890,12 +888,19 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.7"
+  medea_flutter_webrtc:
+    dependency: "direct main"
+    description:
+      name: medea_flutter_webrtc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.0-dev+rev.fe4d3b9cd21a390870d5390393300371fe5f1bb2"
   medea_jason:
     dependency: "direct main"
     description:
       path: flutter
       ref: HEAD
-      resolved-ref: f1c58b074119e769078d02e3cfb8251323852252
+      resolved-ref: a8b809bd58f53566989eff86ce15a2996848bf93
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
