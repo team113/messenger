@@ -355,7 +355,6 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
-
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden

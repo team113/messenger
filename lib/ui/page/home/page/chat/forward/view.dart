@@ -164,6 +164,7 @@ Widget _chat(
   );
 }
 
+/// Returns a widget with forwarded message information.
 Widget _forwardedMessage(
   BuildContext context,
   ChatForwardController c,

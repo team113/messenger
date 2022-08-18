@@ -234,6 +234,8 @@ class CustomBoxShadow extends BoxShadow {
   }
 }
 
+/// Custom theme extension that contains custom fields for using in UI
+/// interfaces.
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.boldBody,

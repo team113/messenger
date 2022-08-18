@@ -944,7 +944,7 @@ abstract class ChatGraphQlMixin {
       to: to,
       items: items,
       text: text,
-      attachments: null,
+      attachments: attachments,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(

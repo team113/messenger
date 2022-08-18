@@ -17,8 +17,8 @@
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/attachment.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
@@ -110,11 +110,7 @@ class ChatForwardController extends GetxController {
                   to: e,
                   items: [forwardItem],
                   text: s.text == '' ? null : ChatMessageText(s.text),
-                  attachments: attachments.isEmpty
-                      ? null
-                      : attachments.map((attachment) {
-                          return attachment.attachment!.id;
-                        }).toList());
+                  attachments: attachmentIds.isEmpty ? null : attachmentIds);
             },
           );
 
@@ -188,8 +184,7 @@ class ChatForwardController extends GetxController {
       await file.readFile();
     }
 
-    attachment.upload.value =
-        _uploadAttachment(attachment).then((_) => print('file uploaded'));
+    attachment.upload.value = _uploadAttachment(attachment);
     attachments.refresh();
   }
 
