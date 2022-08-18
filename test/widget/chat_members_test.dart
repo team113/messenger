@@ -420,6 +420,11 @@ void main() async {
       const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3ae3'),
     ));
 
+    verify(graphQlProvider.removeChatMember(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3ae3'),
+    ));
+
     await Get.deleteAll(force: true);
   });
 

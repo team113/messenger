@@ -292,6 +292,11 @@ void main() async {
     expect(find.byIcon(Icons.check), findsNothing);
     expect(find.text('newname'), findsNWidgets(2));
 
+    verify(graphQlProvider.renameChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ChatName('newname'),
+    ));
+
     await Get.deleteAll(force: true);
   });
 

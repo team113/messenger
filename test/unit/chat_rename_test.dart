@@ -238,5 +238,10 @@ void main() async {
       ),
       throwsA(isA<RenameChatException>()),
     );
+
+    verify(graphQlProvider.renameChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ChatName('newname'),
+    ));
   });
 }

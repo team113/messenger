@@ -138,7 +138,7 @@ class ChatService extends DisposableService {
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(ChatMessage item, ChatMessageText? text) =>
-      _chatRepository.editChatMessageText(item.id, text);
+      _chatRepository.editChatMessageText(item, text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage item) async {
