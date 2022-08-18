@@ -894,13 +894,13 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.fe4d3b9cd21a390870d5390393300371fe5f1bb2"
+    version: "0.8.0-dev+rev.1c0c2769afb29a76f4e6b7c4707ab3526ceab937"
   medea_jason:
     dependency: "direct main"
     description:
       path: flutter
       ref: HEAD
-      resolved-ref: a8b809bd58f53566989eff86ce15a2996848bf93
+      resolved-ref: "3755b0da240f2f0fb089c6fb6dacb64710ec7a97"
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
