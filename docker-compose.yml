@@ -16,8 +16,8 @@ services:
       - ./.cache/minio/data/files/:/var/www-files/files/:ro,z
       - ./assets/conf.toml:/var/www/conf.toml:ro,Z
       - ./build/web/:/var/www/public/:ro,Z
-      - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
       - ./dev/mailhog/mailhog.conf:/etc/nginx/conf.d/mailhog.conf:ro,Z
+      - ./helm/messenger/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
