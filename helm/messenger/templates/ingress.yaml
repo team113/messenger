@@ -1,0 +1,75 @@
+# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+# more details.
+#
+# You should have received a copy of the GNU Affero General Public License v3.0
+# along with this program. If not, see
+# <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ printf "%s.%s" (include "messenger.fullname" $) $host | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels:
+    helm.sh/chart: {{ include "messenger.chart" $ | quote }}
+    app.kubernetes.io/name: {{ include "messenger.name" $ | quote }}
+    app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service | quote }}
+  {{- with $.Values.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  annotations:
+  {{- if and $.Values.ingress.tls.enabled $.Values.ingress.tls.auto }}
+    kubernetes.io/tls-acme: "true"
+  {{- end }}
+  {{- if not $.Values.ingress.tls.enabled }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  {{- end }}
+  {{- if $.Values.ingress.httpAuth.enabled }}
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: {{ printf "%s.htpasswd" (include "messenger.fullname" $) | quote }}
+    nginx.ingress.kubernetes.io/auth-realm: Authentication Required
+  {{- end }}
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+  {{- with $.Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+  {{- range $h := list $host (printf "www.%s" $host) }}
+    - host: {{ $h | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "messenger.fullname" $ | quote }}
+                port:
+                  name: http
+  {{- end }}
+{{- if $.Values.ingress.tls.enabled }}
+  tls:
+    - secretName: {{ if $.Values.ingress.tls.auto -}}
+                    {{ printf "%s.tls" ($host | trunc 48 | trimSuffix ".") | quote }}
+                  {{- else -}}
+                    {{ required (print `TLS Secret name must be specified for host ` $host ` !`) (index $.Values.ingress.tls.secretName $host) | quote }}
+                  {{- end }}
+      hosts:
+        - {{ $host | quote }}
+        - {{ printf "www.%s" $host | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
