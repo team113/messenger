@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -70,6 +71,10 @@ class HomeController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  Rx<MyUser?> get myUser => _myUser.myUser;
+
+  Rx<Uint8List?> get background => _settings.background;
 
   @override
   void onInit() {

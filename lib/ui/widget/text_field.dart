@@ -17,8 +17,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 
-import '/util/platform_utils.dart';
 import 'animations.dart';
 
 /// Reactive stylized [TextField] wrapper.
@@ -36,16 +36,19 @@ class ReactiveTextField extends StatelessWidget {
     this.onChanged,
     this.style,
     this.suffix,
-    this.prefix,
+    this.suffixColor,
+    this.suffixSize,
     this.trailing,
     this.type,
+    this.padding,
     this.minLines,
     this.maxLines = 1,
     this.textInputAction,
     this.onSuffixPressed,
     this.prefixText,
-    this.filled,
+    this.prefix,
     this.treatErrorAsStatus = true,
+    this.filled,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -63,15 +66,13 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Optional [IconData] to display instead of the [trailing].
-  ///
-  /// If specified, the [trailing] will be ignored.
+  /// Optional trailing icon.
   final IconData? suffix;
+  final Color? suffixColor;
+  final double? suffixSize;
 
-  /// Optional prefix [Widget].
-  final Widget? prefix;
+  final EdgeInsets? padding;
 
-  /// Optional trailing [Widget].
   final Widget? trailing;
 
   /// Optional label of this [ReactiveTextField].
@@ -115,34 +116,32 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
-  /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
-  /// be treated as a [RxStatus.error].
+  final Widget? prefix;
   final bool treatErrorAsStatus;
 
-  /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets? contentPadding;
+    EdgeInsets? contentPadding = padding;
 
-    if (prefix == null && dense != true) {
+    if (prefix == null && dense != true && contentPadding == null) {
       bool isFilled = filled ?? Theme.of(context).inputDecorationTheme.filled;
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
-          contentPadding = isDense
+          contentPadding = (isDense
               ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-              : const EdgeInsets.fromLTRB(12, 12, 12, 12);
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12));
         } else {
-          contentPadding = isDense
+          contentPadding = (isDense
               ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-              : const EdgeInsets.fromLTRB(0, 12, 0, 12);
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12));
         }
       } else {
-        contentPadding = isDense
+        contentPadding = (isDense
             ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-            : const EdgeInsets.fromLTRB(12, 24, 12, 16);
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16));
       }
 
       contentPadding = contentPadding + const EdgeInsets.only(left: 10);
@@ -151,7 +150,11 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(
       () => Theme(
         data: Theme.of(context).copyWith(
-          scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
+          platform: TargetPlatform.macOS,
+          scrollbarTheme: const ScrollbarThemeData(
+            // thickness: MaterialStateProperty.all(0.0),
+            crossAxisMargin: -10,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -172,8 +175,8 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
-                contentPadding: contentPadding,
                 fillColor: filled == false ? Colors.transparent : null,
+                contentPadding: contentPadding,
                 suffixIconConstraints: suffix == null &&
                         trailing == null &&
                         state.status.value.isEmpty
@@ -222,7 +225,11 @@ class ReactiveTextField extends StatelessWidget {
                                                 key: const ValueKey('Icon'),
                                                 onPressed: onSuffixPressed,
                                                 icon: suffix != null
-                                                    ? Icon(suffix)
+                                                    ? Icon(
+                                                        suffix,
+                                                        color: suffixColor,
+                                                        size: suffixSize,
+                                                      )
                                                     : trailing == null
                                                         ? Container()
                                                         : trailing!,
@@ -240,12 +247,12 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
+                // labelStyle: (style ?? const TextStyle())
+                //     .copyWith(color: const Color(0xFFBBBBBB)),
                 hintText: hint,
                 hintMaxLines: 1,
-
-                // Hide the error's text as the [AnimatedSize] below this
-                // [TextField] displays it better.
                 errorStyle: const TextStyle(fontSize: 0),
+                errorText: state.error.value,
               ),
               obscureText: obscure,
               keyboardType: type,
@@ -253,8 +260,6 @@ class ReactiveTextField extends StatelessWidget {
               maxLines: maxLines,
               textInputAction: textInputAction,
             ),
-
-            // Displays an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
               child: AnimatedSwitcher(
@@ -322,6 +327,7 @@ class TextFieldState extends ReactiveFieldState {
   }) {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
+    // _previousText = controller.text;
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());

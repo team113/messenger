@@ -1,4 +1,4 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022 NIKITA ISAENKO, <https://github.com/SleepySquash>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +29,7 @@ abstract class ModalPopup {
     required Widget child,
     BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
     BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
+    bool isDismissible = true,
   }) {
     if (context.isMobile) {
       return showModalBottomSheet(
@@ -36,6 +37,8 @@ abstract class ModalPopup {
         barrierColor: kCupertinoModalBarrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
+        isDismissible: isDismissible,
+        enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -48,17 +51,19 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    width: 60,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCCCCCC),
-                      borderRadius: BorderRadius.circular(12),
+                if (isDismissible) ...[
+                  Center(
+                    child: Container(
+                      width: 60,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCCCCCC),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
+                ],
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
@@ -78,23 +83,24 @@ abstract class ModalPopup {
       return showDialog(
         context: context,
         barrierColor: kCupertinoModalBarrierColor,
-        builder: (context) => Stack(
-          children: [
-            Center(
-              child: Container(
-                constraints: modalConstraints,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Spacer(),
+        barrierDismissible: isDismissible,
+        builder: (context) {
+          return Center(
+            child: Container(
+              constraints: modalConstraints,
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const Spacer(),
+                      if (isDismissible)
                         InkResponse(
                           onTap: Navigator.of(context).pop,
                           radius: 11,
@@ -104,19 +110,20 @@ abstract class ModalPopup {
                             color: Color(0xBB818181),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                    ConstrainedBox(
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                  Flexible(
+                    child: ConstrainedBox(
                       constraints: desktopConstraints,
-                      child: Center(child: child),
+                      child: child,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       );
     }
   }

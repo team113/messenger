@@ -21,7 +21,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
-import 'animated_delayed_width.dart';
+import 'animated_delayed_container.dart';
 import 'animated_transition.dart';
 
 /// Reorderable [Row] of provided [items].

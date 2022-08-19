@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -26,6 +27,7 @@ import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
+import 'page/personalization/view.dart';
 import 'page/settings/media/controller.dart';
 import 'page/settings/view.dart';
 import 'page/user/view.dart';
@@ -59,6 +61,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
+        ));
+      } else if (route == Routes.personalization) {
+        pages.add(const MaterialPage(
+          key: ValueKey('PersonalizationPage'),
+          name: Routes.personalization,
+          child: PersonalizationView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const MaterialPage(
@@ -149,6 +157,25 @@ class _NestedHomeView extends StatelessWidget {
     if (context.isMobile) {
       return const Scaffold(backgroundColor: Colors.transparent);
     }
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: ConditionalBackdropFilter(
+          borderRadius: BorderRadius.circular(15),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [],
+            ),
+          ),
+        ),
+      ),
+    );
 
     switch (tab) {
       case HomeTab.chats:

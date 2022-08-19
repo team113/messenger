@@ -67,6 +67,7 @@ class GalleryPopup extends StatefulWidget {
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
+    this.onTrashPressed,
   }) : super(key: key);
 
   /// [List] of [GalleryItem]s to display in a gallery.
@@ -80,6 +81,8 @@ class GalleryPopup extends StatefulWidget {
 
   /// Callback, called when the displayed [GalleryItem] is changed.
   final void Function(int)? onPageChanged;
+
+  final void Function(int index)? onTrashPressed;
 
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
@@ -102,7 +105,6 @@ class GalleryPopup extends StatefulWidget {
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       transitionDuration: Duration.zero,
-      useRootNavigator: PlatformUtils.isMobile ? false : true,
     );
   }
 
@@ -401,7 +403,8 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
         setState(() => _page = i);
         _bounds = _calculatePosition() ?? _bounds;
@@ -433,18 +436,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                     )
                   : ContextMenuRegion(
                       enabled: !PlatformUtils.isWeb,
-                      menu: ContextMenu(
-                        actions: [
-                          ContextMenuButton(
-                            label: 'Download',
-                            onPressed: () {},
-                          ),
-                          ContextMenuButton(
-                            label: 'Info',
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
+                      actions: [
+                        ContextMenuButton(
+                          label: 'Download',
+                          onPressed: () {},
+                        ),
+                        ContextMenuButton(
+                          label: 'Info',
+                          onPressed: () {},
+                        ),
+                      ],
                       child: GestureDetector(
                         onTap: () {},
                         onDoubleTap: () {
@@ -468,6 +469,13 @@ class _GalleryPopupState extends State<GalleryPopup>
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
+    var fade = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fading,
+        curve: const Interval(0, 0.5, curve: Curves.ease),
+      ),
+    );
+
     List<Widget> widgets = [
       Align(
         alignment: Alignment.topRight,
@@ -477,10 +485,11 @@ class _GalleryPopupState extends State<GalleryPopup>
             duration: const Duration(milliseconds: 250),
             opacity: _displayClose ? 1 : 0,
             child: SizedBox(
-              width: 50,
-              height: 50,
+              width: 60,
+              height: 60,
               child: RoundFloatingButton(
-                color: const Color(0x66000000),
+                // color: const Color(0x66000000),
+                color: const Color(0x794E5A78),
                 onPressed: _dismiss,
                 withBlur: true,
                 child: const Icon(
@@ -502,6 +511,36 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: const SizedBox(width: 100, height: 100),
         ),
       ),
+      if (widget.onTrashPressed != null)
+        FadeTransition(
+          opacity: fade,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 8),
+              child: SizedBox(
+                width: 60,
+                height: 60,
+                child: RoundFloatingButton(
+                  // color: const Color(0x66000000),
+                  color: const Color(0x794E5A78),
+                  onPressed: () {
+                    widget.onTrashPressed?.call(_page);
+                    _dismiss();
+                  },
+                  withBlur: true,
+                  assetWidth: 27.21,
+                  asset: 'delete',
+                  // child: const Icon(
+                  //   Icons.delete,
+                  //   color: Colors.white,
+                  //   size: 28,
+                  // ),
+                ),
+              ),
+            ),
+          ),
+        ),
     ];
 
     if (widget.children.length > 1 && !PlatformUtils.isMobile) {
@@ -514,7 +553,8 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayLeft ? 1 : 0,
               child: RoundFloatingButton(
-                color: const Color(0x66000000),
+                // color: const Color(0x66000000),
+                color: const Color(0x794E5A78),
                 onPressed: left
                     ? () {
                         node.requestFocus();
@@ -526,12 +566,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 1),
-                  child: Icon(
-                    Icons.keyboard_arrow_left_rounded,
-                    color: left ? Colors.white : Colors.grey,
-                    size: 36,
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 1),
+                    child: Icon(
+                      Icons.keyboard_arrow_left_rounded,
+                      color: left ? Colors.white : Colors.grey,
+                      size: 36,
+                    ),
                   ),
                 ),
               ),
@@ -546,7 +590,8 @@ class _GalleryPopupState extends State<GalleryPopup>
               duration: const Duration(milliseconds: 250),
               opacity: _displayRight ? 1 : 0,
               child: RoundFloatingButton(
-                color: const Color(0x66000000),
+                // color: const Color(0x66000000),
+                color: const Color(0x794E5A78),
                 onPressed: right
                     ? () {
                         node.requestFocus();
@@ -558,12 +603,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     : null,
                 withBlur: true,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 1),
-                  child: Icon(
-                    Icons.keyboard_arrow_right_rounded,
-                    color: right ? Colors.white : Colors.grey,
-                    size: 36,
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 1),
+                    child: Icon(
+                      Icons.keyboard_arrow_right_rounded,
+                      color: right ? Colors.white : Colors.grey,
+                      size: 36,
+                    ),
                   ),
                 ),
               ),
@@ -778,11 +827,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 }
 
-/// Extension of a [GlobalKey] allowing getting global
-/// [RenderObject.paintBounds].
 extension GlobalKeyExtension on GlobalKey {
-  /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
-  /// [Object] this [GlobalKey] represents.
   Rect? get globalPaintBounds {
     final renderObject = currentContext?.findRenderObject();
     final matrix = renderObject?.getTransformTo(null);

@@ -35,6 +35,10 @@ alert_popup_permissions_description =
 alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
+btn_participants = Список участников
+btn_participants_desc =
+    Список
+    участников
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
     Добавить
@@ -122,7 +126,7 @@ btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
     камеру
-btn_change_contact_name = Переименовать контакт
+btn_change_contact_name = Переименовать
 btn_change_password = Сменить пароль
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -130,9 +134,7 @@ btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
 btn_delete_account = Удалить аккаунт
 btn_delete_direct_chat_link = Удалить
-btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
-btn_delete_message = Удалить
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
@@ -141,7 +143,6 @@ btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hide_chat = Скрыть чат
-btn_hide_for_me = Удалить для меня
 btn_join_call = Присоединиться
 btn_leave_chat = Выйти из чата
 btn_login = Войти
@@ -151,10 +152,10 @@ btn_next = Далее
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
-btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_set_password = Задать пароль
 btn_saved_messages = Сохранённые сообщения
+btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_start = Начать
 btn_submit = Применить
@@ -250,7 +251,39 @@ label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
+label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
+label_today = Сегодня
+label_date_monday = Понедельник
+label_date_tuesday = Вторник
+label_date_wednesday = Среда
+label_date_thursday = Четверг
+label_date_friday = Пятница
+label_date_saturday = Суббота
+label_date_sunday = Воскресенье
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
+label_date = { $day }.{ $month }.{ $year }
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -328,6 +361,7 @@ label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
 label_current_password = Текущий пароль
+label_delete_for_all = Удалить для всех
 label_delivered = Доставлено
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
@@ -370,6 +404,7 @@ label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_hidden = Статус скрыт
+label_hide_for_me = Удалить для меня
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =
@@ -383,7 +418,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 
@@ -409,8 +444,9 @@ label_no_registration = без регистрации
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
-label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_or_register = или регистрация
+label_password_not_set = Пароль не задан
 label_password = Пароль
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
@@ -454,3 +490,5 @@ label_video = Видео
 label_video_call = Видеозвонок
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+btn_personalize = Персонализация
+label_personalization = Персонализация

@@ -122,7 +122,7 @@ btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
     video on
-btn_change_contact_name = Rename contact
+btn_change_contact_name = Rename
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
@@ -130,9 +130,7 @@ btn_copy_text = Copy text
 btn_create_group = Create group
 btn_delete_account = Delete account
 btn_delete_direct_chat_link = Delete
-btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
-btn_delete_message = Delete
 btn_dismiss = Dismiss
 btn_download = Download
 btn_edit = Edit
@@ -141,7 +139,6 @@ btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
 btn_hide_chat = Hide chat
-btn_hide_for_me = Delete for me
 btn_join_call = Join
 btn_leave_chat = Leave chat
 btn_login = Log in
@@ -151,7 +148,7 @@ btn_next = Next
 btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
-btn_resend_message = Resend message
+btn_save = Save
 btn_saved_messages = Saved messages
 btn_set_password = Set password
 btn_settings = Settings
@@ -244,8 +241,35 @@ label_add_chat_member = Add member
 label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
-label_add_number_hint = Write your number in format of +33 478 88 88 88,
-label_account_created = Account is created
+label_add_number_hint = Write your number in format of +33 478 88 88 88
+label_account_access_will_be_lost = Account access will be lost
+label_account_created = Account created
+label_today = Today
+label_date_monday = Monday
+label_date_tuesday = Tuesday
+label_date_wednesday = Wednesday
+label_date_thursday = Thursday
+label_date_friday = Friday
+label_date_saturday = Saturday
+label_date_sunday = Sunday
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Today
+                            [1] Yesterday
+                            *[other] {$days} days ago
+                        }
+                    [1] A week ago
+                    *[other] {$weeks} weeks ago
+                }
+            [1] A month ago
+            *[other] {$months} months ago
+        }
+    [1] An year ago
+    *[other] {$years} years ago
+}
+label_date = { $day }.{ $month }.{ $year }
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -316,6 +340,7 @@ label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
+label_delete_for_all = Delete for all
 label_delivered = Delivered
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
@@ -356,6 +381,7 @@ label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_hidden = Status is hidden
+label_hide_for_me = Delete for me
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =
@@ -398,6 +424,7 @@ label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
 label_password = Password
+label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed
 label_phone_confirmation_code_was_send =
@@ -440,3 +467,5 @@ label_video = Video
 label_video_call = Video call
 label_you = You
 label_you_were_added_to_group = You were added to the group
+btn_personalize = Personalization
+label_personalization = Personalization

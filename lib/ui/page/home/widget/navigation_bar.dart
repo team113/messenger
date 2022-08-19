@@ -14,10 +14,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
@@ -52,69 +56,110 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: double.infinity,
-          color: const Color(0xFFE0E0E0),
-          height: 0.5,
+    Style style = Theme.of(context).extension<Style>()!;
+    bool isMobile = false; //context.isMobile;
+
+    return Padding(
+      padding:
+          isMobile ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+              blurStyle: BlurStyle.outer,
+            ),
+          ],
+          borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: items
-                .mapIndexed(
-                  (i, e) => Expanded(
-                    key: e.key,
-                    child: InkResponse(
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () => onTap?.call(i),
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          color: currentIndex == i
-                              ? selectedColor
-                              : unselectedColor,
-                          fontSize: 11,
-                        ),
-                        child: Column(
-                          children: [
-                            if (e.icon != null)
-                              Badge(
-                                badgeContent: e.badge == null
-                                    ? null
-                                    : Text(
-                                        e.badge!,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Container(
+            //   width: double.infinity,
+            //   color: const Color(0xFFE0E0E0),
+            //   height: 0.5,
+            // ),
+            ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  // color: Theme.of(context)
+                  //     .appBarTheme
+                  //     .backgroundColor
+                  //     ?.withOpacity(0.8),
+                  // color: const Color(0x301D6AAE),
+                  color: style.cardColor,
+                  borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+                ),
+                height: 56,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: items
+                        .mapIndexed(
+                          (i, e) => Expanded(
+                            key: e.key,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (e.icon != null || e.leading != null)
+                                  Badge(
+                                    badgeContent: e.badge == null
+                                        ? null
+                                        : Text(
+                                            e.badge!,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                    showBadge: e.badge != null,
+                                    child: InkResponse(
+                                      hoverColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      splashColor: Colors.transparent,
+                                      onTap: () => onTap?.call(i),
+                                      child: DefaultTextStyle(
+                                        style: TextStyle(
+                                          color: currentIndex == i
+                                              ? selectedColor
+                                              : unselectedColor,
                                           fontSize: 11,
                                         ),
+                                        child: e.leading ??
+                                            FaIcon(
+                                              e.icon,
+                                              color: e.color ??
+                                                  (currentIndex == i
+                                                      ? selectedColor
+                                                      : unselectedColor),
+                                              size: e.size ?? size,
+                                            ),
                                       ),
-                                showBadge: e.badge != null,
-                                child: FaIcon(
-                                  e.icon,
-                                  color: e.color ??
-                                      (currentIndex == i
-                                          ? selectedColor
-                                          : unselectedColor),
-                                  size: e.size ?? size,
-                                ),
-                              ),
-                            Text(e.label ?? ''),
-                          ],
-                        ),
-                      ),
-                    ),
+                                    ),
+                                  ),
+                                if (e.label != null) Text(e.label!),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
-                )
-                .toList(),
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -128,6 +173,7 @@ class CustomNavigationBarItem {
     this.size,
     this.color,
     this.badge,
+    this.leading,
   });
 
   /// Unique [Key] of this [CustomNavigationBarItem].
@@ -149,4 +195,6 @@ class CustomNavigationBarItem {
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
+
+  final Widget? leading;
 }

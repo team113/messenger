@@ -14,26 +14,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/util/platform_utils.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/call/widget/animated_dots.dart';
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
 
@@ -47,52 +55,110 @@ class ChatsTabView extends StatelessWidget {
       key: const Key('ChatsTab'),
       init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (ChatsTabController c) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('label_chats'.l10n),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(0.5),
-              child: Container(
-                color: const Color(0xFFE0E0E0),
-                height: 0.5,
+        return Stack(
+          children: [
+            Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: CustomAppBar.from(
+                context: context,
+                title: Text('label_chats'.l10n),
+                leading: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: IconButton(
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onPressed: () {},
+                      icon: SvgLoader.asset(
+                        'assets/icons/search.svg',
+                        width: 17.77,
+                      ),
+                    ),
+                  )
+                ],
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: IconButton(
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (c) => const CreateGroupView(),
+                      ),
+                      icon: SvgLoader.asset(
+                        'assets/icons/add.svg',
+                        height: 17,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (c) => const CreateGroupView(),
-                ),
-                icon: const Icon(Icons.add),
-              ),
-            ],
-          ),
-          body: Obx(
-            () => c.chatsReady.value
-                ? c.chats.isEmpty
-                    ? Center(child: Text('label_no_chats'.l10n))
-                    : ContextMenuInterceptor(
-                        child: ListView(
-                          controller: ScrollController(),
-                          children: c.chats
-                              .map(
-                                (e) => KeyedSubtree(
-                                  key: Key('Chat_${e.chat.value.id}'),
-                                  child: buildChatTile(c, e),
+              body: Obx(() {
+                if (c.chatsReady.value) {
+                  if (c.chats.isEmpty) {
+                    return Center(child: Text('label_no_chats'.l10n));
+                  }
+
+                  var metrics = MediaQuery.of(context);
+                  return MediaQuery(
+                    data: metrics.copyWith(
+                      padding: metrics.padding.copyWith(
+                        top: metrics.padding.top + 56 + 4,
+                        bottom: metrics.padding.bottom - 18,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 10),
+                      child: ContextMenuInterceptor(
+                        child: AnimationLimiter(
+                          child: ListView.builder(
+                            controller: ScrollController(),
+                            itemCount: c.chats.length,
+                            itemBuilder: (BuildContext context, int i) {
+                              var e = c.chats[i];
+                              return AnimationConfiguration.staggeredList(
+                                position: i,
+                                duration: const Duration(milliseconds: 375),
+                                child: SlideAnimation(
+                                  horizontalOffset: 50.0,
+                                  child: FadeInAnimation(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 10,
+                                        right: 10,
+                                      ),
+                                      child: buildChatTile(context, c, e),
+                                    ),
+                                  ),
                                 ),
-                              )
-                              .toList(),
+                              );
+                            },
+                          ),
                         ),
-                      )
-                : const Center(child: CircularProgressIndicator()),
-          ),
+                      ),
+                    ),
+                  );
+                }
+
+                return const Center(child: CircularProgressIndicator());
+              }),
+            ),
+          ],
         );
       },
     );
   }
 
-  /// Reactive [ListTile] with [chat]'s information.
-  Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
+  /// Reactive [ListTile] with [RxChat]'s information.
+  Widget buildChatTile(
+    BuildContext context,
+    ChatsTabController c,
+    RxChat rxChat,
+  ) =>
+      Obx(() {
         Chat chat = rxChat.chat.value;
 
         ChatItem? lastItem;
@@ -110,29 +176,51 @@ class ChatsTabView extends StatelessWidget {
 
         if (chat.currentCall == null) {
           if (typings.isNotEmpty) {
-            subtitle = [
-              Expanded(
-                child: Row(
+            if (!rxChat.chat.value.isGroup) {
+              subtitle = [
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Icon(Icons.edit, size: 15),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        typings.join(', '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      'Печатает'.l10n,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
-                    const SizedBox(width: 2),
-                    Text(typings.length > 1
-                        ? 'label_typings'.l10n
-                        : 'label_typing'.l10n),
-                    const AnimatedDots(color: Colors.black)
+                    const SizedBox(width: 3),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 4),
+                      child: AnimatedTyping(),
+                    ),
                   ],
                 ),
-              )
-            ];
+              ];
+            } else {
+              subtitle = [
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          typings.join(', '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 4),
+                        child: AnimatedTyping(),
+                      ),
+                    ],
+                  ),
+                )
+              ];
+            }
           } else if (lastItem != null) {
             if (lastItem is ChatCall) {
               var item = chat.lastItem as ChatCall;
@@ -143,7 +231,7 @@ class ChatsTabView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                     child: ElevatedButton(
                       onPressed: () => c.joinCall(chat.id),
-                      child: Text('btn_join_call'.l10n),
+                      child: Text('btn_chat_join_call'.l10n),
                     ),
                   ),
                 ];
@@ -185,40 +273,30 @@ class ChatsTabView extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 5),
                     child: FutureBuilder<RxUser?>(
                       future: c.getUser(item.authorId),
-                      builder: (_, snapshot) => snapshot.data != null
-                          ? Obx(
-                              () => AvatarWidget.fromUser(
-                                snapshot.data!.user.value,
-                                radius: 10,
-                              ),
-                            )
-                          : AvatarWidget.fromUser(
-                              chat.getUser(item.authorId),
-                              radius: 10,
-                            ),
+                      builder: (_, snapshot) => AvatarWidget.fromRxUser(
+                        snapshot.data,
+                        radius: 10,
+                      ),
                     ),
                   ),
                 Flexible(child: Text(desc.toString(), maxLines: 2)),
                 ElasticAnimatedSwitcher(
                   child: item.status.value == SendingStatus.sending
-                      ? const Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: Icon(Icons.access_alarm, size: 15),
-                        )
+                      ? const Icon(Icons.access_alarm, size: 15)
                       : item.status.value == SendingStatus.error
-                          ? const Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Icon(
-                                Icons.error_outline,
-                                size: 15,
-                                color: Colors.red,
-                              ),
+                          ? const Icon(
+                              Icons.error_outline,
+                              size: 15,
+                              color: Colors.red,
                             )
                           : Container(),
                 ),
               ];
             } else {
               // TODO: Implement other ChatItems.
+              subtitle = [
+                const Flexible(child: Text('Пустое сообщение', maxLines: 2))
+              ];
             }
           }
         } else {
@@ -256,82 +334,356 @@ class ChatsTabView extends StatelessWidget {
           ];
         }
 
+        Style style = Theme.of(context).extension<Style>()!;
+
+        bool selected = router.routes
+                .lastWhereOrNull(
+                  (e) => e.startsWith(Routes.chat),
+                )
+                ?.startsWith('${Routes.chat}/${chat.id}') ==
+            true;
+
+        // return Row(
+        //   children: [
+        //     AvatarWidget.fromRxChat(rxChat, radius: 30),
+        //     const SizedBox(width: 12),
+        //     Expanded(
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.start,
+        //         children: [
+        //           Row(
+        //             children: [
+        //               Expanded(
+        //                 child: Text(
+        //                   rxChat.title.value,
+        //                   overflow: TextOverflow.ellipsis,
+        //                   maxLines: 1,
+        //                   style: Theme.of(context).textTheme.headline5,
+        //                 ),
+        //               ),
+        //               const SizedBox(height: 10),
+        //               Text(
+        //                 '10:10',
+        //                 style: Theme.of(context).textTheme.subtitle2,
+        //               ),
+        //             ],
+        //           ),
+        //           Row(
+        //             children: [
+        //               const SizedBox(height: 3),
+        //               Expanded(
+        //                 child: DefaultTextStyle(
+        //                   style: Theme.of(context).textTheme.subtitle2!,
+        //                   overflow: TextOverflow.ellipsis,
+        //                   child: Padding(
+        //                     padding: const EdgeInsets.only(top: 3),
+        //                     child: Row(children: subtitle ?? []),
+        //                   ),
+        //                 ),
+        //               ),
+        //               if (chat.unreadCount != 0) ...[
+        //                 const SizedBox(height: 10),
+        //                 Badge(
+        //                   toAnimate: false,
+        //                   elevation: 0,
+        //                   badgeContent: Padding(
+        //                     padding: const EdgeInsets.all(2.0),
+        //                     child: Text(
+        //                       '${chat.unreadCount}',
+        //                       style: const TextStyle(
+        //                         color: Colors.white,
+        //                         fontSize: 11,
+        //                       ),
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ],
+        //             ],
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // );
+
         return ContextMenuRegion(
           key: Key('ContextMenuRegion_${chat.id}'),
           preventContextMenu: false,
-          menu: ContextMenu(
-            actions: [
+          actions: [
+            ContextMenuButton(
+              key: const Key('ButtonHideChat'),
+              label: 'btn_hide_chat'.l10n,
+              onPressed: () => c.hideChat(chat.id),
+            ),
+            if (chat.isGroup)
               ContextMenuButton(
-                key: const Key('ButtonHideChat'),
-                label: 'btn_hide_chat'.l10n,
-                onPressed: () => c.hideChat(chat.id),
+                key: const Key('ButtonLeaveChat'),
+                label: 'btn_leave_chat'.l10n,
+                onPressed: () => c.leaveChat(chat.id),
               ),
-              if (chat.isGroup)
-                ContextMenuButton(
-                  key: const Key('ButtonLeaveChat'),
-                  label: 'btn_leave_chat'.l10n,
-                  onPressed: () => c.leaveChat(chat.id),
+          ],
+          child: Padding(
+            // padding: const EdgeInsets.fromLTRB(6, 3, 6, 3),
+            // padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: ConditionalBackdropFilter(
+              condition: false,
+              filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+              borderRadius:
+                  context.isMobile ? BorderRadius.zero : style.cardRadius,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  color: Colors.transparent,
+                  // borderRadius: BorderRadius.circular(10),
+                  // color: Theme.of(context).appBarTheme.backgroundColor,
+                  // color: Colors.white.withOpacity(0.5),
+                  // color: const Color(0xFFF9FBFB),
+                  // border: c.chats.indexOf(rxChat) < 3
+                  //     ? Border.all(color: const Color(0xFFDDDDDD), width: 0.5)
+                  //     : null,
+                  // color: c.chats.indexOf(rxChat) < 3
+                  //     ? const Color(0xFFFAFAFA).withOpacity(0.5)
+                  //     : const Color(0xFFF9FBFB).withOpacity(1),
                 ),
-            ],
-          ),
-          child: ListTile(
-            leading: Obx(
-              () => Badge(
-                showBadge: rxChat.chat.value.isDialog &&
-                    rxChat.members.values
-                            .firstWhereOrNull((e) => e.id != c.me)
-                            ?.user
-                            .value
-                            .online ==
-                        true,
-                badgeContent: Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  padding: const EdgeInsets.all(5),
-                ),
-                padding: const EdgeInsets.all(2),
-                badgeColor: Colors.white,
-                animationType: BadgeAnimationType.scale,
-                position: BadgePosition.bottomEnd(bottom: 0, end: 0),
-                elevation: 0,
-                child: AvatarWidget.fromRxChat(rxChat),
-              ),
-            ),
-            title: Text(
-              rxChat.title.value,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            subtitle: subtitle == null
-                ? null
-                : DefaultTextStyle.merge(
-                    style: const TextStyle(color: subtitleColor),
-                    overflow: TextOverflow.ellipsis,
+                child: Material(
+                  type: MaterialType.card,
+                  // color: Colors.white.withOpacity(0.5),
+                  borderRadius: style.cardRadius,
+                  // color: Colors.transparent,
+                  color: selected
+                      ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                      : style.cardColor,
+                  // color: selected
+                  //     ? const Color(0xFFD7ECFF)
+                  //     : const Color(0x00D7ECFF),
+                  child: InkWell(
+                    borderRadius: style.cardRadius,
+                    onTap: () => router.chat(chat.id),
+                    // borderRadius: BorderRadius.circular(10),
+                    // splashColor: selected ? Colors.transparent : null,
+                    // highlightColor: selected ? Colors.transparent : null,
+                    hoverColor: selected
+                        ? const Color(0x00D7ECFF)
+                        : const Color(0xFFD7ECFF).withOpacity(0.8),
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Row(children: subtitle),
-                    ),
-                  ),
-            trailing: chat.unreadCount == 0
-                ? null
-                : Badge(
-                    toAnimate: false,
-                    elevation: 0,
-                    badgeContent: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Text(
-                        '${chat.unreadCount}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                        ),
+                      // padding: const EdgeInsets.fromLTRB(6, 8, 6, 8),
+                      // padding: const EdgeInsets.fromLTRB(6, 10, 6, 10),
+                      padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                      child: Row(
+                        children: [
+                          AvatarWidget.fromRxChat(rxChat, radius: 30),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        rxChat.title.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      '10:10',
+                                      style:
+                                          Theme.of(context).textTheme.subtitle2,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const SizedBox(height: 3),
+                                    Expanded(
+                                      child: DefaultTextStyle(
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle2!,
+                                        overflow: TextOverflow.ellipsis,
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 3),
+                                          child: Row(children: subtitle ?? []),
+                                        ),
+                                      ),
+                                    ),
+                                    if (chat.unreadCount != 0) ...[
+                                      const SizedBox(height: 10),
+                                      Badge(
+                                        toAnimate: false,
+                                        elevation: 0,
+                                        badgeContent: Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: Text(
+                                            '${chat.unreadCount}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-            onTap: () => router.chat(chat.id),
+                ),
+              ),
+            ),
           ),
+          /* child: Container(
+            margin: const EdgeInsets.fromLTRB(3, 1.5, 3, 1.5),
+            child: Material(
+              type: MaterialType.card,
+              color: const Color(0xFFF9FBFB),
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                onTap: () => router.chat(chat.id),
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                  child: Row(
+                    children: [
+                      AvatarWidget.fromRxChat(rxChat, radius: 30),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rxChat.title.value,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  ?.copyWith(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            if (subtitle != null) ...[
+                              const SizedBox(height: 3),
+                              DefaultTextStyle.merge(
+                                style: Get.textTheme.bodyText1?.copyWith(
+                                  fontSize: 15,
+                                  color: subtitleColor,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 3),
+                                  child: Row(children: subtitle),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (chat.unreadCount != 0)
+                        Badge(
+                          toAnimate: false,
+                          elevation: 0,
+                          badgeContent: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: Text(
+                              '${chat.unreadCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),*/
+          // child: ListTile(
+          //   leading: AvatarWidget.fromRxChat(rxChat, radius: 80),
+          //   title: Text(
+          //     rxChat.title.value,
+          //     overflow: TextOverflow.ellipsis,
+          //     maxLines: 1,
+          //   ),
+          //   subtitle: subtitle == null
+          //       ? null
+          //       : DefaultTextStyle.merge(
+          //           style: const TextStyle(color: subtitleColor),
+          //           overflow: TextOverflow.ellipsis,
+          //           child: Padding(
+          //             padding: const EdgeInsets.only(top: 3),
+          //             child: Row(children: subtitle),
+          //           ),
+          //         ),
+          //   trailing: chat.unreadCount == 0
+          //       ? null
+          //       : Badge(
+          //           toAnimate: false,
+          //           elevation: 0,
+          //           badgeContent: Padding(
+          //             padding: const EdgeInsets.all(2.0),
+          //             child: Text(
+          //               '${chat.unreadCount}',
+          //               style: const TextStyle(
+          //                 color: Colors.white,
+          //                 fontSize: 11,
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //   onTap: () => router.chat(chat.id),
+          // ),
         );
       });
+}
+
+class FadedEdges extends StatelessWidget {
+  const FadedEdges(
+      {Key? key,
+      required this.child,
+      this.colors,
+      this.stops,
+      this.isHorizontal = false})
+      : super(key: key);
+  final Widget child;
+  final List<Color>? colors;
+  final List<double>? stops;
+  final bool isHorizontal;
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+        blendMode: BlendMode.dstOut,
+        shaderCallback: (Rect rect) => LinearGradient(
+                colors: colors ??
+                    [
+                      Colors.white.withOpacity(0.80),
+                      Colors.transparent,
+                      Colors.transparent,
+                      Colors.white.withOpacity(0.80)
+                    ],
+                stops: stops ?? const [0.1, 0.15, 0.85, 1.0],
+                begin:
+                    !isHorizontal ? Alignment.topCenter : Alignment.centerLeft,
+                end: !isHorizontal
+                    ? Alignment.bottomCenter
+                    : Alignment.centerRight)
+            .createShader(rect),
+        child: child);
+  }
 }

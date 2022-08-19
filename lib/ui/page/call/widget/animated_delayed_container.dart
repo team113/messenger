@@ -16,13 +16,16 @@
 
 import 'package:flutter/material.dart';
 
-/// [AnimatedContainer] changing its width.
+/// [AnimatedContainer] changing its width from the [beginWidth] to the
+/// [endWidth].
 class AnimatedDelayedWidth extends StatefulWidget {
   const AnimatedDelayedWidth({
     Key? key,
     this.delay = Duration.zero,
-    required this.beginWidth,
-    required this.endWidth,
+    this.beginWidth,
+    this.endWidth,
+    this.beginColor,
+    this.endColor,
     this.duration = const Duration(milliseconds: 300),
   }) : super(key: key);
 
@@ -33,28 +36,36 @@ class AnimatedDelayedWidth extends StatefulWidget {
   final Duration duration;
 
   /// Initial width of the [AnimatedContainer].
-  final double beginWidth;
+  final double? beginWidth;
 
   /// Target width of the [AnimatedContainer].
-  final double endWidth;
+  final double? endWidth;
+
+  final Color? beginColor;
+  final Color? endColor;
 
   @override
   State<AnimatedDelayedWidth> createState() => _AnimatedDelayedWidthState();
 }
 
-/// State of an [AnimatedDelayedWidth] maintaining its [width].
+/// State of an [AnimatedDelayedWidth] maintaining the [width].
 class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
   /// Current width value.
-  late double width;
+  late double? width;
+  late Color? color;
 
   @override
   void initState() {
     super.initState();
 
     width = widget.beginWidth;
+    color = widget.beginColor;
+
     Future.delayed(widget.delay, () {
       if (mounted) {
-        setState(() => width = widget.endWidth);
+        width = widget.endWidth;
+        color = widget.endColor;
+        setState(() {});
       }
     });
   }
@@ -64,6 +75,7 @@ class _AnimatedDelayedWidthState extends State<AnimatedDelayedWidth> {
     return AnimatedContainer(
       duration: widget.duration,
       width: width,
+      color: color,
       curve: Curves.ease,
     );
   }

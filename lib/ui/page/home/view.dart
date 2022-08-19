@@ -15,22 +15,24 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
-import '/l10n/l10n.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -105,93 +107,158 @@ class _HomeViewState extends State<HomeView> {
         ///    `sideBarWidthPercentage`).
         ///    Navigator is drawn under the side bar (so the page animation is
         ///    correct).
-        final sideBar = Row(
-          children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: context.isMobile
-                    ? context.width
-                    : context.width > HomeController.maxSideBarExpandWidth
-                        ? HomeController.maxSideBarExpandWidth *
-                            HomeController.sideBarWidthPercentage
-                        : context.width * HomeController.sideBarWidthPercentage,
-              ),
-              child: Scaffold(
-                body: Listener(
-                  onPointerSignal: (s) {
-                    if (s is PointerScrollEvent) {
-                      if (s.scrollDelta.dx.abs() < 3 &&
-                          (s.scrollDelta.dy.abs() > 3 ||
-                              c.verticalScrollTimer.value != null)) {
-                        c.verticalScrollTimer.value?.cancel();
-                        c.verticalScrollTimer.value =
-                            Timer(150.milliseconds, () {
-                          c.verticalScrollTimer.value = null;
-                        });
-                      }
-                    }
-                  },
-                  child: Obx(
-                    () => PageView(
-                      physics: c.verticalScrollTimer.value == null
-                          ? null
-                          : const NeverScrollableScrollPhysics(),
-                      controller: c.pages,
-                      onPageChanged: (i) => router.tab = HomeTab.values[i],
-
-                      // [KeepAlivePage] used to keep the tabs' states.
-                      children: const [
-                        KeepAlivePage(child: ContactsTabView()),
-                        KeepAlivePage(child: ChatsTabView()),
-                        KeepAlivePage(child: MenuTabView()),
-                      ],
-                    ),
-                  ),
+        final sideBar = AnimatedOpacity(
+          duration: 150.milliseconds,
+          opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
+          child: Row(
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: context.isMobile
+                      ? context.width
+                      : context.width > HomeController.maxSideBarExpandWidth
+                          ? HomeController.maxSideBarExpandWidth *
+                              HomeController.sideBarWidthPercentage
+                          : context.width *
+                              HomeController.sideBarWidthPercentage,
                 ),
-                bottomNavigationBar: SafeArea(
-                  child: Obx(
-                    () => CustomNavigationBar(
-                      selectedColor: Colors.blue,
-                      unselectedColor: const Color(0xA6818181),
-                      size: 20,
-                      items: [
-                        CustomNavigationBarItem(
-                          key: const Key('ContactsButton'),
-                          icon: FontAwesomeIcons.solidCircleUser,
-                          label: 'label_tab_contacts'.l10n,
-                        ),
-                        CustomNavigationBarItem(
-                            key: const Key('ChatsButton'),
-                            icon: FontAwesomeIcons.solidComment,
-                            label: 'label_tab_chats'.l10n,
-                            badge: c.unreadChatsCount.value == 0
+                child: ConditionalBackdropFilter(
+                  condition: context.isMobile,
+                  filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                  child: Container(
+                    color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                    child: Scaffold(
+                      // backgroundColor: Colors.transparent,
+                      body: Listener(
+                        onPointerSignal: (s) {
+                          if (s is PointerScrollEvent) {
+                            if (s.scrollDelta.dx.abs() < 3 &&
+                                (s.scrollDelta.dy.abs() > 3 ||
+                                    c.verticalScrollTimer.value != null)) {
+                              c.verticalScrollTimer.value?.cancel();
+                              c.verticalScrollTimer.value =
+                                  Timer(150.milliseconds, () {
+                                c.verticalScrollTimer.value = null;
+                              });
+                            }
+                          }
+                        },
+                        child: Obx(
+                          () => PageView(
+                            physics: c.verticalScrollTimer.value == null
                                 ? null
-                                : '${c.unreadChatsCount.value}'),
-                        CustomNavigationBarItem(
-                          key: const Key('MenuButton'),
-                          icon: FontAwesomeIcons.bars,
-                          label: 'label_tab_menu'.l10n,
+                                : const NeverScrollableScrollPhysics(),
+                            controller: c.pages,
+                            onPageChanged: (i) {
+                              router.tab = HomeTab.values[i];
+                              c.page.value = router.tab;
+                            },
+
+                            /// [KeepAlivePage] used to keep the tabs' states.
+                            children: const [
+                              KeepAlivePage(child: ContactsTabView()),
+                              KeepAlivePage(child: ChatsTabView()),
+                              KeepAlivePage(child: MenuTabView()),
+                            ],
+                          ),
                         ),
-                      ],
-                      currentIndex: router.tab.index,
-                      onTap: (i) => c.pages.jumpToPage(i),
+                      ),
+                      extendBody: true,
+                      bottomNavigationBar: SafeArea(
+                        child: Obx(
+                          () => CustomNavigationBar(
+                            selectedColor: const Color(0xFF63B4FF),
+                            unselectedColor: const Color(0xFF88c6ff),
+                            size: 30,
+                            items: [
+                              CustomNavigationBarItem(
+                                key: Key('ContactsButton'),
+                                // icon: FontAwesomeIcons.solidCircleUser,
+                                // label: 'label_tab_contacts'.l10n,
+                                leading: Obx(
+                                  () => AnimatedOpacity(
+                                    duration: 150.milliseconds,
+                                    opacity: c.page.value == HomeTab.contacts
+                                        ? 1
+                                        : 0.8,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/contacts_active.svg',
+                                      width: 30,
+                                      height: 30,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                // icon: FontAwesomeIcons.solidComment,
+                                // label: 'label_tab_chats'.l10n,
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                leading: Obx(
+                                  () => Padding(
+                                    padding: const EdgeInsets.only(top: 0),
+                                    child: AnimatedOpacity(
+                                      duration: 150.milliseconds,
+                                      opacity: c.page.value == HomeTab.chats
+                                          ? 1
+                                          : 0.8,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/chats_active.svg',
+                                        width: 36.06,
+                                        height: 30,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                // icon: FontAwesomeIcons.bars,
+                                leading: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Obx(
+                                    () => AnimatedOpacity(
+                                      duration: 150.milliseconds,
+                                      opacity: c.page.value == HomeTab.menu
+                                          ? 1
+                                          : 0.8,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // label: 'label_tab_menu'.l10n,
+                              ),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: (i) {
+                              c.pages.jumpToPage(i);
+                            },
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (!context.isMobile)
-              const VerticalDivider(
-                width: 0.5,
-                thickness: 0.5,
-                color: Color(0xFFE0E0E0),
-              )
-          ],
+              // if (!context.isMobile)
+              //   const VerticalDivider(
+              //     width: 0.5,
+              //     thickness: 0.5,
+              //     color: Color(0xFFDADADA),
+              //   )
+            ],
+          ),
         );
 
         /// Nested navigation widget that displays [navigator] in an [Expanded]
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
+          key: const Key('Navigation'),
           ignoring: router.route == Routes.home && context.isMobile,
           child: LayoutBuilder(
             builder: (context, constraints) => Row(
@@ -213,6 +280,7 @@ class _HomeViewState extends State<HomeView> {
                     routerDelegate: _routerDelegate,
                     backButtonDispatcher: _backButtonDispatcher,
                   ),
+                  // TODO(design): because of _CupertinoEdgeShadowDecoration.
                 ),
               ],
             ),
@@ -227,17 +295,165 @@ class _HomeViewState extends State<HomeView> {
         /// children to be updated as well.
         return CallOverlayView(
           child: Obx(
-            () => c.authStatus.value.isSuccess
-                ? Stack(
-                    key: const Key('HomeView'),
-                    children: [
-                      Container(child: context.isMobile ? null : navigation),
-                      sideBar,
-                      Container(child: context.isMobile ? navigation : null),
-                    ],
+            () => Stack(
+              key: const Key('HomeView'),
+              children: [
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Obx(() {
+                      if (c.background.value != null) {
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Image.memory(
+                                c.background.value!,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Container(
+                                color: Colors.black.withOpacity(0.05),
+                              ),
+                            ),
+                            if (!context.isMobile) ...[
+                              Row(
+                                children: [
+                                  ConditionalBackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 100, sigmaY: 100),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: context.isMobile
+                                            ? 0
+                                            : context.width >
+                                                    HomeController
+                                                        .maxSideBarExpandWidth
+                                                ? HomeController
+                                                        .maxSideBarExpandWidth *
+                                                    HomeController
+                                                        .sideBarWidthPercentage
+                                                : context.width *
+                                                    HomeController
+                                                        .sideBarWidthPercentage,
+                                      ),
+                                      child: Container(),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: IgnorePointer(
+                                      child: Container(
+                                          color: const Color(0x04000000)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ]
+                          ],
+                        );
+                      }
+
+                      return Stack(
+                        children: [
+                          Positioned.fill(
+                            child: SvgLoader.asset(
+                              'assets/images/background_light.svg',
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.05),
+                            ),
+                          ),
+                          if (!context.isMobile) ...[
+                            Row(
+                              children: [
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: context.isMobile
+                                        ? 0
+                                        : context.width >
+                                                HomeController
+                                                    .maxSideBarExpandWidth
+                                            ? HomeController
+                                                    .maxSideBarExpandWidth *
+                                                HomeController
+                                                    .sideBarWidthPercentage
+                                            : context.width *
+                                                HomeController
+                                                    .sideBarWidthPercentage,
+                                  ),
+                                  child: Container(),
+                                ),
+                                Expanded(
+                                  child: IgnorePointer(
+                                    child: Container(
+                                        color: const Color(0x04000000)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      );
+
+                      return Image.asset(
+                        'assets/images/bg-gapopa2.jpg',
+                        repeat: ImageRepeat.repeat,
+                      );
+                    }),
+                  ),
+                ),
+                if (c.authStatus.value.isSuccess) ...[
+                  Container(child: context.isMobile ? null : navigation),
+                  sideBar,
+                  Container(child: context.isMobile ? navigation : null),
+                ] else ...[
+                  const Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: Center(child: CircularProgressIndicator()),
                   )
-                : const Scaffold(
-                    body: Center(child: CircularProgressIndicator())),
+                ],
+                // Align(
+                //   alignment: Alignment.bottomCenter,
+                //   child: Container(
+                //     color: Colors.white,
+                //     child: SafeArea(
+                //       child: Obx(
+                //         () => CustomNavigationBar(
+                //           selectedColor: const Color(0xFF63B4FF),
+                //           unselectedColor: const Color(0xA6818181),
+                //           size: 20,
+                //           items: [
+                //             CustomNavigationBarItem(
+                //               key: const Key('ContactsButton1'),
+                //               icon: FontAwesomeIcons.solidCircleUser,
+                //               label: 'label_tab_contacts'.l10n,
+                //             ),
+                //             CustomNavigationBarItem(
+                //                 key: const Key('ChatsButton1'),
+                //                 icon: FontAwesomeIcons.solidComment,
+                //                 label: 'label_tab_chats'.l10n,
+                //                 badge: c.unreadChatsCount.value == 0
+                //                     ? null
+                //                     : '${c.unreadChatsCount.value}'),
+                //             CustomNavigationBarItem(
+                //               key: const Key('MenuButton1'),
+                //               icon: FontAwesomeIcons.bars,
+                //               label: 'label_tab_menu'.l10n,
+                //             ),
+                //           ],
+                //           currentIndex: router.tab.index,
+                //           onTap: (i) => c.pages.jumpToPage(i),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
           ),
         );
       },

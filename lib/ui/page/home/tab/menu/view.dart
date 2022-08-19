@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -42,28 +43,69 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
       builder: (MenuTabController c) => Scaffold(
-        appBar: AppBar(
-          title: Text('label_menu'.l10n),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.5),
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              height: 0.5,
-            ),
+        // backgroundColor: Colors.white,
+        // backgroundColor: const Color(0xFFF5F8FA),
+        appBar: CustomAppBar.from(
+          context: context,
+          // backgroundColor: const Color(0xFFF9FBFB),
+          title: Text(
+            'label_menu'.l10n,
+            style: Theme.of(context).textTheme.caption?.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 18,
+                ),
           ),
+          // bottom: PreferredSize(
+          //   preferredSize: const Size.fromHeight(0.5),
+          //   child: Container(
+          //     color: const Color(0xFFE0E0E0),
+          //     height: 0.5,
+          //   ),
+          // ),
         ),
         body: Obx(
           () => ListView(
+            controller: ScrollController(),
             children: [
               const SizedBox(height: 10),
-              ListTile(
-                key: const Key('MyProfileButton'),
-                title:
-                    Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.l10n),
-                leading: AvatarWidget.fromMyUser(c.myUser.value),
-                onTap: router.me,
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: router.me,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                    child: Row(
+                      children: [
+                        AvatarWidget.fromMyUser(c.myUser.value, radius: 25),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            c.myUser.value?.name?.val ??
+                                'btn_your_profile'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
+              // ListTile(
+              //   key: const Key('MyProfileButton'),
+              //   title: Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.l10n),
+              //   leading: AvatarWidget.fromMyUser(c.myUser.value),
+              //   onTap: router.me,
+              // ),
               ...divider,
+              ListTile(
+                key: const Key('PersonalizationButton'),
+                title: Text('btn_personalize'.l10n),
+                leading: const Icon(Icons.design_services),
+                onTap: router.personalization,
+              ),
               ListTile(
                 key: const Key('SettingsButton'),
                 title: Text('btn_settings'.l10n),

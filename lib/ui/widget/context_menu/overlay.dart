@@ -18,6 +18,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:messenger/routes.dart';
 
 /// Overlay of a context menu.
 ///
@@ -49,6 +50,8 @@ class ContextMenuOverlay extends StatefulWidget {
 class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Currently opened context menu.
   final Rx<Widget?> menu = Rx(null);
+
+  final RxnString id = RxnString(null);
 
   /// Size of the [ContextMenuOverlay].
   Size? _area;
@@ -177,10 +180,12 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   }
 
   /// Sets the current menu to [child] at [position].
-  void show(Widget child, Offset position) => setState(() {
-        _position = position;
-        menu.value = child;
-      });
+  void show(Widget child, Offset position) {
+    setState(() {
+      _position = position;
+      menu.value = child;
+    });
+  }
 
   /// Hides the current menu if there is one.
   void hide() => setState(() => menu.value = null);

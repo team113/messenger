@@ -21,6 +21,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -42,7 +43,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -438,7 +438,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               [
                 _padding(withDescription(
                   AddMemberCallButton(c).build(),
-                  Text('btn_add_participant_desc'.l10n),
+                  Text('btn_participants_desc'.l10n),
                 )),
                 _padding(withDescription(
                   HandButton(c).build(),

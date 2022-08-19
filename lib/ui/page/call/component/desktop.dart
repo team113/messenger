@@ -22,6 +22,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -42,7 +43,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -645,6 +645,92 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
+        if (WebUtils.isPopup)
+          Obx(() {
+            final Map<String, String> args = {
+              'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
+              'state': c.state.value.name,
+            };
+
+            switch (c.state.value) {
+              case OngoingCallState.local:
+              case OngoingCallState.pending:
+                bool isOutgoing =
+                    (c.outgoing || c.state.value == OngoingCallState.local) &&
+                        !c.started;
+                if (isOutgoing) {
+                  args['type'] = 'outgoing';
+                } else if (c.withVideo) {
+                  args['type'] = 'video';
+                } else {
+                  args['type'] = 'audio';
+                }
+                break;
+
+              case OngoingCallState.active:
+                var actualMembers = c.members.keys.map((k) => k.userId).toSet();
+                args['members'] = '${actualMembers.length + 1}';
+                args['allMembers'] = '${c.chat.value?.members.length}';
+                args['duration'] = c.duration.value.hhMmSs();
+                break;
+
+              case OngoingCallState.joining:
+              case OngoingCallState.ended:
+                // No-op.
+                break;
+            }
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0.0, -1.0),
+                endOffset: const Offset(0.0, 0.0),
+                isOpen: c.showHeader.value && c.fullscreen.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                  child: ConditionalBackdropFilter(
+                    borderRadius: BorderRadius.circular(30),
+                    filter: ImageFilter.blur(
+                      sigmaX: 15,
+                      sigmaY: 15,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0x301D6AAE),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
+                      ),
+                      child: Text(
+                        'label_call_title'.l10nfmt(args),
+                        style: context.textTheme.bodyText1?.copyWith(
+                          fontSize: 13,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
           bool enabled = !c.displayMore.value &&
@@ -661,6 +747,25 @@ Widget desktopCall(CallController c, BuildContext context) {
                 onHover: enabled ? (d) => c.keepUi(true) : null,
                 onExit:
                     c.showUi.value && enabled ? (d) => c.keepUi(false) : null,
+              ),
+            ),
+          );
+        }),
+
+        // Top [MouseRegion] that toggles UI on hover.
+        Obx(() {
+          bool enabled =
+              c.primaryDrags.value == 0 && c.secondaryDrags.value == 0;
+          return Align(
+            alignment: Alignment.topCenter,
+            child: SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: MouseRegion(
+                opaque: false,
+                onEnter: enabled ? (d) => c.showHeader.value = true : null,
+                onHover: enabled ? (d) => c.showHeader.value = true : null,
+                onExit: enabled ? (d) => c.showHeader.value = false : null,
               ),
             ),
           );
@@ -1251,48 +1356,45 @@ Widget _primaryView(CallController c) {
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
-                            menu: ContextMenu(
-                              key: ObjectKey(participant),
-                              actions: [
-                                if (participant.video.value?.isEnabled ==
-                                    true) ...[
-                                  if (participant.source ==
-                                      MediaSourceKind.Device)
-                                    ContextMenuButton(
-                                      label: fit == null || fit == BoxFit.cover
-                                          ? 'btn_call_do_not_cut_video'.l10n
-                                          : 'btn_call_cut_video'.l10n,
-                                      onPressed: () {
-                                        c.rendererBoxFit[participant
-                                                .video.value!.track
-                                                .id()] =
-                                            fit == null || fit == BoxFit.cover
-                                                ? BoxFit.contain
-                                                : BoxFit.cover;
-                                        if (c.focused.isNotEmpty) {
-                                          c.focused.refresh();
-                                        } else {
-                                          c.remotes.refresh();
-                                          c.locals.refresh();
-                                        }
-                                      },
-                                    ),
+                            actions: [
+                              if (participant.video.value?.isEnabled ==
+                                  true) ...[
+                                if (participant.source ==
+                                    MediaSourceKind.Device)
                                   ContextMenuButton(
-                                    label: 'btn_call_center_video'.l10n,
-                                    onPressed: () => c.center(participant),
+                                    label: fit == null || fit == BoxFit.cover
+                                        ? 'btn_call_do_not_cut_video'.l10n
+                                        : 'btn_call_cut_video'.l10n,
+                                    onPressed: () {
+                                      c.rendererBoxFit[participant
+                                              .video.value!.track
+                                              .id()] =
+                                          fit == null || fit == BoxFit.cover
+                                              ? BoxFit.contain
+                                              : BoxFit.cover;
+                                      if (c.focused.isNotEmpty) {
+                                        c.focused.refresh();
+                                      } else {
+                                        c.remotes.refresh();
+                                        c.locals.refresh();
+                                      }
+                                    },
                                   ),
-                                ],
-                                if (participant.video.value != null)
-                                  ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
-                                  ),
+                                ContextMenuButton(
+                                  label: 'btn_call_center_video'.l10n,
+                                  onPressed: () => c.center(participant),
+                                ),
                               ],
-                            ),
+                              if (participant.video.value != null)
+                                ContextMenuButton(
+                                  label:
+                                      participant.video.value?.isEnabled == true
+                                          ? 'btn_call_disable_video'.l10n
+                                          : 'btn_call_enable_video'.l10n,
+                                  onPressed: () => c
+                                      .toggleRendererEnabled(participant.video),
+                                ),
+                            ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
                                 participant,
@@ -1310,6 +1412,10 @@ Widget _primaryView(CallController c) {
             });
           },
           decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
+          itemConstraints: BoxConstraints(
+            maxWidth: max(c.secondaryWidth.value, c.secondaryHeight.value),
+            maxHeight: max(c.secondaryWidth.value, c.secondaryHeight.value),
+          ),
           itemBuilder: (_DragData data) {
             var participant = data.participant;
             return Obx(() {
@@ -1776,28 +1882,25 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
-                            menu: ContextMenu(
-                              actions: [
-                                if ((participant.owner !=
-                                            MediaOwnerKind.local ||
-                                        participant.source !=
-                                            MediaSourceKind.Display) &&
-                                    participant.video.value?.isEnabled == true)
-                                  ContextMenuButton(
-                                    label: 'btn_call_center_video'.l10n,
-                                    onPressed: () => c.center(participant),
-                                  ),
-                                if (participant.video.value != null)
-                                  ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
-                                  )
-                              ],
-                            ),
+                            actions: [
+                              if ((participant.owner != MediaOwnerKind.local ||
+                                      participant.source !=
+                                          MediaSourceKind.Display) &&
+                                  participant.video.value?.isEnabled == true)
+                                ContextMenuButton(
+                                  label: 'btn_call_center_video'.l10n,
+                                  onPressed: () => c.center(participant),
+                                ),
+                              if (participant.video.value != null)
+                                ContextMenuButton(
+                                  label:
+                                      participant.video.value?.isEnabled == true
+                                          ? 'btn_call_disable_video'.l10n
+                                          : 'btn_call_enable_video'.l10n,
+                                  onPressed: () => c
+                                      .toggleRendererEnabled(participant.video),
+                                )
+                            ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
                                 participant,
@@ -2047,7 +2150,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
                           decoration: BoxDecoration(
-                            border: c.secondaryHovered.value
+                            border: (c.secondaryHovered.value ||
+                                    c.primaryDrags.value != 0)
                                 ? c.secondaryAlignment.value == null
                                     ? Border.all(
                                         color: const Color(0xFF888888),
@@ -2152,8 +2256,29 @@ Widget _secondaryTarget(CallController c) {
                           duration: 200.milliseconds,
                           child: c.primaryDrags.value >= 1
                               ? Container(
-                                  decoration: const BoxDecoration(
-                                    boxShadow: [
+                                  padding: EdgeInsets.only(
+                                    left: secondaryAxis == Axis.horizontal
+                                        ? 1
+                                        : 0,
+                                    bottom:
+                                        secondaryAxis == Axis.vertical ? 1 : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      left: secondaryAxis == Axis.horizontal
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                      bottom: secondaryAxis == Axis.vertical
+                                          ? const BorderSide(
+                                              color: Color(0xFF888888),
+                                              width: 1,
+                                            )
+                                          : BorderSide.none,
+                                    ),
+                                    boxShadow: const [
                                       CustomBoxShadow(
                                         color: Color(0x33000000),
                                         blurRadius: 8,
@@ -2162,8 +2287,15 @@ Widget _secondaryTarget(CallController c) {
                                     ],
                                   ),
                                   child: ConditionalBackdropFilter(
-                                    child: Container(
-                                      color: const Color(0x30000000),
+                                    child: AnimatedContainer(
+                                      duration: 300.milliseconds,
+                                      color: candidate.isNotEmpty
+                                          ? const Color(
+                                              0x10FFFFFF,
+                                            )
+                                          : const Color(
+                                              0x00FFFFFF,
+                                            ),
                                       child: Center(
                                         child: SizedBox(
                                           width:

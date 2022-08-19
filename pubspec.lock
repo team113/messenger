@@ -556,6 +556,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.40.0"
+  flutter_staggered_animations:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "Flutter-3.0.0"
+      resolved-ref: "4ae28e698b2fd54cd7de8d63e16dd3cd7d98d14c"
+      url: "https://github.com/Tkko/flutter_staggered_animations"
+    source: git
+    version: "1.0.0"
   flutter_svg:
     dependency: "direct main"
     description:

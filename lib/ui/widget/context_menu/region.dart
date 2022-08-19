@@ -18,9 +18,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 
+import 'mobile.dart';
 import '../menu_interceptor/menu_interceptor.dart';
-import '/util/platform_utils.dart';
+import 'menu.dart';
 import 'overlay.dart';
 
 /// Region of a context [menu] over a [child], showed on a secondary mouse click
@@ -29,28 +31,39 @@ class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
-    required this.menu,
+    this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
+    this.usePointerDown = false,
+    this.enableLongTap = true,
     this.decoration,
+    this.alignment = Alignment.bottomCenter,
+    this.actions,
+    this.id,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
   final Widget child;
 
   /// Context menu to show.
-  final Widget menu;
+  final Widget? menu;
+
+  final String? id;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
+
+  final Alignment alignment;
+
+  final List<ContextMenuButton>? actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  /// [BoxDecoration] to put this [ContextMenuRegion] into when
-  /// [ContextMenuOverlay] displays this [menu].
+  final bool usePointerDown;
+  final bool enableLongTap;
   final BoxDecoration? decoration;
 
   @override
@@ -66,47 +79,163 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   int _buttons = 0;
 
   @override
-  Widget build(BuildContext context) => widget.enabled
-      ? ContextMenuInterceptor(
-          enabled: widget.preventContextMenu,
-          child: Listener(
-            behavior: HitTestBehavior.translucent,
-            onPointerDown: (d) => _buttons = d.buttons,
-            onPointerUp: (d) {
-              if (_buttons & kSecondaryButton != 0) {
-                ContextMenuOverlay.of(context).show(widget.menu, d.position);
+  Widget build(BuildContext context) {
+    if (widget.enabled) {
+      // if (PlatformUtils.isMobile || widget.actions != null) {
+      //   return ContextMenuInterceptor(
+      //     enabled: widget.preventContextMenu,
+      //     child: FloatingContextMenu(
+      //       alignment: widget.alignment,
+      //       actions: widget.actions!,
+      //       child: widget.child,
+      //     ),
+      //   );
+      // }
+
+      return ContextMenuInterceptor(
+        enabled: widget.preventContextMenu,
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (d) {
+            if (widget.usePointerDown) {
+              _buttons = 0;
+              if (d.buttons & kSecondaryButton != 0) {
+                _show(d.position);
+                // ContextMenuOverlay.of(context).show(
+                //   ContextMenuActions(
+                //     actions: widget.actions ?? [],
+                //     backdrop: true,
+                //   ),
+                //   d.position,
+                // );
               }
-            },
-            child: Stack(
-              children: [
+            } else {
+              _buttons = d.buttons;
+            }
+          },
+          onPointerUp: (d) {
+            if (_buttons & kSecondaryButton != 0) {
+              _show(d.position);
+              // ContextMenuOverlay.of(context).show(
+              //   ContextMenuActions(
+              //     actions: widget.actions ?? [],
+              //     backdrop: true,
+              //   ),
+              //   d.position,
+              // );
+            }
+          },
+          child: Stack(
+            children: [
+              // if (widget.actions != null)
+              if (PlatformUtils.isMobile)
+                FloatingContextMenu(
+                  id: widget.id,
+                  alignment: widget.alignment,
+                  actions: widget.actions ?? [],
+                  child: widget.child,
+                )
+              else
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (d) => ContextMenuOverlay.of(context)
-                      .show(widget.menu, d.globalPosition),
+                  onLongPressStart: widget.enableLongTap
+                      ? (d) => ContextMenuOverlay.of(context).show(
+                            ContextMenuActions(
+                              actions: widget.actions ?? [],
+                              backdrop: true,
+                            ),
+                            d.globalPosition,
+                          )
+                      : null,
                   child: widget.child,
                 ),
+              // if (context.isMobile)
+              //   Positioned.fill(
+              //     child: Obx(() {
+              //       if (ContextMenuOverlay.of(context).menu.value ==
+              //           widget.menu) {
+              //         return Container(
+              //           width: double.infinity,
+              //           height: double.infinity,
+              //           decoration: widget.decoration?.copyWith(
+              //                 color: const Color(0x11000000),
+              //               ) ??
+              //               const BoxDecoration(color: Color(0x22000000)),
+              //         );
+              //       }
 
-                // Display the provided [decoration] if [menu] is opened.
-                if (context.isMobile)
-                  Positioned.fill(
-                    child: Obx(() {
-                      if (ContextMenuOverlay.of(context).menu.value ==
-                          widget.menu) {
-                        return Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          decoration: widget.decoration
-                                  ?.copyWith(color: const Color(0x11000000)) ??
-                              const BoxDecoration(color: Color(0x11000000)),
-                        );
-                      }
+              //       return Container();
+              //     }),
+              //   ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                      return Container();
-                    }),
+    return widget.child;
+  }
+
+  void _show(Offset position) {
+    if (widget.actions?.isNotEmpty != true) {
+      return;
+    }
+
+    showDialog(
+      barrierColor: Colors.transparent,
+      context: context,
+      builder: (context) {
+        return LayoutBuilder(builder: (context, constraints) {
+          double qx = 1, qy = 1;
+          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
+          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
+          Alignment alignment = Alignment(qx, qy);
+
+          return Listener(
+            onPointerUp: (d) => Navigator.of(context).pop(),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  left: position.dx,
+                  top: position.dy,
+                  child: FractionalTranslation(
+                    translation: Offset(
+                      alignment.x > 0 ? 0 : -1,
+                      alignment.y > 0 ? 0 : -1,
+                    ),
+                    child: ContextMenuActions(
+                      actions: widget.actions ?? [],
+                      backdrop: true,
+                    ),
                   ),
+                )
               ],
             ),
-          ),
-        )
-      : widget.child;
+          );
+        });
+      },
+    );
+
+    return;
+
+    OverlayEntry? entry;
+
+    entry = OverlayEntry(builder: (context) {
+      return Listener(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              left: position.dx,
+              top: position.dy,
+              child: widget.child,
+            )
+          ],
+        ),
+      );
+    });
+
+    Overlay.of(context, rootOverlay: true)!.insert(entry);
+  }
 }

@@ -18,6 +18,8 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -54,98 +56,256 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
       ),
       builder: (ContactsTabController c) => Scaffold(
+        // backgroundColor: Colors.white,
+        // backgroundColor: const Color(0xFFF5F8FA),
         appBar: AppBar(
-          title: Text('label_contacts'.l10n),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(0.5),
-            child: Container(
-              color: const Color(0xFFE0E0E0),
-              height: 0.5,
-            ),
+          // backgroundColor: const Color(0xFFF9FBFB),
+          title: Text(
+            'label_contacts'.l10n,
+            style: Theme.of(context).textTheme.caption?.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 18,
+                ),
           ),
+          leading: IconButton(
+            splashColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onPressed: () {},
+            icon: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
+          ),
+          // bottom: PreferredSize(
+          //   preferredSize: const Size.fromHeight(0.5),
+          //   child: Container(
+          //     color: const Color(0xFFE0E0E0),
+          //     height: 0.5,
+          //   ),
+          // ),
         ),
-        body: Obx(
-          () => UserSearchBar(
+        extendBodyBehindAppBar: false,
+        extendBody: false,
+        body: Obx(() {
+          if (!c.contactsReady.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (c.favorites.isEmpty && c.contacts.isEmpty) {
+            return Center(child: Text('label_no_contacts'.l10n));
+          }
+
+          var metrics = MediaQuery.of(context);
+          return UserSearchBar(
             onUserTap: (user) => router.user(user.id),
             // TODO: Show an `add` icon only if user is not in contacts already.
             //       E.g. by looking if `MyUser.contacts` field is empty or not.
             trailingIcon: const Icon(Icons.person_add),
             onTrailingTap: c.addToContacts,
-            body: c.contactsReady.value
-                ? c.favorites.isEmpty && c.contacts.isEmpty
-                    ? Center(child: Text('label_no_contacts'.l10n))
-                    : ContextMenuInterceptor(
-                        child: ListView(
-                          controller: ScrollController(),
-                          children: [
-                            if (c.favorites.isNotEmpty) ...[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                                child: Text('label_favorite_contacts'.l10n),
-                              ),
-                              ...c.favorites.entries
-                                  .map((e) => _contact(e.value, c))
-                            ],
-                            if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
-                              ...divider,
-                            ...c.contacts.entries
-                                .map((e) => _contact(e.value, c))
-                          ],
-                        ),
-                      )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-        ),
+            body: Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: ContextMenuInterceptor(
+                child: ListView(
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                  ),
+                  controller: ScrollController(),
+                  children: [
+                    if (c.favorites.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                        child: Text('label_favorite_contacts'.l10n),
+                      ),
+                      ...c.favorites.entries
+                          .map((e) => _contact(context, e.value, c))
+                    ],
+                    if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
+                      ...divider,
+                    ...c.contacts.entries
+                        .map((e) => _contact(context, e.value, c)),
+                    const SizedBox(height: 60),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
       ),
     );
   }
 
   /// Returns a [ListTile] with [contact]'s information.
-  Widget _contact(RxChatContact contact, ContactsTabController c) =>
-      ContextMenuRegion(
-        preventContextMenu: false,
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              label: 'btn_change_contact_name'.l10n,
-              onPressed: () {
-                c.contactToChangeNameOf.value = contact.contact.value.id;
-                c.contactName.clear();
-                c.contactName.unchecked = contact.contact.value.name.val;
-                SchedulerBinding.instance.addPostFrameCallback(
-                    (_) => c.contactName.focus.requestFocus());
-              },
+  Widget _contact(
+    BuildContext context,
+    RxChatContact contact,
+    ContactsTabController c,
+  ) {
+    if (c.contactToChangeNameOf.value == contact.contact.value.id) {
+      return Container(
+        key: Key(contact.contact.value.id.val),
+        padding: const EdgeInsets.all(3),
+        child: Row(
+          children: [
+            IconButton(
+              key: const Key('CancelSaveNewContactName'),
+              onPressed: () => c.contactToChangeNameOf.value = null,
+              icon: const Icon(Icons.close),
             ),
-            ContextMenuButton(
-              label: 'btn_delete_from_contacts'.l10n,
-              onPressed: () => c.deleteFromContacts(contact.contact.value),
+            Expanded(
+              child: ReactiveTextField(
+                dense: true,
+                key: const Key('NewContactNameInput'),
+                state: c.contactName,
+                style: const TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),
-        child: c.contactToChangeNameOf.value == contact.contact.value.id
-            ? Container(
-                key: Key(contact.contact.value.id.val),
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  children: [
-                    IconButton(
-                      key: const Key('CancelSaveNewContactName'),
-                      onPressed: () => c.contactToChangeNameOf.value = null,
-                      icon: const Icon(Icons.close),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: ContactTile(
+        contact: contact,
+        darken: 0,
+        onTap: contact.contact.value.users.isNotEmpty
+            // TODO: Open [Routes.contact] page when it's implemented.
+            ? () => router.user(contact.contact.value.users.first.id)
+            : null,
+        actions: [
+          ContextMenuButton(
+            label: 'btn_change_contact_name'.l10n,
+            onPressed: () {
+              c.contactToChangeNameOf.value = contact.contact.value.id;
+              c.contactName.clear();
+              c.contactName.unchecked = contact.contact.value.name.val;
+              SchedulerBinding.instance.addPostFrameCallback(
+                  (_) => c.contactName.focus.requestFocus());
+            },
+          ),
+          ContextMenuButton(
+            label: 'btn_delete_from_contacts'.l10n,
+            onPressed: () => c.deleteFromContacts(contact.contact.value),
+          ),
+        ],
+        trailing: [
+          if (contact.contact.value.users.isNotEmpty) ...[
+            IconButton(
+              onPressed: () =>
+                  c.startAudioCall(contact.contact.value.users.first),
+              icon: Icon(
+                Icons.call,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            IconButton(
+              onPressed: () =>
+                  c.startVideoCall(contact.contact.value.users.first),
+              icon: Icon(
+                Icons.video_call,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ]
+        ],
+      ),
+    );
+
+    return ContextMenuRegion(
+      preventContextMenu: false,
+      actions: [
+        ContextMenuButton(
+          label: 'btn_change_contact_name'.l10n,
+          onPressed: () {
+            c.contactToChangeNameOf.value = contact.contact.value.id;
+            c.contactName.clear();
+            c.contactName.unchecked = contact.contact.value.name.val;
+            SchedulerBinding.instance.addPostFrameCallback(
+                (_) => c.contactName.focus.requestFocus());
+          },
+        ),
+        ContextMenuButton(
+          label: 'btn_delete_from_contacts'.l10n,
+          onPressed: () => c.deleteFromContacts(contact.contact.value),
+        ),
+      ],
+      child: c.contactToChangeNameOf.value == contact.contact.value.id
+          ? Container(
+              key: Key(contact.contact.value.id.val),
+              padding: const EdgeInsets.all(3),
+              child: Row(
+                children: [
+                  IconButton(
+                    key: const Key('CancelSaveNewContactName'),
+                    onPressed: () => c.contactToChangeNameOf.value = null,
+                    icon: const Icon(Icons.close),
+                  ),
+                  Expanded(
+                    child: ReactiveTextField(
+                      dense: true,
+                      key: const Key('NewContactNameInput'),
+                      state: c.contactName,
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    Expanded(
-                      child: ReactiveTextField(
-                        dense: true,
-                        key: const Key('NewContactNameInput'),
-                        state: c.contactName,
-                        style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            )
+          : Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: contact.contact.value.users.isNotEmpty
+                    // TODO: Open [Routes.contact] page when it's implemented.
+                    ? () => router.user(contact.contact.value.users.first.id)
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  child: Row(
+                    children: [
+                      AvatarWidget.fromRxContact(contact, radius: 25),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              contact.contact.value.name.val,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      if (contact.contact.value.users.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () => c.startAudioCall(
+                                  contact.contact.value.users.first),
+                              icon: Icon(
+                                Icons.call,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => c.startVideoCall(
+                                  contact.contact.value.users.first),
+                              icon: Icon(
+                                Icons.video_call,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          ],
+                        )
+                    ],
+                  ),
                 ),
-              )
-            : ListTile(
+              ),
+            ),
+      /*ListTile(
                 key: Key(contact.contact.value.id.val),
                 leading: Obx(
                   () => Badge(
@@ -190,6 +350,7 @@ class ContactsTabView extends StatelessWidget {
                     // TODO: Open [Routes.contact] page when it's implemented.
                     ? () => router.user(contact.contact.value.users.first.id)
                     : null,
-              ),
-      );
+              ),*/
+    );
+  }
 }

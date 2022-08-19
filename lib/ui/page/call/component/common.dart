@@ -24,13 +24,12 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 
-/// Button in a [CallView].
-///
-/// Intended to be placed in a [Dock] to be reordered around.
+/// Call's button placed in a [Dock] to be reordered around.
 abstract class CallButton {
   const CallButton(this.c);
 
-  /// [CallController] owning this [CallButton], used for changing the state.
+  /// [CallController] owning this [CallButton], used for changing the state of
+  /// this [CallButton].
   final CallController c;
 
   /// Indicates whether this [CallButton] can be removed from the [Dock].
@@ -49,7 +48,7 @@ abstract class CallButton {
   /// Builds the [Widget] representation of this [CallButton].
   Widget build({bool hinted = true});
 
-  /// Returns a styled [RoundFloatingButton] with the provided parameters.
+  /// Returns a styled [RoundFloatingButton] with the provided style.
   Widget _common({
     required String asset,
     VoidCallback? onPressed,
@@ -211,7 +210,7 @@ class AddMemberCallButton extends CallButton {
   const AddMemberCallButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_add_participant'.l10n;
+  String get hint => 'btn_participants'.l10n;
 
   @override
   Widget build({bool hinted = true}) {
@@ -219,6 +218,26 @@ class AddMemberCallButton extends CallButton {
       asset: 'add_user_small',
       hinted: hinted,
       onPressed: () => c.openAddMember(router.context!),
+    );
+  }
+}
+
+/// [CallButton] invoking the [CallController.openAddMember].
+class ParticipantsButton extends CallButton {
+  const ParticipantsButton(CallController c) : super(c);
+
+  @override
+  String get hint => 'btn_add_participant'.l10n;
+
+  @override
+  Widget build({bool hinted = true}) {
+    return _common(
+      asset: 'add_user_small',
+      hinted: hinted,
+      onPressed: () => c.openAddMember(
+        router.context!,
+        // stage: ParticipantsFlowStage.adding,
+      ),
     );
   }
 }
