@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/api/backend/schema.dart' show ChatItemQuoteInput;
 import 'attachment.dart';
 import 'chat_item.dart';
 
