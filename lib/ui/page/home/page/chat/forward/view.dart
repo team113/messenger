@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,6 +35,7 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
 import '/ui/page/home/page/chat/widget/animated_fab.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -98,6 +101,18 @@ class ChatForwardView extends StatelessWidget {
                   ),
                 ),
                 _forwardedMessage(context, c, c.forwardItem.item),
+                Obx(() => Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.only(top: 7, right: 4, left: 4),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: c.attachments
+                              .map((e) => _buildAttachment(c, e))
+                              .toList(),
+                        ),
+                      ),
+                    )),
                 _sendField(context, c),
                 const SizedBox(height: 5)
               ],
@@ -287,8 +302,6 @@ Widget _forwardedMessage(
                 key: Key('BuilderRxUser_${item.id}'),
                 future: c.getUser(item.authorId),
                 builder: (context, snapshot) {
-                  String? name;
-
                   Color color = AvatarWidget.colors[
                       (snapshot.data?.user.value.num.val.sum() ?? 3) %
                           AvatarWidget.colors.length];
@@ -315,35 +328,20 @@ Widget _forwardedMessage(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Builder(
-                                builder: (context) {
-                                  if (snapshot.hasData) {
-                                    name = snapshot.data?.user.value.name?.val;
-                                    if (snapshot.data?.user.value != null) {
-                                      return Obx(() {
-                                        Color color = AvatarWidget.colors[
-                                            snapshot.data!.user.value.num.val
-                                                    .sum() %
-                                                AvatarWidget.colors.length];
-
-                                        return Text(
-                                            snapshot.data!.user.value.name
-                                                    ?.val ??
-                                                snapshot
-                                                    .data!.user.value.num.val,
-                                            style: style.boldBody
-                                                .copyWith(color: color));
-                                      });
-                                    }
-                                  }
-
+                              if (snapshot.data != null)
+                                Obx(() {
                                   return Text(
-                                    name ?? '...',
-                                    style: style.boldBody.copyWith(
-                                        color: const Color(0xFF63B4FF)),
+                                    snapshot.data!.user.value.name?.val ??
+                                        snapshot.data!.user.value.num.val,
+                                    style:
+                                        style.boldBody.copyWith(color: color),
                                   );
-                                },
-                              ),
+                                }),
+                              if (snapshot.data == null)
+                                Text(
+                                  '...',
+                                  style: style.boldBody.copyWith(color: color),
+                                ),
                               if (content != null) ...[
                                 const SizedBox(height: 2),
                                 DefaultTextStyle.merge(
@@ -365,6 +363,131 @@ Widget _forwardedMessage(
           ),
         ],
       ),
+    ),
+  );
+}
+
+/// Returns a visual representation of the provided [AttachmentData].
+Widget _buildAttachment(ChatForwardController c, AttachmentData data) {
+  return Container(
+    width: 80,
+    height: 80,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      color: const Color(0xFFD8D8D8),
+    ),
+    margin: const EdgeInsets.symmetric(horizontal: 2),
+    child: Stack(
+      children: [
+        data.file.isImage
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: data.file.bytes == null
+                    ? data.file.path == null
+                        ? const SizedBox(
+                            width: 80,
+                            height: 80,
+                            child: SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : data.file.isSvg
+                            ? SvgLoader.file(
+                                File(data.file.path!),
+                                width: 100,
+                                height: 100,
+                              )
+                            : Image.file(
+                                File(data.file.path!),
+                                fit: BoxFit.cover,
+                                width: 80,
+                                height: 80,
+                              )
+                    : data.file.isSvg
+                        ? SvgLoader.bytes(
+                            data.file.bytes!,
+                            width: 100,
+                            height: 100,
+                          )
+                        : Image.memory(
+                            data.file.bytes!,
+                            fit: BoxFit.cover,
+                            width: 80,
+                            height: 80,
+                          ),
+              )
+            : SizedBox(
+                width: 80,
+                height: 80,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.insert_drive_file_sharp),
+                    const SizedBox(height: 2),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: Text(
+                        data.file.name,
+                        style: const TextStyle(fontSize: 9),
+                        textAlign: TextAlign.center,
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        Center(
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: ElasticAnimatedSwitcher(
+              child: data.upload.value != null && c.send.status.value.isLoading
+                  ? CircularProgressIndicator(
+                      value: data.progress.value,
+                    )
+                  : data.hasError.value
+                      ? Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.error,
+                              color: Colors.red,
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+            ),
+          ),
+        ),
+        if (!c.send.status.value.isLoading)
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 2, top: 3),
+              child: InkWell(
+                key: const Key('RemovePickedFile'),
+                onTap: () => c.attachments.remove(data),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0x99FFFFFF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                    size: 15,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     ),
   );
 }
