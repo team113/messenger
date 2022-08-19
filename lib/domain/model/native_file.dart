@@ -16,16 +16,22 @@
 
 import 'dart:typed_data';
 
-import 'package:async/async.dart' show StreamGroup;
+import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
+import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
+import 'package:mutex/mutex.dart';
 
+import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
+part 'native_file.g.dart';
+
 /// Native file representation.
+@HiveType(typeId: ModelTypeId.nativeFile)
 class NativeFile {
   NativeFile({
     required this.name,
@@ -55,36 +61,44 @@ class NativeFile {
   factory NativeFile.fromPlatformFile(PlatformFile file) => NativeFile(
         name: file.name,
         size: file.size,
-        stream: file.readStream?.asBroadcastStream(),
-        bytes: file.bytes,
         path: PlatformUtils.isWeb ? null : file.path,
+        bytes: file.bytes,
+        stream: file.readStream?.asBroadcastStream(),
       );
 
   /// Constructs a [NativeFile] from an [XFile].
   factory NativeFile.fromXFile(XFile file, int size) => NativeFile(
-        size: size,
         name: file.name,
-        path: file.path,
-        stream: file.openRead(),
+        size: size,
+        path: PlatformUtils.isWeb ? null : file.path,
+        stream: file.openRead().asBroadcastStream(),
       );
 
   /// Absolute path for a cached copy of this file.
+  @HiveField(0)
   final String? path;
 
   /// File name including its extension.
+  @HiveField(1)
   final String name;
 
   /// Byte data of this file.
+  @HiveField(2)
   Uint8List? bytes;
 
   /// Size of this file in bytes.
+  @HiveField(3)
   final int size;
 
   /// [MediaType] of this file.
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
+  @HiveField(4)
   MediaType? mime;
+
+  /// [Mutex] for synchronized access to the [readFile].
+  final Mutex _readGuard = Mutex();
 
   /// Content of this file as a stream.
   Stream<List<int>>? _readStream;
@@ -123,6 +137,23 @@ class NativeFile {
     return mime?.subtype == 'svg+xml';
   }
 
+  /// Indicates whether this file represents a video or not.
+  bool get isVideo {
+    // Best effort if [mime] is `null`.
+    if (mime == null) {
+      return [
+        'mp4',
+        'mov',
+        'webm',
+        'mkv',
+        'flv',
+        '3gp',
+      ].contains(extension.toLowerCase());
+    }
+
+    return mime?.type == 'video';
+  }
+
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.
@@ -159,22 +190,58 @@ class NativeFile {
   /// Reads this file from its [stream] and returns its [bytes].
   ///
   /// __Note:__ Be sure not to read the [stream] while this method executes.
-  Future<Uint8List?> readFile() async {
-    var content = stream;
-    if (content != null) {
-      Uint8List data = Uint8List.fromList(
-        (await content.toList()).expand((e) => e).toList(),
-      );
+  Future<Uint8List?> readFile() {
+    return _readGuard.protect(() async {
+      var content = stream;
+      if (content != null) {
+        List<int> data = [];
 
-      bytes = data;
-      _readStream = null;
-    }
+        StreamQueue queue = StreamQueue(content);
+        while (await queue.hasNext) {
+          data.addAll(await queue.next);
+        }
 
-    return bytes;
+        bytes = Uint8List.fromList(data);
+        _readStream = null;
+      }
+
+      return bytes;
+    });
   }
 
   /// Constructs a [Stream] from the [bytes].
   Stream<List<int>> _streamOfBytes() async* {
     yield bytes!.toList();
+  }
+}
+
+/// [Hive] adapter for a [MediaType].
+class MediaTypeAdapter extends TypeAdapter<MediaType> {
+  @override
+  int get typeId => ModelTypeId.mediaType;
+
+  @override
+  MediaType read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MediaType(
+      fields[0] as String,
+      fields[1] as String,
+      (fields[2] as Map).cast<String, String>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, MediaType obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.type)
+      ..writeByte(1)
+      ..write(obj.subtype)
+      ..writeByte(2)
+      ..write(obj.parameters);
   }
 }

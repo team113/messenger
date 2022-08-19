@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -159,7 +161,10 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-    when(graphQlProvider.uploadAttachment(any)).thenAnswer(
+    when(graphQlProvider.uploadAttachment(
+      any,
+      onSendProgress: anyNamed('onSendProgress'),
+    )).thenAnswer(
       (_) => Future.value(
         UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk.fromJson({
           '__typename': 'UploadAttachmentOk',
@@ -187,14 +192,17 @@ void main() async {
         Get.put(ChatService(chatRepository, myUserService));
 
     await chatService.uploadAttachment(
-      NativeFile(
-        bytes: Uint8List.fromList([1, 1]),
-        size: 2,
-        name: 'test',
+      LocalAttachment(
+        NativeFile(
+          bytes: Uint8List.fromList([1, 1]),
+          size: 2,
+          name: 'test',
+        ),
       ),
     );
 
-    verify(graphQlProvider.uploadAttachment(any));
+    verify(graphQlProvider.uploadAttachment(any,
+        onSendProgress: anyNamed('onSendProgress')));
   });
 
   test('ChatService throws an UploadAttachmentException', () async {
@@ -209,8 +217,12 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-    when(graphQlProvider.uploadAttachment(any)).thenThrow(
-        UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown));
+    when(graphQlProvider.uploadAttachment(
+      any,
+      onSendProgress: anyNamed('onSendProgress'),
+    )).thenThrow(
+      UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
+    );
 
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
@@ -220,17 +232,25 @@ void main() async {
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
-    expect(
-      () async => await chatService.uploadAttachment(
-        NativeFile(
-          bytes: Uint8List.fromList([1, 1]),
-          size: 2,
-          name: 'test',
-        ),
+    var attachment = LocalAttachment(
+      NativeFile(
+        bytes: Uint8List.fromList([1, 1]),
+        size: 2,
+        name: 'test',
       ),
+    );
+    attachment.upload.value = Completer();
+    attachment.upload.value?.future.then((_) {}, onError: (_) {});
+    await expectLater(
+      () async => await chatService.uploadAttachment(attachment),
       throwsA(isA<UploadAttachmentException>()),
     );
 
-    verify(graphQlProvider.uploadAttachment(any));
+    verify(
+      graphQlProvider.uploadAttachment(
+        any,
+        onSendProgress: anyNamed('onSendProgress'),
+      ),
+    );
   });
 }
