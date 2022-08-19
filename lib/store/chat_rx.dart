@@ -330,14 +330,17 @@ class HiveRxChat implements RxChat {
 
       if (event != null && event.item.firstOrNull is HiveChatMessage) {
         remove(message.value.id, message.value.timestamp);
+        _pending.remove(message.value);
+        ((event.item.first as HiveChatMessage).value as ChatMessage)
+            .attachments = uploaded;
         message = event.item.first as HiveChatMessage;
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;
+      _pending.remove(message.value);
       rethrow;
     } finally {
       put(message, ignoreVersion: true);
-      _pending.remove(message.value);
     }
   }
 
@@ -360,6 +363,24 @@ class HiveRxChat implements RxChat {
                 item.value.at.subtract(const Duration(milliseconds: 1));
             put(item);
           } else if (saved.ver < item.ver || ignoreVersion) {
+            // Saves attachments of old message to prevent [FileAttachment] data
+            // loosing.
+            if (item.value is ChatMessage &&
+                item.value.authorId == me &&
+                !ignoreVersion) {
+              (item.value as ChatMessage)
+                  .attachments = (item.value as ChatMessage)
+                  .attachments
+                  .whereType<FileAttachment>().map((e) {
+                    var savedFile = (saved.value as ChatMessage)
+                    .attachments
+                    .whereType<FileAttachment>()
+                    .firstWhereOrNull((e) => e.original == e.original);
+
+                    return savedFile ?? e;
+                  }).toList();
+            }
+
             _local.put(item);
           }
         }
@@ -769,22 +790,22 @@ class HiveRxChat implements RxChat {
               event as EventChatItemPosted;
               for (var item in event.item) {
                 if (item.value is ChatMessage && item.value.authorId == me) {
-                  ChatItem? pending = _pending.firstWhereOrNull(
-                    (e) =>
-                        e is ChatMessage &&
-                        e.status.value == SendingStatus.sending &&
-                        (item.value as ChatMessage).isEquals(e),
-                  );
+                  ChatMessage? pending =
+                      _pending.whereType<ChatMessage>().firstWhereOrNull(
+                            (e) =>
+                                e.status.value == SendingStatus.sending &&
+                                (item.value as ChatMessage).isEquals(e),
+                          );
 
                   // If any [ChatMessage] sharing the same fields as the posted
                   // one is found in the [_pending] messages, and this message
                   // is not yet added to the store, then remove the [pending].
                   if (pending != null &&
-                      await get(
-                            item.value.id,
-                            timestamp: item.value.timestamp,
-                          ) ==
+                      await get(item.value.id,
+                              timestamp: item.value.timestamp) ==
                           null) {
+                    (item.value as ChatMessage).attachments =
+                        pending.attachments;
                     remove(pending.id, pending.timestamp);
                     _pending.remove(pending);
                   }

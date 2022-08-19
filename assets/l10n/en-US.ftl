@@ -152,6 +152,7 @@ btn_next = Next
 btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
+btn_resend_message = Resend message
 btn_saved_messages = Saved messages
 btn_set_password = Set password
 btn_settings = Settings

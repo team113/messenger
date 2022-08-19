@@ -456,8 +456,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 key: Key('File_${e.id}'),
                 padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
                 child: InkWell(
-                  onTap:
-                      isFile? e.isDownloading ? null : () => widget.onFileTap?.call(e) : null,
+                  onTap: isFile
+                      ? e.isDownloading
+                          ? null
+                          : () => widget.onFileTap?.call(e)
+                      : null,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,

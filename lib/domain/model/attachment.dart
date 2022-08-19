@@ -203,11 +203,11 @@ class LocalAttachment extends Attachment {
   LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
       : status = Rx(status),
         super(
-        AttachmentId.local(),
-        const Original(''),
-        file.name,
-        file.size,
-      );
+          AttachmentId.local(),
+          const Original(''),
+          file.name,
+          file.size,
+        );
 
   /// [NativeFile] representing this [LocalAttachment].
   @HiveField(4)
