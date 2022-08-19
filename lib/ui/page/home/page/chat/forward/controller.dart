@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
@@ -24,15 +23,15 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -44,6 +43,9 @@ class ChatForwardController extends GetxController {
     this.fromId,
     this.forwardItem,
   );
+
+  /// Maximum allowed [NativeFile.size] of an [Attachment].
+  static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
@@ -61,7 +63,7 @@ class ChatForwardController extends GetxController {
   late final TextFieldState send;
 
   /// Attachments to be attached to a forward.
-  RxList<AttachmentData> attachments = RxList<AttachmentData>();
+  RxList<Attachment> attachments = RxList<Attachment>();
 
   /// [Chat]s service used to add members to a [Chat].
   final ChatService _chatService;
@@ -86,29 +88,14 @@ class ChatForwardController extends GetxController {
         try {
           var futures = selectedChats.map(
             (e) async {
-              final List<AttachmentId> attachmentIds = [];
-
-              if (attachments.isNotEmpty) {
-                Iterable<Future> futures =
-                    attachments.map((e) => e.upload.value).whereNotNull();
-                await Future.wait(futures);
-
-                for (var file in attachments) {
-                  if (file.attachment == null) {
-                    s.status.value = RxStatus.empty();
-                    s.unsubmit();
-                    return;
-                  }
-                  attachmentIds.add(file.attachment!.id);
-                }
-              }
-
               return _chatService.forwardChatItems(
                 from: fromId,
                 to: e,
                 items: [forwardItem],
                 text: s.text == '' ? null : ChatMessageText(s.text),
-                attachments: attachmentIds.isEmpty ? null : attachmentIds,
+                attachments: attachments.isEmpty
+                    ? null
+                    : attachments.map((a) => a.id).toList(),
               );
             },
           );
@@ -173,41 +160,29 @@ class ChatForwardController extends GetxController {
     }
   }
 
-  /// Constructs an [AttachmentData] from the specified [file] and adds it to
+  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
   /// the [attachments] list.
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    var attachment = AttachmentData(file);
-    attachments.add(attachment);
+    if (file.size < maxAttachmentSize) {
+      try {
+        var attachment = LocalAttachment(file, status: SendingStatus.sending);
+        attachments.add(attachment);
 
-    await file.ensureCorrectMediaType();
-    if (file.isImage && PlatformUtils.isWeb) {
-      await file.readFile();
-    }
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-    attachment.upload.value = _uploadAttachment(attachment);
-    attachments.refresh();
-  }
-
-  /// Uploads the specified [data] as an attachment.
-  Future<void> _uploadAttachment(AttachmentData data) async {
-    try {
-      data.attachment = await _chatService.uploadAttachment(
-        data.file,
-        onSendProgress: (now, max) {
-          data.progress.value = now / max;
-        },
-      );
-    } on UploadAttachmentException catch (e) {
-      data.hasError.value = true;
-      MessagePopup.error(e);
-    } catch (e) {
-      data.hasError.value = true;
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      data.upload.value = null;
+        int index = attachments.indexOf(attachment);
+        if (index != -1) {
+          attachments[index] = uploaded;
+        }
+      } on UploadAttachmentException catch (e) {
+        MessagePopup.error(e);
+      } on ConnectionException {
+        // No-op.
+      }
+    } else {
+      MessagePopup.error('err_size_too_big'.l10n);
     }
   }
 }

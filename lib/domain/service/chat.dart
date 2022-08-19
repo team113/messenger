@@ -221,7 +221,7 @@ class ChatService extends DisposableService {
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
-  /// Supported [ChatItem] are [ChatMessage] and [ChatForward].
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
   ///
   /// If [text] or [attachments] argument is specified, then the forwarded
   /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
