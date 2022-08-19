@@ -1,0 +1,10 @@
+# Extends staging.vals.yaml for review cluster
+
+image:
+  tag: auto-injected  # see Makefile
+
+ingress:
+  hosts:
+    - auto-injected  # see Makefile
+  httpAuth:
+    enabled: no

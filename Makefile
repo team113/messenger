@@ -12,6 +12,13 @@ eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
 rwildcard = $(strip $(wildcard $(1)$(2))\
                     $(foreach d,$(wildcard $(1)*),$(call rwildcard,$(d)/,$(2))))
 
+# Makes given string usable in URL.
+# Analogue of slugify() function from GitLab:
+# https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/utils.rb
+slugify = $(strip $(shell echo $(2) | tr [:upper:] [:lower:] \
+                                    | tr -c [:alnum:] - \
+                                    | cut -c 1-$(1) \
+                                    | sed -e 's/^-*//' -e 's/-*$$//'))
 
 
 
@@ -24,6 +31,9 @@ OWNER := $(or $(GITHUB_REPOSITORY_OWNER),team113)
 REGISTRIES := $(strip $(subst $(comma), ,\
 	$(shell grep -m1 'registry: \["' .github/workflows/ci.yml \
 	        | cut -d':' -f2 | tr -d '"][')))
+
+CURRENT_BRANCH := $(or $(GITHUB_REF_NAME),\
+	$(shell git branch | grep \* | cut -d ' ' -f2))
 
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
@@ -389,6 +399,7 @@ docker-registries = $(strip $(if $(call eq,$(registries),),\
                             $(REGISTRIES),$(subst $(comma), ,$(registries))))
 docker-tags = $(strip $(if $(call eq,$(tags),),\
                       $(VERSION),$(subst $(comma), ,$(tags))))
+docker-image = $(if $(call eq,$(image),),,/$(image))
 
 
 # Stop Docker Compose development environment and remove all related containers.
@@ -404,6 +415,8 @@ docker.down:
 #
 # Usage:
 #	make docker.image [tag=(dev|<tag>)]
+#	                  [image=(<empty>|review)]
+#	                  [buildx=(no|yes)]
 #	                  [no-cache=(no|yes)]
 #	                  [minikube=(no|yes)]
 
@@ -416,13 +429,16 @@ ifeq ($(wildcard build/web),)
 	                    dockerized=$(dockerized)
 endif
 	$(docker-env) \
-	docker build --network=host --force-rm \
+	docker $(if $(call eq,$(buildx),yes),buildx,) \
+		build --network=host --force-rm \
+		$(if $(call eq,$(buildx),yes),\
+			--allow network.host --platform linux/amd64 -o type=docker,) \
 		$(if $(call eq,$(no-cache),yes),--no-cache --pull,) \
 		--label org.opencontainers.image.source=$(github_url)/$(github_repo) \
 		--label org.opencontainers.image.revision=$(strip \
 			$(shell git show --pretty=format:%H --no-patch)) \
 		--label org.opencontainers.image.version=$(strip $(VERSION)) \
-		-t $(OWNER)/$(NAME):$(or $(tag),dev) .
+		-t $(OWNER)/$(NAME)$(docker-image):$(or $(tag),dev) .
 # TODO: Enable after first release.
 #		--label org.opencontainers.image.version=$(subst v,,$(strip \
 			$(shell git describe --tags --dirty --match='v*')))
@@ -433,6 +449,7 @@ endif
 # Usage:
 #	make docker.push [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
 #	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	                 [image=(<empty>|review)]
 #	                 [minikube=(no|yes)]
 
 docker.push:
@@ -443,7 +460,7 @@ define docker.push.do
 	$(eval repo := $(strip $(1)))
 	$(eval tag := $(strip $(2)))
 	$(docker-env) \
-	docker push $(repo)/$(OWNER)/$(NAME):$(tag)
+	docker push $(repo)/$(OWNER)/$(NAME)$(docker-image):$(tag)
 endef
 
 
@@ -453,6 +470,7 @@ endef
 #	make docker.tags [of=(dev|<docker-tag>)]
 #	                 [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
 #	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	                 [image=(<empty>|review)]
 #	                 [minikube=(no|yes)]
 
 docker.tags:
@@ -464,7 +482,8 @@ define docker.tags.do
 	$(eval repo := $(strip $(2)))
 	$(eval to := $(strip $(3)))
 	$(docker-env) \
-	docker tag $(OWNER)/$(NAME):$(from) $(repo)/$(OWNER)/$(NAME):$(to)
+	docker tag $(OWNER)/$(NAME)$(docker-image):$(from) \
+	   $(repo)/$(OWNER)/$(NAME)$(docker-image):$(to)
 endef
 
 
@@ -532,8 +551,83 @@ endif
 # Helm commands #
 #################
 
+helm-cluster = $(or $(cluster),minikube)
+
 helm-chart := $(or $(chart),messenger)
 helm-chart-dir := helm/$(helm-chart)
+
+helm-release-default = $(strip $(if $(call eq,$(helm-cluster),review),\
+	$(CURRENT_BRANCH),dev))
+helm-release = $(call slugify,40,\
+	messenger$(strip $(if $(call eq,$(helm-cluster),staging),,\
+	-$(or $(release),$(helm-release-default)))))
+helm-release-namespace = $(strip \
+	$(if $(call eq,$(helm-cluster),staging),staging,\
+	$(if $(call eq,$(helm-cluster),review),staging-review,\
+	default)))
+
+helm-cluster-args = $(strip $(if $(call eq,$(CI),yes),\
+	--namespace=$(helm-release-namespace),\
+	--kube-context=$(helm-cluster)))
+kubectl-cluster-args = $(strip $(if $(call eq,$(CI),yes),\
+	--namespace=$(helm-release-namespace),\
+	--context=$(helm-cluster)))
+
+minikube-mount-pid = $(word 1,$(shell ps | grep -v grep \
+                                         | grep 'minikube mount' \
+                                         | grep 'team113-messenger'))
+
+
+# Show SFTP credentials to access deployed project in Kubernetes cluster.
+#
+# Usage:
+#	make helm.discover.sftp [cluster=(minikube|review|staging)]
+#	                        [release=(dev|<current-git-branch>|<release-name>)]
+
+base64-cmd = base64 $(strip \
+	$(if $(call eq,$(shell echo "" | base64 -d &>/dev/null; echo $$?),0),-d,-D))
+
+helm.discover.sftp:
+	$(if $(call eq,$(shell kubectl $(kubectl-cluster-args) get service \
+		$(helm-release) 1>/dev/null && echo "yes"),yes),,\
+			$(error no '$(helm-release)' release is deployed))
+	@echo 'host: $(shell kubectl $(kubectl-cluster-args) get ingress \
+		-l "app.kubernetes.io/instance=$(helm-release)" \
+		-o jsonpath="{.items[0].spec.rules[0].host}")'
+	@echo 'port: $(shell kubectl $(kubectl-cluster-args) get services \
+		-l "app.kubernetes.io/instance=$(helm-release),\
+		    app.kubernetes.io/component=sftp" \
+		-o jsonpath="{.items[0].spec.ports[0].nodePort}")'
+	@echo 'user: $(shell kubectl $(kubectl-cluster-args) get secret \
+		-l "app.kubernetes.io/instance=$(helm-release),\
+		    app.kubernetes.io/component=sftp" \
+		-o jsonpath="{.items[0].data.SFTP_USER}"|$(base64-cmd))'
+	@echo 'pass: $(shell kubectl $(kubectl-cluster-args) get secret \
+		-l "app.kubernetes.io/instance=$(helm-release),\
+		    app.kubernetes.io/component=sftp" \
+		-o jsonpath="{.items[0].data.SFTP_PASSWORD}"|$(base64-cmd))'
+
+
+# Remove Helm release of project from Kubernetes cluster.
+#
+# Usage:
+#	make helm.down [cluster=(minikube|review|staging)]
+#	               [release=(dev|<current-git-branch-slug>|<release-name>)]
+#	               [check=(no|yes)]
+
+helm.down:
+ifeq ($(helm-cluster),minikube)
+ifneq ($(minikube-mount-pid),)
+	kill $(minikube-mount-pid)
+endif
+endif
+ifeq ($(check),yes)
+	$(if $(shell helm $(helm-cluster-args) list | grep '$(helm-release)'),\
+		helm $(helm-cluster-args) uninstall $(helm-release) ,\
+		@echo "--> No $(helm-release) release found in $(helm-cluster) cluster")
+else
+	helm $(helm-cluster-args) uninstall $(helm-release)
+endif
 
 
 # Lint project Helm chart.
@@ -577,6 +671,102 @@ endif
 	git push origin refs/tags/$(helm-git-tag)
 
 
+# Run project in Kubernetes cluster as Helm release.
+#
+# Usage:
+#	make helm.up [release=(dev|<current-git-branch-slug>|<release-name>)]
+#	             [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	             [buildx=(no|yes)]
+#	             [force=(no|yes)]
+#	             [( [atomic=no] [wait=(yes|no)]
+#	              | atomic=yes )]
+#	             [( cluster=(minikube|review)
+#	              	[( [rebuild=no]
+#	              	 | rebuild=yes [debug=(yes|no)] [no-cache=(no|yes)] )]
+#	              | cluster=staging )]
+
+helm-review-domain=$(strip $(shell grep 'HELM_DOMAIN=' .env | cut -d '=' -f2))
+helm-review-app-domain = $(strip \
+	$(call slugify,63,$(CURRENT_BRANCH))$(helm-review-domain))
+helm-chart-vals-dir = dev
+
+helm.up:
+ifeq ($(wildcard my.$(helm-cluster).vals.yaml),)
+	@touch my.$(helm-cluster).vals.yaml
+endif
+ifeq ($(helm-cluster),minikube)
+ifeq ($(wildcard build/web),)
+	@make flutter.build platform=web dart-env='$(dart-env)' \
+	                    dockerized=$(dockerized)
+endif
+ifeq ($(rebuild),yes)
+	@make docker.image no-cache=$(no-cache) minikube=yes tag=dev
+else
+endif
+ifeq ($(minikube-mount-pid),)
+	minikube mount "$(PWD):/mount/team113-messenger" &
+endif
+endif
+ifeq ($(helm-cluster),review)
+ifeq ($(rebuild),yes)
+	@make docker.image image=review tag=$(CURRENT_BRANCH) \
+	                   buildx=$(buildx) no-cache=$(no-cache)
+	@make docker.tags image=review of=$(CURRENT_BRANCH) \
+	                  registries=$(docker-registries) tags=$(CURRENT_BRANCH)
+	@make docker.push image=review \
+	                  registries=$(docker-registries) tags=$(CURRENT_BRANCH)
+endif
+endif
+	helm $(helm-cluster-args) upgrade --install --dry-run \
+		$(helm-release) $(helm-chart-dir)/ \
+			--namespace=$(helm-release-namespace) \
+			$(if $(call eq,$(helm-cluster),review),\
+				--values=$(helm-chart-vals-dir)/staging.vals.yaml ,)\
+			--values=$(helm-chart-vals-dir)/$(helm-cluster).vals.yaml \
+			--values=my.$(helm-cluster).vals.yaml \
+			$(if $(call eq,$(helm-cluster),review),\
+				--set ingress.hosts={"$(helm-review-app-domain)"} \
+				--set image.tag="$(CURRENT_BRANCH)" )\
+			--set deployment.revision=$(shell date +%s) \
+			$(if $(call eq,$(force),yes),--force,)\
+			$(if $(call eq,$(atomic),yes),--atomic,\
+			$(if $(call eq,$(wait),no),,--wait))
+
+
+# Bootstrap Minikube cluster (local Kubernetes) for development environment.
+#
+# The bootsrap script is updated automatically to the latest version every day.
+# For manual update use 'update=yes' command option.
+#
+# Usage:
+#	make minikube.boot [update=(no|yes)]
+#	                   [driver=(virtualbox|hyperkit|hyperv|docker|none)]
+#	                   [k8s-version=<kubernetes-version>]
+
+minikube.boot:
+ifeq ($(update),yes)
+	$(call minikube.boot.download)
+else
+ifeq ($(wildcard $(HOME)/.minikube/bootstrap.sh),)
+	$(call minikube.boot.download)
+else
+ifneq ($(shell find $(HOME)/.minikube/bootstrap.sh -mmin +1440),)
+	$(call minikube.boot.download)
+endif
+endif
+endif
+	@$(if $(call eq,$(driver),),,MINIKUBE_VM_DRIVER=$(driver)) \
+	 $(if $(call eq,$(k8s-version),),,MINIKUBE_K8S_VER=$(k8s-version)) \
+		$(HOME)/.minikube/bootstrap.sh
+define minikube.boot.download
+	$()
+	@mkdir -p $(HOME)/.minikube/
+	@rm -f $(HOME)/.minikube/bootstrap.sh
+	curl -fL -o $(HOME)/.minikube/bootstrap.sh \
+		https://raw.githubusercontent.com/instrumentisto/toolchain/master/minikube/bootstrap.sh
+	@chmod +x $(HOME)/.minikube/bootstrap.sh
+endef
+
 
 
 ################
@@ -613,5 +803,7 @@ endif
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
-        helm.lint helm.package helm.release \
+        helm.down helm.lint helm.package helm.release helm.up \
+		helm.discover.sftp \
+		minikube.boot \
         test.e2e test.unit
