@@ -594,6 +594,7 @@ class MyProfileController extends GetxController {
       oldPassword.focus.unfocus();
       oldPassword.submit();
     }
+
     newPassword.focus.unfocus();
     newPassword.submit();
     repeatPassword.focus.unfocus();
