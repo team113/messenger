@@ -55,7 +55,7 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: ^0.8.0-dev+rev.fe4d3b9cd21a390870d5390393300371fe5f1bb2
+  medea_flutter_webrtc: 0.8.0-dev+rev.1c0c2769afb29a76f4e6b7c4707ab3526ceab937
   medea_jason:
     git:
       url: https://github.com/instrumentisto/medea-jason.git
