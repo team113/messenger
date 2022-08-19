@@ -31,7 +31,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
-    - Redesigned login interface ([#35]);
+    - Redesigned login interface ([#35], [#83]);
     - Redesigned auth page ([#29]).
 
 ### Fixed
@@ -78,6 +78,7 @@ All user visible changes to this project will be documented in this file. This p
 [#76]: /../../issues/76
 [#79]: /../../pull/79
 [#80]: /../../pull/80
+[#83]: /../../pull/83
 
 
 
