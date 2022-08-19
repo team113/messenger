@@ -38,11 +38,4 @@ class ChatItemQuote {
   /// If no [Attachment]s are provided, then [ChatForward] will only contain a
   /// [ChatMessageText].
   final List<AttachmentId> attachments;
-
-  /// Returns the generated [ChatItemQuoteInput] from this [ChatItemQuote].
-  ChatItemQuoteInput get quote => ChatItemQuoteInput(
-        id: item.id,
-        attachments: attachments,
-        withText: withText,
-      );
 }
