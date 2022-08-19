@@ -15,31 +15,22 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
-/// Waits until the provided text is present or absent.
+/// Taps a [Widget] containing the provided text.
 ///
 /// Examples:
-/// - Then I wait until text "Dummy" is absent
-/// - Then I wait until text "Dummy" is present
-final StepDefinitionGeneric untilTextExists =
-    then2<String, Existence, FlutterWorld>(
-  'I wait until text {string} is {existence}',
-  (text, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+/// - When I tap "Dummy" text
+final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
+  RegExp(r'I tap {string} text'),
+  (text, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+    final finder = context.world.appDriver.findBy(text, FindType.text);
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findBy(text, FindType.text),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findBy(text, FindType.text),
-              );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+    await context.world.appDriver.scrollIntoView(finder);
+    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver
+        .tap(finder, timeout: context.configuration.timeout);
+    await context.world.appDriver.waitForAppToSettle();
   },
 );

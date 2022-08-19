@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
     - Introduction modal window ([#38]).
     - Chat page:
         - Message forwarding ([#72], [#8]).
+        - Failed messages persistence ([#5], [#3]).
 - Deployment:
     - [Helm] chart ([#73]).
 
@@ -35,6 +36,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
     - Redesigned login interface ([#35]);
     - Redesigned auth page ([#29]).
+    - Chat page:
+        - Messages and attachments sending status ([#5], [#3]).
 
 ### Fixed
 
@@ -53,7 +56,9 @@ All user visible changes to this project will be documented in this file. This p
         - Camera not enabling in empty call ([#79], [#75]).
 
 [#2]: /../../issues/2
+[#3]: /../../issues/3
 [#4]: /../../issues/4
+[#5]: /../../pull/5
 [#6]: /../../issues/6
 [#8]: /../../issues/8
 [#7]: /../../pull/7

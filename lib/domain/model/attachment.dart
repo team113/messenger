@@ -14,11 +14,18 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
+import 'chat_item.dart';
 import 'image_gallery_item.dart';
+import 'native_file.dart';
+import 'sending_status.dart';
 
 part 'attachment.g.dart';
 
@@ -93,4 +100,36 @@ class FileAttachment extends Attachment {
 @HiveType(typeId: ModelTypeId.attachmentId)
 class AttachmentId extends NewType<String> {
   const AttachmentId(String val) : super(val);
+
+  /// Constructs a dummy [AttachmentId].
+  factory AttachmentId.local() => AttachmentId('local_${const Uuid().v4()}');
+}
+
+/// [Attachment] stored in a [NativeFile] locally.
+@HiveType(typeId: ModelTypeId.localAttachment)
+class LocalAttachment extends Attachment {
+  LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
+      : status = Rx(status),
+        super(
+          AttachmentId.local(),
+          const Original(''),
+          file.name,
+          file.size,
+        );
+
+  /// [NativeFile] representing this [LocalAttachment].
+  @HiveField(4)
+  NativeFile file;
+
+  /// [SendingStatus] of this [LocalAttachment].
+  final Rx<SendingStatus> status;
+
+  /// Upload progress of this [LocalAttachment].
+  final Rx<double> progress = Rx(0);
+
+  /// [Completer] resolving once this [LocalAttachment]'s uploading is finished.
+  final Rx<Completer<Attachment>?> upload = Rx<Completer<Attachment>?>(null);
+
+  /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
+  final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
 }

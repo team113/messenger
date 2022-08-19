@@ -25,7 +25,6 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
-import '../widget/animated_delayed_switcher.dart';
 import '../widget/dock.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -43,6 +42,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
