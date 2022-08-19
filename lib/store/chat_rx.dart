@@ -368,17 +368,18 @@ class HiveRxChat implements RxChat {
             if (item.value is ChatMessage &&
                 item.value.authorId == me &&
                 !ignoreVersion) {
-              (item.value as ChatMessage)
-                  .attachments = (item.value as ChatMessage)
-                  .attachments
-                  .whereType<FileAttachment>().map((e) {
-                    var savedFile = (saved.value as ChatMessage)
+              (item.value as ChatMessage).attachments =
+                  (item.value as ChatMessage)
+                      .attachments
+                      .whereType<FileAttachment>()
+                      .map((e) {
+                var savedFile = (saved.value as ChatMessage)
                     .attachments
                     .whereType<FileAttachment>()
                     .firstWhereOrNull((e) => e.original == e.original);
 
-                    return savedFile ?? e;
-                  }).toList();
+                return savedFile ?? e;
+              }).toList();
             }
 
             _local.put(item);
