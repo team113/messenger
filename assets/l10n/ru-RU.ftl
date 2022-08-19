@@ -130,7 +130,9 @@ btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
 btn_delete_account = Удалить аккаунт
 btn_delete_direct_chat_link = Удалить
+btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
+btn_delete_message = Удалить
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
@@ -139,6 +141,7 @@ btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hide_chat = Скрыть чат
+btn_hide_for_me = Удалить для меня
 btn_info = Информация
 btn_join_call = Присоединиться
 btn_leave_chat = Выйти из чата
@@ -149,6 +152,7 @@ btn_next = Далее
 btn_ok = Ок
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
+btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
 btn_set_password = Задать пароль
@@ -328,7 +332,6 @@ label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
 label_current_password = Текущий пароль
-label_delete_for_all = Удалить для всех
 label_delivered = Доставлено
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
@@ -371,7 +374,6 @@ label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_hidden = Статус скрыт
-label_hide_for_me = Удалить для меня
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =
@@ -387,7 +389,7 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 
@@ -413,8 +415,8 @@ label_no_registration = без регистрации
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
-label_outgoing_call = Исходящий звонок
 label_or_register = или регистрация
+label_outgoing_call = Исходящий звонок
 label_password = Пароль
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен

@@ -210,7 +210,7 @@ class _GalleryPopupState extends State<GalleryPopup>
         },
       );
 
-    _bounds = _calculatePosition() ?? Rect.zero;
+    _bounds = _calculatePosition() ?? Rect.largest;
 
     _page = widget.initial;
     _pageController = PageController(initialPage: _page);

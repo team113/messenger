@@ -22,6 +22,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -182,6 +183,7 @@ void main() async {
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       ),
     );
 
@@ -204,6 +206,7 @@ void main() async {
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       )),
       throwsA(isA<DeleteChatMessageException>()),
     );
@@ -225,6 +228,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       PreciseDateTime.now(),
+      status: SendingStatus.sent,
     ));
 
     verify(graphQlProvider.hideChatItem(
@@ -246,6 +250,7 @@ void main() async {
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       )),
       throwsA(isA<HideChatItemException>()),
     );

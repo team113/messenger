@@ -28,6 +28,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -144,6 +145,29 @@ void main() async {
         },
       ),
     ])),
+  );
+
+  when(graphQlProvider.signIn(
+          UserPassword('testPass'), null, null, null, null, true))
+      .thenAnswer(
+    (_) => Future.value(SignIn$Mutation.fromJson({
+      'createSession': {
+        '__typename': 'CreateSessionOk',
+        'user': userData,
+        'session': {
+          'expireAt': '2022-08-02T13:17:55Z',
+          'token':
+              'eyJpZCI6IjU3ZTMwZjhhLWVlNmMtNDdkYy1hNTMwLWNiZDc5MmJmMjRhNiIsInNlY3JldCI6Imh4UERlekFQT0xuQ2hEOVpwOE9UUHdSOE02ODJjTFQrTW80S2ZpNGxUMnc9In0=',
+          'ver': '30611347541830950583282840677231825138'
+        },
+        'remembered': {
+          'expireAt': '2023-08-02T12:47:55Z',
+          'token':
+              'eyJpZCI6ImE0MzlmYjAwLTRiZjMtNGU5Yi1iMWE4LWJmNzYyMjdlYWQ2ZiIsInNlY3JldCI6IkdqaGVKY1BVV21hS1UyTWRNeFNwNmxTYjZUZkhhQXo0RFdiVnhYalRicWs9In0=',
+          'ver': '30611347541270427360343145140867880719'
+        }
+      }
+    }).createSession as SignIn$Mutation$CreateSession$CreateSessionOk),
   );
 
   when(graphQlProvider
@@ -287,7 +311,9 @@ void main() async {
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
-  await messagesProvider.init();
+  await messagesProvider.init(
+      userId: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'));
+  await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -310,6 +336,7 @@ void main() async {
       ),
     );
     await authService.init();
+    await authService.signIn(UserPassword('testPass'));
 
     AbstractMyUserRepository myUserRepository =
         MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
@@ -318,7 +345,13 @@ void main() async {
     AbstractSettingsRepository settingsRepository = Get.put(
         SettingsRepository(settingsProvider, applicationSettingsProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, chatProvider, userRepository));
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        userRepository,
+        me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+      ),
+    );
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
 

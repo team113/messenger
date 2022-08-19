@@ -33,15 +33,21 @@ import '../parameters/keys.dart';
 final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
   (key, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-    await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver.tap(
-      finder,
-      timeout: context.configuration.timeout,
-    );
-    await context.world.appDriver.waitForAppToSettle();
+      if (await context.world.appDriver.isPresent(finder)) {
+        await context.world.appDriver.scrollIntoView(finder);
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
+        return true;
+      }
+      return false;
+    });
   },
 );
