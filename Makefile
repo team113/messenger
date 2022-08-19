@@ -717,7 +717,7 @@ ifeq ($(rebuild),yes)
 	                  registries=$(docker-registries) tags=$(CURRENT_BRANCH)
 endif
 endif
-	helm $(helm-cluster-args) upgrade --install --dry-run \
+	helm $(helm-cluster-args) upgrade --install \
 		$(helm-release) $(helm-chart-dir)/ \
 			--namespace=$(helm-release-namespace) \
 			$(if $(call eq,$(helm-cluster),review),\
