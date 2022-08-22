@@ -188,7 +188,7 @@ class ConfirmLogoutView extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
                 ...children,
-                const SizedBox(height: 25),
+                const SizedBox(height: 12),
               ],
             ),
           );

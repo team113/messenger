@@ -201,7 +201,7 @@ class IntroductionView extends StatelessWidget {
                   ),
                 const SizedBox(height: 25),
                 ...children,
-                const SizedBox(height: 25 + 12),
+                const SizedBox(height: 12),
               ],
             ),
           );

@@ -87,11 +87,25 @@ class ContactsTabView extends StatelessWidget {
         extendBody: false,
         body: Obx(() {
           if (!c.contactsReady.value) {
-            return const Center(child: CircularProgressIndicator());
+            return UserSearchBar(
+              onUserTap: (user) => router.user(user.id),
+              // TODO: Show an `add` icon only if user is not in contacts already.
+              //       E.g. by looking if `MyUser.contacts` field is empty or not.
+              trailingIcon: const Icon(Icons.person_add),
+              onTrailingTap: c.addToContacts,
+              body: const Center(child: CircularProgressIndicator()),
+            );
           }
 
           if (c.favorites.isEmpty && c.contacts.isEmpty) {
-            return Center(child: Text('label_no_contacts'.l10n));
+            return UserSearchBar(
+              onUserTap: (user) => router.user(user.id),
+              // TODO: Show an `add` icon only if user is not in contacts already.
+              //       E.g. by looking if `MyUser.contacts` field is empty or not.
+              trailingIcon: const Icon(Icons.person_add),
+              onTrailingTap: c.addToContacts,
+              body: Center(child: Text('label_no_contacts'.l10n)),
+            );
           }
 
           var metrics = MediaQuery.of(context);

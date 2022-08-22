@@ -15,13 +15,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/download/view.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
@@ -67,6 +68,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('PersonalizationPage'),
           name: Routes.personalization,
           child: PersonalizationView(),
+        ));
+      } else if (route == Routes.download) {
+        pages.add(const MaterialPage(
+          key: ValueKey('DownloadPage'),
+          name: Routes.download,
+          child: DownloadView(false),
         ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const MaterialPage(

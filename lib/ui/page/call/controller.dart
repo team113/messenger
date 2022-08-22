@@ -1064,8 +1064,16 @@ class CallController extends GetxController {
     return ModalPopup.show(
       context: context,
       child: ParticipantView(_currentCall, duration),
-      desktopConstraints: const BoxConstraints(maxWidth: 380),
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
       modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      mobilePadding: const EdgeInsets.all(0),
     );
 
     // if (isGroup) {

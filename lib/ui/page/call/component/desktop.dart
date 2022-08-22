@@ -1394,6 +1394,11 @@ Widget _primaryView(CallController c) {
                                   onPressed: () => c
                                       .toggleRendererEnabled(participant.video),
                                 ),
+                              if (participant.id.userId != c.me)
+                                ContextMenuButton(
+                                  label: 'Remove participant',
+                                  onPressed: () {},
+                                ),
                             ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(

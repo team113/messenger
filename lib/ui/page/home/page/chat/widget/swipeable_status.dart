@@ -1,19 +1,3 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero General Public License v3.0 as published by the
-// Free Software Foundation, either version 3 of the License, or (at your
-// option) any later version.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
-// more details.
-//
-// You should have received a copy of the GNU Affero General Public License v3.0
-// along with this program. If not, see
-// <https://www.gnu.org/licenses/agpl-3.0.html>.
-
 import 'package:flutter/material.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
@@ -31,11 +15,11 @@ class SwipeableStatus extends StatelessWidget {
     this.isSending = false,
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
-    this.padding = const EdgeInsets.only(bottom: 18),
+    this.padding = const EdgeInsets.only(bottom: 13),
   }) : super(key: key);
 
   /// Expanded width of the [swipeable].
-  static const double width = 55;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -59,10 +43,7 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is read.
   final bool isRead;
 
-  /// Indicator whether status is sending.
   final bool isSending;
-
-  /// Indicator whether status is error.
   final bool isError;
 
   /// Position of a [swipeable] relatively to the [child].
@@ -114,33 +95,41 @@ class SwipeableStatus extends StatelessWidget {
         textAlign: TextAlign.end,
         maxLines: 1,
         overflow: TextOverflow.visible,
-        style: const TextStyle(fontSize: 10, color: Color(0xFF888888)),
+        style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
         child: Padding(
-          padding: const EdgeInsets.only(right: 3.5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSent || isDelivered || isRead || isSending || isError) ...[
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? const Color(0xFF63B4FF)
-                      : isError
-                          ? Colors.red
-                          : const Color(0xFF888888),
-                  size: 12,
-                ),
+          // padding: EdgeInsets.zero,
+          padding: const EdgeInsets.only(left: 8),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+            margin: const EdgeInsets.only(right: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFFF5F8FA),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isSent || isDelivered || isRead || isSending || isError)
+                  Icon(
+                    (isRead || isDelivered)
+                        ? Icons.done_all
+                        : isSending
+                            ? Icons.access_alarm
+                            : isError
+                                ? Icons.error_outline
+                                : Icons.done,
+                    color: isRead
+                        ? const Color(0xFF63B4FF)
+                        : isError
+                            ? Colors.red
+                            : const Color(0xFF888888),
+                    size: 12,
+                  ),
                 const SizedBox(width: 3),
+                swipeable,
               ],
-              swipeable,
-            ],
+            ),
           ),
         ),
       );

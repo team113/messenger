@@ -29,6 +29,8 @@ abstract class ModalPopup {
     required Widget child,
     BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
     BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
+    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
+    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
     bool isDismissible = true,
   }) {
     if (context.isMobile) {
@@ -66,9 +68,9 @@ abstract class ModalPopup {
                 ],
                 Flexible(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                    padding: mobilePadding,
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 360),
+                      constraints: mobileConstraints,
                       child: child,
                     ),
                   ),
@@ -97,21 +99,23 @@ abstract class ModalPopup {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      const Spacer(),
-                      if (isDismissible)
-                        InkResponse(
-                          onTap: Navigator.of(context).pop,
-                          radius: 11,
-                          child: const Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Color(0xBB818181),
+                  SizedBox(
+                    height: 16,
+                    child: Row(
+                      children: [
+                        const Spacer(),
+                        if (isDismissible)
+                          InkResponse(
+                            onTap: Navigator.of(context).pop,
+                            radius: 11,
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Color(0xBB818181),
+                            ),
                           ),
-                        ),
-                      const SizedBox(width: 10),
-                    ],
+                      ],
+                    ),
                   ),
                   Flexible(
                     child: ConstrainedBox(
@@ -119,6 +123,7 @@ abstract class ModalPopup {
                       child: child,
                     ),
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

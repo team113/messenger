@@ -19,6 +19,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/download/view.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -203,7 +204,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => DownloadView.show(context),
             ),
           if (isAndroidWeb)
             OutlinedRoundedButton(
@@ -215,7 +216,7 @@ class AuthView extends StatelessWidget {
                   width: 22 * 0.7,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () => DownloadView.show(context),
             ),
           if (isDesktopWeb)
             OutlinedRoundedButton(
@@ -236,7 +237,7 @@ class AuthView extends StatelessWidget {
                               width: 22 * 0.7,
                             )
                           : null,
-              onPressed: () {},
+              onPressed: () => DownloadView.show(context),
             ),
           const SizedBox(height: 20),
           language,

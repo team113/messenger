@@ -69,25 +69,90 @@ class ParticipantView extends StatelessWidget {
           switch (c.stage.value) {
             case ParticipantsFlowStage.adding:
               List<Widget> children = [
-                _chat(context, c),
-                const SizedBox(height: 6),
-                Expanded(
+                // _chat(context, c),
+                // const SizedBox(height: 25),
+                // const SizedBox(height: 18),
+                Center(
+                  child: Text(
+                    'Add participant'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: const Color(0xFFEFEFEF),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.search,
+                        color: Color(0xFF63B4FF),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Search...',
+                        style: thin?.copyWith(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  height: 15,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      const SizedBox(width: 10),
+                      WidgetButton(
+                        child: Text(
+                          'Contacts',
+                          style: thin?.copyWith(
+                            fontSize: 15,
+                            color: const Color(0xFF63B4FF),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 30),
+                      WidgetButton(
+                        child: Text(
+                          'Chats',
+                          style: thin?.copyWith(fontSize: 15),
+                        ),
+                      ),
+                      const SizedBox(width: 30),
+                      WidgetButton(
+                        child: Text(
+                          'Users',
+                          style: thin?.copyWith(fontSize: 15),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Flexible(
                   child: ListView(
                     shrinkWrap: true,
                     children: [
-                      ...c.selectedUsers.map(
-                        (e) => AddUserListTile(e, () => c.unselectUser(e)),
-                      ),
+                      if (c.contacts.entries.isEmpty)
+                        const SizedBox(height: 60, child: Text('Empty')),
+                      // ...c.selectedUsers.map(
+                      //   (e) => AddUserListTile(e, () => c.unselectUser(e)),
+                      // ),
                       ...c.contacts.entries
-                          .where((e) => e.value.contact.value.users.isNotEmpty)
-                          .where((e) =>
-                              c.chat.value!.members.values.firstWhereOrNull(
-                                  (m) =>
-                                      e.value.contact.value.users
-                                          .firstWhereOrNull(
-                                              (u) => u.id == m.id) !=
-                                      null) ==
-                              null)
+                          // .where((e) => e.value.contact.value.users.isNotEmpty)
+                          // .where((e) =>
+                          //     c.chat.value!.members.values.firstWhereOrNull(
+                          //         (m) =>
+                          //             e.value.contact.value.users
+                          //                 .firstWhereOrNull(
+                          //                     (u) => u.id == m.id) !=
+                          //             null) ==
+                          //     null)
                           .map(
                         (e) {
                           bool selected = c.selectedContacts.contains(e.value);
@@ -124,7 +189,7 @@ class ParticipantView extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 18),
                 Row(
                   children: [
                     Expanded(
@@ -132,7 +197,7 @@ class ParticipantView extends StatelessWidget {
                         key: const Key('BackButton'),
                         maxWidth: null,
                         title: Text(
-                          'Cancel',
+                          'Back',
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: Theme.of(context)
@@ -176,16 +241,18 @@ class ParticipantView extends StatelessWidget {
                 ),
               ];
 
-              child = ListView(
+              child = Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2),
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  const SizedBox(height: 12),
-                  ...children,
-                  const SizedBox(height: 25 + 12),
-                ],
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 25),
+                    ...children,
+                    const SizedBox(height: 25),
+                  ],
+                ),
               );
               break;
 
@@ -207,18 +274,21 @@ class ParticipantView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 physics: const ClampingScrollPhysics(),
                 children: [
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 25),
                   ...children,
-                  const SizedBox(height: 25 + 12),
+                  const SizedBox(height: 25),
                 ],
               );
               break;
 
             default:
               List<Widget> children = [
-                _chat(context, c),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: _chat(context, c),
+                ),
                 const SizedBox(height: 25),
-                const SizedBox(height: 14),
+                // const SizedBox(height: 18),
                 Center(
                   child: Text(
                     'Participants'.l10n,
@@ -230,6 +300,7 @@ class ParticipantView extends StatelessWidget {
                   child: ListView(
                     physics: const ScrollPhysics(),
                     shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     children: c.chat.value!.members.values.map((e) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -238,20 +309,23 @@ class ParticipantView extends StatelessWidget {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 25),
-                _addParticipant(context, c),
+                const SizedBox(height: 18),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: _addParticipant(context, c),
+                ),
               ];
 
               child = Container(
-                margin: const EdgeInsets.all(8),
+                margin: const EdgeInsets.symmetric(horizontal: 2),
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 25),
                     ...children,
-                    const SizedBox(height: 25 + 12),
+                    const SizedBox(height: 25),
                   ],
                 ),
               );
@@ -305,6 +379,7 @@ class ParticipantView extends StatelessWidget {
               child: InkWell(
                 borderRadius: style.cardRadius,
                 // onTap: () => router.chat(chat.id),
+                onTap: () {},
                 hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
@@ -370,6 +445,7 @@ class ParticipantView extends StatelessWidget {
   Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     return ContactTile(
       user: user,
+      onTap: () {},
       trailing: [
         Obx(() {
           bool inCall = user.id == c.me ||
@@ -379,20 +455,43 @@ class ParticipantView extends StatelessWidget {
 
           if (!inCall) {
             return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Material(
+                  color: const Color(0xFF63B4FF),
+                  type: MaterialType.circle,
+                  child: InkWell(
+                    onTap: () {},
+                    borderRadius: BorderRadius.circular(60),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Center(
+                        child: SvgLoader.asset(
+                          'assets/icons/audio_call_start.svg',
+                          width: 13,
+                          height: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ));
+
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: WidgetButton(
+                onPressed: () {},
                 child: Container(
                   width: 30,
                   height: 30,
                   decoration: const BoxDecoration(
-                      // color: Color(0xFF63B4FF),
-                      // shape: BoxShape.circle,
-                      ),
+                    color: Color(0xFF63B4FF),
+                    shape: BoxShape.circle,
+                  ),
                   child: Center(
                     child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      width: 21,
-                      height: 21,
+                      'assets/icons/audio_call_start.svg',
+                      width: 13,
+                      height: 13,
                     ),
                   ),
                 ),
@@ -427,31 +526,6 @@ class ParticipantView extends StatelessWidget {
 
           return Container();
         }),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          child: WidgetButton(
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: const BoxDecoration(
-                  // color: Color(0xFF63B4FF),
-                  // shape: BoxShape.circle,
-                  ),
-              child: Center(
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 20,
-                  color: const Color(0xFFFF6060),
-                ),
-                // child: SvgLoader.asset(
-                //   'assets/icons/delete.svg',
-                //   width: 27.21 * 0.4,
-                //   height: 26 * 0.4,
-                // ),
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }

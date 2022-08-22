@@ -114,6 +114,13 @@ class MenuTabView extends StatelessWidget {
               ),
               ...divider,
               ListTile(
+                key: const Key('DownloadButton'),
+                title: Text('Download application'.l10n),
+                leading: const Icon(Icons.download),
+                onTap: router.download,
+              ),
+              ...divider,
+              ListTile(
                 key: const Key('LogoutButton'),
                 title: Text('btn_logout'.l10n),
                 leading: const Icon(Icons.logout),

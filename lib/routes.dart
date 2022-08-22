@@ -74,6 +74,7 @@ class Routes {
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
   static const contact = '/contact';
+  static const download = '/download';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
@@ -351,7 +352,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
       String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
       return [
         MaterialPage(
@@ -564,6 +565,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
         _state.route == Routes.personalization ||
+        _state.route == Routes.download ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -632,6 +634,8 @@ extension RouteLinks on RouterState {
   void settingsMedia() => go(Routes.settingsMedia);
 
   void personalization() => go(Routes.personalization);
+
+  void download() => go(Routes.download);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);
