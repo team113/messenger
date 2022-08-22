@@ -908,8 +908,8 @@ packages:
     dependency: "direct main"
     description:
       path: flutter
-      ref: HEAD
-      resolved-ref: 3755b0da240f2f0fb089c6fb6dacb64710ec7a97
+      ref: fix-macos-linking
+      resolved-ref: "31037504bd740a08f39338daa6062e86fbf5db06"
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
