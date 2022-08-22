@@ -96,9 +96,21 @@ abstract class ModalPopup {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              child: Stack(
                 children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // const SizedBox(height: 16),
+                      Flexible(
+                        child: ConstrainedBox(
+                          constraints: desktopConstraints,
+                          child: child,
+                        ),
+                      ),
+                      // const SizedBox(height: 16),
+                    ],
+                  ),
                   SizedBox(
                     height: 16,
                     child: Row(
@@ -117,13 +129,6 @@ abstract class ModalPopup {
                       ],
                     ),
                   ),
-                  Flexible(
-                    child: ConstrainedBox(
-                      constraints: desktopConstraints,
-                      child: child,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),

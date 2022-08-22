@@ -146,10 +146,10 @@ class CallController extends GetxController {
   final RxBool isPanelOpen = RxBool(false);
 
   /// Indicator whether the hint is dismissed or not.
-  final RxBool isHintDismissed = RxBool(false);
+  final RxBool isHintDismissed = RxBool(true);
 
   /// Indicator whether the more hint is dismissed or not.
-  final RxBool isMoreHintDismissed = RxBool(false);
+  final RxBool isMoreHintDismissed = RxBool(true);
 
   /// Indicator whether the cursor should be hidden or not.
   final RxBool isCursorHidden = RxBool(false);

@@ -22,6 +22,8 @@ import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/domain/service/call.dart';
+import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
@@ -48,6 +50,7 @@ class ParticipantController extends GetxController {
     this._call,
     this._chatService,
     this._callService,
+    this._userService,
     this._contactService,
   );
 
@@ -67,7 +70,16 @@ class ParticipantController extends GetxController {
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// Reactive list of the selected [User]s.
-  final RxList<User> selectedUsers = RxList<User>([]);
+  final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
+
+  final RxList<RxUser> searchResults = RxList<RxUser>([]);
+  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
+  late final TextFieldState search;
+  Worker? _searchWorker;
+  Worker? _searchDebounce;
+
+  final RxnString query = RxnString();
 
   /// The [OngoingCall] that this settings are bound to.
   final Rx<OngoingCall> _call;
@@ -77,6 +89,8 @@ class ParticipantController extends GetxController {
 
   /// Calls service used to transform current call into group call.
   final CallService _callService;
+
+  final UserService _userService;
 
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
@@ -95,6 +109,8 @@ class ParticipantController extends GetxController {
   /// Returns the current reactive map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactService.contacts;
+
+  RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
 
   @override
   void onInit() {
@@ -121,6 +137,27 @@ class ParticipantController extends GetxController {
         pop();
       }
     });
+
+    _searchDebounce = debounce(query, (String? v) {
+      if (v != null) {
+        _search(v);
+      }
+    });
+
+    _searchWorker = ever(query, (String? q) {
+      if (q == null || q.isEmpty) {
+        searchResults.clear();
+        searchStatus.value = RxStatus.empty();
+      } else {
+        searchStatus.value = RxStatus.loading();
+      }
+    });
+
+    search = TextFieldState(
+      onChanged: (d) {
+        query.value = d.text;
+      },
+    );
 
     super.onInit();
   }
@@ -188,19 +225,27 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Selects the specified [user].
-  void selectUser(User user) {
-    if (!selectedUsers.any((u) => u.id == user.id)) {
+  void selectUser(RxUser user) {
+    if (selectedUsers.contains(user)) {
+      selectedUsers.remove(user);
+    } else {
       selectedUsers.add(user);
     }
   }
 
-  /// Unselects the specified [user].
-  void unselectUser(User user) {
-    if (selectedUsers.contains(user)) {
-      selectedUsers.remove(user);
-    }
-  }
+  /// Selects the specified [user].
+  // void selectUser(User user) {
+  //   if (!selectedUsers.any((u) => u.id == user.id)) {
+  //     selectedUsers.add(user);
+  //   }
+  // }
+
+  // /// Unselects the specified [user].
+  // void unselectUser(User user) {
+  //   if (selectedUsers.contains(user)) {
+  //     selectedUsers.remove(user);
+  //   }
+  // }
 
   /// Fetches the [chat].
   void _fetchChat() async {
@@ -208,6 +253,44 @@ class ParticipantController extends GetxController {
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop();
+    }
+  }
+
+  Future<void> _search(String query) async {
+    if (query.isNotEmpty) {
+      UserNum? num;
+      UserName? name;
+      UserLogin? login;
+
+      try {
+        num = UserNum(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        name = UserName(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        login = UserLogin(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      if (num != null || name != null || login != null) {
+        searchStatus.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
+        searchResults.value =
+            await _userService.search(num: num, name: name, login: login);
+        searchStatus.value = RxStatus.success();
+      }
+    } else {
+      searchStatus.value = RxStatus.empty();
+      searchResults.clear();
     }
   }
 }

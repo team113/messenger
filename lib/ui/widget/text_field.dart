@@ -49,6 +49,8 @@ class ReactiveTextField extends StatelessWidget {
     this.prefix,
     this.treatErrorAsStatus = true,
     this.filled,
+    this.prefixIcon,
+    this.prefixIconColor,
   }) : super(key: key);
 
   /// Reactive state of this [ReactiveTextField].
@@ -121,6 +123,10 @@ class ReactiveTextField extends StatelessWidget {
 
   final bool? filled;
 
+  final Widget? prefixIcon;
+
+  final Color? prefixIconColor;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -175,6 +181,8 @@ class ReactiveTextField extends StatelessWidget {
                 isDense: dense ?? PlatformUtils.isMobile,
                 prefixText: prefixText,
                 prefix: prefix,
+                prefixIcon: prefixIcon,
+                prefixIconColor: prefixIconColor,
                 fillColor: filled == false ? Colors.transparent : null,
                 contentPadding: contentPadding,
                 suffixIconConstraints: suffix == null &&
