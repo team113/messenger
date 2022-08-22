@@ -196,8 +196,8 @@ void main() async {
       () async {
     when(graphQlProvider.deleteChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(
-        DeleteChatMessageException(DeleteChatMessageErrorCode.unknownChatItem));
+    )).thenThrow(const DeleteChatMessageException(
+        DeleteChatMessageErrorCode.unknownChatItem));
     Get.put(chatHiveProvider);
 
     expect(
@@ -240,7 +240,8 @@ void main() async {
       () async {
     when(graphQlProvider.hideChatItem(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(HideChatItemException(HideChatItemErrorCode.unknownChatItem));
+    )).thenThrow(
+        const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
 
     Get.put(chatHiveProvider);
 

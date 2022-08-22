@@ -233,7 +233,7 @@ void main() async {
     when(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const ChatItemId(''),
-    )).thenThrow(ReadChatException(ReadChatErrorCode.unknownChat));
+    )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
 
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(

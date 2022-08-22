@@ -710,7 +710,9 @@ abstract class ChatGraphQlMixin {
           as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk;
     } on dio.DioError catch (e) {
       if (e.response?.statusCode == 413) {
-        throw UploadAttachmentException(UploadAttachmentErrorCode.tooBigSize);
+        throw const UploadAttachmentException(
+          UploadAttachmentErrorCode.tooBigSize,
+        );
       }
 
       Log.print('[UploadAttachment] Failed with response: ${e.response}');

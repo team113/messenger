@@ -139,7 +139,7 @@ void main() async {
     when(graphQlProvider.signIn(
             UserPassword('123'), null, null, null, null, true))
         .thenThrow(
-            CreateSessionException((CreateSessionErrorCode.unknownUser)));
+            const CreateSessionException((CreateSessionErrorCode.unknownUser)));
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
@@ -203,23 +203,23 @@ void main() async {
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('unknown'), null, null, null))
-        .thenThrow(RecoverUserPasswordException(
+        .thenThrow(const RecoverUserPasswordException(
             RecoverUserPasswordErrorCode.unknownUser));
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('empty'), null, null, null))
-        .thenThrow(RecoverUserPasswordException(
+        .thenThrow(const RecoverUserPasswordException(
             RecoverUserPasswordErrorCode.nowhereToSend));
 
     when(graphQlProvider.validateUserPasswordRecoveryCode(
             UserLogin('unknown'), null, null, null, ConfirmationCode('1111')))
-        .thenThrow(ValidateUserPasswordRecoveryCodeException(
+        .thenThrow(const ValidateUserPasswordRecoveryCodeException(
             ValidateUserPasswordRecoveryErrorCode.wrongCode));
 
     when(graphQlProvider.resetUserPassword(UserLogin('unknown'), null, null,
             null, ConfirmationCode('1111'), UserPassword('123456')))
-        .thenThrow(
-            ResetUserPasswordException(ResetUserPasswordErrorCode.wrongCode));
+        .thenThrow(const ResetUserPasswordException(
+            ResetUserPasswordErrorCode.wrongCode));
 
     expect(
         () async =>
@@ -270,13 +270,13 @@ void main() async {
 
     when(graphQlProvider.validateUserPasswordRecoveryCode(
             UserLogin('login'), null, null, null, ConfirmationCode('1111')))
-        .thenThrow(ValidateUserPasswordRecoveryCodeException(
+        .thenThrow(const ValidateUserPasswordRecoveryCodeException(
             ValidateUserPasswordRecoveryErrorCode.wrongCode));
 
     when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
             ConfirmationCode('1111'), UserPassword('123456')))
-        .thenThrow(
-            ResetUserPasswordException(ResetUserPasswordErrorCode.wrongCode));
+        .thenThrow(const ResetUserPasswordException(
+            ResetUserPasswordErrorCode.wrongCode));
 
     await authService.recoverUserPassword(login: UserLogin('login'));
 

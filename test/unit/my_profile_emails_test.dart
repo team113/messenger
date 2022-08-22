@@ -192,14 +192,14 @@ void main() async {
     );
 
     when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru')))
-        .thenThrow(AddUserEmailException(AddUserEmailErrorCode.tooMany));
+        .thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));
 
     when(graphQlProvider.resendEmail()).thenThrow(
-        ResendUserEmailConfirmationException(
+        const ResendUserEmailConfirmationException(
             ResendUserEmailConfirmationErrorCode.codeLimitExceeded));
 
     when(graphQlProvider.confirmEmailCode(ConfirmationCode('1234'))).thenThrow(
-        ConfirmUserEmailException(ConfirmUserEmailErrorCode.wrongCode));
+        const ConfirmUserEmailException(ConfirmUserEmailErrorCode.wrongCode));
 
     AuthService authService = Get.put(
       AuthService(
