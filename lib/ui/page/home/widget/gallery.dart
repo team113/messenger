@@ -94,7 +94,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       .map(
                         (e) => GalleryItem.image(
                           '${Config.url}/files${e.original}',
-                          'IMG_${e.addedAt.microsecondsSinceEpoch}',
+                          'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.original.val.split('.').last}',
                         ),
                       )
                       .toList(),
