@@ -199,7 +199,7 @@ void main() async {
         UserName('newname'),
       ),
     ).thenThrow(
-      UpdateChatContactNameException(
+      const UpdateChatContactNameException(
           UpdateChatContactNameErrorCode.unknownChatContact),
     );
 

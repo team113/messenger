@@ -304,7 +304,7 @@ class HiveRxChat implements RxChat {
       }
 
       if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
-        throw ConnectionException(PostChatMessageException(
+        throw const ConnectionException(PostChatMessageException(
           PostChatMessageErrorCode.unknownAttachment,
         ));
       }
