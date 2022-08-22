@@ -363,20 +363,18 @@ class HiveRxChat implements RxChat {
                 item.value.at.subtract(const Duration(milliseconds: 1));
             put(item);
           } else if (saved.ver < item.ver || ignoreVersion) {
-            // Saves attachments of old message to prevent [FileAttachment] data
-            // loosing.
-            if (item.value is ChatMessage &&
-                item.value.authorId == me &&
-                !ignoreVersion) {
+            // Saves attachments from old message to prevent [FileAttachment]'s
+            // data loosing.
+            if (item.value is ChatMessage && item.value.authorId == me) {
               (item.value as ChatMessage).attachments =
-                  (item.value as ChatMessage)
-                      .attachments
-                      .whereType<FileAttachment>()
-                      .map((e) {
+                  (item.value as ChatMessage).attachments.map((e) {
+                if (e is! FileAttachment) {
+                  return e;
+                }
+
                 var savedFile = (saved.value as ChatMessage)
                     .attachments
-                    .whereType<FileAttachment>()
-                    .firstWhereOrNull((e) => e.original == e.original);
+                    .firstWhereOrNull((sa) => sa.id == e.id);
 
                 return savedFile ?? e;
               }).toList();

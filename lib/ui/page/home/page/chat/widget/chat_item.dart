@@ -349,7 +349,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child: !isLocal ||
                                     (isLocal &&
                                         e.status.value == SendingStatus.sent)
-                                ? Container(key: const Key('Sent'))
+                                ? Container(key: const Key('Sent'), width: 0)
                                 : e.status.value == SendingStatus.sending
                                     ? CircularProgressIndicator(
                                         key: const Key('Sending'),
@@ -420,6 +420,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     );
                     break;
                 }
+
+                leading = Container(
+                  key: const Key('Sent'),
+                  child: leading,
+                );
               } else if (e is LocalAttachment) {
                 switch (e.status.value) {
                   case SendingStatus.sending:
