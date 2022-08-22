@@ -25,9 +25,9 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
+import '/config.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
-import 'config.dart';
 import 'image_gallery_item.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
