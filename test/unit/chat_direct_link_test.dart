@@ -313,11 +313,11 @@ void main() async {
     when(graphQlProvider.createChatDirectLink(
       ChatDirectLinkSlug('link'),
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(CreateChatDirectLinkException(
+    )).thenThrow(const CreateChatDirectLinkException(
         CreateChatDirectLinkErrorCode.unknownChat));
 
     when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
-        .thenThrow(CreateChatDirectLinkException(
+        .thenThrow(const CreateChatDirectLinkException(
             CreateChatDirectLinkErrorCode.unknownChat));
 
     UserRepository userRepository = Get.put(
@@ -355,7 +355,7 @@ void main() async {
       () async {
     when(graphQlProvider.deleteChatDirectLink(
       groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(DeleteChatDirectLinkException(
+    )).thenThrow(const DeleteChatDirectLinkException(
         DeleteChatDirectLinkErrorCode.unknownChat));
 
     UserRepository userRepository = Get.put(
@@ -384,7 +384,7 @@ void main() async {
       () async {
     when(graphQlProvider.useChatDirectLink(
       ChatDirectLinkSlug('link'),
-    )).thenThrow(UseChatDirectLinkException(
+    )).thenThrow(const UseChatDirectLinkException(
         UseChatDirectLinkErrorCode.unknownDirectLink));
 
     UserRepository userRepository = Get.put(

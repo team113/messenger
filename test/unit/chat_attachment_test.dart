@@ -221,7 +221,7 @@ void main() async {
       any,
       onSendProgress: anyNamed('onSendProgress'),
     )).thenThrow(
-      UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
+      const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
     );
 
     Get.put(chatHiveProvider);
