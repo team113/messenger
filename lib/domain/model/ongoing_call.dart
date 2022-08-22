@@ -868,12 +868,10 @@ class OngoingCall {
         member?.tracks.add(t);
 
         track.onMuted(() {
-          print('track muted');
           t.isMuted.value = true;
         });
 
         track.onUnmuted(() {
-          print('track unmuted');
           t.isMuted.value = false;
         });
 
