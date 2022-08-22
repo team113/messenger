@@ -27,6 +27,7 @@ import 'package:uuid/uuid.dart';
 import '../model_type_id.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
+import 'config.dart';
 import 'image_gallery_item.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -152,7 +153,7 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        original.val,
+        '${Config.url}/files${original.val}',
         filename,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,

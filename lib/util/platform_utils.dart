@@ -165,7 +165,7 @@ class PlatformUtilsImpl {
       }
 
       await Dio().download(
-        '${Config.url}/files$url',
+        url,
         file.path,
         onReceiveProgress: onReceiveProgress,
         cancelToken: cancelToken,
