@@ -15,18 +15,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
-import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'image_gallery_item.dart';
 import 'native_file.dart';
 import 'sending_status.dart';

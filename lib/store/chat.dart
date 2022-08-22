@@ -347,7 +347,7 @@ class ChatRepository implements AbstractChatRepository {
       attachment.upload.value?.complete(model);
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
-      if (model is FileAttachment) {
+      if (model is FileAttachment && attachment.file.path != null) {
         model.local = attachment.file.path;
         model.downloading.value = DownloadingStatus.downloaded;
       }
