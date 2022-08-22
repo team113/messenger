@@ -590,8 +590,11 @@ class MyProfileController extends GetxController {
   /// Validates and updates current [myUser]'s password with the one specified
   /// in the [newPassword] and [repeatPassword] fields.
   Future<void> changePassword() async {
-    oldPassword.focus.unfocus();
-    oldPassword.submit();
+    if (myUser.value?.hasPassword == true) {
+      oldPassword.focus.unfocus();
+      oldPassword.submit();
+    }
+
     newPassword.focus.unfocus();
     newPassword.submit();
     repeatPassword.focus.unfocus();

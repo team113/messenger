@@ -228,8 +228,8 @@ void main() async {
     when(graphQlProvider.editChatMessageText(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const ChatMessageText('new text'),
-    )).thenThrow(
-        EditChatMessageException(EditChatMessageTextErrorCode.unknownChatItem));
+    )).thenThrow(const EditChatMessageException(
+        EditChatMessageTextErrorCode.unknownChatItem));
 
     Get.put(chatHiveProvider);
 
