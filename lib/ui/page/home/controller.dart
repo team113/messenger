@@ -40,6 +40,12 @@ class HomeController extends GetxController {
   /// Percentage of the screen's width which side bar will occupy.
   static double sideBarWidthPercentage = 0.4;
 
+  /// Percentage of the screen's width which side bar will occupy.
+  static double sideBarMaxWidthPercentage = 0.6;
+
+  /// Percentage of the screen's width which side bar will occupy.
+  Rx<double> sideBarWidth = Rx<double>(350.0);
+
   /// Controller of the [PageView] tab.
   late PageController pages;
 
