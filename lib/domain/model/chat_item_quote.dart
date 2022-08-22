@@ -17,7 +17,7 @@
 import 'attachment.dart';
 import 'chat_item.dart';
 
-/// Quotes of the [ChatItem]s to be forwarded.
+/// Quote of the [ChatItem] to be forwarded.
 class ChatItemQuote {
   ChatItemQuote({
     required this.item,
@@ -32,7 +32,7 @@ class ChatItemQuote {
   /// the original [ChatItem] (if it contains any).
   final bool withText;
 
-  /// IDs of the [ChatItem]'s [Attachment]s to be forwarded.
+  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
   ///
   /// If no [Attachment]s are provided, then [ChatForward] will only contain a
   /// [ChatMessageText].

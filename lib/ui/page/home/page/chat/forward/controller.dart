@@ -30,42 +30,40 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Controller of the forward messages modal.
+/// Controller of a [ChatForwardView].
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
-    this._userService,
-    this.fromId,
-    this.forwardItem,
-  );
+    this._userService, {
+    required this.from,
+    required this.quotes,
+  });
 
-  /// Maximum allowed [NativeFile.size] of an [Attachment].
-  static const int maxAttachmentSize = 15 * 1024 * 1024;
-
-  /// Reactive list of sorted [Chat]s.
+  /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// Selected chats to forward messages.
+  /// [Chat]s to forward the [quotes] to.
   final RxList<ChatId> selectedChats = RxList<ChatId>([]);
 
-  /// ID of [Chat] from messages will forward.
-  final ChatId fromId;
+  /// ID of the [Chat] the [quotes] are forwarded from.
+  final ChatId from;
 
-  /// Item that was forwarded.
-  final ChatItemQuote forwardItem;
+  /// [ChatItemQuote]s to be forwarded.
+  final List<ChatItemQuote> quotes;
 
-  /// State of a send forwarded messages field.
+  /// State of a send message field.
   late final TextFieldState send;
 
-  /// Attachments to be attached to a forward.
-  RxList<Attachment> attachments = RxList<Attachment>();
+  /// [Attachment]s to attach to the [quotes].
+  final RxList<Attachment> attachments = RxList();
 
-  /// [Chat]s service used to add members to a [Chat].
+  /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
@@ -86,19 +84,17 @@ class ChatForwardController extends GetxController {
         s.editable.value = false;
 
         try {
-          var futures = selectedChats.map(
-            (e) async {
-              return _chatService.forwardChatItems(
-                from: fromId,
-                to: e,
-                items: [forwardItem],
-                text: s.text == '' ? null : ChatMessageText(s.text),
-                attachments: attachments.isEmpty
-                    ? null
-                    : attachments.map((a) => a.id).toList(),
-              );
-            },
-          );
+          List<Future<void>> futures = selectedChats.map((e) async {
+            return _chatService.forwardChatItems(
+              from: from,
+              to: e,
+              items: quotes,
+              text: s.text == '' ? null : ChatMessageText(s.text),
+              attachments: attachments.isEmpty
+                  ? null
+                  : attachments.map((a) => a.id).toList(),
+            );
+          }).toList();
 
           await Future.wait(futures);
         } on ForwardChatItemsException catch (e) {
@@ -118,13 +114,6 @@ class ChatForwardController extends GetxController {
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
   Future<void> pickFile() => _pickAttachment(FileType.any);
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
-  }
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
@@ -155,17 +144,22 @@ class ChatForwardController extends GetxController {
 
     if (result != null && result.files.isNotEmpty) {
       for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
+        _addPlatformAttachment(e);
       }
     }
   }
 
+  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
+  /// to the [attachments].
+  Future<void> _addPlatformAttachment(PlatformFile platformFile) async {
+    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    await _addAttachment(nativeFile);
+  }
+
   /// Constructs a [LocalAttachment] from the specified [file] and adds it to
   /// the [attachments] list.
-  ///
-  /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < maxAttachmentSize) {
+    if (file.size < ChatController.maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(attachment);

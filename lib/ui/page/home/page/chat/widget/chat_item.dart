@@ -876,13 +876,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     await ChatForwardView.show(
                                       context,
                                       widget.chat.value!.id,
-                                      ChatItemQuote(
-                                        item: msg,
-                                        withText: msg.text != null,
-                                        attachments: msg.attachments
-                                            .map((attach) => attach.id)
-                                            .toList(),
-                                      ),
+                                      [
+                                        ChatItemQuote(
+                                          item: msg,
+                                          withText: msg.text != null,
+                                          attachments: msg.attachments
+                                              .map((attach) => attach.id)
+                                              .toList(),
+                                        ),
+                                      ],
                                     );
                                   },
                                 ),

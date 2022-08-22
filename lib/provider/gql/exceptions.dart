@@ -1219,10 +1219,10 @@ class TransformDialogCallIntoGroupCallException
 class ForwardChatItemsException
     with LocalizedExceptionMixin
     implements Exception {
-  ForwardChatItemsException(this.code);
+  const ForwardChatItemsException(this.code);
 
   /// Reason of why the mutation has failed.
-  ForwardChatItemsErrorCode code;
+  final ForwardChatItemsErrorCode code;
 
   @override
   String toString() => 'ForwardChatItemsException($code)';

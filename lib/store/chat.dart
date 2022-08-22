@@ -377,19 +377,20 @@ class ChatRepository implements AbstractChatRepository {
     List<AttachmentId>? attachments,
   }) =>
       _graphQlProvider.forwardChatItems(
-          from,
-          to,
-          items
-              .map(
-                (i) => ChatItemQuoteInput(
-                  id: i.item.id,
-                  attachments: i.attachments,
-                  withText: i.withText,
-                ),
-              )
-              .toList(),
-          text: text,
-          attachments: attachments);
+        from,
+        to,
+        items
+            .map(
+              (i) => ChatItemQuoteInput(
+                id: i.item.id,
+                attachments: i.attachments,
+                withText: i.withText,
+              ),
+            )
+            .toList(),
+        text: text,
+        attachments: attachments,
+      );
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
