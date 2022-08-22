@@ -205,7 +205,7 @@ void main() async {
 
     when(graphQlProvider.hideChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(HideChatException(HideChatErrorCode.unknownChat));
+    )).thenThrow(const HideChatException(HideChatErrorCode.unknownChat));
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
