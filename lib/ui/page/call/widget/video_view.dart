@@ -31,6 +31,7 @@ class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
     Key? key,
+    this.source = MediaSourceKind.Device,
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
@@ -46,6 +47,8 @@ class RtcVideoView extends StatefulWidget {
 
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
+
+  final MediaSourceKind source;
 
   /// Indicator whether this video should be horizontally mirrored or not.
   final bool mirror;
@@ -87,10 +90,11 @@ class RtcVideoView extends StatefulWidget {
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
     RtcVideoRenderer renderer,
+    MediaSourceKind source,
     BoxConstraints constraints,
     BuildContext context,
   ) {
-    if (renderer.source == MediaSourceKind.Display ||
+    if (source == MediaSourceKind.Display ||
         (renderer.width == 0 && renderer.height == 0)) {
       return BoxFit.contain;
     } else {
@@ -254,12 +258,13 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
-        if (renderer.source != MediaSourceKind.Display) {
+        if (widget.source != MediaSourceKind.Display) {
           fit = widget.fit;
         }
 
         // Calculate the default [BoxFit] if there's no explicit fit.
-        fit ??= RtcVideoView.determineBoxFit(renderer, constraints, context);
+        fit ??= RtcVideoView.determineBoxFit(
+            renderer, widget.source, constraints, context);
 
         return Stack(
           alignment: Alignment.bottomCenter,

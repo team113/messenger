@@ -87,14 +87,11 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      bool isMuted = muted ?? participant.video.value.isMuted.value;
       bool hasVideoWhenDisabled =
-          participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value ==
-                      TrackMediaDirection.SendOnly ||
-                  participant.video.value?.direction.value ==
-                      TrackMediaDirection.SendRecv) &&
-              participant.owner == MediaOwnerKind.remote;
+          participant.video.value.renderer.value == null &&
+              participant.video.value.direction.value.isReceiving &&
+              participant.member.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
       if (isMuted) {
@@ -110,7 +107,7 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       if (hasVideoWhenDisabled ||
-          participant.video.value?.source == MediaSourceKind.Display) {
+          participant.video.value.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
@@ -164,21 +161,24 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          if (participant.video.value?.renderer.value == null) ..._background(),
+          if (participant.video.value.renderer.value == null) ..._background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child: participant.video.value?.renderer.value == null
+            child: participant.video.value.renderer.value == null
                 ? Container()
                 : Center(
                     child: RtcVideoView(
-                      participant.video.value?.renderer.value
+                      participant.video.value.renderer.value
                           as RtcVideoRenderer,
+                      source: participant.video.value.source,
                       key: participant.videoKey,
-                      mirror: participant.owner == MediaOwnerKind.local &&
-                          participant.source == MediaSourceKind.Device,
+                      mirror:
+                          participant.member.owner == MediaOwnerKind.local &&
+                              participant.video.value.source ==
+                                  MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       outline: outline,
@@ -190,7 +190,8 @@ class ParticipantWidget extends StatelessWidget {
                     ),
                   ),
           ),
-          Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
+          Positioned.fill(
+              child: _handRaisedIcon(participant.member.isHandRaised.value)),
         ],
       );
     });
@@ -242,14 +243,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      bool isMuted = muted ?? participant.video.value.isMuted.value;
       bool hasVideoWhenDisabled =
-          participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value ==
-                      TrackMediaDirection.SendOnly ||
-                  participant.video.value?.direction.value ==
-                      TrackMediaDirection.SendRecv) &&
-              participant.owner == MediaOwnerKind.remote;
+          participant.video.value.renderer.value == null &&
+              participant.video.value.direction.value.isReceiving &&
+              participant.member.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
       if (isMuted) {
@@ -265,7 +263,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       }
 
       if (hasVideoWhenDisabled ||
-          participant.source == MediaSourceKind.Display) {
+          participant.video.value.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
