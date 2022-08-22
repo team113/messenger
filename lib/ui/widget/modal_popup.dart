@@ -36,7 +36,8 @@ abstract class ModalPopup {
     if (context.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: const Color(0x7A000000),
+        // barrierColor: kCupertinoModalBarrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
         isDismissible: isDismissible,
@@ -84,7 +85,8 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: const Color(0x7A000000),
+        // barrierColor: kCupertinoModalBarrierColor,
         barrierDismissible: isDismissible,
         builder: (context) {
           return Center(
