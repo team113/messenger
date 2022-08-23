@@ -250,20 +250,13 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> renameChat(ChatId id, ChatName? name) async {
     HiveRxChat? chat = _chats[id];
     ChatName? previous = chat?.chat.value.name;
-    if (chat != null) {
-      chat.chat.update((c) {
-        c?.name = name;
-      });
-    }
+
+    chat?.chat.update((c) => c?.name = name);
+
     try {
       await _graphQlProvider.renameChat(id, name);
     } catch (_) {
-      if (chat != null) {
-        chat.chat.update((c) {
-          c?.name = previous;
-        });
-      }
-
+      chat?.chat.update((c) => c?.name = previous);
       rethrow;
     }
   }
@@ -275,13 +268,11 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
     HiveRxChat? chat = _chats[chatId];
-    ChatMember? previous =
+    ChatMember? member =
         chat?.chat.value.members.firstWhereOrNull((m) => m.user.id == userId);
 
-    if (chat != null && previous != null) {
-      chat.chat.update((c) {
-        c?.members.remove(previous);
-      });
+    if (member != null) {
+      chat?.chat.update((c) => c?.members.remove(member));
     }
 
     try {
@@ -291,10 +282,8 @@ class ChatRepository implements AbstractChatRepository {
         _chatLocal.remove(chatId);
       }
     } catch (_) {
-      if (chat != null && previous != null) {
-        chat.chat.update((c) {
-          c?.members.add(previous);
-        });
+      if (member != null) {
+        chat?.chat.update((c) => c?.members.add(member));
       }
 
       rethrow;
@@ -303,8 +292,8 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> hideChat(ChatId id) async {
-    var chat = _chats[id];
-    _chats.remove(id);
+    HiveRxChat? chat = _chats.remove(id);
+
     try {
       await _graphQlProvider.hideChat(id);
     } catch (_) {
@@ -319,7 +308,6 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     HiveRxChat? chat = _chats[chatId];
-
     int? previous = chat?.chat.value.unreadCount;
 
     if (chat != null) {
@@ -327,51 +315,40 @@ class ChatRepository implements AbstractChatRepository {
           .toList()
           .indexWhere((m) => m.value.id == untilId);
       if (lastReadIndex != -1) {
-        // If user has his own unread messages, they will be included.
-        Iterable<Rx<ChatItem>> unreadAll =
-            chat.messages.skip(chat.messages.length - lastReadIndex - 1);
-
-        chat.chat.update((c) {
-          c?.unreadCount = unreadAll.length -
-              unreadAll.where((m) => m.value.authorId == me).length -
-              1;
-        });
+        Iterable<Rx<ChatItem>> unread = chat.messages
+            .skip(chat.messages.length - lastReadIndex - 1)
+            .where((m) => m.value.authorId != me);
+        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
       }
     }
     try {
       await _graphQlProvider.readChat(chatId, untilId);
     } catch (_) {
-      if (chat != null && previous != null) {
-        chat.chat.update((c) {
-          c?.unreadCount = previous;
-        });
+      if (previous != null) {
+        chat?.chat.update((c) => c?.unreadCount = previous);
       }
+
       rethrow;
     }
   }
 
   @override
   Future<void> editChatMessageText(
-      ChatItem chatItem, ChatMessageText? text) async {
-    HiveRxChat? chat = _chats[chatItem.chatId];
-    Rx<ChatItem>? item =
-        chat?.messages.firstWhereOrNull((item) => item.value.id == chatItem.id);
+    Rx<ChatItem> item,
+    ChatMessageText? text,
+  ) async {
     ChatMessageText? previous;
-    if (item?.value is ChatMessage) {
-      final msg = item!.value as ChatMessage;
-      previous = msg.text;
-      item.update((i) {
-        (item.value as ChatMessage).text = text;
-      });
+
+    if (item.value is ChatMessage) {
+      previous = (item.value as ChatMessage).text;
+      item.update((c) => (c as ChatMessage?)?.text = text);
     }
 
     try {
-      await _graphQlProvider.editChatMessageText(chatItem.id, text);
+      await _graphQlProvider.editChatMessageText(item.value.id, text);
     } catch (_) {
-      if (item?.value is ChatMessage) {
-        item!.update((i) {
-          (item.value as ChatMessage).text = previous;
-        });
+      if (item.value is ChatMessage) {
+        item.update((c) => (c as ChatMessage?)?.text = previous);
       }
 
       rethrow;
@@ -379,58 +356,47 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> deleteChatMessage(ChatMessage message) async {
-    HiveRxChat? chat = _chats[message.chatId] ?? (await get(message.chatId));
-    chat?.remove(message.id);
+  Future<void> deleteChatMessage(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    chat?.remove(item.value.id);
 
-    if (message.status.value == SendingStatus.sent) {
+    if (item.value.status.value == SendingStatus.sent) {
       try {
-        await _graphQlProvider.deleteChatMessage(message.id);
+        await _graphQlProvider.deleteChatMessage(item.value.id);
       } catch (_) {
-        chat?.messages.add(Rx(message));
+        chat?.messages.add(item);
         rethrow;
       }
     }
   }
 
   @override
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id) async {
-    HiveRxChat? chat = _chats[chatId];
-    Rx<ChatItem>? item =
-        chat?.messages.firstWhereOrNull((item) => item.value.id == id);
+  Future<void> deleteChatForward(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    chat?.remove(item.value.id);
 
-    if (chat != null && item != null) {
-      chat.messages.remove(item);
-    }
-
-    try {
-      await _graphQlProvider.deleteChatForward(id);
-    } catch (_) {
-      if (chat != null && item != null) {
-        chat.messages.add(item);
+    if (item.value.status.value == SendingStatus.sent) {
+      try {
+        await _graphQlProvider.deleteChatForward(item.value.id);
+      } catch (_) {
+        chat?.messages.add(item);
+        rethrow;
       }
-
-      rethrow;
     }
   }
 
   @override
-  Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
-    HiveRxChat? chat = _chats[chatId];
-    Rx<ChatItem>? item =
-        chat?.messages.firstWhereOrNull((item) => item.value.id == id);
+  Future<void> hideChatItem(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    chat?.remove(item.value.id);
 
-    if (chat != null && item != null) {
-      chat.messages.remove(item);
-    }
-    try {
-      await _graphQlProvider.hideChatItem(id);
-    } catch (_) {
-      if (chat != null && item != null) {
-        chat.messages.add(item);
+    if (item.value.status.value == SendingStatus.sent) {
+      try {
+        await _graphQlProvider.hideChatItem(item.value.id);
+      } catch (_) {
+        chat?.messages.add(item);
+        rethrow;
       }
-
-      rethrow;
     }
   }
 

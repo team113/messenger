@@ -278,10 +278,8 @@ class _ChatViewState extends State<ChatView>
                                             me: c.me!,
                                             user: u.data,
                                             onJoinCall: c.joinCall,
-                                            onHide: () =>
-                                                c.hideChatItem(e.value),
-                                            onDelete: () =>
-                                                c.deleteMessage(e.value),
+                                            onHide: () => c.hideChatItem(e),
+                                            onDelete: () => c.deleteMessage(e),
                                             onReply: () => c
                                                 .repliedMessage.value = e.value,
                                             onCopy: (text) => c.copyText(text),
@@ -291,8 +289,7 @@ class _ChatViewState extends State<ChatView>
                                             onGallery: c.calculateGallery,
                                             onResend: () =>
                                                 c.resendItem(e.value),
-                                            onEdit: () =>
-                                                c.editMessage(e.value),
+                                            onEdit: () => c.editMessage(e),
                                           ),
                                         ),
                                       );
