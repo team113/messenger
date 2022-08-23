@@ -194,8 +194,8 @@ Widget desktopCall(CallController c, BuildContext context) {
         // Call is not active.
         content.add(Obx(() {
           RtcVideoRenderer? local =
-              (c.locals.firstOrNull?.video.value.renderer.value ??
-                      c.paneled.firstOrNull?.video.value.renderer.value)
+              (c.locals.firstOrNull?.video.value?.renderer.value ??
+                      c.paneled.firstOrNull?.video.value?.renderer.value)
                   as RtcVideoRenderer?;
           var callCover = c.chat.value?.callCover;
 
@@ -573,7 +573,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               duration: const Duration(milliseconds: 300),
               child: preferTitle &&
                       c.primary
-                          .where((e) => e.video.value.renderer.value != null)
+                          .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
                   ? Container(color: const Color(0x55000000))
                   : null,
@@ -1149,7 +1149,7 @@ Widget _primaryView(CallController c) {
           onWillAccept: (d) {
             if (d?.chatId == c.chatId) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
-                  d?.participant.video.value.source !=
+                  d?.participant.video.value?.source !=
                       MediaSourceKind.Display) {
                 c.primaryTargets.value = 1;
               }
@@ -1195,15 +1195,15 @@ Widget _primaryView(CallController c) {
                 bool isHovered = c.hoveredRenderer.value == participant &&
                     !anyDragIsHappening;
 
-                BoxFit? fit = participant.video.value.renderer.value == null
+                BoxFit? fit = participant.video.value?.renderer.value == null
                     ? null
                     : c.rendererBoxFit[participant
-                            .video.value.renderer.value!.track
+                            .video.value?.renderer.value!.track
                             .id()] ??
                         RtcVideoView.determineBoxFit(
-                          participant.video.value.renderer.value
+                          participant.video.value?.renderer.value
                               as RtcVideoRenderer,
-                          participant.video.value.source,
+                          participant.source,
                           constraints,
                           context,
                         );
@@ -1239,9 +1239,9 @@ Widget _primaryView(CallController c) {
                             menu: ContextMenu(
                               key: ObjectKey(participant),
                               actions: [
-                                if (participant.video.value.renderer.value !=
+                                if (participant.video.value?.renderer.value !=
                                     null) ...[
-                                  if (participant.video.value.source ==
+                                  if (participant.source ==
                                       MediaSourceKind.Device)
                                     ContextMenuButton(
                                       label: fit == null || fit == BoxFit.cover
@@ -1249,7 +1249,7 @@ Widget _primaryView(CallController c) {
                                           : 'btn_call_cut_video'.l10n,
                                       onPressed: () {
                                         c.rendererBoxFit[participant
-                                            .video.value.renderer.value!.track
+                                            .video.value!.renderer.value!.track
                                             .id()] = fit == null ||
                                                 fit == BoxFit.cover
                                             ? BoxFit.contain
@@ -1267,13 +1267,12 @@ Widget _primaryView(CallController c) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
-                                if (participant.video.value.direction.value ==
-                                        TrackMediaDirection.SendOnly ||
-                                    participant.video.value.direction.value ==
-                                        TrackMediaDirection.SendRecv)
+                                if (participant.video.value?.direction.value
+                                        .isReceiving ??
+                                    false)
                                   ContextMenuButton(
                                     label: (participant
-                                                .video.value.renderer.value !=
+                                                .video.value?.renderer.value !=
                                             null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
@@ -1309,9 +1308,9 @@ Widget _primaryView(CallController c) {
                 useCallCover: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.value.renderer.refresh,
+                onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
-                    participant.video.value.renderer.value?.track.id() ?? ''],
+                    participant.video.value?.renderer.value?.track.id() ?? ''],
                 expanded: c.doughDraggedRenderer.value == participant,
               );
             });
@@ -1762,21 +1761,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               actions: [
                                 if ((participant.member.owner !=
                                             MediaOwnerKind.local ||
-                                        participant.video.value.source !=
+                                        participant.source !=
                                             MediaSourceKind.Display) &&
-                                    participant.video.value.renderer.value !=
+                                    participant.video.value?.renderer.value !=
                                         null)
                                   ContextMenuButton(
                                     label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
-                                if (participant.video.value.direction.value ==
-                                        TrackMediaDirection.SendOnly ||
-                                    participant.video.value.direction.value ==
-                                        TrackMediaDirection.SendRecv)
+                                if (participant.video.value?.direction.value
+                                        .isReceiving ??
+                                    false)
                                   ContextMenuButton(
                                     label: (participant
-                                                .video.value.renderer.value !=
+                                                .video.value?.renderer.value !=
                                             null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,

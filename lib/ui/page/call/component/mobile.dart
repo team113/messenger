@@ -128,8 +128,8 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Call is not active.
       content.add(Obx(() {
         RtcVideoRenderer? local =
-            (c.locals.firstOrNull?.video.value.renderer.value ??
-                    c.paneled.firstOrNull?.video.value.renderer.value)
+            (c.locals.firstOrNull?.video.value?.renderer.value ??
+                    c.paneled.firstOrNull?.video.value?.renderer.value)
                 as RtcVideoRenderer?;
 
         if (c.videoState.value != LocalTrackState.disabled && local != null) {
@@ -257,7 +257,7 @@ Widget mobileCall(CallController c, BuildContext context) {
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
                     ([...c.primary, ...c.secondary].firstWhereOrNull(
-                            (e) => e.video.value.renderer.value != null) !=
+                            (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
                 ? Container(color: const Color(0x55000000))
@@ -866,12 +866,12 @@ Widget _primaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.value.renderer.refresh,
+                onSizeDetermined: participant.video.value?.renderer.refresh,
                 useCallCover: true,
                 fit: c.minimized.value
                     ? BoxFit.cover
                     : c.rendererBoxFit[
-                        participant.video.value.renderer.value?.track.id() ??
+                        participant.video.value?.renderer.value?.track.id() ??
                             ''],
                 expanded: c.draggedRenderer.value == participant,
               );

@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -643,12 +644,12 @@ class CallController extends GetxController {
           (e) {
             switch (e.op) {
               case OperationKind.added:
-                _putVideoFrom(k, v, e.element);
+                _putParticipant(v, e.element);
                 _insureCorrectGrouping();
                 break;
 
               case OperationKind.removed:
-                _removeParticipant(k, e.element.source, e.element.kind);
+                _removeTrack(v, e.element);
 
                 _insureCorrectGrouping();
                 break;
@@ -668,13 +669,12 @@ class CallController extends GetxController {
               e.value!.tracks.changes.listen((changes) {
             switch (changes.op) {
               case OperationKind.added:
-                _putVideoFrom(e.key!, e.value!, changes.element);
+                _putParticipant(e.value!, changes.element);
                 _insureCorrectGrouping();
                 break;
 
               case OperationKind.removed:
-                _removeParticipant(
-                    e.key!, changes.element.source, changes.element.kind);
+                _removeTrack(e.value!, changes.element);
 
                 _insureCorrectGrouping();
                 break;
@@ -860,9 +860,9 @@ class CallController extends GetxController {
   /// Toggles receiving of incoming video from the provided [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
     await _currentCall.value.setMemberVideoEnabled(
-      value: participant.video.value.renderer.value == null,
+      value: participant.video.value!.renderer.value == null,
       id: participant.member.id,
-      source: participant.video.value.source,
+      source: participant.video.value!.source,
     );
   }
 
@@ -882,22 +882,37 @@ class CallController extends GetxController {
   }
 
   /// Returns a [Participant] identified by an [id] and a [source].
-  Participant? findParticipant(CallMemberId id, MediaSourceKind source) {
-    return locals.firstWhereOrNull(
-            (e) => e.member.id == id && e.video.value.source == source) ??
-        remotes.firstWhereOrNull(
-            (e) => e.member.id == id && e.video.value.source == source) ??
-        paneled.firstWhereOrNull(
-            (e) => e.member.id == id && e.video.value.source == source) ??
-        focused.firstWhereOrNull(
-            (e) => e.member.id == id && e.video.value.source == source);
+  Participant? findParticipantByTrack(CallMemberId id, Track track) {
+    return locals.firstWhereOrNull((e) =>
+            e.member.id == id &&
+            track.source == e.source &&
+            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
+                (track.kind == MediaKind.Audio &&
+                    (e.audio.value == track || e.audio.value == null)))) ??
+        remotes.firstWhereOrNull((e) =>
+            e.member.id == id &&
+            track.source == e.source &&
+            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
+                (track.kind == MediaKind.Audio &&
+                    (e.audio.value == track || e.audio.value == null)))) ??
+        paneled.firstWhereOrNull((e) =>
+            e.member.id == id &&
+            track.source == e.source &&
+            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
+                (track.kind == MediaKind.Audio &&
+                    (e.audio.value == track || e.audio.value == null)))) ??
+        focused.firstWhereOrNull((e) =>
+            e.member.id == id &&
+            track.source == e.source &&
+            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
+                (track.kind == MediaKind.Audio && (e.audio.value == track || e.audio.value == null))));
   }
 
   /// Centers the [participant], which means [focus]ing the [participant] and
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value.source == MediaSourceKind.Display) {
+        participant.video.value?.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
       return;
     }
@@ -908,7 +923,7 @@ class CallController extends GetxController {
     focused.remove(participant);
 
     for (Participant r in List.from(focused, growable: false)) {
-      _putVideoFromFrom(r, focused);
+      _putParticipantFrom(r, focused);
     }
     focused.add(participant);
     _insureCorrectGrouping();
@@ -920,7 +935,7 @@ class CallController extends GetxController {
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value.source == MediaSourceKind.Display) {
+        participant.video.value?.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
       return;
     }
@@ -930,12 +945,12 @@ class CallController extends GetxController {
         focused.add(participant);
         paneled.remove(participant);
       } else {
-        _putVideoTo(participant, focused);
+        _putParticipantTo(participant, focused);
       }
       _insureCorrectGrouping();
     } else {
       if (paneled.contains(participant)) {
-        _putVideoFromFrom(participant, paneled);
+        _putParticipantFrom(participant, paneled);
         _insureCorrectGrouping();
       }
     }
@@ -944,20 +959,20 @@ class CallController extends GetxController {
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value.source == MediaSourceKind.Display) {
+        participant.video.value?.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
       return;
     }
 
     if (focused.contains(participant)) {
-      _putVideoFromFrom(participant, focused);
+      _putParticipantFrom(participant, focused);
       if (focused.isEmpty) {
         unfocusAll();
       }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
-        _putVideoTo(participant, paneled);
+        _putParticipantTo(participant, paneled);
         _insureCorrectGrouping();
       }
     }
@@ -967,11 +982,11 @@ class CallController extends GetxController {
   /// groups.
   void focusAll() {
     for (Participant r in List.from(paneled, growable: false)) {
-      _putVideoFromFrom(r, paneled);
+      _putParticipantFrom(r, paneled);
     }
 
     for (Participant r in List.from(focused, growable: false)) {
-      _putVideoFromFrom(r, focused);
+      _putParticipantFrom(r, focused);
     }
 
     _insureCorrectGrouping();
@@ -982,7 +997,7 @@ class CallController extends GetxController {
   void unfocusAll() {
     for (Participant r
         in List.from([...focused, ...locals, ...remotes], growable: false)) {
-      _putVideoTo(r, paneled);
+      _putParticipantTo(r, paneled);
     }
 
     _insureCorrectGrouping();
@@ -1587,9 +1602,9 @@ class CallController extends GetxController {
   }
 
   /// Puts [participant] from its `default` group to [list].
-  void _putVideoTo(Participant participant, RxList<Participant> list) {
+  void _putParticipantTo(Participant participant, RxList<Participant> list) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value.source == MediaSourceKind.Display) {
+        participant.video.value?.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
       return;
     }
@@ -1601,11 +1616,11 @@ class CallController extends GetxController {
   }
 
   /// Puts [participant] from [list] to its `default` group.
-  void _putVideoFromFrom(Participant participant, RxList<Participant> list) {
+  void _putParticipantFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
         // Movement of [MediaSourceKind.Display] to [locals] is prohibited.
-        if (participant.video.value.source == MediaSourceKind.Display) {
+        if (participant.video.value?.source == MediaSourceKind.Display) {
           break;
         }
 
@@ -1629,7 +1644,7 @@ class CallController extends GetxController {
       if (paneled.isEmpty && focused.isNotEmpty) {
         List<Participant> copy = List.from(focused, growable: false);
         for (Participant r in copy) {
-          _putVideoFromFrom(r, focused);
+          _putParticipantFrom(r, focused);
         }
       }
     }
@@ -1648,14 +1663,10 @@ class CallController extends GetxController {
   Iterable<Participant> _findParticipants(
       CallMemberId id, MediaSourceKind source) {
     return [
-      ...locals
-          .where((e) => e.member.id == id && e.video.value.source == source),
-      ...remotes
-          .where((e) => e.member.id == id && e.video.value.source == source),
-      ...paneled
-          .where((e) => e.member.id == id && e.video.value.source == source),
-      ...focused
-          .where((e) => e.member.id == id && e.video.value.source == source),
+      ...locals.where((e) => e.member.id == id && e.source == source),
+      ...remotes.where((e) => e.member.id == id && e.source == source),
+      ...paneled.where((e) => e.member.id == id && e.source == source),
+      ...focused.where((e) => e.member.id == id && e.source == source),
     ];
   }
 
@@ -1665,55 +1676,34 @@ class CallController extends GetxController {
   void _putMember(CallMember member) {
     if (!member.tracks.any((t) =>
         t.kind == MediaKind.Video && t.source == MediaSourceKind.Device)) {
-      final fakeTrack = member.owner == MediaOwnerKind.local
-          ? LocalTrack(null)
-          : RemoteTrack(null);
-      fakeTrack.direction.value = TrackMediaDirection.RecvOnly;
-      _putVideoFrom(member.id, member, fakeTrack);
+      _putParticipant(member, null);
     }
     for (var t in member.tracks) {
-      _putVideoFrom(member.id, member, t);
+      _putParticipant(member, t);
     }
   }
 
-  void _putVideoFrom(
-    CallMemberId id,
+  void _putParticipant(
     CallMember member,
-    Track track,
+    Track? track,
   ) {
-    MediaOwnerKind owner;
-
-    Participant? participant = findParticipant(id, track.source);
+    Participant? participant =
+        track == null ? null : findParticipantByTrack(member.id, track);
 
     if (participant == null) {
-      Track? fakeTrack;
-
-      if (track.kind == MediaKind.Audio) {
-        fakeTrack = member.owner == MediaOwnerKind.local
-            ? LocalTrack(null)
-            : RemoteTrack(null);
-        fakeTrack.direction.value = TrackMediaDirection.RecvOnly;
-      }
-
-      if (id.userId == me.id.userId && id.deviceId == null) {
-        owner = MediaOwnerKind.local;
-      } else {
-        owner = MediaOwnerKind.remote;
-      }
-
       Participant participant = Participant(
         member,
-        fakeTrack ?? track,
-        audio: track.kind == MediaKind.Audio ? track : null,
+        video: track?.kind == MediaKind.Video ? track : null,
+        audio: track?.kind == MediaKind.Audio ? track : null,
       );
 
-      _userService.get(id.userId).then((u) {
+      _userService.get(member.id.userId).then((u) {
         participant.user.value = u ?? participant.user.value;
       });
 
-      switch (owner) {
+      switch (member.owner) {
         case MediaOwnerKind.local:
-          switch (participant.video.value.source) {
+          switch (participant.source) {
             case MediaSourceKind.Device:
               locals.add(participant);
               break;
@@ -1725,7 +1715,7 @@ class CallController extends GetxController {
           break;
 
         case MediaOwnerKind.remote:
-          switch (participant.video.value.source) {
+          switch (participant.source) {
             case MediaSourceKind.Device:
               remotes.add(participant);
               break;
@@ -1737,9 +1727,11 @@ class CallController extends GetxController {
           break;
       }
     } else {
-      track.kind == MediaKind.Video
-          ? participant.video.value = track
-          : participant.audio.value = track;
+      if (track != null) {
+        track.kind == MediaKind.Video
+            ? participant.video.value = track
+            : participant.audio.value = track;
+      }
     }
   }
 
@@ -1747,18 +1739,39 @@ class CallController extends GetxController {
   ///
   /// Removes the specified [Participant] from a corresponding list if it is
   /// [MediaSourceKind.Display] and has no non-`null` renderers.
-  void _removeParticipant(
-    CallMemberId id,
-    MediaSourceKind source,
-    MediaKind kind,
+  void _removeTrack(
+    CallMember member,
+    Track track,
   ) {
-    if (kind == MediaKind.Video && !(source == MediaSourceKind.Device)) {
-      for (var participant in _findParticipants(id, source)) {
-        locals.remove(participant);
-        remotes.remove(participant);
-        paneled.remove(participant);
-        focused.remove(participant);
-      }
+    switch (member.owner) {
+      case MediaOwnerKind.local:
+        if (track.kind == MediaKind.Video) {
+          final participants = _findParticipants(member.id, track.source);
+          if (participants.length == 1 &&
+              track.source == MediaSourceKind.Device) {
+            participants.first.video.value = null;
+          } else {
+            final participant =
+                participants.firstWhereOrNull((p) => p.video.value == track);
+            locals.remove(participant);
+            remotes.remove(participant);
+            paneled.remove(participant);
+            focused.remove(participant);
+          }
+        }
+        break;
+
+      case MediaOwnerKind.remote:
+        if (track.kind == MediaKind.Video &&
+            (track.source == MediaSourceKind.Display)) {
+          for (var participant in _findParticipants(member.id, track.source)) {
+            locals.remove(participant);
+            remotes.remove(participant);
+            paneled.remove(participant);
+            focused.remove(participant);
+          }
+        }
+        break;
     }
   }
 }
@@ -1772,30 +1785,40 @@ enum ScaleModeY { top, bottom }
 /// Separate call entity participating in a call.
 class Participant {
   Participant(
-    this.member,
-    Track video, {
+    this.member, {
+    Track? video,
     Track? audio,
     RxUser? user,
   })  : user = Rx(user),
         video = Rx(video),
         audio = Rx(audio);
 
+  /// [CallMember] this [Participant] represents.
   final CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;
 
   /// Reactive video track of this [Participant].
-  final Rx<Track> video;
+  final Rx<Track?> video;
 
-  /// Reactive video track of this [Participant].
+  /// Reactive audio track of this [Participant].
   final Rx<Track?> audio;
 
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
+
+  /// Returns [MediaSourceKind] of this [Participant] due to audio and video
+  /// tracks source. If audio and video are null both, returns
+  /// [MediaSourceKind.Device] by default.
+  MediaSourceKind get source =>
+      video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 }
 
+/// Extension adding helping methods to a [TrackMediaDirection].
 extension TrackMediaDirectionImpl on TrackMediaDirection {
+  /// Returns true if [TrackMediaDirection] indicates that track emits outcoming
+  /// signal.
   bool get isReceiving {
     switch (this) {
       case TrackMediaDirection.SendRecv:
