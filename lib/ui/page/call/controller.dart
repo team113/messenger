@@ -729,7 +729,9 @@ class CallController extends GetxController {
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
-
+    _membersTracksSubscriptions.forEach((key, value) {
+      value.cancel();
+    });
     _membersSubscription.cancel();
   }
 
@@ -857,7 +859,8 @@ class CallController extends GetxController {
   /// Toggles inbound audio in the current [OngoingCall] on and off.
   Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
 
-  /// Toggles receiving of incoming video from the provided [participant].
+  /// Creates or removes renderers of incoming video from the provided
+  /// [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
     await _currentCall.value.setMemberVideoEnabled(
       value: participant.video.value!.renderer.value == null,
@@ -1735,43 +1738,28 @@ class CallController extends GetxController {
     }
   }
 
-  /// Removes [track] renderers from [Participant] identified by an [id].
-  ///
-  /// Removes the specified [Participant] from a corresponding list if it is
-  /// [MediaSourceKind.Display] and has no non-`null` renderers.
+  /// Removes [Participant] due to removed [track].
+  /// If [track] kind is [MediaKind.Video] and [track] source is
+  /// [MediaSourceKind.Device] and its the last track with this parameters,
+  /// track will be deleted, but participant will still exist.
   void _removeTrack(
     CallMember member,
     Track track,
   ) {
-    switch (member.owner) {
-      case MediaOwnerKind.local:
-        if (track.kind == MediaKind.Video) {
-          final participants = _findParticipants(member.id, track.source);
-          if (participants.length == 1 &&
-              track.source == MediaSourceKind.Device) {
-            participants.first.video.value = null;
-          } else {
-            final participant =
-                participants.firstWhereOrNull((p) => p.video.value == track);
-            locals.remove(participant);
-            remotes.remove(participant);
-            paneled.remove(participant);
-            focused.remove(participant);
-          }
+    if (track.kind == MediaKind.Video) {
+      final participants = _findParticipants(member.id, track.source);
+      if (participants.length == 1 && track.source == MediaSourceKind.Device) {
+        participants.first.video.value = null;
+      } else {
+        final participant =
+            participants.firstWhereOrNull((p) => p.video.value == track);
+        if (participant != null) {
+          locals.remove(participant);
+          remotes.remove(participant);
+          paneled.remove(participant);
+          focused.remove(participant);
         }
-        break;
-
-      case MediaOwnerKind.remote:
-        if (track.kind == MediaKind.Video &&
-            (track.source == MediaSourceKind.Display)) {
-          for (var participant in _findParticipants(member.id, track.source)) {
-            locals.remove(participant);
-            remotes.remove(participant);
-            paneled.remove(participant);
-            focused.remove(participant);
-          }
-        }
-        break;
+      }
     }
   }
 }
@@ -1819,7 +1807,7 @@ class Participant {
 extension TrackMediaDirectionImpl on TrackMediaDirection {
   /// Returns true if [TrackMediaDirection] indicates that track emits outcoming
   /// signal.
-  bool get isReceiving {
+  bool get isEmitting {
     switch (this) {
       case TrackMediaDirection.SendRecv:
       case TrackMediaDirection.SendOnly:

@@ -1329,7 +1329,7 @@ class CallMember {
   /// List of the tracks of this [CallMember].
   ObsList<Track> tracks = ObsList();
 
-  /// The owner of this [CallMember]'s [tracks].
+  /// The owner kind of this [CallMember]'s [tracks].
   MediaOwnerKind owner;
 
   /// Hand raised indicator of this member.
@@ -1349,7 +1349,7 @@ abstract class Track {
   /// [MediaSourceKind]  this [Track] has.
   final MediaSourceKind source;
 
-  /// [MediaSourceKind]  this [Track] has.
+  /// [MediaKind]  this [Track] has.
   final MediaKind kind;
 
   /// Indicator whether this [Track] is muted.

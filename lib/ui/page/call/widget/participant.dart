@@ -90,7 +90,7 @@ class ParticipantWidget extends StatelessWidget {
       bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
       bool hasVideoWhenDisabled =
           participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value.isReceiving ?? false) &&
+              (participant.video.value?.direction.value.isEmitting ?? false) &&
               participant.member.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
@@ -245,7 +245,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
       bool hasVideoWhenDisabled =
           participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value.isReceiving ?? false) &&
+              (participant.video.value?.direction.value.isEmitting ?? false) &&
               participant.member.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 

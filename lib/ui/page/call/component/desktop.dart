@@ -1268,7 +1268,7 @@ Widget _primaryView(CallController c) {
                                   ),
                                 ],
                                 if (participant.video.value?.direction.value
-                                        .isReceiving ??
+                                        .isEmitting ??
                                     false)
                                   ContextMenuButton(
                                     label: (participant
@@ -1770,7 +1770,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 if (participant.video.value?.direction.value
-                                        .isReceiving ??
+                                        .isEmitting ??
                                     false)
                                   ContextMenuButton(
                                     label: (participant
