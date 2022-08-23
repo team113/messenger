@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -29,6 +30,7 @@ import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -93,6 +95,12 @@ class ChatsTabView extends StatelessWidget {
   Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
         Chat chat = rxChat.chat.value;
 
+        ChatItem? lastItem;
+        if (rxChat.messages.isNotEmpty) {
+          lastItem = rxChat.messages.last.value;
+        }
+        lastItem ??= chat.lastItem;
+
         const Color subtitleColor = Color(0xFF666666);
         List<Widget>? subtitle;
 
@@ -125,8 +133,8 @@ class ChatsTabView extends StatelessWidget {
                 ),
               )
             ];
-          } else if (chat.lastItem != null) {
-            if (chat.lastItem is ChatCall) {
+          } else if (lastItem != null) {
+            if (lastItem is ChatCall) {
               var item = chat.lastItem as ChatCall;
               String description = 'label_chat_call_ended'.l10n;
               if (item.finishedAt == null && item.finishReason == null) {
@@ -151,8 +159,8 @@ class ChatsTabView extends StatelessWidget {
                   Flexible(child: Text(description, maxLines: 2)),
                 ];
               }
-            } else if (chat.lastItem is ChatMessage) {
-              var item = chat.lastItem as ChatMessage;
+            } else if (lastItem is ChatMessage) {
+              var item = lastItem;
 
               var desc = StringBuffer();
 
@@ -191,6 +199,23 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   ),
                 Flexible(child: Text(desc.toString(), maxLines: 2)),
+                ElasticAnimatedSwitcher(
+                  child: item.status.value == SendingStatus.sending
+                      ? const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.access_alarm, size: 15),
+                        )
+                      : item.status.value == SendingStatus.error
+                          ? const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(
+                                Icons.error_outline,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            )
+                          : Container(),
+                ),
               ];
             } else {
               // TODO: Implement other ChatItems.

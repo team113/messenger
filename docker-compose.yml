@@ -16,8 +16,8 @@ services:
       - ./.cache/minio/data/files/:/var/www-files/files/:ro,z
       - ./assets/conf.toml:/var/www/conf.toml:ro,Z
       - ./build/web/:/var/www/public/:ro,Z
-      - ./dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
       - ./dev/mailhog/mailhog.conf:/etc/nginx/conf.d/mailhog.conf:ro,Z
+      - ./helm/messenger/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
@@ -100,11 +100,13 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_DEFAULT_BUCKETS: files:download
       MINIO_FORCE_NEW_KEYS: "yes"
+      MINIO_SKIP_CLIENT: "yes"
     ports:
       - "9000:9000"    # minio s3
       - "9001:9001"    # minio auth
     volumes:
       - ./.cache/minio/data/:/data/:z
+      - ./.cache/minio/certs/:/certs/CAs
   mailhog:
     container_name: ${COMPOSE_PROJECT_NAME}-mailhog
     image: mailhog/mailhog:latest

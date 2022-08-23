@@ -369,6 +369,10 @@ copyright:
 			$(call rwildcard,,*.ftl) \
 			$(call rwildcard,,*.graphql) \
 			$(call rwildcard,,*.kt) \
+			$(call rwildcard,helm/,*.conf) \
+			$(call rwildcard,helm/,*.tpl) $(call rwildcard,helm/,*.txt) \
+			$(call rwildcard,helm/,templates/*.yaml) \
+			$(call rwildcard,helm/,values.yaml) \
 			web/index.html \
 			Dockerfile
 
@@ -506,7 +510,8 @@ ifeq ($(no-cache),yes)
 	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
 endif
 ifeq ($(wildcard .cache/minio),)
-	@mkdir -p .cache/minio/data/
+	@mkdir -p .cache/minio/data/files/
+	@mkdir -p .cache/minio/certs/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
@@ -519,6 +524,57 @@ ifeq ($(log),yes)
 	docker-compose logs -f
 endif
 endif
+
+
+
+
+#################
+# Helm commands #
+#################
+
+helm-chart := $(or $(chart),messenger)
+helm-chart-dir := helm/$(helm-chart)
+
+
+# Lint project Helm chart.
+#
+# Usage:
+#	make helm.lint [chart=messenger]
+
+helm.lint:
+	helm lint $(helm-chart-dir)/
+
+
+# Build Helm package from project Helm chart.
+#
+# Usage:
+#	make helm.package [chart=messenger]
+#	                  [out-dir=(.cache/helm|<dir-path>)] [clean=(no|yes]]
+
+helm-package-dir = $(or $(out-dir),.cache/helm)
+
+helm.package:
+ifeq ($(clean),yes)
+	@rm -rf $(helm-package-dir)
+endif
+	@mkdir -p $(helm-package-dir)/
+	helm package --destination=$(helm-package-dir)/ $(helm-chart-dir)/
+
+
+# Create and push Git tag to release project Helm chart.
+#
+# Usage:
+#	make helm.release [chart=messenger]
+
+helm-git-tag = helm/$(helm-chart)/$(strip \
+	$(shell grep -m1 'version: ' $(helm-chart-dir)/Chart.yaml | cut -d' ' -f2))
+
+helm.release:
+ifeq ($(shell git rev-parse $(helm-git-tag) >/dev/null 2>&1 && echo "ok"),ok)
+	$(error "Git tag $(helm-git-tag) already exists")
+endif
+	git tag $(helm-git-tag)
+	git push origin refs/tags/$(helm-git-tag)
 
 
 
@@ -557,4 +613,5 @@ endif
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
+        helm.lint helm.package helm.release \
         test.e2e test.unit

@@ -29,12 +29,16 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show GraphQlProviderExceptions, ResubscriptionRequiredException;
+    show
+        ConnectionException,
+        GraphQlProviderExceptions,
+        ResubscriptionRequiredException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -170,7 +174,33 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> postChatMessage(
+  Future<void> sendChatMessage(
+    ChatId chatId, {
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+    ChatItem? repliesTo,
+  }) async {
+    HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
+    await rxChat?.postChatMessage(
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
+
+  /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// For the posted [ChatMessage] to be meaningful, at least one of [text] or
+  /// [attachments] arguments must be specified and non-empty.
+  ///
+  /// To attach some [Attachment]s to the posted [ChatMessage], first, they
+  /// should be uploaded with [uploadAttachment], and only then, the returned
+  /// [Attachment.id]s may be used as the [attachments] argument of this method.
+  ///
+  /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
+  /// reply to some other [ChatItem].
+  Future<ChatEventsVersionedMixin?> postChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
@@ -182,6 +212,30 @@ class ChatRepository implements AbstractChatRepository {
         attachments: attachments,
         repliesTo: repliesTo,
       );
+
+  @override
+  Future<void> resendChatItem(ChatItem item) async {
+    HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
+
+    if (item is ChatMessage) {
+      for (var e in item.attachments.whereType<LocalAttachment>()) {
+        if (e.status.value == SendingStatus.error &&
+            (e.upload.value == null || e.upload.value?.isCompleted == true)) {
+          uploadAttachment(e)
+              .onError<UploadAttachmentException>((_, __) => e)
+              .onError<ConnectionException>((_, __) => e);
+        }
+      }
+
+      return rxChat?.postChatMessage(
+        existingId: item.id,
+        existingDateTime: item.at,
+        text: item.text,
+        attachments: item.attachments,
+        repliesTo: item.repliesTo,
+      );
+    }
+  }
 
   /// Puts the provided [item] to [Hive].
   Future<void> putChatItem(HiveChatItem item) async {
@@ -222,8 +276,14 @@ class ChatRepository implements AbstractChatRepository {
       _graphQlProvider.editChatMessageText(id, text);
 
   @override
-  Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.deleteChatMessage(id);
+  Future<void> deleteChatMessage(ChatMessage message) async {
+    if (message.status.value != SendingStatus.sent) {
+      HiveRxChat? chat = _chats[message.chatId] ?? (await get(message.chatId));
+      chat?.remove(message.id);
+    } else {
+      await _graphQlProvider.deleteChatMessage(message.id);
+    }
+  }
 
   @override
   Future<void> deleteChatForward(ChatId chatId, ChatItemId id) =>
@@ -234,43 +294,69 @@ class ChatRepository implements AbstractChatRepository {
       _graphQlProvider.hideChatItem(id);
 
   @override
-  Future<Attachment> uploadAttachment(
-    NativeFile attachment, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    dio.MultipartFile upload;
-
-    if (attachment.stream != null) {
-      upload = dio.MultipartFile(
-        attachment.stream!,
-        attachment.size,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
-    } else if (attachment.bytes != null) {
-      upload = dio.MultipartFile.fromBytes(
-        attachment.bytes!,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
-    } else if (attachment.path != null) {
-      upload = await dio.MultipartFile.fromFile(
-        attachment.path!,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
-    } else {
-      throw ArgumentError(
-        'At least stream, bytes or path should be specified.',
-      );
+  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+    if (attachment.upload.value?.isCompleted != false) {
+      attachment.upload.value = Completer();
     }
 
-    var response = await _graphQlProvider.uploadAttachment(
-      upload,
-      onSendProgress: onSendProgress,
-    );
+    if (attachment.read.value?.isCompleted != false) {
+      attachment.read.value = Completer();
+    }
 
-    return response.attachment.toModel();
+    attachment.status.value = SendingStatus.sending;
+    await attachment.file.ensureCorrectMediaType();
+
+    try {
+      dio.MultipartFile upload;
+
+      if (attachment.file.path != null) {
+        attachment.file
+            .readFile()
+            .then((_) => attachment.read.value?.complete(null));
+        upload = await dio.MultipartFile.fromFile(
+          attachment.file.path!,
+          filename: attachment.file.name,
+          contentType: attachment.file.mime,
+        );
+      } else if (attachment.file.stream != null ||
+          attachment.file.bytes != null) {
+        await attachment.file.readFile();
+        attachment.read.value?.complete(null);
+        attachment.status.refresh();
+        upload = dio.MultipartFile.fromBytes(
+          attachment.file.bytes!,
+          filename: attachment.file.name,
+          contentType: attachment.file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+
+      var response = await _graphQlProvider.uploadAttachment(
+        upload,
+        onSendProgress: (now, max) => attachment.progress.value = now / max,
+      );
+
+      var model = response.attachment.toModel();
+      attachment.id = model.id;
+      attachment.filename = model.filename;
+      attachment.size = model.size;
+      attachment.original = model.original;
+      attachment.upload.value?.complete(model);
+      attachment.status.value = SendingStatus.sent;
+      attachment.progress.value = 1;
+      return model;
+    } catch (e) {
+      if (attachment.read.value?.isCompleted == false) {
+        attachment.read.value?.complete(null);
+      }
+      attachment.upload.value?.completeError(e);
+      attachment.status.value = SendingStatus.error;
+      attachment.progress.value = 0;
+      rethrow;
+    }
   }
 
   @override
@@ -312,7 +398,7 @@ class ChatRepository implements AbstractChatRepository {
               events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
           yield ChatEventsEvent(
             ChatEventsVersioned(
-              mixin.events.map((e) => _chatEvent(e)).toList(),
+              mixin.events.map((e) => chatEvent(e)).toList(),
               mixin.ver,
             ),
           );
@@ -327,7 +413,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
-  ChatEvent _chatEvent(ChatEventsVersionedMixin$Events e) {
+  ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventChatRenamed') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRenamed;
       _userRepo.put(node.byUser.toHive());
@@ -677,23 +763,4 @@ class ChatData {
   /// [HiveChatItem]s of a [Chat.lastReadItem] returned from the [Chat]
   /// fetching.
   final List<HiveChatItem>? lastReadItem;
-}
-
-/// Extension adding an ability to insert the element based on some condition to
-/// [List].
-extension ListInsertAfter<T> on List<T> {
-  /// Inserts the [element] after the [compare] condition becomes `false`.
-  void insertAfter(T element, int Function(T, T) compare) {
-    bool done = false;
-    for (var i = 0; i < length && !done; ++i) {
-      if (compare(element, this[i]) < 0) {
-        insert(i, element);
-        done = true;
-      }
-    }
-
-    if (!done) {
-      add(element);
-    }
-  }
 }

@@ -221,7 +221,7 @@ void main() async {
     when(graphQlProvider.renameChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatName('newname'),
-    )).thenThrow(RenameChatException(RenameChatErrorCode.unknownChat));
+    )).thenThrow(const RenameChatException(RenameChatErrorCode.unknownChat));
 
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(

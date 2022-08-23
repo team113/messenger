@@ -46,14 +46,21 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
   /// Indicator whether the [AnimatedSwitcher] should be enabled.
   bool _show = false;
 
+  Timer? _timer;
+
   @override
   void initState() {
+    _startTimer();
     super.initState();
-    Future.delayed(widget.delay, () {
-      if (mounted) {
-        setState(() => _show = true);
-      }
-    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedDelayedSwitcher oldWidget) {
+    if (oldWidget.delay != widget.delay) {
+      _startTimer();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -61,4 +68,14 @@ class _AnimatedDelayedSwitcherState extends State<AnimatedDelayedSwitcher> {
         duration: widget.duration,
         child: _show ? widget.child : Container(),
       );
+
+  /// Starts the [_timer] switching the [AnimatedSwitcher] visibility.
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer(widget.delay, () {
+      if (mounted) {
+        setState(() => _show = true);
+      }
+    });
+  }
 }

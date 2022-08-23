@@ -24,7 +24,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
-import '../widget/animated_delayed_switcher.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -42,6 +41,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -218,20 +218,29 @@ Widget mobileCall(CallController c, BuildContext context) {
     // If there's any error to show, display it.
     overlay.add(
       Obx(() {
-        if (c.errorTimeout.value != 0) {
-          return Align(
-            alignment: Alignment.topRight,
-            child: SizedBox(
-              width: 280,
-              child: HintWidget(
-                text: '${c.error}.',
-                onTap: () => c.errorTimeout.value = 0,
-              ),
-            ),
-          );
-        }
-
-        return Container();
+        return AnimatedSwitcher(
+          duration: 200.milliseconds,
+          child: c.errorTimeout.value != 0 &&
+                  c.minimizing.isFalse &&
+                  c.minimized.isFalse
+              ? SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10, right: 10),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 280,
+                        child: HintWidget(
+                          text: '${c.error}.',
+                          onTap: () => c.errorTimeout.value = 0,
+                          isError: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+        );
       }),
     );
 
