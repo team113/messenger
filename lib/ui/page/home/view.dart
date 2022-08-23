@@ -105,8 +105,8 @@ class _HomeViewState extends State<HomeView> {
           ///    Navigator is drawn above the side bar in this case.
           ///
           /// 2. On desktop/tablet side bar is always shown and occupies the space
-          ///    stated by `Config` variables (`maxSideBarExpandWidth` and
-          ///    `sideBarWidthPercentage`).
+          ///    stated by `Config` variables (`sideBarWidth`, `sideBarMinWidth`
+          ///    and `sideBarMaxWidthPercentage`).
           ///    Navigator is drawn under the side bar (so the page animation is
           ///    correct).
           final sideBar = Row(
@@ -216,7 +216,6 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      // Hack to use [Obx] without exception.
                       maxWidth: context.isMobile ? 0 : sideBarWidth,
                     ),
                     child: Container(),

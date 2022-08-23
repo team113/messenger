@@ -128,12 +128,12 @@ class HomeController extends GetxController {
     double maxWidth =
         router.context!.width * HomeController.sideBarMaxWidthPercentage;
 
-    if (width > maxWidth) {
-      return maxWidth;
-    }
-
     if (width < HomeController.sideBarMinWidth) {
       return HomeController.sideBarMinWidth;
+    }
+
+    if (width > maxWidth) {
+      return maxWidth;
     }
 
     return width;
