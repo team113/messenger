@@ -44,6 +44,8 @@ All user visible changes to this project will be documented in this file. This p
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]);
     - Back button not minimizing call ([#80], [#76]).
+- macOS:
+    - Call ringtone not being looped ([#90]).
 - Web:
     - UI not hiding on window focus loses ([#60]).
 - UI:
@@ -88,6 +90,7 @@ All user visible changes to this project will be documented in this file. This p
 [#82]: /../../issues/82
 [#83]: /../../pull/83
 [#89]: /../../pull/89
+[#90]: /../../pull/90
 
 
 
