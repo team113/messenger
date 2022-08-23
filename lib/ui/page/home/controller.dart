@@ -26,6 +26,7 @@ import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/store/settings.dart';
 import '/ui/page/home/introduction/view.dart';
 
 export 'view.dart';
@@ -34,16 +35,13 @@ export 'view.dart';
 class HomeController extends GetxController {
   HomeController(this._auth, this._myUser, this._settings);
 
-  /// Maximum screen's width in pixels until side bar will be expanding.
-  static double maxSideBarExpandWidth = 860;
-
-  /// Percentage of the screen's width which side bar will occupy.
-  static double sideBarWidthPercentage = 0.4;
-
-  /// Percentage of the screen's width which side bar will occupy.
+  /// Maximal percentage of the screen's width which side bar can occupy.
   static double sideBarMaxWidthPercentage = 0.6;
 
-  /// Percentage of the screen's width which side bar will occupy.
+  /// Minimal width which side bar can occupy.
+  static double sideBarMinWidth = 250;
+
+  /// Width which side bar will occupy.
   Rx<double> sideBarWidth = Rx<double>(350.0);
 
   /// Controller of the [PageView] tab.
@@ -87,6 +85,9 @@ class HomeController extends GetxController {
     _myUserSubscription = _myUser.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
+    sideBarWidth.value =
+        _settings.applicationSettings.value?.sideBarWidth ?? sideBarWidth.value;
+
     router.addListener(_onRouterChanged);
   }
 
@@ -121,6 +122,26 @@ class HomeController extends GetxController {
     router.removeListener(_onRouterChanged);
     _myUserSubscription.cancel();
   }
+
+  /// Returns corrected according to side bar constraints [width] value.
+  double applySideBarWidth(double width) {
+    double maxWidth =
+        router.context!.width * HomeController.sideBarMaxWidthPercentage;
+
+    if (width > maxWidth) {
+      return maxWidth;
+    }
+
+    if (width < HomeController.sideBarMinWidth) {
+      return HomeController.sideBarMinWidth;
+    }
+
+    return width;
+  }
+
+  /// Saves [sideBarWidth] to [SettingsRepository].
+  Future<void> saveSideBarWidth() =>
+      _settings.setSideBarWidth(sideBarWidth.value);
 
   /// Refreshes the controller on [router] change.
   ///
