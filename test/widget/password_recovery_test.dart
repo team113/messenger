@@ -95,7 +95,7 @@ void main() async {
         .thenAnswer((_) => Future.value());
     when(graphQlProvider.recoverUserPassword(
             UserLogin('emptyuser'), null, null, null))
-        .thenAnswer((_) => throw RecoverUserPasswordException(
+        .thenAnswer((_) => throw const RecoverUserPasswordException(
             RecoverUserPasswordErrorCode.unknownUser));
     when(graphQlProvider.validateUserPasswordRecoveryCode(
             UserLogin('login'), null, null, null, ConfirmationCode('1234')))

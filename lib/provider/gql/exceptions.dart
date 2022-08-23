@@ -72,7 +72,7 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_REQUIRED' ||
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
-          return AuthorizationException();
+          return const AuthorizationException();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -84,7 +84,7 @@ class GraphQlProviderExceptions {
         // If the original exception is "Failed to parse header value", then
         // it's `AuthorizationException`.
         if (e.originalException.toString() == 'Failed to parse header value') {
-          return AuthorizationException();
+          return const AuthorizationException();
         }
 
         // If it's `SocketException` or "XMLHttpRequest error." then it's
@@ -99,7 +99,7 @@ class GraphQlProviderExceptions {
         if (e.parsedResponse?.errors != null) {
           var found = e.parsedResponse!.errors!.firstWhereOrNull(
               (v) => v.extensions != null && (v.extensions!['status'] == 401));
-          if (found != null) throw AuthorizationException();
+          if (found != null) throw const AuthorizationException();
           return GraphQlException(e.parsedResponse!.errors!);
         }
 
@@ -130,7 +130,7 @@ class GraphQlException with LocalizedExceptionMixin implements Exception {
       : graphqlErrors = graphqlErrors.toList();
 
   /// Any GraphQL errors returned from the operation.
-  List<GraphQLError> graphqlErrors = [];
+  final List<GraphQLError> graphqlErrors;
 
   @override
   String toString() => 'GraphQlException($graphqlErrors)';
@@ -163,6 +163,8 @@ class ConnectionException with LocalizedExceptionMixin implements Exception {
 ///
 /// Thrown on header parsing errors or on 401 response status.
 class AuthorizationException with LocalizedExceptionMixin implements Exception {
+  const AuthorizationException();
+
   @override
   String toString() => 'AuthException()';
 
@@ -199,16 +201,18 @@ class StaleVersionException extends GraphQlException {
 /// Thrown on a GraphQL subscription timeout or on [AuthorizationException].
 /// It's required to re-subscribe whenever this exception is thrown.
 class ResubscriptionRequiredException implements Exception {
+  const ResubscriptionRequiredException();
+
   @override
   String toString() => 'ResubscriptionRequiredException()';
 }
 
 /// Exception of `Mutation.createSession` described in the [code].
 class CreateSessionException with LocalizedExceptionMixin implements Exception {
-  CreateSessionException(this.code);
+  const CreateSessionException(this.code);
 
   /// Reason of why the mutation has failed.
-  CreateSessionErrorCode code;
+  final CreateSessionErrorCode code;
 
   @override
   String toString() => 'CreateSessionException($code)';
@@ -239,10 +243,10 @@ class RenewSessionException implements Exception {
 
 /// Exception of `Mutation.createChatDialog` described in the [code].
 class CreateDialogException with LocalizedExceptionMixin implements Exception {
-  CreateDialogException(this.code);
+  const CreateDialogException(this.code);
 
   /// Reason of why the mutation has failed.
-  CreateDialogChatErrorCode code;
+  final CreateDialogChatErrorCode code;
 
   @override
   String toString() => 'CreateDialogException($code)';
@@ -264,10 +268,10 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
 class CreateGroupChatException
     with LocalizedExceptionMixin
     implements Exception {
-  CreateGroupChatException(this.code);
+  const CreateGroupChatException(this.code);
 
   /// Reason of why the mutation has failed.
-  CreateGroupChatErrorCode code;
+  final CreateGroupChatErrorCode code;
 
   @override
   String toString() => 'CreateGroupException($code)';
@@ -291,10 +295,10 @@ class CreateGroupChatException
 class RemoveChatMemberException
     with LocalizedExceptionMixin
     implements Exception {
-  RemoveChatMemberException(this.code);
+  const RemoveChatMemberException(this.code);
 
   /// Reason of why the mutation has failed.
-  RemoveChatMemberErrorCode code;
+  final RemoveChatMemberErrorCode code;
 
   @override
   String toString() => 'RemoveChatMemberException($code)';
@@ -314,10 +318,10 @@ class RemoveChatMemberException
 
 /// Exception of `Mutation.startChatCall` described in the [code].
 class StartChatCallException with LocalizedExceptionMixin implements Exception {
-  StartChatCallException(this.code);
+  const StartChatCallException(this.code);
 
   /// Reason of why the mutation has failed.
-  StartChatCallErrorCode code;
+  final StartChatCallErrorCode code;
 
   @override
   String toString() => 'StartChatCallException($code)';
@@ -339,10 +343,10 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
 
 /// Exception of `Mutation.joinChatCall` described in the [code].
 class JoinChatCallException with LocalizedExceptionMixin implements Exception {
-  JoinChatCallException(this.code);
+  const JoinChatCallException(this.code);
 
   /// Reason of why the mutation has failed.
-  JoinChatCallErrorCode code;
+  final JoinChatCallErrorCode code;
 
   @override
   String toString() => 'JoinChatCallException($code)';
@@ -362,10 +366,10 @@ class JoinChatCallException with LocalizedExceptionMixin implements Exception {
 
 /// Exception of `Mutation.leaveChatCall` described in the [code].
 class LeaveChatCallException with LocalizedExceptionMixin implements Exception {
-  LeaveChatCallException(this.code);
+  const LeaveChatCallException(this.code);
 
   /// Reason of why the mutation has failed.
-  LeaveChatCallErrorCode code;
+  final LeaveChatCallErrorCode code;
 
   @override
   String toString() => 'LeaveChatCallException($code)';
@@ -387,10 +391,10 @@ class LeaveChatCallException with LocalizedExceptionMixin implements Exception {
 class DeclineChatCallException
     with LocalizedExceptionMixin
     implements Exception {
-  DeclineChatCallException(this.code);
+  const DeclineChatCallException(this.code);
 
   /// Reason of why the mutation has failed.
-  DeclineChatCallErrorCode code;
+  final DeclineChatCallErrorCode code;
 
   @override
   String toString() => 'LeaveChatCallException($code)';
@@ -412,10 +416,10 @@ class DeclineChatCallException
 class UpdateUserLoginException
     with LocalizedExceptionMixin
     implements Exception {
-  UpdateUserLoginException(this.code);
+  const UpdateUserLoginException(this.code);
 
   /// Reason of why the mutation has failed.
-  UpdateUserLoginErrorCode code;
+  final UpdateUserLoginErrorCode code;
 
   @override
   String toString() => 'UpdateUserLoginException($code)';
@@ -435,10 +439,10 @@ class UpdateUserLoginException
 class UploadAttachmentException
     with LocalizedExceptionMixin
     implements Exception {
-  UploadAttachmentException(this.code);
+  const UploadAttachmentException(this.code);
 
   /// Reason of why the mutation has failed.
-  UploadAttachmentErrorCode code;
+  final UploadAttachmentErrorCode code;
 
   @override
   String toString() => 'UploadAttachmentException($code)';
@@ -462,10 +466,10 @@ class UploadAttachmentException
 class UpdateUserPasswordException
     with LocalizedExceptionMixin
     implements Exception {
-  UpdateUserPasswordException(this.code);
+  const UpdateUserPasswordException(this.code);
 
   /// Reason of why the mutation has failed.
-  UpdateUserPasswordErrorCode code;
+  final UpdateUserPasswordErrorCode code;
 
   @override
   String toString() => 'UpdateUserPasswordException($code)';
@@ -485,10 +489,10 @@ class UpdateUserPasswordException
 class CreateChatContactException
     with LocalizedExceptionMixin
     implements Exception {
-  CreateChatContactException(this.code);
+  const CreateChatContactException(this.code);
 
   /// Reason of why the mutation has failed.
-  CreateChatContactErrorCode code;
+  final CreateChatContactErrorCode code;
 
   @override
   String toString() => 'CreateChatContactException($code)';
@@ -514,10 +518,10 @@ class CreateChatContactException
 class RecoverUserPasswordException
     with LocalizedExceptionMixin
     implements Exception {
-  RecoverUserPasswordException(this.code);
+  const RecoverUserPasswordException(this.code);
 
   /// Reason of why the mutation has failed.
-  RecoverUserPasswordErrorCode code;
+  final RecoverUserPasswordErrorCode code;
 
   @override
   String toString() => 'RecoverUserPasswordException($code)';
@@ -542,10 +546,10 @@ class RecoverUserPasswordException
 class ValidateUserPasswordRecoveryCodeException
     with LocalizedExceptionMixin
     implements Exception {
-  ValidateUserPasswordRecoveryCodeException(this.code);
+  const ValidateUserPasswordRecoveryCodeException(this.code);
 
   /// Reason of why the mutation has failed.
-  ValidateUserPasswordRecoveryErrorCode code;
+  final ValidateUserPasswordRecoveryErrorCode code;
 
   @override
   String toString() => 'ValidateUserPasswordRecoveryCodeException($code)';
@@ -567,10 +571,10 @@ class ValidateUserPasswordRecoveryCodeException
 class ResetUserPasswordException
     with LocalizedExceptionMixin
     implements Exception {
-  ResetUserPasswordException(this.code);
+  const ResetUserPasswordException(this.code);
 
   /// Reason of why the mutation has failed.
-  ResetUserPasswordErrorCode code;
+  final ResetUserPasswordErrorCode code;
 
   @override
   String toString() => 'ResetUserPasswordException($code)';
@@ -590,10 +594,10 @@ class ResetUserPasswordException
 
 /// Exception of `Mutation.addChatMember` described in the [code].
 class AddChatMemberException with LocalizedExceptionMixin implements Exception {
-  AddChatMemberException(this.code);
+  const AddChatMemberException(this.code);
 
   /// Reason of why the mutation has failed.
-  AddChatMemberErrorCode code;
+  final AddChatMemberErrorCode code;
 
   @override
   String toString() => 'AddChatMemberException($code)';
@@ -617,10 +621,10 @@ class AddChatMemberException with LocalizedExceptionMixin implements Exception {
 
 /// Exception of `Mutation.renameChat` described in the [code].
 class RenameChatException with LocalizedExceptionMixin implements Exception {
-  RenameChatException(this.code);
+  const RenameChatException(this.code);
 
   /// Reason of why the mutation has failed.
-  RenameChatErrorCode code;
+  final RenameChatErrorCode code;
 
   @override
   String toString() => 'RenameChatException($code)';
@@ -642,10 +646,10 @@ class RenameChatException with LocalizedExceptionMixin implements Exception {
 class PostChatMessageException
     with LocalizedExceptionMixin
     implements Exception {
-  PostChatMessageException(this.code);
+  const PostChatMessageException(this.code);
 
   /// Reason of why the mutation has failed.
-  PostChatMessageErrorCode code;
+  final PostChatMessageErrorCode code;
 
   @override
   String toString() => 'PostChatMessageException($code)';
@@ -671,10 +675,10 @@ class PostChatMessageException
 
 /// Exception of `Mutation.hideChat` described in the [code].
 class HideChatException with LocalizedExceptionMixin implements Exception {
-  HideChatException(this.code);
+  const HideChatException(this.code);
 
   /// Reason of why the mutation has failed.
-  HideChatErrorCode code;
+  final HideChatErrorCode code;
 
   @override
   String toString() => 'HideChatException($code)';
@@ -694,10 +698,10 @@ class HideChatException with LocalizedExceptionMixin implements Exception {
 class UpdateChatContactNameException
     with LocalizedExceptionMixin
     implements Exception {
-  UpdateChatContactNameException(this.code);
+  const UpdateChatContactNameException(this.code);
 
   /// Reason of why the mutation has failed.
-  UpdateChatContactNameErrorCode code;
+  final UpdateChatContactNameErrorCode code;
 
   @override
   String toString() => 'UpdateChatContactNameException($code)';
@@ -715,10 +719,10 @@ class UpdateChatContactNameException
 
 /// Exception of `Mutation.addUserEmail` described in the [code].
 class AddUserEmailException with LocalizedExceptionMixin implements Exception {
-  AddUserEmailException(this.code);
+  const AddUserEmailException(this.code);
 
   /// Reason of why the mutation has failed.
-  AddUserEmailErrorCode code;
+  final AddUserEmailErrorCode code;
 
   @override
   String toString() => 'AddUserEmailException($code)';
@@ -742,10 +746,10 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
 class ResendUserEmailConfirmationException
     with LocalizedExceptionMixin
     implements Exception {
-  ResendUserEmailConfirmationException(this.code);
+  const ResendUserEmailConfirmationException(this.code);
 
   /// Reason of why the mutation has failed.
-  ResendUserEmailConfirmationErrorCode code;
+  final ResendUserEmailConfirmationErrorCode code;
 
   @override
   String toString() => 'ResendUserEmailConfirmationException($code)';
@@ -767,10 +771,10 @@ class ResendUserEmailConfirmationException
 class ResendUserPhoneConfirmationException
     with LocalizedExceptionMixin
     implements Exception {
-  ResendUserPhoneConfirmationException(this.code);
+  const ResendUserPhoneConfirmationException(this.code);
 
   /// Reason of why the mutation has failed.
-  ResendUserPhoneConfirmationErrorCode code;
+  final ResendUserPhoneConfirmationErrorCode code;
 
   @override
   String toString() => 'ResendUserPhoneConfirmationException($code)';
@@ -792,10 +796,10 @@ class ResendUserPhoneConfirmationException
 class ConfirmUserEmailException
     with LocalizedExceptionMixin
     implements Exception {
-  ConfirmUserEmailException(this.code);
+  const ConfirmUserEmailException(this.code);
 
   /// Reason of why the mutation has failed.
-  ConfirmUserEmailErrorCode code;
+  final ConfirmUserEmailErrorCode code;
 
   @override
   String toString() => 'ConfirmUserEmailException($code)';
@@ -817,10 +821,10 @@ class ConfirmUserEmailException
 class ConfirmUserPhoneException
     with LocalizedExceptionMixin
     implements Exception {
-  ConfirmUserPhoneException(this.code);
+  const ConfirmUserPhoneException(this.code);
 
   /// Reason of why the mutation has failed.
-  ConfirmUserPhoneErrorCode code;
+  final ConfirmUserPhoneErrorCode code;
 
   @override
   String toString() => 'ConfirmUserPhoneException($code)';
@@ -840,10 +844,10 @@ class ConfirmUserPhoneException
 
 /// Exception of `Mutation.addUserPhone` described in the [code].
 class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
-  AddUserPhoneException(this.code);
+  const AddUserPhoneException(this.code);
 
   /// Reason of why the mutation has failed.
-  AddUserPhoneErrorCode code;
+  final AddUserPhoneErrorCode code;
 
   @override
   String toString() => 'AddUserPhoneException($code)';
@@ -865,10 +869,10 @@ class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
 
 /// Exception of `Mutation.readChat` described in the [code].
 class ReadChatException with LocalizedExceptionMixin implements Exception {
-  ReadChatException(this.code);
+  const ReadChatException(this.code);
 
   /// Reason of why the mutation has failed.
-  ReadChatErrorCode code;
+  final ReadChatErrorCode code;
 
   @override
   String toString() => 'ReadChatException($code)';
@@ -888,10 +892,10 @@ class ReadChatException with LocalizedExceptionMixin implements Exception {
 
 /// Exception of `Mutation.hideChatItem` described in the [code].
 class HideChatItemException with LocalizedExceptionMixin implements Exception {
-  HideChatItemException(this.code);
+  const HideChatItemException(this.code);
 
   /// Reason of why the mutation has failed.
-  HideChatItemErrorCode code;
+  final HideChatItemErrorCode code;
 
   @override
   String toString() => 'HideChatItemException($code)';
@@ -911,10 +915,10 @@ class HideChatItemException with LocalizedExceptionMixin implements Exception {
 class DeleteChatMessageException
     with LocalizedExceptionMixin
     implements Exception {
-  DeleteChatMessageException(this.code);
+  const DeleteChatMessageException(this.code);
 
   /// Reason of why the mutation has failed.
-  DeleteChatMessageErrorCode code;
+  final DeleteChatMessageErrorCode code;
 
   @override
   String toString() => 'DeleteChatMessageException($code)';
@@ -940,10 +944,10 @@ class DeleteChatMessageException
 class DeleteChatForwardException
     with LocalizedExceptionMixin
     implements Exception {
-  DeleteChatForwardException(this.code);
+  const DeleteChatForwardException(this.code);
 
   /// Reason of why the mutation has failed.
-  DeleteChatForwardErrorCode code;
+  final DeleteChatForwardErrorCode code;
 
   @override
   String toString() => 'DeleteChatForwardException($code)';
@@ -969,10 +973,10 @@ class DeleteChatForwardException
 class ToggleChatCallHandException
     with LocalizedExceptionMixin
     implements Exception {
-  ToggleChatCallHandException(this.code);
+  const ToggleChatCallHandException(this.code);
 
   /// Reason of why the mutation has failed.
-  ToggleChatCallHandErrorCode code;
+  final ToggleChatCallHandErrorCode code;
 
   @override
   String toString() => 'ToggleChatCallHandException($code)';
@@ -996,10 +1000,10 @@ class ToggleChatCallHandException
 class CreateChatDirectLinkException
     with LocalizedExceptionMixin
     implements Exception {
-  CreateChatDirectLinkException(this.code);
+  const CreateChatDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  CreateChatDirectLinkErrorCode code;
+  final CreateChatDirectLinkErrorCode code;
 
   @override
   String toString() => 'CreateChatDirectLinkException($code)';
@@ -1023,10 +1027,10 @@ class CreateChatDirectLinkException
 class DeleteChatDirectLinkException
     with LocalizedExceptionMixin
     implements Exception {
-  DeleteChatDirectLinkException(this.code);
+  const DeleteChatDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  DeleteChatDirectLinkErrorCode code;
+  final DeleteChatDirectLinkErrorCode code;
 
   @override
   String toString() => 'DeleteChatDirectLinkException($code)';
@@ -1048,10 +1052,10 @@ class DeleteChatDirectLinkException
 class UseChatDirectLinkException
     with LocalizedExceptionMixin
     implements Exception {
-  UseChatDirectLinkException(this.code);
+  const UseChatDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  UseChatDirectLinkErrorCode code;
+  final UseChatDirectLinkErrorCode code;
 
   @override
   String toString() => 'UseChatDirectLinkException($code)';
@@ -1073,10 +1077,10 @@ class UseChatDirectLinkException
 class EditChatMessageException
     with LocalizedExceptionMixin
     implements Exception {
-  EditChatMessageException(this.code);
+  const EditChatMessageException(this.code);
 
   /// Reason of why the mutation has failed.
-  EditChatMessageTextErrorCode code;
+  final EditChatMessageTextErrorCode code;
 
   @override
   String toString() => 'EditChatMessageTextException($code)';
@@ -1102,10 +1106,10 @@ class EditChatMessageException
 class UpdateUserAvatarException
     with LocalizedExceptionMixin
     implements Exception {
-  UpdateUserAvatarException(this.code);
+  const UpdateUserAvatarException(this.code);
 
   /// Reason of why the mutation has failed.
-  UpdateUserAvatarErrorCode code;
+  final UpdateUserAvatarErrorCode code;
 
   @override
   String toString() => 'UpdateUserAvatarException($code)';
@@ -1129,10 +1133,10 @@ class UpdateUserAvatarException
 class UpdateUserCallCoverException
     with LocalizedExceptionMixin
     implements Exception {
-  UpdateUserCallCoverException(this.code);
+  const UpdateUserCallCoverException(this.code);
 
   /// Reason of why the mutation has failed.
-  UpdateUserCallCoverErrorCode code;
+  final UpdateUserCallCoverErrorCode code;
 
   @override
   String toString() => 'UpdateUserCallCoverException($code)';
@@ -1156,10 +1160,10 @@ class UpdateUserCallCoverException
 class UploadUserGalleryItemException
     with LocalizedExceptionMixin
     implements Exception {
-  UploadUserGalleryItemException(this.code);
+  const UploadUserGalleryItemException(this.code);
 
   /// Reason of why the mutation has failed.
-  UploadUserGalleryItemErrorCode code;
+  final UploadUserGalleryItemErrorCode code;
 
   @override
   String toString() => 'UploadUserGalleryItemException($code)';
@@ -1186,10 +1190,10 @@ class UploadUserGalleryItemException
 class TransformDialogCallIntoGroupCallException
     with LocalizedExceptionMixin
     implements Exception {
-  TransformDialogCallIntoGroupCallException(this.code);
+  const TransformDialogCallIntoGroupCallException(this.code);
 
   /// Reason of why the mutation has failed.
-  TransformDialogCallIntoGroupCallErrorCode code;
+  final TransformDialogCallIntoGroupCallErrorCode code;
 
   @override
   String toString() => 'TransformDialogCallIntoGroupCallException($code)';
