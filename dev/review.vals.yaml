@@ -1,4 +1,4 @@
-# Extends staging.vals.yaml for review cluster
+# Extends `staging.vals.yaml` for `review` cluster.
 
 image:
   repository: ghcr.io/team113/messenger/review
@@ -7,5 +7,3 @@ image:
 ingress:
   hosts:
     - auto-injected  # see Makefile
-  httpAuth:
-    enabled: no

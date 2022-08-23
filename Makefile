@@ -22,20 +22,21 @@ slugify = $(strip $(shell echo $(2) | tr [:upper:] [:lower:] \
 
 
 
+
 ######################
 # Project parameters #
 ######################
 
-NAME := $(strip $(shell grep -m1 'name: ' pubspec.yaml | cut -d ' ' -f2))
+NAME := $(strip $(shell grep -m1 'name: ' pubspec.yaml | cut -d' ' -f2))
 OWNER := $(or $(GITHUB_REPOSITORY_OWNER),team113)
 REGISTRIES := $(strip $(subst $(comma), ,\
 	$(shell grep -m1 'registry: \["' .github/workflows/ci.yml \
 	        | cut -d':' -f2 | tr -d '"][')))
 
 CURRENT_BRANCH := $(or $(GITHUB_REF_NAME),\
-	$(shell git branch | grep \* | cut -d ' ' -f2))
+	$(shell git branch | grep \* | cut -d' ' -f2))
 
-VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
+VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d'"'))
@@ -395,11 +396,11 @@ copyright:
 
 docker-env = $(strip $(if $(call eq,$(minikube),yes),\
 	$(subst export,,$(shell minikube docker-env | cut -d '\#' -f1)),))
+docker-image-path = $(if $(call eq,$(image),),,/$(image))
 docker-registries = $(strip $(if $(call eq,$(registries),),\
                             $(REGISTRIES),$(subst $(comma), ,$(registries))))
 docker-tags = $(strip $(if $(call eq,$(tags),),\
                       $(VERSION),$(subst $(comma), ,$(tags))))
-docker-image = $(if $(call eq,$(image),),,/$(image))
 
 
 # Stop Docker Compose development environment and remove all related containers.
@@ -414,11 +415,9 @@ docker.down:
 # Build project Docker image.
 #
 # Usage:
-#	make docker.image [tag=(dev|<tag>)]
-#	                  [image=(<empty>|review)]
-#	                  [buildx=(no|yes)]
+#	make docker.image [image=(<empty>|review)] [tag=(dev|<tag>)]
 #	                  [no-cache=(no|yes)]
-#	                  [minikube=(no|yes)]
+#	                  [buildx=(no|yes)] [minikube=(no|yes)]
 
 github_url := $(strip $(or $(GITHUB_SERVER_URL),https://github.com))
 github_repo := $(strip $(or $(GITHUB_REPOSITORY),$(OWNER)/$(NAME)))
@@ -438,7 +437,7 @@ endif
 		--label org.opencontainers.image.revision=$(strip \
 			$(shell git show --pretty=format:%H --no-patch)) \
 		--label org.opencontainers.image.version=$(strip $(VERSION)) \
-		-t $(OWNER)/$(NAME)$(docker-image):$(or $(tag),dev) .
+		-t $(OWNER)/$(NAME)$(docker-image-path):$(or $(tag),dev) .
 # TODO: Enable after first release.
 #		--label org.opencontainers.image.version=$(subst v,,$(strip \
 			$(shell git describe --tags --dirty --match='v*')))
@@ -447,9 +446,9 @@ endif
 # Push project Docker images to container registries.
 #
 # Usage:
-#	make docker.push [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
+#	make docker.push [image=(<empty>|review)]
+#	                 [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
 #	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
-#	                 [image=(<empty>|review)]
 #	                 [minikube=(no|yes)]
 
 docker.push:
@@ -460,18 +459,20 @@ define docker.push.do
 	$(eval repo := $(strip $(1)))
 	$(eval tag := $(strip $(2)))
 	$(docker-env) \
-	docker push $(repo)/$(OWNER)/$(NAME)$(docker-image):$(tag)
+	docker push $(repo)/$(OWNER)/$(NAME)$(docker-image-path):$(tag)
 endef
 
 
 # Tag project Docker image with given tags.
 #
 # Usage:
-#	make docker.tags [of=(dev|<docker-tag>)]
+#	make docker.tags [image=(<empty>|review)] [of=(dev|<docker-tag>)]
+#	                 [as=(<empty>|review)]
 #	                 [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
 #	                 [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
-#	                 [image=(<empty>|review)]
 #	                 [minikube=(no|yes)]
+
+docker-image-as-path = $(if $(call eq,$(as),),,/$(as))
 
 docker.tags:
 	$(foreach tag,$(subst $(comma), ,$(docker-tags)),\
@@ -482,8 +483,8 @@ define docker.tags.do
 	$(eval repo := $(strip $(2)))
 	$(eval to := $(strip $(3)))
 	$(docker-env) \
-	docker tag $(OWNER)/$(NAME)$(docker-image):$(from) \
-	   $(repo)/$(OWNER)/$(NAME)$(docker-image):$(to)
+	docker tag $(OWNER)/$(NAME)$(docker-image-path):$(from) \
+	           $(repo)/$(OWNER)/$(NAME)$(docker-image-as-path):$(to)
 endef
 
 
@@ -491,6 +492,7 @@ endef
 #
 # Usage:
 #	make docker.tar [to-file=(.cache/docker/image.tar|<file-path>)]
+#	                [image=(<empty>|review)]
 #	                [tags=($(VERSION)|<docker-tag-1>[,<docker-tag-2>...])]
 
 docker-tar-file = $(or $(to-file),.cache/docker/image.tar)
@@ -499,7 +501,7 @@ docker.tar:
 	@mkdir -p $(dir $(docker-tar-file))
 	docker save -o $(docker-tar-file) \
 		$(foreach tag,$(subst $(comma), ,$(or $(tags),$(VERSION))),\
-			$(OWNER)/$(NAME):$(tag))
+			$(OWNER)/$(NAME)$(docker-image-path):$(tag))
 
 
 # Load project Docker images from a tarball file.
@@ -547,14 +549,59 @@ endif
 
 
 
+#####################
+# Minikube commands #
+#####################
+
+minikube-mount-pid = $(word 1,$(shell ps | grep -v grep \
+                                         | grep 'minikube mount' \
+                                         | grep 'team113-messenger'))
+
+# Bootstrap Minikube cluster (local Kubernetes) for development environment.
+#
+# The bootstrap script is updated automatically to the latest version every day.
+# For manual update use `update=yes` command option.
+#
+# Usage:
+#	make minikube.boot [update=(no|yes)]
+#	                   [driver=(virtualbox|hyperkit|hyperv|docker|none)]
+#	                   [k8s-version=<kubernetes-version>]
+
+minikube.boot:
+ifeq ($(update),yes)
+	$(call minikube.boot.download)
+else
+ifeq ($(wildcard $(HOME)/.minikube/bootstrap.sh),)
+	$(call minikube.boot.download)
+else
+ifneq ($(shell find $(HOME)/.minikube/bootstrap.sh -mmin +1440),)
+	$(call minikube.boot.download)
+endif
+endif
+endif
+	@$(if $(call eq,$(driver),),,MINIKUBE_VM_DRIVER=$(driver)) \
+	 $(if $(call eq,$(k8s-version),),,MINIKUBE_K8S_VER=$(k8s-version)) \
+		$(HOME)/.minikube/bootstrap.sh
+define minikube.boot.download
+	$()
+	@mkdir -p $(HOME)/.minikube/
+	@rm -f $(HOME)/.minikube/bootstrap.sh
+	curl -fL -o $(HOME)/.minikube/bootstrap.sh \
+		https://raw.githubusercontent.com/instrumentisto/toolchain/master/minikube/bootstrap.sh
+	@chmod +x $(HOME)/.minikube/bootstrap.sh
+endef
+
+
+
+
 #################
 # Helm commands #
 #################
 
-helm-cluster = $(or $(cluster),minikube)
-
 helm-chart := $(or $(chart),messenger)
 helm-chart-dir := helm/$(helm-chart)
+
+helm-cluster = $(or $(cluster),minikube)
 
 helm-release-default = $(strip $(if $(call eq,$(helm-cluster),review),\
 	$(CURRENT_BRANCH),dev))
@@ -572,11 +619,6 @@ helm-cluster-args = $(strip $(if $(call eq,$(CI),yes),\
 kubectl-cluster-args = $(strip $(if $(call eq,$(CI),yes),\
 	--namespace=$(helm-release-namespace),\
 	--context=$(helm-cluster)))
-
-minikube-mount-pid = $(word 1,$(shell ps | grep -v grep \
-                                         | grep 'minikube mount' \
-                                         | grep 'team113-messenger'))
-
 
 # Show SFTP credentials to access deployed project in Kubernetes cluster.
 #
@@ -613,7 +655,6 @@ helm.discover.sftp:
 # Usage:
 #	make helm.down [cluster=(minikube|review|staging)]
 #	               [release=(dev|<current-git-branch-slug>|<release-name>)]
-#	               [check=(no|yes)]
 
 helm.down:
 ifeq ($(helm-cluster),minikube)
@@ -621,13 +662,7 @@ ifneq ($(minikube-mount-pid),)
 	kill $(minikube-mount-pid)
 endif
 endif
-ifeq ($(check),yes)
-	$(if $(shell helm $(helm-cluster-args) list | grep '$(helm-release)'),\
-		helm $(helm-cluster-args) uninstall $(helm-release) ,\
-		@echo "--> No $(helm-release) release found in $(helm-cluster) cluster")
-else
 	helm $(helm-cluster-args) uninstall $(helm-release)
-endif
 
 
 # Lint project Helm chart.
@@ -675,17 +710,17 @@ endif
 #
 # Usage:
 #	make helm.up [release=(dev|<current-git-branch-slug>|<release-name>)]
-#	             [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
-#	             [buildx=(no|yes)]
 #	             [force=(no|yes)]
 #	             [( [atomic=no] [wait=(yes|no)]
 #	              | atomic=yes )]
 #	             [( cluster=(minikube|review)
-#	              	[( [rebuild=no]
-#	              	 | rebuild=yes [debug=(yes|no)] [no-cache=(no|yes)] )]
+#	                [( [rebuild=no]
+#	                 | rebuild=yes [no-cache=(no|yes)]
+#	                   [registries=($(REGISTRIES)|<prefix-1>[,<prefix-2>...])]
+#	                   [buildx=(no|yes)] )]
 #	              | cluster=staging )]
 
-helm-review-domain=$(strip $(shell grep 'HELM_DOMAIN=' .env | cut -d '=' -f2))
+helm-review-domain=$(strip $(shell grep 'HELM_DOMAIN=' .env | cut -d'=' -f2))
 helm-review-app-domain = $(strip \
 	$(call slugify,63,$(CURRENT_BRANCH))$(helm-review-domain))
 helm-chart-vals-dir = dev
@@ -701,7 +736,6 @@ ifeq ($(wildcard build/web),)
 endif
 ifeq ($(rebuild),yes)
 	@make docker.image no-cache=$(no-cache) minikube=yes tag=dev
-else
 endif
 ifeq ($(minikube-mount-pid),)
 	minikube mount "$(PWD):/mount/team113-messenger" &
@@ -710,11 +744,12 @@ endif
 ifeq ($(helm-cluster),review)
 ifeq ($(rebuild),yes)
 	@make docker.image image=review tag=$(CURRENT_BRANCH) \
-	                   buildx=$(buildx) no-cache=$(no-cache)
+	                   no-cache=$(no-cache) buildx=$(buildx)
 	@make docker.tags image=review of=$(CURRENT_BRANCH) \
-	                  registries=$(docker-registries) tags=$(CURRENT_BRANCH)
-	@make docker.push image=review \
-	                  registries=$(docker-registries) tags=$(CURRENT_BRANCH)
+	                  as=review tags=$(CURRENT_BRANCH) \
+	                  registries=$(docker-registries)
+	@make docker.push image=review tags=$(CURRENT_BRANCH) \
+	                  registries=$(docker-registries)
 endif
 endif
 	helm $(helm-cluster-args) upgrade --install \
@@ -732,40 +767,6 @@ endif
 			$(if $(call eq,$(atomic),yes),--atomic,\
 			$(if $(call eq,$(wait),no),,--wait))
 
-
-# Bootstrap Minikube cluster (local Kubernetes) for development environment.
-#
-# The bootsrap script is updated automatically to the latest version every day.
-# For manual update use 'update=yes' command option.
-#
-# Usage:
-#	make minikube.boot [update=(no|yes)]
-#	                   [driver=(virtualbox|hyperkit|hyperv|docker|none)]
-#	                   [k8s-version=<kubernetes-version>]
-
-minikube.boot:
-ifeq ($(update),yes)
-	$(call minikube.boot.download)
-else
-ifeq ($(wildcard $(HOME)/.minikube/bootstrap.sh),)
-	$(call minikube.boot.download)
-else
-ifneq ($(shell find $(HOME)/.minikube/bootstrap.sh -mmin +1440),)
-	$(call minikube.boot.download)
-endif
-endif
-endif
-	@$(if $(call eq,$(driver),),,MINIKUBE_VM_DRIVER=$(driver)) \
-	 $(if $(call eq,$(k8s-version),),,MINIKUBE_K8S_VER=$(k8s-version)) \
-		$(HOME)/.minikube/bootstrap.sh
-define minikube.boot.download
-	$()
-	@mkdir -p $(HOME)/.minikube/
-	@rm -f $(HOME)/.minikube/bootstrap.sh
-	curl -fL -o $(HOME)/.minikube/bootstrap.sh \
-		https://raw.githubusercontent.com/instrumentisto/toolchain/master/minikube/bootstrap.sh
-	@chmod +x $(HOME)/.minikube/bootstrap.sh
-endef
 
 
 
@@ -803,7 +804,7 @@ endif
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
+        helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
-		helm.discover.sftp \
-		minikube.boot \
+        minikube.boot \
         test.e2e test.unit
