@@ -80,6 +80,7 @@ Future<void> main() async {
 
     runApp(
       DefaultAssetBundle(
+        key: UniqueKey(),
         bundle: SentryAssetBundle(),
         child: const App(),
       ),

@@ -28,6 +28,8 @@ class SwipeableStatus extends StatelessWidget {
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
+    this.isSending = false,
+    this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 18),
   }) : super(key: key);
@@ -56,6 +58,12 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is read.
   final bool isRead;
+
+  /// Indicator whether status is sending.
+  final bool isSending;
+
+  /// Indicator whether status is error.
+  final bool isError;
 
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
@@ -113,10 +121,20 @@ class SwipeableStatus extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (isSent || isDelivered || isRead) ...[
+              if (isSent || isDelivered || isRead || isSending || isError) ...[
                 Icon(
-                  (isRead || isDelivered) ? Icons.done_all : Icons.done,
-                  color: isRead ? Colors.blue : const Color(0xFF888888),
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? const Color(0xFF63B4FF)
+                      : isError
+                          ? Colors.red
+                          : const Color(0xFF888888),
                   size: 12,
                 ),
                 const SizedBox(width: 3),

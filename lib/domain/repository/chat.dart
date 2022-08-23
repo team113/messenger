@@ -22,7 +22,6 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -78,18 +77,17 @@ abstract class AbstractChatRepository {
   /// For the posted [ChatMessage] to be meaningful, at least one of [text] or
   /// [attachments] arguments must be specified and non-empty.
   ///
-  /// To attach some [Attachment]s to the posted [ChatMessage], first, they
-  /// should be uploaded, and then use the returned [AttachmentId]s in
-  /// [attachments] argument of this method.
-  ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> postChatMessage(
+  Future<void> sendChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
-    List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<Attachment>? attachments,
+    ChatItem? repliesTo,
   });
+
+  /// Resends the specified [item].
+  Future<void> resendChatItem(ChatItem item);
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].
@@ -121,7 +119,7 @@ abstract class AbstractChatRepository {
   Future<void> editChatMessageText(ChatItemId itemId, ChatMessageText? text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> deleteChatMessage(ChatId chatId, ChatItemId id);
+  Future<void> deleteChatMessage(ChatMessage message);
 
   /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
   Future<void> deleteChatForward(ChatId chatId, ChatItemId id);
@@ -130,11 +128,8 @@ abstract class AbstractChatRepository {
   Future<void> hideChatItem(ChatId chatId, ChatItemId id);
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
-  /// later use in the [postChatMessage] method.
-  Future<Attachment> uploadAttachment(
-    NativeFile attachment, {
-    void Function(int count, int total)? onSendProgress,
-  });
+  /// later use in the [sendChatMessage] method.
+  Future<Attachment> uploadAttachment(LocalAttachment attachment);
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if

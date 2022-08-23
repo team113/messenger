@@ -19,6 +19,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -27,18 +28,27 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'mock/graphql.dart';
+import 'parameters/attachment.dart';
 import 'parameters/chat.dart';
 import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
+import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/add_user_to_call.dart';
+import 'steps/attach_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_chat.dart';
 import 'steps/in_chat_with.dart';
+import 'steps/internet.dart';
+import 'steps/long_press_message.dart';
+import 'steps/long_press_widget.dart';
+import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_text.dart';
 import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
@@ -46,8 +56,10 @@ import 'steps/updates_bio.dart';
 import 'steps/user_call.dart';
 import 'steps/user_hand.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_in_call.dart';
-import 'steps/wait_until_text_exists.dart';
+import 'steps/wait_until_message_status.dart';
+import 'steps/wait_until_text.dart';
 import 'steps/wait_until_user_hand.dart';
 import 'steps/wait_until_user_search.dart';
 import 'steps/wait_until_widget.dart';
@@ -58,6 +70,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         addUserToCall,
+        attachFile,
         copyFromField,
         fillField,
         fillFieldWithUser,
@@ -67,11 +80,22 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatWith,
         pasteToField,
         raiseHand,
+        haveInternetWithDelay,
+        haveInternetWithoutDelay,
+        iAm,
+        iAmInChatWith,
+        longPressMessageByAttachment,
+        longPressMessageByText,
+        longPressWidget,
+        noInternetConnection,
+        pasteToField,
+        restartApp,
         seesAs,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
         tapUserInSearch,
+        tapText,
         tapWidget,
         twoUsers,
         untilMyUserHand,
@@ -85,7 +109,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         userEndCall,
         userJoinCall,
         userStartCall,
+        waitUntilAttachmentStatus,
         waitUntilKeyExists,
+        waitUntilMessageStatus,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [
@@ -104,16 +130,21 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        AttachmentTypeParameter(),
         ChatTypeParameter(),
         HandStatusParameter(),
         OnlineStatusParameter(),
+        SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
       ]
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) => app.main();
+Future<void> appInitializationFn(World world) {
+  Get.put<GraphQlProvider>(MockGraphQlProvider());
+  return Future.sync(app.main);
+}
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
 Future<Session> createUser(
@@ -151,4 +182,8 @@ extension SkipOffstageExtension on AppDriverAdapter {
   /// Finds the [Widget] by its [key] without skipping the offstage.
   Finder findByKeySkipOffstage(String key) =>
       find.byKey(Key(key), skipOffstage: false);
+
+  /// Finds the [Widget] by its [text] without skipping the offstage.
+  Finder findByTextSkipOffstage(String text) =>
+      find.text(text, skipOffstage: false);
 }

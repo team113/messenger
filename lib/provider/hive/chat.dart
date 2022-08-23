@@ -26,7 +26,9 @@ import '/domain/model/crop_area.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
@@ -74,9 +76,13 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
+    Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
+    Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
+    Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(OriginalAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 

@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
     - Introduction modal window ([#38]).
+    - Chat page:
+        - Failed messages persistence ([#5], [#3]).
 - Deployment:
     - [Helm] chart ([#73]).
 
@@ -31,14 +33,18 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
-    - Redesigned login interface ([#35]);
+    - Redesigned login interface ([#35], [#83]);
     - Redesigned auth page ([#29]).
+    - Chat page:
+        - Messages and attachments sending status ([#5], [#3]).
 
 ### Fixed
 
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]);
     - Back button not minimizing call ([#80], [#76]).
+- macOS:
+    - Call ringtone not being looped ([#90]).
 - Web:
     - UI not hiding on window focus loses ([#60]).
 - UI:
@@ -51,7 +57,9 @@ All user visible changes to this project will be documented in this file. This p
         - Camera not enabling in empty call ([#79], [#75]).
 
 [#2]: /../../issues/2
+[#3]: /../../issues/3
 [#4]: /../../issues/4
+[#5]: /../../pull/5
 [#6]: /../../issues/6
 [#7]: /../../pull/7
 [#9]: /../../pull/9
@@ -78,6 +86,8 @@ All user visible changes to this project will be documented in this file. This p
 [#76]: /../../issues/76
 [#79]: /../../pull/79
 [#80]: /../../pull/80
+[#83]: /../../pull/83
+[#90]: /../../pull/90
 
 
 

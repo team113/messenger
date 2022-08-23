@@ -21,6 +21,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/my_user.dart';
@@ -64,9 +66,10 @@ void main() async {
   await myUserProvider.clear();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  await userProvider.clear();
 
   var myUserData = {
-    'id': 'id',
+    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
     'num': '1234567890123456',
     'login': null,
     'name': null,
@@ -160,7 +163,7 @@ void main() async {
     when(graphQlProvider.postChatMessage(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             text: const ChatMessageText('text'),
-            attachments: [],
+            attachments: anyNamed('attachments'),
             repliesTo:
                 const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
         .thenAnswer(
@@ -216,21 +219,34 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, Get.find(), userRepository));
+      ChatRepository(
+        graphQlProvider,
+        Get.find(),
+        userRepository,
+        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+      ),
+    );
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
-    await chatService.postChatMessage(
+    await Future.delayed(Duration.zero);
+
+    await chatService.sendChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
       attachments: [],
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      repliesTo: ChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatId('2'),
+        const UserId('3'),
+        PreciseDateTime.now(),
+      ),
     );
 
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
-      attachments: [],
+      attachments: anyNamed('attachments'),
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     ));
   });
@@ -251,25 +267,38 @@ void main() async {
     when(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
-      attachments: [],
+      attachments: anyNamed('attachments'),
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(
-        PostChatMessageException(PostChatMessageErrorCode.blacklisted));
+        const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
 
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-        ChatRepository(graphQlProvider, Get.find(), userRepository));
+      ChatRepository(
+        graphQlProvider,
+        Get.find(),
+        userRepository,
+        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+      ),
+    );
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
-    expect(
-      () async => await chatService.postChatMessage(
+    await Future.delayed(Duration.zero);
+
+    await expectLater(
+      () async => await chatService.sendChatMessage(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         text: const ChatMessageText('text'),
         attachments: [],
-        repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        repliesTo: ChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatId('2'),
+          const UserId('3'),
+          PreciseDateTime.now(),
+        ),
       ),
       throwsA(isA<PostChatMessageException>()),
     );
@@ -277,7 +306,7 @@ void main() async {
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
-      attachments: [],
+      attachments: anyNamed('attachments'),
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     ));
   });
