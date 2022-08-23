@@ -25,7 +25,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Failed messages persistence ([#5], [#3]).
 - Deployment:
-    - [Helm] chart ([#73]).
+    - [Helm] chart ([#73], [#85]).
 
 ### Changed
 
@@ -87,6 +87,7 @@ All user visible changes to this project will be documented in this file. This p
 [#79]: /../../pull/79
 [#80]: /../../pull/80
 [#83]: /../../pull/83
+[#85]: /../../pull/85
 [#90]: /../../pull/90
 
 
