@@ -55,6 +55,6 @@ class ApplicationSettingsHiveProvider
 
   /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
   /// [Hive].
-  Future<void> setSideBarWidth(double width) => putSafe(
-      0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+  Future<void> setSideBarWidth(double width) =>
+      putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
 }

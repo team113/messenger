@@ -14,7 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - User information auto-updating on changes ([#7], [#4]).
+    - User information auto-updating on changes ([#7], [#4]);
+    - Side bar resizing ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]).
     - Media panel:
