@@ -36,7 +36,7 @@ abstract class ModalPopup {
     if (context.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: const Color(0x7A000000),
+        barrierColor: const Color(0xBB000000),
         // barrierColor: kCupertinoModalBarrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
@@ -85,13 +85,14 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: const Color(0x7A000000),
+        barrierColor: const Color(0xBB000000),
         // barrierColor: kCupertinoModalBarrierColor,
         barrierDismissible: isDismissible,
         builder: (context) {
           return Center(
             child: Container(
               constraints: modalConstraints,
+              width: modalConstraints.maxWidth,
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
@@ -99,6 +100,7 @@ abstract class ModalPopup {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Stack(
+                alignment: Alignment.topCenter,
                 children: [
                   Column(
                     mainAxisSize: MainAxisSize.min,
@@ -113,22 +115,23 @@ abstract class ModalPopup {
                       // const SizedBox(height: 16),
                     ],
                   ),
-                  SizedBox(
-                    height: 16,
-                    child: Row(
-                      children: [
-                        const Spacer(),
-                        if (isDismissible)
-                          InkResponse(
-                            onTap: Navigator.of(context).pop,
-                            radius: 11,
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Color(0xBB818181),
-                            ),
-                          ),
-                      ],
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        height: 16,
+                        child: isDismissible
+                            ? InkResponse(
+                                onTap: Navigator.of(context).pop,
+                                radius: 11,
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Color(0xBB818181),
+                                ),
+                              )
+                            : null,
+                      ),
                     ),
                   ),
                 ],

@@ -71,6 +71,7 @@ class ParticipantController extends GetxController {
 
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
+  final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   final RxList<RxUser> searchResults = RxList<RxUser>([]);
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
@@ -148,8 +149,10 @@ class ParticipantController extends GetxController {
       if (q == null || q.isEmpty) {
         searchResults.clear();
         searchStatus.value = RxStatus.empty();
+        search.status.value = RxStatus.empty();
       } else {
         searchStatus.value = RxStatus.loading();
+        search.status.value = RxStatus.loading();
       }
     });
 
@@ -213,6 +216,14 @@ class ParticipantController extends GetxController {
       rethrow;
     } finally {
       status.value = RxStatus.empty();
+    }
+  }
+
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat)) {
+      selectedChats.remove(chat);
+    } else {
+      selectedChats.add(chat);
     }
   }
 
@@ -281,15 +292,21 @@ class ParticipantController extends GetxController {
       }
 
       if (num != null || name != null || login != null) {
+        search.status.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
+
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
         searchResults.value =
             await _userService.search(num: num, name: name, login: login);
         searchStatus.value = RxStatus.success();
+        search.status.value = RxStatus.empty();
       }
     } else {
       searchStatus.value = RxStatus.empty();
+      search.status.value = RxStatus.empty();
       searchResults.clear();
     }
   }

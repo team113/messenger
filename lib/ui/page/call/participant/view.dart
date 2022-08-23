@@ -72,10 +72,35 @@ class ParticipantView extends StatelessWidget {
           switch (c.stage.value) {
             case ParticipantsFlowStage.adding:
               child = Obx(() {
-                Iterable<RxUser?> users;
+                final Iterable<RxChat> recent = c.chats.values
+                    .where((e) => e.chat.value.isDialog)
+                    .take(1)
+                    .where((e) {
+                  if (c.query.value != null) {
+                    return e.members.values
+                            .firstWhereOrNull((m) => m.id != c.me)
+                            ?.user
+                            .value
+                            .name
+                            ?.val
+                            .contains(c.query.value!) ==
+                        true;
+                  }
+
+                  return true;
+                });
 
                 final Iterable<RxChatContact> contacts =
                     c.contacts.values.where((e) {
+                  if (recent
+                      .where((c) =>
+                          c.members.values.firstWhereOrNull(
+                              (m) => m.id == e.user.value?.id) !=
+                          null)
+                      .isNotEmpty) {
+                    return false;
+                  }
+
                   if (c.query.value != null) {
                     return e.contact.value.name.val.contains(c.query.value!);
                   }
@@ -83,18 +108,37 @@ class ParticipantView extends StatelessWidget {
                   return true;
                 });
 
+                Iterable<RxUser?> users;
                 if (c.searchResults.isNotEmpty) {
-                  users = c.searchResults;
+                  users = c.searchResults.where((e) {
+                    if (recent
+                        .where((c) =>
+                            c.members.values.firstWhereOrNull(
+                                (m) => m.id == e.user.value.id) !=
+                            null)
+                        .isNotEmpty) {
+                      return false;
+                    }
+
+                    return true;
+                  });
                 } else {
                   users = c.chats.values.where((e) {
                     if (e.chat.value.isDialog) {
+                      RxUser? user = e.members.values
+                          .firstWhereOrNull((e) => e.id != c.me);
+
+                      if (recent
+                          .where((c) =>
+                              c.members.values.firstWhereOrNull(
+                                  (m) => m.id == user?.user.value.id) !=
+                              null)
+                          .isNotEmpty) {
+                        return false;
+                      }
+
                       if (c.query.value != null) {
-                        return e.members.values
-                                .firstWhereOrNull((e) => e.id != c.me)
-                                ?.user
-                                .value
-                                .name
-                                ?.val
+                        return user?.user.value.name?.val
                                 .contains(c.query.value!) ==
                             true;
                       }
@@ -111,6 +155,53 @@ class ParticipantView extends StatelessWidget {
 
                 users = users.where((e) =>
                     contacts.where((m) => m.user.value?.id == e?.id).isEmpty);
+
+                Widget _divider(String text) {
+                  // return Container(
+                  //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  //   decoration: BoxDecoration(
+                  //     // borderRadius: BorderRadius.circular(10),
+                  //     // color: Colors.white,
+                  //     color: const Color(0xFFF8F8F8),
+                  //   ),
+                  //   width: double.infinity,
+                  //   child: Text(
+                  //     text,
+                  //     style: const TextStyle(color: Color(0xFF888888)),
+                  //   ),
+                  // );
+
+                  return Container();
+
+                  return SizedBox(height: 20);
+
+                  return Row(
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 1,
+                        color: const Color(0xFF888888),
+                      ),
+                      const SizedBox(width: 15),
+                      Text(
+                        text,
+                        style: thin?.copyWith(fontSize: 13),
+                      ),
+                      // const SizedBox(width: 5),
+                      // Container(
+                      //   width: 10,
+                      //   height: 1,
+                      //   color: const Color(0xFF888888),
+                      // ),
+                      // Expanded(
+                      //   child: Container(
+                      //     height: 1,
+                      //     color: const Color(0xFF888888),
+                      //   ),
+                      // ),
+                    ],
+                  );
+                }
 
                 List<Widget> children = [
                   Center(
@@ -155,36 +246,91 @@ class ParticipantView extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 10),
-                        WidgetButton(
-                          child: Text(
-                            'Contacts',
-                            style: thin?.copyWith(
-                              fontSize: 15,
-                              color: const Color(0xFF63B4FF),
-                            ),
+                        Expanded(
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            children: [
+                              WidgetButton(
+                                child: Text(
+                                  'Recent',
+                                  style: thin?.copyWith(
+                                    fontSize: 15,
+                                    color: const Color(0xFF63B4FF),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              WidgetButton(
+                                child: Text(
+                                  'Contacts',
+                                  style: thin?.copyWith(fontSize: 15),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              WidgetButton(
+                                child: Text(
+                                  'Users',
+                                  style: thin?.copyWith(fontSize: 15),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 30),
-                        WidgetButton(
-                          child: Text(
-                            'Users',
-                            style: thin?.copyWith(fontSize: 15),
-                          ),
-                        ),
-                        const Spacer(),
                         Text(
-                          'Selected: ${c.selectedContacts.length + c.selectedUsers.length}',
+                          'Selected: ${c.selectedContacts.length + c.selectedUsers.length + c.selectedChats.length}',
                           style: thin?.copyWith(fontSize: 15),
                         ),
+                        const SizedBox(width: 10),
                       ],
                     ),
                   ),
                   const SizedBox(height: 18),
                   Flexible(
                     child: ListView(
-                      shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       children: [
+                        if (recent.isNotEmpty) ...[
+                          // _divider('Recent'),
+                          ...recent.map((e) {
+                            bool selected = c.selectedChats.contains(e);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: ContactTile(
+                                user: e.members.values
+                                    .firstWhereOrNull((e) => e.id != c.me),
+                                onTap: () => c.selectChat(e),
+                                selected: selected,
+                                trailing: [
+                                  SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: selected
+                                          ? const CircleAvatar(
+                                              backgroundColor:
+                                                  Color(0xFF63B4FF),
+                                              radius: 12,
+                                              child: Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 14,
+                                              ),
+                                            )
+                                          : const CircleAvatar(
+                                              backgroundColor:
+                                                  Color(0xFFD7D7D7),
+                                              radius: 12,
+                                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                        if (contacts.isNotEmpty) _divider('Contacts'),
                         ...contacts.map(
                           (e) {
                             bool selected = c.selectedContacts.contains(e);
@@ -223,6 +369,8 @@ class ParticipantView extends StatelessWidget {
                             );
                           },
                         ),
+                        if (users.isNotEmpty || c.selectedUsers.isNotEmpty)
+                          _divider('Users'),
                         ...[
                           ...c.selectedUsers.where(
                             (p) => users.where((e) => e?.id == p.id).isEmpty,
@@ -266,20 +414,13 @@ class ParticipantView extends StatelessWidget {
                             ),
                           );
                         }),
-                        if (contacts.isEmpty &&
+                        if (recent.isEmpty &&
+                            contacts.isEmpty &&
                             users.isEmpty &&
                             c.searchStatus.value.isSuccess)
                           const SizedBox(
                             height: 60,
                             child: Text('Nothing was found'),
-                          ),
-                        if (c.searchStatus.value.isLoading)
-                          const Center(
-                            child: SizedBox(
-                              width: 48,
-                              height: 48,
-                              child: CircularProgressIndicator(),
-                            ),
                           ),
                       ],
                     ),
@@ -311,7 +452,7 @@ class ParticipantView extends StatelessWidget {
                             key: const Key('AddDialogMembersButton'),
                             maxWidth: null,
                             title: Text(
-                              'Add participants',
+                              'Add',
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: Theme.of(context)
@@ -320,11 +461,13 @@ class ParticipantView extends StatelessWidget {
                                   ?.copyWith(color: Colors.white),
                             ),
                             onPressed: (c.selectedContacts.isNotEmpty ||
+                                        c.selectedChats.isNotEmpty ||
                                         c.selectedUsers.isNotEmpty) &&
                                     c.status.value.isEmpty
                                 ? c.addMembers
                                 : null,
                             color: (c.selectedContacts.isNotEmpty ||
+                                        c.selectedChats.isNotEmpty ||
                                         c.selectedUsers.isNotEmpty) &&
                                     c.status.value.isEmpty
                                 ? const Color(0xFF63B4FF)
