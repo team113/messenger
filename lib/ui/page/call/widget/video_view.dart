@@ -48,6 +48,7 @@ class RtcVideoView extends StatefulWidget {
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
 
+  /// [MediaSourceKind] of this [RtcVideoView].
   final MediaSourceKind source;
 
   /// Indicator whether this video should be horizontally mirrored or not.
