@@ -115,9 +115,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) {
+Future<void> appInitializationFn(World world) async {
   Get.put<GraphQlProvider>(MockGraphQlProvider());
-  return Future.sync(app.main);
+  await app.main([]);
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].

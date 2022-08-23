@@ -15,7 +15,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -57,7 +59,7 @@ class CallOverlayController extends GetxController {
 
   @override
   void onInit() {
-    _subscription = _callService.calls.changes.listen((event) {
+    _subscription = _callService.calls.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
           bool window = false;
@@ -109,6 +111,24 @@ class CallOverlayController extends GetxController {
                 ongoingCall.addError('err_call_popup_was_blocked'.l10n);
               });
             }
+          } else if (PlatformUtils.isWindows &&
+              !PlatformUtils.isWeb &&
+              _settings.value?.enablePopups != false) {
+            window = true;
+            //DesktopMultiWindow.invokeMethod(window.windowId, method);
+            //DesktopMultiWindow.setMethodHandler((call, fromWindowId) => call.);
+            final desktopWindow = await DesktopMultiWindow.createWindow(jsonEncode({
+              'args1': 'Sub window',
+              'args2': 100,
+              'args3': true,
+              'bussiness': 'bussiness_test',
+            }));
+            desktopWindow
+              ..setFrame(const Offset(0, 0) & const Size(500, 500))
+              ..center()
+              ..setTitle('Another window')
+              ..show();
+            //DesktopMultiWindow.invokeMethod(desktopWindow.windowId, 'method');
           }
 
           if (!window) {

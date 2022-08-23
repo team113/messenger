@@ -21,7 +21,10 @@
 library main;
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:collection/collection.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -50,7 +53,19 @@ import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  if (args.firstOrNull == 'multi_window') {
+    final windowId = int.parse(args[1]);
+    final argument = args[2].isEmpty
+        ? const {}
+        : jsonDecode(args[2]) as Map<String, dynamic>;
+
+    runApp(_ExampleSubWindow(
+      windowController: WindowController.fromWindowId(windowId),
+      args: argument,
+    ));
+    return;
+  }
   await Config.init();
 
   // Initializes and runs the [App].
@@ -193,5 +208,44 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
+  }
+}
+
+class _ExampleSubWindow extends StatelessWidget {
+  const _ExampleSubWindow({
+    Key? key,
+    required this.windowController,
+    required this.args,
+  }) : super(key: key);
+
+  final WindowController windowController;
+  final Map? args;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Column(
+          children: [
+            if (args != null)
+              Text(
+                'Arguments: ${args.toString()}',
+                style: const TextStyle(fontSize: 20),
+              ),
+            const Text('Window Active'),
+            TextButton(
+              onPressed: () async {
+                windowController.close();
+              },
+              child: const Text('Close this window'),
+            ),
+            const Text('Test text'),
+          ],
+        ),
+      ),
+    );
   }
 }

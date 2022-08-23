@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus_windows
   desktop_drop
+  desktop_multi_window
   medea_flutter_webrtc
   medea_jason
   permission_handler_windows
