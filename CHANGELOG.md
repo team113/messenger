@@ -85,7 +85,9 @@ All user visible changes to this project will be documented in this file. This p
 [#76]: /../../issues/76
 [#79]: /../../pull/79
 [#80]: /../../pull/80
+[#82]: /../../issues/82
 [#83]: /../../pull/83
+[#89]: /../../pull/89
 
 
 
