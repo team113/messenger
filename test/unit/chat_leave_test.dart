@@ -276,7 +276,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
     )).thenThrow(
-        RemoveChatMemberException(RemoveChatMemberErrorCode.unknownChat));
+        const RemoveChatMemberException(RemoveChatMemberErrorCode.unknownChat));
 
     Get.put<GraphQlProvider>(graphQlProvider);
     ChatService chatService = await init(graphQlProvider);

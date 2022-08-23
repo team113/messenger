@@ -882,8 +882,9 @@ abstract class UserGraphQlMixin {
           .uploadUserGalleryItem as MyUserEventsVersionedMixin?);
     } on dio.DioError catch (e) {
       if (e.response?.statusCode == 413) {
-        throw UploadUserGalleryItemException(
-            UploadUserGalleryItemErrorCode.tooBigSize);
+        throw const UploadUserGalleryItemException(
+          UploadUserGalleryItemErrorCode.tooBigSize,
+        );
       }
 
       rethrow;

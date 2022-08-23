@@ -143,15 +143,18 @@ class ChatService extends DisposableService {
   Future<void> deleteChatMessage(ChatMessage item) async {
     UserId me = _myUser.myUser.value!.id;
     if (item.authorId != me) {
-      throw DeleteChatMessageException(DeleteChatMessageErrorCode.notAuthor);
+      throw const DeleteChatMessageException(
+        DeleteChatMessageErrorCode.notAuthor,
+      );
     }
     Chat? chat = chats[item.chatId]?.chat.value;
     if (chat == null) {
-      throw DeleteChatMessageException(
-          DeleteChatMessageErrorCode.unknownChatItem);
+      throw const DeleteChatMessageException(
+        DeleteChatMessageErrorCode.unknownChatItem,
+      );
     } else {
       if (chat.isRead(item, me)) {
-        throw DeleteChatMessageException(DeleteChatMessageErrorCode.read);
+        throw const DeleteChatMessageException(DeleteChatMessageErrorCode.read);
       }
       await _chatRepository.deleteChatMessage(item);
     }
@@ -161,15 +164,18 @@ class ChatService extends DisposableService {
   Future<void> deleteChatForward(ChatForward item) async {
     UserId me = _myUser.myUser.value!.id;
     if (item.authorId != me) {
-      throw DeleteChatForwardException(DeleteChatForwardErrorCode.notAuthor);
+      throw const DeleteChatForwardException(
+        DeleteChatForwardErrorCode.notAuthor,
+      );
     }
     Chat? chat = chats[item.chatId]?.chat.value;
     if (chat == null) {
-      throw DeleteChatForwardException(
-          DeleteChatForwardErrorCode.unknownChatItem);
+      throw const DeleteChatForwardException(
+        DeleteChatForwardErrorCode.unknownChatItem,
+      );
     } else {
       if (chat.isRead(item, me)) {
-        throw DeleteChatForwardException(DeleteChatForwardErrorCode.read);
+        throw const DeleteChatForwardException(DeleteChatForwardErrorCode.read);
       }
       await _chatRepository.deleteChatForward(item.chatId, item.id);
     }
@@ -178,7 +184,7 @@ class ChatService extends DisposableService {
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
     if (!chats.containsKey(item.chatId)) {
-      throw HideChatItemException(HideChatItemErrorCode.unknownChatItem);
+      throw const HideChatItemException(HideChatItemErrorCode.unknownChatItem);
     }
     await _chatRepository.hideChatItem(item.chatId, item.id);
   }

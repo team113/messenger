@@ -285,15 +285,15 @@ void main() async {
     );
 
     when(graphQlProvider.uploadUserGalleryItem(any)).thenThrow(
-        UploadUserGalleryItemException(
+        const UploadUserGalleryItemException(
             UploadUserGalleryItemErrorCode.tooBigSize));
 
     when(graphQlProvider.updateUserAvatar(any, any)).thenThrow(
-        UpdateUserAvatarException(
+        const UpdateUserAvatarException(
             UpdateUserAvatarErrorCode.unknownGalleryItem));
 
     when(graphQlProvider.updateUserCallCover(any, any)).thenThrow(
-        UpdateUserCallCoverException(
+        const UpdateUserCallCoverException(
             UpdateUserCallCoverErrorCode.unknownGalleryItem));
 
     AuthService authService = Get.put(
