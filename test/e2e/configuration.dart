@@ -18,6 +18,7 @@
 
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -90,7 +91,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) => Future.sync(app.main);
+Future<void> appInitializationFn(World world) async {
+  await enableFakeMedia();
+  return Future.sync(app.main);
+}
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
 Future<Session> createUser(
