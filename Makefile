@@ -28,7 +28,7 @@ REGISTRIES := $(strip $(subst $(comma), ,\
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
-                                                              | tr -d'"'))
+                                                              | cut -d'"' -f2))
 
 
 
