@@ -28,7 +28,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Given Bob has dialog with Alice.
 /// - Given Bob has group with Bob.
-final StepDefinitionGeneric hasChatWithMe =
+final StepDefinitionGeneric hasChat =
     given3<TestUser, ChatType, TestUser, CustomWorld>(
   '{user} has {chat} with {user}',
   (TestUser user, ChatType chatType, TestUser withUser, context) async {

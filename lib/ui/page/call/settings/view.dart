@@ -208,7 +208,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                             const SizedBox(width: 16),
                           ],
                           IconButton(
-                            key: const Key('CloseSettings'),
+                            key: const Key('CloseButton'),
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             splashColor: Colors.transparent,

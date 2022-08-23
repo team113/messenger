@@ -17,10 +17,10 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 
-/// [ChatType]es available in an [ChatTypeParameter].
+/// [ChatType]es available in a [ChatTypeParameter].
 enum ChatType { dialog, group }
 
-/// [CustomParameter] representing an [Chat] type.
+/// [CustomParameter] representing a [Chat] type.
 class ChatTypeParameter extends CustomParameter<ChatType> {
   ChatTypeParameter()
       : super(

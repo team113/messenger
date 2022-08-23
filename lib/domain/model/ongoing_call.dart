@@ -111,7 +111,7 @@ extension LocalTrackStateImpl on LocalTrackState {
 class OngoingCall {
   OngoingCall(
     ChatId chatId,
-    this._me, {
+    this.me, {
     ChatCall? call,
     bool withAudio = true,
     bool withVideo = true,
@@ -201,9 +201,9 @@ class OngoingCall {
   /// not.
   final RxBool isRemoteVideoEnabled = RxBool(true);
 
-  // TODO: Temporary solution. Errors should be captured the other way.
-  /// Temporary stream of the errors happening in this [OngoingCall].
-  Stream<String> get errors => _errors.stream;
+  /// [UserId] of the authenticated [MyUser] used to set up the local
+  /// [RtcVideoRenderer]s.
+  final UserId me;
 
   /// Reactive map of [RemoteMemberId]s and their hand raised indicators of this
   /// call.
@@ -246,38 +246,35 @@ class OngoingCall {
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
-  /// [UserId] of the authenticated [MyUser] used to set up local
-  /// [RtcVideoRenderer]s.
-  final UserId _me;
-
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
   final StreamController<String> _errors = StreamController.broadcast();
 
-  /// [ChatItemId] of this [OngoingCall].
+  /// Returns the [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
-  /// [UserId] of this [OngoingCall].
-  UserId get me => _me;
-
-  /// [User] that started this [OngoingCall].
+  /// Returns the [User] that started this [OngoingCall].
   User? get caller => call.value?.caller;
 
-  /// Room on a media server representing this [OngoingCall].
+  /// Returns the room on a media server representing this [OngoingCall].
   RoomHandle? get room => _room;
 
-  /// Indicator whether this [OngoingCall] is intended to start with video.
+  /// Indicates whether this [OngoingCall] is intended to start with video.
   ///
   /// Used to determine incoming [OngoingCall] type.
   bool? get withVideo => call.value?.withVideo;
 
-  /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
-  /// started (after ringing had been finished).
+  /// Returns the [PreciseDateTime] when the actual conversation in this
+  /// [ChatCall] was started (after ringing had been finished).
   PreciseDateTime? get conversationStartedAt =>
       call.value?.conversationStartedAt;
 
-  /// List of [MediaDeviceInfo] of all the available devices.
+  /// Returns the [MediaDeviceInfo]s of all the available devices.
   InputDevices get devices => RxList.unmodifiable(_devices);
+
+  // TODO: Temporary solution. Errors should be captured the other way.
+  /// Returns the stream of the errors happening in this [OngoingCall].
+  Stream<String> get errors => _errors.stream;
 
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive => (state.value == OngoingCallState.active ||
@@ -320,10 +317,12 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  Future<void> connect(CallService calls, Heartbeat heartbeat) async {
+  Future<void> connect(CallService calls, [Heartbeat? heartbeat]) async {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
+
+    heartbeat ??= calls.heartbeat;
 
     connected = true;
     _heartbeat?.cancel();

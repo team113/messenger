@@ -17,10 +17,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/model/user.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -161,7 +161,7 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       return Stack(
-        key: userId != null ? Key('CallParticipant_$userId') : null,
+        key: userId != null ? Key('Participant_$userId') : null,
         children: [
           if (!hasVideo) ..._background(),
           AnimatedSwitcher(

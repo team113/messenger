@@ -92,7 +92,7 @@ class AddGroupMemberView extends StatelessWidget {
                                   ),
                                   const Spacer(),
                                   IconButton(
-                                    key: const Key('CloseAddGroupMember'),
+                                    key: const Key('CloseButton'),
                                     hoverColor: Colors.transparent,
                                     highlightColor: Colors.transparent,
                                     splashColor: Colors.transparent,

@@ -36,7 +36,7 @@ final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        String userKey = 'CallParticipant_${Get.find<AuthService>().userId!}';
+        String userKey = 'Participant_${Get.find<AuthService>().userId!}';
         final finder = context.world.appDriver.findByDescendant(
           context.world.appDriver.findBy(userKey, FindType.key),
           context.world.appDriver.findBy('RaisedHand', FindType.key),
@@ -66,7 +66,7 @@ final StepDefinitionGeneric untilUserHand =
         await context.world.appDriver.waitForAppToSettle();
 
         String userKey =
-            'CallParticipant_${context.world.sessions[user.name]!.userId}';
+            'Participant_${context.world.sessions[user.name]!.userId}';
         final finder = context.world.appDriver.findByDescendant(
           context.world.appDriver.findBy(userKey, FindType.key),
           context.world.appDriver.findBy('RaisedHand', FindType.key),

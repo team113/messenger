@@ -114,7 +114,7 @@ class CallService extends DisposableService {
         ),
       );
       await _callsRepo.start(call);
-      call.value.connect(this, heartbeat);
+      call.value.connect(this);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -163,14 +163,14 @@ class CallService extends DisposableService {
 
         _callsRepo.add(call);
         await _callsRepo.join(call);
-        call.value.connect(this, heartbeat);
+        call.value.connect(this);
       } else if (stored.value.state.value != OngoingCallState.active) {
         stored.value.state.value = OngoingCallState.joining;
         stored.value.setAudioEnabled(withAudio);
         stored.value.setVideoEnabled(withVideo);
         stored.value.setScreenShareEnabled(withScreen);
         await _callsRepo.join(stored);
-        stored.value.connect(this, heartbeat);
+        stored.value.connect(this);
       }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be

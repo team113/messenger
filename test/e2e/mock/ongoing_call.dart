@@ -56,10 +56,12 @@ class OngoingCallMock extends OngoingCall {
   StreamSubscription? _heartbeat;
 
   @override
-  Future<void> connect(CallService calls, Heartbeat heartbeat) async {
+  Future<void> connect(CallService calls, [Heartbeat? heartbeat]) async {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
+
+    heartbeat ??= calls.heartbeat;
 
     connected = true;
     _heartbeat?.cancel();

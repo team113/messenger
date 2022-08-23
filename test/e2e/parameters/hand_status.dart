@@ -17,10 +17,10 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/call/controller.dart';
 
-/// [HandStatus]es available in an [ChatTypeParameter].
+/// [HandStatus]es available in a [ChatTypeParameter].
 enum HandStatus { lower, raise }
 
-/// [CustomParameter] representing an [Participant.handRaised] status.
+/// [CustomParameter] representing a [Participant.handRaised] status.
 class HandStatusParameter extends CustomParameter<HandStatus> {
   HandStatusParameter()
       : super(

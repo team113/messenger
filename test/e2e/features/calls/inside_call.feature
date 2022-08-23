@@ -71,10 +71,10 @@ Feature: Inside call tests
 
     When I tap `StartAudioCall` button
     And I tap `More` button
-    Then I wait until `ButtonsPanel` is present
+    Then I wait until `MorePanel` is present
 
     When I tap `More` button
-    Then I wait until `ButtonsPanel` is absent
+    Then I wait until `MorePanel` is absent
 
   Scenario: Call settings is opening and closing
     Given Bob has group with Alice
@@ -85,7 +85,7 @@ Feature: Inside call tests
     And I tap `Settings` button
     Then I wait until `CallSettings` is present
 
-    When I tap `CloseSettings` button
+    When I tap `CloseButton` button
     Then I wait until `CallSettings` is absent
 
   Scenario: Add participant dialog is opening and closing
@@ -97,8 +97,8 @@ Feature: Inside call tests
     And I tap `AddParticipant` button
     Then I wait until `AddGroupMembers` is present
 
-    When I tap `CloseAddGroupMember` button
-    Then I wait until `CloseAddGroupMember` is absent
+    When I tap `CloseButton` button
+    Then I wait until `AddGroupMembers` is absent
 
   Scenario: Hand up and down
     Given Bob has group with Alice
@@ -162,7 +162,7 @@ Feature: Inside call tests
     And Bob start call
 
     When Charlie accept call
-    And Bob add Alice to group call
+    And Bob adds Alice to group call
     Then I wait until `Call` is present
 
     When I tap `AcceptCallAudio` button

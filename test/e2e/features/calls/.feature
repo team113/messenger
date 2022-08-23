@@ -50,7 +50,7 @@ Feature: Start call tests
     And I tap `DeclineCall` button
     Then I wait until `Call` is absent
 
-    When I tap `JoinCall` button
+    When I tap `JoinCallButton` button
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 

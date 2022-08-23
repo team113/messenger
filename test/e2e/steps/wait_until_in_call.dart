@@ -34,7 +34,7 @@ final StepDefinitionGeneric untilUserInCallExists =
       () async {
         await context.world.appDriver.waitForAppToSettle();
         String userKey =
-            'CallParticipant_${context.world.sessions[user.name]!.userId}';
+            'Participant_${context.world.sessions[user.name]!.userId}';
 
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(

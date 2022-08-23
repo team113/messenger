@@ -23,10 +23,10 @@ import '../world/custom_world.dart';
 /// Adds provided user to group where active call placed.
 ///
 /// Examples:
-/// - Then Bob add Alice to group call
-final StepDefinitionGeneric addUserToCall =
+/// - Then Bob adds Alice to group call
+final StepDefinitionGeneric addsUserToCall =
     then2<TestUser, TestUser, CustomWorld>(
-  '{user} add {user} to group call',
+  '{user} adds {user} to group call',
   (TestUser user, TestUser addUser, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();

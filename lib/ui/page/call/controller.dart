@@ -1072,8 +1072,8 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddGroupMemberView] or an
-  /// [AddDialogMemberView].
+  /// Returns a result of the [showDialog] building an [AddGroupMemberView] or
+  /// an [AddDialogMemberView].
   Future<dynamic> openAddMember(BuildContext context) {
     if (isGroup) {
       return showDialog(
