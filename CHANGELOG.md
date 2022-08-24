@@ -26,7 +26,7 @@ All user visible changes to this project will be documented in this file. This p
         - Message forwarding ([#72], [#8]).
         - Failed messages persistence ([#5], [#3]).
 - Deployment:
-    - [Helm] chart ([#73]).
+    - [Helm] chart ([#73], [#85]).
 
 ### Changed
 
@@ -44,6 +44,8 @@ All user visible changes to this project will be documented in this file. This p
 - Android:
     - [ConnectionService] displaying call when application is in foreground ([#14]);
     - Back button not minimizing call ([#80], [#76]).
+- macOS:
+    - Call ringtone not being looped ([#90]).
 - Web:
     - UI not hiding on window focus loses ([#60]).
 - UI:
@@ -88,6 +90,8 @@ All user visible changes to this project will be documented in this file. This p
 [#79]: /../../pull/79
 [#80]: /../../pull/80
 [#83]: /../../pull/83
+[#85]: /../../pull/85
+[#90]: /../../pull/90
 
 
 
