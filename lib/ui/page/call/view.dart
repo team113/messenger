@@ -19,7 +19,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'component/desktop.dart';
 import 'component/mobile.dart';
 import 'controller.dart';
@@ -42,7 +41,7 @@ class CallView extends StatelessWidget {
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {
-        if (WebUtils.isPopup) {
+        if (PlatformUtils.isPopup) {
           c.minimized.value = false;
           return Stack(
             clipBehavior: Clip.hardEdge,

@@ -95,7 +95,7 @@ enum HomeTab { contacts, chats, menu }
 /// Any change requires [notifyListeners] to be invoked in order for the router
 /// to update its state.
 class RouterState extends ChangeNotifier {
-  RouterState(this._auth) {
+  RouterState(this._auth, {this.windowId, this.call}) {
     delegate = AppRouterDelegate(this);
     parser = AppRouteInformationParser();
   }
@@ -120,6 +120,15 @@ class RouterState extends ChangeNotifier {
 
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
+
+  /// ID of the windows this application opened.
+  ///
+  /// If not null it mean that application opened in separate windows on
+  /// desktop.
+  int? windowId;
+
+  // TODO: temporary, delete
+  WebStoredCall? call;
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
@@ -308,6 +317,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
+    if (_state.route.startsWith(Routes.call)) {
+      return;
+    }
     _state._routes = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;

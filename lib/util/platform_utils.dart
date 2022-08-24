@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/routes.dart';
 import 'web/web_utils.dart';
 
 // TODO: Remove when jonataslaw/getx#1936 is fixed:
@@ -51,6 +52,14 @@ class PlatformUtils {
   /// Indicates whether device is running on a desktop OS.
   static bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  static bool get isPopup {
+    if(isWeb) {
+      return WebUtils.isPopup;
+    } else {
+      return router.windowId != null;
+    }
+  }
 
   /// Returns a stream broadcasting fullscreen changes.
   static Stream<bool> get onFullscreenChange {

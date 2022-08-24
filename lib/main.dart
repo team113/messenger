@@ -24,7 +24,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -37,6 +36,7 @@ import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
+import '/domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/notification.dart';
@@ -54,33 +54,35 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main(List<String> args) async {
-  if (args.firstOrNull == 'multi_window') {
-    final windowId = int.parse(args[1]);
-    final argument = args[2].isEmpty
-        ? const {}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
-
-    runApp(_ExampleSubWindow(
-      windowController: WindowController.fromWindowId(windowId),
-      args: argument,
-    ));
-    return;
-  }
   await Config.init();
+
+  bool isSeparateWindow = args.firstOrNull == 'multi_window';
+  int? windowId;
+  WebStoredCall? call;
+  Credentials? credentials;
+
+  if (isSeparateWindow) {
+    windowId = int.parse(args[1]);
+    final argument = jsonDecode(args[2]) as Map<String, dynamic>;
+    call = WebStoredCall.fromJson(json.decode(argument['call'] as String));
+    credentials =
+        Credentials.fromJson(json.decode(argument['credentials'] as String));
+  }
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
       await windowManager.ensureInitialized();
     }
 
-    await _initHive();
+    await _initHive(windowId: windowId, credentials: credentials);
 
     Get.put(NotificationService())
         .init(onNotificationResponse: onNotificationResponse);
 
     var graphQlProvider = Get.put(GraphQlProvider());
+    graphQlProvider.token = credentials?.session.token;
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     var authService =
@@ -89,10 +91,18 @@ Future<void> main(List<String> args) async {
 
     await L10n.init();
 
-    router = RouterState(authService);
+    router = RouterState(authService, call: call);
+    if (isSeparateWindow) {
+      //router.call = call;
+      router.windowId = windowId;
+      router.go('${Routes.call}/${call!.chatId}');
+    }
 
     Get.put(BackgroundWorker(Get.find()));
 
+    // if(isSeparateWindow) {
+    //   runApp(const App());
+    // } else {
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),
@@ -100,6 +110,7 @@ Future<void> main(List<String> args) async {
         child: const App(),
       ),
     );
+    //}
   }
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
@@ -171,26 +182,35 @@ class App extends StatelessWidget {
 
 /// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
 /// the [Get]'s context.
-Future<void> _initHive() async {
-  await Hive.initFlutter('hive');
-
-  // Load and compare application version.
-  Box box = await Hive.openBox('version');
-  String version = Pubspec.version;
-  String? stored = box.get(0);
-
-  // If mismatch is detected, then clean the existing [Hive] cache.
-  if (stored != version) {
-    await Hive.close();
-    await Hive.clean('hive');
+Future<void> _initHive({int? windowId, Credentials? credentials}) async {
+  if (windowId == null) {
     await Hive.initFlutter('hive');
-    Hive.openBox('version').then((box) async {
-      await box.put(0, version);
-      await box.close();
-    });
+
+    // Load and compare application version.
+    Box box = await Hive.openBox('version');
+    String version = Pubspec.version;
+    String? stored = box.get(0);
+
+    // If mismatch is detected, then clean the existing [Hive] cache.
+    if (stored != version) {
+      await Hive.close();
+      await Hive.clean('hive');
+      await Hive.initFlutter('hive');
+      Hive.openBox('version').then((box) async {
+        await box.put(0, version);
+        await box.close();
+      });
+    }
+  } else {
+    await Hive.clean('hive/$windowId');
+    await Hive.initFlutter('hive/$windowId');
   }
 
-  await Get.put(SessionDataHiveProvider()).init();
+  var sessionProvider = Get.put(SessionDataHiveProvider());
+  await sessionProvider.init();
+  if (credentials != null) {
+    await sessionProvider.setCredentials(credentials);
+  }
 }
 
 /// Extension adding an ability to clean [Hive].
@@ -208,44 +228,5 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
-  }
-}
-
-class _ExampleSubWindow extends StatelessWidget {
-  const _ExampleSubWindow({
-    Key? key,
-    required this.windowController,
-    required this.args,
-  }) : super(key: key);
-
-  final WindowController windowController;
-  final Map? args;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Column(
-          children: [
-            if (args != null)
-              Text(
-                'Arguments: ${args.toString()}',
-                style: const TextStyle(fontSize: 20),
-              ),
-            const Text('Window Active'),
-            TextButton(
-              onPressed: () async {
-                windowController.close();
-              },
-              child: const Text('Close this window'),
-            ),
-            const Text('Test text'),
-          ],
-        ),
-      ),
-    );
   }
 }
