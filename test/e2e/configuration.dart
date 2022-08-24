@@ -35,6 +35,7 @@ import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/wait_until_attachment.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
@@ -44,6 +45,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
+import 'steps/select_chat_to_forward.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -61,6 +63,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
+        attachFileToForwards,
         copyFromField,
         fillField,
         goToUserPage,
@@ -77,11 +80,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         seesAs,
         sendsMessageToMe,
+        selectChatToForward,
         signInAs,
         tapDropdownItem,
         tapText,
         tapWidget,
         twoUsers,
+        untilAttachmentExists,
         untilTextExists,
         updateBio,
         user,

@@ -83,6 +83,7 @@ class ChatForwardView extends StatelessWidget {
       ),
       builder: (ChatForwardController c) {
         return Material(
+          key: const Key('ChatForwardView'),
           child: Column(
             children: [
               const SizedBox(height: 25),
@@ -143,6 +144,7 @@ class ChatForwardView extends StatelessWidget {
             null);
 
     return Container(
+      key: Key('ChatForwardTile_${chat.chat.value.id}'),
       decoration: const BoxDecoration(
         color: Color(0XFFF0F2F6),
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -594,7 +596,7 @@ class ChatForwardView extends StatelessWidget {
                   elevation: 6,
                   borderRadius: BorderRadius.circular(25),
                   child: ReactiveTextField(
-                    key: const Key('MessageField'),
+                    key: const Key('ForwardMessageField'),
                     state: c.send,
                     hint: 'label_send_message_hint'.l10n,
                     minLines: 1,
@@ -609,10 +611,10 @@ class ChatForwardView extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               _button(
+                key: const Key('SendForward'),
                 icon: const AnimatedSwitcher(
                   duration: Duration(milliseconds: 150),
                   child: Padding(
-                    key: Key('Send'),
                     padding: EdgeInsets.only(left: 2, top: 1),
                     child: Icon(Icons.send, size: 24),
                   ),
@@ -631,6 +633,7 @@ class ChatForwardView extends StatelessWidget {
 
   /// Returns an [InkWell] circular button with an [icon].
   Widget _button({
+    Key? key,
     void Function()? onTap,
     required Widget icon,
   }) {
@@ -641,6 +644,7 @@ class ChatForwardView extends StatelessWidget {
         color: Colors.white,
         elevation: 6,
         child: InkWell(
+          key: key,
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Container(

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/forward/controller.dart';
 
 import '../parameters/attachment.dart';
 import '../world/custom_world.dart';
@@ -34,31 +35,55 @@ import '../world/custom_world.dart';
 /// - Then I attach "test.png" image
 final StepDefinitionGeneric attachFile =
     then2<String, AttachmentType, CustomWorld>(
-  'I attach {string} {attachment}',
+  'I attach {string} {attachment}\$',
   (name, attachmentType, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
     final ChatController chat =
         Get.find<ChatController>(tag: router.route.split('/').last);
 
-    if (attachmentType == AttachmentType.file) {
-      chat.addPlatformAttachment(
-        PlatformFile(
-          name: name,
-          size: 2,
-          bytes: Uint8List.fromList([1, 1]),
-        ),
-      );
-    } else {
-      chat.addPlatformAttachment(
-        PlatformFile(
-          name: name,
-          size: 2,
-          bytes: base64Decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-          ),
-        ),
-      );
-    }
+    _attachFile(attachmentType, name, chat.addPlatformAttachment);
   },
 );
+
+/// Attaches an [Attachment] with the provided filename and [AttachmentType] to
+/// the currently opened [ChatForwardView].
+///
+/// Examples:
+/// - Then I attach "test.txt" file to forwards
+/// - Then I attach "test.png" image to forwards
+final StepDefinitionGeneric attachFileToForwards =
+    then2<String, AttachmentType, CustomWorld>(
+  'I attach {string} {attachment} to forwards',
+  (name, attachmentType, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    final ChatForwardController chat = Get.find<ChatForwardController>();
+
+    _attachFile(attachmentType, name, chat.addPlatformAttachment);
+  },
+);
+
+/// Calls the [callback] due to provided parameters to attach the file.
+void _attachFile(AttachmentType attachmentType, String name,
+    Function(PlatformFile) callback) {
+  if (attachmentType == AttachmentType.file) {
+    callback(
+      PlatformFile(
+        name: name,
+        size: 2,
+        bytes: Uint8List.fromList([1, 1]),
+      ),
+    );
+  } else {
+    callback(
+      PlatformFile(
+        name: name,
+        size: 2,
+        bytes: base64Decode(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        ),
+      ),
+    );
+  }
+}

@@ -869,7 +869,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                               if (widget.item.value is ChatMessage)
                                 ContextMenuButton(
-                                  key: const Key('ForwardMessage'),
+                                  key: const Key('ForwardButton'),
                                   label: 'btn_forward'.l10n,
                                   onPressed: () async {
                                     var msg = widget.item.value as ChatMessage;

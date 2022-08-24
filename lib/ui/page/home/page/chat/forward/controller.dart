@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
@@ -84,6 +86,22 @@ class ChatForwardController extends GetxController {
         s.editable.value = false;
 
         try {
+          StreamSubscription? filesUploadSubscription;
+          Completer completer = Completer();
+
+          if (attachments.any((a) => a.runtimeType == LocalAttachment)) {
+            filesUploadSubscription = attachments.listen((list) async {
+              if (!list.any((a) => a.runtimeType == LocalAttachment)) {
+                await filesUploadSubscription?.cancel();
+                completer.complete();
+              }
+            });
+          } else {
+            completer.complete();
+          }
+
+          await completer.future;
+
           List<Future<void>> futures = selectedChats.map((e) async {
             return _chatService.forwardChatItems(
               from: from,
@@ -144,14 +162,14 @@ class ChatForwardController extends GetxController {
 
     if (result != null && result.files.isNotEmpty) {
       for (PlatformFile e in result.files) {
-        _addPlatformAttachment(e);
+        addPlatformAttachment(e);
       }
     }
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
-  Future<void> _addPlatformAttachment(PlatformFile platformFile) async {
+  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
   }
