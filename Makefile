@@ -202,7 +202,7 @@ endif
 
 flutter.pub:
 ifeq ($(dockerized),yes)
-	docker run --platform linux/amd64 --rm --network=host -v "$(PWD)":/app -w /app \
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.pub cmd='$(cmd)' dockerized=no
