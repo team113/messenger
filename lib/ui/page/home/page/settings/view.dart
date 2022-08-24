@@ -14,11 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -35,64 +32,6 @@ class SettingsView extends StatelessWidget {
     return GetBuilder(
       init: SettingsController(Get.find()),
       builder: (SettingsController c) {
-        return Scaffold(
-          appBar: AppBar(title: Text('label_settings'.l10n)),
-          body: Column(
-            children: [
-              SizedBox(
-                height: 30,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: ['Recent', 'Contact', 'User'].mapIndexed((i, e) {
-                    return Obx(() {
-                      return WidgetButton(
-                        onPressed: () {
-                          if (i == 0) {
-                            c.scrollTo(c.recent);
-                          } else if (i == 1) {
-                            c.scrollTo(c.contacts);
-                          } else if (i == 2) {
-                            c.scrollTo(c.users);
-                          }
-                        },
-                        child: Container(
-                          color: c.selected.value == i
-                              ? Colors.blue
-                              : Colors.white,
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(e),
-                        ),
-                      );
-                    });
-                  }).toList(),
-                ),
-              ),
-              Expanded(
-                child: FlutterListView(
-                  controller: c.controller,
-                  delegate: FlutterListViewDelegate(
-                    (context, i) {
-                      if (i >= c.contacts.length + c.recent.length) {
-                        User user =
-                            c.users[i - c.contacts.length - c.recent.length];
-                        return ListTile(title: Text('User ${user.name}'));
-                      } else if (i >= c.recent.length) {
-                        Contact contact = c.contacts[i - c.recent.length];
-                        return ListTile(title: Text('Contact ${contact.name}'));
-                      } else {
-                        Recent recent = c.recent[i];
-                        return ListTile(title: Text('Recent ${recent.name}'));
-                      }
-                    },
-                    childCount:
-                        c.recent.length + c.contacts.length + c.users.length,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
         return Scaffold(
           appBar: AppBar(title: Text('label_settings'.l10n)),
           body: ListView(

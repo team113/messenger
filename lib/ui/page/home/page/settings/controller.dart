@@ -14,11 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart' show GlobalKey;
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -45,78 +41,4 @@ class SettingsController extends GetxController {
   /// Sets the [ApplicationSettings.locale] value.
   Future<void> setLocale(Language? locale) =>
       _settingsRepo.setLocale(locale!.toString());
-
-  final FlutterListViewController controller = FlutterListViewController();
-
-  final RxInt selected = RxInt(0);
-
-  final List<Recent> recent = [
-    const Recent('A'),
-    const Recent('B'),
-    const Recent('C'),
-    const Recent('D'),
-    const Recent('E'),
-    const Recent('F'),
-  ];
-
-  final List<Contact> contacts = [
-    const Contact('A'),
-    const Contact('B'),
-    const Contact('C'),
-    const Contact('D'),
-    const Contact('E'),
-    const Contact('F'),
-  ];
-
-  final List<User> users = [
-    const User('A'),
-    const User('B'),
-    const User('C'),
-    const User('D'),
-    const User('E'),
-    const User('F'),
-  ];
-
-  @override
-  void onInit() {
-    controller.sliverController.onPaintItemPositionsCallback = (d, list) {
-      int? first = list.firstOrNull?.index;
-
-      if (first != null) {
-        if (first >= recent.length + contacts.length) {
-          selected.value = 2;
-        } else if (first >= recent.length) {
-          selected.value = 1;
-        } else {
-          selected.value = 0;
-        }
-      }
-    };
-    super.onInit();
-  }
-
-  void scrollTo(List<dynamic> list) {
-    if (list == recent) {
-      controller.sliverController.jumpToIndex(0);
-    } else if (list == contacts) {
-      controller.sliverController.jumpToIndex(recent.length);
-    } else if (list == users) {
-      controller.sliverController.jumpToIndex(contacts.length + recent.length);
-    }
-  }
-}
-
-class Recent {
-  const Recent(this.name);
-  final String name;
-}
-
-class User {
-  const User(this.name);
-  final String name;
-}
-
-class Contact {
-  const Contact(this.name);
-  final String name;
 }
