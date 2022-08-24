@@ -36,6 +36,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/chat_rx.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
@@ -212,8 +213,21 @@ void main() async {
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
+    RxChat chat = HiveRxChat(
+      chatRepository as ChatRepository,
+      chatProvider,
+      HiveChat(
+        Chat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
+      ),
+    );
+
     await chatService.createChatDirectLink(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      chat,
       ChatDirectLinkSlug('link'),
     );
 
@@ -242,8 +256,21 @@ void main() async {
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
+    RxChat chat = HiveRxChat(
+      chatRepository as ChatRepository,
+      chatProvider,
+      HiveChat(
+        Chat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
+      ),
+    );
+
     await chatService.deleteChatDirectLink(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      chat,
     );
 
     verify(
@@ -327,9 +354,22 @@ void main() async {
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
+    RxChat chat = HiveRxChat(
+      chatRepository as ChatRepository,
+      chatProvider,
+      HiveChat(
+        Chat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
+      ),
+    );
+
     expect(
       () async => await chatService.createChatDirectLink(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        chat,
         ChatDirectLinkSlug('link'),
       ),
       throwsA(isA<CreateChatDirectLinkException>()),
@@ -365,9 +405,22 @@ void main() async {
     ChatService chatService =
         Get.put(ChatService(chatRepository, myUserService));
 
+    RxChat chat = HiveRxChat(
+      chatRepository as ChatRepository,
+      chatProvider,
+      HiveChat(
+        Chat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        ChatVersion('0'),
+        null,
+        null,
+      ),
+    );
+
     expect(
       () async => await chatService.deleteChatDirectLink(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        chat,
       ),
       throwsA(isA<DeleteChatDirectLinkException>()),
     );

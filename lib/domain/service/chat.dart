@@ -225,12 +225,36 @@ class ChatService extends DisposableService {
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
   /// any).
-  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug) =>
-      _chatRepository.createChatDirectLink(chatId, slug);
+  Future<void> createChatDirectLink(
+      RxChat chat, ChatDirectLinkSlug slug) async {
+    ChatDirectLink? oldValue = chat.chat.value.directLink;
+
+    chat.chat.update(
+        (c) => c?.directLink = ChatDirectLink(slug: slug, usageCount: 0));
+
+    try {
+      await _chatRepository.createChatDirectLink(chat.chat.value.id, slug);
+    } catch (e) {
+      chat.chat.update((c) => c?.directLink = oldValue);
+      rethrow;
+    }
+  }
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(ChatId chatId) =>
-      _chatRepository.deleteChatDirectLink(chatId);
+  Future<void> deleteChatDirectLink(
+    RxChat chat,
+  ) async {
+    ChatDirectLink? oldValue = chat.chat.value.directLink;
+
+    chat.chat.update((c) => c?.directLink = null);
+
+    try {
+      await _chatRepository.deleteChatDirectLink(chat.chat.value.id);
+    } catch (e) {
+      chat.chat.update((c) => c?.directLink = oldValue);
+      rethrow;
+    }
+  }
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
