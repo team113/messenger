@@ -16,7 +16,10 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
+import 'package:collection/collection.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -71,7 +74,6 @@ class ParticipantController extends GetxController {
 
   /// Reactive list of the selected [User]s.
   final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
-  final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   final RxList<RxUser> searchResults = RxList<RxUser>([]);
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
@@ -107,11 +109,11 @@ class ParticipantController extends GetxController {
   /// ID of the [Chat] this modal is about.
   Rx<ChatId> get chatId => _call.value.chatId;
 
-  /// Returns the current reactive map of [ChatContact]s.
-  RxObsMap<ChatContactId, RxChatContact> get contacts =>
-      _contactService.contacts;
+  // /// Returns the current reactive map of [ChatContact]s.
+  // RxObsMap<ChatContactId, RxChatContact> get contacts =>
+  //     _contactService.contacts;
 
-  RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
+  // RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
 
   @override
   void onInit() {
@@ -150,9 +152,11 @@ class ParticipantController extends GetxController {
         searchResults.clear();
         searchStatus.value = RxStatus.empty();
         search.status.value = RxStatus.empty();
+        populate();
       } else {
         searchStatus.value = RxStatus.loading();
         search.status.value = RxStatus.loading();
+        populate();
       }
     });
 
@@ -161,6 +165,20 @@ class ParticipantController extends GetxController {
         query.value = d.text;
       },
     );
+
+    controller.sliverController.onPaintItemPositionsCallback = (d, list) {
+      _height = d;
+      int? first = list.firstOrNull?.index;
+      if (first != null) {
+        if (first >= recent.length + contacts.length) {
+          selected.value = 2;
+        } else if (first >= recent.length) {
+          selected.value = 1;
+        } else {
+          selected.value = 0;
+        }
+      }
+    };
 
     super.onInit();
   }
@@ -219,14 +237,6 @@ class ParticipantController extends GetxController {
     }
   }
 
-  void selectChat(RxChat chat) {
-    if (selectedChats.contains(chat)) {
-      selectedChats.remove(chat);
-    } else {
-      selectedChats.add(chat);
-    }
-  }
-
   /// Selects or unselects the specified [contact].
   void selectContact(RxChatContact contact) {
     if (selectedContacts.contains(contact)) {
@@ -243,20 +253,6 @@ class ParticipantController extends GetxController {
       selectedUsers.add(user);
     }
   }
-
-  /// Selects the specified [user].
-  // void selectUser(User user) {
-  //   if (!selectedUsers.any((u) => u.id == user.id)) {
-  //     selectedUsers.add(user);
-  //   }
-  // }
-
-  // /// Unselects the specified [user].
-  // void unselectUser(User user) {
-  //   if (selectedUsers.contains(user)) {
-  //     selectedUsers.remove(user);
-  //   }
-  // }
 
   /// Fetches the [chat].
   void _fetchChat() async {
@@ -301,6 +297,9 @@ class ParticipantController extends GetxController {
             : RxStatus.loading();
         searchResults.value =
             await _userService.search(num: num, name: name, login: login);
+
+        populate();
+
         searchStatus.value = RxStatus.success();
         search.status.value = RxStatus.empty();
       }
@@ -309,5 +308,190 @@ class ParticipantController extends GetxController {
       search.status.value = RxStatus.empty();
       searchResults.clear();
     }
+  }
+
+  final RxInt selected = RxInt(0);
+  final FlutterListViewController controller = FlutterListViewController();
+  double _height = 0;
+
+  void jumpTo(int i) {
+    if (i == 0) {
+      controller.jumpTo(0);
+    } else if (i == 1) {
+      double to = recent.length * (84 + 10);
+      if (to > controller.position.maxScrollExtent) {
+        controller.jumpTo(controller.position.maxScrollExtent);
+      } else {
+        controller.jumpTo(to);
+      }
+    } else if (i == 2) {
+      double to = (recent.length + contacts.length) * (84 + 10);
+      if (to > controller.position.maxScrollExtent) {
+        controller.jumpTo(controller.position.maxScrollExtent);
+      } else {
+        controller.jumpTo(to);
+      }
+    }
+  }
+
+  final RxMap<UserId, RxUser> recent = RxMap();
+  final RxMap<UserId, RxChatContact> contacts = RxMap();
+  final RxMap<UserId, RxUser> users = RxMap();
+
+  RxMap<UserId, dynamic> getMap(int i) {
+    if (i >= recent.length + contacts.length) {
+      return recent;
+    } else if (i >= recent.length) {
+      return contacts;
+    }
+
+    return users;
+  }
+
+  dynamic getIndex(int i) {
+    return [...recent.values, ...contacts.values, ...users.values].elementAt(i);
+  }
+
+  void populate() {
+    recent.value = {
+      for (var u in _chatService.chats.values
+          .map((e) {
+            if (e.chat.value.isDialog) {
+              RxUser? user = e.members.values
+                  .firstWhereOrNull((u) => u.user.value.id != me);
+
+              if (chat.value?.members.containsKey(user?.id) != true) {
+                if (query.value != null) {
+                  if (user?.user.value.name?.val.contains(query.value!) ==
+                      true) {
+                    return user;
+                  }
+                } else {
+                  return user;
+                }
+              }
+            }
+
+            return null;
+          })
+          .whereNotNull()
+          .take(1))
+        u.id: u,
+    };
+
+    Map allContacts = {
+      for (var u in _contactService.contacts.values.where((e) {
+        if (e.contact.value.users.length == 1) {
+          RxUser? user = e.user.value;
+
+          if (chat.value?.members.containsKey(user?.id) != true &&
+              !recent.containsKey(user?.id)) {
+            if (query.value != null) {
+              if (e.contact.value.name.val.contains(query.value!) == true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }))
+        u.user.value!.id: u,
+    };
+
+    contacts.value = {
+      for (var u in selectedContacts.where((e) {
+        if (!recent.containsKey(e.id) &&
+            !allContacts.containsKey(e.user.value!.id)) {
+          if (query.value != null) {
+            if (e.contact.value.name.val.contains(query.value!) == true) {
+              return true;
+            }
+          } else {
+            return true;
+          }
+        }
+
+        return false;
+      }))
+        u.user.value!.id: u,
+      ...allContacts,
+    };
+
+    if (searchResults.isNotEmpty) {
+      Map allUsers = {
+        for (var u in searchResults.where((e) {
+          if (chat.value?.members.containsKey(e.id) != true &&
+              !recent.containsKey(e.id) &&
+              !contacts.containsKey(e.id)) {
+            return true;
+          }
+
+          return false;
+        }))
+          u.id: u,
+      };
+
+      users.value = {
+        for (var u in selectedUsers.where((e) {
+          if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+            if (e.user.value.name?.val.contains(query.value!) == true) {
+              return true;
+            }
+          }
+
+          return false;
+        }))
+          u.id: u,
+        ...allUsers,
+      };
+    } else {
+      Map allUsers = {
+        for (var u in _chatService.chats.values.map((e) {
+          if (e.chat.value.isDialog) {
+            RxUser? user =
+                e.members.values.firstWhereOrNull((u) => u.user.value.id != me);
+
+            if (chat.value?.members.containsKey(user?.id) != true &&
+                !recent.containsKey(user?.id) &&
+                !contacts.containsKey(user?.id)) {
+              if (query.value != null) {
+                if (user?.user.value.name?.val.contains(query.value!) == true) {
+                  return user;
+                }
+              } else {
+                return user;
+              }
+            }
+          }
+
+          return null;
+        }).whereNotNull())
+          u.id: u
+      };
+
+      users.value = {
+        for (var u in selectedUsers.where((e) {
+          if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+            if (query.value != null) {
+              if (e.user.value.name?.val.contains(query.value!) == true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+
+          return false;
+        }))
+          u.id: u,
+        ...allUsers,
+      };
+    }
+
+    print(
+        '_populate, recent: ${recent.length}, contact: ${contacts.length}, user: ${users.length}');
   }
 }

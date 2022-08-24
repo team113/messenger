@@ -17,6 +17,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -67,373 +68,213 @@ class ParticipantView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          Widget _tile({
+            RxUser? user,
+            RxChatContact? contact,
+            void Function()? onTap,
+            bool selected = false,
+          }) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: ContactTile(
+                contact: contact,
+                user: user,
+                onTap: onTap,
+                selected: selected,
+                trailing: [
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: AnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: selected
+                          ? const CircleAvatar(
+                              backgroundColor: Color(0xFF63B4FF),
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            )
+                          : const CircleAvatar(
+                              backgroundColor: Color(0xFFD7D7D7),
+                              radius: 12,
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           Widget child;
 
           switch (c.stage.value) {
             case ParticipantsFlowStage.adding:
-              child = Obx(() {
-                final Iterable<RxChat> recent = c.chats.values
-                    .where((e) => e.chat.value.isDialog)
-                    .take(1)
-                    .where((e) {
-                  if (c.query.value != null) {
-                    return e.members.values
-                            .firstWhereOrNull((m) => m.id != c.me)
-                            ?.user
-                            .value
-                            .name
-                            ?.val
-                            .contains(c.query.value!) ==
-                        true;
-                  }
-
-                  return true;
-                });
-
-                final Iterable<RxChatContact> contacts =
-                    c.contacts.values.where((e) {
-                  if (recent
-                      .where((c) =>
-                          c.members.values.firstWhereOrNull(
-                              (m) => m.id == e.user.value?.id) !=
-                          null)
-                      .isNotEmpty) {
-                    return false;
-                  }
-
-                  if (c.query.value != null) {
-                    return e.contact.value.name.val.contains(c.query.value!);
-                  }
-
-                  return true;
-                });
-
-                Iterable<RxUser?> users;
-                if (c.searchResults.isNotEmpty) {
-                  users = c.searchResults.where((e) {
-                    if (recent
-                        .where((c) =>
-                            c.members.values.firstWhereOrNull(
-                                (m) => m.id == e.user.value.id) !=
-                            null)
-                        .isNotEmpty) {
-                      return false;
-                    }
-
-                    return true;
-                  });
-                } else {
-                  users = c.chats.values.where((e) {
-                    if (e.chat.value.isDialog) {
-                      RxUser? user = e.members.values
-                          .firstWhereOrNull((e) => e.id != c.me);
-
-                      if (recent
-                          .where((c) =>
-                              c.members.values.firstWhereOrNull(
-                                  (m) => m.id == user?.user.value.id) !=
-                              null)
-                          .isNotEmpty) {
-                        return false;
-                      }
-
-                      if (c.query.value != null) {
-                        return user?.user.value.name?.val
-                                .contains(c.query.value!) ==
-                            true;
-                      }
-
-                      return true;
-                    }
-
-                    return false;
-                  }).map((e) {
-                    return e.members.values
-                        .firstWhereOrNull((m) => m.id != c.me);
-                  });
-                }
-
-                users = users.where((e) =>
-                    contacts.where((m) => m.user.value?.id == e?.id).isEmpty);
-
-                Widget _divider(String text) {
-                  // return Container(
-                  //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                  //   decoration: BoxDecoration(
-                  //     // borderRadius: BorderRadius.circular(10),
-                  //     // color: Colors.white,
-                  //     color: const Color(0xFFF8F8F8),
-                  //   ),
-                  //   width: double.infinity,
-                  //   child: Text(
-                  //     text,
-                  //     style: const TextStyle(color: Color(0xFF888888)),
-                  //   ),
-                  // );
-
-                  return Container();
-
-                  return SizedBox(height: 20);
-
-                  return Row(
+              List<Widget> children = [
+                Center(
+                  child: Text(
+                    'Add participant'.l10n,
+                    style: thin?.copyWith(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Center(
+                  child: ReactiveTextField(
+                    state: c.search,
+                    label: 'Search',
+                    style: thin,
+                    onChanged: () => c.query.value = c.search.text,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  height: 15,
+                  child: Row(
                     children: [
-                      Container(
-                        width: 10,
-                        height: 1,
-                        color: const Color(0xFF888888),
-                      ),
-                      const SizedBox(width: 15),
-                      Text(
-                        text,
-                        style: thin?.copyWith(fontSize: 13),
-                      ),
-                      // const SizedBox(width: 5),
-                      // Container(
-                      //   width: 10,
-                      //   height: 1,
-                      //   color: const Color(0xFF888888),
-                      // ),
-                      // Expanded(
-                      //   child: Container(
-                      //     height: 1,
-                      //     color: const Color(0xFF888888),
-                      //   ),
-                      // ),
-                    ],
-                  );
-                }
-
-                List<Widget> children = [
-                  Center(
-                    child: Text(
-                      'Add participant'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Center(
-                    child: ReactiveTextField(
-                      state: c.search,
-                      label: 'Search',
-                      style: thin,
-                      // prefixIcon: Transform.translate(
-                      //   offset: const Offset(3, 1),
-                      //   child: const Icon(
-                      //     Icons.search,
-                      //     color: Color(0xFF63B4FF),
-                      //     size: 20,
-                      //   ),
-                      // ),
-                      // prefixIconColor: const Color(0xFF63B4FF),
-                      onChanged: () => c.query.value = c.search.text,
-                    ),
-                  ),
-                  // ReactiveTextField(
-                  //   padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
-                  //   state: c.search,
-                  //   dense: true,
-                  //   hint: 'Search...',
-                  //   prefixIcon: const Icon(
-                  //     Icons.search,
-                  //     color: Color(0xFF63B4FF),
-                  //   ),
-                  //   prefixIconColor: const Color(0xFF63B4FF),
-                  //   onChanged: () => c.query.value = c.search.text,
-                  // ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                    height: 15,
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            shrinkWrap: true,
-                            children: [
-                              WidgetButton(
-                                child: Text(
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          children: [
+                            WidgetButton(
+                              onPressed: () => c.jumpTo(0),
+                              child: Obx(() {
+                                return Text(
                                   'Recent',
                                   style: thin?.copyWith(
                                     fontSize: 15,
-                                    color: const Color(0xFF63B4FF),
+                                    color: c.selected.value == 0
+                                        ? const Color(0xFF63B4FF)
+                                        : null,
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              WidgetButton(
-                                child: Text(
+                                );
+                              }),
+                            ),
+                            const SizedBox(width: 20),
+                            WidgetButton(
+                              onPressed: () => c.jumpTo(1),
+                              child: Obx(() {
+                                return Text(
                                   'Contacts',
-                                  style: thin?.copyWith(fontSize: 15),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              WidgetButton(
-                                child: Text(
+                                  style: thin?.copyWith(
+                                    fontSize: 15,
+                                    color: c.selected.value == 1
+                                        ? const Color(0xFF63B4FF)
+                                        : null,
+                                  ),
+                                );
+                              }),
+                            ),
+                            const SizedBox(width: 20),
+                            WidgetButton(
+                              onPressed: () => c.jumpTo(2),
+                              child: Obx(() {
+                                return Text(
                                   'Users',
-                                  style: thin?.copyWith(fontSize: 15),
-                                ),
-                              ),
-                            ],
-                          ),
+                                  style: thin?.copyWith(
+                                    fontSize: 15,
+                                    color: c.selected.value == 2
+                                        ? const Color(0xFF63B4FF)
+                                        : null,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Selected: ${c.selectedContacts.length + c.selectedUsers.length + c.selectedChats.length}',
+                      ),
+                      Obx(() {
+                        return Text(
+                          'Selected: ${c.selectedContacts.length + c.selectedUsers.length}',
                           style: thin?.copyWith(fontSize: 15),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
+                        );
+                      }),
+                      const SizedBox(width: 10),
+                    ],
                   ),
-                  const SizedBox(height: 18),
-                  Flexible(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      children: [
-                        if (recent.isNotEmpty) ...[
-                          // _divider('Recent'),
-                          ...recent.map((e) {
-                            bool selected = c.selectedChats.contains(e);
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: ContactTile(
-                                user: e.members.values
-                                    .firstWhereOrNull((e) => e.id != c.me),
-                                onTap: () => c.selectChat(e),
-                                selected: selected,
-                                trailing: [
-                                  SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: selected
-                                          ? const CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFF63B4FF),
-                                              radius: 12,
-                                              child: Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 14,
-                                              ),
-                                            )
-                                          : const CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFFD7D7D7),
-                                              radius: 12,
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ],
-                        if (contacts.isNotEmpty) _divider('Contacts'),
-                        ...contacts.map(
-                          (e) {
-                            bool selected = c.selectedContacts.contains(e);
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: ContactTile(
+                ),
+                const SizedBox(height: 18),
+                Expanded(
+                  child: Obx(() {
+                    if (c.recent.isEmpty &&
+                        c.contacts.isEmpty &&
+                        c.users.isEmpty) {
+                      if (c.searchStatus.value.isSuccess) {
+                        return const Center(child: Text('Nothing was found'));
+                      } else if (c.searchStatus.value.isEmpty) {
+                        return const Center(
+                          child: Text('Use search to find an user'),
+                        );
+                      }
+
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return FlutterListView(
+                      controller: c.controller,
+                      // shrinkWrap: true,
+                      delegate: FlutterListViewDelegate(
+                        (context, i) {
+                          dynamic e = c.getIndex(i);
+
+                          if (e is RxUser) {
+                            return Obx(() {
+                              return _tile(
+                                user: e,
+                                selected: c.selectedUsers.contains(e),
+                                onTap: () => c.selectUser(e),
+                              );
+                            });
+                          } else if (e is RxChatContact) {
+                            return Obx(() {
+                              return _tile(
                                 contact: e,
+                                selected: c.selectedContacts.contains(e),
                                 onTap: () => c.selectContact(e),
-                                selected: selected,
-                                trailing: [
-                                  SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: selected
-                                          ? const CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFF63B4FF),
-                                              radius: 12,
-                                              child: Icon(
-                                                Icons.check,
-                                                color: Colors.white,
-                                                size: 14,
-                                              ),
-                                            )
-                                          : const CircleAvatar(
-                                              backgroundColor:
-                                                  Color(0xFFD7D7D7),
-                                              radius: 12,
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        if (users.isNotEmpty || c.selectedUsers.isNotEmpty)
-                          _divider('Users'),
-                        ...[
-                          ...c.selectedUsers.where(
-                            (p) => users.where((e) => e?.id == p.id).isEmpty,
-                          ),
-                          ...users,
-                        ].map((e) {
-                          if (e == null) {
-                            return Container();
+                              );
+                            });
                           }
 
-                          bool selected = c.selectedUsers.contains(e);
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: ContactTile(
-                              user: e,
-                              onTap: () => c.selectUser(e),
-                              selected: selected,
-                              trailing: [
-                                SizedBox(
-                                  width: 30,
-                                  height: 30,
-                                  child: AnimatedSwitcher(
-                                    duration: 200.milliseconds,
-                                    child: selected
-                                        ? const CircleAvatar(
-                                            backgroundColor: Color(0xFF63B4FF),
-                                            radius: 12,
-                                            child: Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 14,
-                                            ),
-                                          )
-                                        : const CircleAvatar(
-                                            backgroundColor: Color(0xFFD7D7D7),
-                                            radius: 12,
-                                          ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                        if (recent.isEmpty &&
-                            contacts.isEmpty &&
-                            users.isEmpty &&
-                            c.searchStatus.value.isSuccess)
-                          const SizedBox(
-                            height: 60,
-                            child: Text('Nothing was found'),
-                          ),
-                      ],
+                          return Container();
+                        },
+                        childCount: c.contacts.length +
+                            c.users.length +
+                            c.recent.length,
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('BackButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'Back',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline5
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        onPressed: () => c.stage.value = null,
+                        color: const Color(0xFF63B4FF),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('BackButton'),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Obx(() {
+                        return OutlinedRoundedButton(
+                          key: const Key('AddDialogMembersButton'),
                           maxWidth: null,
                           title: Text(
-                            'Back',
+                            'Add',
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: Theme.of(context)
@@ -441,58 +282,38 @@ class ParticipantView extends StatelessWidget {
                                 .headline5
                                 ?.copyWith(color: Colors.white),
                           ),
-                          onPressed: () => c.stage.value = null,
-                          color: const Color(0xFF63B4FF),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Obx(() {
-                          return OutlinedRoundedButton(
-                            key: const Key('AddDialogMembersButton'),
-                            maxWidth: null,
-                            title: Text(
-                              'Add',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline5
-                                  ?.copyWith(color: Colors.white),
-                            ),
-                            onPressed: (c.selectedContacts.isNotEmpty ||
-                                        c.selectedChats.isNotEmpty ||
-                                        c.selectedUsers.isNotEmpty) &&
-                                    c.status.value.isEmpty
-                                ? c.addMembers
-                                : null,
-                            color: (c.selectedContacts.isNotEmpty ||
-                                        c.selectedChats.isNotEmpty ||
-                                        c.selectedUsers.isNotEmpty) &&
-                                    c.status.value.isEmpty
-                                ? const Color(0xFF63B4FF)
-                                : const Color(0xFFEEEEEE),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ];
+                          onPressed: (c.selectedContacts.isNotEmpty ||
+                                      c.selectedUsers.isNotEmpty) &&
+                                  c.status.value.isEmpty
+                              ? c.addMembers
+                              : null,
+                          color: (c.selectedContacts.isNotEmpty ||
+                                      c.selectedUsers.isNotEmpty) &&
+                                  c.status.value.isEmpty
+                              ? const Color(0xFF63B4FF)
+                              : const Color(0xFFEEEEEE),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ];
 
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // const SizedBox(height: 25),
-                      const SizedBox(height: 10),
-                      ...children,
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                );
-              });
+              child = Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                // height: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    // const SizedBox(height: 25),
+                    const SizedBox(height: 10),
+                    ...children,
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              );
+
               break;
 
             case ParticipantsFlowStage.addedSuccess:
@@ -784,6 +605,11 @@ class ParticipantView extends StatelessWidget {
         c.status.value = RxStatus.empty();
         c.selectedContacts.clear();
         c.selectedUsers.clear();
+        c.searchResults.clear();
+        c.searchStatus.value = RxStatus.empty();
+        c.query.value = null;
+        c.search.clear();
+        c.populate();
         c.stage.value = ParticipantsFlowStage.adding;
       },
       color: const Color(0xFF63B4FF),
