@@ -75,7 +75,7 @@ class ParticipantView extends StatelessWidget {
             bool selected = false,
           }) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: ContactTile(
                 contact: contact,
                 user: user,
@@ -120,12 +120,15 @@ class ParticipantView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Center(
-                  child: ReactiveTextField(
-                    state: c.search,
-                    label: 'Search',
-                    style: thin,
-                    onChanged: () => c.query.value = c.search.text,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Center(
+                    child: ReactiveTextField(
+                      state: c.search,
+                      label: 'Search',
+                      style: thin,
+                      onChanged: () => c.query.value = c.search.text,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -187,9 +190,21 @@ class ParticipantView extends StatelessWidget {
                         ),
                       ),
                       Obx(() {
-                        return Text(
-                          'Selected: ${c.selectedContacts.length + c.selectedUsers.length}',
-                          style: thin?.copyWith(fontSize: 15),
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Selected: ',
+                              style: thin?.copyWith(fontSize: 15),
+                            ),
+                            Container(
+                              constraints: const BoxConstraints(minWidth: 14),
+                              child: Text(
+                                '${c.selectedContacts.length + c.selectedUsers.length}',
+                                style: thin?.copyWith(fontSize: 15),
+                              ),
+                            ),
+                          ],
                         );
                       }),
                       const SizedBox(width: 10),
@@ -248,66 +263,64 @@ class ParticipantView extends StatelessWidget {
                   }),
                 ),
                 const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('BackButton'),
-                        maxWidth: null,
-                        title: Text(
-                          'Back',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline5
-                              ?.copyWith(color: Colors.white),
-                        ),
-                        onPressed: () => c.stage.value = null,
-                        color: const Color(0xFF63B4FF),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Obx(() {
-                        return OutlinedRoundedButton(
-                          key: const Key('AddDialogMembersButton'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedRoundedButton(
+                          key: const Key('BackButton'),
                           maxWidth: null,
-                          title: Text(
-                            'Add',
+                          title: const Text(
+                            'Back',
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline5
-                                ?.copyWith(color: Colors.white),
+                            style: TextStyle(color: Colors.white),
                           ),
-                          onPressed: (c.selectedContacts.isNotEmpty ||
-                                      c.selectedUsers.isNotEmpty) &&
-                                  c.status.value.isEmpty
-                              ? c.addMembers
-                              : null,
-                          color: (c.selectedContacts.isNotEmpty ||
-                                      c.selectedUsers.isNotEmpty) &&
-                                  c.status.value.isEmpty
-                              ? const Color(0xFF63B4FF)
-                              : const Color(0xFFEEEEEE),
-                        );
-                      }),
-                    ),
-                  ],
+                          onPressed: () => c.stage.value = null,
+                          color: const Color(0xFF63B4FF),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Obx(() {
+                          bool enabled = (c.selectedContacts.isNotEmpty ||
+                                  c.selectedUsers.isNotEmpty) &&
+                              c.status.value.isEmpty;
+
+                          return OutlinedRoundedButton(
+                            key: const Key('AddDialogMembersButton'),
+                            maxWidth: null,
+                            title: Text(
+                              'Add',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: enabled ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            onPressed: enabled ? c.addMembers : null,
+                            color: enabled
+                                ? const Color(0xFF63B4FF)
+                                : const Color(0xFFEEEEEE),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
                 ),
               ];
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                constraints: const BoxConstraints(maxHeight: 650),
                 // height: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     // const SizedBox(height: 25),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 16),
                     ...children,
                     const SizedBox(height: 16),
                   ],
@@ -356,10 +369,9 @@ class ParticipantView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Flexible(
+                Expanded(
                   child: ListView(
                     physics: const ScrollPhysics(),
-                    shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     children: c.chat.value!.members.values.map((e) {
                       return Padding(
@@ -379,12 +391,13 @@ class ParticipantView extends StatelessWidget {
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                constraints: const BoxConstraints(maxHeight: 650),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 16),
                     ...children,
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 16),
                   ],
                 ),
               );
@@ -442,6 +455,38 @@ class ParticipantView extends StatelessWidget {
                 hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                  // child: Row(
+                  //   children: [
+                  //     AvatarWidget.fromRxChat(chat, radius: 30),
+                  //     const SizedBox(width: 12),
+                  //     Expanded(
+                  //       child: Text(
+                  //         chat.title.value,
+                  //         overflow: TextOverflow.ellipsis,
+                  //         maxLines: 1,
+                  //         style: Theme.of(context).textTheme.headline5,
+                  //       ),
+                  //     ),
+                  //     SizedBox(
+                  //       height: 40,
+                  //       child: Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.end,
+                  //         mainAxisSize: MainAxisSize.min,
+                  //         children: [
+                  //           Text(
+                  //             '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                  //             style: Theme.of(context).textTheme.subtitle2,
+                  //           ),
+                  //           const Spacer(),
+                  //           Text(
+                  //             _duration.value.hhMmSs(),
+                  //             style: Theme.of(context).textTheme.subtitle2,
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   child: Row(
                     children: [
                       AvatarWidget.fromRxChat(chat, radius: 30),
@@ -477,13 +522,29 @@ class ParticipantView extends StatelessWidget {
                                     style:
                                         Theme.of(context).textTheme.subtitle2,
                                   ),
-                                  const Spacer(),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    width: 1,
+                                    height: 12,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .subtitle2
+                                        ?.color,
+                                  ),
                                   Text(
                                     _duration.value.hhMmSs(),
                                     style:
                                         Theme.of(context).textTheme.subtitle2,
                                   ),
-                                  const SizedBox(width: 6),
+                                  // const Spacer(),
+                                  // Text(
+                                  //   _duration.value.hhMmSs(),
+                                  //   style:
+                                  //       Theme.of(context).textTheme.subtitle2,
+                                  // ),
+                                  // const SizedBox(width: 6),
                                 ],
                               ),
                             ),
@@ -592,14 +653,11 @@ class ParticipantView extends StatelessWidget {
   Widget _addParticipant(BuildContext context, ParticipantController c) {
     return OutlinedRoundedButton(
       maxWidth: null,
-      title: Text(
+      title: const Text(
         'Add participant',
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        style: Theme.of(context)
-            .textTheme
-            .headline5
-            ?.copyWith(color: Colors.white),
+        style: TextStyle(color: Colors.white),
       ),
       onPressed: () {
         c.status.value = RxStatus.empty();

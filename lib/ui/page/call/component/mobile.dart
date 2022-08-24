@@ -21,7 +21,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -340,23 +342,8 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Populate the sliding panel height and its content.
         if (c.state.value == OngoingCallState.active ||
             c.state.value == OngoingCallState.joining) {
-          panelHeight = 360;
+          panelHeight = 360 + 34;
           panelHeight = min(c.size.height - 45, panelHeight);
-
-          Widget _divider() => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 400),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: Divider(
-                      color: Color(0x99FFFFFF),
-                      thickness: 1,
-                      height: 1,
-                    ),
-                  ),
-                ),
-              );
 
           panelChildren = [
             const SizedBox(height: 12),
@@ -464,11 +451,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                 )),
               ],
             ),
-            const SizedBox(height: 13),
-            _divider(),
-            const SizedBox(height: 13),
-            _callTile(context, c),
-            const SizedBox(height: 13),
+            const SizedBox(height: 32),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 366),
+              child: chat(context, c),
+            ),
+            // _callTile(context, c),
+            const SizedBox(height: 15),
           ];
         }
 
@@ -1329,6 +1318,173 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   });
 
   Overlay.of(context)?.insert(c.secondaryEntry!);
+}
+
+Widget chat(BuildContext context, CallController c) {
+  return Obx(() {
+    Style style = Theme.of(context).extension<Style>()!;
+    RxChat chat = c.chat.value!;
+
+    var actualMembers = chat.members.keys.toSet();
+
+    return ContextMenuRegion(
+      key: Key('ContextMenuRegion_${chat.chat.value.id}'),
+      preventContextMenu: false,
+      actions: [
+        // ContextMenuButton(
+        //   key: const Key('ButtonHideChat'),
+        //   label: 'btn_hide_chat'.l10n,
+        //   onPressed: () => c.hideChat(chat.id),
+        // ),
+        // if (chat.isGroup)
+        //   ContextMenuButton(
+        //     key: const Key('ButtonLeaveChat'),
+        //     label: 'btn_leave_chat'.l10n,
+        //     onPressed: () => c.leaveChat(chat.id),
+        //   ),
+      ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            color: Colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            // color: style.cardColor.darken(0.05),
+            color: const Color(0x794E5A78),
+            child: InkWell(
+              borderRadius: style.cardRadius,
+              // onTap: () => router.chat(chat.id),
+              onTap: () => c.openAddMember(context),
+              // hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                child: Row(
+                  children: [
+                    AvatarWidget.fromRxChat(chat, radius: 30),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  chat.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline5
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                              ),
+                              // const SizedBox(height: 10),
+                              // Text(
+                              //   _duration.value.hhMmSs(),
+                              //   style: Theme.of(context).textTheme.subtitle2,
+                              // ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  width: 1,
+                                  height: 12,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      ?.color,
+                                ),
+                                Text(
+                                  c.duration.value.hhMmSs(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      ?.copyWith(color: Colors.white),
+                                ),
+                                // Text(
+                                //   '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                                //   style: Theme.of(context).textTheme.subtitle2,
+                                // ),
+                                // const Spacer(),
+                                // Text(
+                                //   c.duration.value.hhMmSs(),
+                                //   style: Theme.of(context).textTheme.subtitle2,
+                                // ),
+                                // const SizedBox(width: 6),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // child: Row(
+                //   children: [
+                //     AvatarWidget.fromRxChat(chat, radius: 30),
+                //     const SizedBox(width: 12),
+                //     Expanded(
+                //       child: Text(
+                //         chat.title.value,
+                //         overflow: TextOverflow.ellipsis,
+                //         maxLines: 1,
+                //         style: Theme.of(context)
+                //             .textTheme
+                //             .headline5
+                //             ?.copyWith(color: Colors.white),
+                //       ),
+                //     ),
+                //     SizedBox(
+                //       height: 40,
+                //       child: Column(
+                //         crossAxisAlignment: CrossAxisAlignment.end,
+                //         mainAxisSize: MainAxisSize.min,
+                //         children: [
+                //           Text(
+                //             '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                //             style: Theme.of(context)
+                //                 .textTheme
+                //                 .subtitle2
+                //                 ?.copyWith(color: Colors.white),
+                //           ),
+                //           const Spacer(),
+                //           Text(
+                //             c.duration.value.hhMmSs(),
+                //             style: Theme.of(context)
+                //                 .textTheme
+                //                 .subtitle2
+                //                 ?.copyWith(color: Colors.white),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ],
+                // ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  });
 }
 
 /// [Draggable] data consisting of a [participant].

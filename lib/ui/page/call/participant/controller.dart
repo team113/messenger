@@ -151,11 +151,9 @@ class ParticipantController extends GetxController {
       if (q == null || q.isEmpty) {
         searchResults.clear();
         searchStatus.value = RxStatus.empty();
-        search.status.value = RxStatus.empty();
         populate();
       } else {
         searchStatus.value = RxStatus.loading();
-        search.status.value = RxStatus.loading();
         populate();
       }
     });
@@ -167,7 +165,6 @@ class ParticipantController extends GetxController {
     );
 
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
-      _height = d;
       int? first = list.firstOrNull?.index;
       if (first != null) {
         if (first >= recent.length + contacts.length) {
@@ -288,10 +285,6 @@ class ParticipantController extends GetxController {
       }
 
       if (num != null || name != null || login != null) {
-        search.status.value = searchStatus.value.isSuccess
-            ? RxStatus.loadingMore()
-            : RxStatus.loading();
-
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
@@ -301,18 +294,15 @@ class ParticipantController extends GetxController {
         populate();
 
         searchStatus.value = RxStatus.success();
-        search.status.value = RxStatus.empty();
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      search.status.value = RxStatus.empty();
       searchResults.clear();
     }
   }
 
   final RxInt selected = RxInt(0);
   final FlutterListViewController controller = FlutterListViewController();
-  double _height = 0;
 
   void jumpTo(int i) {
     if (i == 0) {
