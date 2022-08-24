@@ -27,8 +27,7 @@ REGISTRIES := $(strip $(subst $(comma), ,\
 
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2))
 FLUTTER_VER ?= $(strip \
-	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
-                                                              | cut -d'"' -f2))
+	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d'"' -f2))
 
 
 
@@ -203,7 +202,7 @@ endif
 
 flutter.pub:
 ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	docker run --platform linux/amd64 --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.pub cmd='$(cmd)' dockerized=no
