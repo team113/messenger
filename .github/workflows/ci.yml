@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -134,7 +134,7 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -230,7 +230,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -307,7 +307,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
@@ -348,7 +348,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.6.1
         with:
           flutter-version: $FLUTTER_VER
           channel: stable
