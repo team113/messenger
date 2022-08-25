@@ -237,7 +237,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border: style.cardBorder,
+                  border: fromMe
+                      ? isRead
+                          ? style.primaryBorder
+                          : Border.all(
+                              color: const Color(0xFFDAEDFF),
+                              width: 0.5,
+                            )
+                      : style.secondaryBorder,
                   // boxShadow: [
                   //   CustomBoxShadow(
                   //     blurRadius: 2,
@@ -548,11 +555,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             //     offset: const Offset(0, 0.5),
             //   ),
             // ],
-            border: style.cardBorder,
+            border: fromMe
+                ? isRead
+                    ? style.primaryBorder
+                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                : style.secondaryBorder,
             color: fromMe
                 ? isRead
-                    ? const Color(0xFFD7ECFF)
-                    : const Color(0xFFE6F1FE)
+                    ? const Color(0xFFC9E5FE)
+                    : const Color(0xFFF2F8FF)
                 : Colors.white,
             borderRadius: BorderRadius.circular(15),
           ),

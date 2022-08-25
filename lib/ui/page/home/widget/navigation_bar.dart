@@ -71,7 +71,8 @@ class CustomNavigationBar extends StatelessWidget {
               blurStyle: BlurStyle.outer,
             ),
           ],
-          borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -83,7 +84,7 @@ class CustomNavigationBar extends StatelessWidget {
             // ),
             ConditionalBackdropFilter(
               condition: style.cardBlur > 0,
-              borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+              borderRadius: style.cardRadius,
               filter: ImageFilter.blur(
                 sigmaX: style.cardBlur,
                 sigmaY: style.cardBlur,

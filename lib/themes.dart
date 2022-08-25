@@ -55,7 +55,15 @@ class Themes {
           Style(
             callDock: const Color(0xFF1E88E5),
             cardBorder: Border.all(
+              color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            secondaryBorder: Border.all(
               color: const Color(0xFFDADADA),
+              width: 0.5,
+            ),
+            primaryBorder: Border.all(
+              color: const Color(0xFFB1DAFE),
               width: 0.5,
             ),
             cardRadius: BorderRadius.circular(14),
@@ -318,6 +326,8 @@ class Style extends ThemeExtension<Style> {
     required this.callDock,
     required this.cardRadius,
     required this.cardBorder,
+    required this.primaryBorder,
+    required this.secondaryBorder,
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
@@ -326,6 +336,8 @@ class Style extends ThemeExtension<Style> {
   final Color callDock;
   final BorderRadius cardRadius;
   final Border cardBorder;
+  final Border primaryBorder;
+  final Border secondaryBorder;
   final double cardBlur;
   final Color cardColor;
   final TextStyle boldBody;
@@ -335,6 +347,8 @@ class Style extends ThemeExtension<Style> {
     Color? callDock,
     BorderRadius? cardRadius,
     Border? cardBorder,
+    Border? primaryBorder,
+    Border? secondaryBorder,
     double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
@@ -343,6 +357,8 @@ class Style extends ThemeExtension<Style> {
       callDock: callDock ?? this.callDock,
       cardRadius: cardRadius ?? this.cardRadius,
       cardBorder: cardBorder ?? this.cardBorder,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
@@ -359,6 +375,8 @@ class Style extends ThemeExtension<Style> {
       callDock: Color.lerp(callDock, other.callDock, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,

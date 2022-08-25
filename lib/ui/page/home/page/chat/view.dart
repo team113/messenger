@@ -723,6 +723,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time) {
+    Style style = Theme.of(context).extension<Style>()!;
     return Column(
       children: [
         const SizedBox(height: 8),
@@ -740,7 +741,7 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                // color: Colors.white,
+                border: style.cardBorder,
                 color: const Color(0xFFF8F8F8),
               ),
               child: Text(

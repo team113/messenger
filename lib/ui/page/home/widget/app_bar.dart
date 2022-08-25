@@ -42,6 +42,7 @@ abstract class CustomAppBar {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
+            border: style.cardBorder,
             boxShadow: const [
               CustomBoxShadow(
                 blurRadius: 8,

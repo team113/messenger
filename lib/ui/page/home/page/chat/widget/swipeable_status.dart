@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -68,7 +69,8 @@ class SwipeableStatus extends StatelessWidget {
           _animatedBuilder(
             Padding(
               padding: padding,
-              child: SizedBox(width: width, child: _swipeableWithStatus()),
+              child:
+                  SizedBox(width: width, child: _swipeableWithStatus(context)),
             ),
           ),
         ],
@@ -83,7 +85,7 @@ class SwipeableStatus extends StatelessWidget {
           Expanded(child: child),
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus()),
+            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
           ),
         ],
       ),
@@ -91,48 +93,52 @@ class SwipeableStatus extends StatelessWidget {
   }
 
   /// Returns a [Row] of [swipeable] and a status.
-  Widget _swipeableWithStatus() => DefaultTextStyle.merge(
-        textAlign: TextAlign.end,
-        maxLines: 1,
-        overflow: TextOverflow.visible,
-        style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
-        child: Padding(
-          // padding: EdgeInsets.zero,
-          padding: const EdgeInsets.only(left: 8),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: const Color(0xFFF5F8FA),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isSent || isDelivered || isRead || isSending || isError)
-                  Icon(
-                    (isRead || isDelivered)
-                        ? Icons.done_all
-                        : isSending
-                            ? Icons.access_alarm
-                            : isError
-                                ? Icons.error_outline
-                                : Icons.done,
-                    color: isRead
-                        ? const Color(0xFF63B4FF)
-                        : isError
-                            ? Colors.red
-                            : const Color(0xFF888888),
-                    size: 12,
-                  ),
-                const SizedBox(width: 3),
-                swipeable,
-              ],
-            ),
+  Widget _swipeableWithStatus(BuildContext context) {
+    Style style = Theme.of(context).extension<Style>()!;
+    return DefaultTextStyle.merge(
+      textAlign: TextAlign.end,
+      maxLines: 1,
+      overflow: TextOverflow.visible,
+      style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+      child: Padding(
+        // padding: EdgeInsets.zero,
+        padding: const EdgeInsets.only(left: 8),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+          margin: const EdgeInsets.only(right: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: style.cardBorder,
+            color: const Color(0xFFF8F8F8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSent || isDelivered || isRead || isSending || isError)
+                Icon(
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? const Color(0xFF63B4FF)
+                      : isError
+                          ? Colors.red
+                          : const Color(0xFF888888),
+                  size: 12,
+                ),
+              const SizedBox(width: 3),
+              swipeable,
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
 
   /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
   Widget _animatedBuilder(Widget child) => AnimatedBuilder(

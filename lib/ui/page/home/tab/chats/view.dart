@@ -44,6 +44,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
+import 'widget/hovered_ink.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -366,93 +367,85 @@ class ChatsTabView extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             borderRadius:
                 context.isMobile ? BorderRadius.zero : style.cardRadius,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                border: style.cardBorder,
-                color: Colors.transparent,
-              ),
-              child: Material(
-                type: MaterialType.card,
-                borderRadius: style.cardRadius,
-                color: selected
-                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                    : style.cardColor,
-                child: InkWell(
-                  borderRadius: style.cardRadius,
-                  onTap: () => router.chat(chat.id),
-                  hoverColor: selected
-                      ? const Color(0x00D7ECFF)
-                      : const Color(0xFFD7ECFF).withOpacity(0.8),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                    child: Row(
-                      children: [
-                        AvatarWidget.fromRxChat(rxChat, radius: 30),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+            child: InkWellWithHover(
+              color: selected
+                  ? const Color(0xFFC9E5FE).withOpacity(0.8)
+                  : style.cardColor,
+              hoveredBorder: selected
+                  ? style.primaryBorder
+                  : Border.all(
+                      color: const Color(0xFFDCEEFF),
+                      width: 0.5,
+                    ),
+              unhoveredBorder:
+                  selected ? style.primaryBorder : style.cardBorder,
+              borderRadius: style.cardRadius,
+              onTap: () => router.chat(chat.id),
+              hoverColor:
+                  selected ? const Color(0x00DDEFFF) : const Color(0xFFEAF5FF),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                child: Row(
+                  children: [
+                    AvatarWidget.fromRxChat(rxChat, radius: 30),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      rxChat.title.value,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                      style:
-                                          Theme.of(context).textTheme.headline5,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    '10:10',
-                                    style:
-                                        Theme.of(context).textTheme.subtitle2,
-                                  ),
-                                ],
+                              Expanded(
+                                child: Text(
+                                  rxChat.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  const SizedBox(height: 3),
-                                  Expanded(
-                                    child: DefaultTextStyle(
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle2!,
-                                      overflow: TextOverflow.ellipsis,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 3),
-                                        child: Row(children: subtitle ?? []),
-                                      ),
-                                    ),
-                                  ),
-                                  if (chat.unreadCount != 0) ...[
-                                    const SizedBox(height: 10),
-                                    Badge(
-                                      toAnimate: false,
-                                      elevation: 0,
-                                      badgeContent: Padding(
-                                        padding: const EdgeInsets.all(2.0),
-                                        child: Text(
-                                          '${chat.unreadCount}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                              const SizedBox(height: 10),
+                              Text(
+                                '10:10',
+                                style: Theme.of(context).textTheme.subtitle2,
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          Row(
+                            children: [
+                              const SizedBox(height: 3),
+                              Expanded(
+                                child: DefaultTextStyle(
+                                  style: Theme.of(context).textTheme.subtitle2!,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 3),
+                                    child: Row(children: subtitle ?? []),
+                                  ),
+                                ),
+                              ),
+                              if (chat.unreadCount != 0) ...[
+                                const SizedBox(height: 10),
+                                Badge(
+                                  toAnimate: false,
+                                  elevation: 0,
+                                  badgeContent: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Text(
+                                      '${chat.unreadCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
