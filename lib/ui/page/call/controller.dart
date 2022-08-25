@@ -453,10 +453,10 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
-    int minSize = min(size.width.toInt(), size.height.toInt());
-
-    secondaryWidth = RxDouble(minSize * 0.35);
-    secondaryHeight = RxDouble(minSize * 0.35);
+    secondaryWidth = RxDouble(size.shortestSide *
+        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3));
+    secondaryHeight = RxDouble(size.shortestSide *
+        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3));
 
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
@@ -536,10 +536,6 @@ class CallController extends GetxController {
                 break;
 
               case OngoingCallState.active:
-                minSize = min(size.width.toInt(), size.height.toInt());
-                secondaryWidth = RxDouble(minSize * 0.35);
-                secondaryHeight = RxDouble(minSize * 0.35);
-
                 var actualMembers = _currentCall.value.members.keys
                     .map((k) => k.userId)
                     .toSet();
@@ -576,6 +572,13 @@ class CallController extends GetxController {
 
     _stateWorker = ever(state, (OngoingCallState state) {
       if (state == OngoingCallState.active && _durationTimer == null) {
+        Size size = router.context!.mediaQuerySize;
+
+        secondaryWidth.value = size.shortestSide *
+            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3);
+        secondaryHeight.value = size.shortestSide *
+            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3);
+
         SchedulerBinding.instance
             .addPostFrameCallback((_) => relocateSecondary());
         DateTime begunAt = DateTime.now();
