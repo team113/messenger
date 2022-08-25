@@ -453,13 +453,10 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
-    if (router.context!.isMobile) {
-      secondaryWidth = RxDouble(150);
-      secondaryHeight = RxDouble(151);
-    } else {
-      secondaryWidth = RxDouble(200);
-      secondaryHeight = RxDouble(200);
-    }
+    int minSize = min(size.width.toInt(), size.height.toInt());
+
+    secondaryWidth = RxDouble(minSize * 0.35);
+    secondaryHeight = RxDouble(minSize * 0.35);
 
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
@@ -539,6 +536,10 @@ class CallController extends GetxController {
                 break;
 
               case OngoingCallState.active:
+                minSize = min(size.width.toInt(), size.height.toInt());
+                secondaryWidth = RxDouble(minSize * 0.35);
+                secondaryHeight = RxDouble(minSize * 0.35);
+
                 var actualMembers = _currentCall.value.members.keys
                     .map((k) => k.userId)
                     .toSet();
