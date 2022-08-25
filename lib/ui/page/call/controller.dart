@@ -349,7 +349,7 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.members] changes.
   late final StreamSubscription _membersSubscription;
 
-  /// [Map] of the [StreamSubscription] for the [CallMember.tracks] updates.
+  /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
   /// Subscription for [OngoingCall.members] changes updating the title.
@@ -529,7 +529,7 @@ class CallController extends GetxController {
                 var actualMembers = _currentCall.value.members.keys
                     .map((k) => k.userId)
                     .toSet();
-                args['members'] = '${actualMembers.length + 1}';
+                args['members'] = '${actualMembers.length}';
                 args['allMembers'] = '${v.chat.value.members.length}';
                 args['duration'] = duration.value.hhMmSs();
                 break;
@@ -637,9 +637,7 @@ class CallController extends GetxController {
       }
     });
 
-    members.forEach((key, value) {
-      _putMember(value);
-    });
+    members.forEach((_, value) => _putMember(value));
     _insureCorrectGrouping();
 
     _membersTracksSubscriptions = _currentCall.value.members.map(
@@ -655,11 +653,11 @@ class CallController extends GetxController {
 
               case OperationKind.removed:
                 _removeTrack(v, e.element);
-
                 _insureCorrectGrouping();
                 break;
 
               case OperationKind.updated:
+                // No-op.
                 break;
             }
           },
@@ -680,11 +678,11 @@ class CallController extends GetxController {
 
               case OperationKind.removed:
                 _removeTrack(e.value!, changes.element);
-
                 _insureCorrectGrouping();
                 break;
 
               case OperationKind.updated:
+                // No-op.
                 break;
             }
           });
@@ -738,9 +736,7 @@ class CallController extends GetxController {
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
-    _membersTracksSubscriptions.forEach((key, value) {
-      value.cancel();
-    });
+    _membersTracksSubscriptions.forEach((_, value) => value.cancel());
     _membersSubscription.cancel();
   }
 
@@ -872,8 +868,8 @@ class CallController extends GetxController {
   /// [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
     await _currentCall.value.setMemberVideoEnabled(
-      value: participant.video.value!.renderer.value == null,
-      id: participant.member.id,
+      participant.member.id,
+      participant.video.value!.renderer.value == null,
       source: participant.video.value!.source,
     );
   }
@@ -1634,6 +1630,7 @@ class CallController extends GetxController {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
       return;
     }
+
     locals.remove(participant);
     remotes.remove(participant);
     focused.remove(participant);
@@ -1687,7 +1684,9 @@ class CallController extends GetxController {
 
   /// Returns all [Participant]s identified by an [id] and [source].
   Iterable<Participant> _findParticipants(
-      CallMemberId id, MediaSourceKind source) {
+    CallMemberId id,
+    MediaSourceKind source,
+  ) {
     return [
       ...locals.where((e) => e.member.id == id && e.source == source),
       ...remotes.where((e) => e.member.id == id && e.source == source),
@@ -1696,23 +1695,22 @@ class CallController extends GetxController {
     ];
   }
 
-  /// Puts the member with tracks to [Participant]s identified by an [member]s
+  /// Puts the member with tracks to [Participant]s identified by an [member]'s
   /// id.
-  /// Puts empty [Participant] if member has no tracks.
+  ///
+  /// Puts empty [Participant], if member has no tracks.
   void _putMember(CallMember member) {
     if (!member.tracks.any((t) =>
         t.kind == MediaKind.Video && t.source == MediaSourceKind.Device)) {
       _putParticipant(member, null);
     }
+
     for (var t in member.tracks) {
       _putParticipant(member, t);
     }
   }
 
-  void _putParticipant(
-    CallMember member,
-    Track? track,
-  ) {
+  void _putParticipant(CallMember member, Track? track) {
     Participant? participant =
         track == null ? null : findParticipantByTrack(member.id, track);
 
@@ -1769,10 +1767,7 @@ class CallController extends GetxController {
   /// If [track] kind is [MediaKind.Video] and [track] source is
   /// [MediaSourceKind.Device] and its the last track with this parameters,
   /// track will be deleted, but participant will still exist.
-  void _removeTrack(
-    CallMember member,
-    Track track,
-  ) {
+  void _removeTrack(CallMember member, Track track) {
     if (track.kind == MediaKind.Video) {
       final participants = _findParticipants(member.id, track.source);
       if (participants.length == 1 && track.source == MediaSourceKind.Device) {
@@ -1830,18 +1825,11 @@ class Participant {
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 }
 
-/// Extension adding helping methods to a [TrackMediaDirection].
+/// Extension adding helping indicators to a [TrackMediaDirection].
 extension TrackMediaDirectionImpl on TrackMediaDirection {
-  /// Returns true if [TrackMediaDirection] indicates that track emits outcoming
-  /// signal.
+  /// Indicates whether this [TrackMediaDirection] is in sending state.
   bool get isEmitting {
-    switch (this) {
-      case TrackMediaDirection.SendRecv:
-      case TrackMediaDirection.SendOnly:
-        return true;
-      case TrackMediaDirection.RecvOnly:
-      case TrackMediaDirection.Inactive:
-        return false;
-    }
+    return this == TrackMediaDirection.SendRecv ||
+        this == TrackMediaDirection.SendOnly;
   }
 }

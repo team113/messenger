@@ -265,7 +265,11 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
         // Calculate the default [BoxFit] if there's no explicit fit.
         fit ??= RtcVideoView.determineBoxFit(
-            renderer, widget.source, constraints, context);
+          renderer,
+          widget.source,
+          constraints,
+          context,
+        );
 
         return Stack(
           alignment: Alignment.bottomCenter,

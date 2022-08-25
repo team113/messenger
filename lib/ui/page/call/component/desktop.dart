@@ -1039,7 +1039,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
         case OngoingCallState.active:
           var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          args['members'] = '${actualMembers.length + 1}';
+          args['members'] = '${actualMembers.length}';
           args['allMembers'] = '${c.chat.value?.members.length}';
           args['duration'] = c.duration.value.hhMmSs();
           break;
