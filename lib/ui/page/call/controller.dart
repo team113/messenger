@@ -24,7 +24,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/chat.dart';
@@ -1783,9 +1782,9 @@ class Participant {
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
 
-  /// Returns [MediaSourceKind] of this [Participant] due to audio and video
-  /// tracks source. If audio and video are null both, returns
-  /// [MediaSourceKind.Device] by default.
+  /// Returns [MediaSourceKind] of this [Participant].
+  /// Returns [MediaSourceKind.Device] by default if there are no tracks
+  /// available.
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
 

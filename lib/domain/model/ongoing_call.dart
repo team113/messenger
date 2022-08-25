@@ -1420,7 +1420,7 @@ abstract class Track {
   /// Disposes this [Track].
   void dispose();
 
-  /// Stops this [renderer]'s [webrtc.MediaStreamTrack]
+  /// Stops this [renderer]'s [webrtc.MediaStreamTrack].
   void stop();
 }
 
