@@ -178,52 +178,49 @@ class ContactsTabView extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: ContactTile(
-        contact: contact,
-        darken: 0,
-        onTap: contact.contact.value.users.isNotEmpty
-            // TODO: Open [Routes.contact] page when it's implemented.
-            ? () => router.user(contact.contact.value.users.first.id)
-            : null,
-        actions: [
-          ContextMenuButton(
-            label: 'btn_change_contact_name'.l10n,
-            onPressed: () {
-              c.contactToChangeNameOf.value = contact.contact.value.id;
-              c.contactName.clear();
-              c.contactName.unchecked = contact.contact.value.name.val;
-              SchedulerBinding.instance.addPostFrameCallback(
-                  (_) => c.contactName.focus.requestFocus());
-            },
-          ),
-          ContextMenuButton(
-            label: 'btn_delete_from_contacts'.l10n,
-            onPressed: () => c.deleteFromContacts(contact.contact.value),
-          ),
-        ],
-        trailing: [
-          if (contact.contact.value.users.isNotEmpty) ...[
-            IconButton(
-              onPressed: () =>
-                  c.startAudioCall(contact.contact.value.users.first),
-              icon: Icon(
-                Icons.call,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+    return ContactTile(
+      contact: contact,
+      darken: 0,
+      onTap: contact.contact.value.users.isNotEmpty
+          // TODO: Open [Routes.contact] page when it's implemented.
+          ? () => router.user(contact.contact.value.users.first.id)
+          : null,
+      actions: [
+        ContextMenuButton(
+          label: 'btn_change_contact_name'.l10n,
+          onPressed: () {
+            c.contactToChangeNameOf.value = contact.contact.value.id;
+            c.contactName.clear();
+            c.contactName.unchecked = contact.contact.value.name.val;
+            SchedulerBinding.instance.addPostFrameCallback(
+                (_) => c.contactName.focus.requestFocus());
+          },
+        ),
+        ContextMenuButton(
+          label: 'btn_delete_from_contacts'.l10n,
+          onPressed: () => c.deleteFromContacts(contact.contact.value),
+        ),
+      ],
+      trailing: [
+        if (contact.contact.value.users.isNotEmpty) ...[
+          IconButton(
+            onPressed: () =>
+                c.startAudioCall(contact.contact.value.users.first),
+            icon: Icon(
+              Icons.call,
+              color: Theme.of(context).colorScheme.primary,
             ),
-            IconButton(
-              onPressed: () =>
-                  c.startVideoCall(contact.contact.value.users.first),
-              icon: Icon(
-                Icons.video_call,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+          ),
+          IconButton(
+            onPressed: () =>
+                c.startVideoCall(contact.contact.value.users.first),
+            icon: Icon(
+              Icons.video_call,
+              color: Theme.of(context).colorScheme.primary,
             ),
-          ]
-        ],
-      ),
+          ),
+        ]
+      ],
     );
 
     return ContextMenuRegion(

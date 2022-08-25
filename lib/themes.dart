@@ -54,6 +54,10 @@ class Themes {
         extensions: [
           Style(
             callDock: const Color(0xFF1E88E5),
+            cardBorder: Border.all(
+              color: const Color(0xFFDADADA),
+              width: 0.5,
+            ),
             cardRadius: BorderRadius.circular(14),
             cardColor: Colors.white.withOpacity(0.95),
             cardBlur: 5,
@@ -313,6 +317,7 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.callDock,
     required this.cardRadius,
+    required this.cardBorder,
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
@@ -320,6 +325,7 @@ class Style extends ThemeExtension<Style> {
 
   final Color callDock;
   final BorderRadius cardRadius;
+  final Border cardBorder;
   final double cardBlur;
   final Color cardColor;
   final TextStyle boldBody;
@@ -328,6 +334,7 @@ class Style extends ThemeExtension<Style> {
   ThemeExtension<Style> copyWith({
     Color? callDock,
     BorderRadius? cardRadius,
+    Border? cardBorder,
     double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
@@ -335,6 +342,7 @@ class Style extends ThemeExtension<Style> {
     return Style(
       callDock: callDock ?? this.callDock,
       cardRadius: cardRadius ?? this.cardRadius,
+      cardBorder: cardBorder ?? this.cardBorder,
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
@@ -350,6 +358,7 @@ class Style extends ThemeExtension<Style> {
     return Style(
       callDock: Color.lerp(callDock, other.callDock, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,

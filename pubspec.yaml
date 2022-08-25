@@ -87,6 +87,7 @@ dependencies:
   visibility_detector: ^0.3.3
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.3
+  flutter_app_badger: ^1.4.0
 
 dev_dependencies:
   artemis: ^7.7.0-beta

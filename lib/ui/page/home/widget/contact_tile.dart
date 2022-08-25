@@ -70,6 +70,7 @@ class ContactTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
+            border: style.cardBorder,
             color: Colors.transparent,
           ),
           child: Material(
