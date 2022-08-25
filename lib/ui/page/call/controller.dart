@@ -454,9 +454,9 @@ class CallController extends GetxController {
     Size size = router.context!.mediaQuerySize;
 
     secondaryWidth = RxDouble(size.shortestSide *
-        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3));
+        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.33));
     secondaryHeight = RxDouble(size.shortestSide *
-        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3));
+        ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.33));
 
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
@@ -575,9 +575,9 @@ class CallController extends GetxController {
         Size size = router.context!.mediaQuerySize;
 
         secondaryWidth.value = size.shortestSide *
-            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3);
+            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.33);
         secondaryHeight.value = size.shortestSide *
-            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.3);
+            ((size.aspectRatio > 1.5 || size.aspectRatio < 0.66) ? 0.45 : 0.33);
 
         SchedulerBinding.instance
             .addPostFrameCallback((_) => relocateSecondary());
