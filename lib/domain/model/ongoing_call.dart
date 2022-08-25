@@ -100,6 +100,15 @@ extension LocalTrackStateImpl on LocalTrackState {
   }
 }
 
+/// Extension adding helping indicators to a [TrackMediaDirection].
+extension TrackMediaDirectionImpl on TrackMediaDirection {
+  /// Indicates whether this [TrackMediaDirection] is in sending state.
+  bool get isEmitting {
+    return this == TrackMediaDirection.SendRecv ||
+        this == TrackMediaDirection.SendOnly;
+  }
+}
+
 /// Ongoing [ChatCall] in a [Chat].
 ///
 /// Proper initialization requires [connect] once the inner [ChatCall] is set.
@@ -228,6 +237,9 @@ class OngoingCall {
 
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
+
+  /// Mutex guarding [toggleHand].
+  final Mutex _toggleHandGuard = Mutex();
 
   // TODO: Temporary solution. Errors should be captured the other way.
   /// Temporary [StreamController] of the [errors].
@@ -897,7 +909,7 @@ class OngoingCall {
 
             case TrackMediaDirection.RecvOnly:
             case TrackMediaDirection.Inactive:
-              member?.tracks.remove(t..dispose());
+              t.removeRenderer();
               break;
           }
         });
@@ -905,6 +917,27 @@ class OngoingCall {
         track.onStopped(() => member?.tracks.remove(t..dispose()));
       });
     });
+  }
+
+  /// Raises/lowers a hand.
+  /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
+  /// locked.
+  Future<void> toggleHand(CallService service, ChatId chatId) async {
+    final CallMember? me = members[_me];
+
+    if (me != null) {
+      me.isHandRaised.toggle();
+      if (!_toggleHandGuard.isLocked) {
+        var raised = me.isHandRaised.value;
+        await _toggleHandGuard.protect(() async {
+          await service.toggleHand(chatId, raised);
+        });
+
+        if (raised != me.isHandRaised.value) {
+          me.isHandRaised.toggle();
+        }
+      }
+    }
   }
 
   /// Initializes the local media tracks and renderers before the call has
@@ -1120,7 +1153,7 @@ class OngoingCall {
   /// Updates the local [CallMember.tracks] corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
-    _disposeLocalMedia(); // TODO(review): why?
+    _disposeLocalMedia();
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled(),
@@ -1140,6 +1173,7 @@ class OngoingCall {
   /// renderer.
 
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
+    _removeLocalTracks(track.kind(), track.mediaSourceKind());
     Track t = LocalTrack(track);
     members[_me]?.tracks.add(t);
 
@@ -1160,7 +1194,6 @@ class OngoingCall {
           state == LocalTrackState.disabled) {
         track.free();
       } else {
-        _removeLocalTracks(track.kind(), track.mediaSourceKind());
         if (track.mediaSourceKind() == MediaSourceKind.Device) {
           videoDevice.value = videoDevice.value ?? track.getTrack().deviceId();
         }
@@ -1179,7 +1212,7 @@ class OngoingCall {
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.dispose();
+        t.stop();
         return true;
       }
       return false;
@@ -1386,6 +1419,9 @@ abstract class Track {
 
   /// Disposes this [Track].
   void dispose();
+
+  /// Stops this [renderer]'s [webrtc.MediaStreamTrack]
+  void stop();
 }
 
 /// [Track] implementation for [RemoteMediaTrack].
@@ -1420,6 +1456,12 @@ class RemoteTrack extends Track {
     removeRenderer();
     track.free();
   }
+
+  @override
+  void stop() {
+    track.getTrack().stop();
+    removeRenderer();
+  }
 }
 
 /// [Track] implementation for [LocalMediaTrack].
@@ -1453,6 +1495,12 @@ class LocalTrack extends Track {
   void dispose() {
     removeRenderer();
     track.free();
+  }
+
+  @override
+  void stop() {
+    track.getTrack().stop();
+    removeRenderer();
   }
 }
 

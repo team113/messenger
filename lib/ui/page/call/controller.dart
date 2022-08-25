@@ -303,9 +303,6 @@ class CallController extends GetxController {
   /// Duration of an error being shown in seconds.
   static const int _errorDuration = 6;
 
-  /// Mutex guarding [toggleHand].
-  final Mutex _toggleHandGuard = Mutex();
-
   /// Service managing the [_currentCall].
   final CallService _calls;
 
@@ -367,7 +364,7 @@ class CallController extends GetxController {
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
 
-  /// Returns an [UserId] of the currently authorized [MyUser].
+  /// Returns an [CallMember] of the currently authorized [MyUser].
   late final CallMember me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
@@ -652,7 +649,7 @@ class CallController extends GetxController {
                 break;
 
               case OperationKind.removed:
-                _removeTrack(v, e.element);
+                _removeParticipant(v, e.element);
                 _insureCorrectGrouping();
                 break;
 
@@ -677,7 +674,7 @@ class CallController extends GetxController {
                 break;
 
               case OperationKind.removed:
-                _removeTrack(e.value!, changes.element);
+                _removeParticipant(e.value!, changes.element);
                 _insureCorrectGrouping();
                 break;
 
@@ -823,27 +820,12 @@ class CallController extends GetxController {
   /// Raises/lowers a hand.
   Future<void> toggleHand() async {
     keepUi();
-    me.isHandRaised.toggle();
-    await _toggleHand();
+
+    await _currentCall.value.toggleHand(_calls, chatId);
   }
 
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
-
-  /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
-  /// locked.
-  Future<void> _toggleHand() async {
-    if (!_toggleHandGuard.isLocked) {
-      var raised = me.isHandRaised.value;
-      await _toggleHandGuard.protect(() async {
-        await _calls.toggleHand(chatId, raised);
-      });
-
-      if (raised != me.isHandRaised.value) {
-        _toggleHand();
-      }
-    }
-  }
 
   /// Toggles fullscreen on and off.
   Future<void> toggleFullscreen() async {
@@ -867,11 +849,13 @@ class CallController extends GetxController {
   /// Creates or removes renderers of incoming video from the provided
   /// [participant].
   Future<void> toggleVideoEnabled(Participant participant) async {
-    await _currentCall.value.setMemberVideoEnabled(
-      participant.member.id,
-      participant.video.value!.renderer.value == null,
-      source: participant.video.value!.source,
-    );
+    if (participant.video.value?.direction.value.isEmitting ?? false) {
+      await _currentCall.value.setMemberVideoEnabled(
+        participant.member.id,
+        participant.video.value!.renderer.value == null,
+        source: participant.video.value!.source,
+      );
+    }
   }
 
   /// Keeps UI open for some amount of time and then hides it if [enabled] is
@@ -889,31 +873,12 @@ class CallController extends GetxController {
     }
   }
 
-  /// Returns a [Participant] identified by an [id] and a [source].
-  Participant? findParticipantByTrack(CallMemberId id, Track track) {
-    return locals.firstWhereOrNull((e) =>
-            e.member.id == id &&
-            track.source == e.source &&
-            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
-                (track.kind == MediaKind.Audio &&
-                    (e.audio.value == track || e.audio.value == null)))) ??
-        remotes.firstWhereOrNull((e) =>
-            e.member.id == id &&
-            track.source == e.source &&
-            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
-                (track.kind == MediaKind.Audio &&
-                    (e.audio.value == track || e.audio.value == null)))) ??
-        paneled.firstWhereOrNull((e) =>
-            e.member.id == id &&
-            track.source == e.source &&
-            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
-                (track.kind == MediaKind.Audio &&
-                    (e.audio.value == track || e.audio.value == null)))) ??
-        focused.firstWhereOrNull((e) =>
-            e.member.id == id &&
-            track.source == e.source &&
-            ((track.kind == MediaKind.Video && (e.video.value == track || e.video.value == null)) ||
-                (track.kind == MediaKind.Audio && (e.audio.value == track || e.audio.value == null))));
+  /// Returns a [Participant] identified by an [id] and a [track].
+  Participant? findParticipantByTrack(CallMemberId id, Track? track) {
+    return locals.firstWhereOrNull((e) => e.identify(id, track)) ??
+        remotes.firstWhereOrNull((e) => e.identify(id, track)) ??
+        paneled.firstWhereOrNull((e) => e.identify(id, track)) ??
+        focused.firstWhereOrNull((e) => e.identify(id, track));
   }
 
   /// Centers the [participant], which means [focus]ing the [participant] and
@@ -1710,9 +1675,11 @@ class CallController extends GetxController {
     }
   }
 
+  /// Finds [Participant] with nullable audio or video and puts [track] to it.
+  /// Creates new [Participant] if there are no [Participant]'s available for
+  /// this [member] or they already has tracks.
   void _putParticipant(CallMember member, Track? track) {
-    Participant? participant =
-        track == null ? null : findParticipantByTrack(member.id, track);
+    Participant? participant = findParticipantByTrack(member.id, track);
 
     if (participant == null) {
       Participant participant = Participant(
@@ -1763,11 +1730,9 @@ class CallController extends GetxController {
     }
   }
 
-  /// Removes [Participant] due to removed [track].
-  /// If [track] kind is [MediaKind.Video] and [track] source is
-  /// [MediaSourceKind.Device] and its the last track with this parameters,
-  /// track will be deleted, but participant will still exist.
-  void _removeTrack(CallMember member, Track track) {
+  /// Removes [Participant] if its not the last available [Participant] of the
+  /// provided [member].
+  void _removeParticipant(CallMember member, Track track) {
     if (track.kind == MediaKind.Video) {
       final participants = _findParticipants(member.id, track.source);
       if (participants.length == 1 && track.source == MediaSourceKind.Device) {
@@ -1823,13 +1788,20 @@ class Participant {
   /// [MediaSourceKind.Device] by default.
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
-}
 
-/// Extension adding helping indicators to a [TrackMediaDirection].
-extension TrackMediaDirectionImpl on TrackMediaDirection {
-  /// Indicates whether this [TrackMediaDirection] is in sending state.
-  bool get isEmitting {
-    return this == TrackMediaDirection.SendRecv ||
-        this == TrackMediaDirection.SendOnly;
+  /// Identifies [Participant] by provided [id] and [track].
+  bool identify(CallMemberId id, Track? track) {
+    if (member.id != id) {
+      return false;
+    } else if (track == null) {
+      return video.value == null;
+    }
+
+    switch (track.kind) {
+      case MediaKind.Audio:
+        return (audio.value == track || audio.value == null);
+      case MediaKind.Video:
+        return (video.value == track || video.value == null);
+    }
   }
 }

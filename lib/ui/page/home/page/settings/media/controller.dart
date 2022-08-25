@@ -96,10 +96,6 @@ class MediaSettingsController extends GetxController {
     super.onClose();
 
     _localTracks?.cancel();
-    _call.value.localTracks?.forEach((t) {
-      t.dispose();
-    });
-
     _call.value.dispose();
   }
 
