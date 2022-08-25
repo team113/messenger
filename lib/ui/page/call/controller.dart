@@ -435,7 +435,7 @@ class CallController extends GetxController {
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
 
     _currentCall.value.init();
@@ -554,7 +554,7 @@ class CallController extends GetxController {
       }
     }
 
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
+    await _chatService.get(_currentCall.value.chatId.value).then(_onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(_onChat),
@@ -935,7 +935,7 @@ class CallController extends GetxController {
     focused.remove(participant);
 
     for (Participant r in List.from(focused, growable: false)) {
-      _putParticipantFrom(r, focused);
+      _putVideoFrom(r, focused);
     }
     focused.add(participant);
     _insureCorrectGrouping();
@@ -957,12 +957,12 @@ class CallController extends GetxController {
         focused.add(participant);
         paneled.remove(participant);
       } else {
-        _putParticipantTo(participant, focused);
+        _putVideoTo(participant, focused);
       }
       _insureCorrectGrouping();
     } else {
       if (paneled.contains(participant)) {
-        _putParticipantFrom(participant, paneled);
+        _putVideoFrom(participant, paneled);
         _insureCorrectGrouping();
       }
     }
@@ -977,14 +977,14 @@ class CallController extends GetxController {
     }
 
     if (focused.contains(participant)) {
-      _putParticipantFrom(participant, focused);
+      _putVideoFrom(participant, focused);
       if (focused.isEmpty) {
         unfocusAll();
       }
       _insureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
-        _putParticipantTo(participant, paneled);
+        _putVideoTo(participant, paneled);
         _insureCorrectGrouping();
       }
     }
@@ -994,11 +994,11 @@ class CallController extends GetxController {
   /// groups.
   void focusAll() {
     for (Participant r in List.from(paneled, growable: false)) {
-      _putParticipantFrom(r, paneled);
+      _putVideoFrom(r, paneled);
     }
 
     for (Participant r in List.from(focused, growable: false)) {
-      _putParticipantFrom(r, focused);
+      _putVideoFrom(r, focused);
     }
 
     _insureCorrectGrouping();
@@ -1009,7 +1009,7 @@ class CallController extends GetxController {
   void unfocusAll() {
     for (Participant r
         in List.from([...focused, ...locals, ...remotes], growable: false)) {
-      _putParticipantTo(r, paneled);
+      _putVideoTo(r, paneled);
     }
 
     _insureCorrectGrouping();
@@ -1628,7 +1628,7 @@ class CallController extends GetxController {
   }
 
   /// Puts [participant] from its `default` group to [list].
-  void _putParticipantTo(Participant participant, RxList<Participant> list) {
+  void _putVideoTo(Participant participant, RxList<Participant> list) {
     if (participant.member.owner == MediaOwnerKind.local &&
         participant.video.value?.source == MediaSourceKind.Display) {
       // Movement of a local [MediaSourceKind.Display] is prohibited.
@@ -1642,7 +1642,7 @@ class CallController extends GetxController {
   }
 
   /// Puts [participant] from [list] to its `default` group.
-  void _putParticipantFrom(Participant participant, RxList<Participant> list) {
+  void _putVideoFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
         // Movement of [MediaSourceKind.Display] to [locals] is prohibited.
@@ -1670,7 +1670,7 @@ class CallController extends GetxController {
       if (paneled.isEmpty && focused.isNotEmpty) {
         List<Participant> copy = List.from(focused, growable: false);
         for (Participant r in copy) {
-          _putParticipantFrom(r, focused);
+          _putVideoFrom(r, focused);
         }
       }
     }
@@ -1729,14 +1729,18 @@ class CallController extends GetxController {
 
       switch (member.owner) {
         case MediaOwnerKind.local:
-          switch (participant.source) {
-            case MediaSourceKind.Device:
-              locals.add(participant);
-              break;
+          if (isGroup) {
+            switch (participant.source) {
+              case MediaSourceKind.Device:
+                locals.add(participant);
+                break;
 
-            case MediaSourceKind.Display:
-              paneled.add(participant);
-              break;
+              case MediaSourceKind.Display:
+                paneled.add(participant);
+                break;
+            }
+          } else {
+            paneled.add(participant);
           }
           break;
 
