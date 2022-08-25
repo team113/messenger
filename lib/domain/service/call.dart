@@ -195,7 +195,7 @@ class CallService extends DisposableService {
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
       // required to await the decline.
-      if (WebUtils.isPopup) {
+      if (PlatformUtils.isPopup) {
         await _callsRepo.decline(chatId);
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();

@@ -19,6 +19,7 @@ import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -91,6 +92,11 @@ class PopupCallController extends GetxController {
             WebUtils.closeWindow();
           }
         } else {
+          DesktopMultiWindow.invokeMethod(
+            0,
+            'call_${call.value.chatId.value.val}',
+            json.encode(call.value.toStored().toJson()),
+          );
           if (state == OngoingCallState.ended) {
             _windowController?.close();
           }
@@ -107,24 +113,30 @@ class PopupCallController extends GetxController {
             WebUtils.closeWindow();
           }
         } else if (e.key == 'call_${call.value.chatId}') {
-          var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
-          call.value.call.value = stored.call;
-          call.value.creds = call.value.creds ?? stored.creds;
-          call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-          call.value.chatId.value = stored.chatId;
+          var newValue = WebStoredCall.fromJson(json.decode(e.newValue!));
+          call.value.call.value = newValue.call;
+          call.value.creds = call.value.creds ?? newValue.creds;
+          call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
+          call.value.chatId.value = newValue.chatId;
           _tryToConnect();
         }
       });
     } else {
       DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
+        print('setMethodHandler in separate window');
+        print(methodCall.arguments);
         if (methodCall.method == 'call') {
-          var stored =
+          if (methodCall.arguments == null) {
+            _windowController?.close();
+          }
+
+          var newValue =
               WebStoredCall.fromJson(json.decode(methodCall.arguments));
 
-          call.value.call.value = stored.call;
-          call.value.creds = call.value.creds ?? stored.creds;
-          call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-          call.value.chatId.value = stored.chatId;
+          call.value.call.value = newValue.call;
+          call.value.creds = call.value.creds ?? newValue.creds;
+          call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
+          call.value.chatId.value = newValue.chatId;
           _tryToConnect();
         }
       });

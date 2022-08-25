@@ -348,19 +348,39 @@ class CallWorker extends DisposableService {
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
-    _storageSubscription = WebUtils.onStorageChange.listen((s) {
-      if (s.key == null) {
-        stop();
-      } else if (s.key?.startsWith('call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
-        if (s.newValue == null) {
-          _callService.remove(chatId);
-          _workers.remove(chatId)?.dispose();
-          if (_workers.isEmpty) {
-            stop();
+    if (PlatformUtils.isWeb) {
+      _storageSubscription = WebUtils.onStorageChange.listen((s) {
+        if (s.key == null) {
+          stop();
+        } else if (s.key?.startsWith('call_') == true) {
+          ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
+          if (s.newValue == null) {
+            _callService.remove(chatId);
+            _workers.remove(chatId)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+          } else {
+            var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+            if (call.state != OngoingCallState.local &&
+                call.state != OngoingCallState.pending) {
+              _workers.remove(chatId)?.dispose();
+              if (_workers.isEmpty) {
+                stop();
+              }
+            }
           }
-        } else {
-          var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+        }
+      });
+    } else {
+      DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
+        print('setMethodHandler in main app');
+        print(methodCall.arguments);
+        if (methodCall.method.startsWith('call_')) {
+          ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
+
+          var call = WebStoredCall.fromJson(json.decode(methodCall.arguments));
+
           if (call.state != OngoingCallState.local &&
               call.state != OngoingCallState.pending) {
             _workers.remove(chatId)?.dispose();
@@ -368,8 +388,17 @@ class CallWorker extends DisposableService {
               stop();
             }
           }
+
+          if (methodCall.arguments == null ||
+              call.state == OngoingCallState.ended) {
+            _callService.remove(chatId);
+            _workers.remove(chatId)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+          }
         }
-      }
-    });
+      });
+    }
   }
 }
