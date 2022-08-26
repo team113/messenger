@@ -18,6 +18,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat_call.dart';
@@ -98,6 +99,7 @@ class CallService extends DisposableService {
     }
 
     try {
+      _enableWakeLockWhenNoActiveCalls();
       Rx<OngoingCall> call = Rx<OngoingCall>(
         OngoingCall(
           chatId,
@@ -250,6 +252,7 @@ class CallService extends DisposableService {
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
+    _disableWakeLockWhenNoActiveCalls();
   }
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
@@ -385,5 +388,31 @@ class CallService extends DisposableService {
         }
       },
     );
+  }
+
+  /// The following code will enable the wakelock on the device using the wakelock plugin, when no active users.
+  Future<void> _enableWakeLockWhenNoActiveCalls() {
+    if (_callsRepo.calls.isEmpty) {
+      return _enableWakeLock();
+    }
+    return Future.value();
+  }
+
+  /// The following code will disable the wakelock on the device using the wakelock plugin, when no active users.
+  Future<void> _disableWakeLockWhenNoActiveCalls() {
+    if (_callsRepo.calls.isEmpty) {
+      return _disableWakeLock();
+    }
+    return Future.value();
+  }
+
+  /// The following code will enable the wakelock on the device using the wakelock plugin.
+  Future<void> _enableWakeLock() {
+    return Wakelock.enable();
+  }
+
+  /// The following code will disable the wakelock on the device using the wakelock plugin.
+  Future<void> _disableWakeLock() {
+    return Wakelock.disable();
   }
 }
