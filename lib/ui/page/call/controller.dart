@@ -363,7 +363,7 @@ class CallController extends GetxController {
   /// State of the current [OngoingCall] progression.
   Rx<OngoingCallState> get state => _currentCall.value.state;
 
-  /// Returns an [CallMember] of the currently authorized [MyUser].
+  /// Returns a [CallMember] of the currently authorized [MyUser].
   late final CallMember me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
