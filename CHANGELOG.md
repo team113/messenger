@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- macOS:
+    - Unread chats count badge on app's icon ([#106]).
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
@@ -89,6 +91,7 @@ All user visible changes to this project will be documented in this file. This p
 [#83]: /../../pull/83
 [#85]: /../../pull/85
 [#90]: /../../pull/90
+[#106]: /../../pull/106
 
 
 
