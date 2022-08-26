@@ -28,7 +28,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
-      - docker
+      # - docker
       - helm-lint
       - pubspec
       - test-e2e
