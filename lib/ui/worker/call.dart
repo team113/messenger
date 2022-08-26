@@ -20,7 +20,6 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -374,32 +373,6 @@ class CallWorker extends DisposableService {
         }
       });
     } else {
-      DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
-        print('setMethodHandler in main app');
-        print(methodCall.arguments);
-        if (methodCall.method.startsWith('call_')) {
-          ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
-
-          var call = WebStoredCall.fromJson(json.decode(methodCall.arguments));
-
-          if (call.state != OngoingCallState.local &&
-              call.state != OngoingCallState.pending) {
-            _workers.remove(chatId)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-          }
-
-          if (methodCall.arguments == null ||
-              call.state == OngoingCallState.ended) {
-            _callService.remove(chatId);
-            _workers.remove(chatId)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-          }
-        }
-      });
     }
   }
 }

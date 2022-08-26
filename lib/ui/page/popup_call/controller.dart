@@ -17,9 +17,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -44,7 +42,7 @@ class PopupCallController extends GetxController {
   /// [CallService] maintaining the [call].
   final CallService _calls;
 
-  late final WindowController? _windowController;
+  //late final WindowController? _windowController;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] communicating with the
   /// main application.
@@ -60,7 +58,7 @@ class PopupCallController extends GetxController {
   @override
   void onInit() {
     if (!PlatformUtils.isWeb) {
-      _windowController = WindowController.fromWindowId(router.windowId!);
+      //_windowController = WindowController.fromWindowId(router.windowId!);
     }
 
     WebStoredCall? stored;
@@ -91,15 +89,6 @@ class PopupCallController extends GetxController {
           if (state == OngoingCallState.ended) {
             WebUtils.closeWindow();
           }
-        } else {
-          DesktopMultiWindow.invokeMethod(
-            0,
-            'call_${call.value.chatId.value.val}',
-            json.encode(call.value.toStored().toJson()),
-          );
-          if (state == OngoingCallState.ended) {
-            _windowController?.close();
-          }
         }
       },
     );
@@ -122,33 +111,6 @@ class PopupCallController extends GetxController {
         }
       });
     } else {
-      // windowManager.ensureInitialized().whenComplete(() => windowManager.addListener(DesktopWindowListener(onClose: () {
-      //   print('On window close work!!!!!');
-      //   // WebUtils.removeCall(call.value.chatId.value);
-      //   // _storageSubscription?.cancel();
-      //   // _stateWorker.dispose();
-      //   // _calls.leave(call.value.chatId.value, call.value.deviceId!);
-      // })));
-
-
-      DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
-        print('setMethodHandler in separate window');
-        print(methodCall.arguments);
-        if (methodCall.method == 'call') {
-          if (methodCall.arguments == null) {
-            _windowController?.close();
-          }
-
-          var newValue =
-              WebStoredCall.fromJson(json.decode(methodCall.arguments));
-
-          call.value.call.value = newValue.call;
-          call.value.creds = call.value.creds ?? newValue.creds;
-          call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
-          call.value.chatId.value = newValue.chatId;
-          _tryToConnect();
-        }
-      });
     }
 
     _tryToConnect();

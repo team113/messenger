@@ -365,13 +365,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.3"
-  desktop_multi_window:
-    dependency: "direct main"
-    description:
-      name: desktop_multi_window
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
   dio:
     dependency: "direct main"
     description:
@@ -932,6 +925,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.1.0"
+  multi_window:
+    dependency: "direct main"
+    description:
+      name: multi_window
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
+  multi_window_interface:
+    dependency: transitive
+    description:
+      name: multi_window_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
+  multi_window_linux:
+    dependency: transitive
+    description:
+      name: multi_window_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
+  multi_window_macos:
+    dependency: transitive
+    description:
+      name: multi_window_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   mutex:
     dependency: "direct main"
     description:

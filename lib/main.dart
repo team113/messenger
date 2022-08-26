@@ -21,18 +21,14 @@
 library main;
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:isolate';
-import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:multi_window/multi_window.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -58,34 +54,21 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main(List<String> args) async {
   await Config.init();
-
-  bool isSeparateWindow = args.firstOrNull == 'multi_window';
-  int? windowId;
-  WebStoredCall? call;
-  Credentials? credentials;
-
-  if (isSeparateWindow) {
-    windowId = int.parse(args[1]);
-    final argument = jsonDecode(args[2]) as Map<String, dynamic>;
-    call = WebStoredCall.fromJson(json.decode(argument['call'] as String));
-    credentials =
-        Credentials.fromJson(json.decode(argument['credentials'] as String));
-  }
+  MultiWindow.init(args);
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
     WebUtils.setPathUrlStrategy();
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
     }
 
-    await _initHive(windowId: windowId, credentials: credentials);
+    await _initHive();
 
     Get.put(NotificationService())
         .init(onNotificationResponse: onNotificationResponse);
 
     var graphQlProvider = Get.put(GraphQlProvider());
-    graphQlProvider.token = credentials?.session.token;
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     var authService =
@@ -95,11 +78,7 @@ Future<void> main(List<String> args) async {
     await L10n.init();
 
     router = RouterState(authService);
-    if (isSeparateWindow) {
-      router.call = call;
-      router.windowId = windowId;
-      router.go('${Routes.call}/${call!.chatId}');
-    }
+
 
     Get.put(BackgroundWorker(Get.find()));
 

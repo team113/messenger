@@ -17,9 +17,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:multi_window/multi_window.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
@@ -117,39 +117,41 @@ class CallOverlayController extends GetxController {
               _settings.value?.enablePopups != false) {
             window = true;
             var desktopWindow =
-                await DesktopMultiWindow.createWindow(jsonEncode({
-              'call': json.encode(ongoingCall.toStored().toJson()),
-              'credentials': json.encode(Get.find<SessionDataHiveProvider>()
-                  .getCredentials()!
-                  .toJson()),
-            }));
-            desktopWindow
-              ..setFrame(const Offset(0, 0) & const Size(700, 700))
-              ..center()
-              ..setTitle('Call')
-              ..show();
-
-            DesktopMultiWindow.invokeMethod(
-              desktopWindow.windowId,
-              'call',
-              json.encode(ongoingCall.toStored().toJson()),
-            );
+                await MultiWindow.create( 'osdjfo'
+            //         jsonEncode({
+            //   'call': json.encode(ongoingCall.toStored().toJson()),
+            //   'credentials': json.encode(Get.find<SessionDataHiveProvider>()
+            //       .getCredentials()!
+            //       .toJson()),
+            // })
+                );
+            // desktopWindow
+            //   ..setFrame(const Offset(0, 0) & const Size(700, 700))
+            //   ..center()
+            //   ..setTitle('Call')
+            //   ..show();
+            //
+            // DesktopMultiWindow.invokeMethod(
+            //   desktopWindow.windowId,
+            //   'call',
+            //   json.encode(ongoingCall.toStored().toJson()),
+            // );
 
             if (ongoingCall.callChatItemId == null ||
                 ongoingCall.deviceId == null) {
               _workers[event.key!] = ever(
                 event.value!.value.call,
                 (ChatCall? call) {
-                  DesktopMultiWindow.invokeMethod(
-                      desktopWindow.windowId,
-                      'call',
-                      json.encode(WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ).toJson()));
+                  // DesktopMultiWindow.invokeMethod(
+                  //     desktopWindow.windowId,
+                  //     'call',
+                  //     json.encode(WebStoredCall(
+                  //       chatId: ongoingCall.chatId.value,
+                  //       call: call,
+                  //       creds: ongoingCall.creds,
+                  //       deviceId: ongoingCall.deviceId,
+                  //       state: ongoingCall.state.value,
+                  //     ).toJson()));
 
                   if (call?.id != null) {
                     _workers[event.key!]?.dispose();
