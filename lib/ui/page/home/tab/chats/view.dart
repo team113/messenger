@@ -368,13 +368,14 @@ class ChatsTabView extends StatelessWidget {
             borderRadius:
                 context.isMobile ? BorderRadius.zero : style.cardRadius,
             child: InkWellWithHover(
-              color: selected
-                  ? const Color(0xFFC9E5FE).withOpacity(0.8)
-                  : style.cardColor,
+              color: selected ? const Color(0xFFD6E8FB) : style.cardColor,
               hoveredBorder: selected
-                  ? style.primaryBorder
+                  ? Border.all(
+                      color: const Color(0xFFB9D9FA),
+                      width: 0.5,
+                    )
                   : Border.all(
-                      color: const Color(0xFFDCEEFF),
+                      color: const Color(0xFFDFEDFD),
                       width: 0.5,
                     ),
               unhoveredBorder:
@@ -382,7 +383,7 @@ class ChatsTabView extends StatelessWidget {
               borderRadius: style.cardRadius,
               onTap: () => router.chat(chat.id),
               hoverColor:
-                  selected ? const Color(0x00DDEFFF) : const Color(0xFFEAF5FF),
+                  selected ? const Color(0x00ECF5FE) : const Color(0xFFECF5FE),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
                 child: Row(
