@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- macOS:
+    - Unread chats count badge on app's icon ([#106]).
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
