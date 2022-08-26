@@ -66,12 +66,17 @@ class MyUserWorker extends DisposableService {
   void _updateBadge(int count) async {
     if (_lastUnreadChatsCount != count) {
       _lastUnreadChatsCount = count;
-      if (await FlutterAppBadger.isAppBadgeSupported()) {
-        if (count == 0) {
-          FlutterAppBadger.removeBadge();
-        } else {
-          FlutterAppBadger.updateBadgeCount(count);
+
+      try {
+        if (await FlutterAppBadger.isAppBadgeSupported()) {
+          if (count == 0) {
+            FlutterAppBadger.removeBadge();
+          } else {
+            FlutterAppBadger.updateBadgeCount(count);
+          }
         }
+      } catch (_) {
+        // No-op.
       }
     }
   }
