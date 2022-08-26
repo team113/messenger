@@ -63,7 +63,7 @@ class Themes {
               width: 0.5,
             ),
             primaryBorder: Border.all(
-              color: const Color(0xFFB1DAFE),
+              color: const Color(0xFFB9D9FA),
               width: 0.5,
             ),
             cardRadius: BorderRadius.circular(14),
