@@ -91,6 +91,7 @@ All user visible changes to this project will be documented in this file. This p
 [#83]: /../../pull/83
 [#85]: /../../pull/85
 [#90]: /../../pull/90
+[#106]: /../../pull/106
 
 
 
