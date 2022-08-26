@@ -32,6 +32,7 @@ import 'package:multi_window/multi_window.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
@@ -53,8 +54,8 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main(List<String> args) async {
-  await Config.init();
   MultiWindow.init(args);
+  await Config.init();
 
   // Initializes and runs the [App].
   Future<void> _appRunner() async {
@@ -78,7 +79,6 @@ Future<void> main(List<String> args) async {
     await L10n.init();
 
     router = RouterState(authService);
-
 
     Get.put(BackgroundWorker(Get.find()));
 
@@ -163,7 +163,7 @@ class App extends StatelessWidget {
 /// the [Get]'s context.
 Future<void> _initHive({int? windowId, Credentials? credentials}) async {
   if (windowId == null) {
-    await Hive.initFlutter('hive');
+    await Hive.initFlutter('hive/${Uuid().v4()}');
 
     // Load and compare application version.
     Box box = await Hive.openBox('version');
@@ -173,8 +173,8 @@ Future<void> _initHive({int? windowId, Credentials? credentials}) async {
     // If mismatch is detected, then clean the existing [Hive] cache.
     if (stored != version) {
       await Hive.close();
-      await Hive.clean('hive');
-      await Hive.initFlutter('hive');
+      await Hive.clean('hive/${Uuid().v4()}');
+      await Hive.initFlutter('hive/${Uuid().v4()}');
       Hive.openBox('version').then((box) async {
         await box.put(0, version);
         await box.close();

@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -28,7 +27,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/session.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -116,42 +114,14 @@ class CallOverlayController extends GetxController {
               !PlatformUtils.isWeb &&
               _settings.value?.enablePopups != false) {
             window = true;
-            var desktopWindow =
-                await MultiWindow.create( 'osdjfo'
-            //         jsonEncode({
-            //   'call': json.encode(ongoingCall.toStored().toJson()),
-            //   'credentials': json.encode(Get.find<SessionDataHiveProvider>()
-            //       .getCredentials()!
-            //       .toJson()),
-            // })
-                );
-            // desktopWindow
-            //   ..setFrame(const Offset(0, 0) & const Size(700, 700))
-            //   ..center()
-            //   ..setTitle('Call')
-            //   ..show();
-            //
-            // DesktopMultiWindow.invokeMethod(
-            //   desktopWindow.windowId,
-            //   'call',
-            //   json.encode(ongoingCall.toStored().toJson()),
-            // );
+
+            await MultiWindow.create('window_id');
 
             if (ongoingCall.callChatItemId == null ||
                 ongoingCall.deviceId == null) {
               _workers[event.key!] = ever(
                 event.value!.value.call,
                 (ChatCall? call) {
-                  // DesktopMultiWindow.invokeMethod(
-                  //     desktopWindow.windowId,
-                  //     'call',
-                  //     json.encode(WebStoredCall(
-                  //       chatId: ongoingCall.chatId.value,
-                  //       call: call,
-                  //       creds: ongoingCall.creds,
-                  //       deviceId: ongoingCall.deviceId,
-                  //       state: ongoingCall.state.value,
-                  //     ).toJson()));
 
                   if (call?.id != null) {
                     _workers[event.key!]?.dispose();
