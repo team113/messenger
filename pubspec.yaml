@@ -18,6 +18,7 @@ dependencies:
   collection: ^1.16.0
   desktop_drop: ^0.3.3
   multi_window: ^0.2.0
+  desktop_multi_window: ^0.2.0
   dio: ^4.0.6
   dough:
     git:
@@ -52,11 +53,6 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.4
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: ^0.8.0-dev+rev.fe4d3b9cd21a390870d5390393300371fe5f1bb2
-  medea_jason:
-    git:
-      url: https://github.com/instrumentisto/medea-jason.git
-      path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0
   path_provider: ^2.0.10

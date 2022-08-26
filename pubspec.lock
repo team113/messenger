@@ -365,6 +365,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.3"
+  desktop_multi_window:
+    dependency: "direct main"
+    description:
+      name: desktop_multi_window
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   dio:
     dependency: "direct main"
     description:
@@ -549,13 +556,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
-  flutter_rust_bridge:
-    dependency: transitive
-    description:
-      name: flutter_rust_bridge
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.40.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -580,13 +580,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "10.1.0"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -888,22 +881,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.7"
-  medea_flutter_webrtc:
-    dependency: "direct main"
-    description:
-      name: medea_flutter_webrtc
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.0-dev+rev.fe4d3b9cd21a390870d5390393300371fe5f1bb2"
-  medea_jason:
-    dependency: "direct main"
-    description:
-      path: flutter
-      ref: HEAD
-      resolved-ref: a8b809bd58f53566989eff86ce15a2996848bf93
-      url: "https://github.com/instrumentisto/medea-jason.git"
-    source: git
-    version: "0.3.0-dev"
   meta:
     dependency: transitive
     description:
