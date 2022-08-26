@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
@@ -183,9 +184,15 @@ class CallService extends DisposableService {
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
-      call.value.state.value = OngoingCallState.ended;
-      call.value.dispose();
-      await _callsRepo.leave(chatId, deviceId);
+      if(PlatformUtils.isPopup) {
+        await _callsRepo.leave(chatId, deviceId);
+        call.value.state.value = OngoingCallState.ended;
+        call.value.dispose();
+      } else {
+        call.value.state.value = OngoingCallState.ended;
+        call.value.dispose();
+        await _callsRepo.leave(chatId, deviceId);
+      }
     }
   }
 

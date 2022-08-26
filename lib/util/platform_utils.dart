@@ -68,7 +68,7 @@ class PlatformUtils {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowListener(
+      var windowListener = DesktopWindowListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -128,21 +128,34 @@ extension MobileExtensionOnContext on BuildContext {
 }
 
 /// Listener interface for receiving window events.
-class _WindowListener extends WindowListener {
-  _WindowListener({
-    required this.onLeaveFullscreen,
-    required this.onEnterFullscreen,
+class DesktopWindowListener extends WindowListener {
+  DesktopWindowListener({
+    this.onLeaveFullscreen,
+    this.onEnterFullscreen,
+    this.onClose,
   });
 
   /// Callback, called when the window exits fullscreen.
-  final VoidCallback onLeaveFullscreen;
+  final VoidCallback? onLeaveFullscreen;
 
   /// Callback, called when the window enters fullscreen.
-  final VoidCallback onEnterFullscreen;
+  final VoidCallback? onEnterFullscreen;
+
+  /// Callback, called when the window closes.
+  final VoidCallback? onClose;
 
   @override
-  void onWindowEnterFullScreen() => onEnterFullscreen();
+  void onWindowEnterFullScreen() {
+    onEnterFullscreen?.call();
+  }
 
   @override
-  void onWindowLeaveFullScreen() => onLeaveFullscreen();
+  void onWindowLeaveFullScreen() {
+    onLeaveFullscreen?.call();
+  }
+
+  @override
+  void onWindowClose() {
+    onClose?.call();
+  }
 }

@@ -122,6 +122,15 @@ class PopupCallController extends GetxController {
         }
       });
     } else {
+      // windowManager.ensureInitialized().whenComplete(() => windowManager.addListener(DesktopWindowListener(onClose: () {
+      //   print('On window close work!!!!!');
+      //   // WebUtils.removeCall(call.value.chatId.value);
+      //   // _storageSubscription?.cancel();
+      //   // _stateWorker.dispose();
+      //   // _calls.leave(call.value.chatId.value, call.value.deviceId!);
+      // })));
+
+
       DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
         print('setMethodHandler in separate window');
         print(methodCall.arguments);

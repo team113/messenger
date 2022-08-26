@@ -94,18 +94,15 @@ Future<void> main(List<String> args) async {
 
     await L10n.init();
 
-    router = RouterState(authService, call: call);
+    router = RouterState(authService);
     if (isSeparateWindow) {
-      //router.call = call;
+      router.call = call;
       router.windowId = windowId;
       router.go('${Routes.call}/${call!.chatId}');
     }
 
     Get.put(BackgroundWorker(Get.find()));
 
-    // if(isSeparateWindow) {
-    //   runApp(const App());
-    // } else {
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),
