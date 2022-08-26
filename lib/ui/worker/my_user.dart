@@ -33,6 +33,10 @@ class MyUserWorker extends DisposableService {
   /// [Worker] reacting on the [MyUser] changes.
   Worker? _worker;
 
+  /// [MyUser.unreadChatsCount] latest value, used to exclude the unnecessary
+  /// [_updateBadge] invokes.
+  int? _lastUnreadChatsCount;
+
   @override
   void onInit() {
     _updateBadge(_myUser.myUser.value?.unreadChatsCount ?? 0);
@@ -58,12 +62,16 @@ class MyUserWorker extends DisposableService {
     super.onClose();
   }
 
+  /// Updates the application's badge with the provided [count].
   void _updateBadge(int count) async {
-    if (await FlutterAppBadger.isAppBadgeSupported()) {
-      if (count == 0) {
-        FlutterAppBadger.removeBadge();
-      } else {
-        FlutterAppBadger.updateBadgeCount(count);
+    if (_lastUnreadChatsCount != count) {
+      _lastUnreadChatsCount = count;
+      if (await FlutterAppBadger.isAppBadgeSupported()) {
+        if (count == 0) {
+          FlutterAppBadger.removeBadge();
+        } else {
+          FlutterAppBadger.updateBadgeCount(count);
+        }
       }
     }
   }
