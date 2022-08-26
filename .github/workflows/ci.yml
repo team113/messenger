@@ -374,7 +374,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
-      - docker
+      #- docker
       - test-e2e
       - test-unit
     strategy:
