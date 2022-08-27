@@ -25,6 +25,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -90,11 +91,14 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  bool _isEnabledWakelock = false;
+
   @override
-  void onInit() {
+  void onInit() async {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
+    _initWakelock();
 
     _subscription = _callService.calls.changes.listen((event) async {
       switch (event.op) {
@@ -369,6 +373,22 @@ class CallWorker extends DisposableService {
             }
           }
         }
+      }
+    });
+  }
+
+  /// The following code will enable and disable the wakelock on the device using the wakelock plugin.
+  Future<void> _initWakelock() async {
+    _isEnabledWakelock = await Wakelock.enabled;
+
+    _callService.calls.listen((calls) async {
+      final ongoingCallsCount = calls.length;
+      if (!_isEnabledWakelock && ongoingCallsCount > 0) {
+        Wakelock.enable();
+        _isEnabledWakelock = true;
+      } else if (_isEnabledWakelock && ongoingCallsCount == 0) {
+        Wakelock.disable();
+        _isEnabledWakelock = false;
       }
     });
   }
