@@ -1,0 +1,18 @@
+nameOverride: messenger
+
+
+image:
+  repository: team113/messenger
+  tag: dev
+  pullPolicy: Never
+
+deployment:
+  src:
+    hostPath: /mount/team113-messenger
+
+ingress:
+  hosts:
+    - messenger.test
+  tls:
+    enabled: yes
+    auto: yes
