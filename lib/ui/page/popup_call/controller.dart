@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -96,11 +97,13 @@ class PopupCallController extends GetxController {
     });
 
     _tryToConnect();
+    Wakelock.enable();
     super.onInit();
   }
 
   @override
   void onClose() {
+    Wakelock.disable();
     WebUtils.removeCall(call.value.chatId.value);
     _storageSubscription?.cancel();
     _stateWorker.dispose();

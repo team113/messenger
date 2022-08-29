@@ -91,14 +91,16 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// Indicator whether wake lock is turn on.
   bool _isEnabledWakelock = false;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
-    _initWakelock();
+
+    _isEnabledWakelock = await Wakelock.enabled;
 
     _subscription = _callService.calls.changes.listen((event) async {
       switch (event.op) {
@@ -197,6 +199,15 @@ class CallWorker extends DisposableService {
 
         default:
           break;
+      }
+
+      // Toggle wake lock.
+      if (!_isEnabledWakelock && _callService.calls.isNotEmpty) {
+        Wakelock.enable();
+        _isEnabledWakelock = true;
+      } else if (_isEnabledWakelock && _callService.calls.isEmpty) {
+        Wakelock.disable();
+        _isEnabledWakelock = false;
       }
     });
 
@@ -373,22 +384,6 @@ class CallWorker extends DisposableService {
             }
           }
         }
-      }
-    });
-  }
-
-  /// The following code will enable and disable the wakelock on the device using the wakelock plugin.
-  Future<void> _initWakelock() async {
-    _isEnabledWakelock = await Wakelock.enabled;
-
-    _callService.calls.listen((calls) async {
-      final ongoingCallsCount = calls.length;
-      if (!_isEnabledWakelock && ongoingCallsCount > 0) {
-        Wakelock.enable();
-        _isEnabledWakelock = true;
-      } else if (_isEnabledWakelock && ongoingCallsCount == 0) {
-        Wakelock.disable();
-        _isEnabledWakelock = false;
       }
     });
   }
