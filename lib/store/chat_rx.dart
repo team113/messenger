@@ -838,7 +838,7 @@ class HiveRxChat implements RxChat {
 
 /// Extension adding an ability to insert the element based on some condition to
 /// [List].
-extension _ListInsertAfter<T> on List<T> {
+extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
     bool done = false;

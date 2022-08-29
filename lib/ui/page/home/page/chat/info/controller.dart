@@ -157,7 +157,7 @@ class ChatInfoController extends GetxController {
           s.status.value = RxStatus.loading();
 
           try {
-            await _chatService.createChatDirectLink(chat!, slug!);
+            await _chatService.createChatDirectLink(chatId, slug!);
             s.status.value = RxStatus.success();
             _linkTimer = Timer(const Duration(seconds: 1),
                 () => s.status.value = RxStatus.empty());
@@ -220,7 +220,7 @@ class ChatInfoController extends GetxController {
     bool generated = false;
     while (!generated) {
       try {
-        await _chatService.createChatDirectLink(chat!, slug);
+        await _chatService.createChatDirectLink(chatId, slug);
         link.text = slug.val;
         link.status.value = RxStatus.success();
         link.error.value = null;
@@ -253,7 +253,7 @@ class ChatInfoController extends GetxController {
     link.status.value = RxStatus.loading();
 
     try {
-      await _chatService.deleteChatDirectLink(chat!);
+      await _chatService.deleteChatDirectLink(chatId);
       link.status.value = RxStatus.success();
       link.error.value = null;
       _linkTimer = Timer(const Duration(seconds: 1),

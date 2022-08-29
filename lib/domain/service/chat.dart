@@ -122,6 +122,9 @@ class ChatService extends DisposableService {
     if (userId == me) {
       chat = _chatRepository.chats[chatId];
       _chatRepository.chats.remove(chat);
+      if (router.route.startsWith('${Routes.chat}/$chatId')) {
+        router.home();
+      }
     }
 
     try {
@@ -141,9 +144,9 @@ class ChatService extends DisposableService {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This method should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -158,8 +161,10 @@ class ChatService extends DisposableService {
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteChatItem(Rx<ChatItem> item) async {
     if (item.value is! ChatMessage && item.value is! ChatForward) {
-      throw UnimplementedError('Deletion of $item is not implemented.');
+      throw UnimplementedError('Deletion of ${item.value} is not implemented.');
     }
+
+    Chat? chat = chats[item.value.chatId]?.chat.value;
 
     if (item.value is ChatMessage) {
       if (item.value.authorId != me) {
@@ -168,21 +173,11 @@ class ChatService extends DisposableService {
         );
       }
 
-      Chat? chat = chats[item.value.chatId]?.chat.value;
-
-      if (chat == null) {
-        throw const DeleteChatMessageException(
-          DeleteChatMessageErrorCode.unknownChatItem,
-        );
-      } else {
-        if (me != null && chat.isRead(item.value, me!)) {
-          throw const DeleteChatMessageException(
-            DeleteChatMessageErrorCode.read,
-          );
-        }
-
-        await _chatRepository.deleteChatMessage(item);
+      if (me != null && chat?.isRead(item.value, me!) == true) {
+        throw const DeleteChatMessageException(DeleteChatMessageErrorCode.read);
       }
+
+      await _chatRepository.deleteChatMessage(item);
     } else if (item.value is ChatForward) {
       if (item.value.authorId != me) {
         throw const DeleteChatForwardException(
@@ -190,29 +185,16 @@ class ChatService extends DisposableService {
         );
       }
 
-      Chat? chat = chats[item.value.chatId]?.chat.value;
-
-      if (chat == null) {
-        throw const DeleteChatForwardException(
-          DeleteChatForwardErrorCode.unknownChatItem,
-        );
-      } else {
-        if (me != null && chat.isRead(item.value, me!)) {
-          throw const DeleteChatForwardException(
-            DeleteChatForwardErrorCode.read,
-          );
-        }
-
-        await _chatRepository.deleteChatForward(item);
+      if (me != null && chat?.isRead(item.value, me!) == true) {
+        throw const DeleteChatForwardException(DeleteChatForwardErrorCode.read);
       }
+
+      await _chatRepository.deleteChatForward(item);
     }
   }
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(Rx<ChatItem> item) async {
-    if (!chats.containsKey(item.value.chatId)) {
-      throw const HideChatItemException(HideChatItemErrorCode.unknownChatItem);
-    }
     await _chatRepository.hideChatItem(item);
   }
 
@@ -225,36 +207,12 @@ class ChatService extends DisposableService {
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
   /// any).
-  Future<void> createChatDirectLink(
-      RxChat chat, ChatDirectLinkSlug slug) async {
-    ChatDirectLink? oldValue = chat.chat.value.directLink;
-
-    chat.chat.update(
-        (c) => c?.directLink = ChatDirectLink(slug: slug, usageCount: 0));
-
-    try {
-      await _chatRepository.createChatDirectLink(chat.chat.value.id, slug);
-    } catch (e) {
-      chat.chat.update((c) => c?.directLink = oldValue);
-      rethrow;
-    }
-  }
+  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug) =>
+      _chatRepository.createChatDirectLink(chatId, slug);
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(
-    RxChat chat,
-  ) async {
-    ChatDirectLink? oldValue = chat.chat.value.directLink;
-
-    chat.chat.update((c) => c?.directLink = null);
-
-    try {
-      await _chatRepository.deleteChatDirectLink(chat.chat.value.id);
-    } catch (e) {
-      chat.chat.update((c) => c?.directLink = oldValue);
-      rethrow;
-    }
-  }
+  Future<void> deleteChatDirectLink(ChatId chatId) =>
+      _chatRepository.deleteChatDirectLink(chatId);
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.

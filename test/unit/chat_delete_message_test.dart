@@ -178,15 +178,13 @@ void main() async {
     Get.put(chatHiveProvider);
 
     await chatService.deleteChatItem(
-      Rx(
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          PreciseDateTime.now(),
-          status: SendingStatus.sent,
-        ),
-      ),
+      Rx(ChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        PreciseDateTime.now(),
+        status: SendingStatus.sent,
+      )),
     );
 
     verify(graphQlProvider.deleteChatMessage(
@@ -203,17 +201,13 @@ void main() async {
     Get.put(chatHiveProvider);
 
     expect(
-      () async => await chatService.deleteChatItem(
-        Rx(
-          ChatMessage(
-            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            PreciseDateTime.now(),
-            status: SendingStatus.sent,
-          ),
-        ),
-      ),
+      () async => await chatService.deleteChatItem(Rx(ChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        PreciseDateTime.now(),
+        status: SendingStatus.sent,
+      ))),
       throwsA(isA<DeleteChatMessageException>()),
     );
 
@@ -229,17 +223,13 @@ void main() async {
 
     Get.put(chatHiveProvider);
 
-    await chatService.hideChatItem(
-      Rx(
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          PreciseDateTime.now(),
-          status: SendingStatus.sent,
-        ),
-      ),
-    );
+    await chatService.hideChatItem(Rx(ChatMessage(
+      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      PreciseDateTime.now(),
+      status: SendingStatus.sent,
+    )));
 
     verify(graphQlProvider.hideChatItem(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -256,17 +246,13 @@ void main() async {
     Get.put(chatHiveProvider);
 
     expect(
-      () async => await chatService.hideChatItem(
-        Rx(
-          ChatMessage(
-            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            PreciseDateTime.now(),
-            status: SendingStatus.sent,
-          ),
-        ),
-      ),
+      () async => await chatService.hideChatItem(Rx(ChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        PreciseDateTime.now(),
+        status: SendingStatus.sent,
+      ))),
       throwsA(isA<HideChatItemException>()),
     );
 

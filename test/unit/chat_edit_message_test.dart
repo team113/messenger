@@ -176,14 +176,12 @@ void main() async {
     )).thenAnswer((_) => Future.value());
 
     await chatService.editChatMessage(
-      Rx(
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          PreciseDateTime.now(),
-        ),
-      ),
+      Rx(ChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        PreciseDateTime.now(),
+      )),
       const ChatMessageText('new text'),
     );
 
@@ -237,14 +235,12 @@ void main() async {
 
     expect(
       () async => await chatService.editChatMessage(
-        Rx(
-          ChatMessage(
-            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            PreciseDateTime.now(),
-          ),
-        ),
+        Rx(ChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          PreciseDateTime.now(),
+        )),
         const ChatMessageText('new text'),
       ),
       throwsA(isA<EditChatMessageException>()),
