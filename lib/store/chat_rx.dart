@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
+import '../domain/model/mute_duration.dart';
 import '/api/backend/schema.dart'
     show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
 import '/domain/model/attachment.dart';
@@ -65,6 +66,9 @@ class HiveRxChat implements RxChat {
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
+
+  @override
+  final Rx<MuteDuration> muted = Rx<MuteDuration>(MuteDuration());
 
   @override
   final RxList<User> typingUsers = RxList<User>([]);

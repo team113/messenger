@@ -694,6 +694,31 @@ class HideChatException with LocalizedExceptionMixin implements Exception {
   }
 }
 
+/// Exception of `Mutation.toggleChatMute` described in the [code].
+class ToggleChatMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatMuteErrorCode code;
+
+  @override
+  String toString() => 'HideChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case ToggleChatMuteErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ToggleChatMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+    }
+  }
+}
+
 /// Exception of `Mutation.updateChatContactName` described in the [code].
 class UpdateChatContactNameException
     with LocalizedExceptionMixin

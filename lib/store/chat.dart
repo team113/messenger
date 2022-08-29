@@ -20,6 +20,7 @@ import 'dart:collection';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -266,6 +267,13 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> hideChat(ChatId id) => _graphQlProvider.hideChat(id);
+
+  @override
+  Future<void> muteChat(ChatId id, MuteDuration muteDuration) =>
+      _graphQlProvider.muteChat(
+        id,
+        Muting(duration: muteDuration.forever! ? PreciseDateTime.now() : null),
+      );
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) =>

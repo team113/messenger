@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -35,7 +36,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show RemoveChatMemberException, HideChatException;
+    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -159,6 +160,17 @@ class ChatsTabController extends GetxController {
         router.go('/');
       }
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  Future<void> muteChat(ChatId id, MuteDuration muteDuration) async {
+    try {
+      await _chatService.muteChat(id, muteDuration);
+    } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

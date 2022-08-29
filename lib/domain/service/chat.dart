@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/mute_duration.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
@@ -108,6 +109,9 @@ class ChatService extends DisposableService {
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) => _chatRepository.hideChat(id);
+
+  Future<void> muteChat(ChatId id, MuteDuration muteDuration) =>
+      _chatRepository.muteChat(id, muteDuration);
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].

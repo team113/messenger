@@ -379,6 +379,44 @@ abstract class ChatGraphQlMixin {
         as ChatEventsVersionedMixin?);
   }
 
+  /// Marks the specified [Chat] as muter for the authenticated [MyUser].
+  ///
+  /// Hidden [Chat] is excluded from [recentChats], but preserves all its
+  /// content. Once a new [ChatItem] posted in a [Chat] it becomes visible
+  /// again, and so included into [recentChats] as well.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatHidden].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already hidden by the authenticated [MyUser].
+  Future<ChatEventsVersionedMixin?> muteChat(
+      ChatId chatId, Muting muteDuration) async {
+    ToggleChatMuteArguments variables =
+        ToggleChatMuteArguments(chatId: chatId, mute: muteDuration);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleChatMute',
+        document: ToggleChatMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleChatMuteException(
+          (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
+                  as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+              .code),
+    );
+    return (ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
+        as ChatEventsVersionedMixin?);
+  }
+
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until
   /// the specified [ChatItem] inclusively.
   ///

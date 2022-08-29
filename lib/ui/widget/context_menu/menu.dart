@@ -167,3 +167,83 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
     );
   }
 }
+
+class ContextMenuDropDownButton extends StatefulWidget {
+  const ContextMenuDropDownButton({
+    Key? key,
+    required this.label,
+    this.leading,
+    this.onPressed,
+  }) : super(key: key);
+
+  /// Label of this [ContextMenuButton].
+  final String label;
+
+  /// Optional leading widget, typically an [Icon].
+  final Widget? leading;
+
+  /// Callback, called when button is pressed.
+  final VoidCallback? onPressed;
+
+  @override
+  State<ContextMenuDropDownButton> createState() =>
+      _ContextMenuDropDownButtonState();
+}
+
+/// State of the [ContextMenuDropDownButton] used to implement hover effect.
+class _ContextMenuDropDownButtonState extends State<ContextMenuDropDownButton> {
+  /// Indicator whether mouse is hovered over this button.
+  bool isMouseOver = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => isMouseOver = true),
+      onTapUp: (_) {
+        setState(() => isMouseOver = false);
+        widget.onPressed?.call();
+        ContextMenuOverlay.of(context).hide();
+      },
+      child: MouseRegion(
+        onEnter: (_) => setState(() => isMouseOver = true),
+        onExit: (_) => setState(() => isMouseOver = false),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: isMouseOver ? const Color(0x22000000) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.leading != null) ...[
+                widget.leading!,
+                const SizedBox(width: 10),
+              ],
+              PopupMenuButton(
+                child: Text(
+                  widget.label,
+                  style: context.theme.outlinedButtonTheme.style!.textStyle!
+                      .resolve({MaterialState.disabled})!.copyWith(
+                          color: Colors.black),
+                ),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                  const PopupMenuItem(
+                    value: 'Menu.itemOne',
+                    child: Text('Item 1'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'Menu.itemTwo',
+                    child: Text('Item 2'),
+                  ),
+                ],
+              ),
+              const Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

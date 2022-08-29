@@ -22,6 +22,7 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/mute_duration.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -100,6 +101,8 @@ abstract class AbstractChatRepository {
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id);
 
+  Future<void> muteChat(ChatId id, MuteDuration muteDuration);
+
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until
   /// the specified [ChatItem] inclusively.
   ///
@@ -163,7 +166,6 @@ abstract class RxChat {
   /// - `status.isLoadingMore`, meaning [messages] are being fetched from the
   ///   service.
   Rx<RxStatus> get status;
-
   /// List of [User]s currently typing in this [chat].
   RxList<User> get typingUsers;
 

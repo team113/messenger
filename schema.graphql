@@ -3105,6 +3105,28 @@ enum HideChatErrorCode {
   UNKNOWN_CHAT
 }
 
+"""Error of performing `Mutation.toggleChatMute`."""
+type ToggleChatMuteError  {
+  """Code indicating why this error has happened."""
+  code: ToggleChatMuteErrorCode !
+}
+
+"""Possible error codes of performing `Mutation.hideChat`."""
+enum ToggleChatMuteErrorCode  {
+  """
+  Mute duration cannot be shorter than one minute.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_SHORT
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+}
+
 """Error of performing `Mutation.hideChatItem`."""
 type HideChatItemError {
   """Code indicating why this error has happened."""

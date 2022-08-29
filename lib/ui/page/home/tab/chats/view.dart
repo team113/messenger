@@ -18,6 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -265,6 +266,12 @@ class ChatsTabView extends StatelessWidget {
                 key: const Key('ButtonHideChat'),
                 label: 'btn_hide_chat'.l10n,
                 onPressed: () => c.hideChat(chat.id),
+              ),
+              ContextMenuButton(
+                key: const Key('ButtonHideChat'),
+                label: 'btn_mute_chat'.l10n,
+                onPressed: () =>
+                    c.muteChat(chat.id, MuteDuration(forever: true)),
               ),
               if (chat.isGroup)
                 ContextMenuButton(
