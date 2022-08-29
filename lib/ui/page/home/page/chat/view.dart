@@ -543,6 +543,7 @@ class _ChatViewState extends State<ChatView>
           onResend: () => c.resendItem(e.value),
           onEdit: () => c.editMessage(e),
           onDrag: (d) => c.isItemDragged.value = d,
+          getUser: c.getUser,
         ),
       ),
     );

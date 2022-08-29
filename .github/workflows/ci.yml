@@ -28,7 +28,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
-      - docker
+      #- docker
       - helm-lint
       - pubspec
       - test-e2e
@@ -248,52 +248,52 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main'
              || startsWith(github.ref, 'refs/tags/v') }}
 
-  docker:
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-buildx-action@v2
+  # docker:
+  #   needs: ["build"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: docker/setup-buildx-action@v2
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-      - run: mkdir -p build/web/
-      - run: unzip *.zip -d build/web/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-web-${{ github.run_number }}
+  #     - run: mkdir -p build/web/
+  #     - run: unzip *.zip -d build/web/
 
-      - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-macos-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: build/web/artifacts/
+  #     - run: mkdir -p build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-apk-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-appbundle-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-linux-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-macos-${{ github.run_number }}
+  #         path: build/web/artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-windows-${{ github.run_number }}
+  #         path: build/web/artifacts/
 
-      - run: make docker.image no-cache=yes
-                  tag=build-${{ github.run_number }}
+  #     - run: make docker.image no-cache=yes
+  #                 tag=build-${{ github.run_number }}
 
-      - run: make docker.tar to-file=.cache/image.tar
-                  tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-          path: .cache/image.tar
-          if-no-files-found: error
-          retention-days: 1
+  #     - run: make docker.tar to-file=.cache/image.tar
+  #                 tags=build-${{ github.run_number }}
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: docker-${{ github.run_number }}
+  #         path: .cache/image.tar
+  #         if-no-files-found: error
+  #         retention-days: 1
 
 
 
@@ -374,7 +374,7 @@ jobs:
       - dartanalyze
       - dartdoc
       - dartfmt
-      - docker
+      # - docker
       - test-e2e
       - test-unit
     strategy:

@@ -67,6 +67,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.item,
     required this.me,
     this.user,
+    this.getUser,
     this.onJoinCall,
     this.animation,
     this.onHide,
@@ -79,6 +80,8 @@ class ChatItemWidget extends StatefulWidget {
     this.onResend,
     this.onDrag,
   }) : super(key: key);
+
+  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
@@ -261,11 +264,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
                         decoration: BoxDecoration(
-                          color: fromMe
+                          color: (msg.repliesTo!.authorId == widget.me)
                               ? isRead
-                                  ? const Color(0xFFEDF6FF)
-                                  : const Color(0xFFE6F1FE)
-                              : const Color(0xFFDFDFDF),
+                                  ? const Color.fromRGBO(219, 234, 253, 1)
+                                  : const Color.fromRGBO(230, 241, 254, 1)
+                              : isRead
+                                  ? const Color.fromRGBO(249, 249, 249, 1)
+                                  : const Color.fromRGBO(255, 255, 255, 1),
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(15),
                             topRight: Radius.circular(15),
@@ -300,8 +305,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         decoration: BoxDecoration(
                           color: fromMe
                               ? isRead
-                                  ? const Color(0xFFD2E3F9)
-                                  : const Color(0xFFE6F1FE)
+                                  ? const Color.fromRGBO(210, 227, 249, 1)
+                                  : const Color.fromRGBO(230, 241, 254, 1)
                               : Colors.white,
                           borderRadius: BorderRadius.only(
                             topLeft: msg.repliesTo != null
@@ -703,83 +708,65 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
-    Color color = AvatarWidget.colors[
-        (widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
+    return FutureBuilder<RxUser?>(
+      future: widget.getUser?.call(item.authorId),
+      builder: (context, snapshot) {
+        Color color = snapshot.data?.user.value.id == widget.me
+            ? const Color(0xFF63B4FF)
+            : AvatarWidget.colors[
+                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                    AvatarWidget.colors.length];
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(width: 12),
-        // Padding(
-        //   padding: const EdgeInsets.only(top: 0),
-        //   child: SvgLoader.asset(
-        //     'assets/icons/forward.svg',
-        //     height: 13,
-        //     width: 13,
-        //   ),
-        // ),
-        // const SizedBox(width: 12),
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                width: 2,
-                color: color,
-                // color: Color(0xFF63B4FF),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 12),
+            Container(
+              decoration: BoxDecoration(
+                border: Border(left: BorderSide(width: 2, color: color)),
               ),
-            ),
-          ),
-          margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-          padding: const EdgeInsets.only(left: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Builder(
-                builder: (context) {
-                  String? name;
+              margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+              padding: const EdgeInsets.only(left: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Builder(
+                    builder: (context) {
+                      String? name;
 
-                  if (widget.user?.user.value != null) {
-                    return Obx(() {
-                      Color color = AvatarWidget.colors[
-                          widget.user!.user.value.num.val.sum() %
-                              AvatarWidget.colors.length];
+                      if (snapshot.data != null) {
+                        return Obx(() {
+                          return Text(
+                            snapshot.data!.user.value.name?.val ??
+                                snapshot.data!.user.value.num.val,
+                            style: style.boldBody.copyWith(color: color),
+                          );
+                        });
+                      }
 
                       return Text(
-                        widget.user!.user.value.name?.val ??
-                            widget.user!.user.value.num.val,
-                        style: style.boldBody.copyWith(color: color),
+                        name ?? '...',
+                        style: style.boldBody
+                            .copyWith(color: const Color(0xFF63B4FF)),
                       );
-                    });
-                  }
-
-                  return Text(
-                    name ?? '...',
-                    style:
-                        style.boldBody.copyWith(color: const Color(0xFF63B4FF)),
-                  );
-                },
+                    },
+                  ),
+                  if (content != null) ...[
+                    const SizedBox(height: 2),
+                    DefaultTextStyle.merge(maxLines: 1, child: content),
+                  ],
+                  if (additional.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(mainAxisSize: MainAxisSize.min, children: additional),
+                  ],
+                ],
               ),
-              if (content != null) ...[
-                const SizedBox(height: 2),
-                DefaultTextStyle.merge(
-                  maxLines: 1,
-                  child: content,
-                ),
-              ],
-              if (additional.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: additional,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 

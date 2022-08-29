@@ -17,8 +17,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/util/platform_utils.dart';
 import 'animations.dart';
 
 /// Reactive stylized [TextField] wrapper.
@@ -68,8 +68,14 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
-  /// Optional trailing icon.
+  /// Optional [IconData] to display instead of the [trailing].
+  ///
+  /// If specified, the [trailing] will be ignored.
   final IconData? suffix;
+
+  /// Optional prefix [Widget].
+  final Widget? prefix;
+
   final Color? suffixColor;
   final double? suffixSize;
 
@@ -118,9 +124,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
-  final Widget? prefix;
+  /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
+  /// be treated as a [RxStatus.error].
   final bool treatErrorAsStatus;
 
+  /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
 
   final Widget? prefixIcon;
@@ -157,10 +165,7 @@ class ReactiveTextField extends StatelessWidget {
       () => Theme(
         data: Theme.of(context).copyWith(
           platform: TargetPlatform.macOS,
-          scrollbarTheme: const ScrollbarThemeData(
-            // thickness: MaterialStateProperty.all(0.0),
-            crossAxisMargin: -10,
-          ),
+          scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: -10),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -255,10 +260,12 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
-                // labelStyle: (style ?? const TextStyle())
-                //     .copyWith(color: const Color(0xFFBBBBBB)),
+
                 hintText: hint,
                 hintMaxLines: 1,
+
+                // Hide the error's text as the [AnimatedSize] below this
+                // [TextField] displays it better.
                 errorStyle: const TextStyle(fontSize: 0),
                 errorText: state.error.value,
               ),
@@ -268,6 +275,8 @@ class ReactiveTextField extends StatelessWidget {
               maxLines: maxLines,
               textInputAction: textInputAction,
             ),
+
+            // Displays an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
               child: AnimatedSwitcher(
@@ -335,7 +344,6 @@ class TextFieldState extends ReactiveFieldState {
   }) {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
-    // _previousText = controller.text;
 
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
@@ -343,7 +351,8 @@ class TextFieldState extends ReactiveFieldState {
     if (onChanged != null) {
       focus.addListener(
         () {
-          if (controller.text != _previousText) {
+          if (controller.text != _previousText &&
+              (_previousText != null || controller.text.isNotEmpty)) {
             isEmpty.value = controller.text.isEmpty;
             if (!focus.hasFocus) {
               onChanged?.call(this);
