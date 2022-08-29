@@ -94,7 +94,7 @@ class CallWorker extends DisposableService {
   bool _isEnabledWakelock = false;
 
   @override
-  void onInit() async {
+  void onInit() {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
