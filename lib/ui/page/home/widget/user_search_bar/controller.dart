@@ -24,10 +24,11 @@ export 'view.dart';
 
 /// Controller of an [UserSearchBar] widget.
 class UserSearchBarController extends GetxController {
-  UserSearchBarController(this._userService);
+  UserSearchBarController(this._userService)
+      : searchResults = _userService.foundUsers;
 
   /// [User]s search results.
-  final RxList<RxUser> searchResults = RxList<RxUser>([]);
+  final RxSet<RxUser> searchResults;
 
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
@@ -78,8 +79,7 @@ class UserSearchBarController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        searchResults.value =
-            await _userService.search(num: num, name: name, login: login);
+        _userService.search(num: num, name: name, login: login);
         searchStatus.value = RxStatus.success();
       }
     } else {

@@ -37,6 +37,9 @@ class UserService extends DisposableService {
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
+  /// Users found by search.
+  RxSet<RxUser> get foundUsers => _userRepository.foundUsers;
+
   @override
   void onInit() {
     _userRepository.init();
@@ -50,32 +53,22 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  Future<List<RxUser>> search({
+  RxSet<RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
-  }) async {
+  }) {
     if (num == null && name == null && login == null && link == null) {
-      return [];
+      return RxSet<RxUser>();
     }
 
-    HashMap<UserId, RxUser> result = HashMap();
+    if (num != null) _userRepository.searchByNum(num);
+    if (name != null) _userRepository.searchByName(name);
+    if (login != null) _userRepository.searchByLogin(login);
+    if (link != null) _userRepository.searchByLink(link);
 
-    List<Future<List<RxUser>>> futures = [
-      if (num != null) _userRepository.searchByNum(num),
-      if (name != null) _userRepository.searchByName(name),
-      if (login != null) _userRepository.searchByLogin(login),
-      if (link != null) _userRepository.searchByLink(link),
-    ];
-
-    // TODO: Don't wait for all request to finish, but display results as they
-    //       are ready.
-    (await Future.wait(futures)).expand((e) => e).forEach((user) {
-      result[user.id] = user;
-    });
-
-    return result.values.toList();
+    return _userRepository.foundUsers;
   }
 
   /// Returns an [User] by the provided [id].
