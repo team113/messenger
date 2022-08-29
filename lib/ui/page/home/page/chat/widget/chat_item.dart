@@ -228,6 +228,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool fromMe = widget.item.value.authorId == widget.me;
     bool isRead = _isRead();
 
+    Color color = widget.user?.user.value.id == widget.me
+        ? const Color(0xFF63B4FF)
+        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
+
     return _rounded(
       context,
       Padding(
@@ -296,10 +301,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                         ),
                       ),
-                    if (msg.repliesTo != null &&
-                        (msg.text != null || msg.attachments.isNotEmpty))
-                      const SizedBox(height: 0),
-                    if (msg.text != null)
+                    if (!fromMe && widget.chat.value?.isGroup == true)
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
                         decoration: BoxDecoration(
@@ -315,63 +317,100 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             topRight: msg.repliesTo != null
                                 ? Radius.zero
                                 : const Radius.circular(15),
-                            bottomLeft: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomRight: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
+                            bottomLeft: Radius.zero,
+                            bottomRight: Radius.zero,
                           ),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: msg.repliesTo != null
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            topRight: msg.repliesTo != null
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomLeft: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomRight: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                          ),
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 500),
-                            opacity: isRead
-                                ? 1
-                                : fromMe
-                                    ? 0.55
-                                    : 1,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 10, 9, 10),
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.deferToChild,
-                                onHorizontalDragUpdate:
-                                    PlatformUtils.isDesktop ? (d) {} : null,
-                                onHorizontalDragEnd:
-                                    PlatformUtils.isDesktop ? (d) {} : null,
-                                child: Obx(() {
-                                  return IgnorePointer(
-                                    ignoring: ContextMenuOverlay.of(context)
-                                            .id
-                                            .value !=
-                                        widget.item.value.id.val,
-                                    child: SelectableText(
-                                      msg.text!.val,
-                                      style: style.boldBody,
-                                    ),
-                                  );
-                                }),
-                              ),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: isRead
+                              ? 1
+                              : fromMe
+                                  ? 0.55
+                                  : 1,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              12,
+                              8,
+                              9,
+                              msg.attachments.isNotEmpty && msg.text == null
+                                  ? 8
+                                  : 2,
+                            ),
+                            child: Text(
+                              widget.user?.user.value.name?.val ??
+                                  widget.user?.user.value.num.val ??
+                                  '...',
+                              style: style.boldBody.copyWith(color: color),
                             ),
                           ),
                         ),
                       ),
-                    if (msg.text != null && msg.attachments.isNotEmpty)
-                      const SizedBox(height: 0),
+                    if (msg.text != null)
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        decoration: BoxDecoration(
+                          color: fromMe
+                              ? isRead
+                                  ? const Color.fromRGBO(210, 227, 249, 1)
+                                  : const Color.fromRGBO(230, 241, 254, 1)
+                              : Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: (msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true))
+                                ? Radius.zero
+                                : const Radius.circular(15),
+                            topRight: (msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true))
+                                ? Radius.zero
+                                : const Radius.circular(15),
+                            bottomLeft: msg.attachments.isNotEmpty
+                                ? Radius.zero
+                                : const Radius.circular(15),
+                            bottomRight: msg.attachments.isNotEmpty
+                                ? Radius.zero
+                                : const Radius.circular(15),
+                          ),
+                        ),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: isRead
+                              ? 1
+                              : fromMe
+                                  ? 0.55
+                                  : 1,
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              12,
+                              (!fromMe && widget.chat.value?.isGroup == true)
+                                  ? 0
+                                  : 10,
+                              9,
+                              10,
+                            ),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.deferToChild,
+                              onHorizontalDragUpdate:
+                                  PlatformUtils.isDesktop ? (d) {} : null,
+                              onHorizontalDragEnd:
+                                  PlatformUtils.isDesktop ? (d) {} : null,
+                              child: Obx(() {
+                                return IgnorePointer(
+                                  ignoring:
+                                      ContextMenuOverlay.of(context).id.value !=
+                                          widget.item.value.id.val,
+                                  child: SelectableText(
+                                    msg.text!.val,
+                                    style: style.boldBody,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                      ),
                     if (attachments.isNotEmpty)
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 500),
@@ -382,10 +421,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : const Color(0xFFE6F1FE)
                               : Colors.white,
                           borderRadius: BorderRadius.only(
-                            topLeft: msg.text != null || msg.repliesTo != null
+                            topLeft: msg.text != null ||
+                                    msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true)
                                 ? Radius.zero
                                 : const Radius.circular(15),
-                            topRight: msg.text != null || msg.repliesTo != null
+                            topRight: msg.text != null ||
+                                    msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true)
                                 ? Radius.zero
                                 : const Radius.circular(15),
                             bottomLeft: const Radius.circular(15),
@@ -394,10 +439,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.only(
-                            topLeft: msg.text != null || msg.repliesTo != null
+                            topLeft: msg.text != null ||
+                                    msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true)
                                 ? Radius.zero
                                 : const Radius.circular(15),
-                            topRight: msg.text != null || msg.repliesTo != null
+                            topRight: msg.text != null ||
+                                    msg.repliesTo != null ||
+                                    (!fromMe &&
+                                        widget.chat.value?.isGroup == true)
                                 ? Radius.zero
                                 : const Radius.circular(15),
                             bottomLeft: const Radius.circular(15),
@@ -441,6 +492,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ),
       padding: EdgeInsets.zero,
       ignoreFirstRmb: ignoreFirstRmb,
+      avatarOffset: (!fromMe && widget.chat.value?.isGroup == true) &&
+              msg.repliesTo != null
+          ? 54
+          : 0,
     );
   }
 
@@ -801,6 +856,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Widget child, {
     EdgeInsets padding = const EdgeInsets.all(8),
     bool ignoreFirstRmb = false,
+    double avatarOffset = 0,
   }) {
     ChatItem item = widget.item.value;
 
@@ -909,12 +965,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               if (!fromMe && widget.chat.value!.isGroup)
                 Padding(
-                  padding: const EdgeInsets.only(top: 7, right: 4),
+                  padding: EdgeInsets.only(top: 12 + avatarOffset),
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () =>
                         router.user(widget.item.value.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 18),
+                    child: AvatarWidget.fromRxUser(widget.user, radius: 15),
                   ),
                 ),
               Flexible(
