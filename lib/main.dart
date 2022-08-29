@@ -22,13 +22,10 @@ library main;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:isolate';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:get/get.dart';
@@ -110,7 +107,6 @@ Future<void> main(List<String> args) async {
         child: const App(),
       ),
     );
-    //}
   }
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless

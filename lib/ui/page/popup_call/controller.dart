@@ -19,7 +19,6 @@ import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
