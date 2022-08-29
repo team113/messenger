@@ -368,9 +368,9 @@ packages:
   desktop_multi_window:
     dependency: "direct main"
     description:
-      name: desktop_multi_window
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: desktop_multi_window
+      relative: true
+    source: path
     version: "0.2.0"
   dio:
     dependency: "direct main"

@@ -1,0 +1,22 @@
+name: flutter_multi_window_example
+description: Demonstrates how to use the flutter_multi_window plugin.
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=2.14.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  desktop_multi_window: 0.2.0
+  cupertino_icons: ^1.0.2
+  desktop_lifecycle: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+
+flutter:
+  uses-material-design: true

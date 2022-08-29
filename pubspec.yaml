@@ -18,7 +18,8 @@ dependencies:
   collection: ^1.16.0
   desktop_drop: ^0.3.3
   multi_window: ^0.2.0
-  desktop_multi_window: ^0.2.0
+  desktop_multi_window:
+    path: ./desktop_multi_window
   dio: ^4.0.6
   dough:
     git:
