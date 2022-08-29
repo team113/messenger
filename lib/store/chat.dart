@@ -247,8 +247,19 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> renameChat(ChatId id, ChatName? name) =>
-      _graphQlProvider.renameChat(id, name);
+  Future<void> renameChat(ChatId id, ChatName? name) async {
+    HiveRxChat? chat = _chats[id];
+    ChatName? previous = chat?.chat.value.name;
+
+    chat?.chat.update((c) => c?.name = name);
+
+    try {
+      await _graphQlProvider.renameChat(id, name);
+    } catch (_) {
+      chat?.chat.update((c) => c?.name = previous);
+      rethrow;
+    }
+  }
 
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) =>
@@ -256,42 +267,154 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    var response = await _graphQlProvider.removeChatMember(chatId, userId);
+    HiveRxChat? chat = _chats[chatId];
+    ChatMember? member =
+        chat?.chat.value.members.firstWhereOrNull((m) => m.user.id == userId);
 
-    // Response is `null` if [MyUser] removed himself (left the chat).
-    if (response == null) {
-      _chatLocal.remove(chatId);
+    if (member != null) {
+      chat?.chat.update((c) => c?.members.remove(member));
+    }
+
+    try {
+      var response = await _graphQlProvider.removeChatMember(chatId, userId);
+
+      // Response is `null` if [MyUser] removed himself (left the chat).
+      if (response == null) {
+        _chatLocal.remove(chatId);
+      }
+    } catch (_) {
+      if (member != null) {
+        chat?.chat.update((c) => c?.members.add(member));
+      }
+
+      rethrow;
     }
   }
 
   @override
-  Future<void> hideChat(ChatId id) => _graphQlProvider.hideChat(id);
+  Future<void> hideChat(ChatId id) async {
+    HiveRxChat? chat = _chats.remove(id);
 
-  @override
-  Future<void> readChat(ChatId chatId, ChatItemId untilId) =>
-      _graphQlProvider.readChat(chatId, untilId);
+    try {
+      await _graphQlProvider.hideChat(id);
+    } catch (_) {
+      if (chat != null) {
+        _chats[id] = chat;
+      }
 
-  @override
-  Future<void> editChatMessageText(ChatItemId id, ChatMessageText? text) =>
-      _graphQlProvider.editChatMessageText(id, text);
-
-  @override
-  Future<void> deleteChatMessage(ChatMessage message) async {
-    if (message.status.value != SendingStatus.sent) {
-      HiveRxChat? chat = _chats[message.chatId] ?? (await get(message.chatId));
-      chat?.remove(message.id);
-    } else {
-      await _graphQlProvider.deleteChatMessage(message.id);
+      rethrow;
     }
   }
 
   @override
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.deleteChatForward(id);
+  Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
+    HiveRxChat? chat = _chats[chatId];
+    int? previous = chat?.chat.value.unreadCount;
+
+    if (chat != null) {
+      int lastReadIndex = chat.messages.reversed
+          .toList()
+          .indexWhere((m) => m.value.id == untilId);
+      if (lastReadIndex != -1) {
+        Iterable<Rx<ChatItem>> unread = chat.messages
+            .skip(chat.messages.length - lastReadIndex - 1)
+            .where((m) => m.value.authorId != me);
+        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
+      }
+    }
+    try {
+      await _graphQlProvider.readChat(chatId, untilId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.unreadCount = previous!);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> hideChatItem(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.hideChatItem(id);
+  Future<void> editChatMessageText(
+    Rx<ChatItem> item,
+    ChatMessageText? text,
+  ) async {
+    ChatMessageText? previous;
+
+    if (item.value is ChatMessage) {
+      previous = (item.value as ChatMessage).text;
+      item.update((c) => (c as ChatMessage?)?.text = text);
+    }
+
+    try {
+      await _graphQlProvider.editChatMessageText(item.value.id, text);
+    } catch (_) {
+      if (item.value is ChatMessage) {
+        item.update((c) => (c as ChatMessage?)?.text = previous);
+      }
+
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteChatMessage(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    bool removed = chat?.messages.remove(item) ?? false;
+
+    if (item.value.status.value == SendingStatus.sent) {
+      try {
+        await _graphQlProvider.deleteChatMessage(item.value.id);
+      } catch (_) {
+        if (removed) {
+          chat?.messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
+        }
+
+        rethrow;
+      }
+    }
+  }
+
+  @override
+  Future<void> deleteChatForward(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    bool removed = chat?.messages.remove(item) ?? false;
+
+    if (item.value.status.value == SendingStatus.sent) {
+      try {
+        await _graphQlProvider.deleteChatForward(item.value.id);
+      } catch (_) {
+        if (removed) {
+          chat?.messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
+        }
+
+        rethrow;
+      }
+    }
+  }
+
+  @override
+  Future<void> hideChatItem(Rx<ChatItem> item) async {
+    HiveRxChat? chat = _chats[item.value.chatId];
+    bool removed = chat?.messages.remove(item) ?? false;
+
+    if (item.value.status.value == SendingStatus.sent) {
+      try {
+        await _graphQlProvider.hideChatItem(item.value.id);
+      } catch (_) {
+        if (removed) {
+          chat?.messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
+        }
+
+        rethrow;
+      }
+    }
+  }
 
   @override
   Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
@@ -360,12 +483,37 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug) =>
+  Future<void> createChatDirectLink(
+    ChatId chatId,
+    ChatDirectLinkSlug slug,
+  ) async {
+    HiveRxChat? chat = _chats[chatId];
+    ChatDirectLink? link = chat?.chat.value.directLink;
+
+    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
+
+    try {
       _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.directLink = link);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> deleteChatDirectLink(ChatId groupId) =>
+  Future<void> deleteChatDirectLink(ChatId groupId) async {
+    HiveRxChat? chat = _chats[groupId];
+    ChatDirectLink? link = chat?.chat.value.directLink;
+
+    chat?.chat.update((c) => c?.directLink = null);
+
+    try {
       _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.directLink = link);
+      rethrow;
+    }
+  }
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

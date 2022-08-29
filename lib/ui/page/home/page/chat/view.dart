@@ -527,8 +527,8 @@ class _ChatViewState extends State<ChatView>
           me: c.me!,
           user: u.data,
           onJoinCall: c.joinCall,
-          onHide: () => c.hideChatItem(e.value),
-          onDelete: () => c.deleteMessage(e.value),
+          onHide: () => c.hideChatItem(e),
+          onDelete: () => c.deleteMessage(e),
           onReply: () {
             if (c.repliedMessages.contains(e.value)) {
               c.repliedMessages.remove(e.value);
@@ -541,7 +541,7 @@ class _ChatViewState extends State<ChatView>
           animation: _animation,
           onGallery: c.calculateGallery,
           onResend: () => c.resendItem(e.value),
-          onEdit: () => c.editMessage(e.value),
+          onEdit: () => c.editMessage(e),
           onDrag: (d) => c.isItemDragged.value = d,
         ),
       ),

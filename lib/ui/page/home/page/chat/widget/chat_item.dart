@@ -300,7 +300,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         decoration: BoxDecoration(
                           color: fromMe
                               ? isRead
-                                  ? const Color(0xFFCEE4FB)
+                                  ? const Color(0xFFD2E3F9)
                                   : const Color(0xFFE6F1FE)
                               : Colors.white,
                           borderRadius: BorderRadius.only(
@@ -373,7 +373,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         decoration: BoxDecoration(
                           color: fromMe
                               ? isRead
-                                  ? const Color(0xFFCEE4FB)
+                                  ? const Color(0xFFD2E3F9)
                                   : const Color(0xFFE6F1FE)
                               : Colors.white,
                           borderRadius: BorderRadius.only(

@@ -46,12 +46,14 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
         HideChatItemException,
         PostChatMessageException,
-        ReadChatException;
+        ReadChatException,
+        UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
@@ -321,7 +323,7 @@ class ChatController extends GetxController {
   Future<void> joinCall() => _callService.join(id, withVideo: false);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
-  Future<void> hideChatItem(ChatItem item) async {
+  Future<void> hideChatItem(Rx<ChatItem> item) async {
     try {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
@@ -333,60 +335,52 @@ class ChatController extends GetxController {
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
-  Future<void> deleteMessage(ChatItem item) async {
-    if (item is ChatMessage) {
-      try {
-        await _chatService.deleteChatMessage(item);
-      } on DeleteChatMessageException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else if (item is ChatForward) {
-      try {
-        await _chatService.deleteChatForward(item);
-      } on DeleteChatForwardException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else {
-      throw UnimplementedError('Deletion of $item is not implemented.');
+  Future<void> deleteMessage(Rx<ChatItem> item) async {
+    try {
+      await _chatService.deleteChatItem(item);
+    } on DeleteChatMessageException catch (e) {
+      MessagePopup.error(e);
+    } on DeleteChatForwardException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
-  /// Resend the specified [ChatItem] if it has status [SendingStatus.error].
+  /// Resends the specified [ChatItem].
   Future<void> resendItem(ChatItem item) async {
     if (item.status.value == SendingStatus.error) {
-      _chatService.resendChatItem(item);
+      await _chatService
+          .resendChatItem(item)
+          .then((_) => _playMessageSent())
+          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
+          .onError<ConnectionException>((_, __) {});
     }
   }
 
   /// Starts the editing of the specified [item], if allowed.
-  void editMessage(ChatItem item) {
-    if (!item.isEditable(chat!.chat.value, me!)) {
+  void editMessage(Rx<ChatItem> item) {
+    if (!item.value.isEditable(chat!.chat.value, me!)) {
       MessagePopup.error('err_uneditable_message'.l10n);
       return;
     }
 
-    if (item is ChatMessage) {
-      editedMessage.value = item;
-      edit = TextFieldState(
-        text: item.text?.val,
-        // onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
-        //     ? s.status.value = RxStatus.error()
-        //     : s.status.value = RxStatus.empty(),
-        onSubmitted: (s) async {
-          if (item.attachments.isEmpty && s.text.isEmpty) {
-            return;
-          }
+    if (item.value is ChatMessage) {
+      ChatMessage message = item.value as ChatMessage;
+      editedMessage.value = message;
 
-          if (s.text == item.text?.val) {
+      edit = TextFieldState(
+        text: message.text?.val,
+        onChanged: (s) => message.attachments.isEmpty && s.text.isEmpty
+            ? s.status.value = RxStatus.error()
+            : s.status.value = RxStatus.empty(),
+        onSubmitted: (s) async {
+          if (s.text == message.text?.val) {
             editedMessage.value = null;
             edit = null;
-          } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
+          } else if (s.text.isNotEmpty || message.attachments.isNotEmpty) {
             ChatMessageText? text;
             if (s.text.isNotEmpty) {
               text = ChatMessageText(s.text);
@@ -734,6 +728,22 @@ class ChatController extends GetxController {
         addPlatformAttachment(e);
       }
     }
+  }
+
+  /// Plays the message sent sound.
+  void _playMessageSent() {
+    runZonedGuarded(
+      () => _audioPlayer?.play(
+        AssetSource('audio/message_sent.mp3'),
+        position: Duration.zero,
+        mode: PlayerMode.lowLatency,
+      ),
+      (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
