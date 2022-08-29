@@ -39,7 +39,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(2)
   bool? showIntroduction;
 
-  /// Width of the side bar.
+  /// Width of the [HomeView]'s side bar.
   @HiveField(3)
   double? sideBarWidth;
 }

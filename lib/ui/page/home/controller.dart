@@ -26,7 +26,6 @@ import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
-import '/store/settings.dart';
 import '/ui/page/home/introduction/view.dart';
 
 export 'view.dart';
@@ -38,11 +37,11 @@ class HomeController extends GetxController {
   /// Maximal percentage of the screen's width which side bar can occupy.
   static double sideBarMaxWidthPercentage = 0.6;
 
-  /// Minimal width which side bar can occupy.
+  /// Minimal width of the side bar.
   static double sideBarMinWidth = 250;
 
-  /// Width which side bar will occupy.
-  Rx<double> sideBarWidth = Rx<double>(350.0);
+  /// Current width of the side bar.
+  RxDouble sideBarWidth = RxDouble(350);
 
   /// Controller of the [PageView] tab.
   late PageController pages;
@@ -123,23 +122,21 @@ class HomeController extends GetxController {
     _myUserSubscription.cancel();
   }
 
-  /// Returns corrected according to side bar constraints [width] value.
+  /// Returns corrected according to the side bar constraints [width] value.
   double applySideBarWidth(double width) {
     double maxWidth =
         router.context!.width * HomeController.sideBarMaxWidthPercentage;
 
-    if (width < HomeController.sideBarMinWidth) {
-      return HomeController.sideBarMinWidth;
-    }
-
-    if (width > maxWidth) {
-      return maxWidth;
+    if (HomeController.sideBarMinWidth <= maxWidth) {
+      width = width.clamp(HomeController.sideBarMinWidth, maxWidth);
+    } else {
+      width = maxWidth;
     }
 
     return width;
   }
 
-  /// Saves [sideBarWidth] to [SettingsRepository].
+  /// Stores the [sideBarWidth].
   Future<void> saveSideBarWidth() =>
       _settings.setSideBarWidth(sideBarWidth.value);
 

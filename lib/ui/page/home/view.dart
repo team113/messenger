@@ -91,29 +91,29 @@ class _HomeViewState extends State<HomeView> {
     return GetBuilder(
       init: HomeController(Get.find(), Get.find(), Get.find()),
       builder: (HomeController c) {
-        return Obx(() {
-          /// Claim priority of the "Back" button dispatcher.
-          _backButtonDispatcher.takePriority();
+        /// Claim priority of the "Back" button dispatcher.
+        _backButtonDispatcher.takePriority();
 
-          double sideBarWidth = c.applySideBarWidth(c.sideBarWidth.value);
+        c.sideBarWidth.value = c.applySideBarWidth(c.sideBarWidth.value);
 
-          /// Side bar uses a little trick to be responsive:
-          ///
-          /// 1. On mobile, side bar is full-width and the navigator's first page
-          ///    is transparent, both visually and tactile. As soon as a new page
-          ///    populates the route stack, it becomes reactive to touches.
-          ///    Navigator is drawn above the side bar in this case.
-          ///
-          /// 2. On desktop/tablet side bar is always shown and occupies the space
-          ///    stated by `Config` variables (`sideBarWidth`, `sideBarMinWidth`
-          ///    and `sideBarMaxWidthPercentage`).
-          ///    Navigator is drawn under the side bar (so the page animation is
-          ///    correct).
-          final sideBar = Row(
-            children: [
-              ConstrainedBox(
+        /// Side bar uses a little trick to be responsive:
+        ///
+        /// 1. On mobile, side bar is full-width and the navigator's first page
+        ///    is transparent, both visually and tactile. As soon as a new page
+        ///    populates the route stack, it becomes reactive to touches.
+        ///    Navigator is drawn above the side bar in this case.
+        ///
+        /// 2. On desktop/tablet side bar is always shown and occupies the space
+        ///    determined by the `sideBarWidth` value.
+        ///    Navigator is drawn under the side bar (so the page animation is
+        ///    correct).
+        final sideBar = Row(
+          children: [
+            Obx(() {
+              double width = c.sideBarWidth.value;
+              return ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: context.isMobile ? context.width : sideBarWidth,
+                  maxWidth: context.isMobile ? context.width : width,
                 ),
                 child: Scaffold(
                   body: Listener(
@@ -178,81 +178,81 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                 ),
-              ),
-              if (!context.isMobile) ...[
-                const VerticalDivider(
-                  width: 0.5,
-                  thickness: 0.5,
-                  color: Color(0xFFE0E0E0),
-                ),
-                MouseRegion(
-                  cursor: SystemMouseCursors.resizeLeftRight,
-                  child: Scaler(
-                    onDragStart: (_) {
-                      c.sideBarWidth.value =
-                          c.applySideBarWidth(c.sideBarWidth.value);
-                    },
-                    onDragUpdate: (dx, dy) {
-                      c.sideBarWidth.value =
-                          c.applySideBarWidth(c.sideBarWidth.value + dx);
-                    },
-                    onDragEnd: (_) {
-                      c.saveSideBarWidth();
-                    },
-                    width: Scaler.size / 2,
-                    height: context.height,
-                  ),
-                ),
-              ]
-            ],
-          );
-
-          /// Nested navigation widget that displays [navigator] in an [Expanded]
-          /// to take all the remaining from the [sideBar] space.
-          Widget navigation = IgnorePointer(
-            ignoring: router.route == Routes.home && context.isMobile,
-            child: LayoutBuilder(builder: (context, constraints) {
-              return Row(
-                children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: context.isMobile ? 0 : sideBarWidth,
-                    ),
-                    child: Container(),
-                  ),
-                  Expanded(
-                    child: Router(
-                      routerDelegate: _routerDelegate,
-                      backButtonDispatcher: _backButtonDispatcher,
-                    ),
-                  ),
-                ],
               );
             }),
-          );
+            if (!context.isMobile) ...[
+              const VerticalDivider(
+                width: 0.5,
+                thickness: 0.5,
+                color: Color(0xFFE0E0E0),
+              ),
+              MouseRegion(
+                cursor: SystemMouseCursors.resizeLeftRight,
+                child: Scaler(
+                  onDragStart: (_) {
+                    c.sideBarWidth.value =
+                        c.applySideBarWidth(c.sideBarWidth.value);
+                  },
+                  onDragUpdate: (dx, _) {
+                    c.sideBarWidth.value =
+                        c.applySideBarWidth(c.sideBarWidth.value + dx);
+                  },
+                  onDragEnd: (_) => c.saveSideBarWidth(),
+                  width: Scaler.size / 2,
+                  height: context.height,
+                ),
+              ),
+            ]
+          ],
+        );
 
-          /// Navigator should be drawn under or above the [sideBar] for the
-          /// animations to look correctly.
-          ///
-          /// [Container]s are required for the [sideBar] to keep its state.
-          /// Otherwise, [Stack] widget will be updated, which will lead its
-          /// children to be updated as well.
-          return CallOverlayView(
-            child: Obx(
-              () => c.authStatus.value.isSuccess
-                  ? Stack(
-                      key: const Key('HomeView'),
-                      children: [
-                        Container(child: context.isMobile ? null : navigation),
-                        sideBar,
-                        Container(child: context.isMobile ? navigation : null),
-                      ],
-                    )
-                  : const Scaffold(
-                      body: Center(child: CircularProgressIndicator())),
-            ),
-          );
-        });
+        /// Nested navigation widget that displays [navigator] in an [Expanded]
+        /// to take all the remaining from the [sideBar] space.
+        Widget navigation = IgnorePointer(
+          ignoring: router.route == Routes.home && context.isMobile,
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Row(
+              children: [
+                Obx(() {
+                  double width = c.sideBarWidth.value;
+                  return ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: context.isMobile ? 0 : width),
+                    child: Container(),
+                  );
+                }),
+                Expanded(
+                  child: Router(
+                    routerDelegate: _routerDelegate,
+                    backButtonDispatcher: _backButtonDispatcher,
+                  ),
+                ),
+              ],
+            );
+          }),
+        );
+
+        /// Navigator should be drawn under or above the [sideBar] for the
+        /// animations to look correctly.
+        ///
+        /// [Container]s are required for the [sideBar] to keep its state.
+        /// Otherwise, [Stack] widget will be updated, which will lead its
+        /// children to be updated as well.
+        return CallOverlayView(
+          child: Obx(
+            () => c.authStatus.value.isSuccess
+                ? Stack(
+                    key: const Key('HomeView'),
+                    children: [
+                      Container(child: context.isMobile ? null : navigation),
+                      sideBar,
+                      Container(child: context.isMobile ? navigation : null),
+                    ],
+                  )
+                : const Scaffold(
+                    body: Center(child: CircularProgressIndicator())),
+          ),
+        );
       },
     );
   }
