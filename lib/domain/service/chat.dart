@@ -142,18 +142,18 @@ class ChatService extends DisposableService {
     if (attachments != null && _isAttachmentsExceedsMaximumSize(attachments)) {
       chunksAttachments = _ChunkMessage.createChunksList<Attachment>(
           attachments, maxMessageAttachments);
-      if (chunksAttachments.isEmpty) {
-        return Future.value();
-      }
+      // if (chunksAttachments.isEmpty) {
+      //   return Future.value();
+      // }
     } else {
       chunksAttachments = attachments == null ? [] : [attachments];
     }
 
     if (text != null && _isStringExceedsMaximumSize(text)) {
       chunksText = _ChunkMessage.createChunksString(text.val, maxMessageText);
-      if (chunksText.isEmpty) {
-        return Future.value();
-      }
+      // if (chunksText.isEmpty) {
+      //   return Future.value();
+      // }
     } else {
       chunksText = text == null ? [] : [text.val];
     }
