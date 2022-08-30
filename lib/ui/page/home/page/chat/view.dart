@@ -1173,33 +1173,33 @@ class _ChatViewState extends State<ChatView>
                     ),
                   ),
                   const SizedBox(width: 0),
-                  SizedBox(
-                    height: 56,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: c.send.isEmpty.value && c.attachments.isEmpty
-                            ? SizedBox(
-                                width: 56,
-                                height: 56,
-                                child: Center(
-                                  child: TooltipHint(
-                                    hint: 'Видео сообщение',
-                                    child: _button(
-                                      icon: SvgLoader.asset(
-                                        'assets/icons/video_message_outline.svg',
-                                        width: 23.13,
-                                        height: 21,
-                                      ),
-                                      onTap: () {},
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(height: 18),
-                      ),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   height: 56,
+                  //   child: Center(
+                  //     child: AnimatedSwitcher(
+                  //       duration: const Duration(milliseconds: 250),
+                  //       child: c.send.isEmpty.value && c.attachments.isEmpty
+                  //           ? SizedBox(
+                  //               width: 56,
+                  //               height: 56,
+                  //               child: Center(
+                  //                 child: TooltipHint(
+                  //                   hint: 'Видео сообщение',
+                  //                   child: _button(
+                  //                     icon: SvgLoader.asset(
+                  //                       'assets/icons/video_message_outline.svg',
+                  //                       width: 23.13,
+                  //                       height: 21,
+                  //                     ),
+                  //                     onTap: () {},
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             )
+                  //           : const SizedBox(height: 18),
+                  //     ),
+                  //   ),
+                  // ),
                   // const SizedBox(width: 20),
                   WidgetButton(
                     onPressed: c.send.isEmpty.value && c.attachments.isEmpty
@@ -1212,26 +1212,34 @@ class _ChatViewState extends State<ChatView>
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 150),
                           child: SizedBox(
-                            key: c.send.isEmpty.value && c.attachments.isEmpty
-                                ? const Key('Mic')
-                                : const Key('Send'),
+                            key: const Key('Send'),
+                            // key: c.send.isEmpty.value && c.attachments.isEmpty
+                            //     ? const Key('Mic')
+                            //     : const Key('Send'),
                             width: 25.18,
                             height: 22.85,
-                            child: c.send.isEmpty.value && c.attachments.isEmpty
-                                ? TooltipHint(
-                                    hint: 'Голосовое сообщение',
-                                    child: SvgLoader.asset(
-                                      'assets/icons/audio_message_outline.svg',
-                                      height: iconSize,
-                                    ),
-                                  )
-                                : Padding(
-                                    padding: const EdgeInsets.only(top: 0),
-                                    child: SvgLoader.asset(
-                                      'assets/icons/send.svg',
-                                      height: 22.85,
-                                    ),
-                                  ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 0),
+                              child: SvgLoader.asset(
+                                'assets/icons/send.svg',
+                                height: 22.85,
+                              ),
+                            ),
+                            // child: c.send.isEmpty.value && c.attachments.isEmpty
+                            //     ? TooltipHint(
+                            //         hint: 'Голосовое сообщение',
+                            //         child: SvgLoader.asset(
+                            //           'assets/icons/audio_message_outline.svg',
+                            //           height: iconSize,
+                            //         ),
+                            //       )
+                            //     : Padding(
+                            //         padding: const EdgeInsets.only(top: 0),
+                            //         child: SvgLoader.asset(
+                            //           'assets/icons/send.svg',
+                            //           height: 22.85,
+                            //         ),
+                            //       ),
                           ),
                         ),
                       ),
@@ -1777,6 +1785,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ChatController.repliedMessages].
   Widget _repliedMessage(ChatController c, ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = item.authorId == c.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1805,18 +1814,25 @@ class _ChatViewState extends State<ChatView>
           return Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
-                color: const Color(0xFFE7E7E7),
-                // color: Colors.grey,
-                borderRadius: BorderRadius.circular(4),
-                image: image == null
-                    ? null
-                    : DecorationImage(
-                        image:
-                            NetworkImage('${Config.url}/files${image.small}'))),
+              color: fromMe
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(4),
+              image: image == null
+                  ? null
+                  : DecorationImage(
+                      image: NetworkImage('${Config.url}/files${image.small}'),
+                    ),
+            ),
             width: 30,
             height: 30,
-            child:
-                image == null ? const Icon(Icons.attach_file, size: 16) : null,
+            child: image == null
+                ? Icon(
+                    Icons.file_copy,
+                    color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                    size: 16,
+                  )
+                : null,
           );
         }).toList();
       }
@@ -2020,6 +2036,7 @@ class _ChatViewState extends State<ChatView>
   /// Builds a visual representation of a [ChatController.editedMessage].
   Widget _editedMessage(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = c.editedMessage.value?.authorId == c.me;
 
     if (c.editedMessage.value != null && c.edit != null) {
       if (c.editedMessage.value is ChatMessage) {
@@ -2044,18 +2061,25 @@ class _ChatViewState extends State<ChatView>
             return Container(
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
-                  color: const Color(0xFFE7E7E7),
-                  // color: Colors.grey,
-                  borderRadius: BorderRadius.circular(4),
-                  image: image == null
-                      ? null
-                      : DecorationImage(
-                          image: NetworkImage(
-                              '${Config.url}/files${image.small}'))),
+                color: fromMe
+                    ? Colors.white.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(4),
+                image: image == null
+                    ? null
+                    : DecorationImage(
+                        image:
+                            NetworkImage('${Config.url}/files${image.small}'),
+                      ),
+              ),
               width: 30,
               height: 30,
               child: image == null
-                  ? const Icon(Icons.attach_file, size: 16)
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                      size: 16,
+                    )
                   : null,
             );
           }).toList();

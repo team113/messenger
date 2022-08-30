@@ -86,6 +86,7 @@ dependencies:
   video_player: ^2.4.2
   visibility_detector: ^0.3.3
   web_socket_channel: ^2.2.0
+  wakelock: ^0.6.2
   window_manager: ^0.2.3
   flutter_app_badger: ^1.4.0
 

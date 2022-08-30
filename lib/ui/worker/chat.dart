@@ -116,6 +116,7 @@ class ChatWorker extends DisposableService {
       if (newChat) {
         _notificationService.show(
           c.title.value,
+          tag: c.chat.value.id.val,
           body: 'label_you_were_added_to_group'.l10n,
           payload: '${Routes.chat}/${c.chat.value.id}',
           icon: avatarUrl,
@@ -125,9 +126,10 @@ class ChatWorker extends DisposableService {
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
-      onNotification: (body) => _notificationService.show(
+      onNotification: (body, tag) => _notificationService.show(
         c.title.value,
         body: body,
+        tag: tag,
         payload: '${Routes.chat}/${c.chat.value.id}',
         icon: avatarUrl,
       ),
@@ -141,7 +143,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String)? onNotification,
+    void Function(String, String?)? onNotification,
     UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
     worker = ever(
@@ -177,7 +179,7 @@ class _ChatWatchData {
             }
 
             if (body != null) {
-              onNotification?.call(body);
+              onNotification?.call(body, chat.lastItem?.id.val);
             }
           }
 

@@ -224,7 +224,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool ignoreFirstRmb = msg.text?.val.isNotEmpty ?? false;
     Style style = Theme.of(context).extension<Style>()!;
 
-    List<Attachment> attachments = msg.attachments;
+    List<Attachment> attachments = msg.attachments.where((e) {
+      return ((e is ImageAttachment) ||
+          (e is FileAttachment && e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+    }).toList();
+
+    List<Attachment> files = msg.attachments.where((e) {
+      return ((e is! ImageAttachment) ||
+          (e is FileAttachment && !(e as FileAttachment).isVideo) ||
+          (e is LocalAttachment &&
+              ((e as LocalAttachment).file.isImage ||
+                  (e as LocalAttachment).file.isVideo)));
+    }).toList();
+
     bool fromMe = widget.item.value.authorId == widget.me;
     bool isRead = _isRead();
 
@@ -232,6 +245,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ? const Color(0xFF63B4FF)
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
+
+    double avatarOffset = 0;
+    if ((!fromMe && widget.chat.value?.isGroup == true) &&
+        msg.repliesTo != null) {
+      if (msg.repliesTo is ChatMessage) {
+        ChatMessage replied = msg.repliesTo as ChatMessage;
+
+        if (replied.text != null && replied.attachments.isNotEmpty) {
+          avatarOffset = 54 + 34;
+        } else if (replied.text == null && replied.attachments.isNotEmpty) {
+          avatarOffset = 66;
+        } else if (replied.text != null) {
+          avatarOffset = 54;
+        }
+      }
+    }
 
     return _rounded(
       context,
@@ -242,8 +271,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             IntrinsicWidth(
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
+                  color: fromMe
+                      ? isRead
+                          ? const Color.fromRGBO(210, 227, 249, 1)
+                          : const Color.fromRGBO(230, 241, 254, 1)
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   border: fromMe
                       ? isRead
@@ -253,14 +288,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               width: 0.5,
                             )
                       : style.secondaryBorder,
-                  // boxShadow: [
-                  //   CustomBoxShadow(
-                  //     blurRadius: 2,
-                  //     color: Colors.black.withOpacity(0.2),
-                  //     blurStyle: BlurStyle.outer,
-                  //     offset: const Offset(0, 0.5),
-                  //   ),
-                  // ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -302,77 +329,115 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       ),
                     if (!fromMe && widget.chat.value?.isGroup == true)
-                      AnimatedContainer(
+                      AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
-                        decoration: BoxDecoration(
-                          color: fromMe
-                              ? isRead
-                                  ? const Color.fromRGBO(210, 227, 249, 1)
-                                  : const Color.fromRGBO(230, 241, 254, 1)
-                              : Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: msg.repliesTo != null
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            topRight: msg.repliesTo != null
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomLeft: Radius.zero,
-                            bottomRight: Radius.zero,
+                        opacity: isRead
+                            ? 1
+                            : fromMe
+                                ? 0.55
+                                : 1,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            12,
+                            8,
+                            9,
+                            files.isEmpty &&
+                                    attachments.isNotEmpty &&
+                                    msg.text == null
+                                ? 8
+                                : files.isNotEmpty && msg.text == null
+                                    ? 0
+                                    : 4,
                           ),
-                        ),
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 500),
-                          opacity: isRead
-                              ? 1
-                              : fromMe
-                                  ? 0.55
-                                  : 1,
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              12,
-                              8,
-                              9,
-                              msg.attachments.isNotEmpty && msg.text == null
-                                  ? 8
-                                  : 2,
-                            ),
-                            child: Text(
-                              widget.user?.user.value.name?.val ??
-                                  widget.user?.user.value.num.val ??
-                                  '...',
-                              style: style.boldBody.copyWith(color: color),
-                            ),
+                          child: Text(
+                            widget.user?.user.value.name?.val ??
+                                widget.user?.user.value.num.val ??
+                                '...',
+                            style: style.boldBody.copyWith(color: color),
                           ),
                         ),
                       ),
                     if (msg.text != null)
-                      AnimatedContainer(
+                      AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
-                        decoration: BoxDecoration(
-                          color: fromMe
-                              ? isRead
-                                  ? const Color.fromRGBO(210, 227, 249, 1)
-                                  : const Color.fromRGBO(230, 241, 254, 1)
-                              : Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: (msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true))
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            topRight: (msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true))
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomLeft: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomRight: msg.attachments.isNotEmpty
-                                ? Radius.zero
-                                : const Radius.circular(15),
+                        opacity: isRead
+                            ? 1
+                            : fromMe
+                                ? 0.55
+                                : 1,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            12,
+                            (!fromMe && widget.chat.value?.isGroup == true)
+                                ? 0
+                                : 10,
+                            9,
+                            files.isEmpty ? 10 : 0,
                           ),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.deferToChild,
+                            onHorizontalDragUpdate:
+                                PlatformUtils.isDesktop ? (d) {} : null,
+                            onHorizontalDragEnd:
+                                PlatformUtils.isDesktop ? (d) {} : null,
+                            child: Obx(() {
+                              return IgnorePointer(
+                                ignoring:
+                                    ContextMenuOverlay.of(context).id.value !=
+                                        widget.item.value.id.val,
+                                child: SelectableText(
+                                  msg.text!.val,
+                                  style: style.boldBody,
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                    if (files.isNotEmpty)
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: isRead
+                            ? 1
+                            : fromMe
+                                ? 0.55
+                                : 1,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                          child: Column(
+                            children: files
+                                .map((e) => _buildFileAttachment(e))
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    if (attachments.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: msg.text != null ||
+                                  msg.repliesTo != null ||
+                                  (!fromMe &&
+                                      widget.chat.value?.isGroup == true)
+                              ? Radius.zero
+                              : files.isEmpty
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
+                          topRight: msg.text != null ||
+                                  msg.repliesTo != null ||
+                                  (!fromMe &&
+                                      widget.chat.value?.isGroup == true)
+                              ? Radius.zero
+                              : files.isEmpty
+                                  ? const Radius.circular(15)
+                                  : Radius.zero,
+                          bottomLeft: const Radius.circular(15),
+                          bottomRight: const Radius.circular(15),
+                          // bottomLeft: files.isEmpty
+                          //     ? const Radius.circular(15)
+                          //     : Radius.zero,
+                          // bottomRight: files.isEmpty
+                          //     ? const Radius.circular(15)
+                          //     : Radius.zero,
                         ),
                         child: AnimatedOpacity(
                           duration: const Duration(milliseconds: 500),
@@ -381,106 +446,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               : fromMe
                                   ? 0.55
                                   : 1,
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              12,
-                              (!fromMe && widget.chat.value?.isGroup == true)
-                                  ? 0
-                                  : 10,
-                              9,
-                              10,
-                            ),
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.deferToChild,
-                              onHorizontalDragUpdate:
-                                  PlatformUtils.isDesktop ? (d) {} : null,
-                              onHorizontalDragEnd:
-                                  PlatformUtils.isDesktop ? (d) {} : null,
-                              child: Obx(() {
-                                return IgnorePointer(
-                                  ignoring:
-                                      ContextMenuOverlay.of(context).id.value !=
-                                          widget.item.value.id.val,
-                                  child: SelectableText(
-                                    msg.text!.val,
-                                    style: style.boldBody,
+                          child: attachments.length == 1
+                              ? _buildAttachment(
+                                  0,
+                                  attachments.first,
+                                  attachments,
+                                  filled: false,
+                                )
+                              : SizedBox(
+                                  width: attachments.length * 120,
+                                  height: max(attachments.length * 60, 300),
+                                  child: FitView(
+                                    dividerColor: Colors.transparent,
+                                    children: attachments
+                                        .mapIndexed((i, e) =>
+                                            _buildAttachment(i, e, attachments))
+                                        .toList(),
                                   ),
-                                );
-                              }),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (attachments.isNotEmpty)
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        decoration: BoxDecoration(
-                          color: fromMe
-                              ? isRead
-                                  ? const Color(0xFFD2E3F9)
-                                  : const Color(0xFFE6F1FE)
-                              : Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: msg.text != null ||
-                                    msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true)
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            topRight: msg.text != null ||
-                                    msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true)
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomLeft: const Radius.circular(15),
-                            bottomRight: const Radius.circular(15),
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.only(
-                            topLeft: msg.text != null ||
-                                    msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true)
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            topRight: msg.text != null ||
-                                    msg.repliesTo != null ||
-                                    (!fromMe &&
-                                        widget.chat.value?.isGroup == true)
-                                ? Radius.zero
-                                : const Radius.circular(15),
-                            bottomLeft: const Radius.circular(15),
-                            bottomRight: const Radius.circular(15),
-                          ),
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 500),
-                            opacity: isRead
-                                ? 1
-                                : fromMe
-                                    ? 0.55
-                                    : 1,
-                            child: attachments.length == 1
-                                ? _buildAttachment(
-                                    0,
-                                    attachments.first,
-                                    attachments,
-                                    filled: false,
-                                  )
-                                : SizedBox(
-                                    width: attachments.length * 120,
-                                    height: max(attachments.length * 60, 300),
-                                    child: FitView(
-                                      dividerColor: Colors.transparent,
-                                      children: attachments
-                                          .mapIndexed((i, e) =>
-                                              _buildAttachment(
-                                                  i, e, attachments))
-                                          .toList(),
-                                    ),
-                                  ),
-                          ),
+                                ),
                         ),
                       ),
                   ],
@@ -492,10 +475,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       ),
       padding: EdgeInsets.zero,
       ignoreFirstRmb: ignoreFirstRmb,
-      avatarOffset: (!fromMe && widget.chat.value?.isGroup == true) &&
-              msg.repliesTo != null
-          ? 54
-          : 0,
+      avatarOffset: avatarOffset,
     );
   }
 
@@ -650,6 +630,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = item.authorId == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -668,30 +649,69 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
 
       if (item.attachments.isNotEmpty) {
-        additional = item.attachments.map((a) {
-          ImageAttachment? image;
+        // TODO: IF MORE THAN 3, WRITE "+201" AS THE LAST ONE
+        additional = item.attachments
+            .map((a) {
+              ImageAttachment? image;
 
-          if (a is ImageAttachment) {
-            image = a;
-          }
+              if (a is ImageAttachment) {
+                image = a;
+              }
 
-          return Container(
+              return Container(
+                margin: const EdgeInsets.only(right: 2),
+                decoration: BoxDecoration(
+                  color: fromMe
+                      ? Colors.white.withOpacity(0.25)
+                      : Colors.black.withOpacity(0.03),
+                  borderRadius: BorderRadius.circular(10),
+                  image: image == null
+                      ? null
+                      : DecorationImage(
+                          image: NetworkImage(
+                              '${Config.url}/files${image.medium}'),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                width: 50,
+                height: 50,
+                child: image == null
+                    ? Icon(
+                        Icons.file_copy,
+                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                        size: 28,
+                      )
+                    : null,
+              );
+            })
+            .take(3)
+            .toList();
+
+        if (item.attachments.length > 3) {
+          additional.add(Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFFE7E7E7),
-              borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.small}'),
-                    ),
+              color: fromMe
+                  ? Colors.white.withOpacity(0.25)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(10),
             ),
-            width: 30,
-            height: 30,
-            child:
-                image == null ? const Icon(Icons.attach_file, size: 16) : null,
-          );
-        }).toList();
+            width: 50,
+            height: 50,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  '+${item.attachments.length - 3}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              ),
+            ),
+          ));
+        }
       }
 
       if (desc.isNotEmpty) {
@@ -777,46 +797,48 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(width: 12),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(left: BorderSide(width: 2, color: color)),
-              ),
-              margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-              padding: const EdgeInsets.only(left: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Builder(
-                    builder: (context) {
-                      String? name;
+            Flexible(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(left: BorderSide(width: 2, color: color)),
+                ),
+                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                padding: const EdgeInsets.only(left: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Builder(
+                      builder: (context) {
+                        String? name;
 
-                      if (snapshot.data != null) {
-                        return Obx(() {
-                          return Text(
-                            snapshot.data!.user.value.name?.val ??
-                                snapshot.data!.user.value.num.val,
-                            style: style.boldBody.copyWith(color: color),
-                          );
-                        });
-                      }
+                        if (snapshot.data != null) {
+                          return Obx(() {
+                            return Text(
+                              snapshot.data!.user.value.name?.val ??
+                                  snapshot.data!.user.value.num.val,
+                              style: style.boldBody.copyWith(color: color),
+                            );
+                          });
+                        }
 
-                      return Text(
-                        name ?? '...',
-                        style: style.boldBody
-                            .copyWith(color: const Color(0xFF63B4FF)),
-                      );
-                    },
-                  ),
-                  if (content != null) ...[
-                    const SizedBox(height: 2),
-                    DefaultTextStyle.merge(maxLines: 1, child: content),
+                        return Text(
+                          name ?? '...',
+                          style: style.boldBody
+                              .copyWith(color: const Color(0xFF63B4FF)),
+                        );
+                      },
+                    ),
+                    if (content != null) ...[
+                      const SizedBox(height: 2),
+                      DefaultTextStyle.merge(maxLines: 1, child: content),
+                    ],
+                    if (additional.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(mainAxisSize: MainAxisSize.min, children: additional),
+                    ],
                   ],
-                  if (additional.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(mainAxisSize: MainAxisSize.min, children: additional),
-                  ],
-                ],
+                ),
               ),
             ),
           ],
@@ -1126,13 +1148,75 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _buildFile(e, filled: filled);
   }
 
+  Widget _buildFileAttachment(Attachment e) {
+    bool fromMe = widget.item.value.authorId == widget.me;
+    Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: WidgetButton(
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: fromMe
+                ? Colors.white.withOpacity(0.2)
+                : Colors.black.withOpacity(0.03),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+              Icon(
+                Icons.file_copy,
+                color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // TODO: Must be cut WITH extension visible!!!!!!
+                    Text(
+                      e.filename,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 15),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${e.size ~/ 1024} KB',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFile(Attachment e, {bool filled = true}) {
     Style style = Theme.of(context).extension<Style>()!;
     bool isLocal = e is LocalAttachment;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      decoration: const BoxDecoration(color: Color(0xFFD8D8D8)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5).withOpacity(0.5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      // margin: const EdgeInsets.all(4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
