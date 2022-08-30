@@ -97,13 +97,13 @@ class PopupCallController extends GetxController {
     });
 
     _tryToConnect();
-    Wakelock.enable();
+    Wakelock.enable().onError((_, __) => false);
     super.onInit();
   }
 
   @override
   void onClose() {
-    Wakelock.disable();
+    Wakelock.disable().onError((_, __) => false);
     WebUtils.removeCall(call.value.chatId.value);
     _storageSubscription?.cancel();
     _stateWorker.dispose();

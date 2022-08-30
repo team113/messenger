@@ -99,16 +99,16 @@ class CallWorker extends DisposableService {
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock) {
-      Wakelock.enable();
+      Wakelock.enable().onError((_, __) => false);
     }
 
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
-        Wakelock.enable();
+        Wakelock.enable().onError((_, __) => false);
       } else if (wakelock && _callService.calls.isEmpty) {
         wakelock = false;
-        Wakelock.disable();
+        Wakelock.disable().onError((_, __) => false);
       }
 
       switch (event.op) {
