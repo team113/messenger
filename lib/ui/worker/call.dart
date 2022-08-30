@@ -91,18 +91,26 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
-  /// Indicator whether wake lock is turn on.
-  bool _isEnabledWakelock = false;
-
   @override
-  Future<void> onInit() async {
+  void onInit() {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
 
-    _isEnabledWakelock = await Wakelock.enabled;
+    bool wakelock = _callService.calls.isNotEmpty;
+    if (wakelock) {
+      Wakelock.enable();
+    }
 
     _subscription = _callService.calls.changes.listen((event) async {
+      if (!wakelock && _callService.calls.isNotEmpty) {
+        wakelock = true;
+        Wakelock.enable();
+      } else if (wakelock && _callService.calls.isEmpty) {
+        wakelock = false;
+        Wakelock.disable();
+      }
+
       switch (event.op) {
         case OperationKind.added:
           OngoingCall c = event.value!.value;
@@ -199,15 +207,6 @@ class CallWorker extends DisposableService {
 
         default:
           break;
-      }
-
-      // Toggle wake lock.
-      if (!_isEnabledWakelock && _callService.calls.isNotEmpty) {
-        Wakelock.enable();
-        _isEnabledWakelock = true;
-      } else if (_isEnabledWakelock && _callService.calls.isEmpty) {
-        Wakelock.disable();
-        _isEnabledWakelock = false;
       }
     });
 
