@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
