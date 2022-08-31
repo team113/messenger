@@ -534,7 +534,7 @@ class _ChatViewState extends State<ChatView>
               child: DefaultTextStyle.merge(
                 style: thin?.copyWith(
                   fontSize: 13,
-                  color: const Color(0xFF888888),
+                  color: Color.fromARGB(255, 60, 60, 60),
                 ),
                 child:
                     Center(child: Text('${c.unreadMessages} unread messages')),
