@@ -107,7 +107,13 @@ class ChatService extends DisposableService {
       _chatRepository.resendChatItem(item);
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
-  Future<void> hideChat(ChatId id) => _chatRepository.hideChat(id);
+  Future<void> hideChat(ChatId id) {
+    if (router.route.startsWith('${Routes.chat}/$id')) {
+      router.home();
+    }
+
+    return _chatRepository.hideChat(id);
+  }
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].
@@ -120,8 +126,7 @@ class ChatService extends DisposableService {
     RxChat? chat;
 
     if (userId == me) {
-      chat = _chatRepository.chats[chatId];
-      _chatRepository.chats.remove(chat);
+      chat = chats.remove(chatId);
       if (router.route.startsWith('${Routes.chat}/$chatId')) {
         router.home();
       }
@@ -131,7 +136,7 @@ class ChatService extends DisposableService {
       await _chatRepository.removeChatMember(chatId, userId);
     } catch (_) {
       if (chat != null) {
-        _chatRepository.chats[chatId] = chat;
+        chats[chatId] = chat;
       }
 
       rethrow;
@@ -155,37 +160,37 @@ class ChatService extends DisposableService {
       _chatRepository.readChat(chatId, untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessage(Rx<ChatItem> item, ChatMessageText? text) =>
+  Future<void> editChatMessage(ChatMessage item, ChatMessageText? text) =>
       _chatRepository.editChatMessageText(item, text);
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
-  Future<void> deleteChatItem(Rx<ChatItem> item) async {
-    if (item.value is! ChatMessage && item.value is! ChatForward) {
-      throw UnimplementedError('Deletion of ${item.value} is not implemented.');
+  Future<void> deleteChatItem(ChatItem item) async {
+    if (item is! ChatMessage && item is! ChatForward) {
+      throw UnimplementedError('Deletion of $item is not implemented.');
     }
 
-    Chat? chat = chats[item.value.chatId]?.chat.value;
+    Chat? chat = chats[item.chatId]?.chat.value;
 
-    if (item.value is ChatMessage) {
-      if (item.value.authorId != me) {
+    if (item is ChatMessage) {
+      if (item.authorId != me) {
         throw const DeleteChatMessageException(
           DeleteChatMessageErrorCode.notAuthor,
         );
       }
 
-      if (me != null && chat?.isRead(item.value, me!) == true) {
+      if (me != null && chat?.isRead(item, me!) == true) {
         throw const DeleteChatMessageException(DeleteChatMessageErrorCode.read);
       }
 
       await _chatRepository.deleteChatMessage(item);
-    } else if (item.value is ChatForward) {
-      if (item.value.authorId != me) {
+    } else if (item is ChatForward) {
+      if (item.authorId != me) {
         throw const DeleteChatForwardException(
           DeleteChatForwardErrorCode.notAuthor,
         );
       }
 
-      if (me != null && chat?.isRead(item.value, me!) == true) {
+      if (me != null && chat?.isRead(item, me!) == true) {
         throw const DeleteChatForwardException(DeleteChatForwardErrorCode.read);
       }
 
@@ -194,8 +199,8 @@ class ChatService extends DisposableService {
   }
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
-  Future<void> hideChatItem(Rx<ChatItem> item) async {
-    await _chatRepository.hideChatItem(item);
+  Future<void> hideChatItem(ChatItem item) async {
+    await _chatRepository.hideChatItem(item.chatId, item.id);
   }
 
   /// Creates a new [Attachment] from the provided [LocalAttachment] linked to

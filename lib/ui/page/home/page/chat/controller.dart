@@ -273,7 +273,7 @@ class ChatController extends GetxController {
   Future<void> joinCall() => _callService.join(id, withVideo: false);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
-  Future<void> hideChatItem(Rx<ChatItem> item) async {
+  Future<void> hideChatItem(ChatItem item) async {
     try {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
@@ -285,7 +285,7 @@ class ChatController extends GetxController {
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
-  Future<void> deleteMessage(Rx<ChatItem> item) async {
+  Future<void> deleteMessage(ChatItem item) async {
     try {
       await _chatService.deleteChatItem(item);
     } on DeleteChatMessageException catch (e) {
@@ -311,26 +311,24 @@ class ChatController extends GetxController {
   }
 
   /// Starts the editing of the specified [item], if allowed.
-  void editMessage(Rx<ChatItem> item) {
-    if (!item.value.isEditable(chat!.chat.value, me!)) {
+  void editMessage(ChatItem item) {
+    if (!item.isEditable(chat!.chat.value, me!)) {
       MessagePopup.error('err_uneditable_message'.l10n);
       return;
     }
 
-    if (item.value is ChatMessage) {
-      ChatMessage message = item.value as ChatMessage;
-      editedMessage.value = message;
-
+    if (item is ChatMessage) {
+      editedMessage.value = item;
       edit = TextFieldState(
-        text: message.text?.val,
-        onChanged: (s) => message.attachments.isEmpty && s.text.isEmpty
+        text: item.text?.val,
+        onChanged: (s) => item.attachments.isEmpty && s.text.isEmpty
             ? s.status.value = RxStatus.error()
             : s.status.value = RxStatus.empty(),
         onSubmitted: (s) async {
-          if (s.text == message.text?.val) {
+          if (s.text == item.text?.val) {
             editedMessage.value = null;
             edit = null;
-          } else if (s.text.isNotEmpty || message.attachments.isNotEmpty) {
+          } else if (s.text.isNotEmpty || item.attachments.isNotEmpty) {
             ChatMessageText? text;
             if (s.text.isNotEmpty) {
               text = ChatMessageText(s.text);

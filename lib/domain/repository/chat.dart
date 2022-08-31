@@ -116,16 +116,16 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(Rx<ChatItem> item, ChatMessageText? text);
+  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> deleteChatMessage(Rx<ChatItem> item);
+  Future<void> deleteChatMessage(ChatMessage message);
 
   /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
-  Future<void> deleteChatForward(Rx<ChatItem> item);
+  Future<void> deleteChatForward(ChatForward forward);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
-  Future<void> hideChatItem(Rx<ChatItem> item);
+  Future<void> hideChatItem(ChatId chatId, ChatItemId id);
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
