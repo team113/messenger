@@ -123,11 +123,10 @@ class CallOverlayController extends GetxController {
                   .getCredentials()!
                   .toJson()),
             }));
-            desktopWindow
-              ..setFrame(const Offset(0, 0) & const Size(700, 700))
-              ..center()
-              ..setTitle('Call')
-              ..show();
+            await desktopWindow.setFrame(const Offset(0, 0) & const Size(700, 700));
+            await desktopWindow.center();
+            await desktopWindow.setTitle('Call');
+            await desktopWindow.show();
 
             DesktopMultiWindow.invokeMethod(
               desktopWindow.windowId,

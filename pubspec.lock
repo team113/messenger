@@ -368,9 +368,11 @@ packages:
   desktop_multi_window:
     dependency: "direct main"
     description:
-      name: desktop_multi_window
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "00dcca05a2bd1e6f6324b56c917ec0919e765d3d"
+      url: "https://github.com/krida2000/desktop_multi_window"
+    source: git
     version: "0.2.0"
   dio:
     dependency: "direct main"
@@ -527,7 +529,7 @@ packages:
       name: flutter_list_view
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.12"
+    version: "1.1.18"
   flutter_local_notifications:
     dependency: "direct main"
     description:

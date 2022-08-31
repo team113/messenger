@@ -437,8 +437,8 @@ class OngoingCall {
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.
-  Future<void> dispose() {
-    return _mediaSettingsGuard.protect(() async {
+  Future<void> dispose() async {
+    disposeCall() {
       _disposeLocalMedia();
       if (_jason != null) {
         _mediaManager!.free();
@@ -449,7 +449,15 @@ class OngoingCall {
       }
       _heartbeat?.cancel();
       connected = false;
-    });
+    }
+
+    if (PlatformUtils.isPopup) {
+      disposeCall();
+    } else {
+      return _mediaSettingsGuard.protect(() async {
+        disposeCall();
+      });
+    }
   }
 
   /// Leaves this [OngoingCall].

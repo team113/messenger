@@ -184,15 +184,9 @@ class CallService extends DisposableService {
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
-      if(PlatformUtils.isPopup) {
-        await _callsRepo.leave(chatId, deviceId);
-        call.value.state.value = OngoingCallState.ended;
-        call.value.dispose();
-      } else {
-        call.value.state.value = OngoingCallState.ended;
-        call.value.dispose();
-        await _callsRepo.leave(chatId, deviceId);
-      }
+      call.value.state.value = OngoingCallState.ended;
+      call.value.dispose();
+      await _callsRepo.leave(chatId, deviceId);
     }
   }
 

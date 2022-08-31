@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -121,14 +122,15 @@ class PopupCallController extends GetxController {
         }
       });
     } else {
-      // windowManager.ensureInitialized().whenComplete(() => windowManager.addListener(DesktopWindowListener(onClose: () {
-      //   print('On window close work!!!!!');
-      //   // WebUtils.removeCall(call.value.chatId.value);
-      //   // _storageSubscription?.cancel();
-      //   // _stateWorker.dispose();
-      //   // _calls.leave(call.value.chatId.value, call.value.deviceId!);
-      // })));
-
+      _windowController?.setOnWindowClose(() async {
+        _storageSubscription?.cancel();
+        _stateWorker.dispose();
+        DesktopMultiWindow.invokeMethod(
+          0,
+          'call_${call.value.chatId.value.val}',
+        );
+        await _calls.leave(call.value.chatId.value, call.value.deviceId!);
+      });
 
       DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
         print('setMethodHandler in separate window');
@@ -156,7 +158,14 @@ class PopupCallController extends GetxController {
 
   @override
   void onClose() {
-    WebUtils.removeCall(call.value.chatId.value);
+    if(PlatformUtils.isWeb) {
+      WebUtils.removeCall(call.value.chatId.value);
+    } else {
+      DesktopMultiWindow.invokeMethod(
+        0,
+        'call_${call.value.chatId.value.val}',
+      );
+    }
     _storageSubscription?.cancel();
     _stateWorker.dispose();
     _calls.leave(call.value.chatId.value, call.value.deviceId!);
