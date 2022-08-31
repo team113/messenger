@@ -199,16 +199,12 @@ class _ChatViewState extends State<ChatView>
                       ),
                       body: Listener(
                         onPointerSignal: (s) {
-                          if (s is PointerScrollEvent) {
-                            // TODO: Look into `PointerChange` and seek for
-                            //       related for panning events on a new Flutter
-                            //       release:
-                            // https://github.com/flutter/flutter/issues/23604
-                            if (s.scrollDelta.dy.abs() < 3 &&
-                                (s.scrollDelta.dx.abs() > 3 ||
+                          if (s is PointerPanZoomUpdateEvent) {
+                            if (s.delta.dy.abs() < 3 &&
+                                (s.delta.dx.abs() > 3 ||
                                     c.horizontalScrollTimer.value != null)) {
                               double value =
-                                  _animation.value + s.scrollDelta.dx / 100;
+                                  _animation.value + s.delta.dx / 100;
                               _animation.value = value.clamp(0, 1);
 
                               if (_animation.value == 0 ||
@@ -219,6 +215,26 @@ class _ChatViewState extends State<ChatView>
                               }
                             }
                           }
+                          // } else if (s is PointerScrollEvent) {
+                          //   // TODO: Look into `PointerChange` and seek for
+                          //   //       related for panning events on a new Flutter
+                          //   //       release:
+                          //   // https://github.com/flutter/flutter/issues/23604
+                          //   if (s.scrollDelta.dy.abs() < 3 &&
+                          //       (s.scrollDelta.dx.abs() > 3 ||
+                          //           c.horizontalScrollTimer.value != null)) {
+                          //     double value =
+                          //         _animation.value + s.scrollDelta.dx / 100;
+                          //     _animation.value = value.clamp(0, 1);
+
+                          //     if (_animation.value == 0 ||
+                          //         _animation.value == 1) {
+                          //       _resetHorizontalScroll(c, 100.milliseconds);
+                          //     } else {
+                          //       _resetHorizontalScroll(c);
+                          //     }
+                          //   }
+                          // }
                         },
                         child: RawGestureDetector(
                           behavior: HitTestBehavior.translucent,
