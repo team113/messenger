@@ -40,7 +40,8 @@ import 'package:messenger/util/platform_utils.dart';
 import '../../../../../../domain/model/precise_date_time/precise_date_time.dart';
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
-import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/api/backend/schema.dart'
+    show ChatCallFinishReason, ChatMemberInfoAction;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
@@ -188,27 +189,73 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Style style = Theme.of(context).extension<Style>()!;
     return DefaultTextStyle(
       style: style.boldBody,
-      child: Obx(() {
-        if (widget.item.value is ChatMessage) {
-          return _renderAsChatMessage(context);
-        } else if (widget.item.value is ChatForward) {
-          return _renderAsChatForward(context);
-        } else if (widget.item.value is ChatCall) {
-          return _renderAsChatCall(context);
-        } else if (widget.item.value is ChatMemberInfo) {
-          return _renderAsChatMemberInfo();
-        }
-        throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
-      }),
+      child: SelectionArea(
+        child: Obx(() {
+          if (widget.item.value is ChatMessage) {
+            return _renderAsChatMessage(context);
+          } else if (widget.item.value is ChatForward) {
+            return _renderAsChatForward(context);
+          } else if (widget.item.value is ChatCall) {
+            return _renderAsChatCall(context);
+          } else if (widget.item.value is ChatMemberInfo) {
+            return _renderAsChatMemberInfo();
+          }
+          throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
+        }),
+      ),
     );
   }
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
+    Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
     var message = widget.item.value as ChatMemberInfo;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Center(child: Text('${message.action}')),
+
+    Widget content = Text('${message.action}');
+
+    switch (message.action) {
+      case ChatMemberInfoAction.created:
+        content = const Text('Chat created');
+        break;
+
+      case ChatMemberInfoAction.added:
+        content = Text('${message.user.name ?? message.user.num} was added');
+        break;
+
+      case ChatMemberInfoAction.removed:
+        content = Text('${message.user.name ?? message.user.num} was removed');
+        break;
+
+      case ChatMemberInfoAction.artemisUnknown:
+        // No-op.
+        break;
+    }
+
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        Center(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style.cardBorder,
+              color: const Color(0xFFF8F8F8),
+            ),
+            child: DefaultTextStyle.merge(
+              style: thin?.copyWith(
+                fontSize: 13,
+                color: const Color(0xFF888888),
+              ),
+              child: content,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
     );
   }
 

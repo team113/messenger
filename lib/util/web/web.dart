@@ -314,10 +314,10 @@ class WebUtils {
 
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
-    var qs = await promiseToFuture(databases());
-    for (int i = 0; i < qs.length; i++) {
-      deleteDatabase(qs[i].name);
-    }
+    // var qs = await promiseToFuture(databases());
+    // for (int i = 0; i < qs.length; i++) {
+    //   deleteDatabase(qs[i].name);
+    // }
   }
 
   /// Clears the browser's storage.

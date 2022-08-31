@@ -512,23 +512,157 @@ class _ChatViewState extends State<ChatView>
 
     // int i = j - 1;
 
+    Style style = Theme.of(context).extension<Style>()!;
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
     List<Widget> widgets = [];
     Rx<ChatItem> e = c.chat!.messages[i];
 
     if (c.lastReadItem.value == e) {
       widgets.add(
-        Container(
-          color: const Color(0x33000000),
-          padding: const EdgeInsets.all(4),
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: Center(
-            child: Text(
-              'label_unread_messages'.l10n,
-              style: const TextStyle(color: Colors.white),
-              textAlign: TextAlign.center,
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+          child: ConditionalBackdropFilter(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+              decoration: BoxDecoration(
+                // border: style.cardBorder,
+                color: const Color(0xFFF8F8F8).withOpacity(0.4),
+              ),
+              child: DefaultTextStyle.merge(
+                style: thin?.copyWith(
+                  fontSize: 13,
+                  color: const Color(0xFF888888),
+                ),
+                child:
+                    Center(child: Text('${c.unreadMessages} unread messages')),
+              ),
             ),
           ),
         ),
+
+        // Container(
+        //   width: double.infinity,
+        //   margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+        //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        //   decoration: BoxDecoration(
+        //     border: style.cardBorder,
+        //     color: const Color(0xFFF8F8F8),
+        //   ),
+        //   child: DefaultTextStyle.merge(
+        //     style: thin?.copyWith(
+        //       fontSize: 13,
+        //       color: const Color(0xFF888888),
+        //     ),
+        //     child: Center(child: Text('${c.unreadMessages} unread messages')),
+        //   ),
+        // ),
+
+        // Container(
+        //   margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+        //   child: Row(
+        //     children: [
+        //       const SizedBox(width: 10),
+        //       Expanded(
+        //         child: Column(
+        //           mainAxisSize: MainAxisSize.min,
+        //           children: [
+        //             Container(
+        //               color: style.cardBorder.top.color,
+        //               height: 0.5,
+        //               width: double.infinity,
+        //             ),
+        //             Container(
+        //               color: const Color(0xFFF8F8F8),
+        //               height: 2,
+        //               width: double.infinity,
+        //             ),
+        //             Container(
+        //               color: style.cardBorder.top.color,
+        //               height: 0.5,
+        //               width: double.infinity,
+        //             ),
+        //             // Container(
+        //             //   width: double.infinity,
+        //             //   height: 1,
+        //             //   color: const Color(0xFF888888),
+        //             // ),
+        //             // Container(
+        //             //   width: double.infinity,
+        //             //   height: 1,
+        //             //   color: const Color(0xFFF8F8F8),
+        //             // ),
+        //           ],
+        //         ),
+        //       ),
+        //       // const SizedBox(width: 10),
+        //       Container(
+        //         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        //         decoration: BoxDecoration(
+        //           borderRadius: BorderRadius.circular(15),
+        //           border: style.cardBorder,
+        //           color: const Color(0xFFF8F8F8),
+        //         ),
+        //         child: Text(
+        //           '${c.unreadMessages} unread messages',
+        //           style: const TextStyle(
+        //             fontSize: 13,
+        //             color: Color(0xFF888888),
+        //           ),
+        //         ),
+        //       ),
+        //       // const SizedBox(width: 10),
+        //       Expanded(
+        //         child: Column(
+        //           mainAxisSize: MainAxisSize.min,
+        //           children: [
+        //             Container(
+        //               color: style.cardBorder.top.color,
+        //               height: 0.5,
+        //               width: double.infinity,
+        //             ),
+        //             Container(
+        //               color: const Color(0xFFF8F8F8),
+        //               height: 2,
+        //               width: double.infinity,
+        //             ),
+        //             Container(
+        //               color: style.cardBorder.top.color,
+        //               height: 0.5,
+        //               width: double.infinity,
+        //             ),
+        //             // Container(
+        //             //   width: double.infinity,
+        //             //   height: 1,
+        //             //   color: const Color(0xFF888888),
+        //             // ),
+        //             // Container(
+        //             //   width: double.infinity,
+        //             //   height: 1,
+        //             //   color: const Color(0xFFF8F8F8),
+        //             // ),
+        //           ],
+        //         ),
+        //       ),
+        //       const SizedBox(width: 10),
+        //     ],
+        //   ),
+        // ),
+
+        // Container(
+        //   color: const Color(0x33000000),
+        //   padding: const EdgeInsets.all(4),
+        //   margin: const EdgeInsets.symmetric(vertical: 4),
+        //   child: Center(
+        //     child: Text(
+        //       'label_unread_messages'.l10n,
+        //       style: const TextStyle(color: Colors.white),
+        //       textAlign: TextAlign.center,
+        //     ),
+        //   ),
+        // ),
       );
     }
 
@@ -743,7 +877,7 @@ class _ChatViewState extends State<ChatView>
     Style style = Theme.of(context).extension<Style>()!;
     return Column(
       children: [
-        const SizedBox(height: 8),
+        const SizedBox(height: 16 * 1.5),
         SwipeableStatus(
           animation: _animation,
           asStack: true,
@@ -755,9 +889,9 @@ class _ChatViewState extends State<ChatView>
           ),
           child: Center(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(15),
                 border: style.cardBorder,
                 color: const Color(0xFFF8F8F8),
               ),
@@ -768,7 +902,7 @@ class _ChatViewState extends State<ChatView>
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16 * 1.5),
       ],
     );
   }

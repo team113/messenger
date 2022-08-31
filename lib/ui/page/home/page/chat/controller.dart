@@ -410,6 +410,8 @@ class ChatController extends GetxController {
     }
   }
 
+  int unreadMessages = 0;
+
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
@@ -491,6 +493,7 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
+      unreadMessages = chat?.chat.value.unreadCount ?? 0;
       await chat!.fetchMessages(id);
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -498,6 +501,8 @@ class ChatController extends GetxController {
 
       var lastRead = lastReadItem.value;
       _determineLastRead();
+
+      unreadMessages = chat?.chat.value.unreadCount ?? 0;
 
       // Scroll to the last message if [_lastRead] was updated. Otherwise,
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
