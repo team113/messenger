@@ -544,7 +544,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                               width: 290,
                               padding: EdgeInsets.only(
                                   top: 10 +
-                                      (WebUtils.isPopup
+                                      (PlatformUtils.isPopup
                                           ? 0
                                           : CallController.titleHeight)),
                               child: HintWidget(
@@ -761,7 +761,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!WebUtils.isPopup)
+            if (!PlatformUtils.isPopup)
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onPanUpdate: (d) {
@@ -1066,7 +1066,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: c.size.width / 2),
                 child: InkWell(
-                  onTap: WebUtils.isPopup
+                  onTap: PlatformUtils.isPopup
                       ? null
                       : () {
                           router.chat(c.chatId);
@@ -1181,7 +1181,7 @@ Widget _primaryView(CallController c) {
           onOffset: () {
             if (c.minimized.value && !c.fullscreen.value) {
               return Offset(-c.left.value, -c.top.value - 30);
-            } else if (!WebUtils.isPopup) {
+            } else if (!PlatformUtils.isPopup) {
               return const Offset(0, -30);
             }
 
@@ -1720,7 +1720,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onOffset: () {
               if (c.minimized.value && !c.fullscreen.value) {
                 return Offset(-c.left.value, -c.top.value - 30);
-              } else if (!WebUtils.isPopup) {
+              } else if (!PlatformUtils.isPopup) {
                 return const Offset(0, -30);
               }
 

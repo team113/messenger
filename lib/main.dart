@@ -58,13 +58,13 @@ Future<void> main(List<String> args) async {
 
   bool isSeparateWindow = args.firstOrNull == 'multi_window';
   int? windowId;
-  WebStoredCall? call;
+  StoredCall? call;
   Credentials? credentials;
 
   if (isSeparateWindow) {
     windowId = int.parse(args[1]);
     final argument = jsonDecode(args[2]) as Map<String, dynamic>;
-    call = WebStoredCall.fromJson(json.decode(argument['call'] as String));
+    call = StoredCall.fromJson(json.decode(argument['call'] as String));
     credentials =
         Credentials.fromJson(json.decode(argument['credentials'] as String));
   }

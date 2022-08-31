@@ -362,7 +362,7 @@ class CallWorker extends DisposableService {
               stop();
             }
           } else {
-            var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+            var call = StoredCall.fromJson(json.decode(s.newValue!));
             if (call.state != OngoingCallState.local &&
                 call.state != OngoingCallState.pending) {
               _workers.remove(chatId)?.dispose();
@@ -380,7 +380,7 @@ class CallWorker extends DisposableService {
         if (methodCall.method.startsWith('call_')) {
           ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
 
-          var call = WebStoredCall.fromJson(json.decode(methodCall.arguments));
+          var call = StoredCall.fromJson(json.decode(methodCall.arguments));
 
           if (call.state != OngoingCallState.local &&
               call.state != OngoingCallState.pending) {
@@ -390,8 +390,7 @@ class CallWorker extends DisposableService {
             }
           }
 
-          if (methodCall.arguments == null ||
-              call.state == OngoingCallState.ended) {
+          if (call.state == OngoingCallState.ended) {
             _callService.remove(chatId);
             _workers.remove(chatId)?.dispose();
             if (_workers.isEmpty) {

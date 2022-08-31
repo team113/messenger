@@ -438,8 +438,9 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() async {
-    disposeCall() {
+    return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
+      _disposeRemoteMedia();
       if (_jason != null) {
         _mediaManager!.free();
         _mediaManager = null;
@@ -449,15 +450,7 @@ class OngoingCall {
       }
       _heartbeat?.cancel();
       connected = false;
-    }
-
-    if (PlatformUtils.isPopup) {
-      disposeCall();
-    } else {
-      return _mediaSettingsGuard.protect(() async {
-        disposeCall();
-      });
-    }
+    });
   }
 
   /// Leaves this [OngoingCall].
@@ -1006,6 +999,19 @@ class OngoingCall {
       t.free();
     }
     _tracks.clear();
+  }
+
+  /// Disposes the remote media tracks.
+  void _disposeRemoteMedia() {
+    for (var t in remoteVideos) {
+      t.track.stop();
+    }
+    remoteVideos.clear();
+    for (var t in _remoteTracks) {
+      t.free();
+    }
+
+    _remoteTracks.clear();
   }
 
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].

@@ -29,6 +29,7 @@ import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/l10n/l10n.dart';
 import '/provider/hive/session.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -92,13 +93,7 @@ class CallOverlayController extends GetxController {
                   event.value!.value.call,
                   (ChatCall? call) {
                     WebUtils.setCall(
-                      WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ),
+                      ongoingCall.toStored()..call = call,
                     );
 
                     if (call?.id != null) {
@@ -115,46 +110,54 @@ class CallOverlayController extends GetxController {
           } else if (PlatformUtils.isWindows &&
               !PlatformUtils.isWeb &&
               _settings.value?.enablePopups != false) {
-            window = true;
-            var desktopWindow =
-                await DesktopMultiWindow.createWindow(jsonEncode({
-              'call': json.encode(ongoingCall.toStored().toJson()),
-              'credentials': json.encode(Get.find<SessionDataHiveProvider>()
-                  .getCredentials()!
-                  .toJson()),
-            }));
-            await desktopWindow.setFrame(const Offset(0, 0) & const Size(700, 700));
-            await desktopWindow.center();
-            await desktopWindow.setTitle('Call');
-            await desktopWindow.show();
+            try {
+              window = true;
+              var desktopWindow =
+                  await DesktopMultiWindow.createWindow(jsonEncode({
+                'call': json.encode(ongoingCall.toStored().toJson()),
+                'credentials': json.encode(Get.find<SessionDataHiveProvider>()
+                    .getCredentials()!
+                    .toJson()),
+              }));
+              await desktopWindow
+                  .setFrame(const Offset(0, 0) & const Size(700, 700));
+              await desktopWindow.center();
+              await desktopWindow.setTitle('Call');
+              await desktopWindow.show();
 
-            DesktopMultiWindow.invokeMethod(
-              desktopWindow.windowId,
-              'call',
-              json.encode(ongoingCall.toStored().toJson()),
-            );
+              _callService.popupCalls.add(ongoingCall.chatId.value);
 
-            if (ongoingCall.callChatItemId == null ||
-                ongoingCall.deviceId == null) {
-              _workers[event.key!] = ever(
-                event.value!.value.call,
-                (ChatCall? call) {
-                  DesktopMultiWindow.invokeMethod(
-                      desktopWindow.windowId,
-                      'call',
-                      json.encode(WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ).toJson()));
-
-                  if (call?.id != null) {
-                    _workers[event.key!]?.dispose();
-                  }
-                },
+              DesktopMultiWindow.invokeMethod(
+                desktopWindow.windowId,
+                'call',
+                json.encode(ongoingCall.toStored().toJson()),
               );
+
+              if (ongoingCall.callChatItemId == null ||
+                  ongoingCall.deviceId == null) {
+                _workers[event.key!] = ever(
+                  event.value!.value.call,
+                  (ChatCall? call) {
+                    DesktopMultiWindow.invokeMethod(
+                        desktopWindow.windowId,
+                        'call',
+                        json.encode(StoredCall(
+                          chatId: ongoingCall.chatId.value,
+                          call: call,
+                          creds: ongoingCall.creds,
+                          deviceId: ongoingCall.deviceId,
+                          state: ongoingCall.state.value,
+                        ).toJson()));
+
+                    if (call?.id != null) {
+                      _workers[event.key!]?.dispose();
+                    }
+                  },
+                );
+              }
+            } catch (e) {
+              Log.error(e);
+              window = false;
             }
           }
 

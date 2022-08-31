@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -44,7 +43,8 @@ class PopupCallController extends GetxController {
   /// [CallService] maintaining the [call].
   final CallService _calls;
 
-  late final WindowController? _windowController;
+  /// Controller of the popup window on desktop.
+  WindowController? _windowController;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] communicating with the
   /// main application.
@@ -63,7 +63,7 @@ class PopupCallController extends GetxController {
       _windowController = WindowController.fromWindowId(router.windowId!);
     }
 
-    WebStoredCall? stored;
+    StoredCall? stored;
     if (PlatformUtils.isWeb) {
       stored = WebUtils.getCall(chatId);
     } else if (PlatformUtils.isDesktop) {
@@ -75,12 +75,23 @@ class PopupCallController extends GetxController {
       return WebUtils.closeWindow();
     }
 
-    // TODO: get audio, video and screen state from [WebStoredCall]
+    bool withAudio, withVideo, withScreen;
+    if (PlatformUtils.isWeb) {
+      Uri uri = Uri.parse(router.route);
+      withAudio = uri.queryParameters['audio'] != 'false';
+      withVideo = uri.queryParameters['video'] == 'true';
+      withScreen = uri.queryParameters['screen'] == 'true';
+    } else {
+      withAudio = stored.withAudio;
+      withVideo = stored.withVideo;
+      withScreen = stored.withScreen;
+    }
+
     call = _calls.addStored(
       stored,
-      withAudio: true,
-      withVideo: false,
-      withScreen: false,
+      withAudio: withAudio,
+      withVideo: withVideo,
+      withScreen: withScreen,
     );
 
     _stateWorker = ever(
@@ -113,7 +124,7 @@ class PopupCallController extends GetxController {
             WebUtils.closeWindow();
           }
         } else if (e.key == 'call_${call.value.chatId}') {
-          var newValue = WebStoredCall.fromJson(json.decode(e.newValue!));
+          var newValue = StoredCall.fromJson(json.decode(e.newValue!));
           call.value.call.value = newValue.call;
           call.value.creds = call.value.creds ?? newValue.creds;
           call.value.deviceId = call.value.deviceId ?? newValue.deviceId;
@@ -133,15 +144,12 @@ class PopupCallController extends GetxController {
       });
 
       DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
-        print('setMethodHandler in separate window');
-        print(methodCall.arguments);
         if (methodCall.method == 'call') {
           if (methodCall.arguments == null) {
             _windowController?.close();
           }
 
-          var newValue =
-              WebStoredCall.fromJson(json.decode(methodCall.arguments));
+          var newValue = StoredCall.fromJson(json.decode(methodCall.arguments));
 
           call.value.call.value = newValue.call;
           call.value.creds = call.value.creds ?? newValue.creds;
@@ -158,7 +166,7 @@ class PopupCallController extends GetxController {
 
   @override
   void onClose() {
-    if(PlatformUtils.isWeb) {
+    if (PlatformUtils.isWeb) {
       WebUtils.removeCall(call.value.chatId.value);
     } else {
       DesktopMultiWindow.invokeMethod(

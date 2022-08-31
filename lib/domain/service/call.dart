@@ -60,11 +60,29 @@ class CallService extends DisposableService {
   /// Subscription to [IncomingChatCallsTopEvent]s list.
   StreamSubscription? _events;
 
+  /// Subscription to [calls] changes.
+  StreamSubscription? _callsSubscription;
+
+  /// List of [ChatId]'s in that call opened in popup.
+  List<ChatId> popupCalls = [];
+
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
 
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    _callsSubscription = calls.changes.listen((event) {
+      if (event.op == OperationKind.removed) {
+        print('remove call');
+        popupCalls.remove(event.key);
+      }
+    });
+  }
 
   @override
   void onReady() {
@@ -83,6 +101,7 @@ class CallService extends DisposableService {
     }
 
     _events?.cancel();
+    _callsSubscription?.cancel();
   }
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
@@ -92,7 +111,7 @@ class CallService extends DisposableService {
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    if (WebUtils.containsCall(chatId)) {
+    if (WebUtils.containsCall(chatId) || popupCalls.contains(chatId)) {
       throw CallIsInPopupException();
     } else if (_callsRepo.contains(chatId)) {
       throw CallAlreadyExistsException();
@@ -130,7 +149,7 @@ class CallService extends DisposableService {
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
+    if (WebUtils.containsCall(chatId) && !PlatformUtils.isPopup) {
       throw CallIsInPopupException();
     }
 
@@ -185,7 +204,7 @@ class CallService extends DisposableService {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       call.value.state.value = OngoingCallState.ended;
-      call.value.dispose();
+      await call.value.dispose();
       await _callsRepo.leave(chatId, deviceId);
     }
   }
@@ -210,7 +229,7 @@ class CallService extends DisposableService {
 
   /// Constructs an [OngoingCall] from the provided [stored] call.
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    StoredCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
@@ -250,6 +269,7 @@ class CallService extends DisposableService {
       var removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
+      popupCalls.remove(chatId);
     }
   }
 
@@ -296,7 +316,11 @@ class CallService extends DisposableService {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
-      if (WebUtils.isPopup) {
+      if (popupCalls.remove(chatId)) {
+        popupCalls.add(newChatId);
+      }
+
+      if (PlatformUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }
     }

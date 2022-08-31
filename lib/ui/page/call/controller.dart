@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -320,6 +321,9 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
+  /// Controller of the popup window on desktop, used to update title.
+  WindowController? _windowController;
+
   /// Timer for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
@@ -418,8 +422,8 @@ class CallController extends GetxController {
       // TODO: Account [BuildContext.mediaQueryPadding].
       return router.context!.mediaQuerySize;
     } else {
-      // If not [WebUtils.isPopup], then subtract the title bar from the height.
-      if (fullscreen.isTrue && !WebUtils.isPopup) {
+      // If not [PlatformUtils.isPopup], then subtract the title bar from the height.
+      if (fullscreen.isTrue && !PlatformUtils.isPopup) {
         var size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - titleHeight);
       } else {
@@ -511,8 +515,12 @@ class CallController extends GetxController {
         secondaryBottomShifted = secondaryBottom.value;
       }
 
-      // Update the [WebUtils.title] if this call is in a popup.
-      if (WebUtils.isPopup) {
+      // Update the window title if this call is in a popup.
+      if (PlatformUtils.isPopup) {
+        if(router.windowId != null) {
+          _windowController = WindowController.fromWindowId(router.windowId!);
+        }
+
         _titleSubscription?.cancel();
         _durationSubscription?.cancel();
 
@@ -553,9 +561,13 @@ class CallController extends GetxController {
                 break;
             }
 
-            WebUtils.title(
-              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
-            );
+            if(PlatformUtils.isWeb) {
+              WebUtils.title(
+                '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
+              );
+            } else {
+              _windowController?.setTitle('label_call_title'.l10nfmt(args));
+            }
           }
 
           _updateTitle();
@@ -1269,9 +1281,9 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy -
-          ((WebUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
+          ((PlatformUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
           secondaryPanningOffset!.dy;
-    } else if (WebUtils.isPopup) {
+    } else if (PlatformUtils.isPopup) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
     } else {

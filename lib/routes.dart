@@ -128,7 +128,7 @@ class RouterState extends ChangeNotifier {
   int? windowId;
 
   // TODO: temporary, delete
-  WebStoredCall? call;
+  StoredCall? call;
 
   /// Auth service used to determine the auth status.
   final AuthService _auth;
