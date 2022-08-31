@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.0"
+  FLUTTER_VER: "3.3"
 
 jobs:
 
@@ -25,14 +25,14 @@ jobs:
     needs:
       - build
       - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
+      #- dartanalyze
+      #- dartdoc
+      #- dartfmt
       #- docker
-      - helm-lint
-      - pubspec
-      - test-e2e
-      - test-unit
+      #- helm-lint
+      #- pubspec
+      #- test-e2e
+      #- test-unit
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -51,60 +51,60 @@ jobs:
 
       - run: make copyright check=yes
 
-  dartanalyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # dartanalyze:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make flutter.analyze
+  #     - run: make flutter.analyze
 
-  dartfmt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # dartfmt:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.fmt check=yes
+  #     - run: make flutter.fmt check=yes
 
-  helm-lint:
-    name: Lint Helm chart
-    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-    strategy:
-      fail-fast: false
-      matrix:
-        chart: ["messenger"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: azure/setup-helm@v3
+  # helm-lint:
+  #   name: Lint Helm chart
+  #   if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       chart: ["messenger"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: azure/setup-helm@v3
 
-      - run: make helm.lint chart=${{ matrix.chart }}
+  #     - run: make helm.lint chart=${{ matrix.chart }}
 
-  pubspec:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # pubspec:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
-        run: git diff --exit-code
+  #     - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
+  #       run: git diff --exit-code
 
 
 
@@ -226,27 +226,27 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  dartdoc:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # dartdoc:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make docs.dart clean=yes
+  #     - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: doc/api
-          if-no-files-found: error
-        if: ${{ github.ref == 'refs/heads/main'
-             || startsWith(github.ref, 'refs/tags/v') }}
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: doc/api
+  #         if-no-files-found: error
+  #       if: ${{ github.ref == 'refs/heads/main'
+  #            || startsWith(github.ref, 'refs/tags/v') }}
 
   # docker:
   #   needs: ["build"]
@@ -302,61 +302,61 @@ jobs:
   # Testing #
   ###########
 
-  test-e2e:
-    name: E2E tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # test-e2e:
+  #   name: E2E tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - name: Login to private E2E container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.E2E_REGISTRY }}
-          username: ${{ secrets.E2E_USER }}
-          password: ${{ secrets.E2E_PASS }}
+  #     - name: Login to private E2E container registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ${{ secrets.E2E_REGISTRY }}
+  #         username: ${{ secrets.E2E_USER }}
+  #         password: ${{ secrets.E2E_PASS }}
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - name: Prepare E2E environment
-        uses: SpicyPizza/create-envfile@v1
-        with:
-          envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FRONTEND_IMAGE: nginx
-          envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
-          envkey_COMPOSE_PROJECT_NAME: messenger
-          fail_on_empty: true
+  #     - name: Prepare E2E environment
+  #       uses: SpicyPizza/create-envfile@v1
+  #       with:
+  #         envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
+  #         envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+  #         envkey_COMPOSE_FRONTEND_IMAGE: nginx
+  #         envkey_COMPOSE_FRONTEND_TAG: stable-alpine
+  #         envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+  #         envkey_COMPOSE_PROJECT_NAME: messenger
+  #         fail_on_empty: true
 
-      - run: mkdir build/
+  #     - run: mkdir build/
 
-      # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
-      # device doesn't produce any progression logs, yet `--enable-chrome-logs`
-      # passed to the `chromedriver` does.
-      - uses: nanasess/setup-chromedriver@v1
-      - run: |
-          chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+  #     # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
+  #     # device doesn't produce any progression logs, yet `--enable-chrome-logs`
+  #     # passed to the `chromedriver` does.
+  #     - uses: nanasess/setup-chromedriver@v1
+  #     - run: |
+  #         chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
+  #         make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
 
-  test-unit:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2.6.1
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  # test-unit:
+  #   name: Unit tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: subosito/flutter-action@v2.6.1
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make flutter.pub
+  #     - run: make flutter.pub
 
-      - run: make test.unit
+  #     - run: make test.unit
 
 
 
@@ -365,316 +365,316 @@ jobs:
   # Releasing #
   #############
 
-  release-docker:
-    name: Release Docker image
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      # - docker
-      - test-e2e
-      - test-unit
-    strategy:
-      fail-fast: false
-      matrix:
-        registry: ["ghcr.io"]
-    runs-on: ubuntu-latest
-    steps:
-      # Skip if this is fork and no credentials are provided.
-      - id: skip
-        run: echo ::set-output name=no::${{ !(
-               github.repository_owner != 'team113'
-               && ((matrix.registry == 'quay.io'
-                    && secrets.QUAYIO_ROBOT_USER == '')
-                || (matrix.registry == 'docker.io'
-                    && secrets.DOCKERHUB_BOT_USER == ''))
-             ) }}
+  # release-docker:
+  #   name: Release Docker image
+  #   if: ${{ github.ref == 'refs/heads/main'
+  #        || startsWith(github.ref, 'refs/tags/v') }}
+  #   needs:
+  #     - copyright
+  #     - dartanalyze
+  #     - dartdoc
+  #     - dartfmt
+  #     # - docker
+  #     - test-e2e
+  #     - test-unit
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       registry: ["ghcr.io"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # Skip if this is fork and no credentials are provided.
+  #     - id: skip
+  #       run: echo ::set-output name=no::${{ !(
+  #              github.repository_owner != 'team113'
+  #              && ((matrix.registry == 'quay.io'
+  #                   && secrets.QUAYIO_ROBOT_USER == '')
+  #               || (matrix.registry == 'docker.io'
+  #                   && secrets.DOCKERHUB_BOT_USER == ''))
+  #            ) }}
 
-      - uses: actions/checkout@v3
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: actions/checkout@v3
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: docker-${{ github.run_number }}
-          path: .cache/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - run: make docker.untar from-file=.cache/image.tar
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: docker-${{ github.run_number }}
+  #         path: .cache/
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.untar from-file=.cache/image.tar
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Login to ${{ matrix.registry }} container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ matrix.registry }}
-          username: ${{ (matrix.registry == 'docker.io'
-                         && secrets.DOCKERHUB_BOT_USER)
-                     || (matrix.registry == 'quay.io'
-                         && secrets.QUAYIO_ROBOT_USER)
-                     || github.repository_owner }}
-          password: ${{ (matrix.registry == 'docker.io'
-                         && secrets.DOCKERHUB_BOT_PASS)
-                     || (matrix.registry == 'quay.io'
-                         && secrets.QUAYIO_ROBOT_TOKEN)
-                     || secrets.GITHUB_TOKEN }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Login to ${{ matrix.registry }} container registry
+  #       uses: docker/login-action@v2
+  #       with:
+  #         registry: ${{ matrix.registry }}
+  #         username: ${{ (matrix.registry == 'docker.io'
+  #                        && secrets.DOCKERHUB_BOT_USER)
+  #                    || (matrix.registry == 'quay.io'
+  #                        && secrets.QUAYIO_ROBOT_USER)
+  #                    || github.repository_owner }}
+  #         password: ${{ (matrix.registry == 'docker.io'
+  #                        && secrets.DOCKERHUB_BOT_PASS)
+  #                    || (matrix.registry == 'quay.io'
+  #                        && secrets.QUAYIO_ROBOT_TOKEN)
+  #                    || secrets.GITHUB_TOKEN }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
-      - name: Form version Docker tags
-        id: tags
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            let versions = '${{ steps.semver.outputs.group1 }}';
-            if ('${{ steps.semver.outputs.group5 }}' === '') {
-              versions += ',${{ steps.semver.outputs.group3 }}';
-              if ('${{ steps.semver.outputs.group4 }}' !== '0') {
-                versions += ',${{ steps.semver.outputs.group4 }}';
-              }
-              versions += 'latest';
-            }
-            return versions;
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && startsWith(github.ref, 'refs/tags/v') }}
+  #     - name: Form version Docker tags
+  #       id: tags
+  #       uses: actions/github-script@v6
+  #       with:
+  #         result-encoding: string
+  #         script: |
+  #           let versions = '${{ steps.semver.outputs.group1 }}';
+  #           if ('${{ steps.semver.outputs.group5 }}' === '') {
+  #             versions += ',${{ steps.semver.outputs.group3 }}';
+  #             if ('${{ steps.semver.outputs.group4 }}' !== '0') {
+  #               versions += ',${{ steps.semver.outputs.group4 }}';
+  #             }
+  #             versions += 'latest';
+  #           }
+  #           return versions;
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && startsWith(github.ref, 'refs/tags/v') }}
 
-      - run: make docker.tags of=build-${{ github.run_number }}
-                  registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - run: make docker.push
-                  registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.tags of=build-${{ github.run_number }}
+  #                 registries=${{ matrix.registry }}
+  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
+  #                           && steps.tags.outputs.result)
+  #                       ||     'edge' }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make docker.push
+  #                 registries=${{ matrix.registry }}
+  #                 tags=${{ (startsWith(github.ref, 'refs/tags/v')
+  #                           && steps.tags.outputs.result)
+  #                       ||     'edge' }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      # On GitHub Container Registry README is automatically updated on pushes.
-      - name: Update README on Docker Hub
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: dockerhub
-          destination_container_repo: ${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'docker.io' }}
-      - name: Update README on Quay.io
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: quay
-          destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'quay.io' }}
+  #     # On GitHub Container Registry README is automatically updated on pushes.
+  #     - name: Update README on Docker Hub
+  #       uses: christian-korneck/update-container-description-action@v1
+  #       with:
+  #         provider: dockerhub
+  #         destination_container_repo: ${{ github.repository }}
+  #         readme_file: README.md
+  #       env:
+  #         DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
+  #         DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && matrix.registry == 'docker.io' }}
+  #     - name: Update README on Quay.io
+  #       uses: christian-korneck/update-container-description-action@v1
+  #       with:
+  #         provider: quay
+  #         destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
+  #         readme_file: README.md
+  #       env:
+  #         DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
+  #       if: ${{ steps.skip.outputs.no == 'true'
+  #            && matrix.registry == 'quay.io' }}
 
-  release-github:
-    name: Release on GitHub
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - release-docker
-      - test-e2e
-      - test-unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+  # release-github:
+  #   name: Release on GitHub
+  #   if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  #   needs:
+  #     - build
+  #     - copyright
+  #     - dartanalyze
+  #     - dartdoc
+  #     - dartfmt
+  #     - release-docker
+  #     - test-e2e
+  #     - test-unit
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-      - name: Verify Git tag version matches `pubspec.yaml` version
-        run: >
-          test "${{ steps.semver.outputs.group1 }}"
-            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #     - name: Verify Git tag version matches `pubspec.yaml` version
+  #       run: >
+  #         test "${{ steps.semver.outputs.group1 }}"
+  #           == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
 
-      - name: Parse CHANGELOG link
-        id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
-      - name: Parse milestone link
-        id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+  #     - name: Parse CHANGELOG link
+  #       id: changelog
+  #       run: echo ::set-output
+  #                 name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+  #     - name: Parse milestone link
+  #       id: milestone
+  #       run: echo ::set-output
+  #                 name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-macos-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-apk-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-appbundle-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-linux-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-macos-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-web-${{ github.run_number }}
+  #         path: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: build-windows-${{ github.run_number }}
+  #         path: artifacts/
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.6.2
-        with:
-          filename: artifacts/docs.zip
-          path: .cache/dartdoc/
-      - name: Generate dartdoc SHA256 checksum
-        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
-        working-directory: artifacts/
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: .cache/dartdoc/
+  #     - uses: thedoctor0/zip-release@0.6.2
+  #       with:
+  #         filename: artifacts/docs.zip
+  #         path: .cache/dartdoc/
+  #     - name: Generate dartdoc SHA256 checksum
+  #       run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
+  #       working-directory: artifacts/
 
-      - name: Show artifacts SHA256 checksums
-        run: cat *.sha256sum
-        working-directory: artifacts/
+  #     - name: Show artifacts SHA256 checksums
+  #       run: cat *.sha256sum
+  #       working-directory: artifacts/
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ steps.semver.outputs.group1 }}
-          body: >
-            [Changelog](${{ steps.changelog.outputs.link }}) |
-            [Milestone](${{ steps.milestone.outputs.link }})
-          files: |
-            artifacts/*.apk
-            artifacts/*.aab
-            artifacts/*.zip
-            artifacts/*.sha256sum
-          fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+  #     - name: Create GitHub release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: ${{ steps.semver.outputs.group1 }}
+  #         body: >
+  #           [Changelog](${{ steps.changelog.outputs.link }}) |
+  #           [Milestone](${{ steps.milestone.outputs.link }})
+  #         files: |
+  #           artifacts/*.apk
+  #           artifacts/*.aab
+  #           artifacts/*.zip
+  #           artifacts/*.sha256sum
+  #         fail_on_unmatched_files: true
+  #         prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
-  release-helm:
-    name: Release Helm chart
-    if: ${{ startsWith(github.ref, 'refs/tags/helm/') }}
-    needs: ["helm-lint"]
-    strategy:
-      max-parallel: 1
-      matrix:
-        chart: ["messenger"]
-    runs-on: ubuntu-latest
-    steps:
-      - id: skip
-        run: echo ::set-output name=no::${{
-                 startsWith(github.ref,
-                            format('refs/tags/helm/{0}/', matrix.chart))
-             }}
+  # release-helm:
+  #   name: Release Helm chart
+  #   if: ${{ startsWith(github.ref, 'refs/tags/helm/') }}
+  #   needs: ["helm-lint"]
+  #   strategy:
+  #     max-parallel: 1
+  #     matrix:
+  #       chart: ["messenger"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - id: skip
+  #       run: echo ::set-output name=no::${{
+  #                startsWith(github.ref,
+  #                           format('refs/tags/helm/{0}/', matrix.chart))
+  #            }}
 
-      - uses: actions/checkout@v3
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - uses: azure/setup-helm@v3
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: actions/checkout@v3
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - uses: azure/setup-helm@v3
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/helm/${{ matrix.chart }}/((([0-9]+)\.[0-9]+)\.[0-9]+(-.+)?)$'
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - name: Verify Git tag version matches `Chart.yaml` version
-        run: |
-          test "${{ steps.semver.outputs.group1 }}" \
-            == "$(grep -m1 'version: ' helm/${{ matrix.chart }}/Chart.yaml \
-                  | cut -d' ' -f2)"
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/helm/${{ matrix.chart }}/((([0-9]+)\.[0-9]+)\.[0-9]+(-.+)?)$'
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Verify Git tag version matches `Chart.yaml` version
+  #       run: |
+  #         test "${{ steps.semver.outputs.group1 }}" \
+  #           == "$(grep -m1 'version: ' helm/${{ matrix.chart }}/Chart.yaml \
+  #                 | cut -d' ' -f2)"
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - run: make helm.package chart=${{ matrix.chart }}
-                  out-dir=.cache/helm/ clean=yes
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - run: make helm.package chart=${{ matrix.chart }}
+  #                 out-dir=.cache/helm/ clean=yes
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      # Helm's digest is just SHA256 checksum:
-      # https://github.com/helm/helm/blob/v3.9.2/pkg/provenance/sign.go#L417-L418
-      - name: Generate SHA256 checksum
-        run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
-        working-directory: .cache/helm/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-      - name: Show generated SHA256 checksum
-        run: cat *.sha256sum
-        working-directory: .cache/helm/
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     # Helm's digest is just SHA256 checksum:
+  #     # https://github.com/helm/helm/blob/v3.9.2/pkg/provenance/sign.go#L417-L418
+  #     - name: Generate SHA256 checksum
+  #       run: ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"
+  #       working-directory: .cache/helm/
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Show generated SHA256 checksum
+  #       run: cat *.sha256sum
+  #       working-directory: .cache/helm/
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse CHANGELOG link
-        id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
+  #     - name: Parse CHANGELOG link
+  #       id: changelog
+  #       run: echo ::set-output
+  #                 name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: helm/${{ matrix.chart }} ${{ steps.semver.outputs.group1 }}
-          body: >
-            [Changelog](${{ steps.changelog.outputs.link }}) |
-            [Overview](${{ github.server_url }}/${{ github.repository }}/tree/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}) |
-            [Values](${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/values.yaml)
-          files: |
-            .cache/helm/*.tgz
-            .cache/helm/*.sha256sum
-          fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #     - name: Create GitHub release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         name: helm/${{ matrix.chart }} ${{ steps.semver.outputs.group1 }}
+  #         body: >
+  #           [Changelog](${{ steps.changelog.outputs.link }}) |
+  #           [Overview](${{ github.server_url }}/${{ github.repository }}/tree/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}) |
+  #           [Values](${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/values.yaml)
+  #         files: |
+  #           .cache/helm/*.tgz
+  #           .cache/helm/*.sha256sum
+  #         fail_on_unmatched_files: true
+  #         prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse Git repository name
-        id: repo
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.repository }}
-          regex: '^${{ github.repository_owner }}/(.+)$'
+  #     - name: Parse Git repository name
+  #       id: repo
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.repository }}
+  #         regex: '^${{ github.repository_owner }}/(.+)$'
 
-      # TODO: Find or write a tool to build index idempotently from GitHub
-      #       releases, and keep on GitHub Pages only the built index.
-      #       https://github.com/helm/chart-releaser/issues/133
-      - name: Update Helm repository index
-        run: |
-          set -ex
+  #     # TODO: Find or write a tool to build index idempotently from GitHub
+  #     #       releases, and keep on GitHub Pages only the built index.
+  #     #       https://github.com/helm/chart-releaser/issues/133
+  #     - name: Update Helm repository index
+  #       run: |
+  #         set -ex
 
-          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
+  #         git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+  #         git config --local user.name 'github-actions[bot]'
 
-          git fetch origin gh-pages:gh-pages
-          git checkout gh-pages
-          git reset --hard
+  #         git fetch origin gh-pages:gh-pages
+  #         git checkout gh-pages
+  #         git reset --hard
 
-          mkdir -p helm/
-          cp -rf .cache/helm/*.tgz helm/
-          helm repo index helm/ --url=https://${{ github.repository_owner }}.github.io/${{ steps.repo.outputs.group1 }}/helm
+  #         mkdir -p helm/
+  #         cp -rf .cache/helm/*.tgz helm/
+  #         helm repo index helm/ --url=https://${{ github.repository_owner }}.github.io/${{ steps.repo.outputs.group1 }}/helm
 
-          git checkout --orphan orphan-gh-pages
-          git add --all
-          git commit -m 'Release ${{ steps.semver.outputs.group1 }} version of `${{ matrix.chart }}` Helm chart'
-          git branch -M orphan-gh-pages gh-pages
-          git push --force origin gh-pages
-        if: ${{ steps.skip.outputs.no == 'true' }}
+  #         git checkout --orphan orphan-gh-pages
+  #         git add --all
+  #         git commit -m 'Release ${{ steps.semver.outputs.group1 }} version of `${{ matrix.chart }}` Helm chart'
+  #         git branch -M orphan-gh-pages gh-pages
+  #         git push --force origin gh-pages
+  #       if: ${{ steps.skip.outputs.no == 'true' }}
 
 
 
@@ -683,30 +683,30 @@ jobs:
   # Deploying #
   #############
 
-  deploy-docs:
-    name: Deploy documentation
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["dartdoc"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: gh-pages
+  # deploy-docs:
+  #   name: Deploy documentation
+  #   if: ${{ github.ref == 'refs/heads/main'
+  #        || startsWith(github.ref, 'refs/tags/v') }}
+  #   needs: ["dartdoc"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: gh-pages
 
-      - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
+  #     - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         name: dartdoc-${{ github.run_number }}
+  #         path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          commit_message: ${{ github.event.head_commit.message }}
-          force_orphan: true
-          keep_files: true
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
+  #     - uses: peaceiris/actions-gh-pages@v3
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         publish_dir: .
+  #         commit_message: ${{ github.event.head_commit.message }}
+  #         force_orphan: true
+  #         keep_files: true
+  #         user_name: github-actions[bot]
+  #         user_email: github-actions[bot]@users.noreply.github.com

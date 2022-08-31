@@ -253,11 +253,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ChatMessage replied = msg.repliesTo as ChatMessage;
 
         if (replied.text != null && replied.attachments.isNotEmpty) {
-          avatarOffset = 54 + 34;
+          avatarOffset = 54 + 54 - 4;
         } else if (replied.text == null && replied.attachments.isNotEmpty) {
-          avatarOffset = 66;
+          avatarOffset = 86 - 4;
         } else if (replied.text != null) {
-          avatarOffset = 54;
+          avatarOffset = 55 - 4;
         }
       }
     }
@@ -987,7 +987,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 ),
               if (!fromMe && widget.chat.value!.isGroup)
                 Padding(
-                  padding: EdgeInsets.only(top: 12 + avatarOffset),
+                  padding: EdgeInsets.only(top: 8 + avatarOffset),
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () =>

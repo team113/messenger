@@ -24,7 +24,6 @@
 /doc/
 
 # Web related
-/lib/generated_plugin_registrant.dart
 
 # GraphQL generation related
 /lib/**/*.g.dart

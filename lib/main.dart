@@ -101,6 +101,7 @@ Future<void> main() async {
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
+      options.addIntegration(OnErrorIntegration()),
       options.logger = (
         SentryLevel level,
         String message, {
