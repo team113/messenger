@@ -209,24 +209,24 @@ class UserRepository implements AbstractUserRepository {
     ChatDirectLinkSlug? link,
   }) async {
     const maxInt = 120;
-      List<HiveUser> result = (await _graphQlProvider.searchUsers(
-        first: maxInt,
-        num: num,
-        name: name,
-        login: login,
-        link: link,
-      ))
-          .searchUsers
-          .nodes
-          .map((c) => c.toHive())
-          .toList();
+    List<HiveUser> result = (await _graphQlProvider.searchUsers(
+      first: maxInt,
+      num: num,
+      name: name,
+      login: login,
+      link: link,
+    ))
+        .searchUsers
+        .nodes
+        .map((c) => c.toHive())
+        .toList();
 
-      for (HiveUser user in result) {
-        put(user);
-      }
-      await Future.delayed(Duration.zero);
+    for (HiveUser user in result) {
+      put(user);
+    }
+    await Future.delayed(Duration.zero);
 
-      Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
+    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
     List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
     return users;
