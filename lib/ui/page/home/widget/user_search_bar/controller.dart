@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
@@ -24,11 +25,10 @@ export 'view.dart';
 
 /// Controller of an [UserSearchBar] widget.
 class UserSearchBarController extends GetxController {
-  UserSearchBarController(this._userService)
-      : searchResults = _userService.foundUsers;
+  UserSearchBarController(this._userService);
 
   /// [User]s search results.
-  final RxSet<RxUser> searchResults;
+  RxList<RxUser> searchResults = RxList<RxUser>([]);
 
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
@@ -42,7 +42,7 @@ class UserSearchBarController extends GetxController {
   ///   [searchResults] were already acquired.
   /// - `searchStatus.success`, meaning search is done and [searchResults] are
   ///   acquired.
-  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+  Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [User]s service, used to search [User]s.
   final UserService _userService;
@@ -51,7 +51,7 @@ class UserSearchBarController extends GetxController {
   /// Performs searching for [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
-  Future<void> search(String query) async {
+  void search(String query) {
     if (query.isNotEmpty) {
       UserNum? num;
       UserName? name;
@@ -79,8 +79,11 @@ class UserSearchBarController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        _userService.search(num: num, name: name, login: login);
-        searchStatus.value = RxStatus.success();
+        final searchResult =
+            _userService.search(num: num, name: name, login: login);
+
+        searchResults = searchResult.users;
+        searchStatus = searchResult.status;
       }
     } else {
       searchStatus.value = RxStatus.empty();

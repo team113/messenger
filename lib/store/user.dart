@@ -61,9 +61,6 @@ class UserRepository implements AbstractUserRepository {
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
 
-  /// [foundUsers] value.
-  final _foundUsers = RxSet<RxUser>();
-
   /// [UserHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
@@ -72,9 +69,6 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   RxMap<UserId, RxUser> get users => _users;
-
-  @override
-  RxSet<RxUser> get foundUsers => _foundUsers;
 
   @override
   Future<void> init() async {
@@ -97,22 +91,17 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  void searchByNum(UserNum num) {
-    _searchLocal(num: num);
-    _search(num: num);
-  }
+  Future<List<RxUser>> searchByNum(UserNum num) => _search(num: num);
 
   @override
-  void searchByLogin(UserLogin login) => _search(login: login);
+  Future<List<RxUser>> searchByLogin(UserLogin login) => _search(login: login);
 
   @override
-  void searchByName(UserName name) {
-    _searchLocal(name: name);
-    _search(name: name);
-  }
+  Future<List<RxUser>> searchByName(UserName name) => _search(name: name);
 
   @override
-  void searchByLink(ChatDirectLinkSlug link) => _search(link: link);
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) =>
+      _search(link: link);
 
   @override
   Future<RxUser?> get(UserId id) {
@@ -209,67 +198,38 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  /// Searches [User]s in local storage by the given criteria.
-  ///
-  /// Exactly one of [num]/[name] arguments must be specified
-  /// (be non-`null`).
-  void _searchLocal({
-    UserNum? num,
-    UserName? name,
-  }) {
-    if (num != null) {
-      _foundUsers.clear();
-      final localUsersByNum =
-          _users.values.where((user) => user.user.value.num == num);
-      if (localUsersByNum.isNotEmpty) {
-        _foundUsers.addAll(localUsersByNum);
-      }
-    }
-    if (name != null) {
-      _foundUsers.clear();
-      final localUsersByName =
-          _users.values.where((user) => user.user.value.name == name);
-      if (localUsersByName.isNotEmpty) {
-        _foundUsers.addAll(localUsersByName);
-      }
-    }
-  }
-
   /// Searches [User]s by the given criteria.
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
   /// (be non-`null`).
-  Future<void> _search({
+  Future<List<RxUser>> _search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) async {
     const maxInt = 120;
-    List<HiveUser> result = (await _graphQlProvider.searchUsers(
-      first: maxInt,
-      num: num,
-      name: name,
-      login: login,
-      link: link,
-    ))
-        .searchUsers
-        .nodes
-        .map((c) => c.toHive())
-        .toList();
+      List<HiveUser> result = (await _graphQlProvider.searchUsers(
+        first: maxInt,
+        num: num,
+        name: name,
+        login: login,
+        link: link,
+      ))
+          .searchUsers
+          .nodes
+          .map((c) => c.toHive())
+          .toList();
 
-    for (HiveUser user in result) {
-      put(user);
-    }
-    await Future.delayed(Duration.zero);
+      for (HiveUser user in result) {
+        put(user);
+      }
+      await Future.delayed(Duration.zero);
 
-    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
+      Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
     List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
-    if (users.isNotEmpty) {
-      _foundUsers.clear();
-      _foundUsers.addAll(users);
-    }
+    return users;
   }
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].

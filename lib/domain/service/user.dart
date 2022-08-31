@@ -37,9 +37,6 @@ class UserService extends DisposableService {
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
-  /// Users found by search.
-  RxSet<RxUser> get foundUsers => _userRepository.foundUsers;
-
   @override
   void onInit() {
     _userRepository.init();
@@ -53,22 +50,80 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  RxSet<RxUser> search({
+  SearchResult search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
+    final searchResult = SearchResult.empty();
     if (num == null && name == null && login == null && link == null) {
-      return RxSet<RxUser>();
+      return searchResult;
     }
 
-    if (num != null) _userRepository.searchByNum(num);
-    if (name != null) _userRepository.searchByName(name);
-    if (login != null) _userRepository.searchByLogin(login);
-    if (link != null) _userRepository.searchByLink(link);
+    final localUsers = RxList(
+      _userRepository.users.values
+          .where((_) =>
+              (num != null && _.user.value.num == num) ||
+              (name != null && _.user.value.name == name))
+          .toList(),
+    );
+    searchResult.users.value = localUsers;
+    searchResult.status.value =
+        localUsers.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
-    return _userRepository.foundUsers;
+    List<Future<void>> futures = [
+      if (num != null)
+        _userRepository.searchByNum(num).then(
+          (usersFromRepository) {
+            final result =
+                _combineUsers(searchResult.users, usersFromRepository);
+            searchResult.users.value = result;
+          },
+        ),
+      if (name != null)
+        _userRepository.searchByName(name).then(
+          (usersFromRepository) {
+            final result =
+                _combineUsers(searchResult.users, usersFromRepository);
+            searchResult.users.value = result;
+          },
+        ),
+      if (login != null)
+        _userRepository.searchByLogin(login).then(
+          (usersFromRepository) {
+            final result =
+                _combineUsers(searchResult.users, usersFromRepository);
+            searchResult.users.value = result;
+          },
+        ),
+      if (link != null)
+        _userRepository.searchByLink(link).then(
+          (usersFromRepository) {
+            final result =
+                _combineUsers(searchResult.users, usersFromRepository);
+            searchResult.users.value = result;
+          },
+        ),
+    ];
+    Future.wait(futures)
+        .then((_) => searchResult.status.value = RxStatus.success());
+
+    return searchResult;
+  }
+
+  /// Creates a new [List] with unique [RxUser]s by id.
+  List<RxUser> _combineUsers(Iterable<RxUser> list1, Iterable<RxUser> list2) {
+    HashMap<UserId, RxUser> result = HashMap();
+    for (var i = 0; i < list1.length; i++) {
+      final user = list1.elementAt(i);
+      result[user.id] = user;
+    }
+    for (var i = 0; i < list2.length; i++) {
+      final user = list2.elementAt(i);
+      result[user.id] = user;
+    }
+    return result.values.toList();
   }
 
   /// Returns an [User] by the provided [id].
@@ -76,4 +131,22 @@ class UserService extends DisposableService {
 
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();
+}
+
+/// Search results.
+class SearchResult {
+  SearchResult({
+    required this.users,
+    required this.status,
+  });
+
+  SearchResult.empty()
+      : users = RxList<RxUser>(),
+        status = Rx(RxStatus.empty());
+
+  /// Found users.
+  final RxList<RxUser> users;
+
+  /// Request status from backend.
+  final Rx<RxStatus> status;
 }

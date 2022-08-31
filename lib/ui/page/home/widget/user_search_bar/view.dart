@@ -87,7 +87,8 @@ class UserSearchBar extends StatelessWidget {
                 child: Obx(
                   () => Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: c.searchStatus.value.isSuccess
+                    children: c.searchStatus.value.isSuccess ||
+                            c.searchStatus.value.isLoadingMore
                         ? [
                             const SizedBox(height: 10),
                             ...c.searchResults.isEmpty

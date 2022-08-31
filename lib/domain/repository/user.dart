@@ -29,9 +29,6 @@ abstract class AbstractUserRepository {
   /// used.
   RxBool get isReady;
 
-  /// Found users from local storage [users] and backend.
-  RxSet<RxUser> get foundUsers;
-
   /// Initializes this repository.
   Future<void> init();
 
@@ -41,25 +38,25 @@ abstract class AbstractUserRepository {
   /// Clears the stored [users].
   Future<void> clearCache();
 
-  /// Searches [User]s by the provided [UserNum] and passes the result through [foundUsers].
+  /// Searches [User]s by the provided [UserNum].
   ///
   /// This is an exact match search.
-  void searchByNum(UserNum num);
+  Future<List<RxUser>> searchByNum(UserNum num);
 
-  /// Searches [User]s by the provided [UserLogin] and passes the result through [foundUsers].
+  /// Searches [User]s by the provided [UserLogin].
   ///
   /// This is an exact match search.
-  void searchByLogin(UserLogin login);
+  Future<List<RxUser>> searchByLogin(UserLogin login);
 
-  /// Searches [User]s by the provided [UserName] and passes the result through [foundUsers].
+  /// Searches [User]s by the provided [UserName].
   ///
   /// This is a fuzzy search.
-  void searchByName(UserName name);
+  Future<List<RxUser>> searchByName(UserName name);
 
-  /// Searches [User]s by the provided [ChatDirectLinkSlug] and passes the result through [foundUsers].
+  /// Searches [User]s by the provided [ChatDirectLinkSlug].
   ///
   /// This is an exact match search.
-  void searchByLink(ChatDirectLinkSlug link);
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);
