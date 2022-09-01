@@ -139,7 +139,7 @@ class FitView extends StatelessWidget {
       }
 
       // Creates a column of a row at [rowIndex] index.
-      List<Widget> _createColumn(int rowIndex) {
+      List<Widget> createColumn(int rowIndex) {
         final List<Widget> column = [];
 
         for (int columnIndex = 0; columnIndex < mColumns; columnIndex++) {
@@ -164,12 +164,12 @@ class FitView extends StatelessWidget {
       }
 
       // Creates a row of a [_createColumn]s.
-      List<Widget> _createRows() {
+      List<Widget> createRows() {
         final List<Widget> rows = [];
         final rowCount = (children.length / mColumns).ceil();
 
         for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-          final List<Widget> column = _createColumn(rowIndex);
+          final List<Widget> column = createColumn(rowIndex);
           rows.add(Expanded(child: Row(children: column)));
           if (dividerColor != null && rowIndex < rowCount - 1) {
             rows.add(IgnorePointer(
@@ -185,7 +185,7 @@ class FitView extends StatelessWidget {
         return rows;
       }
 
-      return Column(children: _createRows());
+      return Column(children: createRows());
     });
   }
 }

@@ -93,6 +93,7 @@ class NotificationService extends DisposableService {
     String? body,
     String? payload,
     String? icon,
+    String? tag,
     bool playSound = true,
   }) async {
     if (playSound) {
@@ -115,6 +116,7 @@ class NotificationService extends DisposableService {
         body: body,
         lang: payload,
         icon: icon,
+        tag: tag,
       ).onError((_, __) => false);
     } else if (!PlatformUtils.isWindows) {
       // TODO: `flutter_local_notifications` should support Windows:

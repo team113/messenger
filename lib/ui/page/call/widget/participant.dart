@@ -122,7 +122,7 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       // [Widget]s to display in background when no video is available.
-      List<Widget> _background() {
+      List<Widget> background() {
         return useCallCover &&
                 participant.user.value?.user.value.callCover != null
             ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
@@ -160,7 +160,7 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          if (!hasVideo) ..._background(),
+          if (!hasVideo) ...background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
@@ -181,7 +181,7 @@ class ParticipantWidget extends StatelessWidget {
                       enableContextMenu: false,
                       respectAspectRatio: respectAspectRatio,
                       offstageUntilDetermined: offstageUntilDetermined,
-                      framelessBuilder: () => Stack(children: _background()),
+                      framelessBuilder: () => Stack(children: background()),
                     ),
                   ),
           ),

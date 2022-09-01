@@ -277,8 +277,8 @@ class UserPhone extends NewType<String> {
       throw const FormatException('Does not match validation RegExp');
     }
     try {
-      var number = PhoneNumber.fromRaw(val);
-      if (!number.validate()) {
+      PhoneNumber number = PhoneNumber.parse(val);
+      if (!number.isValid()) {
         throw const FormatException('Does not match validation RegExp');
       }
     } on PhoneNumberException {
