@@ -27,7 +27,7 @@ class UserSearchBarController extends GetxController {
   UserSearchBarController(this._userService);
 
   /// [User]s search results.
-  RxList<RxUser> searchResults = RxList<RxUser>([]);
+  final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
@@ -41,16 +41,28 @@ class UserSearchBarController extends GetxController {
   ///   [searchResults] were already acquired.
   /// - `searchStatus.success`, meaning search is done and [searchResults] are
   ///   acquired.
-  Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [User]s service, used to search [User]s.
   final UserService _userService;
+
+  Worker? _searchWorker;
+
+  @override
+  void onClose() {
+    _searchWorker?.dispose();
+    _searchWorker = null;
+    super.onClose();
+  }
 
   // TODO: Implement search by a [ChatDirectLinkSlug].
   /// Performs searching for [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   void search(String query) {
+    _searchWorker?.dispose();
+    _searchWorker = null;
+
     if (query.isNotEmpty) {
       UserNum? num;
       UserName? name;
@@ -78,15 +90,18 @@ class UserSearchBarController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final searchResult =
+        final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
-        searchResults = searchResult.users;
-        searchStatus = searchResult.status;
+        searchResults.value = result.users;
+        _searchWorker =
+            ever(result.status, (RxStatus s) => searchStatus.value = s);
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      searchResults.clear();
+      searchResults.value = null;
+      _searchWorker?.dispose();
+      _searchWorker = null;
     }
   }
 

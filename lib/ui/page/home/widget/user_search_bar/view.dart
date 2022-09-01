@@ -87,17 +87,17 @@ class UserSearchBar extends StatelessWidget {
                 child: Obx(
                   () => Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: c.searchStatus.value.isSuccess ||
-                            c.searchStatus.value.isLoadingMore
+                    children: c.searchStatus.value.isSuccess
                         ? [
                             const SizedBox(height: 10),
-                            ...c.searchResults.isEmpty
+                            ...c.searchResults.value?.isEmpty != false
                                 ? [
                                     ListTile(
-                                        title:
-                                            Text('label_search_not_found'.l10n))
+                                      title:
+                                          Text('label_search_not_found'.l10n),
+                                    )
                                   ]
-                                : c.searchResults
+                                : (c.searchResults.value ?? [])
                                     .map((e) => _user(e, c))
                                     .toList(),
                             const SizedBox(height: 10),

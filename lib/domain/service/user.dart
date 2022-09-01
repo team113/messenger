@@ -14,11 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:collection';
+import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/user.dart';
 import '../repository/user.dart';
 import '/domain/model/user.dart';
 import 'disposable_service.dart';
@@ -56,74 +55,38 @@ class UserService extends DisposableService {
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
-    final searchResult = SearchResult.empty();
+    final SearchResult searchResult = SearchResult();
     if (num == null && name == null && login == null && link == null) {
       return searchResult;
     }
 
-    final localUsers = RxList(
-      _userRepository.users.values
-          .where((_) =>
-              (num != null && _.user.value.num == num) ||
-              (name != null && _.user.value.name == name))
-          .toList(),
-    );
-    searchResult.users.value = localUsers;
-    searchResult.status.value =
-        localUsers.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+    final List<RxUser> users = _userRepository.users.values
+        .where((u) =>
+            (num != null && u.user.value.num == num) ||
+            (name != null && u.user.value.name == name))
+        .toList();
 
-    List<Future<void>> futures = [
-      if (num != null)
-        _userRepository.searchByNum(num).then(
-          (usersFromRepository) {
-            final result =
-                _combineUsers(searchResult.users, usersFromRepository);
-            searchResult.users.value = result;
-          },
-        ),
-      if (name != null)
-        _userRepository.searchByName(name).then(
-          (usersFromRepository) {
-            final result =
-                _combineUsers(searchResult.users, usersFromRepository);
-            searchResult.users.value = result;
-          },
-        ),
-      if (login != null)
-        _userRepository.searchByLogin(login).then(
-          (usersFromRepository) {
-            final result =
-                _combineUsers(searchResult.users, usersFromRepository);
-            searchResult.users.value = result;
-          },
-        ),
-      if (link != null)
-        _userRepository.searchByLink(link).then(
-          (usersFromRepository) {
-            final result =
-                _combineUsers(searchResult.users, usersFromRepository);
-            searchResult.users.value = result;
-          },
-        ),
+    searchResult.users.value = users;
+    searchResult.status.value =
+        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
+    FutureOr<List<RxUser>> add(List<RxUser> u) {
+      Set<RxUser> users = searchResult.users.toSet()..addAll(u);
+      searchResult.users.value = users.toList();
+      return searchResult.users;
+    }
+
+    List<Future<List<RxUser>>> futures = [
+      if (num != null) _userRepository.searchByNum(num).then(add),
+      if (name != null) _userRepository.searchByName(name).then(add),
+      if (login != null) _userRepository.searchByLogin(login).then(add),
+      if (link != null) _userRepository.searchByLink(link).then(add),
     ];
+
     Future.wait(futures)
         .then((_) => searchResult.status.value = RxStatus.success());
 
     return searchResult;
-  }
-
-  /// Creates a new [List] with unique [RxUser]s by id.
-  List<RxUser> _combineUsers(Iterable<RxUser> list1, Iterable<RxUser> list2) {
-    HashMap<UserId, RxUser> result = HashMap();
-    for (var i = 0; i < list1.length; i++) {
-      final user = list1.elementAt(i);
-      result[user.id] = user;
-    }
-    for (var i = 0; i < list2.length; i++) {
-      final user = list2.elementAt(i);
-      result[user.id] = user;
-    }
-    return result.values.toList();
   }
 
   /// Returns an [User] by the provided [id].
@@ -133,20 +96,11 @@ class UserService extends DisposableService {
   Future<void> clearCached() async => await _userRepository.clearCache();
 }
 
-/// Search results.
+/// Result of an [UserService.search] query.
 class SearchResult {
-  SearchResult({
-    required this.users,
-    required this.status,
-  });
+  /// Found [RxUser]s themselves.
+  final RxList<RxUser> users = RxList<RxUser>();
 
-  SearchResult.empty()
-      : users = RxList<RxUser>(),
-        status = Rx(RxStatus.empty());
-
-  /// Found users.
-  final RxList<RxUser> users;
-
-  /// Request status from backend.
-  final Rx<RxStatus> status;
+  /// Reactive [RxStatus] of this [SearchResult].
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
 }
