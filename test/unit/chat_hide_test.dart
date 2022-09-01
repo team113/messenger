@@ -33,6 +33,7 @@ import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
@@ -138,6 +139,8 @@ void main() async {
     ),
   );
   await authService.init();
+
+  router = RouterState(authService);
 
   AbstractMyUserRepository myUserRepository =
       MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
