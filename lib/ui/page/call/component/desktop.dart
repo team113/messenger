@@ -47,13 +47,16 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
+      if (c.state.value == OngoingCallState.ended) {
+        return Container();
+      }
+
       // Call stackable content.
       List<Widget> content = [
         SvgLoader.asset(

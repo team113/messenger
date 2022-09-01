@@ -60,7 +60,8 @@ class PopupCallController extends GetxController {
   @override
   void onInit() {
     if (!PlatformUtils.isWeb) {
-      _windowController = WindowController.fromWindowId(router.windowId!);
+      _windowController =
+          WindowController.fromWindowId(PlatformUtils.windowId!);
     }
 
     StoredCall? stored;
@@ -104,7 +105,7 @@ class PopupCallController extends GetxController {
           }
         } else {
           DesktopMultiWindow.invokeMethod(
-            0,
+            DesktopMultiWindow.mainWindowId,
             'call_${call.value.chatId.value.val}',
             json.encode(call.value.toStored().toJson()),
           );
@@ -136,19 +137,19 @@ class PopupCallController extends GetxController {
       _windowController?.setOnWindowClose(() async {
         _storageSubscription?.cancel();
         _stateWorker.dispose();
-        DesktopMultiWindow.invokeMethod(
-          0,
+        _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        await DesktopMultiWindow.invokeMethod(
+          DesktopMultiWindow.mainWindowId,
           'call_${call.value.chatId.value.val}',
         );
-        await _calls.leave(call.value.chatId.value, call.value.deviceId!);
       });
 
-      DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
-        if (methodCall.method == 'call') {
-          if (methodCall.arguments == null) {
-            _windowController?.close();
-          }
+      DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
+        if (methodCall.arguments == null) {
+          _windowController?.close();
+        }
 
+        if (methodCall.method == 'call') {
           var newValue = StoredCall.fromJson(json.decode(methodCall.arguments));
 
           call.value.call.value = newValue.call;
@@ -158,6 +159,7 @@ class PopupCallController extends GetxController {
           _tryToConnect();
         }
       });
+      DesktopMultiWindow.setMethodHandlers();
     }
 
     _tryToConnect();
@@ -170,7 +172,7 @@ class PopupCallController extends GetxController {
       WebUtils.removeCall(call.value.chatId.value);
     } else {
       DesktopMultiWindow.invokeMethod(
-        0,
+        DesktopMultiWindow.mainWindowId,
         'call_${call.value.chatId.value.val}',
       );
     }

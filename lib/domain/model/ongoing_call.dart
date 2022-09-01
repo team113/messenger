@@ -994,6 +994,9 @@ class OngoingCall {
 
   /// Disposes the local media tracks.
   void _disposeLocalMedia() {
+    for (var t in localVideos) {
+      t.track.stop();
+    }
     localVideos.clear();
     for (var t in _tracks) {
       t.free();

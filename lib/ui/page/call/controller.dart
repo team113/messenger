@@ -517,8 +517,9 @@ class CallController extends GetxController {
 
       // Update the window title if this call is in a popup.
       if (PlatformUtils.isPopup) {
-        if(router.windowId != null) {
-          _windowController = WindowController.fromWindowId(router.windowId!);
+        if (PlatformUtils.windowId != null) {
+          _windowController =
+              WindowController.fromWindowId(PlatformUtils.windowId!);
         }
 
         _titleSubscription?.cancel();
@@ -561,7 +562,7 @@ class CallController extends GetxController {
                 break;
             }
 
-            if(PlatformUtils.isWeb) {
+            if (PlatformUtils.isWeb) {
               WebUtils.title(
                 '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
               );
@@ -1281,7 +1282,9 @@ class CallController extends GetxController {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy -
-          ((PlatformUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
+          ((PlatformUtils.isPopup || router.context!.isMobile)
+              ? 0
+              : titleHeight) -
           secondaryPanningOffset!.dy;
     } else if (PlatformUtils.isPopup) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;

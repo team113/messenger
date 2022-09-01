@@ -21,13 +21,18 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '/routes.dart';
 import 'web/web_utils.dart';
 
 // TODO: Remove when jonataslaw/getx#1936 is fixed:
 //       https://github.com/jonataslaw/getx/issues/1936
 /// [GetPlatform] adapter that fixes incorrect [GetPlatform.isMacOS] detection.
 class PlatformUtils {
+  /// ID of the windows this application opened.
+  ///
+  /// If not null it mean that application opened in separate windows on
+  /// desktop.
+  static int? windowId;
+
   /// Indicates whether application is running in a web browser.
   static bool get isWeb => GetPlatform.isWeb;
 
@@ -54,10 +59,10 @@ class PlatformUtils {
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   static bool get isPopup {
-    if(isWeb) {
+    if (isWeb) {
       return WebUtils.isPopup;
     } else {
-      return router.windowId != null;
+      return windowId != null;
     }
   }
 

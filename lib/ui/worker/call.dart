@@ -374,11 +374,17 @@ class CallWorker extends DisposableService {
         }
       });
     } else {
-      DesktopMultiWindow.setMethodHandler((methodCall, fromWindowId) async {
-        print('setMethodHandler in main app');
-        print(methodCall.arguments);
+      DesktopMultiWindow.addMethodHandler((methodCall, fromWindowId) async {
         if (methodCall.method.startsWith('call_')) {
           ChatId chatId = ChatId(methodCall.method.replaceAll('call_', ''));
+
+          if (methodCall.arguments == null) {
+            _callService.remove(chatId);
+            _workers.remove(chatId)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+          }
 
           var call = StoredCall.fromJson(json.decode(methodCall.arguments));
 
@@ -389,16 +395,9 @@ class CallWorker extends DisposableService {
               stop();
             }
           }
-
-          if (call.state == OngoingCallState.ended) {
-            _callService.remove(chatId);
-            _workers.remove(chatId)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-          }
         }
       });
+      DesktopMultiWindow.setMethodHandlers();
     }
   }
 }

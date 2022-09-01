@@ -63,7 +63,7 @@ class CallService extends DisposableService {
   /// Subscription to [calls] changes.
   StreamSubscription? _callsSubscription;
 
-  /// List of [ChatId]'s in that call opened in popup.
+  /// List of call [ChatId]s that opened in popup.
   List<ChatId> popupCalls = [];
 
   /// Returns ID of the authenticated [MyUser].
@@ -78,7 +78,6 @@ class CallService extends DisposableService {
 
     _callsSubscription = calls.changes.listen((event) {
       if (event.op == OperationKind.removed) {
-        print('remove call');
         popupCalls.remove(event.key);
       }
     });
@@ -149,7 +148,8 @@ class CallService extends DisposableService {
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    if (WebUtils.containsCall(chatId) && !PlatformUtils.isPopup) {
+    if ((WebUtils.containsCall(chatId) || popupCalls.contains(chatId)) &&
+        !PlatformUtils.isPopup) {
       throw CallIsInPopupException();
     }
 
@@ -204,7 +204,7 @@ class CallService extends DisposableService {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       call.value.state.value = OngoingCallState.ended;
-      await call.value.dispose();
+      call.value.dispose();
       await _callsRepo.leave(chatId, deviceId);
     }
   }

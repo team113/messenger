@@ -24,6 +24,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -57,12 +58,11 @@ Future<void> main(List<String> args) async {
   await Config.init();
 
   bool isSeparateWindow = args.firstOrNull == 'multi_window';
-  int? windowId;
   StoredCall? call;
   Credentials? credentials;
 
   if (isSeparateWindow) {
-    windowId = int.parse(args[1]);
+    PlatformUtils.windowId = int.parse(args[1]);
     final argument = jsonDecode(args[2]) as Map<String, dynamic>;
     call = StoredCall.fromJson(json.decode(argument['call'] as String));
     credentials =
@@ -74,9 +74,27 @@ Future<void> main(List<String> args) async {
     WebUtils.setPathUrlStrategy();
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb && !isSeparateWindow) {
       await windowManager.ensureInitialized();
+
+      if (!isSeparateWindow) {
+        WindowManager.instance.setPreventClose(true);
+        WindowManager.instance.addListener(DesktopWindowListener(onClose: () {
+          Future.sync(() async {
+            try {
+              var windows = await DesktopMultiWindow.getAllSubWindowIds();
+              var futures =
+                  windows.map((e) => WindowController.fromWindowId(e).close());
+              await Future.wait(futures);
+              await Future.delayed(100.milliseconds);
+            } finally {
+              await WindowManager.instance.setPreventClose(false);
+              WindowManager.instance.close();
+            }
+          });
+        }));
+      }
     }
 
-    await _initHive(windowId: windowId, credentials: credentials);
+    await _initHive(windowId: PlatformUtils.windowId, credentials: credentials);
 
     Get.put(NotificationService())
         .init(onNotificationResponse: onNotificationResponse);
@@ -94,7 +112,6 @@ Future<void> main(List<String> args) async {
     router = RouterState(authService);
     if (isSeparateWindow) {
       router.call = call;
-      router.windowId = windowId;
       router.go('${Routes.call}/${call!.chatId}');
     }
 
