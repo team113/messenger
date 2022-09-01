@@ -29,6 +29,7 @@ dependencies:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
+  flutter_app_badger: ^1.4.0
   flutter_background_service: ^2.0.0
   flutter_background_service_android: ^2.0.0
   flutter_background_service_ios: ^2.0.0
@@ -80,6 +81,7 @@ dependencies:
   vibration: ^1.7.4-nullsafety.0
   video_player: ^2.4.2
   visibility_detector: ^0.3.3
+  wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.3
 
