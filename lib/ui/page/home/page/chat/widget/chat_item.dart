@@ -242,8 +242,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              border: style.cardBorder,
-              color: const Color(0xFFF8F8F8),
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
             ),
             child: DefaultTextStyle.merge(
               style: thin?.copyWith(

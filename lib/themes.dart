@@ -74,6 +74,11 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            systemMessageBorder: Border.all(
+              color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            systemMessageColor: const Color(0xFFF8F8F8),
           ),
         ],
         colorScheme: colors,
@@ -331,6 +336,8 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
+    required this.systemMessageBorder,
+    required this.systemMessageColor,
   });
 
   final Color callDock;
@@ -342,6 +349,9 @@ class Style extends ThemeExtension<Style> {
   final Color cardColor;
   final TextStyle boldBody;
 
+  final Border systemMessageBorder;
+  final Color systemMessageColor;
+
   @override
   ThemeExtension<Style> copyWith({
     Color? callDock,
@@ -352,6 +362,8 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
+    Border? systemMessageBorder,
+    Color? systemMessageColor,
   }) {
     return Style(
       callDock: callDock ?? this.callDock,
@@ -362,6 +374,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
+      systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
+      systemMessageColor: systemMessageColor ?? this.systemMessageColor,
     );
   }
 
@@ -380,6 +394,10 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      systemMessageBorder:
+          Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
+      systemMessageColor:
+          Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
     );
   }
 }

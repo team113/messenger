@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
@@ -28,8 +29,13 @@ import 'package:get/get.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/ui/page/call/widget/animated_delayed_scale.dart';
+import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/call/widget/fit_wrap.dart';
+import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -521,27 +527,43 @@ class _ChatViewState extends State<ChatView>
 
     if (c.lastReadItem.value == e) {
       widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16 * 1.5),
-          child: ConditionalBackdropFilter(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              decoration: BoxDecoration(
-                // border: style.cardBorder,
-                color: const Color(0xFFF8F8F8).withOpacity(0.4),
-              ),
-              child: DefaultTextStyle.merge(
-                style: thin?.copyWith(
-                  fontSize: 13,
-                  color: Color.fromARGB(255, 60, 60, 60),
-                ),
-                child:
-                    Center(child: Text('${c.unreadMessages} unread messages')),
-              ),
-            ),
-          ),
-        ),
+        // Container(
+        //   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(15),
+        //     border: style.cardBorder,
+        //     color: const Color(0xFFF8F8F8),
+        //   ),
+        //   child: Text(
+        //     '${c.unreadMessages} unread messages',
+        //     style: const TextStyle(
+        //       fontSize: 13,
+        //       color: Color(0xFF888888),
+        //     ),
+        //   ),
+        // ),
+
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+        //   child: ConditionalBackdropFilter(
+        //     child: Container(
+        //       width: double.infinity,
+        //       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        //       decoration: BoxDecoration(
+        //         // border: style.cardBorder,
+        //         color: const Color(0xFFF8F8F8).withOpacity(0.4),
+        //       ),
+        //       child: DefaultTextStyle.merge(
+        //         style: thin?.copyWith(
+        //           fontSize: 13,
+        //           color: Color.fromARGB(255, 60, 60, 60),
+        //         ),
+        //         child:
+        //             Center(child: Text('${c.unreadMessages} unread messages')),
+        //       ),
+        //     ),
+        //   ),
+        // ),
 
         // Container(
         //   width: double.infinity,
@@ -560,96 +582,85 @@ class _ChatViewState extends State<ChatView>
         //   ),
         // ),
 
-        // Container(
-        //   margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
-        //   child: Row(
-        //     children: [
-        //       const SizedBox(width: 10),
-        //       Expanded(
-        //         child: Column(
-        //           mainAxisSize: MainAxisSize.min,
-        //           children: [
-        //             Container(
-        //               color: style.cardBorder.top.color,
-        //               height: 0.5,
-        //               width: double.infinity,
-        //             ),
-        //             Container(
-        //               color: const Color(0xFFF8F8F8),
-        //               height: 2,
-        //               width: double.infinity,
-        //             ),
-        //             Container(
-        //               color: style.cardBorder.top.color,
-        //               height: 0.5,
-        //               width: double.infinity,
-        //             ),
-        //             // Container(
-        //             //   width: double.infinity,
-        //             //   height: 1,
-        //             //   color: const Color(0xFF888888),
-        //             // ),
-        //             // Container(
-        //             //   width: double.infinity,
-        //             //   height: 1,
-        //             //   color: const Color(0xFFF8F8F8),
-        //             // ),
-        //           ],
-        //         ),
-        //       ),
-        //       // const SizedBox(width: 10),
-        //       Container(
-        //         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        //         decoration: BoxDecoration(
-        //           borderRadius: BorderRadius.circular(15),
-        //           border: style.cardBorder,
-        //           color: const Color(0xFFF8F8F8),
-        //         ),
-        //         child: Text(
-        //           '${c.unreadMessages} unread messages',
-        //           style: const TextStyle(
-        //             fontSize: 13,
-        //             color: Color(0xFF888888),
-        //           ),
-        //         ),
-        //       ),
-        //       // const SizedBox(width: 10),
-        //       Expanded(
-        //         child: Column(
-        //           mainAxisSize: MainAxisSize.min,
-        //           children: [
-        //             Container(
-        //               color: style.cardBorder.top.color,
-        //               height: 0.5,
-        //               width: double.infinity,
-        //             ),
-        //             Container(
-        //               color: const Color(0xFFF8F8F8),
-        //               height: 2,
-        //               width: double.infinity,
-        //             ),
-        //             Container(
-        //               color: style.cardBorder.top.color,
-        //               height: 0.5,
-        //               width: double.infinity,
-        //             ),
-        //             // Container(
-        //             //   width: double.infinity,
-        //             //   height: 1,
-        //             //   color: const Color(0xFF888888),
-        //             // ),
-        //             // Container(
-        //             //   width: double.infinity,
-        //             //   height: 1,
-        //             //   color: const Color(0xFFF8F8F8),
-        //             // ),
-        //           ],
-        //         ),
-        //       ),
-        //       const SizedBox(width: 10),
-        //     ],
-        //   ),
-        // ),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Container(
+                    //   color: style.cardBorder.top.color,
+                    //   height: 0.5,
+                    //   width: double.infinity,
+                    // ),
+                    Container(
+                      color: style.systemMessageBorder.top.color,
+                      height: 2,
+                      width: double.infinity,
+                    ),
+                    // Container(
+                    //   color: style.cardBorder.top.color,
+                    //   height: 0.5,
+                    //   width: double.infinity,
+                    // ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                  // color: const Color(0xFFF8F8F8),
+                ),
+                child: Text(
+                  '${c.unreadMessages} unread messages',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Container(
+                    //   color: style.cardBorder.top.color,
+                    //   height: 0.5,
+                    //   width: double.infinity,
+                    // ),
+                    Container(
+                      color: style.systemMessageBorder.top.color,
+                      height: 2,
+                      width: double.infinity,
+                    ),
+                    // Container(
+                    //   color: style.cardBorder.top.color,
+                    //   height: 0.5,
+                    //   width: double.infinity,
+                    // ),
+                    // Container(
+                    //   width: double.infinity,
+                    //   height: 1,
+                    //   color: const Color(0xFF888888),
+                    // ),
+                    // Container(
+                    //   width: double.infinity,
+                    //   height: 1,
+                    //   color: const Color(0xFFF8F8F8),
+                    // ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+        ),
 
         // Container(
         //   color: const Color(0x33000000),
@@ -892,8 +903,10 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                border: style.cardBorder,
-                color: const Color(0xFFF8F8F8),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
+                // border: style.cardBorder,
+                // color: const Color(0xFFF8F8F8),
               ),
               child: Text(
                 time.toRelative(),
@@ -1216,13 +1229,22 @@ class _ChatViewState extends State<ChatView>
                       ),
                     )
                   else
-                    SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: AnimatedFab(
-                          labelStyle: const TextStyle(fontSize: 17),
-                          closedIcon: SizedBox(
+                    WidgetButton(
+                      onPressed: () {
+                        ModalPopup.show(
+                          context: context,
+                          mobileConstraints: const BoxConstraints(),
+                          mobilePadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                          desktopConstraints:
+                              const BoxConstraints(maxWidth: 400),
+                          child: _attachmentSelection(c),
+                        );
+                      },
+                      child: SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: Center(
+                          child: SizedBox(
                             width: iconSize,
                             height: iconSize,
                             child: SvgLoader.asset(
@@ -1230,68 +1252,89 @@ class _ChatViewState extends State<ChatView>
                               height: iconSize,
                             ),
                           ),
-                          openedIcon: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
-                            child: SvgLoader.asset(
-                              'assets/icons/close_primary.svg',
-                              width: iconSize - 5,
-                              height: iconSize - 5,
-                            ),
-                          ),
-                          height: PlatformUtils.isMobile && !PlatformUtils.isWeb
-                              ? PlatformUtils.isIOS
-                                  ? 220
-                                  : 260
-                              : 100,
-                          actions: [
-                            AnimatedFabAction(
-                              icon: const Icon(Icons.attachment,
-                                  color: Colors.blue),
-                              label: 'label_file'.l10n,
-                              onTap: c.send.editable.value ? c.pickFile : null,
-                            ),
-                            if (PlatformUtils.isMobile &&
-                                !PlatformUtils.isWeb) ...[
-                              AnimatedFabAction(
-                                icon:
-                                    const Icon(Icons.photo, color: Colors.blue),
-                                label: 'label_gallery'.l10n,
-                                onTap:
-                                    c.send.editable.value ? c.pickMedia : null,
-                              ),
-                              if (PlatformUtils.isAndroid) ...[
-                                AnimatedFabAction(
-                                  icon: const Icon(
-                                    Icons.photo_camera,
-                                    color: Colors.blue,
-                                  ),
-                                  label: 'label_photo'.l10n,
-                                  onTap: c.pickImageFromCamera,
-                                ),
-                                AnimatedFabAction(
-                                  icon: const Icon(
-                                    Icons.video_camera_back,
-                                    color: Colors.blue,
-                                  ),
-                                  label: 'label_video'.l10n,
-                                  onTap: c.pickVideoFromCamera,
-                                ),
-                              ],
-                              if (PlatformUtils.isIOS)
-                                AnimatedFabAction(
-                                  icon: const Icon(
-                                    Icons.camera,
-                                    color: Colors.blue,
-                                  ),
-                                  label: 'label_camera'.l10n,
-                                  onTap: c.pickImageFromCamera,
-                                ),
-                            ],
-                          ],
                         ),
                       ),
                     ),
+                  // SizedBox(
+                  //   width: 56,
+                  //   height: 56,
+                  //   child: Center(
+                  //     child: AnimatedFab(
+                  //       labelStyle: const TextStyle(fontSize: 17),
+                  //       closedIcon: SizedBox(
+                  //         width: iconSize,
+                  //         height: iconSize,
+                  //         child: SvgLoader.asset(
+                  //           'assets/icons/attach.svg',
+                  //           height: iconSize,
+                  //         ),
+                  //       ),
+                  //       openedIcon: SizedBox(
+                  //         width: iconSize,
+                  //         height: iconSize,
+                  //         child: SvgLoader.asset(
+                  //           'assets/icons/close_primary.svg',
+                  //           width: iconSize - 5,
+                  //           height: iconSize - 5,
+                  //         ),
+                  //       ),
+                  //       // height: PlatformUtils.isMobile && !PlatformUtils.isWeb
+                  //       //     ? PlatformUtils.isIOS
+                  //       //         ? 220
+                  //       //         : 260
+                  //       //     : 100,
+                  //       height: 260,
+                  //       actions: [
+                  //         AnimatedFabAction(
+                  //           icon: const Icon(
+                  //             Icons.attachment,
+                  //             color: Colors.blue,
+                  //           ),
+                  //           label: 'label_file'.l10n,
+                  //           onTap: c.send.editable.value ? c.pickFile : null,
+                  //         ),
+                  //         // if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
+                  //         if (true) ...[
+                  //           AnimatedFabAction(
+                  //             icon:
+                  //                 const Icon(Icons.photo, color: Colors.blue),
+                  //             label: 'label_gallery'.l10n,
+                  //             onTap:
+                  //                 c.send.editable.value ? c.pickMedia : null,
+                  //           ),
+                  //           // if (PlatformUtils.isAndroid)
+                  //           if (true) ...[
+                  //             AnimatedFabAction(
+                  //               icon: const Icon(
+                  //                 Icons.photo_camera,
+                  //                 color: Colors.blue,
+                  //               ),
+                  //               label: 'label_photo'.l10n,
+                  //               onTap: c.pickImageFromCamera,
+                  //             ),
+                  //             AnimatedFabAction(
+                  //               icon: const Icon(
+                  //                 Icons.video_camera_back,
+                  //                 color: Colors.blue,
+                  //               ),
+                  //               label: 'label_video'.l10n,
+                  //               onTap: c.pickVideoFromCamera,
+                  //             ),
+                  //           ],
+                  //           if (PlatformUtils.isIOS)
+                  //             AnimatedFabAction(
+                  //               icon: const Icon(
+                  //                 Icons.camera,
+                  //                 color: Colors.blue,
+                  //               ),
+                  //               label: 'label_camera'.l10n,
+                  //               onTap: c.pickImageFromCamera,
+                  //             ),
+                  //         ],
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                   // const SizedBox(width: 20),
                   Expanded(
                     child: Padding(
@@ -1403,6 +1446,138 @@ class _ChatViewState extends State<ChatView>
         ],
       ),
     );
+  }
+
+  Widget _attachmentSelection(ChatController c) {
+    return Builder(builder: (context) {
+      Widget button({
+        required String text,
+        IconData? icon,
+        Widget? child,
+        void Function()? onPressed,
+      }) {
+        return RoundFloatingButton(
+          text: text,
+          withBlur: false,
+          onPressed: onPressed ?? () {},
+          textStyle: const TextStyle(
+            fontSize: 15,
+            color: Colors.black,
+          ),
+          color: const Color(0xFF63B4FF),
+          child: SizedBox(
+            width: 60,
+            height: 60,
+            child: child ??
+                Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 30,
+                ),
+          ),
+        );
+      }
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 40),
+          LayoutBuilder(builder: (context, constraints) {
+            List<Widget> children = [
+              button(
+                text: PlatformUtils.isAndroid ? 'Фото' : 'Камера',
+                onPressed: c.pickImageFromCamera,
+                child: SvgLoader.asset(
+                  'assets/icons/make_photo.svg',
+                  width: 60,
+                  height: 60,
+                ),
+              ),
+              if (PlatformUtils.isAndroid)
+                button(
+                  text: 'Видео',
+                  onPressed: c.pickVideoFromCamera,
+                  icon: Icons.video_camera_back,
+                ),
+              button(
+                text: 'Галерея',
+                onPressed: c.pickMedia,
+                icon: Icons.photo,
+              ),
+              button(
+                text: 'Файл',
+                icon: Icons.insert_drive_file,
+                onPressed: c.pickFile,
+              ),
+            ];
+
+            int oneWidth = constraints.maxWidth ~/ 100;
+            int inRow = max((children.length / oneWidth).floor() + 1, 1);
+
+            print('oneWidth: $oneWidth, inRow: $inRow');
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  inRow,
+                  (i) {
+                    int from = i * oneWidth;
+                    int to = min((i + 1) * oneWidth, children.length);
+
+                    print('$i $from $to');
+
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: Row(
+                        children: [
+                          ...children
+                              .sublist(from, to)
+                              .map((e) => Expanded(child: e)),
+                          // ...List.generate(to - (i + 1) * oneWidth,
+                          //     (i) => Expanded(child: Container())),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }),
+          // Wrap(
+          //   runSpacing: 30,
+          //   children: [
+          //     button(
+          //       text: 'Фото',
+          //       icon: Icons.photo_camera,
+          //     ),
+          //     button(
+          //       text: 'Видео',
+          //       icon: Icons.video_camera_back,
+          //     ),
+          //     button(
+          //       text: 'Фото',
+          //       icon: Icons.photo,
+          //     ),
+          //     button(
+          //       text: 'Файл',
+          //       icon: Icons.insert_drive_file,
+          //     ),
+          //   ].map((e) => SizedBox(width: 100, child: e)).toList(),
+          // ),
+          const SizedBox(height: 40),
+          OutlinedRoundedButton(
+            key: const Key('CloseButton'),
+            title: Text('btn_close'.l10n),
+            onPressed: Navigator.of(context).pop,
+            color: const Color(0xFFEEEEEE),
+          ),
+          const SizedBox(height: 10),
+        ],
+      );
+    });
   }
 
   /// Returns a [ReactiveTextField] for editing a [ChatMessage].
