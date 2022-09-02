@@ -95,11 +95,11 @@ class ChatsTabView extends StatelessWidget {
   Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
         Chat chat = rxChat.chat.value;
 
-        ChatItem? lastItem;
+        ChatItem? item;
         if (rxChat.messages.isNotEmpty) {
-          lastItem = rxChat.messages.last.value;
+          item = rxChat.messages.last.value;
         }
-        lastItem ??= chat.lastItem;
+        item ??= chat.lastItem;
 
         const Color subtitleColor = Color(0xFF666666);
         List<Widget>? subtitle;
@@ -133,9 +133,8 @@ class ChatsTabView extends StatelessWidget {
                 ),
               )
             ];
-          } else if (lastItem != null) {
-            if (lastItem is ChatCall) {
-              var item = chat.lastItem as ChatCall;
+          } else if (item != null) {
+            if (item is ChatCall) {
               String description = 'label_chat_call_ended'.l10n;
               if (item.finishedAt == null && item.finishReason == null) {
                 subtitle = [
@@ -159,9 +158,7 @@ class ChatsTabView extends StatelessWidget {
                   Flexible(child: Text(description, maxLines: 2)),
                 ];
               }
-            } else if (lastItem is ChatMessage) {
-              var item = lastItem;
-
+            } else if (item is ChatMessage) {
               var desc = StringBuffer();
 
               if (!chat.isGroup && item.authorId == c.me) {
@@ -193,7 +190,7 @@ class ChatsTabView extends StatelessWidget {
                               ),
                             )
                           : AvatarWidget.fromUser(
-                              chat.getUser(item.authorId),
+                              chat.getUser(item!.authorId),
                               radius: 10,
                             ),
                     ),

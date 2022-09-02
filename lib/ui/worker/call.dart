@@ -26,6 +26,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -97,7 +98,20 @@ class CallWorker extends DisposableService {
     _initBackgroundService();
     _initWebUtils();
 
+    bool wakelock = _callService.calls.isNotEmpty;
+    if (wakelock) {
+      Wakelock.enable().onError((_, __) => false);
+    }
+
     _subscription = _callService.calls.changes.listen((event) async {
+      if (!wakelock && _callService.calls.isNotEmpty) {
+        wakelock = true;
+        Wakelock.enable().onError((_, __) => false);
+      } else if (wakelock && _callService.calls.isEmpty) {
+        wakelock = false;
+        Wakelock.disable().onError((_, __) => false);
+      }
+
       switch (event.op) {
         case OperationKind.added:
           OngoingCall c = event.value!.value;

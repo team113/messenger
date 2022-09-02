@@ -675,7 +675,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
                   onPressed: c.changePassword,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(16),
-                    primary: context.theme.colorScheme.secondary,
+                    backgroundColor: context.theme.colorScheme.secondary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),

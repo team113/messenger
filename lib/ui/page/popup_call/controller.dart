@@ -19,6 +19,7 @@ import 'dart:convert';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:get/get.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -165,11 +166,13 @@ class PopupCallController extends GetxController {
     }
 
     _tryToConnect();
+    Wakelock.enable().onError((_, __) => false);
     super.onInit();
   }
 
   @override
   void onClose() {
+    Wakelock.disable().onError((_, __) => false);
     if (PlatformUtils.isWeb) {
       WebUtils.removeCall(call.value.chatId.value);
     } else {
