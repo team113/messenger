@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/chat_call.dart';
@@ -298,38 +300,111 @@ class ChatsTabView extends StatelessWidget {
           }
         }
       } else {
+        Widget _circleButton({
+          void Function()? onPressed,
+          required Widget child,
+        }) {
+          return WidgetButton(
+            onPressed: onPressed,
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFF63B4FF),
+                shape: BoxShape.circle,
+              ),
+              child: Center(child: child),
+            ),
+          );
+        }
+
         subtitle = [
-          Flexible(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              child: ElevatedButton(
-                onPressed: () => c.joinCall(chat.id),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.call, size: 21, color: Colors.white),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        'btn_join_call'.l10n,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+          const Expanded(
+            child: Text(
+              'Присоединиться',
+              style: TextStyle(
+                color: Color(0xFF63B4FF),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
-            child: ElevatedButton(
-              onPressed: () => c.joinCall(chat.id, withVideo: true),
-              child:
-                  const Icon(Icons.video_call, size: 22, color: Colors.white),
+          const SizedBox(width: 6),
+          _circleButton(
+            onPressed: () => c.joinCall(chat.id, withVideo: true),
+            child: SvgLoader.asset(
+              'assets/icons/chat_video_call_white.svg',
+              width: 27.72,
+              height: 19,
             ),
           ),
+          const SizedBox(width: 12),
+          _circleButton(
+            onPressed: () => c.joinCall(chat.id),
+            child: SvgLoader.asset(
+              'assets/icons/chat_audio_call_white.svg',
+              width: 21,
+              height: 21,
+            ),
+          ),
+          if (chat.unreadCount != 0) const SizedBox(width: 12),
+          // Expanded(
+          //   child: OutlinedRoundedButton(
+          //     height: 35,
+          //     color: const Color(0xFF63B4FF),
+          //     onPressed: () => c.joinCall(chat.id),
+          //     title: SvgLoader.asset(
+          //       'assets/icons/chat_audio_call_white.svg',
+          //       width: 21,
+          //       height: 21,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 6),
+          // Expanded(
+          //   child: OutlinedRoundedButton(
+          //     height: 35,
+          //     color: const Color(0xFF63B4FF),
+          //     onPressed: () => c.joinCall(chat.id, withVideo: true),
+          //     title: SvgLoader.asset(
+          //       'assets/icons/chat_video_call_white.svg',
+          //       width: 27.72,
+          //       height: 19,
+          //     ),
+          //   ),
+          // ),
+          // if (chat.unreadCount != 0) const SizedBox(width: 6),
         ];
+        // subtitle = [
+        //   Flexible(
+        //     child: Padding(
+        //       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+        //       child: ElevatedButton(
+        //         onPressed: () => c.joinCall(chat.id),
+        //         child: Row(
+        //           mainAxisSize: MainAxisSize.min,
+        //           children: [
+        //             const Icon(Icons.call, size: 21, color: Colors.white),
+        //             const SizedBox(width: 5),
+        //             Flexible(
+        //               child: Text(
+        // 'btn_join_call'.l10n,
+        // maxLines: 1,
+        // overflow: TextOverflow.ellipsis,
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        //   Padding(
+        //     padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
+        //     child: ElevatedButton(
+        //       onPressed: () => c.joinCall(chat.id, withVideo: true),
+        //       child:
+        //           const Icon(Icons.video_call, size: 22, color: Colors.white),
+        //     ),
+        //   ),
+        // ];
       }
 
       Style style = Theme.of(context).extension<Style>()!;
@@ -374,14 +449,15 @@ class ChatsTabView extends StatelessWidget {
                       width: 0.5,
                     )
                   : Border.all(
-                      color: const Color(0xFFDFEDFD),
+                      color: const Color(0xFFDAEDFF),
                       width: 0.5,
                     ),
               unhoveredBorder:
                   selected ? style.primaryBorder : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: () => router.chat(chat.id),
-              unselectedHoverColor: const Color.fromRGBO(230, 241, 254, 1),
+              unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
+              // unselectedHoverColor: const Color.fromRGBO(230, 241, 254, 1),
               selectedHoverColor: const Color.fromRGBO(210, 227, 249, 1),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
@@ -405,8 +481,17 @@ class ChatsTabView extends StatelessWidget {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                '10:10',
-                                style: Theme.of(context).textTheme.subtitle2,
+                                chat.currentCall == null
+                                    ? '10:10'
+                                    : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.copyWith(
+                                      color: chat.currentCall == null
+                                          ? null
+                                          : const Color(0xFF63B4FF),
+                                    ),
                               ),
                             ],
                           ),

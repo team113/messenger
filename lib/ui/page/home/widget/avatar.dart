@@ -354,7 +354,7 @@ class AvatarWidget extends StatelessWidget {
           ),
           padding: EdgeInsets.all(badgeSize),
         ),
-        padding: EdgeInsets.all(badgeSize / 2.5),
+        padding: EdgeInsets.all(badgeSize / 3),
         badgeColor: Colors.white,
         animationType: BadgeAnimationType.scale,
         position: BadgePosition.bottomEnd(

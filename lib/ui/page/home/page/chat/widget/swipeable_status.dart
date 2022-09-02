@@ -99,7 +99,8 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+      style: style.systemMessageTextStyle.copyWith(fontSize: 11),
+      // style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
       child: Padding(
         // padding: EdgeInsets.zero,
         padding: const EdgeInsets.only(left: 8),
@@ -108,8 +109,8 @@ class SwipeableStatus extends StatelessWidget {
           margin: const EdgeInsets.only(right: 2),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: style.cardBorder,
-            color: const Color(0xFFF8F8F8),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

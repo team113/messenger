@@ -209,11 +209,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
     Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    var message = widget.item.value as ChatMemberInfo;
-
+    ChatMemberInfo message = widget.item.value as ChatMemberInfo;
     Widget content = Text('${message.action}');
 
     switch (message.action) {
@@ -246,10 +242,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               color: style.systemMessageColor,
             ),
             child: DefaultTextStyle.merge(
-              style: thin?.copyWith(
-                fontSize: 13,
-                color: const Color(0xFF888888),
-              ),
+              style: style.systemMessageTextStyle,
               child: content,
             ),
           ),
@@ -324,7 +317,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   color: fromMe
                       ? isRead
                           ? const Color.fromRGBO(210, 227, 249, 1)
-                          : const Color.fromRGBO(230, 241, 254, 1)
+                          : const Color.fromARGB(255, 244, 249, 255)
                       : Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   border: fromMe

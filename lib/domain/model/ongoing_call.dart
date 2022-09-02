@@ -1057,7 +1057,7 @@ class OngoingCall {
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
 
-          if (!isActive) {
+          if (!isActive || members.isEmpty) {
             await _updateTracks();
           }
         } catch (_) {

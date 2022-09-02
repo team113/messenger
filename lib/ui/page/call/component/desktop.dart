@@ -525,6 +525,30 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
+        Obx(() {
+          bool enabled = c.displayMore.value &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
+
+          if (enabled) {
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 450,
+                width: double.infinity,
+                child: MouseRegion(
+                  opaque: false,
+                  hitTestBehavior: HitTestBehavior.translucent,
+                  onEnter: (d) => c.keepMore(true),
+                  onExit: (d) => c.keepMore(false),
+                ),
+              ),
+            );
+          }
+
+          return Container();
+        }),
+
         // Display the more hint, if not dismissed.
         Obx(() {
           return AnimatedSwitcher(

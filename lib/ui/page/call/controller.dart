@@ -337,6 +337,10 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.errors] stream.
   StreamSubscription? _errorsSubscription;
 
+  /// Subscription for [WebUtils.onWindowFocus] changes hiding the UI on a focus
+  /// lose.
+  StreamSubscription? _onWindowFocus;
+
   /// [Map] of [BoxFit]s that [RtcVideoRenderer] should explicitly have.
   final RxMap<String, BoxFit?> rendererBoxFit = RxMap<String, BoxFit?>();
 
@@ -366,6 +370,8 @@ class CallController extends GetxController {
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  Timer? _morePanelTimer;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   ChatId get chatId => _currentCall.value.chatId.value;
@@ -605,6 +611,19 @@ class CallController extends GetxController {
       applySecondaryConstraints();
     });
 
+    _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
+      if (!e) {
+        hoveredRenderer.value = null;
+        if (_morePanelTimer?.isActive != true) {
+          keepMore();
+        }
+
+        if (_uiTimer?.isActive != true) {
+          keepUi(false);
+        }
+      }
+    });
+
     _errorsSubscription = _currentCall.value.errors.listen((e) {
       error.value = e;
       errorTimeout.value = _errorDuration;
@@ -739,10 +758,12 @@ class CallController extends GetxController {
     _durationTimer?.cancel();
     _showUiWorker.dispose();
     _uiTimer?.cancel();
+    _morePanelTimer?.cancel();
     _stateWorker.dispose();
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
     _errorsSubscription?.cancel();
+    _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
 
@@ -850,6 +871,13 @@ class CallController extends GetxController {
 
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
+
+  void keepMore([bool keep = false]) {
+    _morePanelTimer?.cancel();
+    if (!keep && displayMore.value) {
+      _morePanelTimer = Timer(const Duration(seconds: 5), () => keepUi(false));
+    }
+  }
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.

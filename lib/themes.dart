@@ -74,11 +74,15 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
-            systemMessageBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
+            unreadMessageThickness: 4,
+            systemMessageTextStyle: GoogleFonts.roboto(
+              color: const Color(0xFF888888),
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
             ),
-            systemMessageColor: const Color(0xFFF8F8F8),
+            systemMessageBorder:
+                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
+            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
           ),
         ],
         colorScheme: colors,
@@ -336,6 +340,8 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
+    required this.unreadMessageThickness,
+    required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
   });
@@ -349,6 +355,8 @@ class Style extends ThemeExtension<Style> {
   final Color cardColor;
   final TextStyle boldBody;
 
+  final double unreadMessageThickness;
+  final TextStyle systemMessageTextStyle;
   final Border systemMessageBorder;
   final Color systemMessageColor;
 
@@ -362,6 +370,8 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
+    double? unreadMessageThickness,
+    TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
   }) {
@@ -374,6 +384,10 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
+      unreadMessageThickness:
+          unreadMessageThickness ?? this.unreadMessageThickness,
+      systemMessageTextStyle:
+          systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
     );
@@ -394,6 +408,13 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      systemMessageTextStyle: TextStyle.lerp(
+        systemMessageTextStyle,
+        other.systemMessageTextStyle,
+        t,
+      )!,
+      unreadMessageThickness:
+          unreadMessageThickness * (1.0 - t) + other.unreadMessageThickness * t,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:

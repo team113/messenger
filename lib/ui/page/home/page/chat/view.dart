@@ -586,78 +586,29 @@ class _ChatViewState extends State<ChatView>
           margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
           child: Row(
             children: [
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Container(
-                    //   color: style.cardBorder.top.color,
-                    //   height: 0.5,
-                    //   width: double.infinity,
-                    // ),
-                    Container(
-                      color: style.systemMessageBorder.top.color,
-                      height: 2,
-                      width: double.infinity,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: style.systemMessageBorder,
+                    color: style.systemMessageColor,
+                    // color: const Color(0xFFF8F8F8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${c.unreadMessages} unread messages',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF888888),
+                      ),
                     ),
-                    // Container(
-                    //   color: style.cardBorder.top.color,
-                    //   height: 0.5,
-                    //   width: double.infinity,
-                    // ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: style.systemMessageBorder,
-                  color: style.systemMessageColor,
-                  // color: const Color(0xFFF8F8F8),
-                ),
-                child: Text(
-                  '${c.unreadMessages} unread messages',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF888888),
                   ),
                 ),
               ),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Container(
-                    //   color: style.cardBorder.top.color,
-                    //   height: 0.5,
-                    //   width: double.infinity,
-                    // ),
-                    Container(
-                      color: style.systemMessageBorder.top.color,
-                      height: 2,
-                      width: double.infinity,
-                    ),
-                    // Container(
-                    //   color: style.cardBorder.top.color,
-                    //   height: 0.5,
-                    //   width: double.infinity,
-                    // ),
-                    // Container(
-                    //   width: double.infinity,
-                    //   height: 1,
-                    //   color: const Color(0xFF888888),
-                    // ),
-                    // Container(
-                    //   width: double.infinity,
-                    //   height: 1,
-                    //   color: const Color(0xFFF8F8F8),
-                    // ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
             ],
           ),
         ),
@@ -1456,96 +1407,116 @@ class _ChatViewState extends State<ChatView>
         Widget? child,
         void Function()? onPressed,
       }) {
+        // TEXT MUST SCALE HORIZONTALLY!!!!!!!!
         return RoundFloatingButton(
           text: text,
           withBlur: false,
-          onPressed: onPressed ?? () {},
+          onPressed: () {
+            onPressed?.call();
+            Navigator.of(context).pop();
+          },
           textStyle: const TextStyle(
             fontSize: 15,
             color: Colors.black,
           ),
+          autoSizeText: true,
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,
             height: 60,
-            child: child ??
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 30,
-                ),
+            child: child ?? Icon(icon, color: Colors.white, size: 30),
           ),
         );
       }
 
+      bool isAndroid = PlatformUtils.isAndroid;
+
+      List<Widget> children = [
+        button(
+          text: isAndroid ? 'Фото' : 'Камера',
+          onPressed: c.pickImageFromCamera,
+          child: SvgLoader.asset(
+            'assets/icons/make_photo.svg',
+            width: 60,
+            height: 60,
+          ),
+        ),
+        if (isAndroid)
+          button(
+            text: 'Видео',
+            onPressed: c.pickVideoFromCamera,
+            child: SvgLoader.asset(
+              'assets/icons/video_on.svg',
+              width: 60,
+              height: 60,
+            ),
+          ),
+        button(
+          text: 'Галерея',
+          onPressed: c.pickMedia,
+          child: SvgLoader.asset(
+            'assets/icons/gallery.svg',
+            width: 60,
+            height: 60,
+          ),
+        ),
+        button(
+          text: 'Файл',
+          onPressed: c.pickFile,
+          child: SvgLoader.asset(
+            'assets/icons/file.svg',
+            width: 60,
+            height: 60,
+          ),
+        ),
+      ];
+
+      // MAKE SIZE MINIMUM.
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 40),
-          LayoutBuilder(builder: (context, constraints) {
-            List<Widget> children = [
-              button(
-                text: PlatformUtils.isAndroid ? 'Фото' : 'Камера',
-                onPressed: c.pickImageFromCamera,
-                child: SvgLoader.asset(
-                  'assets/icons/make_photo.svg',
-                  width: 60,
-                  height: 60,
-                ),
-              ),
-              if (PlatformUtils.isAndroid)
-                button(
-                  text: 'Видео',
-                  onPressed: c.pickVideoFromCamera,
-                  icon: Icons.video_camera_back,
-                ),
-              button(
-                text: 'Галерея',
-                onPressed: c.pickMedia,
-                icon: Icons.photo,
-              ),
-              button(
-                text: 'Файл',
-                icon: Icons.insert_drive_file,
-                onPressed: c.pickFile,
-              ),
-            ];
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: children,
+          ),
+          // LayoutBuilder(builder: (context, constraints) {
 
-            int oneWidth = constraints.maxWidth ~/ 100;
-            int inRow = max((children.length / oneWidth).floor() + 1, 1);
+          //   int oneWidth = constraints.maxWidth ~/ 100;
+          //   int inRow = max((children.length / oneWidth).floor() + 1, 1);
 
-            print('oneWidth: $oneWidth, inRow: $inRow');
+          //   print('oneWidth: $oneWidth, inRow: $inRow');
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  inRow,
-                  (i) {
-                    int from = i * oneWidth;
-                    int to = min((i + 1) * oneWidth, children.length);
+          // return Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          //   child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: List.generate(
+          //         inRow,
+          //         (i) {
+          //           int from = i * oneWidth;
+          //           int to = min((i + 1) * oneWidth, children.length);
 
-                    print('$i $from $to');
+          //           print('$i $from $to');
 
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                      child: Row(
-                        children: [
-                          ...children
-                              .sublist(from, to)
-                              .map((e) => Expanded(child: e)),
-                          // ...List.generate(to - (i + 1) * oneWidth,
-                          //     (i) => Expanded(child: Container())),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          }),
+          //           return Padding(
+          //             padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+          //             child: Row(
+          //               children: [
+          //                 ...children
+          //                     .sublist(from, to)
+          //                     .map((e) => Expanded(child: e)),
+          //                 // ...List.generate(to - (i + 1) * oneWidth,
+          //                 //     (i) => Expanded(child: Container())),
+          //               ],
+          //             ),
+          //           );
+          //         },
+          //       ),
+          //     ),
+          //   );
+          // }),
           // Wrap(
           //   runSpacing: 30,
           //   children: [
