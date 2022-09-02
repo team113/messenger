@@ -8,6 +8,7 @@
 /artifacts/
 
 # Development related
+/my.*.vals.yaml
 .env
 
 # Flutter/Dart/Pub related

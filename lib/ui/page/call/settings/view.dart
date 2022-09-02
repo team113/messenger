@@ -130,7 +130,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
         );
 
     // Wrapper around [Checkbox].
-    Widget _switch({
+    Widget checkbox({
       required bool? value,
       required void Function(bool?)? onChanged,
       required String label,
@@ -188,7 +188,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                           Text('label_media_settings'.l10n, style: font17),
                           const Spacer(),
                           if (PlatformUtils.isDesktop) ...[
-                            _switch(
+                            checkbox(
                               label: 'LMB',
                               value: _lmbValue,
                               onChanged: (b) {
@@ -197,7 +197,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                               },
                             ),
                             const SizedBox(width: 5),
-                            _switch(
+                            checkbox(
                               label: 'Panel up',
                               value: _panelValue,
                               onChanged: (b) {

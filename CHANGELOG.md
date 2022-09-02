@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- macOS:
+    - Unread chats count badge on app's icon ([#106]).
 - UI:
     - User information auto-updating on changes ([#7], [#4]).
     - Menu:
@@ -25,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Failed messages persistence ([#5], [#3]).
 - Deployment:
-    - [Helm] chart ([#73]).
+    - [Helm] chart ([#73], [#85]).
 
 ### Changed
 
@@ -54,7 +56,8 @@ All user visible changes to this project will be documented in this file. This p
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
         - Mobile minimization gesture being too rapid ([#45], [#44]);
-        - Camera not enabling in empty call ([#79], [#75]).
+        - Media not enabling in empty call ([#79], [#117], [#75]);
+        - Prevent device from sleeping ([#112], [#92]). 
 
 [#2]: /../../issues/2
 [#3]: /../../issues/3
@@ -87,7 +90,12 @@ All user visible changes to this project will be documented in this file. This p
 [#79]: /../../pull/79
 [#80]: /../../pull/80
 [#83]: /../../pull/83
+[#85]: /../../pull/85
 [#90]: /../../pull/90
+[#92]: /../../issues/92
+[#106]: /../../pull/106
+[#112]: /../../pull/112
+[#117]: /../../pull/117
 
 
 
