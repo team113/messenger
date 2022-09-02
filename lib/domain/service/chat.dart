@@ -232,10 +232,10 @@ class ChatService extends DisposableService {
   /// If [text] or [attachments] argument is specified, then the forwarded
   /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
   /// [text] and/or [attachments].
-  Future<void> forwardChatItems({
-    required ChatId from,
-    required ChatId to,
-    required List<ChatItemQuote> items,
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {

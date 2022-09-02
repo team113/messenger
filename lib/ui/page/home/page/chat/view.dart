@@ -277,6 +277,7 @@ class _ChatViewState extends State<ChatView>
                                             item: e,
                                             me: c.me!,
                                             user: u.data,
+                                            getUser: c.getUser,
                                             onJoinCall: c.joinCall,
                                             onHide: () =>
                                                 c.hideChatItem(e.value),

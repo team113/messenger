@@ -57,6 +57,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.item,
     required this.me,
     this.user,
+    this.getUser,
     this.onJoinCall,
     this.animation,
     this.onHide,
@@ -80,6 +81,10 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Callback, called when an [RxUser] identified by the provided [userId] is
+  /// required.
+  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -200,12 +205,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.reply, size: 26, color: Colors.white),
-            Flexible(
-              child: _repliedMessage(
-                (msg.item as ChatMessage),
-                maxLines: null,
-              ),
-            ),
+            if (msg.item == null)
+              Text('label_forwarded_message'.l10n)
+            else
+              Flexible(child: _quotedMessage(msg.item!, maxLines: null)),
           ],
         ),
       ),
@@ -458,7 +461,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               const SizedBox(height: 5),
             InkWell(
               onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: _repliedMessage(msg.repliesTo!),
+              child: _quotedMessage(msg.repliesTo!),
             ),
           ],
         ],
@@ -570,7 +573,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _repliedMessage(ChatItem item, {int? maxLines = 1}) {
+  Widget _quotedMessage(ChatItem item, {int? maxLines = 1}) {
     Style style = Theme.of(context).extension<Style>()!;
 
     Widget? content;
@@ -590,17 +593,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
               color: const Color(0xFFE7E7E7),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(8),
               image: image == null
                   ? null
                   : DecorationImage(
                       image: NetworkImage('${Config.url}/files${image.small}'),
                     ),
             ),
-            width: 30,
-            height: 30,
-            child:
-                image == null ? const Icon(Icons.attach_file, size: 16) : null,
+            width: 50,
+            height: 50,
+            child: image == null ? const Icon(Icons.file_copy, size: 16) : null,
           );
         }).toList();
       }
@@ -669,79 +671,60 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       content = Text(item.action.toString(), style: style.boldBody);
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('Forwarded message', style: style.boldBody);
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else {
       content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
-    Color color = AvatarWidget.colors[
-        (widget.user?.user.value.num.val.sum() ?? 3) %
-            AvatarWidget.colors.length];
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(width: 12),
-        Flexible(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(
-                  width: 2,
-                  color: color,
+    return FutureBuilder<RxUser?>(
+      key: Key('FutureBuilder_${item.id}'),
+      future: widget.getUser?.call(item.authorId),
+      builder: (context, snapshot) {
+        Color color = snapshot.data?.user.value.id == widget.me
+            ? const Color(0xFF63B4FF)
+            : AvatarWidget.colors[
+                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                    AvatarWidget.colors.length];
+
+        return Row(
+          key: Key('Row_${item.id}'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 12),
+            Flexible(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(left: BorderSide(width: 2, color: color)),
+                ),
+                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                padding: const EdgeInsets.only(left: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.user?.user.value != null)
+                      Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            '...',
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    if (content != null) ...[
+                      const SizedBox(height: 2),
+                      DefaultTextStyle.merge(maxLines: maxLines, child: content)
+                    ],
+                    if (additional.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(mainAxisSize: MainAxisSize.min, children: additional),
+                    ],
+                  ],
                 ),
               ),
             ),
-            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-            padding: const EdgeInsets.only(left: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Builder(
-                  builder: (context) {
-                    String? name;
-
-                    if (widget.user?.user.value != null) {
-                      return Obx(() {
-                        Color color = AvatarWidget.colors[
-                            widget.user!.user.value.num.val.sum() %
-                                AvatarWidget.colors.length];
-
-                        return Text(
-                          widget.user!.user.value.name?.val ??
-                              widget.user!.user.value.num.val,
-                          style: style.boldBody.copyWith(color: color),
-                        );
-                      });
-                    }
-
-                    return Text(
-                      name ?? '...',
-                      style: style.boldBody
-                          .copyWith(color: const Color(0xFF63B4FF)),
-                    );
-                  },
-                ),
-                if (content != null) ...[
-                  const SizedBox(height: 2),
-                  DefaultTextStyle.merge(
-                    maxLines: maxLines,
-                    child: content,
-                  ),
-                ],
-                if (additional.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: additional,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 
@@ -867,22 +850,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_reply'.l10n,
                                 onPressed: () => widget.onReply?.call(),
                               ),
-                              if (widget.item.value is ChatMessage)
+                              if (widget.item.value is ChatMessage ||
+                                  widget.item.value is ChatForward)
                                 ContextMenuButton(
                                   key: const Key('ForwardButton'),
                                   label: 'btn_forward'.l10n,
                                   onPressed: () async {
-                                    var msg = widget.item.value as ChatMessage;
+                                    List<AttachmentId> attachments = [];
+                                    if (widget.item.value is ChatMessage) {
+                                      attachments =
+                                          (widget.item.value as ChatMessage)
+                                              .attachments
+                                              .map((a) => a.id)
+                                              .toList();
+                                    }
+
                                     await ChatForwardView.show(
                                       context,
                                       widget.chat.value!.id,
                                       [
                                         ChatItemQuote(
-                                          item: msg,
-                                          withText: msg.text != null,
-                                          attachments: msg.attachments
-                                              .map((attach) => attach.id)
-                                              .toList(),
+                                          item: widget.item.value,
+                                          withText: true,
+                                          attachments: attachments,
                                         ),
                                       ],
                                     );

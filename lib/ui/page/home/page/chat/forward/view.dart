@@ -19,7 +19,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.graphql.dart';
+import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -138,10 +138,7 @@ class ChatForwardView extends StatelessWidget {
   ) {
     TextStyle font17 = context.theme.outlinedButtonTheme.style!.textStyle!
         .resolve({MaterialState.disabled})!.copyWith(color: Colors.black);
-
-    bool selected =
-        (c.selectedChats.firstWhereOrNull((e) => e == chat.chat.value.id) !=
-            null);
+    bool selected = c.selectedChats.contains(chat.chat.value.id);
 
     return Container(
       key: Key('ChatForwardTile_${chat.chat.value.id}'),
@@ -166,19 +163,12 @@ class ChatForwardView extends StatelessWidget {
                 ? const CircleAvatar(
                     backgroundColor: Color(0xBB165084),
                     radius: 12,
-                    child: Icon(
-                      Icons.check,
-                      color: Colors.white,
-                      size: 14,
-                    ),
+                    child: Icon(Icons.check, color: Colors.white, size: 14),
                   )
                 : const CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 12,
-                    child: SizedBox(
-                      width: 14,
-                      height: 14,
-                    ),
+                    child: SizedBox(width: 14, height: 14),
                   ),
           ),
         ),
@@ -226,8 +216,8 @@ class ChatForwardView extends StatelessWidget {
                       image: NetworkImage('${Config.url}/files${image.small}'),
                     ),
             ),
-            width: 30,
-            height: 30,
+            width: 50,
+            height: 50,
             child:
                 image == null ? const Icon(Icons.attach_file, size: 16) : null,
           );
@@ -296,7 +286,7 @@ class ChatForwardView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('Forwarded message', style: style.boldBody);
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
       content = Text(item.action.toString(), style: style.boldBody);

@@ -16,9 +16,11 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -86,27 +88,26 @@ class ChatForwardController extends GetxController {
         s.editable.value = false;
 
         try {
-          StreamSubscription? filesUploadSubscription;
-          Completer completer = Completer();
-
-          if (attachments.any((a) => a.runtimeType == LocalAttachment)) {
-            filesUploadSubscription = attachments.listen((list) async {
-              if (!list.any((a) => a.runtimeType == LocalAttachment)) {
-                await filesUploadSubscription?.cancel();
-                completer.complete();
-              }
-            });
-          } else {
-            completer.complete();
+          List<Future> uploads = attachments
+              .whereType<LocalAttachment>()
+              .map((e) => e.upload.value?.future)
+              .whereNotNull()
+              .toList();
+          if (uploads.isNotEmpty) {
+            await Future.wait(uploads);
           }
 
-          await completer.future;
+          if (attachments.whereType<LocalAttachment>().isNotEmpty) {
+            throw const ConnectionException(ForwardChatItemsException(
+              ForwardChatItemsErrorCode.unknownAttachment,
+            ));
+          }
 
-          List<Future<void>> futures = selectedChats.map((e) async {
+          List<Future<void>> futures = selectedChats.map((e) {
             return _chatService.forwardChatItems(
-              from: from,
-              to: e,
-              items: quotes,
+              from,
+              e,
+              quotes,
               text: s.text == '' ? null : ChatMessageText(s.text),
               attachments: attachments.isEmpty
                   ? null
