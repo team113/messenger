@@ -34,7 +34,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _color(String desc, Color color) => Column(
+    Widget color(String desc, Color color) => Column(
           children: [
             Caption(
               '${color.toHex()}, $desc',
@@ -47,7 +47,7 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
           ],
         );
 
-    Widget _gradient(String desc, Gradient gradient) => Column(
+    Widget gradient(String desc, Gradient gradient) => Column(
           children: [
             Caption(
               '${gradient.colors.map((e) => e.toHex())}, $desc',
@@ -79,37 +79,37 @@ class _ColorStyleTabViewState extends State<ColorStyleTabView> {
               const Icon(Icons.dark_mode, color: Colors.grey),
             ],
           ),
-          _color(
+          color(
               'background - Общий фон.', context.theme.colorScheme.background),
-          _color('primary - Основной цвет текста и обводки.',
+          color('primary - Основной цвет текста и обводки.',
               context.theme.colorScheme.primary),
-          _color('Hover на кнопках.',
+          color('Hover на кнопках.',
               context.theme.colorScheme.primary.withOpacity(0.04)),
-          _color('Нажатие на кнопку.',
+          color('Нажатие на кнопку.',
               context.theme.colorScheme.primary.withOpacity(0.12)),
-          _color('Основной цвет текста и обводки.',
+          color('Основной цвет текста и обводки.',
               context.theme.colorScheme.primary),
-          _gradient(
+          gradient(
             'Градиент кнопки начать общение.',
             const LinearGradient(
               colors: [Color(0xFF03A803), Color(0xFF20CD66)],
             ),
           ),
-          _color('Цвет заднего фона звонка.', const Color(0xFF444444)),
-          _color('Цвет затемнения заднего фона в звонке.',
+          color('Цвет заднего фона звонка.', const Color(0xFF444444)),
+          color('Цвет затемнения заднего фона в звонке.',
               const Color(0x40000000)),
-          _color('Цвет надписей и иконок над задним фоном звонка.',
+          color('Цвет надписей и иконок над задним фоном звонка.',
               const Color(0xFFBBBBBB)),
-          _color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
-          _color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
-          _color('Цвет кнопок в звонке.', const Color(0xA6818181)),
-          _color('Цвет разделителей в панели ПКМ и в панели настроек.',
+          color('Цвет кнопок принятия звонка.', const Color(0xA634B139)),
+          color('Цвет кнопки завершения звонка.', const Color(0xA6FF0000)),
+          color('Цвет кнопок в звонке.', const Color(0xA6818181)),
+          color('Цвет разделителей в панели ПКМ и в панели настроек.',
               const Color(0x99000000)),
-          _color('Задний фон панели настроек.', const Color(0xCCFFFFFF)),
-          _color('Задний фон панели ПКМ.', const Color(0xE6FFFFFF)),
-          _color('Цвет нижней панели с кнопками в звонке.',
+          color('Задний фон панели настроек.', const Color(0xCCFFFFFF)),
+          color('Задний фон панели ПКМ.', const Color(0xE6FFFFFF)),
+          color('Цвет нижней панели с кнопками в звонке.',
               const Color(0x66000000)),
-          _color('Цвет разделителей в нижней панели с кнопками в звонке.',
+          color('Цвет разделителей в нижней панели с кнопками в звонке.',
               const Color(0x99FFFFFF)),
           const SizedBox(height: 60),
         ],

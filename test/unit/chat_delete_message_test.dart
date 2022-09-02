@@ -177,7 +177,7 @@ void main() async {
 
     Get.put(chatHiveProvider);
 
-    await chatService.deleteChatMessage(
+    await chatService.deleteChatItem(
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -201,7 +201,7 @@ void main() async {
     Get.put(chatHiveProvider);
 
     expect(
-      () async => await chatService.deleteChatMessage(ChatMessage(
+      () async => await chatService.deleteChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),

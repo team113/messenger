@@ -318,7 +318,7 @@ class _SelectorState<T> extends State<Selector<T>> {
       }
 
       // Builds the provided [item].
-      Widget _button(T item) {
+      Widget button(T item) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: Material(
@@ -376,7 +376,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                       children: [
                         SingleChildScrollView(
                           child: Column(
-                            children: widget.items.map(_button).toList(),
+                            children: widget.items.map(button).toList(),
                           ),
                         ),
                         if (widget.items.length >= 8)

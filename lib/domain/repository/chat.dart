@@ -117,13 +117,13 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(ChatItemId itemId, ChatMessageText? text);
+  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage message);
 
   /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id);
+  Future<void> deleteChatForward(ChatForward forward);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatId chatId, ChatItemId id);

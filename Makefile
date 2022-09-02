@@ -39,7 +39,7 @@ CURRENT_BRANCH := $(or $(GITHUB_REF_NAME),\
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
-                                                              | tr -d'"'))
+                                                              | tr -d '"'))
 
 
 

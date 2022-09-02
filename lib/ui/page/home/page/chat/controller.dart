@@ -286,26 +286,15 @@ class ChatController extends GetxController {
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteMessage(ChatItem item) async {
-    if (item is ChatMessage) {
-      try {
-        await _chatService.deleteChatMessage(item);
-      } on DeleteChatMessageException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else if (item is ChatForward) {
-      try {
-        await _chatService.deleteChatForward(item);
-      } on DeleteChatForwardException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else {
-      throw UnimplementedError('Deletion of $item is not implemented.');
+    try {
+      await _chatService.deleteChatItem(item);
+    } on DeleteChatMessageException catch (e) {
+      MessagePopup.error(e);
+    } on DeleteChatForwardException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

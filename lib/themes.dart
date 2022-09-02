@@ -146,7 +146,7 @@ class Themes {
             .copyWith(color: colors.secondary),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 17,
@@ -156,7 +156,7 @@ class Themes {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.transparent,
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             minimumSize: const Size(100, 60),
             maximumSize: const Size(250, 60),
             shape:
@@ -170,7 +170,7 @@ class Themes {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: colors.secondary,
+            backgroundColor: colors.secondary,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
