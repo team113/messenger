@@ -29,6 +29,7 @@ enum WidgetKey {
   ChatView,
   ChatsButton,
   ChatsTab,
+  ChatMessage,
   CloseButton,
   ContactsButton,
   ContactsTab,
