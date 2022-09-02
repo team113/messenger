@@ -14,8 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math' as math;
-
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -52,9 +50,6 @@ class ChatService extends DisposableService {
 
   /// Maximum allowed message length UTF-8 characters.
   static const int maxMessageText = 8192;
-
-  /// Maximum allowed number of attachments.
-  static const int maxMessageAttachments = 100;
 
   @override
   void onInit() {
@@ -103,26 +98,30 @@ class ChatService extends DisposableService {
     List<Attachment>? attachments,
     ChatItem? repliesTo,
   }) {
-    bool isAttachmentsExceedsMaximumSize = attachments == null
-        ? false
-        : attachments.length > maxMessageAttachments;
+    bool isSplit = text == null ? false : text.val.length > maxMessageText;
 
-    bool isStringExceedsMaximumSize =
-        text == null ? true : text.val.length > maxMessageText;
+    if (isSplit) {
+      final chunks = _createChunksString(text.val, maxMessageText);
+      final copyAttachments = attachments != null ? [...attachments] : null;
+      var index = 0;
 
-    bool sendWithoutSplit =
-        !isAttachmentsExceedsMaximumSize && !isStringExceedsMaximumSize;
-
-    if (sendWithoutSplit) {
-      return _chatRepository.sendChatMessage(
-        chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
+      return Future.forEach<String>(
+        chunks,
+        (text) => _chatRepository.sendChatMessage(
+          chatId,
+          text: ChatMessageText(text),
+          attachments: index++ != chunks.length - 1 ? null : copyAttachments,
+          repliesTo: repliesTo,
+        ),
       );
-    } else {
-      return _sendSplitMessages(chatId, text, attachments, repliesTo);
     }
+
+    return _chatRepository.sendChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
   }
 
   /// Resends the specified [item].
@@ -260,70 +259,8 @@ class ChatService extends DisposableService {
     }
   }
 
-  /// Posts a new [ChatMessage]s to the specified [Chat] by the authenticated
-  /// [MyUser]. Messages are divided by the number of characters [maxMessageText]
-  /// and the number of attachments [maxMessageAttachments].
-  Future<void> _sendSplitMessages(
-    ChatId chatId,
-    ChatMessageText? text,
-    List<Attachment>? attachments,
-    ChatItem? repliesTo,
-  ) {
-    var chunksAttachments = <List<Attachment>>[];
-    var chunksText = <String>[];
-
-    if (attachments != null) {
-      chunksAttachments = _ChunkMessage.createChunksList(
-        attachments,
-        maxMessageAttachments,
-      );
-    }
-
-    if (text != null) {
-      chunksText = _ChunkMessage.createChunksString(text.val, maxMessageText);
-    }
-
-    final messages = List.generate(
-      math.max(chunksAttachments.length, chunksText.length),
-      (index) {
-        return _ChunkMessage(
-          text: index >= chunksText.length
-              ? null
-              : ChatMessageText(chunksText[index]),
-          attachment: index >= chunksAttachments.length
-              ? null
-              : chunksAttachments[index],
-        );
-      },
-    );
-
-    return Future.forEach<_ChunkMessage>(
-      messages,
-      (chunk) => _chatRepository.sendChatMessage(
-        chatId,
-        text: chunk.text,
-        attachments: chunk.attachment,
-        repliesTo: repliesTo,
-      ),
-    );
-  }
-}
-
-/// Single message data.
-class _ChunkMessage {
-  _ChunkMessage({
-    required this.text,
-    required this.attachment,
-  });
-
-  /// Message text. The number of characters in [text] is not more than [ChatService.maxMessageText].
-  final ChatMessageText? text;
-
-  /// List of attachments. Number of elements [attachment] is not more than [ChatService.maxMessageAttachments].
-  final List<Attachment>? attachment;
-
   /// Splits [str] into the specified [size]
-  static List<String> createChunksString(String str, int size) {
+  List<String> _createChunksString(String str, int size) {
     if (size <= 0) {
       return [];
     }
@@ -340,29 +277,6 @@ class _ChunkMessage {
     final isRestOfLine = length % size != remainderZero;
     if (isRestOfLine) {
       chunks.add(str.substring(size * start, size * start + length % size));
-    }
-
-    return chunks;
-  }
-
-  /// Splits [list] into the specified [size]
-  static List<List<T>> createChunksList<T>(List<T> list, int size) {
-    if (size <= 0) {
-      return [];
-    }
-    final chunks = <List<T>>[];
-    final length = list.length;
-    var start = 0;
-    var end = 1;
-
-    while (end * size <= length) {
-      chunks.add(list.sublist(size * start++, size * end++));
-    }
-
-    const remainderZero = 0;
-    final isRestOfLine = length % size != remainderZero;
-    if (isRestOfLine) {
-      chunks.add(list.sublist(size * start, size * start + length % size));
     }
 
     return chunks;

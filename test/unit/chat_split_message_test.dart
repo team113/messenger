@@ -152,7 +152,6 @@ void main() async {
       Get.put(MyUserService(authService, myUserRepository));
 
   const maxText = ChatService.maxMessageText;
-  const maxAttachments = ChatService.maxMessageAttachments;
 
   test('ChatService successfully sends 1 message at $maxText symbols',
       () async {
@@ -210,7 +209,7 @@ void main() async {
     )).called(1);
   });
 
-  test('ChatService successfully sends 2 messages at ${maxText + 1} symbols',
+  test('ChatService successfully sends 2 messages at $maxText symbols and 1 symbol',
       () async {
     final message = ChatMessageText('A' * (maxText + 1));
     const message1 = ChatMessageText('A');
@@ -283,7 +282,7 @@ void main() async {
   });
 
   test(
-      'ChatService successfully sends 3 messages at ${maxText * 2 + 1} symbols',
+      'ChatService successfully sends 3 messages at $maxText symbols, $maxText symbols and 1 symbol',
       () async {
     final message = ChatMessageText('A' * (maxText * 2 + 1));
     final message1 = ChatMessageText('A' * maxText);
@@ -355,17 +354,12 @@ void main() async {
     )).called(1);
   });
 
-  test(
-      'ChatService successfully sends 1 message at $maxAttachments attachments',
-      () async {
-    final attachments = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: const Original('test'),
-        size: 100,
-      ),
+  test('ChatService successfully sends 1 message at 1 attachment', () async {
+    final attachment = FileAttachment(
+      id: const AttachmentId('test'),
+      filename: 'test.test',
+      original: const Original('test'),
+      size: 100,
     );
 
     when(graphQlProvider.recentChats(
@@ -377,7 +371,7 @@ void main() async {
 
     when(graphQlProvider.postChatMessage(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: attachments.map((a) => a.id).toList(),
+            attachments: [attachment.id],
             repliesTo:
                 const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
         .thenAnswer((_) => Future.value());
@@ -401,7 +395,7 @@ void main() async {
 
     await chatService.sendChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachments,
+      attachments: [attachment],
       repliesTo: ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('2'),
@@ -412,190 +406,20 @@ void main() async {
 
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachments.map((a) => a.id).toList(),
+      attachments: [attachment.id],
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).called(1);
   });
 
   test(
-      'ChatService successfully sends 2 messages at ${maxAttachments + 1} attachments',
-      () async {
-    final attachment1 = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: const Original('test'),
-        size: 100,
-      ),
-    );
-    final attachment2 = FileAttachment(
-      id: const AttachmentId('test'),
-      filename: 'test.test',
-      original: const Original('test'),
-      size: 100,
-    );
-    final attachments = [...attachment1, attachment2];
-
-    when(graphQlProvider.recentChats(
-      first: 120,
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: attachment1.map((a) => a.id).toList(),
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: [attachment2.id],
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    Get.put(chatHiveProvider);
-
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        Get.find(),
-        userRepository,
-        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-      ),
-    );
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachments,
-      repliesTo: ChatMessage(
-        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatId('2'),
-        const UserId('3'),
-        PreciseDateTime.now(),
-      ),
-    );
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachment1.map((a) => a.id).toList(),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(1);
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment2.id],
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(1);
-  });
-
-  test(
-      'ChatService successfully sends 3 messages at ${maxAttachments * 2 + 1} attachments',
-      () async {
-    final attachment1 = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: const Original('test'),
-        size: 100,
-      ),
-    );
-    final attachment2 = FileAttachment(
-      id: const AttachmentId('test'),
-      filename: 'test.test',
-      original: const Original('test'),
-      size: 100,
-    );
-
-    final attachments = [...attachment1, ...attachment1, attachment2];
-
-    when(graphQlProvider.recentChats(
-      first: 120,
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: attachment1.map((a) => a.id).toList(),
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: [attachment2.id],
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    Get.put(chatHiveProvider);
-
-    UserRepository userRepository = Get.put(
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider),
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        Get.find(),
-        userRepository,
-        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-      ),
-    );
-    ChatService chatService = Get.put(
-      ChatService(chatRepository, myUserService),
-    );
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachments,
-      repliesTo: ChatMessage(
-        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatId('2'),
-        const UserId('3'),
-        PreciseDateTime.now(),
-      ),
-    );
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: attachment1.map((a) => a.id).toList(),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(2);
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment2.id],
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(1);
-  });
-
-  test(
-      'ChatService successfully sends 1 message at $maxText symbols and $maxAttachments attachments',
+      'ChatService successfully sends 1 message at $maxText symbols and 1 attachment',
       () async {
     final message = ChatMessageText('A' * maxText);
-    final attachments = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: const Original('test'),
-        size: 100,
-      ),
+    final attachment = FileAttachment(
+      id: const AttachmentId('test'),
+      filename: 'test.test',
+      original: const Original('test'),
+      size: 100,
     );
 
     when(graphQlProvider.recentChats(
@@ -608,7 +432,7 @@ void main() async {
     when(graphQlProvider.postChatMessage(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             text: message,
-            attachments: attachments.map((a) => a.id).toList(),
+            attachments: [attachment.id],
             repliesTo:
                 const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
         .thenAnswer((_) => Future.value());
@@ -632,7 +456,7 @@ void main() async {
     await chatService.sendChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: message,
-      attachments: attachments,
+      attachments: [attachment],
       repliesTo: ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('2'),
@@ -644,20 +468,20 @@ void main() async {
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: message,
-      attachments: attachments.map((a) => a.id).toList(),
+      attachments: [attachment.id],
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).called(1);
   });
 
   test(
-      'ChatService successfully sends 2 messages at ${maxText + 1} symbols and $maxAttachments attachments',
+      'ChatService successfully sends 2 messages at $maxText symbols and 1 symbol with 3 attachments',
       () async {
     final message = ChatMessageText('A' * (maxText + 1));
     final message1 = ChatMessageText('A' * maxText);
     const message2 = ChatMessageText('A');
     final attachments = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
+      3,
+      (index) => FileAttachment(
         id: const AttachmentId('test'),
         filename: 'test.test',
         original: const Original('test'),
@@ -675,7 +499,6 @@ void main() async {
     when(graphQlProvider.postChatMessage(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             text: message1,
-            attachments: attachments.map((a) => a.id).toList(),
             repliesTo:
                 const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
         .thenAnswer((_) => Future.value());
@@ -683,6 +506,7 @@ void main() async {
     when(graphQlProvider.postChatMessage(
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             text: message2,
+            attachments: attachments.map((a) => a.id).toList(),
             repliesTo:
                 const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
         .thenAnswer((_) => Future.value());
@@ -718,98 +542,13 @@ void main() async {
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: message1,
-      attachments: attachments.map((a) => a.id).toList(),
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).called(1);
 
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: message2,
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(1);
-  });
-
-  test(
-      'ChatService successfully sends 2 messages at $maxText symbols and ${maxAttachments + 1} attachments',
-      () async {
-    final message = ChatMessageText('A' * maxText);
-    final attachment1 = List.generate(
-      maxAttachments,
-      (_) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: const Original('test'),
-        size: 100,
-      ),
-    );
-    final attachment2 = FileAttachment(
-      id: const AttachmentId('test'),
-      filename: 'test.test',
-      original: const Original('test'),
-      size: 100,
-    );
-    final attachments = [...attachment1, attachment2];
-
-    when(graphQlProvider.recentChats(
-      first: 120,
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            text: message,
-            attachments: attachment1.map((a) => a.id).toList(),
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            attachments: [attachment2.id],
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value());
-
-    Get.put(chatHiveProvider);
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        Get.find(),
-        userRepository,
-        me: const UserId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-      ),
-    );
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: attachments,
-      repliesTo: ChatMessage(
-        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatId('2'),
-        const UserId('3'),
-        PreciseDateTime.now(),
-      ),
-    );
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: attachment1.map((a) => a.id).toList(),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).called(1);
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment2.id],
+      attachments: attachments.map((a) => a.id).toList(),
       repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).called(1);
   });
