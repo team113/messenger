@@ -18,8 +18,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../repository/user.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
