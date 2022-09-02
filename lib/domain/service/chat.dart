@@ -103,10 +103,16 @@ class ChatService extends DisposableService {
     List<Attachment>? attachments,
     ChatItem? repliesTo,
   }) {
-    bool sendWithoutSplit = attachments != null &&
-        text != null &&
-        !_isAttachmentsExceedsMaximumSize(attachments) &&
-        !_isStringExceedsMaximumSize(text);
+    bool isAttachmentsExceedsMaximumSize = attachments == null
+        ? false
+        : attachments.length > maxMessageAttachments;
+
+    bool isStringExceedsMaximumSize =
+        text == null ? true : text.val.length > maxMessageText;
+
+    bool sendWithoutSplit =
+        !isAttachmentsExceedsMaximumSize && !isStringExceedsMaximumSize;
+
     if (sendWithoutSplit) {
       return _chatRepository.sendChatMessage(
         chatId,
@@ -117,70 +123,6 @@ class ChatService extends DisposableService {
     } else {
       return _sendSplitMessages(chatId, text, attachments, repliesTo);
     }
-  }
-
-  /// [attachments] exceed the allowable amount [maxMessageAttachments].
-  bool _isAttachmentsExceedsMaximumSize(List<Attachment> attachments) =>
-      attachments.length > maxMessageAttachments;
-
-  /// [text] exceed the allowable amount [maxMessageText].
-  bool _isStringExceedsMaximumSize(ChatMessageText text) =>
-      text.val.length > maxMessageText;
-
-  /// Posts a new [ChatMessage]s to the specified [Chat] by the authenticated
-  /// [MyUser]. Messages are divided by the number of characters [maxMessageText]
-  /// and the number of attachments [maxMessageAttachments].
-  Future<void> _sendSplitMessages(
-    ChatId chatId,
-    ChatMessageText? text,
-    List<Attachment>? attachments,
-    ChatItem? repliesTo,
-  ) {
-    final List<List<Attachment>> chunksAttachments;
-    final List<String> chunksText;
-
-    if (attachments != null && _isAttachmentsExceedsMaximumSize(attachments)) {
-      chunksAttachments = _ChunkMessage.createChunksList<Attachment>(
-          attachments, maxMessageAttachments);
-      // if (chunksAttachments.isEmpty) {
-      //   return Future.value();
-      // }
-    } else {
-      chunksAttachments = attachments == null ? [] : [attachments];
-    }
-
-    if (text != null && _isStringExceedsMaximumSize(text)) {
-      chunksText = _ChunkMessage.createChunksString(text.val, maxMessageText);
-      // if (chunksText.isEmpty) {
-      //   return Future.value();
-      // }
-    } else {
-      chunksText = text == null ? [] : [text.val];
-    }
-
-    final chunksMessage = List.generate(
-      math.max(chunksAttachments.length, chunksText.length),
-      (index) {
-        return _ChunkMessage(
-          text: index >= chunksText.length
-              ? null
-              : ChatMessageText(chunksText[index]),
-          attachment: index >= chunksAttachments.length
-              ? null
-              : chunksAttachments[index],
-        );
-      },
-    );
-
-    return Future.forEach<_ChunkMessage>(
-      chunksMessage,
-      (chunk) => _chatRepository.sendChatMessage(
-        chatId,
-        text: chunk.text,
-        attachments: chunk.attachment,
-        repliesTo: repliesTo,
-      ),
-    );
   }
 
   /// Resends the specified [item].
@@ -303,6 +245,54 @@ class ChatService extends DisposableService {
       await _chatRepository.remove(id);
     }
   }
+
+  /// Posts a new [ChatMessage]s to the specified [Chat] by the authenticated
+  /// [MyUser]. Messages are divided by the number of characters [maxMessageText]
+  /// and the number of attachments [maxMessageAttachments].
+  Future<void> _sendSplitMessages(
+    ChatId chatId,
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+    ChatItem? repliesTo,
+  ) {
+    var chunksAttachments = <List<Attachment>>[];
+    var chunksText = <String>[];
+
+    if (attachments != null) {
+      chunksAttachments = _ChunkMessage.createChunksList(
+        attachments,
+        maxMessageAttachments,
+      );
+    }
+
+    if (text != null) {
+      chunksText = _ChunkMessage.createChunksString(text.val, maxMessageText);
+    }
+
+    final messages = List.generate(
+      math.max(chunksAttachments.length, chunksText.length),
+      (index) {
+        return _ChunkMessage(
+          text: index >= chunksText.length
+              ? null
+              : ChatMessageText(chunksText[index]),
+          attachment: index >= chunksAttachments.length
+              ? null
+              : chunksAttachments[index],
+        );
+      },
+    );
+
+    return Future.forEach<_ChunkMessage>(
+      messages,
+      (chunk) => _chatRepository.sendChatMessage(
+        chatId,
+        text: chunk.text,
+        attachments: chunk.attachment,
+        repliesTo: repliesTo,
+      ),
+    );
+  }
 }
 
 /// Single message data.
@@ -312,10 +302,10 @@ class _ChunkMessage {
     required this.attachment,
   });
 
-  /// Message text. The number of characters in [text] is not more than [maxMessageText].
+  /// Message text. The number of characters in [text] is not more than [ChatService.maxMessageText].
   final ChatMessageText? text;
 
-  /// List of attachments. Number of elements [attachment] is not more than [maxMessageAttachments].
+  /// List of attachments. Number of elements [attachment] is not more than [ChatService.maxMessageAttachments].
   final List<Attachment>? attachment;
 
   /// Splits [str] into the specified [size]
