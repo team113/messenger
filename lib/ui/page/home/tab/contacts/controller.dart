@@ -192,7 +192,7 @@ class ContactsTabController extends GetxController {
   /// [contacts] list.
   void _initUsersUpdates() {
     /// States an interest in updates of the specified [RxChatContact.user].
-    void _listen(RxChatContact c) {
+    void listen(RxChatContact c) {
       RxUser? rxUser = c.user.value?..listenUpdates();
       _userWorkers[c.id] = ever(c.user, (RxUser? user) {
         if (rxUser?.id != user?.id) {
@@ -202,11 +202,11 @@ class ContactsTabController extends GetxController {
       });
     }
 
-    contacts.forEach((_, c) => _listen(c));
+    contacts.forEach((_, c) => listen(c));
     _contactsSubscription = contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _listen(e.value!);
+          listen(e.value!);
           break;
 
         case OperationKind.removed:
