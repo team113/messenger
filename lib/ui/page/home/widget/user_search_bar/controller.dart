@@ -46,6 +46,7 @@ class UserSearchBarController extends GetxController {
   /// [User]s service, used to search [User]s.
   final UserService _userService;
 
+  /// Worker to react on [SearchResult] changes.
   Worker? _searchWorker;
 
   @override
@@ -94,6 +95,7 @@ class UserSearchBarController extends GetxController {
             _userService.search(num: num, name: name, login: login);
 
         searchResults.value = result.users;
+        searchStatus.value = result.status.value;
         _searchWorker =
             ever(result.status, (RxStatus s) => searchStatus.value = s);
       }
