@@ -56,7 +56,7 @@ All user visible changes to this project will be documented in this file. This p
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
         - Mobile minimization gesture being too rapid ([#45], [#44]);
-        - Camera not enabling in empty call ([#79], [#75], [#117]);
+        - Media not enabling in empty call ([#79], [#117], [#75]);
         - Prevent device from sleeping ([#112], [#92]). 
 
 [#2]: /../../issues/2
