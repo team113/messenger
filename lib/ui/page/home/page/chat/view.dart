@@ -51,10 +51,13 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key}) : super(key: key);
+  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
   /// ID of this [Chat].
   final ChatId id;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -86,6 +89,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        itemId: widget.itemId,
       ),
       tag: widget.id.val,
       builder: (c) => Obx(

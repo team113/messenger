@@ -83,6 +83,7 @@ class ChatForwardView extends StatelessWidget {
       ),
       builder: (ChatForwardController c) {
         return Material(
+          type: MaterialType.transparency,
           key: const Key('ChatForwardView'),
           child: Column(
             children: [
@@ -92,13 +93,11 @@ class ChatForwardView extends StatelessWidget {
                   () => ListView(
                     shrinkWrap: true,
                     primary: false,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     children: [
                       ...c.chats.map(
                         (e) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 15,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
                           child: _chat(context, c, e),
                         ),
                       )

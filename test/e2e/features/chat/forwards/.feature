@@ -14,7 +14,8 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat forwards are forwarding correctly
+Feature: Chat messages are forwarded correctly
+
   Background: User is in dialog with Bob
     Given I am Alice
     And users Bob and Charlie
@@ -38,8 +39,7 @@ Feature: Chat forwards are forwarding correctly
     Then I am in chat with Charlie
     And I wait until text "Forward comment" is present
 
-
-    Scenario: User forwards message with attachment
+  Scenario: User forwards message with attachment
     When I fill `MessageField` field with "Message to forward"
     And I tap `Send` button
     Then I wait until status of "Message to forward" message is sent
@@ -56,11 +56,10 @@ Feature: Chat forwards are forwarding correctly
     And I wait until `ChatView` is present
     And I wait until attachment "test.jpg" is present
 
-
-    Scenario: User forwards message to multiply chats
+  Scenario: User forwards message to multiply chats
     Given user Dave
     And Dave has dialog with me
-    
+
     When I fill `MessageField` field with "Message to forward"
     And I tap `Send` button
     Then I wait until status of "Message to forward" message is sent
@@ -80,5 +79,3 @@ Feature: Chat forwards are forwarding correctly
     Then I am in chat with Dave
     And I wait until `ChatView` is present
     And I wait until text "Forward comment" is present
-
-

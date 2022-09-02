@@ -201,16 +201,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       InkWell(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.reply, size: 26, color: Colors.white),
-            if (msg.item == null)
-              Text('label_forwarded_message'.l10n)
-            else
-              Flexible(child: _quotedMessage(msg.item!, maxLines: null)),
-          ],
-        ),
+        onTap: msg.item == null
+            ? null
+            : () => router.chat(msg.item!.chatId, itemId: msg.item!.id),
+        child: msg.item == null
+            ? Text('label_forwarded_message'.l10n)
+            : _quotedMessage(msg.item!, forward: true),
       ),
     );
   }
@@ -573,7 +569,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _quotedMessage(ChatItem item, {int? maxLines = 1}) {
+  Widget _quotedMessage(ChatItem item, {bool forward = false}) {
     Style style = Theme.of(context).extension<Style>()!;
 
     Widget? content;
@@ -597,7 +593,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.small}'),
+                      image: NetworkImage('${Config.url}/files${image.medium}'),
+                      fit: BoxFit.cover,
                     ),
             ),
             width: 50,
@@ -610,8 +607,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (desc.isNotEmpty) {
         content = Text(
           desc.toString(),
-          maxLines: maxLines,
-          overflow: maxLines == null ? null : TextOverflow.ellipsis,
           style: style.boldBody,
         );
       }
@@ -692,6 +687,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(width: 12),
+            if (forward) Icon(Icons.reply, size: 26, color: color),
+            const SizedBox(width: 12),
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
@@ -703,16 +700,20 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (widget.user?.user.value != null)
+                    if (snapshot.data?.user.value != null)
                       Text(
-                        widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.val ??
+                        snapshot.data?.user.value.name?.val ??
+                            snapshot.data?.user.value.num.val ??
                             '...',
                         style: style.boldBody.copyWith(color: color),
                       ),
                     if (content != null) ...[
                       const SizedBox(height: 2),
-                      DefaultTextStyle.merge(maxLines: maxLines, child: content)
+                      DefaultTextStyle.merge(
+                        maxLines: forward ? null : 1,
+                        overflow: TextOverflow.ellipsis,
+                        child: content,
+                      )
                     ],
                     if (additional.isNotEmpty) ...[
                       const SizedBox(height: 4),

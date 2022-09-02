@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -81,7 +82,10 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(MaterialPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chat}/$id',
-          child: ChatView(ChatId(id)),
+          child: ChatView(
+            ChatId(id),
+            itemId: router.arguments?['itemId'] as ChatItemId?,
+          ),
         ));
 
         if (route.endsWith(Routes.chatInfo)) {

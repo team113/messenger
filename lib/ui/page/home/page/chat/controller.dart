@@ -67,14 +67,18 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService,
-  );
+    this._userService, {
+    this.itemId,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -747,19 +751,29 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    PreciseDateTime? myRead = chat!.chat.value.lastReads
-        .firstWhereOrNull((e) => e.memberId == me)
-        ?.at;
+    print('itemId: $itemId');
+    if (itemId != null) {
+      int i = chat!.messages.indexWhere((e) => e.value.id == itemId);
+      print('i is $i');
+      if (i != -1) {
+        index = i;
+        offset = (MediaQuery.of(router.context!).size.height) / 3;
+      }
+    } else {
+      PreciseDateTime? myRead = chat!.chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
-    if (chat?.messages.isEmpty == false) {
-      if (chat!.chat.value.unreadCount == 0) {
-        index = chat!.messages.length - 1;
-        offset = 0;
-      } else if (myRead != null) {
-        int i = chat!.messages.indexOf(lastReadItem.value);
-        if (i != -1) {
-          index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
+      if (chat?.messages.isEmpty == false) {
+        if (chat!.chat.value.unreadCount == 0) {
+          index = chat!.messages.length - 1;
+          offset = 0;
+        } else if (myRead != null) {
+          int i = chat!.messages.indexOf(lastReadItem.value);
+          if (i != -1) {
+            index = i;
+            offset = (MediaQuery.of(router.context!).size.height) / 3;
+          }
         }
       }
     }
