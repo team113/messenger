@@ -81,9 +81,8 @@ Future<void> main(List<String> args) async {
           Future.sync(() async {
             try {
               var windows = await DesktopMultiWindow.getAllSubWindowIds();
-              var futures =
-                  windows.map((e) => WindowController.fromWindowId(e).close());
-              await Future.wait(futures);
+              await Future.wait(windows
+                  .map((e) => WindowController.fromWindowId(e).close()));
               await Future.delayed(100.milliseconds);
             } finally {
               await WindowManager.instance.setPreventClose(false);
