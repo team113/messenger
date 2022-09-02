@@ -23,6 +23,7 @@ import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/api/backend/extension/call.dart';
+import 'package:messenger/store/call.dart';
 import 'package:uuid/uuid.dart';
 
 import '../mock/call_heartbeat.dart';
@@ -43,7 +44,7 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
 
     await Future.delayed(200.milliseconds);
     var incomingCalls = await provider.incomingCalls();
-    var ongoingCall = OngoingCallMock(
+    var ongoingCall = OngoingCall(
       incomingCalls.nodes.first.chatId,
       customUser.userId,
       withAudio: false,
@@ -65,8 +66,8 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     await ongoingCall.init(customUser.userId);
 
     await ongoingCall.connect(
-      Get.find(),
-      CallHeartbeatMock(provider).heartbeat,
+      null,
+      CallRepository(provider, null).heartbeat,
     );
 
     customUser.call = ongoingCall;
@@ -105,7 +106,7 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    var ongoingCall = OngoingCallMock(
+    var ongoingCall = OngoingCall(
       customUser.chat!,
       customUser.userId,
       withAudio: false,
@@ -127,8 +128,8 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     await ongoingCall.init(customUser.userId);
 
     await ongoingCall.connect(
-      Get.find(),
-      CallHeartbeatMock(provider).heartbeat,
+      null,
+      CallRepository(provider, null).heartbeat,
     );
 
     customUser.call = ongoingCall;

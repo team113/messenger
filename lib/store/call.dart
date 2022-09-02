@@ -46,7 +46,7 @@ class CallRepository implements AbstractCallRepository {
   final GraphQlProvider _graphQlProvider;
 
   /// [User]s repository, used to put the fetched [User]s into it.
-  final UserRepository _userRepo;
+  final UserRepository? _userRepo;
 
   /// Reactive map of the current [OngoingCall]s.
   final RxObsMap<ChatId, Rx<OngoingCall>> _calls =
@@ -178,7 +178,7 @@ class CallRepository implements AbstractCallRepository {
                   as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
               .list;
           for (var u in list.map((e) => e.members).expand((e) => e)) {
-            _userRepo.put(u.user.toHive());
+            _userRepo?.put(u.user.toHive());
           }
           yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
         } else if (events.$$typename ==
@@ -199,7 +199,7 @@ class CallRepository implements AbstractCallRepository {
     if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallFinished(
         node.callId,
@@ -220,9 +220,9 @@ class CallRepository implements AbstractCallRepository {
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberLeft;
-      _userRepo.put(node.user.toHive());
+      _userRepo?.put(node.user.toHive());
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallMemberLeft(
         node.callId,
@@ -235,7 +235,7 @@ class CallRepository implements AbstractCallRepository {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberJoined;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallMemberJoined(
         node.callId,
@@ -248,7 +248,7 @@ class CallRepository implements AbstractCallRepository {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallHandLowered(
         node.callId,
@@ -259,9 +259,9 @@ class CallRepository implements AbstractCallRepository {
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
-      _userRepo.put(node.user.toHive());
+      _userRepo?.put(node.user.toHive());
       for (var m in [...node.call.members, ...node.newCall.members]) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallMoved(
         node.callId,
@@ -278,7 +278,7 @@ class CallRepository implements AbstractCallRepository {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandRaised;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallHandRaised(
         node.callId,
@@ -289,9 +289,9 @@ class CallRepository implements AbstractCallRepository {
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
-      _userRepo.put(node.user.toHive());
+      _userRepo?.put(node.user.toHive());
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallDeclined(
         node.callId,
@@ -311,7 +311,7 @@ class CallRepository implements AbstractCallRepository {
       if (e.$$typename == 'EventChatCallStarted') {
         var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
         for (var m in node.call.members) {
-          _userRepo.put(m.user.toHive());
+          _userRepo?.put(m.user.toHive());
         }
         return node.call.toModel();
       } else if (e.$$typename == 'EventChatCallMemberJoined') {
@@ -319,7 +319,7 @@ class CallRepository implements AbstractCallRepository {
             e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
 
         for (var m in node.call.members) {
-          _userRepo.put(m.user.toHive());
+          _userRepo?.put(m.user.toHive());
         }
         return node.call.toModel();
       }

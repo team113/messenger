@@ -317,12 +317,17 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  Future<void> connect(CallService calls, [Heartbeat? heartbeat]) async {
+  Future<void> connect(CallService? calls, [Heartbeat? heartbeat]) async {
+    assert(
+      calls == null && heartbeat == null,
+      'Al least one of calls and heartbeat must not be null',
+    );
+
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
 
-    heartbeat ??= calls.heartbeat;
+    heartbeat ??= calls!.heartbeat;
 
     connected = true;
     _heartbeat?.cancel();
@@ -338,7 +343,7 @@ class OngoingCall {
 
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
-              calls.remove(chatId.value);
+              calls?.remove(chatId.value);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -379,14 +384,14 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
-                    calls.remove(chatId.value);
+                    calls?.remove(chatId.value);
                   }
                   break;
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
                   if (me == node.user.id) {
-                    calls.remove(chatId.value);
+                    calls?.remove(chatId.value);
                   }
                   break;
 
@@ -422,7 +427,7 @@ class OngoingCall {
                   connected = false;
                   connect(calls, heartbeat);
 
-                  calls.moveCall(node.chatId, node.newChatId);
+                  calls?.moveCall(node.chatId, node.newChatId);
                   break;
               }
             }
@@ -435,11 +440,11 @@ class OngoingCall {
           connect(calls, heartbeat);
         } else {
           Log.print(e.toString(), 'CALL');
-          calls.remove(chatId.value);
+          calls?.remove(chatId.value);
           throw e;
         }
       },
-      onDone: () => calls.remove(chatId.value),
+      onDone: () => calls?.remove(chatId.value),
     );
   }
 
