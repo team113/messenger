@@ -384,6 +384,7 @@ class CallWorker extends DisposableService {
             if (_workers.isEmpty) {
               stop();
             }
+            return;
           }
 
           var call = StoredCall.fromJson(json.decode(methodCall.arguments));

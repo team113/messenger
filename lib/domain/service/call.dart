@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
@@ -38,6 +37,7 @@ import '/store/event/chat_call.dart';
 import '/store/event/incoming_chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
@@ -60,9 +60,6 @@ class CallService extends DisposableService {
   /// Subscription to [IncomingChatCallsTopEvent]s list.
   StreamSubscription? _events;
 
-  /// Subscription to [calls] changes.
-  StreamSubscription? _callsSubscription;
-
   /// List of call [ChatId]s that opened in popup.
   List<ChatId> popupCalls = [];
 
@@ -71,17 +68,6 @@ class CallService extends DisposableService {
 
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    _callsSubscription = calls.changes.listen((event) {
-      if (event.op == OperationKind.removed) {
-        popupCalls.remove(event.key);
-      }
-    });
-  }
 
   @override
   void onReady() {
@@ -100,7 +86,6 @@ class CallService extends DisposableService {
     }
 
     _events?.cancel();
-    _callsSubscription?.cancel();
   }
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
@@ -264,12 +249,12 @@ class CallService extends DisposableService {
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {
+    popupCalls.remove(chatId);
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       var removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
-      popupCalls.remove(chatId);
     }
   }
 

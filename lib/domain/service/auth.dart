@@ -170,11 +170,12 @@ class AuthService extends GetxService {
             List<int> windows = await DesktopMultiWindow.getAllSubWindowIds();
             for (var w in windows) {
               DesktopMultiWindow.invokeMethod(
-                  w,
-                  'credentials',
-                  e.value?.credentials == null
-                      ? null
-                      : json.encode(e.value?.credentials.toJson()));
+                w,
+                'credentials',
+                e.value?.credentials == null
+                    ? null
+                    : json.encode(e.value?.credentials.toJson()),
+              );
             }
           } catch (_) {
             // No-op.

@@ -137,7 +137,9 @@ class PopupCallController extends GetxController {
       _windowController?.setOnWindowClose(() async {
         _storageSubscription?.cancel();
         _stateWorker.dispose();
-        _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        if(call.value.deviceId != null) {
+          _calls.leave(call.value.chatId.value, call.value.deviceId!);
+        }
         await DesktopMultiWindow.invokeMethod(
           DesktopMultiWindow.mainWindowId,
           'call_${call.value.chatId.value.val}',
@@ -178,7 +180,9 @@ class PopupCallController extends GetxController {
     }
     _storageSubscription?.cancel();
     _stateWorker.dispose();
-    _calls.leave(call.value.chatId.value, call.value.deviceId!);
+    if(call.value.deviceId != null) {
+      _calls.leave(call.value.chatId.value, call.value.deviceId!);
+    }
     super.dispose();
   }
 
