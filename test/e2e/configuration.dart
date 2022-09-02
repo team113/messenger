@@ -21,6 +21,7 @@ import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -30,6 +31,7 @@ import 'package:messenger/util/platform_utils.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'parameters/attachment.dart';
+import 'parameters/chat.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
@@ -64,7 +66,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         copyFromField,
         fillField,
         goToUserPage,
-        hasDialogWithMe,
+        hasChatWithMe,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
@@ -107,6 +109,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        ChatTypeParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
@@ -115,8 +118,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) {
+Future<void> appInitializationFn(World world) async {
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+  await enableFakeMedia();
   return Future.sync(app.main);
 }
 

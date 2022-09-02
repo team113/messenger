@@ -14,21 +14,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/routes.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-import '../parameters/users.dart';
-import '../world/custom_world.dart';
+/// [ChatType]es available in an [ChatTypeParameter].
+enum ChatType { dialog, group }
 
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
-///
-/// Examples:
-/// - Given I am in chat with Bob
-final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
-  'I am in chat with {user}',
-  (TestUser user, context) => Future.sync(() async {
-    router.chat(context.world.sessions[user.name]!.dialog!);
-    await Future.delayed(1.seconds);
-  }),
-);
+/// [CustomParameter] representing an [Chat] type.
+class ChatTypeParameter extends CustomParameter<ChatType> {
+  ChatTypeParameter()
+      : super(
+    'chat',
+    RegExp(
+      '(${ChatType.values.map((e) => e.name).join('|')})',
+      caseSensitive: false,
+    ),
+        (c) => ChatType.values.firstWhere((e) => e.name == c),
+  );
+}

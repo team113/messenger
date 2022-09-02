@@ -169,6 +169,7 @@ class ParticipantWidget extends StatelessWidget {
             child: !hasVideo
                 ? Container()
                 : Center(
+                    key: const Key('VideoView'),
                     child: RtcVideoView(
                       participant.video.value!,
                       key: participant.videoKey,

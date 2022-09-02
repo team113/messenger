@@ -155,6 +155,7 @@ class _ChatViewState extends State<ChatView>
                               actions: [
                                 if (!context.isMobile) ...[
                                   IconButton(
+                                    key: const Key('StartVideoCall'),
                                     onPressed: () => c.call(true),
                                     icon: const Icon(Icons.video_call,
                                         color: Colors.blue),

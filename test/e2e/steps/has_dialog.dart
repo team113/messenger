@@ -14,28 +14,38 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-dialog of the provided [User] with the authenticated
-/// [MyUser].
+/// Creates a [Chat] of the provided [User] with provided type and provided
+/// [User].
 ///
 /// Examples:
-/// - Given Bob has dialog with me.
-final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
-  '{user} has dialog with me',
-  (TestUser user, context) async {
-    final AuthService authService = Get.find();
+/// - Given Bob has dialog with Alice.
+/// - Given Bob has group with Bob.
+final StepDefinitionGeneric hasChatWithMe =
+given3<TestUser, ChatType, TestUser, CustomWorld>(
+  '{user} has {chat} with {user}',
+      (TestUser user, ChatType chatType, TestUser withUser, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
-    var chat =
-        await provider.createDialogChat(authService.credentials.value!.userId);
-    context.world.sessions[user.name]?.dialog = chat.id;
+    ChatMixin chat;
+
+    if (chatType == ChatType.dialog) {
+      chat = await provider
+          .createDialogChat(context.world.sessions[withUser.name]!.userId);
+    } else {
+      chat = await provider
+          .createGroupChat([context.world.sessions[withUser.name]!.userId]);
+    }
+
+    context.world.sessions[user.name]!.dialog = chat.id;
+    context.world.sessions[withUser.name]!.dialog = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

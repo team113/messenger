@@ -250,6 +250,7 @@ endif
 # Usage:
 #	make test.e2e [device=(chrome|linux|macos|windows|web-server|<device-id>)]
 #	              [dockerized=(no|yes)]
+#	              [port=(4444|<port>)]
 #	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
@@ -274,7 +275,8 @@ ifeq ($(dockerized),yes)
 			              dockerized=no gen=no clean=no start-app=no
 else
 	flutter drive --headless -d $(or $(device),chrome) \
-		--web-renderer html --web-port 50000 \
+	    --driver-port=$(or $(port),4444) \
+		--web-renderer html --web-port 50011 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart
 endif
