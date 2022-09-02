@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -460,6 +461,10 @@ class CallController extends GetxController {
       secondaryHeight = RxDouble(200);
     }
 
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
@@ -491,7 +496,7 @@ class CallController extends GetxController {
         ? RxDouble(50)
         : RxDouble(size.height / 2 - height.value / 2);
 
-    void _onChat(RxChat? v) {
+    void onChat(RxChat? v) {
       chat.value = v;
 
       _putParticipant(RemoteMemberId(me, null));
@@ -512,7 +517,7 @@ class CallController extends GetxController {
         _durationSubscription?.cancel();
 
         if (v != null) {
-          void _updateTitle() {
+          void updateTitle() {
             final Map<String, String> args = {
               'title': v.title.value,
               'state': state.value.name,
@@ -553,19 +558,19 @@ class CallController extends GetxController {
             );
           }
 
-          _updateTitle();
+          updateTitle();
 
           _titleSubscription =
-              _currentCall.value.members.listen((_) => _updateTitle());
-          _durationSubscription = duration.listen((_) => _updateTitle());
+              _currentCall.value.members.listen((_) => updateTitle());
+          _durationSubscription = duration.listen((_) => updateTitle());
         }
       }
     }
 
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
+    _chatService.get(_currentCall.value.chatId.value).then(onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_onChat),
+      (ChatId id) => _chatService.get(id).then(onChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -761,6 +766,10 @@ class CallController extends GetxController {
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
+    }
+
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.remove(_onBack);
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
@@ -1618,6 +1627,20 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Invokes [minimize], if not [minimized] already.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (minimized.isFalse) {
+      minimize();
+      return true;
+    }
+
+    return false;
   }
 
   /// Puts [participant] from its `default` group to [list].

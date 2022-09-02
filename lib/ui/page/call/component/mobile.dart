@@ -25,7 +25,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
-import '../widget/animated_delayed_switcher.dart';
 import '../widget/animated_dots.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
@@ -43,6 +42,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -217,29 +217,38 @@ Widget mobileCall(CallController c, BuildContext context) {
     // If there's any error to show, display it.
     overlay.add(
       Obx(() {
-        if (c.errorTimeout.value != 0) {
-          return Align(
-            alignment: Alignment.topRight,
-            child: SizedBox(
-              width: 280,
-              child: HintWidget(
-                text: '${c.error}.',
-                onTap: () => c.errorTimeout.value = 0,
-              ),
-            ),
-          );
-        }
-
-        return Container();
+        return AnimatedSwitcher(
+          duration: 200.milliseconds,
+          child: c.errorTimeout.value != 0 &&
+                  c.minimizing.isFalse &&
+                  c.minimized.isFalse
+              ? SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10, right: 10),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 280,
+                        child: HintWidget(
+                          text: '${c.error}.',
+                          onTap: () => c.errorTimeout.value = 0,
+                          isError: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
+        );
       }),
     );
 
-    Widget _padding(Widget child) => Padding(
+    Widget padding(Widget child) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: Center(child: child),
         );
 
-    Widget _buttons(List<Widget> children) => ConstrainedBox(
+    Widget buttons(List<Widget> children) => ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +343,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           panelHeight = 360;
           panelHeight = min(c.size.height - 45, panelHeight);
 
-          Widget _divider() => Padding(
+          Widget divider() => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 400),
@@ -351,10 +360,10 @@ Widget mobileCall(CallController c, BuildContext context) {
 
           panelChildren = [
             const SizedBox(height: 12),
-            _buttons(
+            buttons(
               [
                 if (PlatformUtils.isMobile)
-                  _padding(
+                  padding(
                     c.videoState.value.isEnabled()
                         ? withDescription(
                             SwitchButton(c).build(),
@@ -374,7 +383,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                   ),
                 if (PlatformUtils.isDesktop)
-                  _padding(withDescription(
+                  padding(withDescription(
                     ScreenButton(c).build(),
                     AnimatedOpacity(
                       opacity: c.isPanelOpen.value ? 1 : 0,
@@ -388,7 +397,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       ),
                     ),
                   )),
-                _padding(withDescription(
+                padding(withDescription(
                   AudioButton(c).build(),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
@@ -401,7 +410,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   ),
                 )),
-                _padding(withDescription(
+                padding(withDescription(
                   VideoButton(c).build(),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
@@ -414,7 +423,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   ),
                 )),
-                _padding(withDescription(
+                padding(withDescription(
                   DropButton(c).build(),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
@@ -425,13 +434,13 @@ Widget mobileCall(CallController c, BuildContext context) {
               ],
             ),
             const SizedBox(height: 32),
-            _buttons(
+            buttons(
               [
-                _padding(withDescription(
+                padding(withDescription(
                   AddMemberCallButton(c).build(),
                   Text('btn_add_participant_desc'.l10n),
                 )),
-                _padding(withDescription(
+                padding(withDescription(
                   HandButton(c).build(),
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
@@ -441,13 +450,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                         : 'btn_call_hand_up_desc'.l10n),
                   ),
                 )),
-                _padding(withDescription(
+                padding(withDescription(
                   RemoteAudioButton(c).build(),
                   Text(c.isRemoteAudioEnabled.value
                       ? 'btn_call_remote_audio_off_desc'.l10n
                       : 'btn_call_remote_audio_on_desc'.l10n),
                 )),
-                _padding(withDescription(
+                padding(withDescription(
                   RemoteVideoButton(c).build(),
                   Text(c.isRemoteVideoEnabled.value
                       ? 'btn_call_remote_video_off_desc'.l10n
@@ -456,7 +465,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               ],
             ),
             const SizedBox(height: 13),
-            _divider(),
+            divider(),
             const SizedBox(height: 13),
             _callTile(context, c),
             const SizedBox(height: 13),
@@ -549,26 +558,26 @@ Widget mobileCall(CallController c, BuildContext context) {
                             0,
                             150 + MediaQuery.of(context).padding.bottom,
                           ),
-                          child: _buttons(
+                          child: buttons(
                             isOutgoing
                                 ? [
                                     if (PlatformUtils.isMobile)
-                                      _padding(
+                                      padding(
                                         c.videoState.value.isEnabled()
                                             ? SwitchButton(c).build(blur: true)
                                             : SpeakerButton(c)
                                                 .build(blur: true),
                                       ),
-                                    _padding(AudioButton(c).build(blur: true)),
-                                    _padding(VideoButton(c).build(blur: true)),
-                                    _padding(CancelButton(c).build(blur: true)),
+                                    padding(AudioButton(c).build(blur: true)),
+                                    padding(VideoButton(c).build(blur: true)),
+                                    padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
-                                    _padding(AcceptAudioButton(c)
+                                    padding(AcceptAudioButton(c)
                                         .build(expanded: true)),
-                                    _padding(AcceptVideoButton(c)
+                                    padding(AcceptVideoButton(c)
                                         .build(expanded: true)),
-                                    _padding(
+                                    padding(
                                         DeclineButton(c).build(expanded: true)),
                                   ],
                           ),
@@ -763,7 +772,7 @@ Widget _primaryView(CallController c, BuildContext context) {
       primary = List.from(c.primary);
     }
 
-    void _onDragEnded(_DragData d) {
+    void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
       c.draggedRenderer.value = null;
       c.hoveredRenderer.value = d.participant;
@@ -798,9 +807,9 @@ Widget _primaryView(CallController c, BuildContext context) {
             populateSecondaryEntry(context, c);
           },
           onDoughBreak: (d) => c.doughDraggedRenderer.value = d.participant,
-          onDragEnd: _onDragEnded,
-          onDragCompleted: _onDragEnded,
-          onDraggableCanceled: _onDragEnded,
+          onDragEnd: onDragEnded,
+          onDragCompleted: onDragEnded,
+          onDraggableCanceled: onDragEnded,
           overlayBuilder: (_DragData data) {
             var participant = data.participant;
 
@@ -941,7 +950,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
       double width = c.secondaryWidth.value;
       double height = c.secondaryHeight.value;
 
-      void _onDragEnded(_DragData d) {
+      void onDragEnded(_DragData d) {
         c.secondaryDrags.value = 0;
         c.draggedRenderer.value = null;
         c.doughDraggedRenderer.value = null;
@@ -1032,9 +1041,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               c.keepUi(false);
             },
             onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-            onDragEnd: _onDragEnded,
-            onDragCompleted: _onDragEnded,
-            onDraggableCanceled: _onDragEnded,
+            onDragEnd: onDragEnded,
+            onDragCompleted: onDragEnded,
+            onDraggableCanceled: onDragEnded,
             width: width,
             height: height,
             left: left,

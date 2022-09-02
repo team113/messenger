@@ -14,20 +14,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat] page with the provided [TestUser].
+/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
 ///
 /// Examples:
 /// - Given I am in chat with Bob
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
-      (TestUser user, context) => Future.sync(() async {
+  (TestUser user, context) => Future.sync(() async {
     router.chat(context.world.sessions[user.name]!.dialog!);
     await Future.delayed(1.seconds);
   }),

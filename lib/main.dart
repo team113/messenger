@@ -50,11 +50,11 @@ import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
-void main() async {
+Future<void> main() async {
   await Config.init();
 
   // Initializes and runs the [App].
-  Future<void> _appRunner() async {
+  Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
@@ -80,6 +80,7 @@ void main() async {
 
     runApp(
       DefaultAssetBundle(
+        key: UniqueKey(),
         bundle: SentryAssetBundle(),
         child: const App(),
       ),
@@ -89,7 +90,7 @@ void main() async {
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
   if (Config.sentryDsn.isEmpty || kDebugMode) {
-    return _appRunner();
+    return appRunner();
   }
 
   return SentryFlutter.init(
@@ -100,6 +101,7 @@ void main() async {
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
+      options.integrations.add(OnErrorIntegration()),
       options.logger = (
         SentryLevel level,
         String message, {
@@ -119,7 +121,7 @@ void main() async {
         }
       },
     },
-    appRunner: _appRunner,
+    appRunner: appRunner,
   );
 }
 

@@ -488,7 +488,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive) {
+            if (!isActive || members.isEmpty) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -577,7 +577,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive) {
+            if (!isActive || members.isEmpty) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -1057,7 +1057,7 @@ class OngoingCall {
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
 
-          if (!isActive) {
+          if (!isActive || members.isEmpty) {
             await _updateTracks();
           }
         } catch (_) {

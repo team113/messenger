@@ -22,6 +22,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -176,12 +177,13 @@ void main() async {
 
     Get.put(chatHiveProvider);
 
-    await chatService.deleteChatMessage(
+    await chatService.deleteChatItem(
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       ),
     );
 
@@ -194,16 +196,17 @@ void main() async {
       () async {
     when(graphQlProvider.deleteChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(
-        DeleteChatMessageException(DeleteChatMessageErrorCode.unknownChatItem));
+    )).thenThrow(const DeleteChatMessageException(
+        DeleteChatMessageErrorCode.unknownChatItem));
     Get.put(chatHiveProvider);
 
     expect(
-      () async => await chatService.deleteChatMessage(ChatMessage(
+      () async => await chatService.deleteChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       )),
       throwsA(isA<DeleteChatMessageException>()),
     );
@@ -225,6 +228,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       PreciseDateTime.now(),
+      status: SendingStatus.sent,
     ));
 
     verify(graphQlProvider.hideChatItem(
@@ -236,7 +240,8 @@ void main() async {
       () async {
     when(graphQlProvider.hideChatItem(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(HideChatItemException(HideChatItemErrorCode.unknownChatItem));
+    )).thenThrow(
+        const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
 
     Get.put(chatHiveProvider);
 
@@ -246,6 +251,7 @@ void main() async {
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         PreciseDateTime.now(),
+        status: SendingStatus.sent,
       )),
       throwsA(isA<HideChatItemException>()),
     );
