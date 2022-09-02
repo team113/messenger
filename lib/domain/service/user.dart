@@ -63,7 +63,7 @@ class UserService extends DisposableService {
     final List<RxUser> users = _userRepository.users.values
         .where((u) =>
             (num != null && u.user.value.num == num) ||
-            (name != null && u.user.value.name == name))
+            (name != null && u.user.value.name?.val.contains(name.val) == true))
         .toList();
 
     searchResult.users.value = users;
