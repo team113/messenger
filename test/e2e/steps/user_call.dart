@@ -16,24 +16,22 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/api/backend/extension/call.dart';
 import 'package:messenger/store/call.dart';
 import 'package:uuid/uuid.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Accepts incoming call by provided user.
+/// Accepts incoming call by the provided [TestUser].
 ///
 /// Examples:
-/// - Then Bob accepts call
-final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
+/// - When Bob accepts call
+final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
   '{user} accepts call',
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
@@ -52,21 +50,11 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
       state: OngoingCallState.joining,
     );
 
-    var response = await provider.joinChatCall(
-      ongoingCall.chatId.value,
-      ongoingCall.creds!,
-    );
+    final callRepository = CallRepository(provider, null);
 
-    ongoingCall.deviceId = response.deviceId;
-    var chatCall = _chatCall(response.event);
-    ongoingCall.call.value = chatCall!;
-
+    callRepository.join(ongoingCall.obs);
     await ongoingCall.init(customUser.userId);
-
-    await ongoingCall.connect(
-      null,
-      CallRepository(provider, null).heartbeat,
-    );
+    await ongoingCall.connect(null, callRepository.heartbeat);
 
     customUser.call = ongoingCall;
     provider.disconnect();
@@ -75,11 +63,11 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Decline incoming call by provided user.
+/// Declines incoming call by the provided [TestUser].
 ///
 /// Examples:
-/// - Then Bob declines call
-final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
+/// - When Bob declines call
+final StepDefinitionGeneric userDeclineCall = when1<TestUser, CustomWorld>(
   '{user} declines call',
   (TestUser user, context) async {
     final provider = GraphQlProvider();
@@ -93,11 +81,12 @@ final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Starts call by provided user in [Chat] with the authenticated [MyUser].
+/// Starts call by the provided [TestUser] in [Chat] with the authenticated
+/// [MyUser].
 ///
 /// Examples:
-/// - Then Bob starts call
-final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
+/// - When Bob starts call
+final StepDefinitionGeneric userStartCall = when1<TestUser, CustomWorld>(
   '{user} starts call',
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
@@ -114,21 +103,11 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
       state: OngoingCallState.joining,
     );
 
-    var response = await provider.startChatCall(
-      ongoingCall.chatId.value,
-      ongoingCall.creds!,
-    );
+    final callRepository = CallRepository(provider, null);
 
-    ongoingCall.deviceId = response.deviceId;
-    var chatCall = _chatCall(response.event);
-    ongoingCall.call.value = chatCall!;
-
+    await callRepository.start(ongoingCall.obs);
     await ongoingCall.init(customUser.userId);
-
-    await ongoingCall.connect(
-      null,
-      CallRepository(provider, null).heartbeat,
-    );
+    await ongoingCall.connect(null, callRepository.heartbeat);
 
     customUser.call = ongoingCall;
     provider.disconnect();
@@ -137,12 +116,12 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Ends active call by provided user.
+/// Ends active call by the provided [TestUser].
 ///
 /// Examples:
-/// - Then Bob leaves call
-/// - Then Charlie cancels call
-final StepDefinitionGeneric userEndCall = and1<TestUser, CustomWorld>(
+/// - When Bob leaves call
+/// - When Charlie cancels call
+final StepDefinitionGeneric userEndCall = when1<TestUser, CustomWorld>(
   RegExp(r'{user} (?:leaves|cancels) call$'),
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
@@ -158,18 +137,3 @@ final StepDefinitionGeneric userEndCall = and1<TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
-
-/// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
-ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
-  for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
-    if (e.$$typename == 'EventChatCallStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-      return node.call.toModel();
-    } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-      return node.call.toModel();
-    }
-  }
-
-  return null;
-}

@@ -26,12 +26,12 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Given popup windows is enabled
 /// - Given popup windows is disabled
-final StepDefinitionGeneric popupWindows = given1<EnabledStatus, CustomWorld>(
+final StepDefinitionGeneric popupWindows = given1<Enabled, CustomWorld>(
   'popup windows is {enabled}',
   (enabled, context) async {
     await context.world.appDriver.waitUntil(() async {
       try {
-        if (enabled == EnabledStatus.enabled) {
+        if (enabled == Enabled.enabled) {
           await Get.find<AbstractSettingsRepository>().setPopupsEnabled(true);
         } else {
           await Get.find<AbstractSettingsRepository>().setPopupsEnabled(false);

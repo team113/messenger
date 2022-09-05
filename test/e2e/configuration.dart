@@ -134,7 +134,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         ChatTypeParameter(),
-        EnabledStatusParameter(),
+        EnabledParameter(),
         HandStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),

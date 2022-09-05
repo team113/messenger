@@ -21,12 +21,13 @@ import '../parameters/hand_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Raises or lowers hand by provided user in active call.
+/// Raises or lowers hand by the provided [TestUser] in active call.
 ///
 /// Examples:
-/// - Then Bob raises hand
-/// - Then Bob lowers hand
-final StepDefinitionGeneric raiseHand = and2<TestUser, HandStatus, CustomWorld>(
+/// - When Bob raises hand
+/// - When Bob lowers hand
+final StepDefinitionGeneric raiseHand =
+    when2<TestUser, HandStatus, CustomWorld>(
   '{user} {hand} hand',
   (user, handStatus, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;

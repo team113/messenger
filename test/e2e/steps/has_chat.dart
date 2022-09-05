@@ -22,12 +22,12 @@ import '../parameters/chat.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat] of the provided [User] with provided type and provided
+/// Creates a [Chat] of the provided [User] with provided type and the provided
 /// [User].
 ///
 /// Examples:
-/// - Given Bob has dialog with Alice.
-/// - Given Bob has group with Bob.
+/// - Given Bob has dialog with Alice
+/// - Given Bob has group with Charlie
 final StepDefinitionGeneric hasChat =
     given3<TestUser, ChatType, TestUser, CustomWorld>(
   '{user} has {chat} with {user}',

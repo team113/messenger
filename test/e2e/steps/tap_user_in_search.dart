@@ -20,11 +20,11 @@ import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Taps provided user in users search result.
+/// Taps the provided [TestUser] in users search results.
 ///
 /// Examples:
-/// - Then I tap Bob in search results
-final StepDefinitionGeneric tapUserInSearch = then1<TestUser, CustomWorld>(
+/// - When I tap Bob in search results
+final StepDefinitionGeneric tapUserInSearch = when1<TestUser, CustomWorld>(
   'I tap {user} in search results',
   (user, context) async {
     await context.world.appDriver.waitUntil(() async {

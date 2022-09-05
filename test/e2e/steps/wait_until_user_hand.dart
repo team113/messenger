@@ -23,8 +23,8 @@ import '../parameters/hand_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until authenticated [MyUser]'s hand is lowered or raised in currently
-/// active call.
+/// Waits until the authenticated [MyUser]'s hand is lowered or raised in
+/// currently active call.
 ///
 /// Examples:
 /// - Then I wait until my hand is lower
@@ -51,8 +51,8 @@ final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
   },
 );
 
-/// Waits until provided user's hand is lowered or raised in currently active
-/// call.
+/// Waits until thw provided [TestUser]'s hand is lowered or raised in currently
+/// active call.
 ///
 /// Examples:
 /// - Then I wait until Bob hand is raise

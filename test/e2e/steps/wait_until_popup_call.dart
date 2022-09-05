@@ -19,8 +19,7 @@ import 'package:messenger/util/web/web_utils.dart';
 
 import '../world/custom_world.dart';
 
-/// Waits until provided user's hand is lowered or raised in currently active
-/// call.
+/// Waits until any call opened in popup exist.
 ///
 /// Examples:
 /// - Then I wait until call opened in popup

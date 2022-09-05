@@ -91,7 +91,6 @@ enum WidgetKey {
   StartVideoCall,
   SuccessStage,
   UsernameField,
-  UserSearchBar,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

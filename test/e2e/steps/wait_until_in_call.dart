@@ -21,7 +21,8 @@ import 'package:gherkin/gherkin.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the provided user is present or absent in currently active call.
+/// Waits until the provided [TestUser] is present or absent in currently active
+/// call.
 ///
 /// Examples:
 /// - Then I wait until Bob is absent in call
