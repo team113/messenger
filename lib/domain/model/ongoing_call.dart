@@ -319,7 +319,7 @@ class OngoingCall {
   /// No-op if already [connected].
   Future<void> connect(CallService? calls, [Heartbeat? heartbeat]) async {
     assert(
-      calls == null && heartbeat == null,
+      calls != null || heartbeat != null,
       'Al least one of calls and heartbeat must not be null',
     );
 

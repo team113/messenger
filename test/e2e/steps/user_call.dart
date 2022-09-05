@@ -26,17 +26,15 @@ import 'package:messenger/api/backend/extension/call.dart';
 import 'package:messenger/store/call.dart';
 import 'package:uuid/uuid.dart';
 
-import '../mock/call_heartbeat.dart';
-import '../mock/ongoing_call.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Accepts incoming call by provided user.
 ///
 /// Examples:
-/// - Then Bob accept call
+/// - Then Bob accepts call
 final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
-  '{user} accept call',
+  '{user} accepts call',
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
@@ -80,9 +78,9 @@ final StepDefinitionGeneric userJoinCall = and1<TestUser, CustomWorld>(
 /// Decline incoming call by provided user.
 ///
 /// Examples:
-/// - Then Bob decline call
+/// - Then Bob declines call
 final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
-  '{user} decline call',
+  '{user} declines call',
   (TestUser user, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]!.session.token;
@@ -98,9 +96,9 @@ final StepDefinitionGeneric userDeclineCall = and1<TestUser, CustomWorld>(
 /// Starts call by provided user in [Chat] with the authenticated [MyUser].
 ///
 /// Examples:
-/// - Then Bob start call
+/// - Then Bob starts call
 final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
-  '{user} start call',
+  '{user} starts call',
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
@@ -142,9 +140,10 @@ final StepDefinitionGeneric userStartCall = and1<TestUser, CustomWorld>(
 /// Ends active call by provided user.
 ///
 /// Examples:
-/// - Then Bob leave call
+/// - Then Bob leaves call
+/// - Then Charlie cancels call
 final StepDefinitionGeneric userEndCall = and1<TestUser, CustomWorld>(
-  '{user} leave call',
+  RegExp(r'{user} (?:leaves|cancels) call$'),
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();

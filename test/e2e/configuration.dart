@@ -31,6 +31,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'parameters/attachment.dart';
 import 'parameters/chat.dart';
+import 'parameters/enabled.dart';
 import 'parameters/hand_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
@@ -44,6 +45,7 @@ import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/popup.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
@@ -59,6 +61,7 @@ import 'steps/users.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_message_status.dart';
+import 'steps/wait_until_popup_call.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_user_hand.dart';
 import 'steps/wait_until_user_search.dart';
@@ -85,6 +88,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressWidget,
         noInternetConnection,
         pasteToField,
+        popupWindows,
         raiseHand,
         restartApp,
         seesAs,
@@ -96,6 +100,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapWidget,
         twoUsers,
         untilMyUserHand,
+        untilPopupCall,
         untilTextExists,
         untilUserHand,
         untilUserInCallExists,
@@ -129,6 +134,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         ChatTypeParameter(),
+        EnabledStatusParameter(),
         HandStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),

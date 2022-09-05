@@ -15,32 +15,22 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
-import '../parameters/hand_status.dart';
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Raises or lowers hand by provided user in active call.
+/// Waits until provided user's hand is lowered or raised in currently active
+/// call.
 ///
 /// Examples:
-/// - Then Bob raises hand
-/// - Then Bob lowers hand
-final StepDefinitionGeneric raiseHand = and2<TestUser, HandStatus, CustomWorld>(
-  '{user} {hand} hand',
-  (user, handStatus, context) async {
-    CustomUser customUser = context.world.sessions[user.name]!;
-    final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
-
-    if (handStatus == HandStatus.lower) {
-      await provider.toggleChatCallHand(customUser.chat!, false);
-    } else {
-      await provider.toggleChatCallHand(customUser.chat!, true);
-    }
-
-    provider.disconnect();
+/// - Then I wait until call opened in popup
+final StepDefinitionGeneric untilPopupCall = then<CustomWorld>(
+  'I wait until call opened in popup',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        return WebUtils.containsCalls();
+      },
+    );
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
 );

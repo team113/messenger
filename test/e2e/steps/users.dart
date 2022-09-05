@@ -17,12 +17,8 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/store/settings.dart';
 
 import '../configuration.dart';
 import '../parameters/users.dart';
@@ -47,18 +43,6 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
       password,
       num: context.world.sessions[user.name]?.userNum,
     );
-
-    // Disabling opening calls in popup.
-    await Get.put(MediaSettingsHiveProvider())
-        .init(userId: context.world.sessions[user.name]!.userId);
-    await Get.put(ApplicationSettingsHiveProvider())
-        .init(userId: context.world.sessions[user.name]!.userId);
-
-    AbstractSettingsRepository settingsRepository =
-        Get.put<AbstractSettingsRepository>(
-      SettingsRepository(Get.find(), Get.find()),
-    );
-    await settingsRepository.setPopupsEnabled(false);
 
     router.home();
   },

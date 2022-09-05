@@ -14,11 +14,12 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Start call tests
+Feature: Common call tests
 
   Background:
     Given I am Alice
     And user Bob
+    And popup windows is disabled
 
   Scenario: Outgoing dialog call changes state correctly
     Given Bob has dialog with Alice
@@ -28,7 +29,7 @@ Feature: Start call tests
     Then I wait until `Call` is present
     And I wait until `ActiveCall` is absent
 
-    When Bob accept call
+    When Bob accepts call
     Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
@@ -40,13 +41,13 @@ Feature: Start call tests
     Then I wait until `Call` is present
     And I wait until `ActiveCall` is present
 
-    When Bob accept call
+    When Bob accepts call
     Then I wait until Bob is present in call
 
   Scenario: Join to active group call
     Given Bob has group with Alice
 
-    When Bob start call
+    When Bob starts call
     And I tap `DeclineCall` button
     Then I wait until `Call` is absent
 
@@ -54,20 +55,10 @@ Feature: Start call tests
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
-  Scenario: Cancel outgoing dialog call
-    Given Bob has dialog with Alice
-    And I am in chat with Bob
-
-    When I tap `StartAudioCall` button
-    Then I wait until `Call` is present
-
-    When I tap `CancelCall` button
-    Then I wait until `Call` is absent
-
   Scenario: Incoming dialog call changes state correctly
     Given Bob has dialog with Alice
 
-    When Bob start call
+    When Bob starts call
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
@@ -75,35 +66,30 @@ Feature: Start call tests
   Scenario: Incoming group call changes state correctly
     Given Bob has group with Alice
 
-    When Bob start call
+    When Bob starts call
     And I tap `AcceptCallAudio` button
     Then I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
-  Scenario: Decline incoming dialog call
-    Given Bob has dialog with Alice
-
-    When Bob start call
-    Then I wait until `Call` is present
-
-    When I tap `DeclineCall` button
-    Then I wait until `Call` is absent
-
-  Scenario: Decline incoming group call
+  Scenario: More panel is opening and closing
     Given Bob has group with Alice
-
-    When Bob start call
-    Then I wait until `Call` is present
-
-    When I tap `DeclineCall` button
-    Then I wait until `Call` is absent
-
-  Scenario: User call to decline incoming dialog call
-    Given Bob has dialog with Alice
     And I am in chat with Bob
 
     When I tap `StartAudioCall` button
-    Then I wait until `Call` is present
+    And I tap `More` button
+    Then I wait until `MorePanel` is present
 
-    When Bob decline call
-    Then I wait until `Call` is absent
+    When I tap `More` button
+    Then I wait until `MorePanel` is absent
+
+  Scenario: Call settings is opening and closing
+    Given Bob has group with Alice
+    And I am in chat with Bob
+
+    When I tap `StartAudioCall` button
+    And I tap `More` button
+    And I tap `Settings` button
+    Then I wait until `CallSettings` is present
+
+    When I tap `CloseButton` button
+    Then I wait until `CallSettings` is absent

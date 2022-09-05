@@ -15,20 +15,19 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/ui/page/call/controller.dart';
 
-/// [HandStatus]es available in a [HandStatusParameter].
-enum HandStatus { lower, raise }
+/// [EnabledStatus]es available in an [OnlineStatusParameter].
+enum EnabledStatus { enabled, disabled }
 
-/// [CustomParameter] representing a [Participant.handRaised] status.
-class HandStatusParameter extends CustomParameter<HandStatus> {
-  HandStatusParameter()
+/// [CustomParameter] representing an enable status.
+class EnabledStatusParameter extends CustomParameter<EnabledStatus> {
+  EnabledStatusParameter()
       : super(
-          'hand',
+          'enabled',
           RegExp(
-            '(lower|lowers|lowered|raise|raises|raised)',
+            '(${EnabledStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => HandStatus.values.firstWhere((e) => c.startsWith(e.name)),
+          (c) => EnabledStatus.values.firstWhere((e) => e.name == c),
         );
 }

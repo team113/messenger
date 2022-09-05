@@ -14,33 +14,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/domain/repository/settings.dart';
 
-import '../parameters/hand_status.dart';
-import '../parameters/users.dart';
+import '../parameters/enabled.dart';
 import '../world/custom_world.dart';
 
-/// Raises or lowers hand by provided user in active call.
+/// Enables or disables opening calls in popup.
 ///
 /// Examples:
-/// - Then Bob raises hand
-/// - Then Bob lowers hand
-final StepDefinitionGeneric raiseHand = and2<TestUser, HandStatus, CustomWorld>(
-  '{user} {hand} hand',
-  (user, handStatus, context) async {
-    CustomUser customUser = context.world.sessions[user.name]!;
-    final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
-
-    if (handStatus == HandStatus.lower) {
-      await provider.toggleChatCallHand(customUser.chat!, false);
-    } else {
-      await provider.toggleChatCallHand(customUser.chat!, true);
-    }
-
-    provider.disconnect();
+/// - Given popup windows is enabled
+/// - Given popup windows is disabled
+final StepDefinitionGeneric popupWindows = given1<EnabledStatus, CustomWorld>(
+  'popup windows is {enabled}',
+  (enabled, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      try {
+        if (enabled == EnabledStatus.enabled) {
+          await Get.find<AbstractSettingsRepository>().setPopupsEnabled(true);
+        } else {
+          await Get.find<AbstractSettingsRepository>().setPopupsEnabled(false);
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
 );
