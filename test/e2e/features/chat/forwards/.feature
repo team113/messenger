@@ -14,7 +14,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat messages are forwarded correctly
+Feature: Chat items are forwarded correctly
 
   Background: User is in dialog with Bob
     Given I am Alice
@@ -24,30 +24,30 @@ Feature: Chat messages are forwarded correctly
     And I am in chat with Bob
     And I wait until `ChatView` is present
 
-    Scenario: User forwards message
-    When I fill `MessageField` field with "Message to forward"
+  Scenario: User forwards message
+    When I fill `MessageField` field with "Wow!"
     And I tap `Send` button
-    Then I wait until status of "Message to forward" message is sent
+    Then I wait until status of "Wow!" message is sent
 
-    Then I long press "Message to forward" message
+    When I long press "Wow!" message
     And I tap `ForwardButton` button
-    Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "Forward comment"
+    And I wait until `ChatForwardView` is present
+    Then I fill `ForwardMessageField` field with "Check this :)"
     And I select chat with Charlie to forward
     And I tap `SendForward` button
 
-    Then I am in chat with Charlie
-    And I wait until text "Forward comment" is present
+    When I am in chat with Charlie
+    Then I wait until text "Check this :)" is present
 
   Scenario: User forwards message with attachment
-    When I fill `MessageField` field with "Message to forward"
+    When I fill `MessageField` field with "You saved me, why?"
     And I tap `Send` button
-    Then I wait until status of "Message to forward" message is sent
+    Then I wait until status of "You saved me, why?" message is sent
 
-    Then I long press "Message to forward" message
+    Then I long press "You saved me, why?" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "Forward comment"
+    Then I fill `ForwardMessageField` field with "Mhm... Monkey."
     And I attach "test.jpg" image to forwards
     And I select chat with Charlie to forward
     And I tap `SendForward` button
@@ -60,22 +60,22 @@ Feature: Chat messages are forwarded correctly
     Given user Dave
     And Dave has dialog with me
 
-    When I fill `MessageField` field with "Message to forward"
+    When I fill `MessageField` field with "Important info"
     And I tap `Send` button
-    Then I wait until status of "Message to forward" message is sent
+    Then I wait until status of "Important info" message is sent
 
-    Then I long press "Message to forward" message
+    Then I long press "Important info" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "Forward comment"
+    Then I fill `ForwardMessageField` field with "!!"
     And I select chat with Charlie to forward
     And I select chat with Dave to forward
     And I tap `SendForward` button
 
     Then I am in chat with Charlie
     And I wait until `ChatView` is present
-    And I wait until text "Forward comment" is present
+    And I wait until text "!!" is present
 
     Then I am in chat with Dave
     And I wait until `ChatView` is present
-    And I wait until text "Forward comment" is present
+    And I wait until text "!!" is present

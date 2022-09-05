@@ -95,13 +95,32 @@ class ChatService extends DisposableService {
     ChatMessageText? text,
     List<Attachment>? attachments,
     ChatItem? repliesTo,
-  }) =>
-      _chatRepository.sendChatMessage(
-        chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
-      );
+  }) {
+    if (text?.val.isNotEmpty != true &&
+        attachments?.isNotEmpty != true &&
+        repliesTo != null) {
+      List<AttachmentId> attachments = [];
+      if (repliesTo is ChatMessage) {
+        attachments = repliesTo.attachments.map((a) => a.id).toList();
+      } else if (repliesTo is ChatForward) {
+        ChatItem nested = repliesTo.item;
+        if (nested is ChatMessage) {
+          attachments = nested.attachments.map((a) => a.id).toList();
+        }
+      }
+
+      return _chatRepository.forwardChatItems(chatId, chatId, [
+        ChatItemQuote(item: repliesTo, withText: true, attachments: attachments)
+      ]);
+    }
+
+    return _chatRepository.sendChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>

@@ -218,6 +218,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> resendChatItem(ChatItem item) async {
     HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
 
+    // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
       for (var e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
@@ -536,6 +537,7 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
+  // TODO: Make [ChatForward]s to be posted like [ChatMessage]s.
   @override
   Future<void> forwardChatItems(
     ChatId from,

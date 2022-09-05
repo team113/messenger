@@ -67,6 +67,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.onForwardedTap,
     this.onResend,
   }) : super(key: key);
 
@@ -115,6 +116,9 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final Function(ChatItemId)? onRepliedTap;
 
+  /// Callback, called when a forwarded message of this [ChatItem] is tapped.
+  final Function(ChatItemId, ChatId)? onForwardedTap;
+
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final Function()? onResend;
 
@@ -134,11 +138,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   void initState() {
-    if (widget.item.value is ChatMessage) {
-      var msg = widget.item.value as ChatMessage;
-      _populateGlobalKeys(msg);
-    }
-
+    _populateGlobalKeys(widget.item.value);
     super.initState();
   }
 
@@ -201,12 +201,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       InkWell(
-        onTap: msg.item == null
-            ? null
-            : () => router.chat(msg.item!.chatId, itemId: msg.item!.id),
-        child: msg.item == null
-            ? Text('label_forwarded_message'.l10n)
-            : _quotedMessage(msg.item!, forward: true),
+        onTap: () => widget.onForwardedTap?.call(msg.item.id, msg.item.chatId),
+        child: _forwardedMessage(msg),
       ),
     );
   }
@@ -234,6 +230,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: const Key('ChatMessage'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (msg.repliesTo != null) ...[
+            InkWell(
+              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
+              child: _repliedMessage(msg.repliesTo!),
+            ),
+            if (msg.text != null) const SizedBox(height: 5),
+          ],
           if (msg.text != null) Text(msg.text!.val),
           if (msg.text != null && msg.attachments.isNotEmpty)
             const SizedBox(height: 5),
@@ -242,224 +245,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               crossAxisAlignment: msg.authorId == widget.me
                   ? CrossAxisAlignment.end
                   : CrossAxisAlignment.start,
-              children: media.mapIndexed(
-                (i, e) {
-                  bool isLocal = e is LocalAttachment;
-
-                  bool isVideo;
-                  if (isLocal) {
-                    isVideo = e.file.isVideo;
-                  } else {
-                    isVideo = e is FileAttachment;
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: isLocal
-                          ? null
-                          : () {
-                              List<Attachment> attachments =
-                                  widget.onGallery?.call() ?? media;
-
-                              int initial = attachments.indexOf(e);
-                              if (initial == -1) {
-                                initial = 0;
-                              }
-
-                              List<GalleryItem> gallery = [];
-                              for (var o in attachments) {
-                                var link = '${Config.url}/files${o.original}';
-                                if (o is FileAttachment) {
-                                  gallery.add(GalleryItem.video(link));
-                                } else if (o is ImageAttachment) {
-                                  gallery.add(GalleryItem.image(link));
-                                }
-                              }
-
-                              GalleryPopup.show(
-                                context: context,
-                                gallery: GalleryPopup(
-                                  children: gallery,
-                                  initial: initial,
-                                  initialKey: _galleryKeys[i],
-                                ),
-                              );
-                            },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          isVideo
-                              ? Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    isLocal
-                                        ? e.file.bytes == null
-                                            ? const CircularProgressIndicator()
-                                            : VideoThumbnail.bytes(
-                                                key: _galleryKeys[i],
-                                                bytes: e.file.bytes!,
-                                                height: 300,
-                                              )
-                                        : VideoThumbnail.path(
-                                            key: _galleryKeys[i],
-                                            path:
-                                                '${Config.url}/files${e.original}',
-                                            height: 300,
-                                          ),
-                                    Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Color(0x80000000),
-                                      ),
-                                      child: const Icon(
-                                        Icons.play_arrow,
-                                        color: Colors.white,
-                                        size: 48,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : isLocal
-                                  ? e.file.bytes == null
-                                      ? const CircularProgressIndicator()
-                                      : Image.memory(
-                                          e.file.bytes!,
-                                          key: _galleryKeys[i],
-                                          fit: BoxFit.cover,
-                                          height: 300,
-                                        )
-                                  : Container(
-                                      key: const Key('SentImage'),
-                                      child: Image.network(
-                                        '${Config.url}/files${e.original}',
-                                        key: _galleryKeys[i],
-                                        fit: BoxFit.cover,
-                                        height: 300,
-                                        errorBuilder: (_, __, ___) =>
-                                            const SizedBox(
-                                          width: 300.0,
-                                          height: 300.0,
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.error,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                          ElasticAnimatedSwitcher(
-                            key: Key('AttachmentStatus_${e.id}'),
-                            child: !isLocal ||
-                                    (isLocal &&
-                                        e.status.value == SendingStatus.sent)
-                                ? Container(key: const Key('Sent'))
-                                : e.status.value == SendingStatus.sending
-                                    ? CircularProgressIndicator(
-                                        key: const Key('Sending'),
-                                        value: e.progress.value,
-                                        backgroundColor: Colors.white,
-                                        strokeWidth: 10,
-                                      )
-                                    : const Icon(
-                                        Icons.error,
-                                        key: Key('Error'),
-                                        size: 48,
-                                        color: Colors.red,
-                                      ),
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ).toList(),
+              children: media
+                  .mapIndexed((i, e) => _mediaAttachment(i, e, media))
+                  .toList(),
             ),
           if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-          ...files.map(
-            (e) {
-              bool isLocal = e is LocalAttachment;
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
-                child: InkWell(
-                  onTap: () => throw UnimplementedError(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        key: Key('AttachmentStatus_${e.id}'),
-                        padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-                        child: isLocal
-                            ? ElasticAnimatedSwitcher(
-                                child: e.status.value == SendingStatus.sent
-                                    ? const Icon(
-                                        Icons.check_circle,
-                                        key: Key('Sent'),
-                                        size: 18,
-                                        color: Colors.green,
-                                      )
-                                    : e.status.value == SendingStatus.sending
-                                        ? SizedBox.square(
-                                            key: const Key('Sending'),
-                                            dimension: 18,
-                                            child: CircularProgressIndicator(
-                                              value: e.progress.value,
-                                              backgroundColor: Colors.white,
-                                              strokeWidth: 5,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.error_outline,
-                                            key: Key('Error'),
-                                            size: 18,
-                                            color: Colors.red,
-                                          ),
-                              )
-                            : const Icon(
-                                Icons.attach_file,
-                                key: Key('Sent'),
-                                size: 18,
-                                color: Colors.blue,
-                              ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          e.filename,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 1),
-                        child: Text(
-                          '${e.size ~/ 1024} KB',
-                          style: const TextStyle(
-                            color: Color(0xFF888888),
-                            fontSize: 13,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          if (msg.repliesTo != null) ...[
-            if (msg.text != null || msg.attachments.isNotEmpty)
-              const SizedBox(height: 5),
-            InkWell(
-              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: _quotedMessage(msg.repliesTo!),
-            ),
-          ],
+          ...files.map(_fileAttachment),
         ],
       ),
     );
@@ -569,7 +360,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Renders [item] as a replied message.
-  Widget _quotedMessage(ChatItem item, {bool forward = false}) {
+  Widget _repliedMessage(ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
 
     Widget? content;
@@ -687,8 +478,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(width: 12),
-            if (forward) Icon(Icons.reply, size: 26, color: color),
-            const SizedBox(width: 12),
             Flexible(
               child: Container(
                 decoration: BoxDecoration(
@@ -710,7 +499,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     if (content != null) ...[
                       const SizedBox(height: 2),
                       DefaultTextStyle.merge(
-                        maxLines: forward ? null : 1,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: content,
                       )
@@ -726,6 +515,374 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ],
         );
       },
+    );
+  }
+
+  /// Renders [item] as a forwarded message.
+  Widget _forwardedMessage(ChatForward forward) {
+    Style style = Theme.of(context).extension<Style>()!;
+    ChatItem item = forward.item;
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      var desc = StringBuffer();
+
+      if (item.text != null) {
+        desc.write(item.text!.val);
+      }
+
+      if (item.attachments.isNotEmpty) {
+        List<Attachment> media = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .toList();
+
+        List<Attachment> files = item.attachments
+            .where((e) =>
+                (e is FileAttachment && !e.isVideo) ||
+                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
+            .toList();
+
+        if (media.isNotEmpty || files.isNotEmpty) {
+          additional = [
+            ...media.mapIndexed((i, e) => _mediaAttachment(i, e, media)),
+            if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
+            ...files.map(_fileAttachment),
+          ];
+        }
+      }
+
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool fromMe = widget.me == item.authorId;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+        time = item.finishedAt!.val
+            .difference(item.conversationStartedAt!.val)
+            .localizedString();
+      } else {
+        title = item.authorId == widget.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody,
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else if (item is ChatForward) {
+      // TODO: Implement `ChatForward`.
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
+    return FutureBuilder<RxUser?>(
+      key: Key('FutureBuilder_${item.id}'),
+      future: widget.getUser?.call(item.authorId),
+      builder: (context, snapshot) {
+        Color color = snapshot.data?.user.value.id == widget.me
+            ? const Color(0xFF63B4FF)
+            : AvatarWidget.colors[
+                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                    AvatarWidget.colors.length];
+
+        return Row(
+          key: Key('Row_${item.id}'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 12),
+            Icon(Icons.reply, size: 26, color: color),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(left: BorderSide(width: 2, color: color)),
+                ),
+                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                padding: const EdgeInsets.only(left: 8),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (snapshot.data?.user.value != null)
+                      Text(
+                        snapshot.data?.user.value.name?.val ??
+                            snapshot.data?.user.value.num.val ??
+                            '...',
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    if (content != null) ...[
+                      const SizedBox(height: 2),
+                      content,
+                    ],
+                    if (additional.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: forward.authorId == widget.me
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: additional,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
+    bool isLocal = e is LocalAttachment;
+
+    bool isVideo;
+    if (isLocal) {
+      isVideo = e.file.isVideo;
+    } else {
+      isVideo = e is FileAttachment;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: isLocal
+            ? null
+            : () {
+                List<Attachment> attachments =
+                    widget.onGallery?.call() ?? media;
+
+                int initial = attachments.indexOf(e);
+                if (initial == -1) {
+                  initial = 0;
+                }
+
+                List<GalleryItem> gallery = [];
+                for (var o in attachments) {
+                  var link = '${Config.url}/files${o.original}';
+                  if (o is FileAttachment) {
+                    gallery.add(GalleryItem.video(link));
+                  } else if (o is ImageAttachment) {
+                    gallery.add(GalleryItem.image(link));
+                  }
+                }
+
+                GalleryPopup.show(
+                  context: context,
+                  gallery: GalleryPopup(
+                    children: gallery,
+                    initial: initial,
+                    initialKey: _galleryKeys[i],
+                  ),
+                );
+              },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            isVideo
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      isLocal
+                          ? e.file.bytes == null
+                              ? const CircularProgressIndicator()
+                              : VideoThumbnail.bytes(
+                                  key: _galleryKeys[i],
+                                  bytes: e.file.bytes!,
+                                  height: 300,
+                                )
+                          : VideoThumbnail.path(
+                              key: _galleryKeys[i],
+                              path: '${Config.url}/files${e.original}',
+                              height: 300,
+                            ),
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0x80000000),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    ],
+                  )
+                : isLocal
+                    ? e.file.bytes == null
+                        ? const CircularProgressIndicator()
+                        : Image.memory(
+                            e.file.bytes!,
+                            key: _galleryKeys[i],
+                            fit: BoxFit.cover,
+                            height: 300,
+                          )
+                    : Container(
+                        key: const Key('SentImage'),
+                        child: Image.network(
+                          '${Config.url}/files${e.original}',
+                          key: _galleryKeys[i],
+                          fit: BoxFit.cover,
+                          height: 300,
+                          errorBuilder: (_, __, ___) => const SizedBox(
+                            width: 300.0,
+                            height: 300.0,
+                            child: Center(
+                              child: Icon(
+                                Icons.error,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+            ElasticAnimatedSwitcher(
+              key: Key('AttachmentStatus_${e.id}'),
+              child:
+                  !isLocal || (isLocal && e.status.value == SendingStatus.sent)
+                      ? Container(key: const Key('Sent'))
+                      : e.status.value == SendingStatus.sending
+                          ? CircularProgressIndicator(
+                              key: const Key('Sending'),
+                              value: e.progress.value,
+                              backgroundColor: Colors.white,
+                              strokeWidth: 10,
+                            )
+                          : const Icon(
+                              Icons.error,
+                              key: Key('Error'),
+                              size: 48,
+                              color: Colors.red,
+                            ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fileAttachment(Attachment e) {
+    bool isLocal = e is LocalAttachment;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
+      child: InkWell(
+        onTap: () => throw UnimplementedError(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              key: Key('AttachmentStatus_${e.id}'),
+              padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
+              child: isLocal
+                  ? ElasticAnimatedSwitcher(
+                      child: e.status.value == SendingStatus.sent
+                          ? const Icon(
+                              Icons.check_circle,
+                              key: Key('Sent'),
+                              size: 18,
+                              color: Colors.green,
+                            )
+                          : e.status.value == SendingStatus.sending
+                              ? SizedBox.square(
+                                  key: const Key('Sending'),
+                                  dimension: 18,
+                                  child: CircularProgressIndicator(
+                                    value: e.progress.value,
+                                    backgroundColor: Colors.white,
+                                    strokeWidth: 5,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.error_outline,
+                                  key: Key('Error'),
+                                  size: 18,
+                                  color: Colors.red,
+                                ),
+                    )
+                  : const Icon(
+                      Icons.attach_file,
+                      key: Key('Sent'),
+                      size: 18,
+                      color: Colors.blue,
+                    ),
+            ),
+            Flexible(
+              child: Text(
+                e.filename,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                '${e.size ~/ 1024} KB',
+                style: const TextStyle(
+                  color: Color(0xFF888888),
+                  fontSize: 13,
+                ),
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -864,6 +1021,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                               .attachments
                                               .map((a) => a.id)
                                               .toList();
+                                    } else if (widget.item.value
+                                        is ChatForward) {
+                                      ChatItem nested =
+                                          (widget.item.value as ChatForward)
+                                              .item;
+
+                                      if (nested is ChatMessage) {
+                                        attachments = nested.attachments
+                                            .map((a) => a.id)
+                                            .toList();
+                                      }
                                     }
 
                                     await ChatForwardView.show(
@@ -945,14 +1113,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
-  void _populateGlobalKeys(ChatMessage msg) {
-    _galleryKeys = msg.attachments
-        .where((e) =>
-            e is ImageAttachment ||
-            (e is FileAttachment && e.isVideo) ||
-            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-        .map((e) => GlobalKey())
-        .toList();
+  void _populateGlobalKeys(ChatItem msg) {
+    if (msg is ChatMessage) {
+      _galleryKeys = msg.attachments
+          .where((e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+          .map((e) => GlobalKey())
+          .toList();
+    } else if (msg is ChatForward) {
+      final ChatItem item = msg.item;
+      if (item is ChatMessage) {
+        _galleryKeys = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .map((e) => GlobalKey())
+            .toList();
+      }
+    }
   }
 }
 

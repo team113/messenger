@@ -152,27 +152,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
         repliesTo: null,
         text: text,
         editedAt: editedAt,
-        attachments: attachments.map((e) {
-          if (e.$$typename == 'ImageAttachment') {
-            e as NestedChatMessageMixin$Attachments$ImageAttachment;
-            return ImageAttachment(
-              id: e.id,
-              original: Original(e.original),
-              filename: e.filename,
-              size: e.size,
-              big: e.big,
-              medium: e.medium,
-              small: e.small,
-            );
-          }
-
-          return FileAttachment(
-            id: e.id,
-            original: Original(e.original),
-            filename: e.filename,
-            size: e.size,
-          );
-        }).toList(),
+        attachments: attachments.map((e) => e.toModel()).toList(),
       );
 
   /// Constructs a new [HiveChatMessage] from this [NestedChatMessageMixin].
@@ -182,7 +162,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
 
 /// Extension adding models construction from [ChatForwardMixin].
 extension ChatForwardConversion on ChatForwardMixin {
-  /// Constructs a new [HiveChatItem]s from this [ChatForwardMixin].
+  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin].
   List<HiveChatItem> toHive(ChatItemsCursor cursor) {
     List<HiveChatItem> nested = item.toHive();
     return [
@@ -205,49 +185,62 @@ extension ChatForwardConversion on ChatForwardMixin {
 
 /// Extension adding models construction from [NestedChatForwardMixin].
 extension NestedChatForwardConversion on NestedChatForwardMixin {
-  /// Constructs a new [ChatForward] from this [NestedChatForwardMixin].
-  ChatForward toModel() => ChatForward(
-        id,
-        chatId,
-        authorId,
-        at,
-        item: null,
-      );
+  /// Constructs the new [HiveChatForward]s from this [NestedChatForwardMixin].
+  List<HiveChatItem> toHive(ChatItemsCursor cursor) {
+    List<HiveChatItem> nested = item.toHive();
+    return [
+      HiveChatForward(
+        ChatForward(
+          id,
+          chatId,
+          authorId,
+          at,
+          item: nested.first.value,
+        ),
+        cursor,
+        ver,
+        item.cursor,
+      ),
+      ...nested.skip(1),
+    ];
+  }
+}
 
-  /// Constructs a new [HiveChatForward] from this [NestedChatForwardMixin].
-  HiveChatForward toHive(ChatItemsCursor cursor) =>
-      HiveChatForward(toModel(), cursor, ver, item.cursor);
+/// Extension adding models construction from [NestedChatForwardMixin$Item].
+extension NestedChatForwardItemConversion on NestedChatForwardMixin$Item {
+  /// Constructs a new [HiveChatItem]s from this [NestedChatForwardMixin$Item].
+  List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from
 /// [GetMessages$Query$Chat$Items$Edges].
 extension GetMessagesConversion on GetMessages$Query$Chat$Items$Edges {
-  /// Constructs a new [HiveChatItem]s from this
+  /// Constructs the new [HiveChatItem]s from this
   /// [GetMessages$Query$Chat$Items$Edges].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastItem].
 extension ChatLastItemConversion on ChatMixin$LastItem {
-  /// Constructs a new [HiveChatItem]s from this [ChatMixin$LastItem].
+  /// Constructs the new [HiveChatItem]s from this [ChatMixin$LastItem].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastReadItem].
 extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
-  /// Constructs a new [HiveChatItem]s from this [ChatMixin$LastReadItem].
+  /// Constructs the new [HiveChatItem]s from this [ChatMixin$LastReadItem].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatForwardMixin$Item].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Item {
-  /// Constructs a new [HiveChatItem]s from this [ChatForwardMixin$Item].
+  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin$Item].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMessageMixin$RepliesTo].
 extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
-  /// Constructs a new [HiveChatItem]s from this [ChatMessageMixin$RepliesTo].
+  /// Constructs the new [HiveChatItem]s from this [ChatMessageMixin$RepliesTo].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
 
@@ -255,7 +248,7 @@ extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
 /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
 extension EventChatItemPostedConversion
     on ChatEventsVersionedMixin$Events$EventChatItemPosted$Item {
-  /// Constructs a new [HiveChatItem]s from this
+  /// Constructs the new [HiveChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
@@ -264,7 +257,7 @@ extension EventChatItemPostedConversion
 /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
 extension EventChatLastItemUpdatedConversion
     on ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem {
-  /// Constructs a new [HiveChatItem]s from this
+  /// Constructs the new [HiveChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
   List<HiveChatItem> toHive() => _chatItem(node, cursor);
 }
@@ -282,7 +275,7 @@ List<HiveChatItem> _chatItem(dynamic node, ChatItemsCursor cursor) {
   } else if (node is ChatForwardMixin) {
     return node.toHive(cursor);
   } else if (node is NestedChatForwardMixin) {
-    return [node.toHive(cursor)];
+    return node.toHive(cursor);
   }
 
   throw UnimplementedError('$node is not implemented');
@@ -324,6 +317,15 @@ extension UploadAttachmentConversion
 /// Extension adding models construction from [ChatMessageMixin$Attachments].
 extension ChatMessageAttachmentsConversion on ChatMessageMixin$Attachments {
   /// Constructs a new [Attachment] from this [ChatMessageMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [NestedChatMessageMixin$Attachments].
+extension NestedChatMessageAttachmentsConversion
+    on NestedChatMessageMixin$Attachments {
+  /// Constructs a new [Attachment] from this
+  /// [NestedChatMessageMixin$Attachments].
   Attachment toModel() => _attachment(this);
 }
 

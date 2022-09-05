@@ -122,7 +122,7 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
-  /// Dynamic arguments of this [RouterState].
+  /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
   /// Auth service used to determine the auth status.

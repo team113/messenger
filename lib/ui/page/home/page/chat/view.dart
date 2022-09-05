@@ -292,6 +292,14 @@ class _ChatViewState extends State<ChatView>
                                             onCopy: (text) => c.copyText(text),
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
+                                            onForwardedTap: (id, chatId) {
+                                              if (chatId ==
+                                                  c.chat?.chat.value.id) {
+                                                c.animateTo(id);
+                                              } else {
+                                                router.chat(chatId, itemId: id);
+                                              }
+                                            },
                                             animation: _animation,
                                             onGallery: c.calculateGallery,
                                             onResend: () =>
@@ -726,7 +734,9 @@ class _ChatViewState extends State<ChatView>
             _button(
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
-                child: (c.send.isEmpty.value && c.attachments.isEmpty)
+                child: (c.send.isEmpty.value &&
+                        c.attachments.isEmpty &&
+                        c.repliedMessage.value == null)
                     ? const Padding(
                         key: Key('Mic'),
                         padding: EdgeInsets.only(top: 2),
@@ -738,7 +748,9 @@ class _ChatViewState extends State<ChatView>
                         child: Icon(Icons.send, size: 24),
                       ),
               ),
-              onTap: (c.send.isEmpty.value && c.attachments.isEmpty)
+              onTap: (c.send.isEmpty.value &&
+                      c.attachments.isEmpty &&
+                      c.repliedMessage.value == null)
                   ? () {}
                   : c.send.submit,
             ),
