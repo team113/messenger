@@ -663,7 +663,7 @@ class ParticipantView extends StatelessWidget {
         c.status.value = RxStatus.empty();
         c.selectedContacts.clear();
         c.selectedUsers.clear();
-        c.searchResults.clear();
+        c.searchResults.value = null;
         c.searchStatus.value = RxStatus.empty();
         c.query.value = null;
         c.search.clear();

@@ -271,11 +271,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }).toList();
 
     List<Attachment> files = msg.attachments.where((e) {
-      return ((e is! ImageAttachment) ||
-          (e is FileAttachment && !(e as FileAttachment).isVideo) ||
-          (e is LocalAttachment &&
-              ((e as LocalAttachment).file.isImage ||
-                  (e as LocalAttachment).file.isVideo)));
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
     bool fromMe = widget.item.value.authorId == widget.me;
@@ -643,8 +640,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             color: fromMe
                 ? isRead
                     ? const Color.fromRGBO(210, 227, 249, 1)
-                    : const Color.fromRGBO(230, 241, 254, 1)
+                    : const Color.fromARGB(255, 244, 249, 255)
                 : Colors.white,
+            // color: fromMe
+            //     ? isRead
+            //         ? const Color.fromRGBO(210, 227, 249, 1)
+            //         : const Color.fromRGBO(230, 241, 254, 1)
+            //     : Colors.white,
             borderRadius: BorderRadius.circular(15),
           ),
           child: ClipRRect(

@@ -27,6 +27,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/util/web/web.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -313,6 +314,10 @@ class ChatController extends GetxController {
 
     super.onClose();
   }
+
+  bool isInCall() =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+  Future<void> dropCall() => _callService.drop(id);
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.

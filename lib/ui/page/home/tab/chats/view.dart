@@ -21,7 +21,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -72,7 +74,22 @@ class ChatsTabView extends StatelessWidget {
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
-                      onPressed: () {},
+                      onPressed: () async {
+                        await ModalPopup.show(
+                          context: context,
+                          child: const SearchView(),
+                          desktopConstraints: const BoxConstraints(
+                            maxWidth: double.infinity,
+                            maxHeight: double.infinity,
+                          ),
+                          modalConstraints: const BoxConstraints(maxWidth: 380),
+                          mobileConstraints: const BoxConstraints(
+                            maxWidth: double.infinity,
+                            maxHeight: double.infinity,
+                          ),
+                          mobilePadding: const EdgeInsets.all(0),
+                        );
+                      },
                       icon: SvgLoader.asset(
                         'assets/icons/search.svg',
                         width: 17.77,
@@ -177,17 +194,41 @@ class ChatsTabView extends StatelessWidget {
           .where((e) => e.id != c.me)
           .map((e) => e.name?.val ?? e.num.val);
 
-      if (chat.currentCall == null) {
-        if (typings.isNotEmpty) {
-          if (!rxChat.chat.value.isGroup) {
-            subtitle = [
-              Row(
+      // if (chat.currentCall == null) {
+      if (typings.isNotEmpty) {
+        if (!rxChat.chat.value.isGroup) {
+          subtitle = [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Печатает'.l10n,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(),
+                ),
+              ],
+            ),
+          ];
+        } else {
+          subtitle = [
+            Expanded(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    'Печатает'.l10n,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
+                  Flexible(
+                    child: Text(
+                      typings.join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 3),
@@ -197,154 +238,137 @@ class ChatsTabView extends StatelessWidget {
                   ),
                 ],
               ),
+            )
+          ];
+        }
+      } else if (item != null) {
+        if (item is ChatCall) {
+          String description = 'label_chat_call_ended'.l10n;
+          if (item.finishedAt == null && item.finishReason == null) {
+            subtitle = [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
+                child: Icon(Icons.call, size: 16, color: subtitleColor),
+              ),
+              Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+              //   child: ElevatedButton(
+              //     onPressed: () => c.joinCall(chat.id),
+              //     child: Text('btn_chat_join_call'.l10n),
+              //   ),
+              // ),
             ];
           } else {
+            description =
+                item.finishReason?.localizedString(item.authorId == c.me) ??
+                    description;
             subtitle = [
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        typings.join(', '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 3),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 4),
-                      child: AnimatedTyping(),
-                    ),
-                  ],
-                ),
-              )
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
+                child: Icon(Icons.call, size: 16, color: subtitleColor),
+              ),
+              Flexible(child: Text(description, maxLines: 2)),
             ];
           }
-        } else if (item != null) {
-          if (item is ChatCall) {
-            String description = 'label_chat_call_ended'.l10n;
-            if (item.finishedAt == null && item.finishReason == null) {
-              subtitle = [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                  child: ElevatedButton(
-                    onPressed: () => c.joinCall(chat.id),
-                    child: Text('btn_chat_join_call'.l10n),
-                  ),
-                ),
-              ];
-            } else {
-              description =
-                  item.finishReason?.localizedString(item.authorId == c.me) ??
-                      description;
-              subtitle = [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-                  child: Icon(Icons.call, size: 16, color: subtitleColor),
-                ),
-                Flexible(child: Text(description, maxLines: 2)),
-              ];
-            }
-          } else if (item is ChatMessage) {
-            var desc = StringBuffer();
+        } else if (item is ChatMessage) {
+          var desc = StringBuffer();
 
-            if (!chat.isGroup && item.authorId == c.me) {
-              desc.write('${'label_you'.l10n}: ');
-            }
+          if (!chat.isGroup && item.authorId == c.me) {
+            desc.write('${'label_you'.l10n}: ');
+          }
 
-            if (item.text != null) {
-              desc.write(item.text!.val);
-              if (item.attachments.isNotEmpty) {
-                desc.write(
-                    ' [${item.attachments.length} ${'label_attachments'.l10n}]');
-              }
-            } else if (item.attachments.isNotEmpty) {
+          if (item.text != null) {
+            desc.write(item.text!.val);
+            if (item.attachments.isNotEmpty) {
               desc.write(
-                  '[${item.attachments.length} ${'label_attachments'.l10n}]');
+                  ' [${item.attachments.length} ${'label_attachments'.l10n}]');
             }
+          } else if (item.attachments.isNotEmpty) {
+            desc.write(
+                '[${item.attachments.length} ${'label_attachments'.l10n}]');
+          }
 
-            subtitle = [
-              if (chat.isGroup)
-                Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: FutureBuilder<RxUser?>(
-                    future: c.getUser(item.authorId),
-                    builder: (_, snapshot) => AvatarWidget.fromRxUser(
-                      snapshot.data,
-                      radius: 10,
-                    ),
+          subtitle = [
+            if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(item.authorId),
+                  builder: (_, snapshot) => AvatarWidget.fromRxUser(
+                    snapshot.data,
+                    radius: 10,
                   ),
                 ),
-              Flexible(child: Text(desc.toString(), maxLines: 2)),
-              ElasticAnimatedSwitcher(
-                child: item.status.value == SendingStatus.sending
-                    ? const Icon(Icons.access_alarm, size: 15)
-                    : item.status.value == SendingStatus.error
-                        ? const Icon(
-                            Icons.error_outline,
-                            size: 15,
-                            color: Colors.red,
-                          )
-                        : Container(),
               ),
-            ];
-          } else {
-            // TODO: Implement other ChatItems.
-            subtitle = [
-              const Flexible(child: Text('Пустое сообщение', maxLines: 2))
-            ];
-          }
-        }
-      } else {
-        Widget _circleButton({
-          void Function()? onPressed,
-          required Widget child,
-        }) {
-          return WidgetButton(
-            onPressed: onPressed,
-            child: Container(
-              height: 40,
-              width: 40,
-              decoration: const BoxDecoration(
-                color: Color(0xFF63B4FF),
-                shape: BoxShape.circle,
-              ),
-              child: Center(child: child),
+            Flexible(child: Text(desc.toString(), maxLines: 2)),
+            ElasticAnimatedSwitcher(
+              child: item.status.value == SendingStatus.sending
+                  ? const Icon(Icons.access_alarm, size: 15)
+                  : item.status.value == SendingStatus.error
+                      ? const Icon(
+                          Icons.error_outline,
+                          size: 15,
+                          color: Colors.red,
+                        )
+                      : Container(),
             ),
-          );
+          ];
+        } else {
+          // TODO: Implement other ChatItems.
+          subtitle = [
+            const Flexible(child: Text('Пустое сообщение', maxLines: 2))
+          ];
         }
+      }
+      /*  } else {
+
+
+        final TextStyle? thin = Theme.of(context)
+            .textTheme
+            .bodyText1
+            ?.copyWith(color: Colors.black);
 
         subtitle = [
-          const Expanded(
-            child: Text(
-              'Присоединиться',
-              style: TextStyle(
-                color: Color(0xFF63B4FF),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          _circleButton(
-            onPressed: () => c.joinCall(chat.id, withVideo: true),
-            child: SvgLoader.asset(
-              'assets/icons/chat_video_call_white.svg',
-              width: 27.72,
-              height: 19,
-            ),
-          ),
-          const SizedBox(width: 12),
-          _circleButton(
-            onPressed: () => c.joinCall(chat.id),
-            child: SvgLoader.asset(
-              'assets/icons/chat_audio_call_white.svg',
-              width: 21,
-              height: 21,
-            ),
-          ),
+          // Expanded(
+          //   child: OutlinedRoundedButton(
+          //     maxWidth: null,
+          //     title: Text(
+          //       'btn_join_call'.l10n,
+          //       style: thin?.copyWith(color: Colors.white),
+          //     ),
+          //     height: 27,
+          //     borderRadius: BorderRadius.circular(30),
+          //     onPressed: () => c.joinCall(chat.id),
+          //     color: const Color(0xFF63B4FF),
+          //   ),
+          // ),
+          // const Expanded(
+          //   child: Text(
+          //     'Присоединиться',
+          //     style: TextStyle(
+          //       color: Color(0xFF63B4FF),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 6),
+          // _circleButton(
+          //   onPressed: () => c.joinCall(chat.id, withVideo: true),
+          //   child: SvgLoader.asset(
+          //     'assets/icons/chat_video_call_white.svg',
+          //     width: 27.72,
+          //     height: 19,
+          //   ),
+          // ),
+          // const SizedBox(width: 12),
+          // _circleButton(
+          //   onPressed: () => c.joinCall(chat.id),
+          //   child: SvgLoader.asset(
+          //     'assets/icons/chat_audio_call_white.svg',
+          //     width: 21,
+          //     height: 21,
+          //   ),
+          // ),
           if (chat.unreadCount != 0) const SizedBox(width: 12),
           // Expanded(
           //   child: OutlinedRoundedButton(
@@ -405,14 +429,34 @@ class ChatsTabView extends StatelessWidget {
         //     ),
         //   ),
         // ];
+      }*/
+
+      Widget _circleButton({
+        Key? key,
+        void Function()? onPressed,
+        Color? color,
+        required Widget child,
+      }) {
+        return WidgetButton(
+          key: key,
+          onPressed: onPressed,
+          child: Container(
+            key: key,
+            height: 38,
+            width: 38,
+            decoration: BoxDecoration(
+              color: color ?? const Color(0xFF63B4FF),
+              shape: BoxShape.circle,
+            ),
+            child: Center(child: child),
+          ),
+        );
       }
 
       Style style = Theme.of(context).extension<Style>()!;
 
       bool selected = router.routes
-              .lastWhereOrNull(
-                (e) => e.startsWith(Routes.chat),
-              )
+              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
               ?.startsWith('${Routes.chat}/${chat.id}') ==
           true;
 
@@ -480,19 +524,19 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              Text(
-                                chat.currentCall == null
-                                    ? '10:10'
-                                    : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .subtitle2
-                                    ?.copyWith(
-                                      color: chat.currentCall == null
-                                          ? null
-                                          : const Color(0xFF63B4FF),
-                                    ),
-                              ),
+                              if (chat.currentCall == null)
+                                Text(
+                                  chat.currentCall == null ? '10:10' : '32:02',
+                                  // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      ?.copyWith(
+                                        color: chat.currentCall == null
+                                            ? null
+                                            : const Color(0xFF63B4FF),
+                                      ),
+                                ),
                             ],
                           ),
                           Row(
@@ -509,7 +553,7 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                               ),
                               if (chat.unreadCount != 0) ...[
-                                const SizedBox(height: 10),
+                                const SizedBox(width: 10),
                                 Badge(
                                   toAnimate: false,
                                   elevation: 0,
@@ -530,6 +574,33 @@ class ChatsTabView extends StatelessWidget {
                         ],
                       ),
                     ),
+                    if (chat.currentCall != null) ...[
+                      const SizedBox(width: 10),
+                      AnimatedSwitcher(
+                        key: const Key('ActiveCallButton'),
+                        duration: 300.milliseconds,
+                        child: c.isInCall(chat.id)
+                            ? _circleButton(
+                                key: const Key('Drop'),
+                                onPressed: () => c.dropCall(chat.id),
+                                color: Colors.red,
+                                child: SvgLoader.asset(
+                                  'assets/icons/call_end.svg',
+                                  width: 38,
+                                  height: 38,
+                                ),
+                              )
+                            : _circleButton(
+                                key: const Key('Join'),
+                                onPressed: () => c.joinCall(chat.id),
+                                child: SvgLoader.asset(
+                                  'assets/icons/audio_call_start.svg',
+                                  width: 18,
+                                  height: 18,
+                                ),
+                              ),
+                      ),
+                    ],
                   ],
                 ),
               ),

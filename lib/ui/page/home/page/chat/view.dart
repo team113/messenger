@@ -185,21 +185,67 @@ class _ChatViewState extends State<ChatView>
                         padding: const EdgeInsets.only(left: 4, right: 20),
                         leading: const [StyledBackButton()],
                         actions: [
-                          WidgetButton(
-                            onPressed: () => c.call(true),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
+                          if (chat.currentCall == null) ...[
+                            WidgetButton(
+                              onPressed: () => c.call(true),
+                              child: SvgLoader.asset(
+                                'assets/icons/chat_video_call.svg',
+                                height: 17,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 28),
-                          WidgetButton(
-                            onPressed: () => c.call(false),
-                            child: SvgLoader.asset(
-                              'assets/icons/chat_audio_call.svg',
-                              height: 19,
+                            const SizedBox(width: 28),
+                            WidgetButton(
+                              onPressed: () => c.call(false),
+                              child: SvgLoader.asset(
+                                'assets/icons/chat_audio_call.svg',
+                                height: 19,
+                              ),
                             ),
-                          ),
+                          ] else ...[
+                            AnimatedSwitcher(
+                              key: const Key('ActiveCallButton'),
+                              duration: 300.milliseconds,
+                              child: c.isInCall()
+                                  ? WidgetButton(
+                                      key: const Key('Drop'),
+                                      onPressed: c.dropCall,
+                                      child: Container(
+                                        height: 32,
+                                        width: 32,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: SvgLoader.asset(
+                                            'assets/icons/call_end.svg',
+                                            width: 32,
+                                            height: 32,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : WidgetButton(
+                                      key: const Key('Join'),
+                                      onPressed: c.joinCall,
+                                      child: Container(
+                                        height: 32,
+                                        width: 32,
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF63B4FF),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: SvgLoader.asset(
+                                            'assets/icons/audio_call_start.svg',
+                                            width: 15,
+                                            height: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ],
                           // const SizedBox(width: 10),
                         ],
                       ),
@@ -719,7 +765,15 @@ class _ChatViewState extends State<ChatView>
     final TextStyle? style = Theme.of(context).textTheme.caption;
 
     return Obx(() {
-      var chat = c.chat!.chat;
+      Rx<Chat> chat = c.chat!.chat;
+
+      if (chat.value.currentCall != null) {
+        if (context.isMobile) {
+          return Text('1 of 10 | 10:04', style: style);
+        }
+
+        return Text('Active call | 1 of 10 | 10:04', style: style);
+      }
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
       if (isTyping) {
