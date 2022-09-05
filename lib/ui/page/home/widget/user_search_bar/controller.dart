@@ -46,7 +46,7 @@ class UserSearchBarController extends GetxController {
   /// [User]s service, used to search [User]s.
   final UserService _userService;
 
-  /// Worker to react on [SearchResult] changes.
+  /// Worker to react on [SearchResult.status] changes.
   Worker? _searchWorker;
 
   @override

@@ -101,6 +101,13 @@ class SearchResult {
   /// Found [RxUser]s themselves.
   final RxList<RxUser> users = RxList<RxUser>();
 
-  /// Reactive [RxStatus] of this [SearchResult].
+  /// Reactive [RxStatus] of [users] being fetched.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isLoading`, meaning the [users] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [users] were fetched from local
+  ///   storage.
+  /// - `status.isSuccess`, meaning the [users] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 }
