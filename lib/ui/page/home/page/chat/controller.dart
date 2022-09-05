@@ -27,7 +27,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/util/web/web.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
