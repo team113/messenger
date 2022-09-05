@@ -47,6 +47,7 @@ import 'controller.dart';
 import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
+import 'widget/custom_selection.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -65,6 +66,7 @@ class _ChatViewState extends State<ChatView>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] of [SwipeableStatus]es.
   late final AnimationController _animation;
+  final Rx<String?> _selectedText = Rx<String?>(null);
 
   @override
   void initState() {
@@ -233,128 +235,144 @@ class _ChatViewState extends State<ChatView>
                                     ContextMenuInterceptor(child: Container()),
                               ),
                               SafeArea(
-                                child: FlutterListView(
-                                  key: const Key('MessagesList'),
-                                  controller: c.listController,
-                                  physics: c.horizontalScrollTimer.value == null
-                                      ? const BouncingScrollPhysics()
-                                      : const NeverScrollableScrollPhysics(),
-                                  delegate: FlutterListViewDelegate(
-                                    (BuildContext context, int i) {
-                                      List<Widget> widgets = [];
-                                      Rx<ChatItem> e = c.chat!.messages[i];
+                                child: SelectionArea(
+                                  child: CustomSelectionContainer(
+                                    selection: _selectedText,
+                                    child: FlutterListView(
+                                      key: const Key('MessagesList'),
+                                      controller: c.listController,
+                                      physics: c.horizontalScrollTimer.value ==
+                                              null
+                                          ? const BouncingScrollPhysics()
+                                          : const NeverScrollableScrollPhysics(),
+                                      delegate: FlutterListViewDelegate(
+                                        (BuildContext context, int i) {
+                                          List<Widget> widgets = [];
+                                          Rx<ChatItem> e = c.chat!.messages[i];
 
-                                      if (c.lastReadItem.value == e) {
-                                        widgets.add(
-                                          Container(
-                                            color: const Color(0x33000000),
-                                            padding: const EdgeInsets.all(4),
-                                            margin: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                'label_unread_messages'.l10n,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
+                                          if (c.lastReadItem.value == e) {
+                                            widgets.add(
+                                              Container(
+                                                color: const Color(0x33000000),
+                                                padding:
+                                                    const EdgeInsets.all(4),
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 4,
                                                 ),
-                                                textAlign: TextAlign.center,
+                                                child: Center(
+                                                  child: Text(
+                                                    'label_unread_messages'
+                                                        .l10n,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+
+                                          Widget widget = Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+                                            child: FutureBuilder<RxUser?>(
+                                              future:
+                                                  c.getUser(e.value.authorId),
+                                              builder: (_, u) => ChatItemWidget(
+                                                key: Key(e.value.id.val),
+                                                selectedText: _selectedText,
+                                                chat: c.chat!.chat,
+                                                item: e,
+                                                me: c.me!,
+                                                user: u.data,
+                                                onJoinCall: c.joinCall,
+                                                onHide: () =>
+                                                    c.hideChatItem(e.value),
+                                                onDelete: () =>
+                                                    c.deleteMessage(e.value),
+                                                onReply: () => c.repliedMessage
+                                                    .value = e.value,
+                                                onCopy: (text) =>
+                                                    c.copyText(text),
+                                                onRepliedTap: (id) =>
+                                                    c.animateTo(id),
+                                                animation: _animation,
+                                                onGallery: c.calculateGallery,
+                                                onResend: () =>
+                                                    c.resendItem(e.value),
+                                                onEdit: () =>
+                                                    c.editMessage(e.value),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }
+                                          );
 
-                                      Widget widget = Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        child: FutureBuilder<RxUser?>(
-                                          future: c.getUser(e.value.authorId),
-                                          builder: (_, u) => ChatItemWidget(
-                                            key: Key(e.value.id.val),
-                                            chat: c.chat!.chat,
-                                            item: e,
-                                            me: c.me!,
-                                            user: u.data,
-                                            onJoinCall: c.joinCall,
-                                            onHide: () =>
-                                                c.hideChatItem(e.value),
-                                            onDelete: () =>
-                                                c.deleteMessage(e.value),
-                                            onReply: () => c
-                                                .repliedMessage.value = e.value,
-                                            onCopy: (text) => c.copyText(text),
-                                            onRepliedTap: (id) =>
-                                                c.animateTo(id),
-                                            animation: _animation,
-                                            onGallery: c.calculateGallery,
-                                            onResend: () =>
-                                                c.resendItem(e.value),
-                                            onEdit: () =>
-                                                c.editMessage(e.value),
-                                          ),
-                                        ),
-                                      );
+                                          if (e.value.authorId != c.me &&
+                                              !chat.isReadBy(e.value, c.me) &&
+                                              c.status.value.isSuccess &&
+                                              !c.status.value.isLoadingMore) {
+                                            widget = VisibilityDetector(
+                                              key: Key(
+                                                  'Detector_${e.value.id.val}'),
+                                              onVisibilityChanged: (info) {
+                                                if (info.visibleFraction > 0) {
+                                                  if (c.lastVisibleItem.value
+                                                          ?.at
+                                                          .isBefore(
+                                                              e.value.at) !=
+                                                      false) {
+                                                    c.lastVisibleItem.value =
+                                                        e.value;
+                                                  }
+                                                }
+                                              },
+                                              child: widget,
+                                            );
+                                          }
 
-                                      if (e.value.authorId != c.me &&
-                                          !chat.isReadBy(e.value, c.me) &&
-                                          c.status.value.isSuccess &&
-                                          !c.status.value.isLoadingMore) {
-                                        widget = VisibilityDetector(
-                                          key:
-                                              Key('Detector_${e.value.id.val}'),
-                                          onVisibilityChanged: (info) {
-                                            if (info.visibleFraction > 0) {
-                                              if (c.lastVisibleItem.value?.at
-                                                      .isBefore(e.value.at) !=
-                                                  false) {
-                                                c.lastVisibleItem.value =
-                                                    e.value;
-                                              }
-                                            }
-                                          },
-                                          child: widget,
-                                        );
-                                      }
-
-                                      if (i == 0) {
-                                        // Display a time over the first message.
-                                        widgets.add(_timeLabel(e.value.at.val));
-                                      } else {
-                                        Rx<ChatItem>? previous =
-                                            c.chat?.messages[i - 1];
-
-                                        // Display a time if difference between
-                                        // messages is more than 30 minutes.
-                                        if (previous != null) {
-                                          if (previous.value.at.val
-                                                  .difference(e.value.at.val)
-                                                  .inMinutes <
-                                              -30) {
+                                          if (i == 0) {
+                                            // Display a time over the first message.
                                             widgets.add(
                                                 _timeLabel(e.value.at.val));
+                                          } else {
+                                            Rx<ChatItem>? previous =
+                                                c.chat?.messages[i - 1];
+
+                                            // Display a time if difference between
+                                            // messages is more than 30 minutes.
+                                            if (previous != null) {
+                                              if (previous.value.at.val
+                                                      .difference(
+                                                          e.value.at.val)
+                                                      .inMinutes <
+                                                  -30) {
+                                                widgets.add(
+                                                    _timeLabel(e.value.at.val));
+                                              }
+                                            }
                                           }
-                                        }
-                                      }
 
-                                      widgets.add(widget);
+                                          widgets.add(widget);
 
-                                      return Padding(
-                                        padding: EdgeInsets.zero,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: widgets,
-                                        ),
-                                      );
-                                    },
-                                    childCount: c.chat?.messages.length,
-                                    initIndex: c.initIndex,
-                                    initOffset: c.initOffset,
-                                    initOffsetBasedOnBottom: false,
-                                    keepPosition: true,
-                                    onItemKey: (i) =>
-                                        c.chat!.messages[i].value.id.val,
+                                          return Padding(
+                                            padding: EdgeInsets.zero,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: widgets,
+                                            ),
+                                          );
+                                        },
+                                        childCount: c.chat?.messages.length,
+                                        initIndex: c.initIndex,
+                                        initOffset: c.initOffset,
+                                        initOffsetBasedOnBottom: false,
+                                        keepPosition: true,
+                                        onItemKey: (i) =>
+                                            c.chat!.messages[i].value.id.val,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),

@@ -53,6 +53,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.item,
     required this.me,
+    required this.selectedText,
     this.user,
     this.onJoinCall,
     this.animation,
@@ -77,6 +78,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Highlighted text in [item].
+  final Rx<String?> selectedText;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -753,7 +757,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
                                 label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                                onPressed: () => widget.onCopy
+                                    ?.call(widget.selectedText.value ?? copyable!),
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(
