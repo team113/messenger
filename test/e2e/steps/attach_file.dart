@@ -35,55 +35,46 @@ import '../world/custom_world.dart';
 /// - Then I attach "test.png" image
 final StepDefinitionGeneric attachFile =
     then2<String, AttachmentType, CustomWorld>(
-  'I attach {string} {attachment}\$',
+  'I attach {string} {attachment}',
   (name, attachmentType, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final ChatController chat =
-        Get.find<ChatController>(tag: router.route.split('/').last);
+    switch (attachmentType) {
+      case AttachmentType.file:
+        final PlatformFile file = PlatformFile(
+          name: name,
+          size: 2,
+          bytes: Uint8List.fromList([1, 1]),
+        );
 
-    _attachFile(attachmentType, name, chat.addPlatformAttachment);
+        if (Get.isRegistered<ChatForwardController>()) {
+          final controller = Get.find<ChatForwardController>();
+          controller.addPlatformAttachment(file);
+        } else {
+          final controller =
+              Get.find<ChatController>(tag: router.route.split('/').last);
+          controller.addPlatformAttachment(file);
+        }
+        break;
+
+      case AttachmentType.image:
+        final PlatformFile image = PlatformFile(
+          name: name,
+          size: 2,
+          bytes: base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+          ),
+        );
+
+        if (Get.isRegistered<ChatForwardController>()) {
+          final controller = Get.find<ChatForwardController>();
+          controller.addPlatformAttachment(image);
+        } else {
+          final controller =
+              Get.find<ChatController>(tag: router.route.split('/').last);
+          controller.addPlatformAttachment(image);
+        }
+        break;
+    }
   },
 );
-
-/// Attaches an [Attachment] with the provided filename and [AttachmentType] to
-/// the currently opened [ChatForwardView].
-///
-/// Examples:
-/// - Then I attach "test.txt" file to forwards
-/// - Then I attach "test.png" image to forwards
-final StepDefinitionGeneric attachFileToForwards =
-    then2<String, AttachmentType, CustomWorld>(
-  'I attach {string} {attachment} to forwards',
-  (name, attachmentType, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-
-    final ChatForwardController chat = Get.find<ChatForwardController>();
-
-    _attachFile(attachmentType, name, chat.addPlatformAttachment);
-  },
-);
-
-/// Calls the [callback] due to provided parameters to attach the file.
-void _attachFile(AttachmentType attachmentType, String name,
-    Function(PlatformFile) callback) {
-  if (attachmentType == AttachmentType.file) {
-    callback(
-      PlatformFile(
-        name: name,
-        size: 2,
-        bytes: Uint8List.fromList([1, 1]),
-      ),
-    );
-  } else {
-    callback(
-      PlatformFile(
-        name: name,
-        size: 2,
-        bytes: base64Decode(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-        ),
-      ),
-    );
-  }
-}

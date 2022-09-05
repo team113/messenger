@@ -22,7 +22,6 @@ Feature: Chat items are forwarded correctly
     And Bob has dialog with me
     And Charlie has dialog with me
     And I am in chat with Bob
-    And I wait until `ChatView` is present
 
   Scenario: User forwards message
     When I fill `MessageField` field with "Wow!"
@@ -32,8 +31,8 @@ Feature: Chat items are forwarded correctly
     When I long press "Wow!" message
     And I tap `ForwardButton` button
     And I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "Check this :)"
-    And I select chat with Charlie to forward
+    Then I fill `ForwardField` field with "Check this :)"
+    And I tap "Charlie" text
     And I tap `SendForward` button
 
     When I am in chat with Charlie
@@ -47,16 +46,15 @@ Feature: Chat items are forwarded correctly
     Then I long press "You saved me, why?" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "Mhm... Monkey."
-    And I attach "test.jpg" image to forwards
-    And I select chat with Charlie to forward
+    Then I fill `ForwardField` field with "Mhm... Monkey."
+    And I attach "test.jpg" image
+    And I tap "Charlie" text
     And I tap `SendForward` button
 
     Then I am in chat with Charlie
-    And I wait until `ChatView` is present
     And I wait until attachment "test.jpg" is present
 
-  Scenario: User forwards message to multiply chats
+  Scenario: User forwards message to multiple chats
     Given user Dave
     And Dave has dialog with me
 
@@ -67,15 +65,13 @@ Feature: Chat items are forwarded correctly
     Then I long press "Important info" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardMessageField` field with "!!"
-    And I select chat with Charlie to forward
-    And I select chat with Dave to forward
+    Then I fill `ForwardField` field with "!!"
+    And I tap "Charlie" text
+    And I tap "Dave" text
     And I tap `SendForward` button
 
     Then I am in chat with Charlie
-    And I wait until `ChatView` is present
     And I wait until text "!!" is present
 
     Then I am in chat with Dave
-    And I wait until `ChatView` is present
     And I wait until text "!!" is present

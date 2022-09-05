@@ -38,7 +38,7 @@ enum WidgetKey {
   DeleteAccountButton,
   EmailsExpandable,
   ForwardButton,
-  ForwardMessageField,
+  ForwardField,
   HomeView,
   IntroductionView,
   Language_enUS,

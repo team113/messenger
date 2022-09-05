@@ -591,7 +591,7 @@ class ChatForwardView extends StatelessWidget {
                   elevation: 6,
                   borderRadius: BorderRadius.circular(25),
                   child: ReactiveTextField(
-                    key: const Key('ForwardMessageField'),
+                    key: const Key('ForwardField'),
                     state: c.send,
                     hint: 'label_send_message_hint'.l10n,
                     minLines: 1,

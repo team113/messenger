@@ -17,14 +17,15 @@
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:get/get.dart';
-import 'package:gherkin/gherkin.dart';
+import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
-/// Waits until the [Attachment] with provided [filename] is present or absent.
+/// Waits until the [Attachment] with provided [Attachment.filename] is present
+/// or absent.
 ///
 /// Examples:
 /// - Then I wait until attachment "test.txt" is absent
@@ -44,11 +45,13 @@ final StepDefinitionGeneric untilAttachmentExists =
             .map((m) => m.value)
             .whereType<ChatMessage>()
             .any((m) => m.attachments.any((a) => a.filename == filename));
+
         switch (existence) {
           case Existence.present:
-            return exist == true;
+            return exist;
+
           case Existence.absent:
-            return exist == false;
+            return !exist;
         }
       },
       timeout: const Duration(seconds: 30),

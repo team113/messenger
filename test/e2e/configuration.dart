@@ -45,7 +45,6 @@ import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
-import 'steps/select_chat_to_forward.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -63,7 +62,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
-        attachFileToForwards,
         copyFromField,
         fillField,
         goToUserPage,
@@ -80,7 +78,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         restartApp,
         seesAs,
         sendsMessageToMe,
-        selectChatToForward,
         signInAs,
         tapDropdownItem,
         tapText,
