@@ -102,8 +102,6 @@ class UserSearchBarController extends GetxController {
     } else {
       searchStatus.value = RxStatus.empty();
       searchResults.value = null;
-      _searchWorker?.dispose();
-      _searchWorker = null;
     }
   }
 
