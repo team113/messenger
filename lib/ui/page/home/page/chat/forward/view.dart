@@ -430,6 +430,12 @@ class ChatForwardView extends StatelessWidget {
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
+                      errorBuilder: (_, __, ___) => const SizedBox(
+                        width: 80,
+                        height: 80,
+                        child:
+                            Center(child: Icon(Icons.error, color: Colors.red)),
+                      ),
                     ),
             )
           else

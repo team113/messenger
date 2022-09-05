@@ -782,10 +782,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             width: 300.0,
                             height: 300.0,
                             child: Center(
-                              child: Icon(
-                                Icons.error,
-                                color: Colors.red,
-                              ),
+                              child: Icon(Icons.error, color: Colors.red),
                             ),
                           ),
                         ),
