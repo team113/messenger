@@ -111,9 +111,11 @@ class ChatService extends DisposableService {
         }
       }
 
-      return _chatRepository.forwardChatItems(chatId, chatId, [
-        ChatItemQuote(item: repliesTo, withText: true, attachments: attachments)
-      ]);
+      return _chatRepository.forwardChatItems(
+        chatId,
+        chatId,
+        [ChatItemQuote(item: repliesTo, attachments: attachments)],
+      );
     }
 
     return _chatRepository.sendChatMessage(

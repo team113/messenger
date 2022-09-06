@@ -1025,7 +1025,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       [
                                         ChatItemQuote(
                                           item: item,
-                                          withText: true,
                                           attachments: attachments,
                                         ),
                                       ],

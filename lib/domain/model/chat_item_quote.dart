@@ -21,8 +21,8 @@ import 'chat_item.dart';
 class ChatItemQuote {
   ChatItemQuote({
     required this.item,
-    required this.withText,
-    required this.attachments,
+    this.withText = true,
+    this.attachments = const [],
   });
 
   /// [ChatItem] to be forwarded.
