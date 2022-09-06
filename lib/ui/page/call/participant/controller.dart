@@ -385,7 +385,7 @@ class ParticipantController extends GetxController {
             return null;
           })
           .whereNotNull()
-          .take(1))
+          .take(3))
         u.id: u,
     };
 

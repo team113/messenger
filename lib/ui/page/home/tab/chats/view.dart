@@ -48,6 +48,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
+import 'create_group/view.dart';
 import 'widget/hovered_ink.dart';
 
 /// View of the `HomeTab.chats` tab.
@@ -69,7 +70,7 @@ class ChatsTabView extends StatelessWidget {
                 title: Text('label_chats'.l10n),
                 leading: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
+                    padding: const EdgeInsets.only(left: 8),
                     child: IconButton(
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
@@ -95,7 +96,7 @@ class ChatsTabView extends StatelessWidget {
                         width: 17.77,
                       ),
                     ),
-                  )
+                  ),
                 ],
                 actions: [
                   Padding(
@@ -104,13 +105,25 @@ class ChatsTabView extends StatelessWidget {
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
-                      onPressed: () => showDialog(
-                        context: context,
-                        builder: (c) => const CreateGroupView(),
-                      ),
+                      onPressed: () async {
+                        await ModalPopup.show(
+                          context: context,
+                          child: const CreateGroupView(),
+                          desktopConstraints: const BoxConstraints(
+                            maxWidth: double.infinity,
+                            maxHeight: double.infinity,
+                          ),
+                          modalConstraints: const BoxConstraints(maxWidth: 380),
+                          mobileConstraints: const BoxConstraints(
+                            maxWidth: double.infinity,
+                            maxHeight: double.infinity,
+                          ),
+                          mobilePadding: const EdgeInsets.all(0),
+                        );
+                      },
                       icon: SvgLoader.asset(
-                        'assets/icons/add.svg',
-                        height: 17,
+                        'assets/icons/group.svg',
+                        height: 18.44,
                       ),
                     ),
                   ),

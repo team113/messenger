@@ -38,7 +38,7 @@ import '/domain/service/contact.dart';
 
 export 'view.dart';
 
-enum SearchFlowStage { success }
+enum SearchFlowStage { group }
 
 /// Controller of the chat member addition modal.
 class SearchController extends GetxController {
@@ -81,19 +81,10 @@ class SearchController extends GetxController {
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
 
-  /// Subscription for the [ChatService.chats] changes.
-  late final StreamSubscription _chatsSubscription;
-
   /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
   late final Worker _stateWorker;
 
   UserId? get me => _chatService.me;
-
-  // /// Returns the current reactive map of [ChatContact]s.
-  // RxObsMap<ChatContactId, RxChatContact> get contacts =>
-  //     _contactService.contacts;
-
-  // RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
 
   @override
   void onInit() {
@@ -123,9 +114,9 @@ class SearchController extends GetxController {
     controller.sliverController.onPaintItemPositionsCallback = (d, list) {
       int? first = list.firstOrNull?.index;
       if (first != null) {
-        if (first >= recent.length + contacts.length) {
+        if (first >= chats.length + contacts.length) {
           selected.value = 2;
-        } else if (first >= recent.length) {
+        } else if (first >= chats.length) {
           selected.value = 1;
         } else {
           selected.value = 0;
@@ -144,7 +135,6 @@ class SearchController extends GetxController {
 
   @override
   void onClose() {
-    _chatsSubscription.cancel();
     _stateWorker.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
@@ -207,13 +197,21 @@ class SearchController extends GetxController {
   final RxInt selected = RxInt(0);
   final FlutterListViewController controller = FlutterListViewController();
 
-  Future<void> openChat({RxUser? user, RxChatContact? contact}) async {
-    user ??= contact?.user.value;
+  Future<void> openChat({
+    RxUser? user,
+    RxChatContact? contact,
+    RxChat? chat,
+  }) async {
+    if (chat != null) {
+      router.chat(chat.chat.value.id);
+    } else {
+      user ??= contact?.user.value;
 
-    if (user != null) {
-      Chat? dialog = user.user.value.dialog;
-      dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-      router.chat(dialog.id, push: true);
+      if (user != null) {
+        Chat? dialog = user.user.value.dialog;
+        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
+        router.chat(dialog.id, push: true);
+      }
     }
   }
 
@@ -221,14 +219,14 @@ class SearchController extends GetxController {
     if (i == 0) {
       controller.jumpTo(0);
     } else if (i == 1) {
-      double to = recent.length * (84 + 10);
+      double to = chats.length * (84 + 10);
       if (to > controller.position.maxScrollExtent) {
         controller.jumpTo(controller.position.maxScrollExtent);
       } else {
         controller.jumpTo(to);
       }
     } else if (i == 2) {
-      double to = (recent.length + contacts.length) * (84 + 10);
+      double to = (chats.length + contacts.length) * (84 + 10);
       if (to > controller.position.maxScrollExtent) {
         controller.jumpTo(controller.position.maxScrollExtent);
       } else {
@@ -237,14 +235,14 @@ class SearchController extends GetxController {
     }
   }
 
-  final RxMap<UserId, RxUser> recent = RxMap();
+  final RxMap<ChatId, RxChat> chats = RxMap();
   final RxMap<UserId, RxChatContact> contacts = RxMap();
   final RxMap<UserId, RxUser> users = RxMap();
 
-  RxMap<UserId, dynamic> getMap(int i) {
-    if (i >= recent.length + contacts.length) {
-      return recent;
-    } else if (i >= recent.length) {
+  RxMap<dynamic, dynamic> getMap(int i) {
+    if (i >= chats.length + contacts.length) {
+      return chats;
+    } else if (i >= chats.length) {
       return contacts;
     }
 
@@ -252,46 +250,56 @@ class SearchController extends GetxController {
   }
 
   dynamic getIndex(int i) {
-    return [...recent.values, ...contacts.values, ...users.values].elementAt(i);
+    return [...chats.values, ...contacts.values, ...users.values].elementAt(i);
   }
 
   void populate() {
-    recent.value = {
-      for (var u in _chatService.chats.values
-          .map((e) {
-            if (e.chat.value.isDialog) {
-              RxUser? user = e.members.values
-                  .firstWhereOrNull((u) => u.user.value.id != me);
-
-              if (query.value != null) {
-                if (user?.user.value.name?.val.contains(query.value!) == true) {
-                  return user;
-                }
-              } else {
-                return user;
-              }
+    chats.value = {
+      for (var u in _chatService.chats.values.where((e) {
+        if (!e.chat.value.isDialog) {
+          if (query.value != null) {
+            if (e.title.value.contains(query.value!) == true) {
+              return true;
             }
+          } else {
+            return true;
+          }
+        }
 
-            return null;
-          })
-          .whereNotNull()
-          .take(1))
-        u.id: u,
+        return false;
+      }))
+        u.chat.value.id: u,
+      // for (var u in _chatService.chats.values
+      //     .map((e) {
+      //       if (e.chat.value.isDialog) {
+      //         RxUser? user = e.members.values
+      //             .firstWhereOrNull((u) => u.user.value.id != me);
+
+      //         if (query.value != null) {
+      //           if (user?.user.value.name?.val.contains(query.value!) == true) {
+      //             return user;
+      //           }
+      //         } else {
+      //           return user;
+      //         }
+      //       }
+
+      //       return null;
+      //     })
+      //     .whereNotNull()
+      //     .take(3))
+      //   u.id: u,
     };
 
     contacts.value = {
       for (var u in _contactService.contacts.values.where((e) {
         if (e.contact.value.users.length == 1) {
-          RxUser? user = e.user.value;
-
-          if (!recent.containsKey(user?.id)) {
-            if (query.value != null) {
-              if (e.contact.value.name.val.contains(query.value!) == true) {
-                return true;
-              }
-            } else {
+          if (query.value != null) {
+            if (e.contact.value.name.val.contains(query.value!) == true) {
               return true;
             }
+          } else {
+            return true;
           }
         }
 
@@ -303,7 +311,7 @@ class SearchController extends GetxController {
     if (searchResults.value?.isNotEmpty == true) {
       users.value = {
         for (var u in searchResults.value!.where((e) {
-          if (!recent.containsKey(e.id) && !contacts.containsKey(e.id)) {
+          if (!contacts.containsKey(e.id)) {
             return true;
           }
 
@@ -318,8 +326,7 @@ class SearchController extends GetxController {
             RxUser? user =
                 e.members.values.firstWhereOrNull((u) => u.user.value.id != me);
 
-            if (!recent.containsKey(user?.id) &&
-                !contacts.containsKey(user?.id)) {
+            if (!contacts.containsKey(user?.id)) {
               if (query.value != null) {
                 if (user?.user.value.name?.val.contains(query.value!) == true) {
                   return user;
@@ -337,6 +344,7 @@ class SearchController extends GetxController {
     }
 
     print(
-        '_populate, recent: ${recent.length}, contact: ${contacts.length}, user: ${users.length}');
+      '_populate, recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
+    );
   }
 }

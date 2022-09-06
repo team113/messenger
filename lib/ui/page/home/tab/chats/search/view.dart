@@ -67,31 +67,91 @@ class SearchView extends StatelessWidget {
               child: ContactTile(
                 contact: contact,
                 user: user,
-                onTap: onTap,
+                onTap: () {
+                  onTap?.call();
+                  Navigator.of(context).pop();
+                },
                 selected: selected,
-                trailing: [
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: selected
-                          ? const CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
-                              radius: 12,
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 14,
+                // trailing: [
+                //   SizedBox(
+                //     width: 30,
+                //     height: 30,
+                //     child: AnimatedSwitcher(
+                //       duration: 200.milliseconds,
+                //       child: selected
+                //           ? const CircleAvatar(
+                //               backgroundColor: Color(0xFF63B4FF),
+                //               radius: 12,
+                //               child: Icon(
+                //                 Icons.check,
+                //                 color: Colors.white,
+                //                 size: 14,
+                //               ),
+                //             )
+                //           : const CircleAvatar(
+                //               backgroundColor: Color(0xFFD7D7D7),
+                //               radius: 12,
+                //             ),
+                //     ),
+                //   ),
+                // ],
+              ),
+            );
+          }
+
+          Widget _chat({
+            required RxChat chat,
+            void Function()? onTap,
+            bool selected = false,
+          }) {
+            Style style = Theme.of(context).extension<Style>()!;
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                height: 84,
+                child: ContextMenuRegion(
+                  key: Key('ContextMenuRegion_${chat.chat.value.id}'),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: style.cardRadius,
+                      border: style.cardBorder,
+                      color: Colors.transparent,
+                    ),
+                    child: Material(
+                      type: MaterialType.card,
+                      borderRadius: style.cardRadius,
+                      color: selected
+                          ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                          : style.cardColor.darken(0.05),
+                      child: InkWell(
+                        borderRadius: style.cardRadius,
+                        onTap: onTap,
+                        hoverColor: selected
+                            ? const Color(0x00D7ECFF)
+                            : const Color(0xFFD7ECFF).withOpacity(0.8),
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                          child: Row(
+                            children: [
+                              AvatarWidget.fromRxChat(chat, radius: 26),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  chat.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
+                                ),
                               ),
-                            )
-                          : const CircleAvatar(
-                              backgroundColor: Color(0xFFD7D7D7),
-                              radius: 12,
-                            ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
             );
           }
@@ -99,14 +159,14 @@ class SearchView extends StatelessWidget {
           Widget child;
 
           switch (c.stage.value) {
-            case SearchFlowStage.success:
+            case SearchFlowStage.group:
               List<Widget> children = [
-                const Center(child: Text('Success')),
+                const Center(child: Text('WIP')),
                 const SizedBox(height: 16),
                 Center(
                   child: ElevatedButton(
                     onPressed: () => c.stage.value = null,
-                    child: const Text('Close'),
+                    child: const Text('Cancel'),
                   ),
                 ),
               ];
@@ -159,7 +219,7 @@ class SearchView extends StatelessWidget {
                               onPressed: () => c.jumpTo(0),
                               child: Obx(() {
                                 return Text(
-                                  'Recent',
+                                  'Chats',
                                   style: thin?.copyWith(
                                     fontSize: 15,
                                     color: c.selected.value == 0
@@ -199,6 +259,21 @@ class SearchView extends StatelessWidget {
                                 );
                               }),
                             ),
+                            const SizedBox(width: 20),
+                            WidgetButton(
+                              onPressed: () => c.jumpTo(2),
+                              child: Obx(() {
+                                return Text(
+                                  'Messages',
+                                  style: thin?.copyWith(
+                                    fontSize: 15,
+                                    color: c.selected.value == 3
+                                        ? const Color(0xFF63B4FF)
+                                        : null,
+                                  ),
+                                );
+                              }),
+                            ),
                           ],
                         ),
                       ),
@@ -225,7 +300,7 @@ class SearchView extends StatelessWidget {
                 const SizedBox(height: 18),
                 Expanded(
                   child: Obx(() {
-                    if (c.recent.isEmpty &&
+                    if (c.chats.isEmpty &&
                         c.contacts.isEmpty &&
                         c.users.isEmpty) {
                       if (c.searchStatus.value.isSuccess) {
@@ -256,64 +331,64 @@ class SearchView extends StatelessWidget {
                               contact: e,
                               onTap: () => c.openChat(contact: e),
                             );
+                          } else if (e is RxChat) {
+                            return _chat(
+                              chat: e,
+                              onTap: () => c.openChat(chat: e),
+                            );
                           }
 
                           return Container();
                         },
-                        childCount: c.contacts.length +
-                            c.users.length +
-                            c.recent.length,
+                        childCount:
+                            c.contacts.length + c.users.length + c.chats.length,
                       ),
                     );
                   }),
                 ),
-                /* const SizedBox(height: 18),
+                const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     children: [
                       Expanded(
                         child: OutlinedRoundedButton(
-                          key: const Key('BackButton'),
                           maxWidth: null,
                           title: const Text(
-                            'Back',
+                            'Close',
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.black),
                           ),
-                          onPressed: () => c.stage.value = null,
-                          color: const Color(0xFF63B4FF),
+                          onPressed: Navigator.of(context).pop,
+                          color: const Color(0xFFEEEEEE),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Obx(() {
-                          bool enabled = (c.selectedContacts.isNotEmpty ||
-                                  c.selectedUsers.isNotEmpty) &&
-                              c.status.value.isEmpty;
-
-                          return OutlinedRoundedButton(
-                            key: const Key('AddDialogMembersButton'),
-                            maxWidth: null,
-                            title: Text(
-                              'Add',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: TextStyle(
-                                color: enabled ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            onPressed: enabled ? c.addMembers : null,
-                            color: enabled
-                                ? const Color(0xFF63B4FF)
-                                : const Color(0xFFEEEEEE),
-                          );
-                        }),
                       ),
                     ],
                   ),
-                ),*/
+                ),
+                // const SizedBox(height: 18),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: OutlinedRoundedButton(
+                //           maxWidth: null,
+                //           title: const Text(
+                //             'Create group',
+                //             overflow: TextOverflow.ellipsis,
+                //             maxLines: 1,
+                //             style: TextStyle(color: Colors.white),
+                //           ),
+                //           onPressed: () =>
+                //               c.stage.value = SearchFlowStage.group,
+                //           color: const Color(0xFF63B4FF),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ];
 
               child = Container(
