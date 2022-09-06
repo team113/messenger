@@ -27,7 +27,7 @@ class UserSearchBarController extends GetxController {
   UserSearchBarController(this._userService);
 
   /// [User]s search results.
-  final RxList<RxUser> searchResults = RxList<RxUser>([]);
+  final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
   /// Recently searched [User]s.
   final RxList<RxUser> recentSearchResults = RxList<RxUser>([]);
@@ -46,11 +46,24 @@ class UserSearchBarController extends GetxController {
   /// [User]s service, used to search [User]s.
   final UserService _userService;
 
+  /// Worker to react on a [SearchResult.status] changes.
+  Worker? _searchWorker;
+
+  @override
+  void onClose() {
+    _searchWorker?.dispose();
+    _searchWorker = null;
+    super.onClose();
+  }
+
   // TODO: Implement search by a [ChatDirectLinkSlug].
   /// Performs searching for [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
-  Future<void> search(String query) async {
+  void search(String query) {
+    _searchWorker?.dispose();
+    _searchWorker = null;
+
     if (query.isNotEmpty) {
       UserNum? num;
       UserName? name;
@@ -78,13 +91,17 @@ class UserSearchBarController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        searchResults.value =
-            await _userService.search(num: num, name: name, login: login);
-        searchStatus.value = RxStatus.success();
+        final SearchResult result =
+            _userService.search(num: num, name: name, login: login);
+
+        searchResults.value = result.users;
+        searchStatus.value = result.status.value;
+        _searchWorker =
+            ever(result.status, (RxStatus s) => searchStatus.value = s);
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      searchResults.clear();
+      searchResults.value = null;
     }
   }
 
