@@ -16,7 +16,7 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [Enabled]es available in an [EnabledParameter].
+/// [Enabled] statuses available in an [EnabledParameter].
 enum Enabled { enabled, disabled }
 
 /// [CustomParameter] representing an enabled status.

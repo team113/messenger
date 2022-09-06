@@ -16,9 +16,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/store/call.dart';
@@ -81,8 +79,7 @@ final StepDefinitionGeneric userDeclineCall = when1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Starts call by the provided [TestUser] in [Chat] with the authenticated
-/// [MyUser].
+/// Starts call by the provided [TestUser] in the relative [CustomUser.chat].
 ///
 /// Examples:
 /// - When Bob starts call

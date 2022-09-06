@@ -64,7 +64,6 @@ import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_popup_call.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_user_hand.dart';
-import 'steps/wait_until_user_search.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -104,7 +103,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         untilUserHand,
         untilUserInCallExists,
-        untilUserInSearch,
         updateBio,
         user,
         userDeclineCall,

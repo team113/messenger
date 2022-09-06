@@ -27,8 +27,8 @@ import '../world/custom_world.dart';
 /// currently active call.
 ///
 /// Examples:
-/// - Then I wait until my hand is lower
-/// - Then I wait until my hand is raise
+/// - Then I wait until my hand is lowered
+/// - Then I wait until my hand is raised
 final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
   'I wait until my hand is {hand}',
   (handStatus, context) async {
@@ -51,12 +51,12 @@ final StepDefinitionGeneric untilMyUserHand = then1<HandStatus, CustomWorld>(
   },
 );
 
-/// Waits until thw provided [TestUser]'s hand is lowered or raised in currently
+/// Waits until the provided [TestUser]'s hand is lowered or raised in currently
 /// active call.
 ///
 /// Examples:
-/// - Then I wait until Bob hand is raise
-/// - Then I wait until Bob hand is lower
+/// - Then I wait until Bob hand is raised
+/// - Then I wait until Bob hand is lowered
 final StepDefinitionGeneric untilUserHand =
     then2<TestUser, HandStatus, CustomWorld>(
   'I wait until {user} hand is {hand}',

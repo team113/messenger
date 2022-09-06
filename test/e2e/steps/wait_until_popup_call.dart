@@ -19,7 +19,7 @@ import 'package:messenger/util/web/web_utils.dart';
 
 import '../world/custom_world.dart';
 
-/// Waits until any call opened in popup exist.
+/// Waits until any call opened in popup is exist.
 ///
 /// Examples:
 /// - Then I wait until call opened in popup

@@ -22,7 +22,7 @@ import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog with the provided text.
+/// their [Chat] with the provided text.
 ///
 /// Examples:
 /// - Bob sends "Hello, Alice!" message to me

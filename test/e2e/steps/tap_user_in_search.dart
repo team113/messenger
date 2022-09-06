@@ -20,7 +20,7 @@ import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Taps the provided [TestUser] in users search results.
+/// Taps the provided [TestUser] in the users search results.
 ///
 /// Examples:
 /// - When I tap Bob in search results

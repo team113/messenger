@@ -20,7 +20,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Adds the provided [TestUser] to group where active call placed.
+/// Adds the provided [TestUser] to the group where active call placed.
 ///
 /// Examples:
 /// - When Bob adds Alice to group call

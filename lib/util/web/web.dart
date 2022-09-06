@@ -115,7 +115,7 @@ external bool _isPopup;
 /// Does nothing on desktop or mobile.
 class WebUtils {
   /// List of opened windows.
-  static List<WindowBase> windows = [];
+  static final List<WindowBase> _windows = [];
 
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -370,7 +370,7 @@ class WebUtils {
       'call_${const Uuid().v4()}',
       'popup=1,width=$width,height=$height,left=$left,top=$top',
     );
-    windows.add(window);
+    _windows.add(window);
 
     try {
       return window.closed != true;
@@ -428,12 +428,12 @@ class WebUtils {
       }
     }
 
-    for (var w in windows) {
+    for (var w in _windows) {
       if (w.closed != true) {
         w.close();
       }
     }
-    windows.clear();
+    _windows.clear();
   }
 
   /// Indicates whether the browser's storage contains a call identified by the
