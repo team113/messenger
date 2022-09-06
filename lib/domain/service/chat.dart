@@ -26,18 +26,18 @@ import '/api/backend/schema.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import 'auth.dart';
 import 'disposable_service.dart';
-import 'my_user.dart';
 
 /// Service responsible for [Chat]s related functionality.
 class ChatService extends DisposableService {
-  ChatService(this._chatRepository, this._myUser);
+  ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
   final AbstractChatRepository _chatRepository;
 
-  /// Service to get an authorized user.
-  final MyUserService _myUser;
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [chats] value is fetched.
@@ -47,7 +47,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUser.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   @override
   void onInit() {
