@@ -1131,7 +1131,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
-    void _onDragEnded(_DragData d) {
+    void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
       c.draggedRenderer.value = null;
       c.doughDraggedRenderer.value = null;
