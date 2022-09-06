@@ -54,6 +54,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.item,
     required this.me,
     required this.selectedText,
+    required this.isTapMessage,
     this.user,
     this.onJoinCall,
     this.animation,
@@ -79,8 +80,11 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// Highlighted text in [item].
+  /// Selected text in [Chat].
   final Rx<String?> selectedText;
+
+  /// Indicator whether text in [Chat] is selected.
+  final Rx<bool> isTapMessage;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -757,8 +761,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
                                 label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy
-                                    ?.call(widget.selectedText.value ?? copyable!),
+                                onPressed: () => widget.onCopy?.call(
+                                    widget.selectedText.value ?? copyable!),
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(
@@ -816,7 +820,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                           child: DefaultTextStyle.merge(
                             style: const TextStyle(fontSize: 16),
-                            child: child,
+                            child: Listener(
+                              onPointerDown: (event) {
+                                if (!widget.isTapMessage.value) {
+                                  widget.isTapMessage.value = true;
+                                }
+                              },
+                              onPointerUp: (event) {
+                                if (widget.isTapMessage.value) {
+                                  widget.isTapMessage.value = false;
+                                }
+                              },
+                              onPointerCancel: (event) {
+                                if (widget.isTapMessage.value) {
+                                  widget.isTapMessage.value = false;
+                                }
+                              },
+                              child: child,
+                            ),
                           ),
                         ),
                       ),
