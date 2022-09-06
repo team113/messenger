@@ -46,7 +46,7 @@ class UserSearchBarController extends GetxController {
   /// [User]s service, used to search [User]s.
   final UserService _userService;
 
-  /// Worker to react on [SearchResult.status] changes.
+  /// Worker to react on a [SearchResult.status] changes.
   Worker? _searchWorker;
 
   @override
@@ -59,7 +59,7 @@ class UserSearchBarController extends GetxController {
   // TODO: Implement search by a [ChatDirectLinkSlug].
   /// Performs searching for [User]s based on the provided [query].
   ///
-  /// Query may be an [UserNum], [UserName] or [UserLogin].
+  /// Query may be a [UserNum], [UserName] or [UserLogin].
   void search(String query) {
     _searchWorker?.dispose();
     _searchWorker = null;

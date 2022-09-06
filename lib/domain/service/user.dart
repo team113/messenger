@@ -96,7 +96,7 @@ class UserService extends DisposableService {
   Future<void> clearCached() async => await _userRepository.clearCache();
 }
 
-/// Result of an [UserService.search] query.
+/// Result of a [UserService.search] query.
 class SearchResult {
   /// Found [RxUser]s themselves.
   final RxList<RxUser> users = RxList<RxUser>();
