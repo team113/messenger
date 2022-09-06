@@ -16,7 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - macOS:
     - Unread chats count badge on app's icon ([#106]).
 - UI:
-    - User information auto-updating on changes ([#7], [#4]).
+    - User information auto-updating on changes ([#7], [#4]);
+    - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]).
     - Media panel:
@@ -89,8 +90,10 @@ All user visible changes to this project will be documented in this file. This p
 [#76]: /../../issues/76
 [#79]: /../../pull/79
 [#80]: /../../pull/80
+[#82]: /../../issues/82
 [#83]: /../../pull/83
 [#85]: /../../pull/85
+[#89]: /../../pull/89
 [#90]: /../../pull/90
 [#92]: /../../issues/92
 [#106]: /../../pull/106
