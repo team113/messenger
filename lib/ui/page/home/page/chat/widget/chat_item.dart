@@ -519,7 +519,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Renders [item] as a replied message.
+  /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
 

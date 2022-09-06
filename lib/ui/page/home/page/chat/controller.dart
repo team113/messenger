@@ -77,7 +77,7 @@ class ChatController extends GetxController {
   /// [RxChat] of this page.
   RxChat? chat;
 
-  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  /// ID of the [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
 
   /// Indicator whether the down FAB should be visible.

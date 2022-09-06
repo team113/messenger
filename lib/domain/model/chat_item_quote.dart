@@ -17,7 +17,7 @@
 import 'attachment.dart';
 import 'chat_item.dart';
 
-/// Quote of the [ChatItem] to be forwarded.
+/// Quote of a [ChatItem] to be forwarded.
 class ChatItemQuote {
   ChatItemQuote({
     required this.item,

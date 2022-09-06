@@ -616,7 +616,7 @@ class ChatForwardView extends StatelessWidget {
     );
   }
 
-  /// Returns an [InkWell] circular button with an [icon].
+  /// Returns an [InkWell] circular button with the provided [icon].
   Widget _button({
     Key? key,
     void Function()? onTap,
