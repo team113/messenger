@@ -131,12 +131,20 @@ class ChatForwardController extends GetxController {
     super.onInit();
   }
 
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
   Future<void> pickFile() => _pickAttachment(FileType.any);
 
-  /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
+  /// to the [attachments].
+  @visibleForTesting
+  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
+    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    await _addAttachment(nativeFile);
+  }
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {
@@ -167,14 +175,6 @@ class ChatForwardController extends GetxController {
         addPlatformAttachment(e);
       }
     }
-  }
-
-  /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
-  /// to the [attachments].
-  @visibleForTesting
-  Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
   }
 
   /// Constructs a [LocalAttachment] from the specified [file] and adds it to
