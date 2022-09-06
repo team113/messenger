@@ -95,7 +95,7 @@ class _HomeViewState extends State<HomeView> {
         _backButtonDispatcher.takePriority();
 
         if (!context.isMobile) {
-          c.sideBarWidth.value = c.applySideBarWidth(c.storedSideBarWidth);
+          c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
         /// Side bar uses a little trick to be responsive:
@@ -194,22 +194,18 @@ class _HomeViewState extends State<HomeView> {
                   MouseRegion(
                     cursor: SystemMouseCursors.resizeLeftRight,
                     child: Scaler(
-                      onDragStart: (_) {
-                        c.sideBarWidth.value =
-                            c.applySideBarWidth(c.sideBarWidth.value);
-                      },
-                      onDragUpdate: (dx, _) {
-                        c.sideBarWidth.value =
-                            c.applySideBarWidth(c.sideBarWidth.value + dx);
-                      },
-                      onDragEnd: (_) => c.saveSideBarWidth(),
+                      onDragStart: (_) => c.sideBarWidth.value =
+                          c.applySideBarWidth(c.sideBarWidth.value),
+                      onDragUpdate: (dx, _) => c.sideBarWidth.value =
+                          c.applySideBarWidth(c.sideBarWidth.value + dx),
+                      onDragEnd: (_) => c.setSideBarWidth(),
                       width: 7,
                       height: context.height,
                     ),
                   ),
                 ],
               )
-            ]
+            ],
           ],
         );
 
@@ -257,7 +253,8 @@ class _HomeViewState extends State<HomeView> {
                     ],
                   )
                 : const Scaffold(
-                    body: Center(child: CircularProgressIndicator())),
+                    body: Center(child: CircularProgressIndicator()),
+                  ),
           ),
         );
       },

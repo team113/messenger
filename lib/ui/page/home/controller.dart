@@ -35,13 +35,13 @@ class HomeController extends GetxController {
   HomeController(this._auth, this._myUser, this._settings);
 
   /// Maximal percentage of the screen's width which side bar can occupy.
-  static double sideBarMaxWidthPercentage = 0.6;
+  static const double sideBarMaxWidthPercentage = 0.5;
 
   /// Minimal width of the side bar.
-  static double sideBarMinWidth = 250;
+  static const double sideBarMinWidth = 250;
 
   /// Current width of the side bar.
-  RxDouble sideBarWidth = RxDouble(350);
+  late final RxDouble sideBarWidth;
 
   /// Controller of the [PageView] tab.
   late PageController pages;
@@ -74,8 +74,8 @@ class HomeController extends GetxController {
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
-  /// Returns stored width of the side bar.
-  double get storedSideBarWidth =>
+  /// Returns the width side bar is allowed to occupy.
+  double get sideBarAllowedWidth =>
       _settings.applicationSettings.value?.sideBarWidth ?? 350;
 
   @override
@@ -88,8 +88,8 @@ class HomeController extends GetxController {
     _myUserSubscription = _myUser.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
 
-    sideBarWidth.value =
-        _settings.applicationSettings.value?.sideBarWidth ?? sideBarWidth.value;
+    sideBarWidth =
+        RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
 
     router.addListener(_onRouterChanged);
   }
@@ -128,18 +128,17 @@ class HomeController extends GetxController {
 
   /// Returns corrected according to the side bar constraints [width] value.
   double applySideBarWidth(double width) {
-    double maxWidth =
-        router.context!.width * HomeController.sideBarMaxWidthPercentage;
+    double maxWidth = router.context!.width * sideBarMaxWidthPercentage;
 
-    if (maxWidth < HomeController.sideBarMinWidth) {
-      maxWidth = HomeController.sideBarMinWidth;
+    if (maxWidth < sideBarMinWidth) {
+      maxWidth = sideBarMinWidth;
     }
 
-    return width.clamp(HomeController.sideBarMinWidth, maxWidth);
+    return width.clamp(sideBarMinWidth, maxWidth);
   }
 
-  /// Stores the [sideBarWidth].
-  Future<void> saveSideBarWidth() =>
+  /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
+  Future<void> setSideBarWidth() =>
       _settings.setSideBarWidth(sideBarWidth.value);
 
   /// Refreshes the controller on [router] change.

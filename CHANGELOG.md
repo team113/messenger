@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Unread chats count badge on app's icon ([#106]).
 - UI:
     - User information auto-updating on changes ([#7], [#4]);
-    - Side bar resizing ([#89], [#82]).
+    - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]).
     - Media panel:
