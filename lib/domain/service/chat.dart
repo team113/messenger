@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
@@ -94,13 +95,36 @@ class ChatService extends DisposableService {
     ChatMessageText? text,
     List<Attachment>? attachments,
     ChatItem? repliesTo,
-  }) =>
-      _chatRepository.sendChatMessage(
+  }) {
+    // Forward the [repliesTo] message to this [Chat], if [text] and
+    // [attachments] are not provided.
+    if (text?.val.isNotEmpty != true &&
+        attachments?.isNotEmpty != true &&
+        repliesTo != null) {
+      List<AttachmentId> attachments = [];
+      if (repliesTo is ChatMessage) {
+        attachments = repliesTo.attachments.map((a) => a.id).toList();
+      } else if (repliesTo is ChatForward) {
+        ChatItem nested = repliesTo.item;
+        if (nested is ChatMessage) {
+          attachments = nested.attachments.map((a) => a.id).toList();
+        }
+      }
+
+      return _chatRepository.forwardChatItems(
         chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
+        chatId,
+        [ChatItemQuote(item: repliesTo, attachments: attachments)],
       );
+    }
+
+    return _chatRepository.sendChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
@@ -223,6 +247,30 @@ class ChatService extends DisposableService {
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) {
+    return _chatRepository.forwardChatItems(
+      from,
+      to,
+      items,
+      text: text,
+      attachments: attachments,
+    );
+  }
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

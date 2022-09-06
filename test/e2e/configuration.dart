@@ -50,6 +50,7 @@ import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
@@ -82,6 +83,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapText,
         tapWidget,
         twoUsers,
+        untilAttachmentExists,
         untilTextExists,
         updateBio,
         user,
