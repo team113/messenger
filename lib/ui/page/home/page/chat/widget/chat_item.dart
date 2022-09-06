@@ -701,11 +701,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     ChatItem item = widget.item.value;
     bool fromMe = item.authorId == widget.me;
 
-    String? copyable;
-    if (item is ChatMessage) {
-      copyable = item.text?.val;
-    }
-
     bool isRead = false;
     if (fromMe) {
       isRead = widget.chat.value?.lastReads.firstWhereOrNull(
@@ -720,6 +715,84 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     bool isSent = item.status.value == SendingStatus.sent;
+
+    final Widget contextMenu;
+    final defaultButtonMenu = [
+      if (item.status.value == SendingStatus.sent) ...[
+        ContextMenuButton(
+          key: const Key('ReplyButton'),
+          label: 'btn_reply'.l10n,
+          onPressed: () => widget.onReply?.call(),
+        ),
+        if (item is ChatMessage &&
+            fromMe &&
+            (item.at
+                    .add(ChatController.editMessageTimeout)
+                    .isAfter(PreciseDateTime.now()) ||
+                !isRead))
+          ContextMenuButton(
+            key: const Key('EditButton'),
+            label: 'btn_edit'.l10n,
+            onPressed: () => widget.onEdit?.call(),
+          ),
+        ContextMenuButton(
+          key: const Key('HideForMe'),
+          label: 'btn_hide_for_me'.l10n,
+          onPressed: () => widget.onHide?.call(),
+        ),
+        if (item.authorId == widget.me &&
+            !widget.chat.value!.isRead(item, widget.me) &&
+            (item is ChatMessage || item is ChatForward))
+          ContextMenuButton(
+            key: const Key('DeleteForAll'),
+            label: 'btn_delete_for_all'.l10n,
+            onPressed: () => widget.onDelete?.call(),
+          ),
+      ],
+      if (item.status.value == SendingStatus.error) ...[
+        ContextMenuButton(
+          key: const Key('Resend'),
+          label: 'btn_resend_message'.l10n,
+          onPressed: () => widget.onResend?.call(),
+        ),
+        ContextMenuButton(
+          key: const Key('Delete'),
+          label: 'btn_delete_message'.l10n,
+          onPressed: () => widget.onDelete?.call(),
+        ),
+      ],
+    ];
+    if (item is ChatMessage) {
+      String copyable = item.text?.val ?? '';
+      contextMenu = ContextMenu(
+        actions: [
+          ContextMenuButton(
+            key: const Key('CopyButton'),
+            label: 'btn_copy_text'.l10n,
+            onPressed: () =>
+                widget.onCopy?.call(widget.selectedText.value ?? copyable),
+          ),
+          ...defaultButtonMenu,
+        ],
+      );
+    } else if (item is ChatCall) {
+      contextMenu = Obx(
+        () => ContextMenu(
+          actions: [
+            if (widget.selectedText.value?.isNotEmpty == true)
+              ContextMenuButton(
+                key: const Key('CopyButton'),
+                label: 'btn_copy_text'.l10n,
+                onPressed: () =>
+                    widget.onCopy?.call(widget.selectedText.value ?? ''),
+              ),
+            ...defaultButtonMenu,
+          ],
+        ),
+      );
+    } else {
+      contextMenu = const SizedBox.shrink();
+    }
 
     return SwipeableStatus(
       animation: widget.animation,
@@ -807,61 +880,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       borderRadius: BorderRadius.circular(15),
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        menu: ContextMenu(
-                          actions: [
-                            if (copyable != null)
-                              ContextMenuButton(
-                                key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy?.call(
-                                    widget.selectedText.value ?? copyable!),
-                              ),
-                            if (item.status.value == SendingStatus.sent) ...[
-                              ContextMenuButton(
-                                key: const Key('ReplyButton'),
-                                label: 'btn_reply'.l10n,
-                                onPressed: () => widget.onReply?.call(),
-                              ),
-                              if (item is ChatMessage &&
-                                  fromMe &&
-                                  (item.at
-                                          .add(
-                                              ChatController.editMessageTimeout)
-                                          .isAfter(PreciseDateTime.now()) ||
-                                      !isRead))
-                                ContextMenuButton(
-                                  key: const Key('EditButton'),
-                                  label: 'btn_edit'.l10n,
-                                  onPressed: () => widget.onEdit?.call(),
-                                ),
-                              ContextMenuButton(
-                                key: const Key('HideForMe'),
-                                label: 'btn_hide_for_me'.l10n,
-                                onPressed: () => widget.onHide?.call(),
-                              ),
-                              if (item.authorId == widget.me &&
-                                  !widget.chat.value!.isRead(item, widget.me) &&
-                                  (item is ChatMessage || item is ChatForward))
-                                ContextMenuButton(
-                                  key: const Key('DeleteForAll'),
-                                  label: 'btn_delete_for_all'.l10n,
-                                  onPressed: () => widget.onDelete?.call(),
-                                ),
-                            ],
-                            if (item.status.value == SendingStatus.error) ...[
-                              ContextMenuButton(
-                                key: const Key('Resend'),
-                                label: 'btn_resend_message'.l10n,
-                                onPressed: () => widget.onResend?.call(),
-                              ),
-                              ContextMenuButton(
-                                key: const Key('Delete'),
-                                label: 'btn_delete_message'.l10n,
-                                onPressed: () => widget.onDelete?.call(),
-                              ),
-                            ],
-                          ],
-                        ),
+                        menu: contextMenu,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(

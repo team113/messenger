@@ -154,11 +154,9 @@ class _SelectableRegionContainerDelegate
         .map((s) => s.getSelectedContent()?.plainText)
         .where((e) => e != null)
         .join('\n');
-    if (join.isEmpty) {
-      if (selection.value != null) {
-        selection.value = null;
-      }
-    } else {
+    if (join.isEmpty && selection.value != null) {
+      selection.value = null;
+    } else if (!(selection.value == null && join.isEmpty)) {
       selection.value = join;
     }
     switch (event.type) {
