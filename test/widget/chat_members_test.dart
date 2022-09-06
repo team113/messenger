@@ -27,13 +27,11 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -42,7 +40,6 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -51,7 +48,6 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -65,22 +61,6 @@ import 'chat_members_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_members_widget');
-
-  var userData = {
-    'id': 'id',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
 
   var chatData = {
     '__typename': 'Chat',
@@ -156,19 +136,11 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
-  AuthService authService =
-      Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
-  await authService.init();
 
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
+  await Future.delayed(Duration.zero);
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -200,18 +172,6 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatVersion('0'),
     )).thenAnswer((_) => Future.value(chatEvents.stream));
-
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
-          },
-        ),
-      ])),
-    );
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -368,8 +328,13 @@ void main() async {
       ])),
     );
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+    AuthService authService =
+        Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
+    await authService.init();
+
+    router = RouterState(authService);
+    router.provider = MockPlatformRouteInformationProvider();
+
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -384,11 +349,9 @@ void main() async {
     );
 
     Get.put(ContactService(contactRepository));
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     AbstractSettingsRepository settingsRepository = Get.put(
         SettingsRepository(settingsProvider, applicationSettingsProvider));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, settingsRepository, callRepository));
     Get.put(UserService(userRepository));
 
@@ -427,10 +390,4 @@ void main() async {
 
     await Get.deleteAll(force: true);
   });
-
-  await myUserProvider.clear();
-  await galleryItemProvider.clear();
-  await contactProvider.clear();
-  await userProvider.clear();
-  await chatProvider.clear();
 }

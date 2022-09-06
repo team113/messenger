@@ -28,7 +28,6 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
@@ -45,9 +44,6 @@ void main() async {
   var sessionData = Get.put(SessionDataHiveProvider());
   await sessionData.init();
   await sessionData.clear();
-  var userProvider = Get.put(MyUserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   var userHiveProvider = Get.put(UserHiveProvider());
