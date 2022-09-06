@@ -320,16 +320,13 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// Timer for updating [duration] of the call.
+  /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
   Timer? _durationTimer;
 
-  /// Timer to toggle [showUi] value.
+  /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
-
-  /// Timer to close more panel.
-  Timer? _morePanelTimer;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
@@ -617,10 +614,6 @@ class CallController extends GetxController {
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
         hoveredRenderer.value = null;
-        if (_morePanelTimer?.isActive != true) {
-          keepMore();
-        }
-
         if (_uiTimer?.isActive != true) {
           keepUi(false);
         }
@@ -761,7 +754,6 @@ class CallController extends GetxController {
     _durationTimer?.cancel();
     _showUiWorker.dispose();
     _uiTimer?.cancel();
-    _morePanelTimer?.cancel();
     _stateWorker.dispose();
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
@@ -933,14 +925,6 @@ class CallController extends GetxController {
         const Duration(seconds: _uiDuration),
         () => showUi.value = false,
       );
-    }
-  }
-
-  /// Keeps the UI open if [keep] is true, and closes the UI after 5 seconds if [keep] is false.
-  void keepMore([bool keep = false]) {
-    _morePanelTimer?.cancel();
-    if (!keep && displayMore.value) {
-      _morePanelTimer = Timer(const Duration(seconds: 5), () => keepUi(false));
     }
   }
 

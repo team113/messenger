@@ -525,7 +525,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
-        // Show additional panel while pointer is within [SizedBox].
+        // More panel [MouseRegion] toggling UI on hover loss.
         Obx(() {
           bool enabled = c.displayMore.value &&
               c.primaryDrags.value == 0 &&
@@ -540,8 +540,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: MouseRegion(
                   opaque: false,
                   hitTestBehavior: HitTestBehavior.translucent,
-                  onEnter: (d) => c.keepMore(true),
-                  onExit: (d) => c.keepMore(false),
+                  onEnter: (d) => c.keepUi(true),
+                  onExit: (d) => c.keepUi(),
                 ),
               ),
             );
