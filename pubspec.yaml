@@ -3,18 +3,18 @@ version: 0.1.0-alpha.5
 publish_to: none
 
 environment:
-  flutter: ">=3.0.0"
-  sdk: ">=2.16.0 <3.0.0"
+  flutter: ">=3.3.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.8.2
   audioplayers: ^1.0.1
   back_button_interceptor: ^6.0.1
-  badges: ^2.0.2
+  badges: ^2.0.3
   callkeep: ^0.3.2
   carousel_slider: ^4.1.1
-  chewie: ^1.3.2
+  chewie: ^1.3.4
   collection: ^1.16.0
   desktop_drop: ^0.3.3
   dio: ^4.0.6
@@ -22,29 +22,29 @@ dependencies:
     git:
       url: https://github.com/krida2000/dough
       path: packages/dough/
-  email_validator: ^2.0.1
+  email_validator: ^2.1.17
   expandable: ^5.0.1
-  file_picker: ^5.0.0
+  file_picker: ^5.0.1
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
   flutter_app_badger: ^1.4.0
-  flutter_background_service: ^2.0.0
-  flutter_background_service_android: ^2.0.0
-  flutter_background_service_ios: ^2.0.0
+  flutter_background_service: ^2.1.3
+  flutter_background_service_android: ^2.0.3
+  flutter_background_service_ios: ^2.1.0
   flutter_list_view: ^1.1.12
-  flutter_local_notifications: ^10.0.0-dev.13
-  flutter_svg: ^1.0.3
+  flutter_local_notifications: ^10.0.0-dev.21
+  flutter_svg: ^1.1.4
   flutter_web_plugins:
     sdk: flutter
   font_awesome_flutter: ^10.1.0
-  get: ^4.6.3
-  google_fonts: ^2.3.2
-  graphql_flutter: ^5.1.1-beta.3
+  get: ^4.6.5
+  google_fonts: ^3.0.1
+  graphql_flutter: ^5.1.1-beta.4
   hive_flutter: ^1.1.0
-  hive: ^2.1.0
-  http: ^0.13.4
+  hive: ^2.2.3
+  http: ^0.13.5
   http_parser: ^4.0.0
   image_picker:
     git:
@@ -59,36 +59,32 @@ dependencies:
       path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0
-  path_provider: ^2.0.10
-  path_provider_android: ^2.0.14
-  path_provider_ios: ^2.0.9
+  path_provider: ^2.0.11
+  path_provider_android: ^2.0.20
+  path_provider_ios: ^2.0.11
   permission_handler: ^9.2.0
-  phone_numbers_parser: ^5.0.3
-  # TODO: Switch to pub.dev version when the following commit is merged into it:
-  #       https://github.com/bluefireteam/photo_view/commit/23063d535909027b8e198c2cffa83bf8f0480c96
-  photo_view:
-    git:
-      url: https://github.com/bluefireteam/photo_view.git
-      ref: master
-  platform_detect: ^2.0.3
-  rive: ^0.9.0
-  sentry_flutter: ^6.5.1
-  share_plus: ^4.0.9
+  phone_numbers_parser: ^7.0.0
+  photo_view: ^0.14.0
+  platform_detect: ^2.0.7
+  rive: ^0.9.1
+  sentry_flutter: ^6.9.1
+  share_plus: ^4.0.10+1
   sliding_up_panel: ^2.0.0+1
   toml: ^0.13.1
   universal_io: ^2.0.4
   uuid: ^3.0.6
-  vibration: ^1.7.4-nullsafety.0
-  video_player: ^2.4.2
+  vibration: ^1.7.6
+  video_player: ^2.4.7
   visibility_detector: ^0.3.3
+  wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
-  window_manager: ^0.2.3
+  window_manager: ^0.2.7
 
 dev_dependencies:
-  artemis: ^7.7.0-beta
+  artemis: ^7.9.0-beta
   build: ^2.3.0
-  build_runner: ^2.1.10
-  dartdoc: ^5.0.1
+  build_runner: ^2.2.0
+  dartdoc: ^6.0.1
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -101,16 +97,16 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
-  hive_generator: ^1.1.2
-  json_serializable: ^6.2.0
-  mockito: ^5.1.0
-  network_image_mock: ^2.1.0
+  hive_generator: ^1.1.3
+  json_serializable: ^6.3.1
+  mockito: 5.2.0
+  network_image_mock: ^2.1.1
   sentry_dart_plugin: ^1.0.0-beta.2
   yaml: ^3.1.0
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^4.0.0
+  analyzer: ^4.6.0
 
 flutter:
   uses-material-design: true

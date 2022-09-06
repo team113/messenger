@@ -277,8 +277,8 @@ class UserPhone extends NewType<String> {
       throw const FormatException('Does not match validation RegExp');
     }
     try {
-      var number = PhoneNumber.fromRaw(val);
-      if (!number.validate()) {
+      PhoneNumber number = PhoneNumber.parse(val);
+      if (!number.isValid()) {
         throw const FormatException('Does not match validation RegExp');
       }
     } on PhoneNumberException {
@@ -293,6 +293,11 @@ class UserPhone extends NewType<String> {
 /// Direct link to a `Chat`.
 @HiveType(typeId: ModelTypeId.chatDirectLink)
 class ChatDirectLink {
+  ChatDirectLink({
+    required this.slug,
+    this.usageCount = 0,
+  });
+
   /// Unique slug associated with this [ChatDirectLink].
   @HiveField(0)
   ChatDirectLinkSlug slug;
@@ -300,11 +305,6 @@ class ChatDirectLink {
   /// Number of times this [ChatDirectLink] has been used.
   @HiveField(1)
   int usageCount;
-
-  ChatDirectLink({
-    required this.slug,
-    required this.usageCount,
-  });
 }
 
 /// Slug of a [ChatDirectLink].
