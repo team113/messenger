@@ -74,6 +74,10 @@ class HomeController extends GetxController {
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
+  /// Returns stored width of the side bar.
+  double get storedSideBarWidth =>
+      _settings.applicationSettings.value?.sideBarWidth ?? 350;
+
   @override
   void onInit() {
     super.onInit();
@@ -127,13 +131,7 @@ class HomeController extends GetxController {
     double maxWidth =
         router.context!.width * HomeController.sideBarMaxWidthPercentage;
 
-    if (HomeController.sideBarMinWidth <= maxWidth) {
-      width = width.clamp(HomeController.sideBarMinWidth, maxWidth);
-    } else {
-      width = maxWidth;
-    }
-
-    return width;
+    return width.clamp(HomeController.sideBarMinWidth, maxWidth);
   }
 
   /// Stores the [sideBarWidth].

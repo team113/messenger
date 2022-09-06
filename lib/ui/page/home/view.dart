@@ -94,7 +94,7 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        c.sideBarWidth.value = c.applySideBarWidth(c.sideBarWidth.value);
+        c.sideBarWidth.value = c.applySideBarWidth(c.storedSideBarWidth);
 
         /// Side bar uses a little trick to be responsive:
         ///
@@ -181,27 +181,32 @@ class _HomeViewState extends State<HomeView> {
               );
             }),
             if (!context.isMobile) ...[
-              const VerticalDivider(
-                width: 0.5,
-                thickness: 0.5,
-                color: Color(0xFFE0E0E0),
-              ),
-              MouseRegion(
-                cursor: SystemMouseCursors.resizeLeftRight,
-                child: Scaler(
-                  onDragStart: (_) {
-                    c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value);
-                  },
-                  onDragUpdate: (dx, _) {
-                    c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value + dx);
-                  },
-                  onDragEnd: (_) => c.saveSideBarWidth(),
-                  width: Scaler.size / 2,
-                  height: context.height,
-                ),
-              ),
+              Stack(
+                alignment: AlignmentDirectional.topStart,
+                children: [
+                  const VerticalDivider(
+                    width: 0.5,
+                    thickness: 0.5,
+                    color: Color(0xFFE0E0E0),
+                  ),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.resizeLeftRight,
+                    child: Scaler(
+                      onDragStart: (_) {
+                        c.sideBarWidth.value =
+                            c.applySideBarWidth(c.sideBarWidth.value);
+                      },
+                      onDragUpdate: (dx, _) {
+                        c.sideBarWidth.value =
+                            c.applySideBarWidth(c.sideBarWidth.value + dx);
+                      },
+                      onDragEnd: (_) => c.saveSideBarWidth(),
+                      width: 7,
+                      height: context.height,
+                    ),
+                  ),
+                ],
+              )
             ]
           ],
         );
