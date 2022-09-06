@@ -94,7 +94,9 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        c.sideBarWidth.value = c.applySideBarWidth(c.storedSideBarWidth);
+        if (!context.isMobile) {
+          c.sideBarWidth.value = c.applySideBarWidth(c.storedSideBarWidth);
+        }
 
         /// Side bar uses a little trick to be responsive:
         ///
