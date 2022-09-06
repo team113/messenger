@@ -483,7 +483,7 @@ class CallController extends GetxController {
         ? RxDouble(50)
         : RxDouble(size.height / 2 - height.value / 2);
 
-    void _onChat(RxChat? v) {
+    void onChat(RxChat? v) {
       chat.value = v;
       if (!isGroup) {
         secondaryAlignment.value = null;
@@ -500,7 +500,7 @@ class CallController extends GetxController {
         _durationSubscription?.cancel();
 
         if (v != null) {
-          void _updateTitle() {
+          void updateTitle() {
             final Map<String, String> args = {
               'title': v.title.value,
               'state': state.value.name,
@@ -541,19 +541,19 @@ class CallController extends GetxController {
             );
           }
 
-          _updateTitle();
+          updateTitle();
 
           _titleSubscription =
-              _currentCall.value.members.listen((_) => _updateTitle());
-          _durationSubscription = duration.listen((_) => _updateTitle());
+              _currentCall.value.members.listen((_) => updateTitle());
+          _durationSubscription = duration.listen((_) => updateTitle());
         }
       }
     }
 
-    await _chatService.get(_currentCall.value.chatId.value).then(_onChat);
+    await _chatService.get(_currentCall.value.chatId.value).then(onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_onChat),
+      (ChatId id) => _chatService.get(id).then(onChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {

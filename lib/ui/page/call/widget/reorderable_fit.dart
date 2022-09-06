@@ -572,7 +572,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   Widget build(BuildContext context) {
     /// Returns a visual representation of the [_ReorderableItem] with provided
     /// [index].
-    Widget _cell(int index) {
+    Widget cell(int index) {
       var item = _items[index];
       return Stack(
         children: [
@@ -692,13 +692,13 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     }
 
     /// Creates a column of a row at [rowIndex] index.
-    List<Widget> _createColumn(int rowIndex) {
+    List<Widget> createColumn(int rowIndex) {
       final List<Widget> column = [];
 
       for (int columnIndex = 0; columnIndex < widget.mColumns; columnIndex++) {
         final cellIndex = rowIndex * widget.mColumns + columnIndex;
         if (cellIndex <= _items.length - 1) {
-          column.add(Expanded(child: _cell(cellIndex)));
+          column.add(Expanded(child: cell(cellIndex)));
           if (widget.dividerColor != null &&
               columnIndex < widget.mColumns - 1 &&
               cellIndex < _items.length - 1) {
@@ -717,12 +717,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     }
 
     /// Creates a row of a [_createColumn]s.
-    List<Widget> _createRows() {
+    List<Widget> createRows() {
       final List<Widget> rows = [];
       final rowCount = (_items.length / widget.mColumns).ceil();
 
       for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-        final List<Widget> column = _createColumn(rowIndex);
+        final List<Widget> column = createColumn(rowIndex);
         rows.add(Expanded(child: Row(children: column)));
         if (widget.dividerColor != null && rowIndex < rowCount - 1) {
           rows.add(IgnorePointer(
@@ -794,12 +794,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                             (i, e) => SizedBox(
                               width: widget.wrapSize,
                               height: widget.wrapSize,
-                              child: _cell(i),
+                              child: cell(i),
                             ),
                           )
                           .toList(),
                     )
-                  : Column(children: _createRows()),
+                  : Column(children: createRows()),
             ),
           ),
 
