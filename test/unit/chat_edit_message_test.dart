@@ -16,7 +16,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -25,22 +24,17 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/model/my_user.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -55,22 +49,6 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-
-  var userData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -122,29 +100,11 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-  when(graphQlProvider.myUserEvents(
-    MyUserVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
-
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...userData},
-        },
-      )
-    ])),
-  );
-
   test('ChatService successfully edits a ChatMessage', () async {
     var galleryItemProvider = GalleryItemHiveProvider();
     await galleryItemProvider.init();
     var sessionProvider = Get.put(SessionDataHiveProvider());
     await sessionProvider.init();
-    var myUserProvider = Get.put(MyUserHiveProvider());
-    await myUserProvider.init();
     var userProvider = Get.put(UserHiveProvider());
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
@@ -160,15 +120,10 @@ void main() async {
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
 
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.editChatMessageText(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -198,8 +153,6 @@ void main() async {
     await galleryItemProvider.init();
     var sessionProvider = Get.put(SessionDataHiveProvider());
     await sessionProvider.init();
-    var myUserProvider = Get.put(MyUserHiveProvider());
-    await myUserProvider.init();
     var userProvider = Get.put(UserHiveProvider());
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
@@ -215,15 +168,10 @@ void main() async {
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
 
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatHiveProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.editChatMessageText(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
