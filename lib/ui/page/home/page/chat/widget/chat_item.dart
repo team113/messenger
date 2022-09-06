@@ -43,6 +43,7 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
+import 'listener_widget.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -191,13 +192,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     var message = widget.item.value as ChatMemberInfo;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Center(child: Text('${message.action}')),
+      child: Center(
+        child: ListenerWidget(
+          isTapMessage: widget.isTapMessage,
+          child: Text('${message.action}'),
+        ),
+      ),
     );
   }
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    return _rounded(context, Text('label_forwarded_message'.l10n));
+    return _rounded(
+      context,
+      ListenerWidget(
+        isTapMessage: widget.isTapMessage,
+        child: Text('label_forwarded_message'.l10n),
+      ),
+    );
   }
 
   /// Renders [widget.item] as [ChatMessage].
@@ -223,7 +235,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: const Key('ChatMessage'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (msg.text != null) Text(msg.text!.val),
+          if (msg.text != null)
+            ListenerWidget(
+              isTapMessage: widget.isTapMessage,
+              child: Text(msg.text!.val),
+            ),
           if (msg.text != null && msg.attachments.isNotEmpty)
             const SizedBox(height: 5),
           if (media.isNotEmpty)
@@ -417,22 +433,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                       ),
                       Flexible(
-                        child: Text(
-                          e.filename,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        child: ListenerWidget(
+                          isTapMessage: widget.isTapMessage,
+                          child: Text(
+                            e.filename,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 1),
-                        child: Text(
-                          '${e.size ~/ 1024} KB',
-                          style: const TextStyle(
-                            color: Color(0xFF888888),
-                            fontSize: 13,
+                        child: ListenerWidget(
+                          isTapMessage: widget.isTapMessage,
+                          child: Text(
+                            '${e.size ~/ 1024} KB',
+                            style: const TextStyle(
+                              color: Color(0xFF888888),
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
                           ),
-                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -531,22 +553,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: ListenerWidget(
+                      isTapMessage: widget.isTapMessage,
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                   if (time != null) ...[
                     const SizedBox(width: 9),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 1),
-                      child: Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0xFF888888), fontSize: 13),
+                      child: ListenerWidget(
+                        isTapMessage: widget.isTapMessage,
+                        child: Text(
+                          time,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Color(0xFF888888), fontSize: 13),
+                        ),
                       ),
                     ),
                   ],
@@ -580,10 +608,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
       }
 
-      return Text(
-        desc.toString(),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      return ListenerWidget(
+        isTapMessage: widget.isTapMessage,
+        child: Text(
+          desc.toString(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       );
     } else if (item is ChatCall) {
       String title = 'label_chat_call_ended'.l10n;
@@ -621,16 +652,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title)),
+          Flexible(
+            child: ListenerWidget(
+              isTapMessage: widget.isTapMessage,
+              child: Text(title),
+            ),
+          ),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
+              child: ListenerWidget(
+                isTapMessage: widget.isTapMessage,
+                child: Text(
+                  time,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(color: Color(0xFF888888), fontSize: 13),
+                ),
               ),
             ),
           ],
@@ -638,13 +678,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      return Text(item.action.toString());
+      return ListenerWidget(
+        isTapMessage: widget.isTapMessage,
+        child: Text(item.action.toString()),
+      );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      return const Text('Forwarded message');
+      return ListenerWidget(
+        isTapMessage: widget.isTapMessage,
+        child: const Text('Forwarded message'),
+      );
     }
 
-    return Text('err_unknown'.l10n);
+    return ListenerWidget(
+      isTapMessage: widget.isTapMessage,
+      child: Text('err_unknown'.l10n),
+    );
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -682,7 +731,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isRead: isSent && (!fromMe || isRead),
       isError: widget.item.value.status.value == SendingStatus.error,
       isSending: widget.item.value.status.value == SendingStatus.sending,
-      swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      swipeable: ListenerWidget(
+        isTapMessage: widget.isTapMessage,
+        child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      ),
       child: Row(
         crossAxisAlignment:
             fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -820,24 +872,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                           child: DefaultTextStyle.merge(
                             style: const TextStyle(fontSize: 16),
-                            child: Listener(
-                              onPointerDown: (event) {
-                                if (!widget.isTapMessage.value) {
-                                  widget.isTapMessage.value = true;
-                                }
-                              },
-                              onPointerUp: (event) {
-                                if (widget.isTapMessage.value) {
-                                  widget.isTapMessage.value = false;
-                                }
-                              },
-                              onPointerCancel: (event) {
-                                if (widget.isTapMessage.value) {
-                                  widget.isTapMessage.value = false;
-                                }
-                              },
-                              child: child,
-                            ),
+                            child: child,
                           ),
                         ),
                       ),

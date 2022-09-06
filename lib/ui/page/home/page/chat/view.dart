@@ -48,6 +48,7 @@ import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
 import 'widget/custom_selection.dart';
+import 'widget/listener_widget.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -66,8 +67,10 @@ class _ChatViewState extends State<ChatView>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] of [SwipeableStatus]es.
   late final AnimationController _animation;
+
   /// Selected text in [Chat].
   final Rx<String?> _selectedText = Rx<String?>(null);
+  
   /// Indicator whether text in [Chat] is selected.
   final Rx<bool> _isTapMessage = Rx(false);
 
@@ -249,12 +252,16 @@ class _ChatViewState extends State<ChatView>
                                                 vertical: 4,
                                               ),
                                               child: Center(
-                                                child: Text(
-                                                  'label_unread_messages'.l10n,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
+                                                child: ListenerWidget(
+                                                  isTapMessage: _isTapMessage,
+                                                  child: Text(
+                                                    'label_unread_messages'
+                                                        .l10n,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                    textAlign: TextAlign.center,
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
                                             ),
@@ -360,10 +367,16 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               ),
                             ),
+
                             if ((c.chat!.status.value.isSuccess ||
                                     c.chat!.status.value.isEmpty) &&
                                 c.chat!.messages.isEmpty)
-                              const Center(child: Text('No messages')),
+                              Center(
+                                child: ListenerWidget(
+                                  isTapMessage: _isTapMessage,
+                                  child: const Text('No messages'),
+                                ),
+                              ),
                             if (c.chat!.status.value.isLoading)
                               const Center(child: CircularProgressIndicator()),
                             Obx(
@@ -518,7 +531,10 @@ class _ChatViewState extends State<ChatView>
           crossAxisAlignment: CrossAxisAlignment.center,
           swipeable: Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: Text(DateFormat('dd.MM.yy').format(time)),
+            child: ListenerWidget(
+              isTapMessage: _isTapMessage,
+              child: Text(DateFormat('dd.MM.yy').format(time)),
+            ),
           ),
           child: Center(
             child: Container(
@@ -527,9 +543,12 @@ class _ChatViewState extends State<ChatView>
                 borderRadius: BorderRadius.circular(30),
                 color: Colors.white,
               ),
-              child: Text(
-                time.toRelative(),
-                style: const TextStyle(color: Color(0xFF888888)),
+              child: ListenerWidget(
+                isTapMessage: _isTapMessage,
+                child: Text(
+                  time.toRelative(),
+                  style: const TextStyle(color: Color(0xFF888888)),
+                ),
               ),
             ),
           ),
@@ -917,7 +936,7 @@ class _ChatViewState extends State<ChatView>
                       e.filename,
                       style: const TextStyle(fontSize: 9),
                       textAlign: TextAlign.center,
-                      maxLines: 5,
+                      maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
