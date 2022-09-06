@@ -17,17 +17,17 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
 import '/routes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
@@ -95,6 +95,10 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
+        if (!context.isMobile) {
+          c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
+        }
+
         /// Side bar uses a little trick to be responsive:
         ///
         /// 1. On mobile, side bar is full-width and the navigator's first page
@@ -112,145 +116,150 @@ class _HomeViewState extends State<HomeView> {
           opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: context.isMobile
-                      ? context.width
-                      : context.width > HomeController.maxSideBarExpandWidth
-                          ? HomeController.maxSideBarExpandWidth *
-                              HomeController.sideBarWidthPercentage
-                          : context.width *
-                              HomeController.sideBarWidthPercentage,
-                ),
-                child: ConditionalBackdropFilter(
-                  condition: context.isMobile,
-                  filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                  child: Container(
-                    color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                    child: Scaffold(
-                      // backgroundColor: Colors.transparent,
-                      body: Listener(
-                        onPointerSignal: (s) {
-                          if (s is PointerScrollEvent) {
-                            if (s.scrollDelta.dx.abs() < 3 &&
-                                (s.scrollDelta.dy.abs() > 3 ||
-                                    c.verticalScrollTimer.value != null)) {
-                              c.verticalScrollTimer.value?.cancel();
-                              c.verticalScrollTimer.value =
-                                  Timer(150.milliseconds, () {
-                                c.verticalScrollTimer.value = null;
-                              });
+              Obx(() {
+                double width = c.sideBarWidth.value;
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: context.isMobile ? context.width : width,
+                  ),
+                  child: ConditionalBackdropFilter(
+                    condition: context.isMobile,
+                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                    child: Container(
+                      color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                      child: Scaffold(
+                        // backgroundColor: Colors.transparent,
+                        body: Listener(
+                          onPointerSignal: (s) {
+                            if (s is PointerScrollEvent) {
+                              if (s.scrollDelta.dx.abs() < 3 &&
+                                  (s.scrollDelta.dy.abs() > 3 ||
+                                      c.verticalScrollTimer.value != null)) {
+                                c.verticalScrollTimer.value?.cancel();
+                                c.verticalScrollTimer.value =
+                                    Timer(150.milliseconds, () {
+                                  c.verticalScrollTimer.value = null;
+                                });
+                              }
                             }
-                          }
-                        },
-                        child: Obx(
-                          () => PageView(
-                            physics: c.verticalScrollTimer.value == null
-                                ? null
-                                : const NeverScrollableScrollPhysics(),
-                            controller: c.pages,
-                            onPageChanged: (i) {
-                              router.tab = HomeTab.values[i];
-                              c.page.value = router.tab;
-                            },
+                          },
+                          child: Obx(
+                            () => PageView(
+                              physics: c.verticalScrollTimer.value == null
+                                  ? null
+                                  : const NeverScrollableScrollPhysics(),
+                              controller: c.pages,
+                              onPageChanged: (i) {
+                                router.tab = HomeTab.values[i];
+                                c.page.value = router.tab;
+                              },
 
-                            /// [KeepAlivePage] used to keep the tabs' states.
-                            children: const [
-                              KeepAlivePage(child: ContactsTabView()),
-                              KeepAlivePage(child: ChatsTabView()),
-                              KeepAlivePage(child: MenuTabView()),
-                            ],
+                              /// [KeepAlivePage] used to keep the tabs' states.
+                              children: const [
+                                KeepAlivePage(child: ContactsTabView()),
+                                KeepAlivePage(child: ChatsTabView()),
+                                KeepAlivePage(child: MenuTabView()),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      extendBody: true,
-                      bottomNavigationBar: SafeArea(
-                        child: Obx(
-                          () => CustomNavigationBar(
-                            selectedColor: const Color(0xFF63B4FF),
-                            unselectedColor: const Color(0xFF88c6ff),
-                            size: 30,
-                            items: [
-                              CustomNavigationBarItem(
-                                key: Key('ContactsButton'),
-                                // icon: FontAwesomeIcons.solidCircleUser,
-                                // label: 'label_tab_contacts'.l10n,
-                                leading: Obx(
-                                  () => AnimatedOpacity(
-                                    duration: 150.milliseconds,
-                                    opacity: c.page.value == HomeTab.contacts
-                                        ? 1
-                                        : 0.8,
-                                    child: SvgLoader.asset(
-                                      'assets/icons/contacts_active.svg',
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                key: const Key('ChatsButton'),
-                                // icon: FontAwesomeIcons.solidComment,
-                                // label: 'label_tab_chats'.l10n,
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}',
-                                leading: Obx(
-                                  () => Padding(
-                                    padding: const EdgeInsets.only(top: 0),
-                                    child: AnimatedOpacity(
+                        extendBody: true,
+                        bottomNavigationBar: SafeArea(
+                          child: Obx(
+                            () => CustomNavigationBar(
+                              selectedColor: const Color(0xFF63B4FF),
+                              unselectedColor: const Color(0xFF88c6ff),
+                              size: 30,
+                              items: [
+                                CustomNavigationBarItem(
+                                  key: Key('ContactsButton'),
+                                  // icon: FontAwesomeIcons.solidCircleUser,
+                                  // label: 'label_tab_contacts'.l10n,
+                                  leading: Obx(
+                                    () => AnimatedOpacity(
                                       duration: 150.milliseconds,
-                                      opacity: c.page.value == HomeTab.chats
+                                      opacity: c.page.value == HomeTab.contacts
                                           ? 1
                                           : 0.8,
                                       child: SvgLoader.asset(
-                                        'assets/icons/chats_active.svg',
-                                        width: 36.06,
+                                        'assets/icons/contacts_active.svg',
+                                        width: 30,
                                         height: 30,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              CustomNavigationBarItem(
-                                key: const Key('MenuButton'),
-                                // icon: FontAwesomeIcons.bars,
-                                leading: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2),
-                                  child: Obx(
-                                    () => AnimatedOpacity(
-                                      duration: 150.milliseconds,
-                                      opacity: c.page.value == HomeTab.menu
-                                          ? 1
-                                          : 0.8,
-                                      child: AvatarWidget.fromMyUser(
-                                        c.myUser.value,
-                                        radius: 15,
+                                CustomNavigationBarItem(
+                                  key: const Key('ChatsButton'),
+                                  // icon: FontAwesomeIcons.solidComment,
+                                  // label: 'label_tab_chats'.l10n,
+                                  badge: c.unreadChatsCount.value == 0
+                                      ? null
+                                      : '${c.unreadChatsCount.value}',
+                                  leading: Obx(
+                                    () => Padding(
+                                      padding: const EdgeInsets.only(top: 0),
+                                      child: AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity: c.page.value == HomeTab.chats
+                                            ? 1
+                                            : 0.8,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/chats_active.svg',
+                                          width: 36.06,
+                                          height: 30,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                // label: 'label_tab_menu'.l10n,
-                              ),
-                            ],
-                            currentIndex: router.tab.index,
-                            onTap: (i) {
-                              c.pages.jumpToPage(i);
-                            },
+                                CustomNavigationBarItem(
+                                  key: const Key('MenuButton'),
+                                  // icon: FontAwesomeIcons.bars,
+                                  leading: Padding(
+                                    padding: const EdgeInsets.only(bottom: 2),
+                                    child: Obx(
+                                      () => AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity: c.page.value == HomeTab.menu
+                                            ? 1
+                                            : 0.8,
+                                        child: AvatarWidget.fromMyUser(
+                                          c.myUser.value,
+                                          radius: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // label: 'label_tab_menu'.l10n,
+                                ),
+                              ],
+                              currentIndex: router.tab.index,
+                              onTap: (i) {
+                                c.pages.jumpToPage(i);
+                              },
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              // if (!context.isMobile)
-              //   const VerticalDivider(
-              //     width: 0.5,
-              //     thickness: 0.5,
-              //     color: Color(0xFFDADADA),
-              //   )
+                );
+              }),
+              if (!context.isMobile) ...[
+                MouseRegion(
+                  cursor: SystemMouseCursors.resizeLeftRight,
+                  child: Scaler(
+                    onDragStart: (_) => c.sideBarWidth.value =
+                        c.applySideBarWidth(c.sideBarWidth.value),
+                    onDragUpdate: (dx, _) => c.sideBarWidth.value =
+                        c.applySideBarWidth(c.sideBarWidth.value + dx),
+                    onDragEnd: (_) => c.setSideBarWidth(),
+                    width: 7,
+                    height: context.height,
+                  ),
+                )
+              ],
             ],
           ),
         );
@@ -263,18 +272,14 @@ class _HomeViewState extends State<HomeView> {
           child: LayoutBuilder(
             builder: (context, constraints) => Row(
               children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: context.isMobile
-                        ? 0
-                        : context.width > HomeController.maxSideBarExpandWidth
-                            ? HomeController.maxSideBarExpandWidth *
-                                HomeController.sideBarWidthPercentage
-                            : context.width *
-                                HomeController.sideBarWidthPercentage,
-                  ),
-                  child: Container(),
-                ),
+                Obx(() {
+                  double width = c.sideBarWidth.value;
+                  return ConstrainedBox(
+                    constraints:
+                        BoxConstraints(maxWidth: context.isMobile ? 0 : width),
+                    child: Container(),
+                  );
+                }),
                 Expanded(
                   child: Router(
                     routerDelegate: _routerDelegate,
@@ -294,8 +299,8 @@ class _HomeViewState extends State<HomeView> {
         /// Otherwise, [Stack] widget will be updated, which will lead its
         /// children to be updated as well.
         return CallOverlayView(
-          child: Obx(
-            () => Stack(
+          child: Obx(() {
+            return Stack(
               key: const Key('HomeView'),
               children: [
                 Positioned.fill(
@@ -320,24 +325,18 @@ class _HomeViewState extends State<HomeView> {
                                 children: [
                                   ConditionalBackdropFilter(
                                     filter: ImageFilter.blur(
-                                        sigmaX: 100, sigmaY: 100),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: context.isMobile
-                                            ? 0
-                                            : context.width >
-                                                    HomeController
-                                                        .maxSideBarExpandWidth
-                                                ? HomeController
-                                                        .maxSideBarExpandWidth *
-                                                    HomeController
-                                                        .sideBarWidthPercentage
-                                                : context.width *
-                                                    HomeController
-                                                        .sideBarWidthPercentage,
-                                      ),
-                                      child: Container(),
+                                      sigmaX: 100,
+                                      sigmaY: 100,
                                     ),
+                                    child: Obx(() {
+                                      double width = c.sideBarWidth.value;
+                                      return ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                            maxWidth:
+                                                context.isMobile ? 0 : width),
+                                        child: Container(),
+                                      );
+                                    }),
                                   ),
                                   Expanded(
                                     child: IgnorePointer(
@@ -370,27 +369,19 @@ class _HomeViewState extends State<HomeView> {
                           if (!context.isMobile) ...[
                             Row(
                               children: [
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: context.isMobile
-                                        ? 0
-                                        : context.width >
-                                                HomeController
-                                                    .maxSideBarExpandWidth
-                                            ? HomeController
-                                                    .maxSideBarExpandWidth *
-                                                HomeController
-                                                    .sideBarWidthPercentage
-                                            : context.width *
-                                                HomeController
-                                                    .sideBarWidthPercentage,
-                                  ),
-                                  child: Container(),
-                                ),
+                                Obx(() {
+                                  double width = c.sideBarWidth.value;
+                                  return ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                        maxWidth: context.isMobile ? 0 : width),
+                                    child: Container(),
+                                  );
+                                }),
                                 Expanded(
                                   child: IgnorePointer(
                                     child: Container(
-                                        color: const Color(0x04000000)),
+                                      color: const Color(0x04000000),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -413,7 +404,9 @@ class _HomeViewState extends State<HomeView> {
                 ] else ...[
                   const Scaffold(
                     backgroundColor: Colors.transparent,
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   )
                 ],
                 // Align(
@@ -453,8 +446,8 @@ class _HomeViewState extends State<HomeView> {
                 //   ),
                 // ),
               ],
-            ),
-          ),
+            );
+          }),
         );
       },
     );

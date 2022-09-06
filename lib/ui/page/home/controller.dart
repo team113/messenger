@@ -35,11 +35,14 @@ export 'view.dart';
 class HomeController extends GetxController {
   HomeController(this._auth, this._myUser, this._settings);
 
-  /// Maximum screen's width in pixels until side bar will be expanding.
-  static double maxSideBarExpandWidth = 860;
+  /// Maximal percentage of the screen's width which side bar can occupy.
+  static const double sideBarMaxWidthPercentage = 0.5;
 
-  /// Percentage of the screen's width which side bar will occupy.
-  static double sideBarWidthPercentage = 0.4;
+  /// Minimal width of the side bar.
+  static const double sideBarMinWidth = 250;
+
+  /// Current width of the side bar.
+  late final RxDouble sideBarWidth;
 
   /// Controller of the [PageView] tab.
   late PageController pages;
@@ -74,6 +77,10 @@ class HomeController extends GetxController {
 
   Rx<MyUser?> get myUser => _myUser.myUser;
 
+  /// Returns the width side bar is allowed to occupy.
+  double get sideBarAllowedWidth =>
+      _settings.applicationSettings.value?.sideBarWidth ?? 350;
+
   Rx<Uint8List?> get background => _settings.background;
 
   @override
@@ -85,6 +92,9 @@ class HomeController extends GetxController {
     unreadChatsCount.value = _myUser.myUser.value?.unreadChatsCount ?? 0;
     _myUserSubscription = _myUser.myUser.listen((u) =>
         unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
+
+    sideBarWidth =
+        RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
 
     router.addListener(_onRouterChanged);
   }
@@ -120,6 +130,21 @@ class HomeController extends GetxController {
     router.removeListener(_onRouterChanged);
     _myUserSubscription.cancel();
   }
+
+  /// Returns corrected according to the side bar constraints [width] value.
+  double applySideBarWidth(double width) {
+    double maxWidth = router.context!.width * sideBarMaxWidthPercentage;
+
+    if (maxWidth < sideBarMinWidth) {
+      maxWidth = sideBarMinWidth;
+    }
+
+    return width.clamp(sideBarMinWidth, maxWidth);
+  }
+
+  /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
+  Future<void> setSideBarWidth() =>
+      _settings.setSideBarWidth(sideBarWidth.value);
 
   /// Refreshes the controller on [router] change.
   ///

@@ -106,6 +106,10 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setShowIntroduction(show);
 
   @override
+  Future<void> setSideBarWidth(double width) =>
+      _settingsLocal.setSideBarWidth(width);
+
+  @override
   Future<void> setBackground(Uint8List? bytes) {
     if (bytes == null) {
       return _backgroundLocal.delete();
