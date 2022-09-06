@@ -198,11 +198,171 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
     ChatForward msg = widget.item.value as ChatForward;
+    ChatItem item = msg.item;
+
+    Style style = Theme.of(context).extension<Style>()!;
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      var desc = StringBuffer();
+
+      if (item.text != null) {
+        desc.write(item.text!.val);
+      }
+
+      if (item.attachments.isNotEmpty) {
+        List<Attachment> media = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .toList();
+
+        List<Attachment> files = item.attachments
+            .where((e) =>
+                (e is FileAttachment && !e.isVideo) ||
+                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
+            .toList();
+
+        if (media.isNotEmpty || files.isNotEmpty) {
+          additional = [
+            ...media.mapIndexed((i, e) => _mediaAttachment(i, e, media)),
+            if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
+            ...files.map(_fileAttachment),
+          ];
+        }
+      }
+
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool fromMe = widget.me == item.authorId;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+        time = item.finishedAt!.val
+            .difference(item.conversationStartedAt!.val)
+            .localizedString();
+      } else {
+        title = item.authorId == widget.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody,
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else if (item is ChatForward) {
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
     return _rounded(
       context,
       InkWell(
         onTap: () => widget.onForwardedTap?.call(msg.item.id, msg.item.chatId),
-        child: _forwardedMessage(msg),
+        child: FutureBuilder<RxUser?>(
+          key: Key('FutureBuilder_${item.id}'),
+          future: widget.getUser?.call(item.authorId),
+          builder: (context, snapshot) {
+            Color color = snapshot.data?.user.value.id == widget.me
+                ? const Color(0xFF63B4FF)
+                : AvatarWidget.colors[
+                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                        AvatarWidget.colors.length];
+
+            return Row(
+              key: Key('Row_${item.id}'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 12),
+                Icon(Icons.reply, size: 26, color: color),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(width: 2, color: color)),
+                    ),
+                    margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (snapshot.data?.user.value != null)
+                          Text(
+                            snapshot.data?.user.value.name?.val ??
+                                snapshot.data?.user.value.num.val ??
+                                '...',
+                            style: style.boldBody.copyWith(color: color),
+                          ),
+                        if (content != null) ...[
+                          const SizedBox(height: 2),
+                          content,
+                        ],
+                        if (additional.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: msg.authorId == widget.me
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: additional,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -518,171 +678,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Renders [item] as a forwarded message.
-  Widget _forwardedMessage(ChatForward forward) {
-    Style style = Theme.of(context).extension<Style>()!;
-    ChatItem item = forward.item;
-
-    Widget? content;
-    List<Widget> additional = [];
-
-    if (item is ChatMessage) {
-      var desc = StringBuffer();
-
-      if (item.text != null) {
-        desc.write(item.text!.val);
-      }
-
-      if (item.attachments.isNotEmpty) {
-        List<Attachment> media = item.attachments
-            .where((e) =>
-                e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-            .toList();
-
-        List<Attachment> files = item.attachments
-            .where((e) =>
-                (e is FileAttachment && !e.isVideo) ||
-                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
-            .toList();
-
-        if (media.isNotEmpty || files.isNotEmpty) {
-          additional = [
-            ...media.mapIndexed((i, e) => _mediaAttachment(i, e, media)),
-            if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-            ...files.map(_fileAttachment),
-          ];
-        }
-      }
-
-      if (desc.isNotEmpty) {
-        content = Text(
-          desc.toString(),
-          style: style.boldBody,
-        );
-      }
-    } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = widget.me == item.authorId;
-      bool isMissed = false;
-
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
-      } else {
-        title = item.authorId == widget.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
-              ),
-            ),
-          ],
-        ],
-      );
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
-    }
-
-    return FutureBuilder<RxUser?>(
-      key: Key('FutureBuilder_${item.id}'),
-      future: widget.getUser?.call(item.authorId),
-      builder: (context, snapshot) {
-        Color color = snapshot.data?.user.value.id == widget.me
-            ? const Color(0xFF63B4FF)
-            : AvatarWidget.colors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
-
-        return Row(
-          key: Key('Row_${item.id}'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(width: 12),
-            Icon(Icons.reply, size: 26, color: color),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: color)),
-                ),
-                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (snapshot.data?.user.value != null)
-                      Text(
-                        snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
-                            '...',
-                        style: style.boldBody.copyWith(color: color),
-                      ),
-                    if (content != null) ...[
-                      const SizedBox(height: 2),
-                      content,
-                    ],
-                    if (additional.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: forward.authorId == widget.me
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
-                        children: additional,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
     bool isLocal = e is LocalAttachment;
 
@@ -916,8 +911,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           fromMe &&
           widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && (!fromMe || isRead),
-      isError: widget.item.value.status.value == SendingStatus.error,
-      isSending: widget.item.value.status.value == SendingStatus.sending,
+      isError: item.status.value == SendingStatus.error,
+      isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
         crossAxisAlignment:
@@ -930,16 +925,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               key: Key('MessageStatus_${item.id}'),
               padding: const EdgeInsets.only(bottom: 16),
               child: AnimatedDelayedSwitcher(
-                delay: widget.item.value.status.value == SendingStatus.sending
+                delay: item.status.value == SendingStatus.sending
                     ? const Duration(seconds: 2)
                     : Duration.zero,
-                child: widget.item.value.status.value == SendingStatus.sending
+                child: item.status.value == SendingStatus.sending
                     ? const Padding(
                         key: Key('Sending'),
                         padding: EdgeInsets.only(left: 8),
                         child: Icon(Icons.access_alarm, size: 15),
                       )
-                    : widget.item.value.status.value == SendingStatus.error
+                    : item.status.value == SendingStatus.error
                         ? const Padding(
                             key: Key('Error'),
                             padding: EdgeInsets.only(left: 8),
@@ -1005,25 +1000,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: 'btn_reply'.l10n,
                                 onPressed: () => widget.onReply?.call(),
                               ),
-                              if (widget.item.value is ChatMessage ||
-                                  widget.item.value is ChatForward)
+                              if (item is ChatMessage || item is ChatForward)
                                 ContextMenuButton(
                                   key: const Key('ForwardButton'),
                                   label: 'btn_forward'.l10n,
                                   onPressed: () async {
                                     List<AttachmentId> attachments = [];
-                                    if (widget.item.value is ChatMessage) {
-                                      attachments =
-                                          (widget.item.value as ChatMessage)
-                                              .attachments
-                                              .map((a) => a.id)
-                                              .toList();
-                                    } else if (widget.item.value
-                                        is ChatForward) {
-                                      ChatItem nested =
-                                          (widget.item.value as ChatForward)
-                                              .item;
-
+                                    if (item is ChatMessage) {
+                                      attachments = item.attachments
+                                          .map((a) => a.id)
+                                          .toList();
+                                    } else if (item is ChatForward) {
+                                      ChatItem nested = item.item;
                                       if (nested is ChatMessage) {
                                         attachments = nested.attachments
                                             .map((a) => a.id)
@@ -1036,7 +1024,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       widget.chat.value!.id,
                                       [
                                         ChatItemQuote(
-                                          item: widget.item.value,
+                                          item: item,
                                           withText: true,
                                           attachments: attachments,
                                         ),

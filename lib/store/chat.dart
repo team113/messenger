@@ -537,7 +537,7 @@ class ChatRepository implements AbstractChatRepository {
     }
   }
 
-  // TODO: Make [ChatForward]s to be posted like [ChatMessage]s.
+  // TODO: Make [ChatForward]s to post like [ChatMessage]s.
   @override
   Future<void> forwardChatItems(
     ChatId from,

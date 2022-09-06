@@ -96,6 +96,8 @@ class ChatService extends DisposableService {
     List<Attachment>? attachments,
     ChatItem? repliesTo,
   }) {
+    // Forward the [repliesTo] message to this [Chat], if [text] and
+    // [attachments] are not provided.
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
         repliesTo != null) {
@@ -244,19 +246,6 @@ class ChatService extends DisposableService {
   Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
-  /// Callback, called when a [User] identified by the provided [userId] gets
-  /// removed from the specified [Chat].
-  ///
-  /// If [userId] is [me], then removes the specified [Chat] from the [chats].
-  Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
-    if (userId == me) {
-      if (router.route.startsWith('${Routes.chat}/$id')) {
-        router.home();
-      }
-      await _chatRepository.remove(id);
-    }
-  }
-
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -279,5 +268,18 @@ class ChatService extends DisposableService {
       text: text,
       attachments: attachments,
     );
+  }
+
+  /// Callback, called when a [User] identified by the provided [userId] gets
+  /// removed from the specified [Chat].
+  ///
+  /// If [userId] is [me], then removes the specified [Chat] from the [chats].
+  Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
+    if (userId == me) {
+      if (router.route.startsWith('${Routes.chat}/$id')) {
+        router.home();
+      }
+      await _chatRepository.remove(id);
+    }
   }
 }
