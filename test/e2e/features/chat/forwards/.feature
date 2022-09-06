@@ -30,12 +30,12 @@ Feature: Chat items are forwarded correctly
 
     When I long press "Wow!" message
     And I tap `ForwardButton` button
-    And I wait until `ChatForwardView` is present
-    Then I fill `ForwardField` field with "Check this :)"
+    Then I wait until `ChatForwardView` is present
+
+    And I fill `ForwardField` field with "Check this :)"
     And I tap "Charlie" text
     And I tap `SendForward` button
-
-    When I am in chat with Charlie
+    And I am in chat with Charlie
     Then I wait until text "Check this :)" is present
 
   Scenario: User forwards message with attachment
@@ -43,16 +43,16 @@ Feature: Chat items are forwarded correctly
     And I tap `Send` button
     Then I wait until status of "You saved me, why?" message is sent
 
-    Then I long press "You saved me, why?" message
+    When I long press "You saved me, why?" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardField` field with "Mhm... Monkey."
+
+    When I fill `ForwardField` field with "Mhm... Monkey."
     And I attach "test.jpg" image
     And I tap "Charlie" text
     And I tap `SendForward` button
-
-    Then I am in chat with Charlie
-    And I wait until attachment "test.jpg" is present
+    And I am in chat with Charlie
+    Then I wait until attachment "test.jpg" is present
 
   Scenario: User forwards message to multiple chats
     Given user Dave
@@ -62,16 +62,16 @@ Feature: Chat items are forwarded correctly
     And I tap `Send` button
     Then I wait until status of "Important info" message is sent
 
-    Then I long press "Important info" message
+    When I long press "Important info" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
-    Then I fill `ForwardField` field with "!!"
+
+    When I fill `ForwardField` field with "!!"
     And I tap "Charlie" text
     And I tap "Dave" text
     And I tap `SendForward` button
+    And I am in chat with Charlie
+    Then I wait until text "!!" is present
 
-    Then I am in chat with Charlie
-    And I wait until text "!!" is present
-
-    Then I am in chat with Dave
-    And I wait until text "!!" is present
+    When I am in chat with Dave
+    Then I wait until text "!!" is present

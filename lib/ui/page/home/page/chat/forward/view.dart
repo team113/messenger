@@ -533,20 +533,10 @@ class ChatForwardView extends StatelessWidget {
                       const Icon(Icons.close, color: Colors.blue, size: 30),
                   height: PlatformUtils.isMobile && !PlatformUtils.isWeb
                       ? PlatformUtils.isIOS
-                          ? 340
-                          : 380
-                      : 220,
+                          ? 220
+                          : 280
+                      : 100,
                   actions: [
-                    AnimatedFabAction(
-                      icon: const Icon(Icons.call, color: Colors.blue),
-                      label: 'label_audio_call'.l10n,
-                      noAnimation: true,
-                    ),
-                    AnimatedFabAction(
-                      icon: const Icon(Icons.video_call, color: Colors.blue),
-                      label: 'label_video_call'.l10n,
-                      noAnimation: true,
-                    ),
                     AnimatedFabAction(
                       icon: const Icon(Icons.attachment, color: Colors.blue),
                       label: 'label_file'.l10n,

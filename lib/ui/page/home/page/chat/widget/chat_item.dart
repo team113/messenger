@@ -678,6 +678,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  /// Returns visual representation of the provided media-[Attachment].
   Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
     bool isLocal = e is LocalAttachment;
 
@@ -807,6 +808,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  /// Returns visual representation of the provided file-[Attachment].
   Widget _fileAttachment(Attachment e) {
     bool isLocal = e is LocalAttachment;
     return Padding(

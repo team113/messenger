@@ -293,11 +293,14 @@ class _ChatViewState extends State<ChatView>
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
                                             onForwardedTap: (id, chatId) {
-                                              if (chatId ==
-                                                  c.chat?.chat.value.id) {
+                                              if (chatId == c.id) {
                                                 c.animateTo(id);
                                               } else {
-                                                router.chat(chatId, itemId: id);
+                                                router.chat(
+                                                  chatId,
+                                                  itemId: id,
+                                                  push: true,
+                                                );
                                               }
                                             },
                                             animation: _animation,
@@ -436,6 +439,7 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
+              appBar: AppBar(),
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
