@@ -317,12 +317,11 @@ void main() async {
         sessionProvider,
       ),
     );
+    await authService.init();
 
     AbstractMyUserRepository myUserRepository =
         MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-    await authService.init();
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
+    Get.put(MyUserService(authService, myUserRepository));
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider, galleryItemProvider);
@@ -334,7 +333,7 @@ void main() async {
 
     ChatRepository chatRepository =
         ChatRepository(graphQlProvider, chatProvider, userRepository);
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     SettingsRepository settingsRepository =
         SettingsRepository(mediaProvider, applicationSettingsProvider);

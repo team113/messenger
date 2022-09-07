@@ -138,12 +138,12 @@ class ChatForward extends ChatItem {
     ChatId chatId,
     UserId authorId,
     PreciseDateTime at, {
-    this.item,
+    required this.item,
   }) : super(id, chatId, authorId, at);
 
   /// Forwarded [ChatItem].
   @HiveField(5)
-  ChatItem? item;
+  ChatItem item;
 }
 
 /// Unique ID of a [ChatItem].

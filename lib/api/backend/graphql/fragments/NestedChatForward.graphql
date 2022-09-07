@@ -21,6 +21,18 @@ fragment NestedChatForward on ChatForward {
     at
     ver
     item {
+        node {
+            __typename
+            ... on ChatMemberInfo {
+                ...ChatMemberInfo
+            }
+            ... on ChatCall {
+                ...ChatCall
+            }
+            ... on ChatMessage {
+                ...NestedChatMessage
+            }
+        }
         cursor
     }
 }

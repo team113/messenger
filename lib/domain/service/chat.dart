@@ -19,24 +19,25 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import 'auth.dart';
 import 'disposable_service.dart';
-import 'my_user.dart';
 
 /// Service responsible for [Chat]s related functionality.
 class ChatService extends DisposableService {
-  ChatService(this._chatRepository, this._myUser);
+  ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
   final AbstractChatRepository _chatRepository;
 
-  /// Service to get an authorized user.
-  final MyUserService _myUser;
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [chats] value is fetched.
@@ -46,7 +47,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUser.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Maximum allowed message length UTF-8 characters.
   static const int maxMessageText = 8192;
@@ -98,6 +99,28 @@ class ChatService extends DisposableService {
     List<Attachment>? attachments,
     ChatItem? repliesTo,
   }) {
+    // Forward the [repliesTo] message to this [Chat], if [text] and
+    // [attachments] are not provided.
+    if (text?.val.isNotEmpty != true &&
+        attachments?.isNotEmpty != true &&
+        repliesTo != null) {
+      List<AttachmentId> attachments = [];
+      if (repliesTo is ChatMessage) {
+        attachments = repliesTo.attachments.map((a) => a.id).toList();
+      } else if (repliesTo is ChatForward) {
+        ChatItem nested = repliesTo.item;
+        if (nested is ChatMessage) {
+          attachments = nested.attachments.map((a) => a.id).toList();
+        }
+      }
+
+      return _chatRepository.forwardChatItems(
+        chatId,
+        chatId,
+        [ChatItemQuote(item: repliesTo, attachments: attachments)],
+      );
+    }
+
     bool isSplit = text == null ? false : text.val.length > maxMessageText;
 
     if (isSplit) {
@@ -245,6 +268,30 @@ class ChatService extends DisposableService {
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) {
+    return _chatRepository.forwardChatItems(
+      from,
+      to,
+      items,
+      text: text,
+      attachments: attachments,
+    );
+  }
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

@@ -24,8 +24,8 @@ import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -39,7 +39,7 @@ class ChatInfoController extends GetxController {
   ChatInfoController(
     this.chatId,
     this._chatService,
-    this._myUserService,
+    this._authService,
   );
 
   /// ID of the [Chat] this page is about.
@@ -48,8 +48,8 @@ class ChatInfoController extends GetxController {
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -70,7 +70,7 @@ class ChatInfoController extends GetxController {
   Worker? _worker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Reactive state of the [Chat] this page is about.
   RxChat? chat;

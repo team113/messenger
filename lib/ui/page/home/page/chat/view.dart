@@ -51,10 +51,13 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key}) : super(key: key);
+  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
   /// ID of this [Chat].
   final ChatId id;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -86,6 +89,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        itemId: widget.itemId,
       ),
       tag: widget.id.val,
       builder: (c) => Obx(
@@ -277,6 +281,7 @@ class _ChatViewState extends State<ChatView>
                                             item: e,
                                             me: c.me!,
                                             user: u.data,
+                                            getUser: c.getUser,
                                             onJoinCall: c.joinCall,
                                             onHide: () =>
                                                 c.hideChatItem(e.value),
@@ -287,6 +292,17 @@ class _ChatViewState extends State<ChatView>
                                             onCopy: (text) => c.copyText(text),
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
+                                            onForwardedTap: (id, chatId) {
+                                              if (chatId == c.id) {
+                                                c.animateTo(id);
+                                              } else {
+                                                router.chat(
+                                                  chatId,
+                                                  itemId: id,
+                                                  push: true,
+                                                );
+                                              }
+                                            },
                                             animation: _animation,
                                             onGallery: c.calculateGallery,
                                             onResend: () =>
@@ -423,6 +439,7 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
+              appBar: AppBar(),
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
@@ -721,7 +738,9 @@ class _ChatViewState extends State<ChatView>
             _button(
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
-                child: (c.send.isEmpty.value && c.attachments.isEmpty)
+                child: (c.send.isEmpty.value &&
+                        c.attachments.isEmpty &&
+                        c.repliedMessage.value == null)
                     ? const Padding(
                         key: Key('Mic'),
                         padding: EdgeInsets.only(top: 2),
@@ -733,7 +752,9 @@ class _ChatViewState extends State<ChatView>
                         child: Icon(Icons.send, size: 24),
                       ),
               ),
-              onTap: (c.send.isEmpty.value && c.attachments.isEmpty)
+              onTap: (c.send.isEmpty.value &&
+                      c.attachments.isEmpty &&
+                      c.repliedMessage.value == null)
                   ? () {}
                   : c.send.submit,
             ),

@@ -36,6 +36,15 @@ class Themes {
         : SystemUiOverlayStyle.light);
 
     return ThemeData.light().copyWith(
+        extensions: [
+          Style(
+            boldBody: GoogleFonts.roboto(
+              color: Colors.black,
+              fontSize: 17,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
         colorScheme: colors,
         scaffoldBackgroundColor: colors.background,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
@@ -222,5 +231,35 @@ class CustomBoxShadow extends BoxShadow {
       return true;
     }());
     return result;
+  }
+}
+
+/// [ThemeExtension] containing custom additional style-related fields.
+class Style extends ThemeExtension<Style> {
+  const Style({
+    required this.boldBody,
+  });
+
+  /// [TextStyle] to use in the body to make content readable.
+  final TextStyle boldBody;
+
+  @override
+  ThemeExtension<Style> copyWith({
+    TextStyle? boldBody,
+  }) {
+    return Style(
+      boldBody: boldBody ?? this.boldBody,
+    );
+  }
+
+  @override
+  ThemeExtension<Style> lerp(ThemeExtension<Style>? other, double t) {
+    if (other is! Style) {
+      return this;
+    }
+
+    return Style(
+      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+    );
   }
 }

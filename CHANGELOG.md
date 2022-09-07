@@ -16,7 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - macOS:
     - Unread chats count badge on app's icon ([#106]).
 - UI:
-    - User information auto-updating on changes ([#7], [#4]).
+    - User information auto-updating on changes ([#7], [#4]);
+    - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]).
     - Media panel:
@@ -25,6 +26,7 @@ All user visible changes to this project will be documented in this file. This p
         - Button joining call with video ([#56], [#51]).
     - Introduction modal window ([#38]).
     - Chat page:
+        - Message forwarding ([#72], [#8]).
         - Failed messages persistence ([#5], [#3]).
 - Deployment:
     - [Helm] chart ([#73], [#85]).
@@ -56,7 +58,7 @@ All user visible changes to this project will be documented in this file. This p
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
         - Mobile minimization gesture being too rapid ([#45], [#44]);
-        - Camera not enabling in empty call ([#79], [#75]);
+        - Media not enabling in empty call ([#79], [#117], [#75]);
         - Prevent device from sleeping ([#112], [#92]). 
 
 [#2]: /../../issues/2
@@ -64,6 +66,7 @@ All user visible changes to this project will be documented in this file. This p
 [#4]: /../../issues/4
 [#5]: /../../pull/5
 [#6]: /../../issues/6
+[#8]: /../../issues/8
 [#7]: /../../pull/7
 [#9]: /../../pull/9
 [#14]: /../../pull/14
@@ -84,17 +87,21 @@ All user visible changes to this project will be documented in this file. This p
 [#53]: /../../pull/53
 [#56]: /../../pull/56
 [#60]: /../../pull/60
+[#72]: /../../pull/72
 [#73]: /../../pull/73
 [#75]: /../../issues/75
 [#76]: /../../issues/76
 [#79]: /../../pull/79
 [#80]: /../../pull/80
+[#82]: /../../issues/82
 [#83]: /../../pull/83
 [#85]: /../../pull/85
+[#89]: /../../pull/89
 [#90]: /../../pull/90
 [#92]: /../../issues/92
 [#106]: /../../pull/106
 [#112]: /../../pull/112
+[#117]: /../../pull/117
 
 
 

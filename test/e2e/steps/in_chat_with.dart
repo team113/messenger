@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 
@@ -26,7 +27,16 @@ import '../world/custom_world.dart';
 /// - Given I am in chat with Bob
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
-  (TestUser user, context) => Future.sync(() {
+  (TestUser user, context) async {
     router.chat(context.world.sessions[user.name]!.dialog!);
-  }),
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
+    );
+  },
 );
