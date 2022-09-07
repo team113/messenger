@@ -484,7 +484,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive || members.isEmpty) {
+            if (!isActive || members.length < 2) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -904,12 +904,13 @@ class OngoingCall {
                   break;
               }
 
-              member?.tracks.addIf(member.tracks.contains(t) == false, t);
+              member?.tracks.addIf(!member.tracks.contains(t), t);
               break;
 
             case TrackMediaDirection.RecvOnly:
             case TrackMediaDirection.Inactive:
-              t.removeRenderer();
+              t.stop();
+              member?.tracks.remove(t);
               break;
           }
         });
@@ -920,22 +921,26 @@ class OngoingCall {
   }
 
   /// Raises/lowers a hand.
+  Future<void> toggleHand(CallService service, ChatId chatId) async {
+    final CallMember me = members[_me]!;
+
+    me.isHandRaised.toggle();
+    await _toggleHand(service, chatId);
+  }
+
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.
-  Future<void> toggleHand(CallService service, ChatId chatId) async {
-    final CallMember? me = members[_me];
+  Future<void> _toggleHand(CallService service, ChatId chatId) async {
+    if (!_toggleHandGuard.isLocked) {
+      final CallMember me = members[_me]!;
 
-    if (me != null) {
-      me.isHandRaised.toggle();
-      if (!_toggleHandGuard.isLocked) {
-        var raised = me.isHandRaised.value;
-        await _toggleHandGuard.protect(() async {
-          await service.toggleHand(chatId, raised);
-        });
+      var raised = me.isHandRaised.value;
+      await _toggleHandGuard.protect(() async {
+        await service.toggleHand(chatId, raised);
+      });
 
-        if (raised != me.isHandRaised.value) {
-          me.isHandRaised.toggle();
-        }
+      if (raised != me.isHandRaised.value) {
+        _toggleHand(service, chatId);
       }
     }
   }
@@ -1138,7 +1143,7 @@ class OngoingCall {
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
 
-          if (!isActive || members.isEmpty) {
+          if (!isActive || members.length < 2) {
             await _updateTracks();
           }
         } catch (_) {
@@ -1153,7 +1158,6 @@ class OngoingCall {
   /// Updates the local [CallMember.tracks] corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
-    _disposeLocalMedia();
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
         audio: audioState.value.isEnabled(),
@@ -1169,17 +1173,11 @@ class OngoingCall {
     }
   }
 
-  /// Adds local [track] to the [CallMember.tracks] and initializes its
-  /// renderer.
-
+  /// Adds local [track] to the [CallMember.tracks] and initializes video
+  /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
-    _removeLocalTracks(track.kind(), track.mediaSourceKind());
-    Track t = LocalTrack(track);
-    members[_me]?.tracks.add(t);
-
     if (track.kind() == MediaKind.Video) {
       LocalTrackState state;
-
       switch (track.mediaSourceKind()) {
         case MediaSourceKind.Device:
           state = videoState.value;
@@ -1194,6 +1192,11 @@ class OngoingCall {
           state == LocalTrackState.disabled) {
         track.free();
       } else {
+        _removeLocalTracks(track.kind(), track.mediaSourceKind());
+
+        Track t = LocalTrack(track);
+        members[_me]?.tracks.add(t);
+
         if (track.mediaSourceKind() == MediaSourceKind.Device) {
           videoDevice.value = videoDevice.value ?? track.getTrack().deviceId();
         }
@@ -1201,6 +1204,10 @@ class OngoingCall {
         await t.createRenderer();
       }
     } else {
+      _removeLocalTracks(track.kind(), track.mediaSourceKind());
+
+      members[_me]?.tracks.add(LocalTrack(track));
+
       if (track.mediaSourceKind() == MediaSourceKind.Device) {
         audioDevice.value = audioDevice.value ?? track.getTrack().deviceId();
       }
@@ -1212,7 +1219,7 @@ class OngoingCall {
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.stop();
+        t.dispose();
         return true;
       }
       return false;
@@ -1285,9 +1292,7 @@ class RtcVideoRenderer extends RtcRenderer {
     return RtcVideoRenderer._(track.getTrack());
   }
 
-  RtcVideoRenderer._(webrtc.MediaStreamTrack track) : super(track) {
-    _delegate.setSrcObject(track);
-  }
+  RtcVideoRenderer._(webrtc.MediaStreamTrack track) : super(track);
 
   /// Actual [webrtc.VideoRenderer].
   final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
@@ -1382,13 +1387,13 @@ class CallMember {
   /// [CallMemberId] of this [CallMember].
   CallMemberId id;
 
-  /// [Track]s this [CallMember] has.
+  /// List of [Track]s of this [CallMember].
   ObsList<Track> tracks = ObsList();
 
   /// [MediaOwnerKind] of this [CallMember].
   MediaOwnerKind owner;
 
-  /// Hand raised indicator of this [CallMember].
+  /// Indicator whether hand was raised by this [CallMember].
   RxBool isHandRaised;
 }
 
@@ -1441,6 +1446,7 @@ class RemoteTrack extends Track {
       case MediaKind.Video:
         renderer.value = RtcVideoRenderer.remote(track);
         await (renderer.value as RtcVideoRenderer).initialize();
+        (renderer.value as RtcVideoRenderer).srcObject = track.getTrack();
         break;
     }
   }
@@ -1481,6 +1487,7 @@ class LocalTrack extends Track {
       case MediaKind.Video:
         renderer.value = RtcVideoRenderer.local(track);
         await (renderer.value as RtcVideoRenderer).initialize();
+        (renderer.value as RtcVideoRenderer).srcObject = track.getTrack();
         break;
     }
   }

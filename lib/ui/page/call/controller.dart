@@ -364,7 +364,7 @@ class CallController extends GetxController {
   Rx<OngoingCallState> get state => _currentCall.value.state;
 
   /// Returns a [CallMember] of the currently authorized [MyUser].
-  late final CallMember me;
+  CallMember get me => members[CallMemberId(_calls.me, null)]!;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing =>
@@ -437,8 +437,6 @@ class CallController extends GetxController {
     _currentCall.value.init();
 
     Size size = router.context!.mediaQuerySize;
-
-    me = members[CallMemberId(_calls.me, null)]!;
 
     if (router.context!.isMobile) {
       secondaryWidth = RxDouble(150);
@@ -550,7 +548,14 @@ class CallController extends GetxController {
       }
     }
 
-    await _chatService.get(_currentCall.value.chatId.value).then(onChat);
+    _chatService
+        .get(_currentCall.value.chatId.value)
+        .then(onChat)
+        .whenComplete(() {
+      members.forEach((_, value) => _putMember(value));
+      _insureCorrectGrouping();
+    });
+
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(onChat),
@@ -633,29 +638,31 @@ class CallController extends GetxController {
       }
     });
 
-    members.forEach((_, value) => _putMember(value));
-    _insureCorrectGrouping();
+    void onTracksChange(
+        CallMember member, ListChangeNotification<Track> track) {
+      switch (track.op) {
+        case OperationKind.added:
+          _putParticipant(member, track.element);
+          _insureCorrectGrouping();
+          break;
+
+        case OperationKind.removed:
+          _removeParticipant(member, track.element);
+          _insureCorrectGrouping();
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    }
 
     _membersTracksSubscriptions = _currentCall.value.members.map(
       (k, v) => MapEntry(
         k,
         v.tracks.changes.listen(
-          (e) {
-            switch (e.op) {
-              case OperationKind.added:
-                _putParticipant(v, e.element);
-                _insureCorrectGrouping();
-                break;
-
-              case OperationKind.removed:
-                _removeParticipant(v, e.element);
-                _insureCorrectGrouping();
-                break;
-
-              case OperationKind.updated:
-                // No-op.
-                break;
-            }
+          (change) {
+            onTracksChange(v, change);
           },
         ),
       ),
@@ -665,22 +672,8 @@ class CallController extends GetxController {
       switch (e.op) {
         case OperationKind.added:
           _membersTracksSubscriptions[e.key!] =
-              e.value!.tracks.changes.listen((changes) {
-            switch (changes.op) {
-              case OperationKind.added:
-                _putParticipant(e.value!, changes.element);
-                _insureCorrectGrouping();
-                break;
-
-              case OperationKind.removed:
-                _removeParticipant(e.value!, changes.element);
-                _insureCorrectGrouping();
-                break;
-
-              case OperationKind.updated:
-                // No-op.
-                break;
-            }
+              e.value!.tracks.changes.listen((change) {
+            onTracksChange(e.value!, change);
           });
           _putMember(e.value!);
           _insureCorrectGrouping();
@@ -1680,7 +1673,7 @@ class CallController extends GetxController {
   void _putParticipant(CallMember member, Track? track) {
     Participant? participant = findParticipantByTrack(member.id, track);
 
-    if (participant == null) {
+    if (participant == null || track?.source == MediaSourceKind.Display) {
       Participant participant = Participant(
         member,
         video: track?.kind == MediaKind.Video ? track : null,
@@ -1722,9 +1715,11 @@ class CallController extends GetxController {
       }
     } else {
       if (track != null) {
-        track.kind == MediaKind.Video
-            ? participant.video.value = track
-            : participant.audio.value = track;
+        if (track.kind == MediaKind.Video) {
+          participant.video.value = track;
+        } else {
+          participant.audio.value = track;
+        }
       }
     }
   }
@@ -1745,6 +1740,11 @@ class CallController extends GetxController {
           paneled.remove(participant);
           focused.remove(participant);
         }
+      }
+    } else {
+      final participants = _findParticipants(member.id, track.source);
+      if (participants.length == 1 && track.source == MediaSourceKind.Device) {
+        participants.first.audio.value = null;
       }
     }
   }

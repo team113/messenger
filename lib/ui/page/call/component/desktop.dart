@@ -1184,9 +1184,12 @@ Widget _primaryView(CallController c) {
 
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
-                bool muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.audio.value?.isMuted.value ?? false;
+                bool? muted;
+                if (participant.source != MediaSourceKind.Display) {
+                  muted = participant.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled()
+                      : participant.audio.value?.isMuted.value ?? false;
+                }
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1718,9 +1721,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.audio.value?.isMuted.value ?? false;
+                bool? muted;
+                if (participant.source != MediaSourceKind.Display) {
+                  muted = participant.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled()
+                      : participant.audio.value?.isMuted.value ?? false;
+                }
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
