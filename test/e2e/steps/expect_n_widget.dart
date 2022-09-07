@@ -14,32 +14,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
-/// Waits until the provided text is present or absent.
+import '../parameters/keys.dart';
+
+/// Indicates whether the provided number of specific [Widget]s are visible.
 ///
 /// Examples:
-/// - Then I wait until text "Dummy" is absent
-/// - Then I wait until text "Dummy" is present
-final StepDefinitionGeneric untilTextExists =
-    then2<String, Existence, FlutterWorld>(
-  'I wait until text {string} is {existence}',
-  (text, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+/// - Then I expect to see 1 `ChatMessage`
+final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
+  RegExp(r'I expect to see {int} {key}'),
+  (quantity, key, context) async {
+    await context.world.appDriver.waitForAppToSettle();
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findBy(text, FindType.text),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findBy(text, FindType.text),
-              );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+    final finder = find.byKey(Key(key.name), skipOffstage: false);
+    await context.world.appDriver.scrollIntoView(finder.last);
+    await context.world.appDriver.waitForAppToSettle();
+
+    final finder2 = find.byKey(Key(key.name), skipOffstage: false);
+    context.expectMatch(finder2.evaluate().length, quantity);
   },
 );

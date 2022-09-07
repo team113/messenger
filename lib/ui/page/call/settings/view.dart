@@ -16,8 +16,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart' as webrtc;
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
@@ -130,7 +130,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
         );
 
     // Wrapper around [Checkbox].
-    Widget _switch({
+    Widget checkbox({
       required bool? value,
       required void Function(bool?)? onChanged,
       required String label,
@@ -187,7 +187,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                           Text('label_media_settings'.l10n, style: font17),
                           const Spacer(),
                           if (PlatformUtils.isDesktop) ...[
-                            _switch(
+                            checkbox(
                               label: 'LMB',
                               value: _lmbValue,
                               onChanged: (b) {
@@ -196,7 +196,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                               },
                             ),
                             const SizedBox(width: 5),
-                            _switch(
+                            checkbox(
                               label: 'Panel up',
                               value: _panelValue,
                               onChanged: (b) {

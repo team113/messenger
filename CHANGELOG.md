@@ -13,8 +13,11 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- macOS:
+    - Unread chats count badge on app's icon ([#106]).
 - UI:
-    - User information auto-updating on changes ([#7], [#4]).
+    - User information auto-updating on changes ([#7], [#4]);
+    - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]);
         - Unspecified password reminder on logout ([#39]).
@@ -22,7 +25,13 @@ All user visible changes to this project will be documented in this file. This p
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
         - Button joining call with video ([#56], [#51]).
-    - Introduction modal ([#38]).
+    - Introduction modal window ([#38]).
+    - Chat page:
+        - Message forwarding ([#72], [#8]);
+        - Failed messages persistence ([#5], [#3]);
+        - Message splitting when character limit is exceeded ([#115], [#100]).
+- Deployment:
+    - [Helm] chart ([#73], [#85]).
 
 ### Changed
 
@@ -30,24 +39,36 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
-    - Redesigned login interface ([#35]);
+    - Redesigned login interface ([#35], [#83]);
     - Redesigned auth page ([#29]).
+    - Chat page:
+        - Messages and attachments sending status ([#5], [#3]).
 
 ### Fixed
 
 - Android:
-    - [ConnectionService] displaying call when application is in foreground ([#14]).
+    - [ConnectionService] displaying call when application is in foreground ([#14]);
+    - Back button not minimizing call ([#80], [#76]).
+- macOS:
+    - Call ringtone not being looped ([#90]).
+- Web:
+    - UI not hiding on window focus loses ([#60]).
 - UI:
     - Chat page:
         - Missing avatars in group creation popup ([#15], [#2]).
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
-        - Mobile minimization gesture being too rapid ([#45], [#44]).
+        - Mobile minimization gesture being too rapid ([#45], [#44]);
+        - Media not enabling in empty call ([#79], [#117], [#75]);
+        - Prevent device from sleeping ([#112], [#92]). 
 
 [#2]: /../../issues/2
+[#3]: /../../issues/3
 [#4]: /../../issues/4
+[#5]: /../../pull/5
 [#6]: /../../issues/6
+[#8]: /../../issues/8
 [#7]: /../../pull/7
 [#9]: /../../pull/9
 [#14]: /../../pull/14
@@ -68,9 +89,28 @@ All user visible changes to this project will be documented in this file. This p
 [#51]: /../../issues/51
 [#53]: /../../pull/53
 [#56]: /../../pull/56
+[#60]: /../../pull/60
+[#72]: /../../pull/72
+[#73]: /../../pull/73
+[#75]: /../../issues/75
+[#76]: /../../issues/76
+[#79]: /../../pull/79
+[#80]: /../../pull/80
+[#82]: /../../issues/82
+[#83]: /../../pull/83
+[#85]: /../../pull/85
+[#89]: /../../pull/89
+[#90]: /../../pull/90
+[#92]: /../../issues/92
+[#100]: /../../issues/100
+[#106]: /../../pull/106
+[#112]: /../../pull/112
+[#115]: /../../pull/115
+[#117]: /../../pull/117
 
 
 
 
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
+[Helm]: https://helm.sh
 [Semantic Versioning 2.0.0]: https://semver.org

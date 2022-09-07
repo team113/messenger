@@ -28,13 +28,18 @@ import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show GraphQlProviderExceptions, ResubscriptionRequiredException;
+    show
+        ConnectionException,
+        GraphQlProviderExceptions,
+        ResubscriptionRequiredException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -170,7 +175,33 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> postChatMessage(
+  Future<void> sendChatMessage(
+    ChatId chatId, {
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+    ChatItem? repliesTo,
+  }) async {
+    HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
+    await rxChat?.postChatMessage(
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
+
+  /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// For the posted [ChatMessage] to be meaningful, at least one of [text] or
+  /// [attachments] arguments must be specified and non-empty.
+  ///
+  /// To attach some [Attachment]s to the posted [ChatMessage], first, they
+  /// should be uploaded with [uploadAttachment], and only then, the returned
+  /// [Attachment.id]s may be used as the [attachments] argument of this method.
+  ///
+  /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
+  /// reply to some other [ChatItem].
+  Future<ChatEventsVersionedMixin?> postChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
@@ -183,6 +214,31 @@ class ChatRepository implements AbstractChatRepository {
         repliesTo: repliesTo,
       );
 
+  @override
+  Future<void> resendChatItem(ChatItem item) async {
+    HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
+
+    // TODO: Account [ChatForward]s.
+    if (item is ChatMessage) {
+      for (var e in item.attachments.whereType<LocalAttachment>()) {
+        if (e.status.value == SendingStatus.error &&
+            (e.upload.value == null || e.upload.value?.isCompleted == true)) {
+          uploadAttachment(e)
+              .onError<UploadAttachmentException>((_, __) => e)
+              .onError<ConnectionException>((_, __) => e);
+        }
+      }
+
+      return rxChat?.postChatMessage(
+        existingId: item.id,
+        existingDateTime: item.at,
+        text: item.text,
+        attachments: item.attachments,
+        repliesTo: item.repliesTo,
+      );
+    }
+  }
+
   /// Puts the provided [item] to [Hive].
   Future<void> putChatItem(HiveChatItem item) async {
     HiveRxChat? entry =
@@ -193,8 +249,19 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> renameChat(ChatId id, ChatName? name) =>
-      _graphQlProvider.renameChat(id, name);
+  Future<void> renameChat(ChatId id, ChatName? name) async {
+    HiveRxChat? chat = _chats[id];
+    ChatName? previous = chat?.chat.value.name;
+
+    chat?.chat.update((c) => c?.name = name);
+
+    try {
+      await _graphQlProvider.renameChat(id, name);
+    } catch (_) {
+      chat?.chat.update((c) => c?.name = previous);
+      rethrow;
+    }
+  }
 
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) =>
@@ -202,84 +269,298 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    var response = await _graphQlProvider.removeChatMember(chatId, userId);
+    HiveRxChat? chat = _chats[chatId];
+    ChatMember? member =
+        chat?.chat.value.members.firstWhereOrNull((m) => m.user.id == userId);
 
-    // Response is `null` if [MyUser] removed himself (left the chat).
-    if (response == null) {
-      _chatLocal.remove(chatId);
+    if (member != null) {
+      chat?.chat.update((c) => c?.members.remove(member));
+    }
+
+    try {
+      var response = await _graphQlProvider.removeChatMember(chatId, userId);
+
+      // Response is `null` if [MyUser] removed himself (left the chat).
+      if (response == null) {
+        _chatLocal.remove(chatId);
+      }
+    } catch (_) {
+      if (member != null) {
+        chat?.chat.update((c) => c?.members.add(member));
+      }
+
+      rethrow;
     }
   }
 
   @override
-  Future<void> hideChat(ChatId id) => _graphQlProvider.hideChat(id);
+  Future<void> hideChat(ChatId id) async {
+    HiveRxChat? chat = _chats.remove(id);
+
+    try {
+      await _graphQlProvider.hideChat(id);
+    } catch (_) {
+      if (chat != null) {
+        _chats[id] = chat;
+      }
+
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> readChat(ChatId chatId, ChatItemId untilId) =>
-      _graphQlProvider.readChat(chatId, untilId);
+  Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
+    HiveRxChat? chat = _chats[chatId];
+    int? previous = chat?.chat.value.unreadCount;
+
+    if (chat != null) {
+      int lastReadIndex = chat.messages.reversed
+          .toList()
+          .indexWhere((m) => m.value.id == untilId);
+      if (lastReadIndex != -1) {
+        Iterable<Rx<ChatItem>> unread = chat.messages
+            .skip(chat.messages.length - lastReadIndex - 1)
+            .where((m) => m.value.authorId != me);
+        chat.chat.update((c) => c?.unreadCount = unread.length - 1);
+      }
+    }
+    try {
+      await _graphQlProvider.readChat(chatId, untilId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.unreadCount = previous!);
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> editChatMessageText(ChatItemId id, ChatMessageText? text) =>
-      _graphQlProvider.editChatMessageText(id, text);
+  Future<void> editChatMessageText(
+    ChatMessage message,
+    ChatMessageText? text,
+  ) async {
+    Rx<ChatItem>? item = _chats[message.chatId]
+        ?.messages
+        .firstWhereOrNull((e) => e.value.id == message.id);
+
+    ChatMessageText? previous;
+    if (item?.value is ChatMessage) {
+      previous = (item?.value as ChatMessage).text;
+      item?.update((c) => (c as ChatMessage?)?.text = text);
+    }
+
+    try {
+      await _graphQlProvider.editChatMessageText(message.id, text);
+    } catch (_) {
+      if (item?.value is ChatMessage) {
+        item?.update((c) => (c as ChatMessage?)?.text = previous);
+      }
+
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> deleteChatMessage(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.deleteChatMessage(id);
+  Future<void> deleteChatMessage(ChatMessage message) async {
+    HiveRxChat? chat = _chats[message.chatId];
 
-  @override
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.deleteChatForward(id);
-
-  @override
-  Future<void> hideChatItem(ChatId chatId, ChatItemId id) =>
-      _graphQlProvider.hideChatItem(id);
-
-  @override
-  Future<Attachment> uploadAttachment(
-    NativeFile attachment, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    dio.MultipartFile upload;
-
-    if (attachment.stream != null) {
-      upload = dio.MultipartFile(
-        attachment.stream!,
-        attachment.size,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
-    } else if (attachment.bytes != null) {
-      upload = dio.MultipartFile.fromBytes(
-        attachment.bytes!,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
-    } else if (attachment.path != null) {
-      upload = await dio.MultipartFile.fromFile(
-        attachment.path!,
-        filename: attachment.name,
-        contentType: attachment.mime,
-      );
+    if (message.status.value != SendingStatus.sent) {
+      chat?.remove(message.id, message.timestamp);
     } else {
-      throw ArgumentError(
-        'At least stream, bytes or path should be specified.',
-      );
+      Rx<ChatItem>? item =
+          chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
+      if (item != null) {
+        chat?.messages.remove(item);
+      }
+
+      try {
+        await _graphQlProvider.deleteChatMessage(message.id);
+      } catch (_) {
+        if (item != null) {
+          chat?.messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
+        }
+
+        rethrow;
+      }
     }
-
-    var response = await _graphQlProvider.uploadAttachment(
-      upload,
-      onSendProgress: onSendProgress,
-    );
-
-    return response.attachment.toModel();
   }
 
   @override
-  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug) =>
-      _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+  Future<void> deleteChatForward(ChatForward forward) async {
+    HiveRxChat? chat = _chats[forward.chatId];
+
+    if (forward.status.value != SendingStatus.sent) {
+      chat?.remove(forward.id);
+    } else {
+      Rx<ChatItem>? item =
+          chat?.messages.firstWhereOrNull((e) => e.value.id == forward.id);
+      if (item != null) {
+        chat?.messages.remove(item);
+      }
+
+      try {
+        await _graphQlProvider.deleteChatForward(forward.id);
+      } catch (_) {
+        if (item != null) {
+          chat?.messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
+        }
+
+        rethrow;
+      }
+    }
+  }
 
   @override
-  Future<void> deleteChatDirectLink(ChatId groupId) =>
+  Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
+    HiveRxChat? chat = _chats[chatId];
+
+    Rx<ChatItem>? item =
+        chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+    if (item != null) {
+      chat?.messages.remove(item);
+    }
+
+    try {
+      await _graphQlProvider.hideChatItem(id);
+    } catch (_) {
+      if (item != null) {
+        chat?.messages.insertAfter(
+          item,
+          (e) => item.value.at.compareTo(e.value.at) == 1,
+        );
+      }
+
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+    if (attachment.upload.value?.isCompleted != false) {
+      attachment.upload.value = Completer();
+    }
+
+    if (attachment.read.value?.isCompleted != false) {
+      attachment.read.value = Completer();
+    }
+
+    attachment.status.value = SendingStatus.sending;
+    await attachment.file.ensureCorrectMediaType();
+
+    try {
+      dio.MultipartFile upload;
+
+      if (attachment.file.path != null) {
+        attachment.file
+            .readFile()
+            .then((_) => attachment.read.value?.complete(null));
+        upload = await dio.MultipartFile.fromFile(
+          attachment.file.path!,
+          filename: attachment.file.name,
+          contentType: attachment.file.mime,
+        );
+      } else if (attachment.file.stream != null ||
+          attachment.file.bytes != null) {
+        await attachment.file.readFile();
+        attachment.read.value?.complete(null);
+        attachment.status.refresh();
+        upload = dio.MultipartFile.fromBytes(
+          attachment.file.bytes!,
+          filename: attachment.file.name,
+          contentType: attachment.file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+
+      var response = await _graphQlProvider.uploadAttachment(
+        upload,
+        onSendProgress: (now, max) => attachment.progress.value = now / max,
+      );
+
+      var model = response.attachment.toModel();
+      attachment.id = model.id;
+      attachment.filename = model.filename;
+      attachment.size = model.size;
+      attachment.original = model.original;
+      attachment.upload.value?.complete(model);
+      attachment.status.value = SendingStatus.sent;
+      attachment.progress.value = 1;
+      return model;
+    } catch (e) {
+      if (attachment.read.value?.isCompleted == false) {
+        attachment.read.value?.complete(null);
+      }
+      attachment.upload.value?.completeError(e);
+      attachment.status.value = SendingStatus.error;
+      attachment.progress.value = 0;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> createChatDirectLink(
+    ChatId chatId,
+    ChatDirectLinkSlug slug,
+  ) async {
+    HiveRxChat? chat = _chats[chatId];
+    ChatDirectLink? link = chat?.chat.value.directLink;
+
+    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
+
+    try {
+      _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.directLink = link);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteChatDirectLink(ChatId groupId) async {
+    HiveRxChat? chat = _chats[groupId];
+    ChatDirectLink? link = chat?.chat.value.directLink;
+
+    chat?.chat.update((c) => c?.directLink = null);
+
+    try {
       _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+    } catch (_) {
+      chat?.chat.update((c) => c?.directLink = link);
+      rethrow;
+    }
+  }
+
+  // TODO: Make [ChatForward]s to post like [ChatMessage]s.
+  @override
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) =>
+      _graphQlProvider.forwardChatItems(
+        from,
+        to,
+        items
+            .map(
+              (i) => ChatItemQuoteInput(
+                id: i.item.id,
+                attachments: i.attachments,
+                withText: i.withText,
+              ),
+            )
+            .toList(),
+        text: text,
+        attachments: attachments,
+      );
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
@@ -312,7 +593,7 @@ class ChatRepository implements AbstractChatRepository {
               events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
           yield ChatEventsEvent(
             ChatEventsVersioned(
-              mixin.events.map((e) => _chatEvent(e)).toList(),
+              mixin.events.map((e) => chatEvent(e)).toList(),
               mixin.ver,
             ),
           );
@@ -327,7 +608,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
-  ChatEvent _chatEvent(ChatEventsVersionedMixin$Events e) {
+  ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
     if (e.$$typename == 'EventChatRenamed') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRenamed;
       _userRepo.put(node.byUser.toHive());
@@ -677,23 +958,4 @@ class ChatData {
   /// [HiveChatItem]s of a [Chat.lastReadItem] returned from the [Chat]
   /// fetching.
   final List<HiveChatItem>? lastReadItem;
-}
-
-/// Extension adding an ability to insert the element based on some condition to
-/// [List].
-extension ListInsertAfter<T> on List<T> {
-  /// Inserts the [element] after the [compare] condition becomes `false`.
-  void insertAfter(T element, int Function(T, T) compare) {
-    bool done = false;
-    for (var i = 0; i < length && !done; ++i) {
-      if (compare(element, this[i]) < 0) {
-        insert(i, element);
-        done = true;
-      }
-    }
-
-    if (!done) {
-      add(element);
-    }
-  }
 }

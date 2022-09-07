@@ -24,15 +24,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -41,7 +42,6 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -49,7 +49,6 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -66,22 +65,6 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_delete_message_widget');
 
-  var userData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
-
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'startname',
@@ -94,10 +77,7 @@ void main() async {
     'createdAt': '2021-12-15T15:11:18.316846+00:00',
     'updatedAt': '2021-12-15T15:11:18.316846+00:00',
     'lastReads': [
-      {
-        'memberId': '0d72d245-8425-467a-9ebd-082d4f47850a',
-        'at': '2022-01-01T07:27:30.151628+00:00'
-      },
+      {'memberId': 'me', 'at': '2022-01-01T07:27:30.151628+00:00'},
     ],
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
@@ -127,18 +107,6 @@ void main() async {
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(chatEvents.stream));
 
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...userData},
-        },
-      ),
-    ])),
-  );
-
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
@@ -165,7 +133,7 @@ void main() async {
                   '__typename': 'ChatMessage',
                   'id': '3a8547a2-bb2a-43bf-a8af-9e3b1d3a21f1',
                   'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'authorId': 'me',
                   'at': '2022-01-21T11:42:40.553339+00:00',
                   'ver': '1',
                   'repliesTo': null,
@@ -180,7 +148,7 @@ void main() async {
                   '__typename': 'ChatMessage',
                   'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
                   'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                  'authorId': 'me',
                   'at': '2022-01-21T11:42:35.284555+00:00',
                   'ver': '1',
                   'repliesTo': null,
@@ -263,9 +231,20 @@ void main() async {
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -320,8 +299,6 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -331,11 +308,9 @@ void main() async {
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
 
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     Get.put(UserService(userRepository));
     Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

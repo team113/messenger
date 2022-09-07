@@ -55,7 +55,7 @@ class LoginView extends StatelessWidget {
           List<Widget> children;
 
           // Returns a primary styled [OutlinedRoundedButton].
-          Widget _primaryButton({
+          Widget primaryButton({
             Key? key,
             String? title,
             VoidCallback? onPressed,
@@ -73,7 +73,7 @@ class LoginView extends StatelessWidget {
           }
 
           // Returns a secondary styled [OutlinedRoundedButton].
-          Widget _secondaryButton({
+          Widget secondaryButton({
             Key? key,
             String? title,
             VoidCallback? onPressed,
@@ -91,7 +91,7 @@ class LoginView extends StatelessWidget {
           }
 
           // Returns a [Row] with [a] and [b] placed in the [Expanded] widgets.
-          Row _spaced(Widget a, Widget b) {
+          Row spaced(Widget a, Widget b) {
             return Row(
               children: [
                 Expanded(child: a),
@@ -117,13 +117,13 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 58),
-                _spaced(
-                  _secondaryButton(
+                spaced(
+                  secondaryButton(
                     key: const Key('RecoveryBackButton'),
                     title: 'btn_back'.l10n,
                     onPressed: () => c.stage.value = null,
                   ),
-                  _primaryButton(
+                  primaryButton(
                     key: const Key('RecoveryNextButton'),
                     title: 'btn_next'.l10n,
                     onPressed: c.recovery.submit,
@@ -150,13 +150,13 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 58),
-                _spaced(
-                  _secondaryButton(
+                spaced(
+                  secondaryButton(
                     key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
                     onPressed: () => c.stage.value = null,
                   ),
-                  _primaryButton(
+                  primaryButton(
                     key: const Key('RecoveryNextButton'),
                     title: 'btn_next'.l10n,
                     onPressed: c.recoveryCode.submit,
@@ -201,13 +201,13 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 58),
-                _spaced(
-                  _secondaryButton(
+                spaced(
+                  secondaryButton(
                     key: const Key('RecoveryCancelButton'),
                     title: 'btn_cancel'.l10n,
                     onPressed: () => c.stage.value = null,
                   ),
-                  _primaryButton(
+                  primaryButton(
                     key: const Key('RecoveryNextButton'),
                     title: 'btn_next'.l10n,
                     onPressed: c.resetUserPassword,
@@ -228,7 +228,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Center(
-                  child: _primaryButton(
+                  child: primaryButton(
                     key: const Key('RecoverySuccessButton'),
                     title: 'btn_next'.l10n,
                     onPressed: () => c.stage.value = null,
@@ -266,13 +266,13 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 52),
-                _spaced(
-                  _primaryButton(
+                spaced(
+                  primaryButton(
                     key: const Key('LoginButton'),
                     title: 'btn_login'.l10n,
                     onPressed: c.signIn,
                   ),
-                  _secondaryButton(
+                  secondaryButton(
                     key: const Key('RecoveryButton'),
                     title: 'btn_forgot_password'.l10n,
                     onPressed: () {

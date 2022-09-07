@@ -16,9 +16,10 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/domain/model_type_id.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/contact.dart';
 import 'base.dart';
 
@@ -34,6 +35,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatContactAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
     Hive.maybeRegisterAdapter(ChatContactPositionAdapter());

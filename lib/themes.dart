@@ -36,6 +36,15 @@ class Themes {
         : SystemUiOverlayStyle.light);
 
     return ThemeData.light().copyWith(
+        extensions: [
+          Style(
+            boldBody: GoogleFonts.roboto(
+              color: Colors.black,
+              fontSize: 17,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
         colorScheme: colors,
         scaffoldBackgroundColor: colors.background,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
@@ -137,7 +146,7 @@ class Themes {
             .copyWith(color: colors.secondary),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 17,
@@ -147,7 +156,7 @@ class Themes {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.transparent,
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             minimumSize: const Size(100, 60),
             maximumSize: const Size(250, 60),
             shape:
@@ -161,7 +170,7 @@ class Themes {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: colors.secondary,
+            backgroundColor: colors.secondary,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
@@ -222,5 +231,35 @@ class CustomBoxShadow extends BoxShadow {
       return true;
     }());
     return result;
+  }
+}
+
+/// [ThemeExtension] containing custom additional style-related fields.
+class Style extends ThemeExtension<Style> {
+  const Style({
+    required this.boldBody,
+  });
+
+  /// [TextStyle] to use in the body to make content readable.
+  final TextStyle boldBody;
+
+  @override
+  ThemeExtension<Style> copyWith({
+    TextStyle? boldBody,
+  }) {
+    return Style(
+      boldBody: boldBody ?? this.boldBody,
+    );
+  }
+
+  @override
+  ThemeExtension<Style> lerp(ThemeExtension<Style>? other, double t) {
+    if (other is! Style) {
+      return this;
+    }
+
+    return Style(
+      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+    );
   }
 }

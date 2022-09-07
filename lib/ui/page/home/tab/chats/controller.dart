@@ -29,10 +29,10 @@ import '/domain/repository/call.dart'
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatMemberException, HideChatException;
@@ -47,7 +47,7 @@ class ChatsTabController extends GetxController {
   ChatsTabController(
     this._chatService,
     this._callService,
-    this._myUserService,
+    this._authService,
     this._userService,
   );
 
@@ -60,8 +60,8 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
@@ -74,7 +74,7 @@ class ChatsTabController extends GetxController {
       HashMap<ChatId, _ChatSortingData>();
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;

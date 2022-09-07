@@ -33,16 +33,18 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
@@ -64,15 +66,19 @@ class ChatController extends GetxController {
     this.id,
     this._chatService,
     this._callService,
-    this._myUserService,
-    this._userService,
-  );
+    this._authService,
+    this._userService, {
+    this.itemId,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
+
+  /// ID of the [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -121,7 +127,7 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// Attachments to be attached to a message.
-  RxList<AttachmentData> attachments = RxList<AttachmentData>();
+  RxList<Attachment> attachments = RxList<Attachment>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -131,6 +137,9 @@ class ChatController extends GetxController {
   ///
   /// Indicates currently ongoing horizontal scroll of a view.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
+
+  /// Maximum allowed [NativeFile.size] of an [Attachment].
+  static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -164,14 +173,11 @@ class ChatController extends GetxController {
   /// [Chat]s service used to get [chat] value.
   final ChatService _chatService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
-
-  /// Timer to set the [RxStatus.empty] status of the [send] field.
-  Timer? _sendTimer;
 
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
@@ -184,7 +190,7 @@ class ChatController extends GetxController {
   Worker? _messageInitializedWorker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -201,72 +207,35 @@ class ChatController extends GetxController {
   void onInit() {
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        if (s.text.isNotEmpty || attachments.isNotEmpty) {
-          _sendTimer?.cancel();
-          s.status.value = RxStatus.loading();
-          s.editable.value = false;
-          try {
-            final List<AttachmentId> attachmentIds = [];
+      onSubmitted: (s) {
+        if (s.text.isNotEmpty ||
+            attachments.isNotEmpty ||
+            repliedMessage.value != null) {
+          _chatService
+              .sendChatMessage(
+                chat!.chat.value.id,
+                text: s.text.isEmpty ? null : ChatMessageText(s.text),
+                repliesTo: repliedMessage.value,
+                attachments: attachments,
+              )
+              .then((_) => _playMessageSent())
+              .onError<PostChatMessageException>(
+                  (e, _) => MessagePopup.error(e))
+              .onError<UploadAttachmentException>(
+                  (e, _) => MessagePopup.error(e))
+              .onError<ConnectionException>((e, _) {});
 
-            if (attachments.isNotEmpty) {
-              Iterable<Future> futures =
-                  attachments.map((e) => e.upload.value).whereNotNull();
-              await Future.wait(futures);
+          repliedMessage.value = null;
+          attachments.clear();
+          s.clear();
+          s.unsubmit();
 
-              for (var file in attachments) {
-                if (file.attachment == null) {
-                  s.status.value = RxStatus.empty();
-                  s.unsubmit();
-                  return;
-                }
-                attachmentIds.add(file.attachment!.id);
-              }
-            }
+          _typingSubscription?.cancel();
+          _typingSubscription = null;
+          _typingTimer?.cancel();
 
-            await _chatService.postChatMessage(
-              chat!.chat.value.id,
-              text: s.text.isEmpty ? null : ChatMessageText(s.text),
-              repliesTo: repliedMessage.value?.id,
-              attachments: attachmentIds,
-            );
-
-            runZonedGuarded(() async {
-              await _audioPlayer?.play(
-                AssetSource('audio/message_sent.mp3'),
-                position: Duration.zero,
-                mode: PlayerMode.lowLatency,
-              );
-            }, (e, _) {
-              if (!e.toString().contains('NotAllowedError')) {
-                throw e;
-              }
-            });
-
-            repliedMessage.value = null;
-            attachments.clear();
-
-            s.status.value = RxStatus.success();
-            s.clear();
-
-            _typingSubscription?.cancel();
-            _typingSubscription = null;
-            _typingTimer?.cancel();
-
-            _sendTimer = Timer(const Duration(seconds: 1),
-                () => s.status.value = RxStatus.empty());
-          } on PostChatMessageException catch (e) {
-            MessagePopup.error(e);
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            MessagePopup.error(e);
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            if (!PlatformUtils.isMobile) {
-              Future.delayed(Duration.zero, () => s.focus.requestFocus());
-            }
+          if (!PlatformUtils.isMobile) {
+            Future.delayed(Duration.zero, () => s.focus.requestFocus());
           }
         }
       },
@@ -323,26 +292,27 @@ class ChatController extends GetxController {
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteMessage(ChatItem item) async {
-    if (item is ChatMessage) {
-      try {
-        await _chatService.deleteChatMessage(item);
-      } on DeleteChatMessageException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else if (item is ChatForward) {
-      try {
-        await _chatService.deleteChatForward(item);
-      } on DeleteChatForwardException catch (e) {
-        MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    } else {
-      throw UnimplementedError('Deletion of $item is not implemented.');
+    try {
+      await _chatService.deleteChatItem(item);
+    } on DeleteChatMessageException catch (e) {
+      MessagePopup.error(e);
+    } on DeleteChatForwardException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Resends the specified [ChatItem].
+  Future<void> resendItem(ChatItem item) async {
+    if (item.status.value == SendingStatus.error) {
+      await _chatService
+          .resendChatItem(item)
+          .then((_) => _playMessageSent())
+          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
+          .onError<ConnectionException>((_, __) {});
     }
   }
 
@@ -505,6 +475,8 @@ class ChatController extends GetxController {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
         MessagePopup.error(e);
+      } on ConnectionException {
+        // No-op.
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -636,15 +608,23 @@ class ChatController extends GetxController {
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].
   List<Attachment> calculateGallery() {
-    List<Attachment> attachments = [];
+    final List<Attachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
-        var msg = m.value as ChatMessage;
-        attachments.addAll([
-          ...msg.attachments.whereType<ImageAttachment>(),
-          ...msg.attachments.whereType<FileAttachment>().where((e) => e.isVideo)
-        ]);
+        final ChatMessage msg = m.value as ChatMessage;
+        attachments.addAll(msg.attachments.where(
+          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+        ));
+      } else if (m.value is ChatForward) {
+        final ChatForward msg = m.value as ChatForward;
+        final ChatItem item = msg.item;
+
+        if (item is ChatMessage) {
+          attachments.addAll(item.attachments.where(
+            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          ));
+        }
       }
     }
 
@@ -677,21 +657,30 @@ class ChatController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
-  /// Constructs an [AttachmentData] from the specified [file] and adds it to
+  /// Constructs a [LocalAttachment] from the specified [file] and adds it to
   /// the [attachments] list.
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    var attachment = AttachmentData(file);
-    attachments.add(attachment);
+    if (file.size < maxAttachmentSize) {
+      try {
+        var attachment = LocalAttachment(file, status: SendingStatus.sending);
+        attachments.add(attachment);
 
-    await file.ensureCorrectMediaType();
-    if (file.isImage && PlatformUtils.isWeb) {
-      await file.readFile();
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+
+        int index = attachments.indexOf(attachment);
+        if (index != -1) {
+          attachments[index] = uploaded;
+        }
+      } on UploadAttachmentException catch (e) {
+        MessagePopup.error(e);
+      } on ConnectionException {
+        // No-op.
+      }
+    } else {
+      MessagePopup.error('err_size_too_big'.l10n);
     }
-
-    attachment.upload.value = _uploadAttachment(attachment);
-    attachments.refresh();
   }
 
   /// Opens a file choose popup of the specified [type] and adds the selected
@@ -710,25 +699,20 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Uploads the specified [data] as an attachment.
-  Future<void> _uploadAttachment(AttachmentData data) async {
-    try {
-      data.attachment = await _chatService.uploadAttachment(
-        data.file,
-        onSendProgress: (now, max) {
-          data.progress.value = now / max;
-        },
-      );
-    } on UploadAttachmentException catch (e) {
-      data.hasError.value = true;
-      MessagePopup.error(e);
-    } catch (e) {
-      data.hasError.value = true;
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      data.upload.value = null;
-    }
+  /// Plays the message sent sound.
+  void _playMessageSent() {
+    runZonedGuarded(
+      () => _audioPlayer?.play(
+        AssetSource('audio/message_sent.mp3'),
+        position: Duration.zero,
+        mode: PlayerMode.lowLatency,
+      ),
+      (e, _) {
+        if (!e.toString().contains('NotAllowedError')) {
+          throw e;
+        }
+      },
+    );
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
@@ -778,19 +762,27 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    PreciseDateTime? myRead = chat!.chat.value.lastReads
-        .firstWhereOrNull((e) => e.memberId == me)
-        ?.at;
+    if (itemId != null) {
+      int i = chat!.messages.indexWhere((e) => e.value.id == itemId);
+      if (i != -1) {
+        index = i;
+        offset = (MediaQuery.of(router.context!).size.height) / 3;
+      }
+    } else {
+      PreciseDateTime? myRead = chat!.chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
-    if (chat?.messages.isEmpty == false) {
-      if (chat!.chat.value.unreadCount == 0) {
-        index = chat!.messages.length - 1;
-        offset = 0;
-      } else if (myRead != null) {
-        int i = chat!.messages.indexOf(lastReadItem.value);
-        if (i != -1) {
-          index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
+      if (chat?.messages.isEmpty == false) {
+        if (chat!.chat.value.unreadCount == 0) {
+          index = chat!.messages.length - 1;
+          offset = 0;
+        } else if (myRead != null) {
+          int i = chat!.messages.indexOf(lastReadItem.value);
+          if (i != -1) {
+            index = i;
+            offset = (MediaQuery.of(router.context!).size.height) / 3;
+          }
         }
       }
     }
@@ -976,26 +968,6 @@ extension IsChatItemEditable on ChatItem {
 
     return false;
   }
-}
-
-/// Container of data used to display and upload an [Attachment].
-class AttachmentData {
-  AttachmentData(this.file);
-
-  /// Selected [NativeFile] this [AttachmentData] represents.
-  NativeFile file;
-
-  /// Progress of an [upload].
-  RxDouble progress = RxDouble(0.0);
-
-  /// Indicator whether an [upload] has failed or not.
-  RxBool hasError = RxBool(false);
-
-  /// [Attachment] this [file] is going to be once an [upload] is done.
-  Attachment? attachment;
-
-  /// [Future] resolving once this [attachment]'s uploading is finished.
-  final Rx<Future?> upload = Rx<Future?>(null);
 }
 
 /// Result of a [FlutterListView] initial index and offset calculation.

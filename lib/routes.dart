@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
+import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -68,17 +69,20 @@ late RouterState router;
 /// Application routes names.
 class Routes {
   static const auth = '/';
-  static const home = '/';
   static const call = '/call';
   static const chat = '/chat';
-  static const contact = '/contact';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
+  static const contact = '/contact';
+  static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
   static const settings = '/settings';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
+
+  // E2E tests related page, should not be used in non-test environment.
+  static const restart = '/restart';
 
   // TODO: Styles page related, should be removed at some point.
   static const style = '/style';
@@ -118,6 +122,9 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
+  /// Dynamic arguments of the [route].
+  Map<String, dynamic>? arguments;
+
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 
@@ -148,12 +155,14 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
+    arguments = null;
     _routes = [_guarded(to)];
     notifyListeners();
   }
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    arguments = null;
     int pageIndex = _routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
       while (_routes.length - 1 > pageIndex) {
@@ -330,7 +339,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
-    if (_state.route == Routes.style) {
+    if (_state.route == Routes.restart) {
+      return [
+        const MaterialPage(
+          key: ValueKey('RestartPage'),
+          name: Routes.restart,
+          child: Center(child: Text('Restarting...')),
+        ),
+      ];
+    } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
           key: ValueKey('StylePage'),
@@ -419,13 +436,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              MyUserService myUserService =
-                  deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               deps.put(
                   CallService(Get.find(), settingsRepository, callRepository));
-              deps.put(ChatService(chatRepository, myUserService));
+              deps.put(ChatService(chatRepository, Get.find()));
 
               return deps;
             },
@@ -514,7 +530,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
             ));
             ChatService chatService =
-                deps.put(ChatService(chatRepository, myUserService));
+                deps.put(ChatService(chatRepository, Get.find()));
 
             deps.put(CallWorker(
               Get.find(),
@@ -633,8 +649,19 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.chat] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void chat(ChatId id, {bool push = false}) =>
-      push ? this.push('${Routes.chat}/$id') : go('${Routes.chat}/$id');
+  void chat(
+    ChatId id, {
+    bool push = false,
+    ChatItemId? itemId,
+  }) {
+    if (push) {
+      this.push('${Routes.chat}/$id');
+    } else {
+      go('${Routes.chat}/$id');
+    }
+
+    arguments = {'itemId': itemId};
+  }
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');

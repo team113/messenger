@@ -329,7 +329,8 @@ class TextFieldState extends ReactiveFieldState {
     if (onChanged != null) {
       focus.addListener(
         () {
-          if (controller.text != _previousText) {
+          if (controller.text != _previousText &&
+              (_previousText != null || controller.text.isNotEmpty)) {
             isEmpty.value = controller.text.isEmpty;
             if (!focus.hasFocus) {
               onChanged?.call(this);

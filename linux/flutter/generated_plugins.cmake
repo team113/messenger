@@ -5,8 +5,9 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   desktop_drop
-  flutter_webrtc
+  medea_flutter_webrtc
   medea_jason
+  screen_retriever
   sentry_flutter
   url_launcher_linux
   window_manager

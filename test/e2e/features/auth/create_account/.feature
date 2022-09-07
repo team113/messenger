@@ -18,7 +18,7 @@ Feature: Account creation
 
   Scenario: User creates a new account and deletes it
     When I tap `StartButton` button
-    Then I wait until `IntroductionView` is present
+    And I wait until `IntroductionView` is present
     And I tap `CloseButton` button
 
     Then I tap `MenuButton` button

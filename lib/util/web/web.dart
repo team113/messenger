@@ -135,27 +135,27 @@ class WebUtils {
     StreamController<bool>? controller;
 
     // Event listener reacting on fullscreen mode changes.
-    void _fullscreenListener(html.Event _) => controller!.add(isFullscreen);
+    void fullscreenListener(html.Event _) => controller!.add(isFullscreen);
 
     controller = StreamController<bool>(
       onListen: () {
         html.document
-            .addEventListener('webkitfullscreenchange', _fullscreenListener);
+            .addEventListener('webkitfullscreenchange', fullscreenListener);
         html.document
-            .addEventListener('mozfullscreenchange', _fullscreenListener);
-        html.document.addEventListener('fullscreenchange', _fullscreenListener);
+            .addEventListener('mozfullscreenchange', fullscreenListener);
+        html.document.addEventListener('fullscreenchange', fullscreenListener);
         html.document
-            .addEventListener('MSFullscreenChange', _fullscreenListener);
+            .addEventListener('MSFullscreenChange', fullscreenListener);
       },
       onCancel: () {
         html.document
-            .removeEventListener('webkitfullscreenchange', _fullscreenListener);
+            .removeEventListener('webkitfullscreenchange', fullscreenListener);
         html.document
-            .removeEventListener('mozfullscreenchange', _fullscreenListener);
+            .removeEventListener('mozfullscreenchange', fullscreenListener);
         html.document
-            .removeEventListener('fullscreenchange', _fullscreenListener);
+            .removeEventListener('fullscreenchange', fullscreenListener);
         html.document
-            .removeEventListener('MSFullscreenChange', _fullscreenListener);
+            .removeEventListener('MSFullscreenChange', fullscreenListener);
       },
     );
 
@@ -167,7 +167,7 @@ class WebUtils {
     StreamController<WebStorageEvent>? controller;
 
     // Event listener reacting on storage changes.
-    void _storageListener(html.Event event) {
+    void storageListener(html.Event event) {
       event as html.StorageEvent;
       controller!.add(
         WebStorageEvent(
@@ -179,9 +179,33 @@ class WebUtils {
     }
 
     controller = StreamController(
-      onListen: () => html.window.addEventListener('storage', _storageListener),
+      onListen: () => html.window.addEventListener('storage', storageListener),
       onCancel: () =>
-          html.window.removeEventListener('storage', _storageListener),
+          html.window.removeEventListener('storage', storageListener),
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the browser's window focus changes.
+  static Stream<bool> get onWindowFocus {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on mouse enter events.
+    void enterListener(html.Event event) => controller!.add(true);
+
+    // Event listener reacting on mouse leave events.
+    void leaveListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.document.addEventListener('mouseenter', enterListener);
+        html.document.addEventListener('mouseleave', leaveListener);
+      },
+      onCancel: () {
+        html.document.removeEventListener('mouseenter', enterListener);
+        html.document.removeEventListener('mouseleave', leaveListener);
+      },
     );
 
     return controller.stream;

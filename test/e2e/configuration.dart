@@ -16,7 +16,10 @@
 
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -25,19 +28,33 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
+import 'mock/graphql.dart';
+import 'parameters/attachment.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
+import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/attach_file.dart';
+import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
+import 'steps/in_chat_with.dart';
+import 'steps/internet.dart';
+import 'steps/long_press_message.dart';
+import 'steps/long_press_widget.dart';
+import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
-import 'steps/wait_until_text_exists.dart';
+import 'steps/wait_until_attachment.dart';
+import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_message_status.dart';
+import 'steps/wait_until_text.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -45,22 +62,37 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        attachFile,
         copyFromField,
+        expectNWidget,
         fillField,
+        fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        haveInternetWithDelay,
+        haveInternetWithoutDelay,
         iAm,
+        iAmInChatWith,
+        longPressMessageByAttachment,
+        longPressMessageByText,
+        longPressWidget,
+        noInternetConnection,
         pasteToField,
+        restartApp,
         seesAs,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
+        tapText,
         tapWidget,
         twoUsers,
+        untilAttachmentExists,
         untilTextExists,
         updateBio,
         user,
+        waitUntilAttachmentStatus,
         waitUntilKeyExists,
+        waitUntilMessageStatus,
       ]
       ..hooks = [ResetAppHook()]
       ..reporters = [
@@ -79,14 +111,19 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        AttachmentTypeParameter(),
         OnlineStatusParameter(),
+        SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
       ]
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) => Future.sync(app.main);
+Future<void> appInitializationFn(World world) {
+  Get.put<GraphQlProvider>(MockGraphQlProvider());
+  return Future.sync(app.main);
+}
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
 Future<Session> createUser(
@@ -116,4 +153,16 @@ Future<Session> createUser(
     result.createUser.session.token,
     result.createUser.session.expireAt,
   );
+}
+
+/// Extension adding an ability to find the [Widget]s without skipping the
+/// offstage to [AppDriverAdapter].
+extension SkipOffstageExtension on AppDriverAdapter {
+  /// Finds the [Widget] by its [key] without skipping the offstage.
+  Finder findByKeySkipOffstage(String key) =>
+      find.byKey(Key(key), skipOffstage: false);
+
+  /// Finds the [Widget] by its [text] without skipping the offstage.
+  Finder findByTextSkipOffstage(String text) =>
+      find.text(text, skipOffstage: false);
 }

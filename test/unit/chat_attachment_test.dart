@@ -14,32 +14,29 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -61,28 +58,8 @@ void main() async {
   await chatHiveProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-
-  var myUserData = {
-    'id': 'id',
-    'num': '1234567890123456',
-    'login': null,
-    'name': null,
-    'bio': null,
-    'emails': {'confirmed': []},
-    'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
-    'chatDirectLink': null,
-    'hasPassword': false,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -112,18 +89,6 @@ void main() async {
     }
   };
 
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...myUserData},
-        },
-      ),
-    ])),
-  );
-
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
   when(graphQlProvider.keepOnline())
@@ -142,11 +107,6 @@ void main() async {
   );
   await authService.init();
 
-  AbstractMyUserRepository myUserRepository =
-      MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
-  MyUserService myUserService =
-      Get.put(MyUserService(authService, myUserRepository));
-
   test('ChatService successfully uploads an attachment', () async {
     when(graphQlProvider.recentChats(
       first: 120,
@@ -159,7 +119,10 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-    when(graphQlProvider.uploadAttachment(any)).thenAnswer(
+    when(graphQlProvider.uploadAttachment(
+      any,
+      onSendProgress: anyNamed('onSendProgress'),
+    )).thenAnswer(
       (_) => Future.value(
         UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk.fromJson({
           '__typename': 'UploadAttachmentOk',
@@ -183,18 +146,20 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, Get.find(), userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.uploadAttachment(
-      NativeFile(
-        bytes: Uint8List.fromList([1, 1]),
-        size: 2,
-        name: 'test',
+      LocalAttachment(
+        NativeFile(
+          bytes: Uint8List.fromList([1, 1]),
+          size: 2,
+          name: 'test',
+        ),
       ),
     );
 
-    verify(graphQlProvider.uploadAttachment(any));
+    verify(graphQlProvider.uploadAttachment(any,
+        onSendProgress: anyNamed('onSendProgress')));
   });
 
   test('ChatService throws an UploadAttachmentException', () async {
@@ -209,28 +174,39 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-    when(graphQlProvider.uploadAttachment(any)).thenThrow(
-        UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown));
+    when(graphQlProvider.uploadAttachment(
+      any,
+      onSendProgress: anyNamed('onSendProgress'),
+    )).thenThrow(
+      const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
+    );
 
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, Get.find(), userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    expect(
-      () async => await chatService.uploadAttachment(
-        NativeFile(
-          bytes: Uint8List.fromList([1, 1]),
-          size: 2,
-          name: 'test',
-        ),
+    var attachment = LocalAttachment(
+      NativeFile(
+        bytes: Uint8List.fromList([1, 1]),
+        size: 2,
+        name: 'test',
       ),
+    );
+    attachment.upload.value = Completer();
+    attachment.upload.value?.future.then((_) {}, onError: (_) {});
+    await expectLater(
+      () async => await chatService.uploadAttachment(attachment),
       throwsA(isA<UploadAttachmentException>()),
     );
 
-    verify(graphQlProvider.uploadAttachment(any));
+    verify(
+      graphQlProvider.uploadAttachment(
+        any,
+        onSendProgress: anyNamed('onSendProgress'),
+      ),
+    );
   });
 }

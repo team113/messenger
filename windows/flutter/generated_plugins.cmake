@@ -6,9 +6,10 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus_windows
   desktop_drop
-  flutter_webrtc
+  medea_flutter_webrtc
   medea_jason
   permission_handler_windows
+  screen_retriever
   sentry_flutter
   url_launcher_windows
   window_manager

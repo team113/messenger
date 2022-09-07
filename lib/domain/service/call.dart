@@ -276,7 +276,7 @@ class CallService extends DisposableService {
         groupName,
       );
     } else {
-      throw TransformDialogCallIntoGroupCallException(
+      throw const TransformDialogCallIntoGroupCallException(
         TransformDialogCallIntoGroupCallErrorCode.noCall,
       );
     }

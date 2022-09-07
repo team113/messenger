@@ -26,9 +26,12 @@ import 'package:intl/intl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/config.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -48,10 +51,13 @@ import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key}) : super(key: key);
+  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
   /// ID of this [Chat].
   final ChatId id;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -76,12 +82,14 @@ class _ChatViewState extends State<ChatView>
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatController>(
+      key: const Key('ChatView'),
       init: ChatController(
         widget.id,
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
+        itemId: widget.itemId,
       ),
       tag: widget.id.val,
       builder: (c) => Obx(
@@ -273,6 +281,7 @@ class _ChatViewState extends State<ChatView>
                                             item: e,
                                             me: c.me!,
                                             user: u.data,
+                                            getUser: c.getUser,
                                             onJoinCall: c.joinCall,
                                             onHide: () =>
                                                 c.hideChatItem(e.value),
@@ -283,8 +292,21 @@ class _ChatViewState extends State<ChatView>
                                             onCopy: (text) => c.copyText(text),
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
+                                            onForwardedTap: (id, chatId) {
+                                              if (chatId == c.id) {
+                                                c.animateTo(id);
+                                              } else {
+                                                router.chat(
+                                                  chatId,
+                                                  itemId: id,
+                                                  push: true,
+                                                );
+                                              }
+                                            },
                                             animation: _animation,
                                             onGallery: c.calculateGallery,
+                                            onResend: () =>
+                                                c.resendItem(e.value),
                                             onEdit: () =>
                                                 c.editMessage(e.value),
                                           ),
@@ -417,6 +439,7 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
+              appBar: AppBar(),
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
@@ -705,7 +728,9 @@ class _ChatViewState extends State<ChatView>
                   type: PlatformUtils.isDesktop
                       ? TextInputType.text
                       : TextInputType.multiline,
-                  textInputAction: TextInputAction.send,
+                  textInputAction: PlatformUtils.isDesktop
+                      ? TextInputAction.send
+                      : TextInputAction.newline,
                 ),
               ),
             ),
@@ -713,7 +738,9 @@ class _ChatViewState extends State<ChatView>
             _button(
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
-                child: (c.send.isEmpty.value && c.attachments.isEmpty)
+                child: (c.send.isEmpty.value &&
+                        c.attachments.isEmpty &&
+                        c.repliedMessage.value == null)
                     ? const Padding(
                         key: Key('Mic'),
                         padding: EdgeInsets.only(top: 2),
@@ -725,7 +752,9 @@ class _ChatViewState extends State<ChatView>
                         child: Icon(Icons.send, size: 24),
                       ),
               ),
-              onTap: (c.send.isEmpty.value && c.attachments.isEmpty)
+              onTap: (c.send.isEmpty.value &&
+                      c.attachments.isEmpty &&
+                      c.repliedMessage.value == null)
                   ? () {}
                   : c.send.submit,
             ),
@@ -791,7 +820,9 @@ class _ChatViewState extends State<ChatView>
                   type: PlatformUtils.isDesktop
                       ? TextInputType.text
                       : TextInputType.multiline,
-                  textInputAction: TextInputAction.send,
+                  textInputAction: PlatformUtils.isDesktop
+                      ? TextInputAction.send
+                      : TextInputAction.newline,
                 ),
               ),
             ),
@@ -811,8 +842,11 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Returns a visual representation of the provided [AttachmentData].
-  Widget _buildAttachment(ChatController c, AttachmentData data) {
+  /// Returns a visual representation of the provided [Attachment].
+  Widget _buildAttachment(ChatController c, Attachment e) {
+    bool isImage =
+        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
+
     return Container(
       width: 80,
       height: 80,
@@ -823,90 +857,93 @@ class _ChatViewState extends State<ChatView>
       margin: const EdgeInsets.symmetric(horizontal: 2),
       child: Stack(
         children: [
-          data.file.isImage
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: data.file.bytes == null
-                      ? data.file.path == null
-                          ? const SizedBox(
-                              width: 80,
-                              height: 80,
+          if (isImage)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: e is LocalAttachment
+                  ? e.file.bytes == null
+                      ? e.file.path == null
+                          ? const Center(
                               child: SizedBox(
-                                height: 40,
                                 width: 40,
+                                height: 40,
                                 child: CircularProgressIndicator(),
                               ),
                             )
-                          : data.file.isSvg
+                          : e.file.isSvg
                               ? SvgLoader.file(
-                                  File(data.file.path!),
-                                  width: 100,
-                                  height: 100,
+                                  File(e.file.path!),
+                                  width: 80,
+                                  height: 80,
                                 )
                               : Image.file(
-                                  File(data.file.path!),
+                                  File(e.file.path!),
                                   fit: BoxFit.cover,
                                   width: 80,
                                   height: 80,
                                 )
-                      : data.file.isSvg
+                      : e.file.isSvg
                           ? SvgLoader.bytes(
-                              data.file.bytes!,
-                              width: 100,
-                              height: 100,
+                              e.file.bytes!,
+                              width: 80,
+                              height: 80,
                             )
                           : Image.memory(
-                              data.file.bytes!,
+                              e.file.bytes!,
                               fit: BoxFit.cover,
                               width: 80,
                               height: 80,
-                            ),
-                )
-              : SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.insert_drive_file_sharp),
-                      const SizedBox(height: 2),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: Text(
-                          data.file.name,
-                          style: const TextStyle(fontSize: 9),
-                          textAlign: TextAlign.center,
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                            )
+                  : Image.network(
+                      '${Config.url}/files${e.original}',
+                      fit: BoxFit.cover,
+                      width: 80,
+                      height: 80,
+                    ),
+            )
+          else
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.insert_drive_file_sharp),
+                  const SizedBox(height: 2),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Text(
+                      e.filename,
+                      style: const TextStyle(fontSize: 9),
+                      textAlign: TextAlign.center,
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
           Center(
             child: SizedBox(
               height: 30,
               width: 30,
               child: ElasticAnimatedSwitcher(
-                child:
-                    data.upload.value != null && c.send.status.value.isLoading
-                        ? CircularProgressIndicator(
-                            value: data.progress.value,
+                child: e is LocalAttachment
+                    ? e.status.value == SendingStatus.error
+                        ? Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.error,
+                                color: Colors.red,
+                              ),
+                            ),
                           )
-                        : data.hasError.value
-                            ? Container(
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(),
+                        : const SizedBox()
+                    : const SizedBox(),
               ),
             ),
           ),
@@ -917,7 +954,7 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.only(right: 2, top: 3),
                 child: InkWell(
                   key: const Key('RemovePickedFile'),
-                  onTap: () => c.attachments.remove(data),
+                  onTap: () => c.attachments.remove(e),
                   child: Container(
                     decoration: const BoxDecoration(
                       color: Color(0x99FFFFFF),
