@@ -26,8 +26,9 @@ All user visible changes to this project will be documented in this file. This p
         - Button joining call with video ([#56], [#51]).
     - Introduction modal window ([#38]).
     - Chat page:
-        - Message forwarding ([#72], [#8]).
-        - Failed messages persistence ([#5], [#3]).
+        - Message forwarding ([#72], [#8]);
+        - Failed messages persistence ([#5], [#3]);
+        - Message splitting when character limit is exceeded ([#115], [#100]).
 - Deployment:
     - [Helm] chart ([#73], [#85]).
 
@@ -99,8 +100,10 @@ All user visible changes to this project will be documented in this file. This p
 [#89]: /../../pull/89
 [#90]: /../../pull/90
 [#92]: /../../issues/92
+[#100]: /../../issues/100
 [#106]: /../../pull/106
 [#112]: /../../pull/112
+[#115]: /../../pull/115
 [#117]: /../../pull/117
 
 
