@@ -49,9 +49,6 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
-  /// Maximum allowed message length UTF-8 characters.
-  static const int maxMessageText = 8192;
-
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
@@ -121,19 +118,16 @@ class ChatService extends DisposableService {
       );
     }
 
-    bool isSplit = text == null ? false : text.val.length > maxMessageText;
+    if (text != null && text.val.length > ChatMessageText.maxLength) {
+      final List<ChatMessageText> chunks = text.split();
+      int i = 0;
 
-    if (isSplit) {
-      final chunks = _createChunksString(text.val, maxMessageText);
-      final copyAttachments = attachments != null ? [...attachments] : null;
-      var index = 0;
-
-      return Future.forEach<String>(
+      return Future.forEach<ChatMessageText>(
         chunks,
         (text) => _chatRepository.sendChatMessage(
           chatId,
-          text: ChatMessageText(text),
-          attachments: index++ != chunks.length - 1 ? null : copyAttachments,
+          text: text,
+          attachments: i++ != chunks.length - 1 ? null : attachments,
           repliesTo: repliesTo,
         ),
       );
@@ -304,28 +298,5 @@ class ChatService extends DisposableService {
       }
       await _chatRepository.remove(id);
     }
-  }
-
-  /// Splits [str] into the specified [size]
-  List<String> _createChunksString(String str, int size) {
-    if (size <= 0) {
-      return [];
-    }
-    final chunks = <String>[];
-    final length = str.length;
-    var start = 0;
-    var end = 1;
-
-    while (end * size <= length) {
-      chunks.add(str.substring(size * start++, size * end++));
-    }
-
-    const remainderZero = 0;
-    final isRestOfLine = length % size != remainderZero;
-    if (isRestOfLine) {
-      chunks.add(str.substring(size * start, size * start + length % size));
-    }
-
-    return chunks;
   }
 }

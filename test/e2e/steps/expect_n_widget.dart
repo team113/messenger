@@ -21,12 +21,12 @@ import 'package:gherkin/gherkin.dart';
 
 import '../parameters/keys.dart';
 
-/// Checks the required number of widgets.
+/// Indicates whether the provided number of specific [Widget]s are visible.
 ///
 /// Examples:
-/// - Then I expect 1 `ChatMessage`
+/// - Then I expect to see 1 `ChatMessage`
 final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
-  RegExp(r'I expect {int} {key}'),
+  RegExp(r'I expect to see {int} {key}'),
   (quantity, key, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
