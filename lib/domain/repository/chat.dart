@@ -22,6 +22,7 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -116,16 +117,16 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(Rx<ChatItem> item, ChatMessageText? text);
+  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> deleteChatMessage(Rx<ChatItem> item);
+  Future<void> deleteChatMessage(ChatMessage message);
 
   /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
-  Future<void> deleteChatForward(Rx<ChatItem> item);
+  Future<void> deleteChatForward(ChatForward forward);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
-  Future<void> hideChatItem(Rx<ChatItem> item);
+  Future<void> hideChatItem(ChatId chatId, ChatItemId id);
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
@@ -142,6 +143,22 @@ abstract class AbstractChatRepository {
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId id);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  });
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

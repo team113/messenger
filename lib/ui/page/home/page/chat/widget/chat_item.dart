@@ -24,9 +24,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/animated_transform.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/mobile.dart';
@@ -78,11 +80,10 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
+    this.onForwardedTap,
     this.onResend,
     this.onDrag,
   }) : super(key: key);
-
-  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
@@ -95,6 +96,10 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
+
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -128,6 +133,9 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final Function()? onResend;
 
+  /// Callback, called when a forwarded message of this [ChatItem] is tapped.
+  final Function(ChatItemId, ChatId)? onForwardedTap;
+
   final Function(bool)? onDrag;
 
   @override
@@ -148,10 +156,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   void initState() {
-    if (widget.item.value is ChatMessage) {
-      var msg = widget.item.value as ChatMessage;
-      _populateGlobalKeys(msg);
-    }
+    _populateGlobalKeys(widget.item.value);
 
     super.initState();
   }
@@ -254,7 +259,286 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    return _rounded(context, Text('label_forwarded_message'.l10n));
+    ChatForward msg = widget.item.value as ChatForward;
+    ChatItem item = msg.item;
+
+    Style style = Theme.of(context).extension<Style>()!;
+
+    bool fromMe = widget.item.value.authorId == widget.me;
+    bool isRead = _isRead();
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      var desc = StringBuffer();
+
+      if (item.text != null) {
+        desc.write(item.text!.val);
+      }
+
+      if (item.attachments.isNotEmpty) {
+        List<Attachment> media = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .toList();
+
+        List<Attachment> files = item.attachments
+            .where((e) =>
+                (e is FileAttachment && !e.isVideo) ||
+                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
+            .toList();
+
+        if (media.isNotEmpty || files.isNotEmpty) {
+          additional = [
+            if (files.isNotEmpty)
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: isRead
+                    ? 1
+                    : fromMe
+                        ? 0.55
+                        : 1,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  child: Column(
+                    children:
+                        files.map((e) => _buildFileAttachment(e)).toList(),
+                  ),
+                ),
+              ),
+            if (media.isNotEmpty)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.zero,
+                  topRight: Radius.zero,
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: isRead
+                      ? 1
+                      : fromMe
+                          ? 0.55
+                          : 1,
+                  child: media.length == 1
+                      ? _buildAttachment(
+                          0,
+                          media.first,
+                          media,
+                          filled: false,
+                        )
+                      : SizedBox(
+                          width: media.length * 120,
+                          height: max(media.length * 60, 300),
+                          child: FitView(
+                            dividerColor: Colors.transparent,
+                            children: media
+                                .mapIndexed(
+                                    (i, e) => _buildAttachment(i, e, media))
+                                .toList(),
+                          ),
+                        ),
+                ),
+              ),
+            // ...media.mapIndexed((i, e) => _buildAttachment(i, e, media)),
+            // if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
+            // ...files.map(_buildFile),
+          ];
+        }
+      }
+
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          style: style.boldBody,
+        );
+      }
+    } else if (item is ChatCall) {
+      String title = 'label_chat_call_ended'.l10n;
+      String? time;
+      bool fromMe = widget.me == item.authorId;
+      bool isMissed = false;
+
+      if (item.finishReason == null && item.conversationStartedAt != null) {
+        title = 'label_chat_call_ongoing'.l10n;
+      } else if (item.finishReason != null) {
+        title = item.finishReason!.localizedString(fromMe) ?? title;
+        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+            item.finishReason == ChatCallFinishReason.unanswered;
+        time = item.finishedAt!.val
+            .difference(item.conversationStartedAt!.val)
+            .localizedString();
+      } else {
+        title = item.authorId == widget.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
+      }
+
+      content = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+            child: item.withVideo
+                ? SvgLoader.asset(
+                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 13,
+                  )
+                : SvgLoader.asset(
+                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                    height: 15,
+                  ),
+          ),
+          Flexible(child: Text(title)),
+          if (time != null) ...[
+            const SizedBox(width: 9),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 1),
+              child: Text(
+                time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.boldBody,
+              ),
+            ),
+          ],
+        ],
+      );
+    } else if (item is ChatMemberInfo) {
+      // TODO: Implement `ChatMemberInfo`.
+      content = Text(item.action.toString(), style: style.boldBody);
+    } else if (item is ChatForward) {
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
+    } else {
+      content = Text('err_unknown'.l10n, style: style.boldBody);
+    }
+
+    Color color = widget.user?.user.value.id == widget.me
+        ? const Color(0xFF63B4FF)
+        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
+
+    return _rounded(
+      context,
+      Padding(
+        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        child: IntrinsicWidth(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: fromMe
+                  ? isRead
+                      ? const Color.fromRGBO(210, 227, 249, 1)
+                      : const Color.fromARGB(255, 244, 249, 255)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: fromMe
+                  ? isRead
+                      ? style.primaryBorder
+                      : Border.all(
+                          color: const Color(0xFFDAEDFF),
+                          width: 0.5,
+                        )
+                  : style.secondaryBorder,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!fromMe && widget.chat.value?.isGroup == true)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.55
+                            : 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 9, 0),
+                      child: Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            '...',
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                  ),
+                FutureBuilder<RxUser?>(
+                  key: Key('FutureBuilder_${item.id}'),
+                  future: widget.getUser?.call(item.authorId),
+                  builder: (context, snapshot) {
+                    Color color = snapshot.data?.user.value.id == widget.me
+                        ? const Color(0xFF63B4FF)
+                        : AvatarWidget.colors[
+                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                AvatarWidget.colors.length];
+
+                    return Row(
+                      key: Key('Row_${item.id}'),
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () => widget.onForwardedTap
+                              ?.call(msg.item.id, msg.item.chatId),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Icon(Icons.reply, size: 26, color: color),
+                          ),
+                        ),
+                        Flexible(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                  left: BorderSide(width: 2, color: color)),
+                            ),
+                            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (snapshot.data?.user.value != null)
+                                  Text(
+                                    snapshot.data?.user.value.name?.val ??
+                                        snapshot.data?.user.value.num.val ??
+                                        '...',
+                                    style:
+                                        style.boldBody.copyWith(color: color),
+                                  ),
+                                if (content != null) ...[
+                                  const SizedBox(height: 2),
+                                  content,
+                                ],
+                                if (additional.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        msg.authorId == widget.me
+                                            ? CrossAxisAlignment.end
+                                            : CrossAxisAlignment.start,
+                                    children: additional,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   /// Renders [widget.item] as [ChatMessage].
@@ -301,213 +585,204 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      Padding(
+      Container(
+        alignment: fromMe ? Alignment.centerRight : Alignment.centerLeft,
         padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-        child: Column(
-          crossAxisAlignment:
-              fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            IntrinsicWidth(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: fromMe
-                      ? isRead
-                          ? const Color.fromRGBO(210, 227, 249, 1)
-                          : const Color.fromARGB(255, 244, 249, 255)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  border: fromMe
-                      ? isRead
-                          ? style.primaryBorder
-                          : Border.all(
-                              color: const Color(0xFFDAEDFF),
-                              width: 0.5,
-                            )
-                      : style.secondaryBorder,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (msg.repliesTo != null)
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        decoration: BoxDecoration(
-                          color: (msg.repliesTo!.authorId == widget.me)
-                              ? isRead
-                                  ? const Color.fromRGBO(219, 234, 253, 1)
-                                  : const Color.fromRGBO(230, 241, 254, 1)
-                              : isRead
-                                  ? const Color.fromRGBO(249, 249, 249, 1)
-                                  : const Color.fromRGBO(255, 255, 255, 1),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15),
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            topRight: Radius.circular(15),
-                          ),
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 500),
-                            opacity: isRead
-                                ? 1
-                                : fromMe
-                                    ? 0.55
-                                    : 1,
-                            child: WidgetButton(
-                              onPressed: () =>
-                                  widget.onRepliedTap?.call(msg.repliesTo!.id),
-                              child: _repliedMessage(msg.repliesTo!),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (!fromMe && widget.chat.value?.isGroup == true)
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: isRead
-                            ? 1
-                            : fromMe
-                                ? 0.55
-                                : 1,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            12,
-                            8,
-                            9,
-                            files.isEmpty &&
-                                    attachments.isNotEmpty &&
-                                    msg.text == null
-                                ? 8
-                                : files.isNotEmpty && msg.text == null
-                                    ? 0
-                                    : 4,
-                          ),
-                          child: Text(
-                            widget.user?.user.value.name?.val ??
-                                widget.user?.user.value.num.val ??
-                                '...',
-                            style: style.boldBody.copyWith(color: color),
-                          ),
-                        ),
-                      ),
-                    if (msg.text != null)
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: isRead
-                            ? 1
-                            : fromMe
-                                ? 0.55
-                                : 1,
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            12,
-                            (!fromMe && widget.chat.value?.isGroup == true)
-                                ? 0
-                                : 10,
-                            9,
-                            files.isEmpty ? 10 : 0,
-                          ),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.deferToChild,
-                            onHorizontalDragUpdate:
-                                PlatformUtils.isDesktop ? (d) {} : null,
-                            onHorizontalDragEnd:
-                                PlatformUtils.isDesktop ? (d) {} : null,
-                            child: Obx(() {
-                              return IgnorePointer(
-                                ignoring:
-                                    ContextMenuOverlay.of(context).id.value !=
-                                        widget.item.value.id.val,
-                                child: SelectableText(
-                                  msg.text!.val,
-                                  style: style.boldBody,
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ),
-                    if (files.isNotEmpty)
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: isRead
-                            ? 1
-                            : fromMe
-                                ? 0.55
-                                : 1,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                          child: Column(
-                            children: files
-                                .map((e) => _buildFileAttachment(e))
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    if (attachments.isNotEmpty)
-                      ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: msg.text != null ||
-                                  msg.repliesTo != null ||
-                                  (!fromMe &&
-                                      widget.chat.value?.isGroup == true)
-                              ? Radius.zero
-                              : files.isEmpty
-                                  ? const Radius.circular(15)
-                                  : Radius.zero,
-                          topRight: msg.text != null ||
-                                  msg.repliesTo != null ||
-                                  (!fromMe &&
-                                      widget.chat.value?.isGroup == true)
-                              ? Radius.zero
-                              : files.isEmpty
-                                  ? const Radius.circular(15)
-                                  : Radius.zero,
-                          bottomLeft: const Radius.circular(15),
-                          bottomRight: const Radius.circular(15),
-                          // bottomLeft: files.isEmpty
-                          //     ? const Radius.circular(15)
-                          //     : Radius.zero,
-                          // bottomRight: files.isEmpty
-                          //     ? const Radius.circular(15)
-                          //     : Radius.zero,
-                        ),
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 500),
-                          opacity: isRead
-                              ? 1
-                              : fromMe
-                                  ? 0.55
-                                  : 1,
-                          child: attachments.length == 1
-                              ? _buildAttachment(
-                                  0,
-                                  attachments.first,
-                                  attachments,
-                                  filled: false,
-                                )
-                              : SizedBox(
-                                  width: attachments.length * 120,
-                                  height: max(attachments.length * 60, 300),
-                                  child: FitView(
-                                    dividerColor: Colors.transparent,
-                                    children: attachments
-                                        .mapIndexed((i, e) =>
-                                            _buildAttachment(i, e, attachments))
-                                        .toList(),
-                                  ),
-                                ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+        child: IntrinsicWidth(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: fromMe
+                  ? isRead
+                      ? const Color.fromRGBO(210, 227, 249, 1)
+                      : const Color.fromARGB(255, 244, 249, 255)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              border: fromMe
+                  ? isRead
+                      ? style.primaryBorder
+                      : Border.all(
+                          color: const Color(0xFFDAEDFF),
+                          width: 0.5,
+                        )
+                  : style.secondaryBorder,
             ),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (msg.repliesTo != null)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    decoration: BoxDecoration(
+                      color: (msg.repliesTo!.authorId == widget.me)
+                          ? isRead
+                              ? const Color.fromRGBO(219, 234, 253, 1)
+                              : const Color.fromRGBO(230, 241, 254, 1)
+                          : isRead
+                              ? const Color.fromRGBO(249, 249, 249, 1)
+                              : const Color.fromRGBO(255, 255, 255, 1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                      ),
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: isRead
+                            ? 1
+                            : fromMe
+                                ? 0.55
+                                : 1,
+                        child: WidgetButton(
+                          onPressed: () =>
+                              widget.onRepliedTap?.call(msg.repliesTo!.id),
+                          child: _repliedMessage(msg.repliesTo!),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (!fromMe && widget.chat.value?.isGroup == true)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.55
+                            : 1,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        8,
+                        9,
+                        files.isEmpty &&
+                                attachments.isNotEmpty &&
+                                msg.text == null
+                            ? 8
+                            : files.isNotEmpty && msg.text == null
+                                ? 0
+                                : 4,
+                      ),
+                      child: Text(
+                        widget.user?.user.value.name?.val ??
+                            widget.user?.user.value.num.val ??
+                            '...',
+                        style: style.boldBody.copyWith(color: color),
+                      ),
+                    ),
+                  ),
+                if (msg.text != null)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.55
+                            : 1,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        (!fromMe && widget.chat.value?.isGroup == true)
+                            ? 0
+                            : 10,
+                        9,
+                        files.isEmpty ? 10 : 0,
+                      ),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.deferToChild,
+                        onHorizontalDragUpdate:
+                            PlatformUtils.isDesktop ? (d) {} : null,
+                        onHorizontalDragEnd:
+                            PlatformUtils.isDesktop ? (d) {} : null,
+                        child: Obx(() {
+                          return IgnorePointer(
+                            ignoring: ContextMenuOverlay.of(context).id.value !=
+                                widget.item.value.id.val,
+                            child: SelectableText(
+                              msg.text!.val,
+                              style: style.boldBody,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                if (files.isNotEmpty)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.55
+                            : 1,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                      child: Column(
+                        children:
+                            files.map((e) => _buildFileAttachment(e)).toList(),
+                      ),
+                    ),
+                  ),
+                if (attachments.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: msg.text != null ||
+                              msg.repliesTo != null ||
+                              (!fromMe && widget.chat.value?.isGroup == true)
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      topRight: msg.text != null ||
+                              msg.repliesTo != null ||
+                              (!fromMe && widget.chat.value?.isGroup == true)
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      bottomLeft: const Radius.circular(15),
+                      bottomRight: const Radius.circular(15),
+                      // bottomLeft: files.isEmpty
+                      //     ? const Radius.circular(15)
+                      //     : Radius.zero,
+                      // bottomRight: files.isEmpty
+                      //     ? const Radius.circular(15)
+                      //     : Radius.zero,
+                    ),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: isRead
+                          ? 1
+                          : fromMe
+                              ? 0.55
+                              : 1,
+                      child: attachments.length == 1
+                          ? _buildAttachment(
+                              0,
+                              attachments.first,
+                              attachments,
+                              filled: false,
+                            )
+                          : SizedBox(
+                              width: attachments.length * 120,
+                              height: max(attachments.length * 60, 300),
+                              child: FitView(
+                                dividerColor: Colors.transparent,
+                                children: attachments
+                                    .mapIndexed((i, e) =>
+                                        _buildAttachment(i, e, attachments))
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
       padding: EdgeInsets.zero,
@@ -942,8 +1217,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
               false,
       isRead: isSent && (!fromMe || isRead),
-      isError: widget.item.value.status.value == SendingStatus.error,
-      isSending: widget.item.value.status.value == SendingStatus.sending,
+      isError: item.status.value == SendingStatus.error,
+      isSending: item.status.value == SendingStatus.sending,
       swipeable:
           Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
       child: AnimatedTransform(
@@ -1005,17 +1280,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: AnimatedDelayedSwitcher(
-                    delay:
-                        widget.item.value.status.value == SendingStatus.sending
-                            ? const Duration(seconds: 2)
-                            : Duration.zero,
-                    child: widget.item.value.status.value ==
-                            SendingStatus.sending
+                    delay: item.status.value == SendingStatus.sending
+                        ? const Duration(seconds: 2)
+                        : Duration.zero,
+                    child: item.status.value == SendingStatus.sending
                         ? const Padding(
+                            key: Key('Sending'),
                             padding: EdgeInsets.only(left: 8),
                             child: Icon(Icons.access_alarm, size: 15),
                           )
-                        : widget.item.value.status.value == SendingStatus.error
+                        : item.status.value == SendingStatus.error
                             ? const Padding(
                                 padding: EdgeInsets.only(left: 8),
                                 child: Icon(
@@ -1088,16 +1362,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ),
                                 onPressed: () => widget.onReply?.call(),
                               ),
-                              ContextMenuButton(
-                                key: const Key('ForwardButton'),
-                                label: 'Forward'.l10n,
-                                leading: SvgLoader.asset(
-                                  'assets/icons/forward.svg',
-                                  width: 18.8,
-                                  height: 16,
+                              if (item is ChatMessage || item is ChatForward)
+                                ContextMenuButton(
+                                  key: const Key('ForwardButton'),
+                                  label: 'Forward'.l10n,
+                                  leading: SvgLoader.asset(
+                                    'assets/icons/forward.svg',
+                                    width: 18.8,
+                                    height: 16,
+                                  ),
+                                  onPressed: () async {
+                                    List<AttachmentId> attachments = [];
+                                    if (item is ChatMessage) {
+                                      attachments = item.attachments
+                                          .map((a) => a.id)
+                                          .toList();
+                                    } else if (item is ChatForward) {
+                                      ChatItem nested = item.item;
+                                      if (nested is ChatMessage) {
+                                        attachments = nested.attachments
+                                            .map((a) => a.id)
+                                            .toList();
+                                      }
+                                    }
+
+                                    await ChatForwardView.show(
+                                      context,
+                                      widget.chat.value!.id,
+                                      [
+                                        ChatItemQuote(
+                                          item: item,
+                                          attachments: attachments,
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
-                                onPressed: () {},
-                              ),
                               if (widget.item.value is ChatMessage &&
                                   fromMe &&
                                   (widget.item.value.at
@@ -1421,8 +1721,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
-  void _populateGlobalKeys(ChatMessage msg) {
-    _galleryKeys = msg.attachments.map((e) => GlobalKey()).toList();
+  void _populateGlobalKeys(ChatItem msg) {
+    if (msg is ChatMessage) {
+      _galleryKeys = msg.attachments
+          .where((e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+          .map((e) => GlobalKey())
+          .toList();
+    } else if (msg is ChatForward) {
+      final ChatItem item = msg.item;
+      if (item is ChatMessage) {
+        _galleryKeys = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .map((e) => GlobalKey())
+            .toList();
+      }
+    }
   }
 
   DeleteOptions? _deleteOptions = DeleteOptions.me;

@@ -14,25 +14,26 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment ChatForward on ChatForward {
-    id
-    chatId
-    authorId
-    at
-    ver
-    item {
-        node {
-            __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
-            }
-            ... on ChatCall {
-                 ...ChatCall
-            }
-            ... on ChatMessage {
-                ...ChatMessage
-            }
+mutation ForwardChatItems(
+    $from: ChatId!
+    $to: ChatId!
+    $items: [ChatItemQuoteInput!]!
+    $text: ChatMessageText
+    $attachments: [AttachmentId!]
+) {
+    forwardChatItems(
+        from: $from
+        to: $to
+        items: $items
+        text: $text
+        attachments: $attachments
+    ) {
+        __typename
+        ... on ChatEventsVersioned {
+            ...ChatEventsVersioned
         }
-        cursor
+        ... on ForwardChatItemsError {
+            code
+        }
     }
 }

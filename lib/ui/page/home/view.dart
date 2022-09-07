@@ -180,7 +180,7 @@ class _HomeViewState extends State<HomeView> {
                                       duration: 150.milliseconds,
                                       opacity: c.page.value == HomeTab.contacts
                                           ? 1
-                                          : 0.8,
+                                          : 0.6,
                                       child: SvgLoader.asset(
                                         'assets/icons/contacts_active.svg',
                                         width: 30,
@@ -203,7 +203,7 @@ class _HomeViewState extends State<HomeView> {
                                         duration: 150.milliseconds,
                                         opacity: c.page.value == HomeTab.chats
                                             ? 1
-                                            : 0.8,
+                                            : 0.6,
                                         child: SvgLoader.asset(
                                           'assets/icons/chats_active.svg',
                                           width: 36.06,
@@ -223,7 +223,7 @@ class _HomeViewState extends State<HomeView> {
                                         duration: 150.milliseconds,
                                         opacity: c.page.value == HomeTab.menu
                                             ? 1
-                                            : 0.8,
+                                            : 0.6,
                                         child: AvatarWidget.fromMyUser(
                                           c.myUser.value,
                                           radius: 15,

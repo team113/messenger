@@ -72,10 +72,13 @@ import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {Key? key}) : super(key: key);
+  const ChatView(this.id, {Key? key, this.itemId}) : super(key: key);
 
   /// ID of this [Chat].
   final ChatId id;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -107,6 +110,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        itemId: widget.itemId,
       ),
       tag: widget.id.val,
       builder: (c) {
@@ -535,11 +539,13 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (c.status.value.isEmpty) {
             return Scaffold(
+              appBar: AppBar(),
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
             );
           }
         });
@@ -684,9 +690,10 @@ class _ChatViewState extends State<ChatView>
           item: e,
           me: c.me!,
           user: u.data,
+          getUser: c.getUser,
           onJoinCall: c.joinCall,
-          onHide: () => c.hideChatItem(e),
-          onDelete: () => c.deleteMessage(e),
+          onHide: () => c.hideChatItem(e.value),
+          onDelete: () => c.deleteMessage(e.value),
           onReply: () {
             if (c.repliedMessages.contains(e.value)) {
               c.repliedMessages.remove(e.value);
@@ -695,13 +702,23 @@ class _ChatViewState extends State<ChatView>
             }
           },
           onCopy: c.copyText,
+          onForwardedTap: (id, chatId) {
+            if (chatId == c.id) {
+              c.animateTo(id);
+            } else {
+              router.chat(
+                chatId,
+                itemId: id,
+                push: true,
+              );
+            }
+          },
           onRepliedTap: (id) => c.animateTo(id),
           animation: _animation,
           onGallery: c.calculateGallery,
           onResend: () => c.resendItem(e.value),
-          onEdit: () => c.editMessage(e),
+          onEdit: () => c.editMessage(e.value),
           onDrag: (d) => c.isItemDragged.value = d,
-          getUser: c.getUser,
         ),
       ),
     );
@@ -1400,7 +1417,9 @@ class _ChatViewState extends State<ChatView>
                   // ),
                   // const SizedBox(width: 20),
                   WidgetButton(
-                    onPressed: c.send.isEmpty.value && c.attachments.isEmpty
+                    onPressed: c.send.isEmpty.value &&
+                            c.attachments.isEmpty &&
+                            c.repliedMessages.isEmpty
                         ? () {}
                         : c.send.submit,
                     child: SizedBox(
@@ -1818,10 +1837,7 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a visual representation of the provided [Attachment].
-  Widget _buildAttachment(ChatController c, AttachmentData d,
-      [bool grab = false]) {
-    Attachment e = d.data;
-
+  Widget _buildAttachment(ChatController c, Attachment e, [bool grab = false]) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
     bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -1906,16 +1922,11 @@ class _ChatViewState extends State<ChatView>
         return WidgetButton(
           // key: c.attachmentKeys[i],
           onPressed: () {
-            List<Attachment> attachments = c.attachments
-                .where((d) {
-                  Attachment e = d.data;
-                  return e is ImageAttachment ||
-                      (e is FileAttachment && e.isVideo) ||
-                      (e is LocalAttachment &&
-                          (e.file.isImage || e.file.isVideo));
-                })
-                .map((e) => e.data)
-                .toList();
+            List<Attachment> attachments = c.attachments.where((e) {
+              return e is ImageAttachment ||
+                  (e is FileAttachment && e.isVideo) ||
+                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo));
+            }).toList();
 
             int index = attachments.indexOf(e);
             if (index != -1) {
@@ -1923,10 +1934,10 @@ class _ChatViewState extends State<ChatView>
                 context: context,
                 gallery: GalleryPopup(
                   initial: attachments.indexOf(e),
-                  initialKey: d.key,
+                  initialKey: e.key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o.data == a);
+                    c.attachments.removeWhere((o) => o == a);
                   },
                   children: attachments.map((o) {
                     var link = '${Config.url}/files${o.original}';
@@ -2009,7 +2020,7 @@ class _ChatViewState extends State<ChatView>
       return MouseRegion(
         key: Key(e.id.val),
         opaque: false,
-        onEnter: (_) => c.hoveredAttachment.value = d,
+        onEnter: (_) => c.hoveredAttachment.value = e,
         onExit: (_) => c.hoveredAttachment.value = null,
         child: Container(
           width: size,
@@ -2024,7 +2035,9 @@ class _ChatViewState extends State<ChatView>
           child: Stack(
             children: [
               ClipRRect(
-                  borderRadius: BorderRadius.circular(10), child: _content()),
+                borderRadius: BorderRadius.circular(10),
+                child: _content(),
+              ),
               Center(
                 child: SizedBox(
                   height: 30,
@@ -2054,12 +2067,11 @@ class _ChatViewState extends State<ChatView>
                     child: Obx(() {
                       return AnimatedSwitcher(
                         duration: 200.milliseconds,
-                        child: (c.hoveredAttachment.value == d ||
+                        child: (c.hoveredAttachment.value == e ||
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap:
-                                    true ? () => c.attachments.remove(d) : null,
+                                onTap: () => c.attachments.remove(e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -2094,9 +2106,9 @@ class _ChatViewState extends State<ChatView>
     }
 
     return MyDismissible(
-      key: d.key,
+      key: e.key,
       direction: MyDismissDirection.up,
-      onDismissed: (_) => c.attachments.remove(d),
+      onDismissed: (_) => c.attachments.remove(e),
       child: _attachment(),
     );
   }

@@ -123,7 +123,7 @@ class ChatsTabView extends StatelessWidget {
                       },
                       icon: SvgLoader.asset(
                         'assets/icons/group.svg',
-                        height: 18.44,
+                        height: 20,
                       ),
                     ),
                   ),
@@ -323,6 +323,45 @@ class ChatsTabView extends StatelessWidget {
                           Icons.error_outline,
                           size: 15,
                           color: Colors.red,
+                        )
+                      : Container(),
+            ),
+          ];
+        } else if (item is ChatForward) {
+          subtitle = [
+            if (chat.isGroup)
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: FutureBuilder<RxUser?>(
+                  future: c.getUser(item.authorId),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? Obx(
+                          () => AvatarWidget.fromUser(
+                            snapshot.data!.user.value,
+                            radius: 10,
+                          ),
+                        )
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
+                ),
+              ),
+            Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
+            ElasticAnimatedSwitcher(
+              child: item.status.value == SendingStatus.sending
+                  ? const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Icon(Icons.access_alarm, size: 15),
+                    )
+                  : item.status.value == SendingStatus.error
+                      ? const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.error_outline,
+                            size: 15,
+                            color: Colors.red,
+                          ),
                         )
                       : Container(),
             ),
