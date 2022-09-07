@@ -35,6 +35,7 @@ import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
@@ -63,7 +64,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         attachFile,
         copyFromField,
+        expectNWidget,
         fillField,
+        fillFieldN,
         goToUserPage,
         hasDialogWithMe,
         haveInternetWithDelay,

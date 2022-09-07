@@ -162,4 +162,35 @@ class ChatItemId extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(String val) : super(val);
+
+  /// Maximum allowed number of characters in this [ChatMessageText].
+  static const int maxLength = 8192;
+
+  /// Splits this [ChatMessageText] equally by the [maxLength] characters.
+  List<ChatMessageText> split() {
+    if (maxLength <= 0) {
+      return [];
+    }
+
+    final List<String> chunks = [];
+
+    int start = 0;
+    int end = 1;
+
+    while (end * maxLength <= val.length) {
+      chunks.add(val.substring(maxLength * start++, maxLength * end++));
+    }
+
+    final bool isRestOfLine = val.length % maxLength != 0;
+    if (isRestOfLine) {
+      chunks.add(
+        val.substring(
+          maxLength * start,
+          maxLength * start + val.length % maxLength,
+        ),
+      );
+    }
+
+    return chunks.map((e) => ChatMessageText(e)).toList();
+  }
 }
