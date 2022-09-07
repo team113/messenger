@@ -48,8 +48,13 @@ class CreateGroupView extends StatelessWidget {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
-      init:
-          CreateGroupController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: CreateGroupController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        pop: Navigator.of(context).pop,
+      ),
       builder: (CreateGroupController c) {
         return Obx(() {
           Widget _tile({
@@ -394,7 +399,7 @@ class CreateGroupView extends StatelessWidget {
                                 color: enabled ? Colors.white : Colors.black,
                               ),
                             ),
-                            onPressed: enabled ? c.addMembers : null,
+                            onPressed: enabled ? c.createGroup : null,
                             color: enabled
                                 ? const Color(0xFF63B4FF)
                                 : const Color(0xFFEEEEEE),

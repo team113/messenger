@@ -181,6 +181,8 @@ class ChatController extends GetxController {
   final RxBool hasFocus = RxBool(false);
   final RxBool isItemDragged = RxBool(false);
 
+  // final Rx<ChatListItem> entities;
+
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 

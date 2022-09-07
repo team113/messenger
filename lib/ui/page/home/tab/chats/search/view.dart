@@ -211,10 +211,13 @@ class SearchView extends StatelessWidget {
                     children: [
                       const SizedBox(width: 10),
                       Expanded(
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            // child: ListView(
+                            //   scrollDirection: Axis.horizontal,
+                            //   shrinkWrap: true,
+                            //   children: [
                             WidgetButton(
                               onPressed: () => c.jumpTo(0),
                               child: Obx(() {
@@ -324,17 +327,26 @@ class SearchView extends StatelessWidget {
                           if (e is RxUser) {
                             return _tile(
                               user: e,
-                              onTap: () => c.openChat(user: e),
+                              onTap: () {
+                                c.openChat(user: e);
+                                Navigator.of(context).pop();
+                              },
                             );
                           } else if (e is RxChatContact) {
                             return _tile(
                               contact: e,
-                              onTap: () => c.openChat(contact: e),
+                              onTap: () {
+                                c.openChat(contact: e);
+                                Navigator.of(context).pop();
+                              },
                             );
                           } else if (e is RxChat) {
                             return _chat(
                               chat: e,
-                              onTap: () => c.openChat(chat: e),
+                              onTap: () {
+                                c.openChat(chat: e);
+                                Navigator.of(context).pop();
+                              },
                             );
                           }
 
@@ -346,27 +358,28 @@ class SearchView extends StatelessWidget {
                     );
                   }),
                 ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          maxWidth: null,
-                          title: const Text(
-                            'Close',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          onPressed: Navigator.of(context).pop,
-                          color: const Color(0xFFEEEEEE),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // const SizedBox(height: 18),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 10),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: OutlinedRoundedButton(
+                //           maxWidth: null,
+                //           title: const Text(
+                //             'Close',
+                //             overflow: TextOverflow.ellipsis,
+                //             maxLines: 1,
+                //             style: TextStyle(color: Colors.black),
+                //           ),
+                //           onPressed: Navigator.of(context).pop,
+                //           color: const Color(0xFFEEEEEE),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+
                 // const SizedBox(height: 18),
                 // Padding(
                 //   padding: const EdgeInsets.symmetric(horizontal: 10),

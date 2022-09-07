@@ -118,6 +118,21 @@ class ChatService extends DisposableService {
       );
     }
 
+    if (text != null && text.val.length > ChatMessageText.maxLength) {
+      final List<ChatMessageText> chunks = text.split();
+      int i = 0;
+
+      return Future.forEach<ChatMessageText>(
+        chunks,
+        (text) => _chatRepository.sendChatMessage(
+          chatId,
+          text: text,
+          attachments: i++ != chunks.length - 1 ? null : attachments,
+          repliesTo: repliesTo,
+        ),
+      );
+    }
+
     return _chatRepository.sendChatMessage(
       chatId,
       text: text,

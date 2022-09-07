@@ -26,6 +26,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '/domain/model/user.dart';
@@ -49,8 +50,11 @@ class CreateGroupController extends GetxController {
     this._chatService,
     this._callService,
     this._userService,
-    this._contactService,
-  );
+    this._contactService, {
+    this.pop,
+  });
+
+  void Function()? pop;
 
   final Rx<RxUser?> hoveredUser = Rx(null);
 
@@ -149,45 +153,42 @@ class CreateGroupController extends GetxController {
     super.onClose();
   }
 
-  /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
-  /// [Chat]-group with the current [Chat]-dialog members, [selectedContacts]
-  /// and [selectedUsers].
-  Future<void> addMembers({ChatName? groupName}) async {
-    // status.value = RxStatus.loading();
+  /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
+  Future<void> createGroup() async {
+    String? groupChatName;
 
-    // try {
-    //   List<UserId> ids = {
-    //     ...selectedContacts
-    //         .expand((e) => e.contact.value.users.map((u) => u.id)),
-    //     ...selectedUsers.map((u) => u.id),
-    //   }.toList();
+    status.value = RxStatus.loading();
+    try {
+      ChatName? chatName;
+      if (groupChatName?.isNotEmpty == true) {
+        chatName = ChatName(groupChatName!);
+      }
 
-    //   if (chat.value?.chat.value.isGroup != false) {
-    //     List<Future> futures = ids
-    //         .map((e) => _chatService.addChatMember(chatId.value, e))
-    //         .toList();
+      print('awaiting');
 
-    //     await Future.wait(futures);
-    //   } else {
-    //     await _callService.transformDialogCallIntoGroupCall(
-    //       chatId.value,
-    //       ids,
-    //       groupName,
-    //     );
-    //   }
+      RxChat chat = (await _chatService.createGroupChat(
+        {
+          ...selectedChats.expand((e) => e.members.keys),
+          ...selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...selectedUsers.map((e) => e.id),
+        }.toList(),
+        name: chatName,
+      ));
 
-    //   status.value = RxStatus.success();
-    //   stage.value = ParticipantsFlowStage.addedSuccess;
-    // } on AddChatMemberException catch (e) {
-    //   MessagePopup.error(e);
-    // } on TransformDialogCallIntoGroupCallException catch (e) {
-    //   MessagePopup.error(e);
-    // } catch (e) {
-    //   MessagePopup.error(e);
-    //   rethrow;
-    // } finally {
-    //   status.value = RxStatus.empty();
-    // }
+      // TODO: Do not pop async.
+      router.chat(chat.chat.value.id);
+      pop?.call();
+    } on CreateGroupChatException catch (e) {
+      MessagePopup.error(e);
+    } on FormatException catch (_) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      status.value = RxStatus.empty();
+    }
   }
 
   /// Selects or unselects the specified [contact].

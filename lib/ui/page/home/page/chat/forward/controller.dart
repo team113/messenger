@@ -17,9 +17,12 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
@@ -47,8 +50,8 @@ class ChatForwardController extends GetxController {
     this._chatService,
     this._userService, {
     required this.from,
-    required this.quotes,
-  });
+    required List<ChatItemQuote> quotes,
+  }) : quotes = RxList(quotes);
 
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> chats;
@@ -59,8 +62,10 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
+  final Rx<ChatItem?> hoveredReply = Rx(null);
+
   /// [ChatItemQuote]s to be forwarded.
-  final List<ChatItemQuote> quotes;
+  final RxList<ChatItemQuote> quotes;
 
   /// State of a send message field.
   late final TextFieldState send;
@@ -134,9 +139,54 @@ class ChatForwardController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
+  /// Opens a media choose popup and adds the selected files to the
+  /// [attachments].
+  Future<void> pickMedia() =>
+      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
+
+  /// Opens the camera app and adds the captured image to the [attachments].
+  Future<void> pickImageFromCamera() async {
+    // TODO: Remove the limitations when bigger files are supported on backend.
+    final XFile? photo = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 90,
+    );
+
+    if (photo != null) {
+      _addXFileAttachment(photo);
+    }
+  }
+
+  /// Opens the camera app and adds the captured video to the [attachments].
+  Future<void> pickVideoFromCamera() async {
+    // TODO: Remove the limitations when bigger files are supported on backend.
+    final XFile? video = await ImagePicker().pickVideo(
+      source: ImageSource.camera,
+      maxDuration: const Duration(seconds: 15),
+    );
+
+    if (video != null) {
+      _addXFileAttachment(video);
+    }
+  }
+
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
   Future<void> pickFile() => _pickAttachment(FileType.any);
+
+  /// Adds the specified [details] files to the [attachments].
+  void dropFiles(DropDoneDetails details) async {
+    for (var file in details.files) {
+      addPlatformAttachment(PlatformFile(
+        path: file.path,
+        name: file.name,
+        size: await file.length(),
+        readStream: file.openRead(),
+      ));
+    }
+  }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
@@ -175,6 +225,13 @@ class ChatForwardController extends GetxController {
         addPlatformAttachment(e);
       }
     }
+  }
+
+  /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
+  /// [attachments].
+  Future<void> _addXFileAttachment(XFile xFile) async {
+    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
+    await _addAttachment(nativeFile);
   }
 
   /// Constructs a [LocalAttachment] from the specified [file] and adds it to

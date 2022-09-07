@@ -325,12 +325,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ? 0.55
                           : 1,
                   child: media.length == 1
-                      ? _buildAttachment(
-                          0,
-                          media.first,
-                          media,
-                          filled: false,
-                        )
+                      ? _buildAttachment(0, media.first, media, filled: false)
                       : SizedBox(
                           width: media.length * 120,
                           height: max(media.length * 60, 300),
@@ -338,7 +333,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             dividerColor: Colors.transparent,
                             children: media
                                 .mapIndexed(
-                                    (i, e) => _buildAttachment(i, e, media))
+                                  (i, e) => _buildAttachment(i, e, media),
+                                )
                                 .toList(),
                           ),
                         ),
@@ -430,6 +426,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             decoration: BoxDecoration(
+              // color: fromMe
+              //     ? isRead
+              //         ? const Color.fromRGBO(210, 227, 249, 1)
+              //         : const Color.fromARGB(255, 244, 249, 255)
+              //     : Colors.white,
               color: fromMe
                   ? isRead
                       ? const Color.fromRGBO(210, 227, 249, 1)
@@ -449,6 +450,108 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: (msg.item.authorId == widget.me)
+                        ? isRead
+                            ? const Color.fromRGBO(219, 234, 253, 1)
+                            : const Color.fromRGBO(230, 241, 254, 1)
+                        : isRead
+                            ? const Color.fromRGBO(249, 249, 249, 1)
+                            : const Color.fromRGBO(255, 255, 255, 1),
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(15),
+                      topRight: const Radius.circular(15),
+                      bottomLeft: !fromMe && widget.chat.value?.isGroup == true
+                          ? Radius.zero
+                          : const Radius.circular(15),
+                      bottomRight: !fromMe && widget.chat.value?.isGroup == true
+                          ? Radius.zero
+                          : const Radius.circular(15),
+                    ),
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: isRead
+                        ? 1
+                        : fromMe
+                            ? 0.55
+                            : 1,
+                    child: FutureBuilder<RxUser?>(
+                      key: Key('FutureBuilder_${item.id}'),
+                      future: widget.getUser?.call(item.authorId),
+                      builder: (context, snapshot) {
+                        Color color = snapshot.data?.user.value.id == widget.me
+                            ? const Color(0xFF63B4FF)
+                            : AvatarWidget.colors[
+                                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                                    AvatarWidget.colors.length];
+
+                        return Row(
+                          key: Key('Row_${item.id}'),
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left: BorderSide(width: 2, color: color),
+                                  ),
+                                ),
+                                margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (snapshot.data?.user.value != null)
+                                      Row(
+                                        children: [
+                                          // const SizedBox(width: 6),
+                                          Icon(Icons.reply,
+                                              size: 17, color: color),
+                                          const SizedBox(width: 6),
+                                          Flexible(
+                                            child: Text(
+                                              snapshot.data?.user.value.name
+                                                      ?.val ??
+                                                  snapshot.data?.user.value.num
+                                                      .val ??
+                                                  '...',
+                                              style: style.boldBody
+                                                  .copyWith(color: color),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    if (content != null) ...[
+                                      const SizedBox(height: 2),
+                                      content,
+                                    ],
+                                    if (additional.isNotEmpty) ...[
+                                      const SizedBox(height: 4),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            msg.authorId == widget.me
+                                                ? CrossAxisAlignment.end
+                                                : CrossAxisAlignment.start,
+                                        children: additional,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 if (!fromMe && widget.chat.value?.isGroup == true)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
@@ -458,7 +561,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? 0.55
                             : 1,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 9, 0),
+                      padding: const EdgeInsets.fromLTRB(12, 8, 9, 8),
                       child: Text(
                         widget.user?.user.value.name?.val ??
                             widget.user?.user.value.num.val ??
@@ -467,77 +570,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     ),
                   ),
-                FutureBuilder<RxUser?>(
-                  key: Key('FutureBuilder_${item.id}'),
-                  future: widget.getUser?.call(item.authorId),
-                  builder: (context, snapshot) {
-                    Color color = snapshot.data?.user.value.id == widget.me
-                        ? const Color(0xFF63B4FF)
-                        : AvatarWidget.colors[
-                            (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                                AvatarWidget.colors.length];
-
-                    return Row(
-                      key: Key('Row_${item.id}'),
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () => widget.onForwardedTap
-                              ?.call(msg.item.id, msg.item.chatId),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Icon(Icons.reply, size: 26, color: color),
-                          ),
-                        ),
-                        Flexible(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                  left: BorderSide(width: 2, color: color)),
-                            ),
-                            margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (snapshot.data?.user.value != null)
-                                  Text(
-                                    snapshot.data?.user.value.name?.val ??
-                                        snapshot.data?.user.value.num.val ??
-                                        '...',
-                                    style:
-                                        style.boldBody.copyWith(color: color),
-                                  ),
-                                if (content != null) ...[
-                                  const SizedBox(height: 2),
-                                  content,
-                                ],
-                                if (additional.isNotEmpty) ...[
-                                  const SizedBox(height: 4),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        msg.authorId == widget.me
-                                            ? CrossAxisAlignment.end
-                                            : CrossAxisAlignment.start,
-                                    children: additional,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
               ],
             ),
           ),
         ),
       ),
+      avatarOffset: !fromMe && widget.chat.value?.isGroup == true ? 58 : 0,
     );
   }
 
@@ -578,7 +616,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         } else if (replied.text == null && replied.attachments.isNotEmpty) {
           avatarOffset = 86 - 4;
         } else if (replied.text != null) {
-          avatarOffset = 55 - 4;
+          avatarOffset = 55 - 4 + 8;
         }
       }
     }

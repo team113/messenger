@@ -166,23 +166,32 @@ class _ChatViewState extends State<ChatView>
                               ),
                             ),
                             const SizedBox(width: 10),
-                            InkWell(
-                              splashFactory: NoSplash.splashFactory,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: onDetailsTap,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    c.chat!.title.value,
-                                    style: const TextStyle(color: Colors.black),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: onDetailsTap,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        c.chat!.title.value,
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                      _chatSubtitle(c),
+                                    ],
                                   ),
-                                  _chatSubtitle(c),
-                                ],
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 10),
                           ],
                         ),
                         automaticallyImplyLeading: false,
@@ -1026,26 +1035,6 @@ class _ChatViewState extends State<ChatView>
                 (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
             return Stack(
               children: [
-                // ConditionalBackdropFilter(
-                //   condition: style.cardBlur > 0,
-                //   filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                //   borderRadius: BorderRadius.only(
-                //     topLeft: style.cardRadius.topLeft,
-                //     topRight: style.cardRadius.topRight,
-                //   ),
-                //   child: AnimatedContainer(
-                //     duration: 400.milliseconds,
-                //     curve: Curves.ease,
-                //     width: double.infinity,
-                //     height:
-                //         c.attachments.isEmpty && c.repliedMessage.value == null
-                //             ? 0
-                //             : 125 + 8 + 8,
-                //     decoration: BoxDecoration(
-                //       color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                //     ),
-                //   ),
-                // ),
                 Obx(() {
                   bool expanded =
                       c.repliedMessages.isNotEmpty || c.attachments.isNotEmpty;
@@ -1157,14 +1146,6 @@ class _ChatViewState extends State<ChatView>
                                         }).toList(),
                                       ),
                                     ),
-                                  // if (c.repliedMessage.value != null)
-                                  //   MyDismissible(
-                                  //     key: Key('${c.repliedMessage.value?.id}'),
-                                  //     direction: MyDismissDirection.up,
-                                  //     onDismissed: (_) =>
-                                  //         c.repliedMessage.value = null,
-                                  //     child: _repliedMessage(c),
-                                  //   ),
                                   if (c.attachments.isNotEmpty &&
                                       c.repliedMessages.isNotEmpty)
                                     const SizedBox(height: 4),
@@ -1188,11 +1169,13 @@ class _ChatViewState extends State<ChatView>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: c.attachments
-                                                .map((e) => _buildAttachment(
-                                                      c,
-                                                      e,
-                                                      grab,
-                                                    ))
+                                                .map(
+                                                  (e) => _buildAttachment(
+                                                    c,
+                                                    e,
+                                                    grab,
+                                                  ),
+                                                )
                                                 .toList(),
                                           ),
                                         ),
@@ -1277,87 +1260,6 @@ class _ChatViewState extends State<ChatView>
                         ),
                       ),
                     ),
-                  // SizedBox(
-                  //   width: 56,
-                  //   height: 56,
-                  //   child: Center(
-                  //     child: AnimatedFab(
-                  //       labelStyle: const TextStyle(fontSize: 17),
-                  //       closedIcon: SizedBox(
-                  //         width: iconSize,
-                  //         height: iconSize,
-                  //         child: SvgLoader.asset(
-                  //           'assets/icons/attach.svg',
-                  //           height: iconSize,
-                  //         ),
-                  //       ),
-                  //       openedIcon: SizedBox(
-                  //         width: iconSize,
-                  //         height: iconSize,
-                  //         child: SvgLoader.asset(
-                  //           'assets/icons/close_primary.svg',
-                  //           width: iconSize - 5,
-                  //           height: iconSize - 5,
-                  //         ),
-                  //       ),
-                  //       // height: PlatformUtils.isMobile && !PlatformUtils.isWeb
-                  //       //     ? PlatformUtils.isIOS
-                  //       //         ? 220
-                  //       //         : 260
-                  //       //     : 100,
-                  //       height: 260,
-                  //       actions: [
-                  //         AnimatedFabAction(
-                  //           icon: const Icon(
-                  //             Icons.attachment,
-                  //             color: Colors.blue,
-                  //           ),
-                  //           label: 'label_file'.l10n,
-                  //           onTap: c.send.editable.value ? c.pickFile : null,
-                  //         ),
-                  //         // if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
-                  //         if (true) ...[
-                  //           AnimatedFabAction(
-                  //             icon:
-                  //                 const Icon(Icons.photo, color: Colors.blue),
-                  //             label: 'label_gallery'.l10n,
-                  //             onTap:
-                  //                 c.send.editable.value ? c.pickMedia : null,
-                  //           ),
-                  //           // if (PlatformUtils.isAndroid)
-                  //           if (true) ...[
-                  //             AnimatedFabAction(
-                  //               icon: const Icon(
-                  //                 Icons.photo_camera,
-                  //                 color: Colors.blue,
-                  //               ),
-                  //               label: 'label_photo'.l10n,
-                  //               onTap: c.pickImageFromCamera,
-                  //             ),
-                  //             AnimatedFabAction(
-                  //               icon: const Icon(
-                  //                 Icons.video_camera_back,
-                  //                 color: Colors.blue,
-                  //               ),
-                  //               label: 'label_video'.l10n,
-                  //               onTap: c.pickVideoFromCamera,
-                  //             ),
-                  //           ],
-                  //           if (PlatformUtils.isIOS)
-                  //             AnimatedFabAction(
-                  //               icon: const Icon(
-                  //                 Icons.camera,
-                  //                 color: Colors.blue,
-                  //               ),
-                  //               label: 'label_camera'.l10n,
-                  //               onTap: c.pickImageFromCamera,
-                  //             ),
-                  //         ],
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(width: 20),
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -1553,64 +1455,6 @@ class _ChatViewState extends State<ChatView>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: children,
           ),
-          // LayoutBuilder(builder: (context, constraints) {
-
-          //   int oneWidth = constraints.maxWidth ~/ 100;
-          //   int inRow = max((children.length / oneWidth).floor() + 1, 1);
-
-          //   print('oneWidth: $oneWidth, inRow: $inRow');
-
-          // return Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          //   child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       mainAxisSize: MainAxisSize.min,
-          //       children: List.generate(
-          //         inRow,
-          //         (i) {
-          //           int from = i * oneWidth;
-          //           int to = min((i + 1) * oneWidth, children.length);
-
-          //           print('$i $from $to');
-
-          //           return Padding(
-          //             padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-          //             child: Row(
-          //               children: [
-          //                 ...children
-          //                     .sublist(from, to)
-          //                     .map((e) => Expanded(child: e)),
-          //                 // ...List.generate(to - (i + 1) * oneWidth,
-          //                 //     (i) => Expanded(child: Container())),
-          //               ],
-          //             ),
-          //           );
-          //         },
-          //       ),
-          //     ),
-          //   );
-          // }),
-          // Wrap(
-          //   runSpacing: 30,
-          //   children: [
-          //     button(
-          //       text: 'Фото',
-          //       icon: Icons.photo_camera,
-          //     ),
-          //     button(
-          //       text: 'Видео',
-          //       icon: Icons.video_camera_back,
-          //     ),
-          //     button(
-          //       text: 'Фото',
-          //       icon: Icons.photo,
-          //     ),
-          //     button(
-          //       text: 'Файл',
-          //       icon: Icons.insert_drive_file,
-          //     ),
-          //   ].map((e) => SizedBox(width: 100, child: e)).toList(),
-          // ),
           const SizedBox(height: 40),
           OutlinedRoundedButton(
             key: const Key('CloseButton'),

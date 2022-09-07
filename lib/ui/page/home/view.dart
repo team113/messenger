@@ -95,7 +95,7 @@ class _HomeViewState extends State<HomeView> {
         /// Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        if (!context.isMobile) {
+        if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
@@ -113,17 +113,17 @@ class _HomeViewState extends State<HomeView> {
         ///    correct).
         final sideBar = AnimatedOpacity(
           duration: 150.milliseconds,
-          opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
+          opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
               Obx(() {
                 double width = c.sideBarWidth.value;
                 return ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: context.isMobile ? context.width : width,
+                    maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: ConditionalBackdropFilter(
-                    condition: context.isMobile,
+                    condition: context.isNarrow,
                     filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                     child: Container(
                       color: const Color(0xFFFFFFFF).withOpacity(0.4),
@@ -246,7 +246,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 );
               }),
-              if (!context.isMobile) ...[
+              if (!context.isNarrow) ...[
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -268,7 +268,7 @@ class _HomeViewState extends State<HomeView> {
         /// to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
           key: const Key('Navigation'),
-          ignoring: router.route == Routes.home && context.isMobile,
+          ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(
             builder: (context, constraints) => Row(
               children: [
@@ -276,7 +276,7 @@ class _HomeViewState extends State<HomeView> {
                   double width = c.sideBarWidth.value;
                   return ConstrainedBox(
                     constraints:
-                        BoxConstraints(maxWidth: context.isMobile ? 0 : width),
+                        BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
                     child: Container(),
                   );
                 }),
@@ -320,7 +320,7 @@ class _HomeViewState extends State<HomeView> {
                                 color: Colors.black.withOpacity(0.05),
                               ),
                             ),
-                            if (!context.isMobile) ...[
+                            if (!context.isNarrow) ...[
                               Row(
                                 children: [
                                   ConditionalBackdropFilter(
@@ -333,7 +333,7 @@ class _HomeViewState extends State<HomeView> {
                                       return ConstrainedBox(
                                         constraints: BoxConstraints(
                                             maxWidth:
-                                                context.isMobile ? 0 : width),
+                                                context.isNarrow ? 0 : width),
                                         child: Container(),
                                       );
                                     }),
@@ -366,14 +366,14 @@ class _HomeViewState extends State<HomeView> {
                               color: Colors.black.withOpacity(0.05),
                             ),
                           ),
-                          if (!context.isMobile) ...[
+                          if (!context.isNarrow) ...[
                             Row(
                               children: [
                                 Obx(() {
                                   double width = c.sideBarWidth.value;
                                   return ConstrainedBox(
                                     constraints: BoxConstraints(
-                                        maxWidth: context.isMobile ? 0 : width),
+                                        maxWidth: context.isNarrow ? 0 : width),
                                     child: Container(),
                                   );
                                 }),
@@ -398,9 +398,9 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isMobile ? null : navigation),
+                  Container(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isMobile ? navigation : null),
+                  Container(child: context.isNarrow ? navigation : null),
                 ] else ...[
                   const Scaffold(
                     backgroundColor: Colors.transparent,

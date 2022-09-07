@@ -276,7 +276,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           });
 
       /// Builds the [Dock] containing the [CallController.buttons].
-      Widget _dock() {
+      Widget dock() {
         return Obx(() {
           bool isDocked = c.state.value == OngoingCallState.active ||
               c.state.value == OngoingCallState.joining;
@@ -378,8 +378,57 @@ Widget desktopCall(CallController c, BuildContext context) {
       }
 
       /// Builds the more panel containing the [CallController.panel].
-      Widget _launchpad() {
-        Widget _builder(
+      Widget launchpad() {
+        Widget button(CallButton e) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+            child: SizedBox(
+              width: 100,
+              height: 100,
+              child: Column(
+                children: [
+                  Draggable(
+                    feedback: Transform.translate(
+                      offset: const Offset(
+                        CallController.buttonSize / 2 * -1,
+                        CallController.buttonSize / 2 * -1,
+                      ),
+                      child: SizedBox(
+                        height: CallController.buttonSize,
+                        width: CallController.buttonSize,
+                        child: e.build(),
+                      ),
+                    ),
+                    data: e,
+                    onDragStarted: () {
+                      c.isMoreHintDismissed.value = true;
+                      c.draggedButton.value = e;
+                    },
+                    onDragCompleted: () => c.draggedButton.value = null,
+                    onDragEnd: (_) => c.draggedButton.value = null,
+                    onDraggableCanceled: (_, __) =>
+                        c.draggedButton.value = null,
+                    maxSimultaneousDrags: e.isRemovable ? null : 0,
+                    dragAnchorStrategy: pointerDragAnchorStrategy,
+                    child: e.build(hinted: false),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    e.hint,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                  )
+                ],
+              ),
+            ),
+          );
+        }
+
+        Widget builder(
           BuildContext context,
           List<CallButton?> candidate,
           List<dynamic> rejected,
@@ -416,59 +465,18 @@ Widget desktopCall(CallController c, BuildContext context) {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const SizedBox(height: 35),
-                        Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          alignment: WrapAlignment.center,
-                          spacing: 4,
-                          runSpacing: 21,
-                          children: c.panel.map((e) {
-                            return SizedBox(
-                              width: 100,
-                              height: 100,
-                              child: Column(
-                                children: [
-                                  Draggable(
-                                    feedback: Transform.translate(
-                                      offset: const Offset(
-                                        CallController.buttonSize / 2 * -1,
-                                        CallController.buttonSize / 2 * -1,
-                                      ),
-                                      child: SizedBox(
-                                        height: CallController.buttonSize,
-                                        width: CallController.buttonSize,
-                                        child: e.build(),
-                                      ),
-                                    ),
-                                    data: e,
-                                    onDragStarted: () {
-                                      c.isMoreHintDismissed.value = true;
-                                      c.draggedButton.value = e;
-                                    },
-                                    onDragCompleted: () =>
-                                        c.draggedButton.value = null,
-                                    onDragEnd: (_) =>
-                                        c.draggedButton.value = null,
-                                    onDraggableCanceled: (_, __) =>
-                                        c.draggedButton.value = null,
-                                    maxSimultaneousDrags:
-                                        e.isRemovable ? null : 0,
-                                    dragAnchorStrategy:
-                                        pointerDragAnchorStrategy,
-                                    child: e.build(hinted: false),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    e.hint,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                        Row(
+                          children: c.panel
+                              .getRange(0, c.panel.length ~/ 2)
+                              .map((e) => Expanded(child: button(e)))
+                              .toList(),
+                        ),
+                        const SizedBox(height: 21),
+                        Row(
+                          children: c.panel
+                              .getRange(c.panel.length ~/ 2, c.panel.length)
+                              .map((e) => Expanded(child: button(e)))
+                              .toList(),
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -493,7 +501,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       },
                       onWillAccept: (CallButton? a) =>
                           a?.c == c && a?.isRemovable == true,
-                      builder: _builder,
+                      builder: builder,
                     )
                   : Container(),
             );
@@ -516,8 +524,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   verticalDirection: VerticalDirection.up,
                   children: [
-                    _dock(),
-                    _launchpad(),
+                    dock(),
+                    launchpad(),
                   ],
                 ),
               ),
@@ -539,8 +547,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: MouseRegion(
                   opaque: false,
                   hitTestBehavior: HitTestBehavior.translucent,
-                  onEnter: (d) => c.keepMore(true),
-                  onExit: (d) => c.keepMore(false),
+                  onEnter: (d) => c.keepUi(true),
+                  onExit: (d) => c.keepUi(),
                 ),
               ),
             );

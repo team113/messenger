@@ -371,8 +371,6 @@ class CallController extends GetxController {
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
-  Timer? _morePanelTimer;
-
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   ChatId get chatId => _currentCall.value.chatId.value;
 
@@ -614,10 +612,6 @@ class CallController extends GetxController {
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
         hoveredRenderer.value = null;
-        if (_morePanelTimer?.isActive != true) {
-          keepMore();
-        }
-
         if (_uiTimer?.isActive != true) {
           keepUi(false);
         }
@@ -758,7 +752,6 @@ class CallController extends GetxController {
     _durationTimer?.cancel();
     _showUiWorker.dispose();
     _uiTimer?.cancel();
-    _morePanelTimer?.cancel();
     _stateWorker.dispose();
     _chatWorker.dispose();
     _onFullscreenChange?.cancel();
@@ -871,13 +864,6 @@ class CallController extends GetxController {
 
   /// Toggles the [displayMore].
   void toggleMore() => displayMore.toggle();
-
-  void keepMore([bool keep = false]) {
-    _morePanelTimer?.cancel();
-    if (!keep && displayMore.value) {
-      _morePanelTimer = Timer(const Duration(seconds: 5), () => keepUi(false));
-    }
-  }
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.
@@ -1091,7 +1077,6 @@ class CallController extends GetxController {
     keepUi(false);
     return ModalPopup.show(
       context: context,
-      child: ParticipantView(_currentCall, duration),
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
         maxHeight: double.infinity,
@@ -1102,6 +1087,7 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
+      child: ParticipantView(_currentCall, duration),
     );
 
     // if (isGroup) {

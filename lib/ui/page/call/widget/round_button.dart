@@ -38,6 +38,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.textStyle,
     this.textSpacing = 5,
     this.autoSizeText = false,
+    this.maxLines,
     this.child,
   }) : super(key: key);
 
@@ -70,6 +71,7 @@ class RoundFloatingButton extends StatefulWidget {
   final TextStyle? textStyle;
   final double? textSpacing;
   final bool autoSizeText;
+  final int? maxLines;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -155,7 +157,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                       color: Colors.white,
                       fontSize: 13,
                     ),
-                maxLines: 2,
+                maxLines: widget.maxLines,
               ),
             ],
           );

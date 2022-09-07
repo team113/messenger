@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
 import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -123,7 +124,7 @@ class ChatsTabView extends StatelessWidget {
                       },
                       icon: SvgLoader.asset(
                         'assets/icons/group.svg',
-                        height: 20,
+                        height: 18.44,
                       ),
                     ),
                   ),
@@ -366,8 +367,29 @@ class ChatsTabView extends StatelessWidget {
                       : Container(),
             ),
           ];
+        } else if (item is ChatMemberInfo) {
+          Widget content = Text('${item.action}');
+
+          switch (item.action) {
+            case ChatMemberInfoAction.created:
+              content = const Text('Chat created');
+              break;
+
+            case ChatMemberInfoAction.added:
+              content = Text('${item.user.name ?? item.user.num} was added');
+              break;
+
+            case ChatMemberInfoAction.removed:
+              content = Text('${item.user.name ?? item.user.num} was removed');
+              break;
+
+            case ChatMemberInfoAction.artemisUnknown:
+              // No-op.
+              break;
+          }
+
+          subtitle = [Flexible(child: content)];
         } else {
-          // TODO: Implement other ChatItems.
           subtitle = [
             const Flexible(child: Text('Пустое сообщение', maxLines: 2))
           ];
