@@ -668,16 +668,20 @@ class OngoingCall {
     }
   }
 
-  /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
+  /// Sets inbound audio in this [OngoingCall] as [enabled].
   ///
   /// No-op if [isRemoteAudioEnabled] is already [enabled].
   Future<void> setRemoteAudioEnabled(bool enabled) async {
     try {
       if (enabled && isRemoteAudioEnabled.isFalse) {
-        await _room?.enableRemoteAudio();
+        for (CallMember m in members.values.where((e) => e.id != _me)) {
+          setMemberAudioEnabled(m.id, true);
+        }
         isRemoteAudioEnabled.toggle();
       } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        await _room?.disableRemoteAudio();
+        for (CallMember m in members.values.where((e) => e.id != _me)) {
+          setMemberAudioEnabled(m.id, false);
+        }
         isRemoteAudioEnabled.toggle();
       }
     } on MediaStateTransitionException catch (_) {
@@ -691,17 +695,15 @@ class OngoingCall {
   Future<void> setRemoteVideoEnabled(bool enabled) async {
     try {
       if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (Track t in members.entries
-            .where((e) => e.value.id != _me)
-            .expand((e) => e.value.tracks)) {
-          await t.createRenderer();
+        for (CallMember m in members.values.where((e) => e.id != _me)) {
+          setMemberVideoEnabled(m.id, true, source: MediaSourceKind.Device);
+          setMemberVideoEnabled(m.id, true, source: MediaSourceKind.Display);
         }
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (Track t in members.entries
-            .where((e) => e.value.id != _me)
-            .expand((e) => e.value.tracks)) {
-          t.removeRenderer();
+        for (CallMember m in members.values.where((e) => e.id != _me)) {
+          setMemberVideoEnabled(m.id, false, source: MediaSourceKind.Device);
+          setMemberVideoEnabled(m.id, false, source: MediaSourceKind.Display);
         }
         isRemoteVideoEnabled.toggle();
       }
@@ -719,20 +721,38 @@ class OngoingCall {
       setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
 
   /// Sets inbound video of a [CallMember] identified by the provided [id] as
-  /// [enabled] or not.
+  /// [enabled].
   Future<void> setMemberVideoEnabled(
     CallMemberId id,
     bool enabled, {
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
-    for (Track t in members[id]
-            ?.tracks
+    var member = members[id];
+    for (Track t in member?.tracks
             .where((t) => t.kind == MediaKind.Video && t.source == source) ??
         <Track>[]) {
       if (enabled) {
-        await t.createRenderer();
+        t.isEnabled.value = true;
+        await member?.connection?.enableRemoteVideo(source);
       } else {
-        t.removeRenderer();
+        t.isEnabled.value = false;
+        await member?.connection?.disableRemoteVideo(source);
+      }
+    }
+  }
+
+  /// Sets inbound audio of a [CallMember] identified by the provided [id] as
+  /// [enabled].
+  Future<void> setMemberAudioEnabled(CallMemberId id, bool enabled) async {
+    var member = members[id];
+    for (Track t in member?.tracks.where((t) => t.kind == MediaKind.Audio) ??
+        <Track>[]) {
+      if (enabled) {
+        t.isEnabled.value = true;
+        await member?.connection?.enableRemoteAudio();
+      } else {
+        t.isEnabled.value = false;
+        await member?.connection?.disableRemoteAudio();
       }
     }
   }
@@ -847,11 +867,20 @@ class OngoingCall {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       members[id] = CallMember(
         id,
+        connection: conn,
         isHandRaised: call.value?.members
                 .firstWhereOrNull((e) => e.user.id == id.userId)
                 ?.handRaised ??
             false,
       );
+
+      if (isRemoteAudioEnabled.isFalse) {
+        setMemberAudioEnabled(id, false);
+      }
+
+      if (isRemoteVideoEnabled.isFalse) {
+        setMemberVideoEnabled(id, false);
+      }
 
       conn.onClose(() => members.remove(id));
       conn.onRemoteTrackAdded((track) async {
@@ -860,14 +889,18 @@ class OngoingCall {
 
         switch (track.kind()) {
           case MediaKind.Audio:
-            if (isRemoteAudioEnabled.value) {
+            if (isRemoteAudioEnabled.isTrue) {
               await t.createRenderer();
+            } else {
+              t.isEnabled.value = false;
             }
             break;
 
           case MediaKind.Video:
-            if (isRemoteVideoEnabled.value) {
+            if (isRemoteVideoEnabled.isTrue) {
               await t.createRenderer();
+            } else {
+              t.isEnabled.value = false;
             }
             break;
         }
@@ -888,7 +921,7 @@ class OngoingCall {
             case TrackMediaDirection.SendOnly:
               switch (track.kind()) {
                 case MediaKind.Audio:
-                  if (isRemoteAudioEnabled.value) {
+                  if (t.isEnabled.value) {
                     await t.createRenderer();
                   } else {
                     t.removeRenderer();
@@ -896,7 +929,7 @@ class OngoingCall {
                   break;
 
                 case MediaKind.Video:
-                  if (isRemoteVideoEnabled.value) {
+                  if (t.isEnabled.value) {
                     await t.createRenderer();
                   } else {
                     t.removeRenderer();
@@ -909,7 +942,7 @@ class OngoingCall {
 
             case TrackMediaDirection.RecvOnly:
             case TrackMediaDirection.Inactive:
-              t.stop();
+              t.removeRenderer();
               member?.tracks.remove(t);
               break;
           }
@@ -1167,6 +1200,7 @@ class OngoingCall {
         videoDevice: videoDevice.value,
       ),
     );
+    _disposeLocalMedia();
 
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
@@ -1219,7 +1253,7 @@ class OngoingCall {
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.dispose();
+        t.stop();
         return true;
       }
       return false;
@@ -1379,13 +1413,16 @@ class CallMemberId {
 
 /// Participant of an [OngoingCall].
 class CallMember {
-  CallMember(this.id, {bool? isHandRaised})
+  CallMember(this.id, {this.connection, bool? isHandRaised})
       : isHandRaised = RxBool(isHandRaised ?? false),
         owner =
             id.deviceId == null ? MediaOwnerKind.local : MediaOwnerKind.remote;
 
   /// [CallMemberId] of this [CallMember].
   CallMemberId id;
+
+  /// [ConnectionHandle] of this [CallMember].
+  ConnectionHandle? connection;
 
   /// List of [Track]s of this [CallMember].
   ObsList<Track> tracks = ObsList();
@@ -1415,6 +1452,9 @@ abstract class Track {
 
   /// Indicator whether this [Track] is muted.
   final RxBool isMuted = RxBool(false);
+
+  /// Indicator whether this [Track] is enabled.
+  final RxBool isEnabled = RxBool(true);
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer();

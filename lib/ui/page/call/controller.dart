@@ -865,14 +865,6 @@ class CallController extends GetxController {
     }
   }
 
-  /// Returns a [Participant] identified by an [id] and a [track].
-  Participant? findParticipantByTrack(CallMemberId id, Track? track) {
-    return locals.firstWhereOrNull((e) => e.identify(id, track)) ??
-        remotes.firstWhereOrNull((e) => e.identify(id, track)) ??
-        paneled.firstWhereOrNull((e) => e.identify(id, track)) ??
-        focused.firstWhereOrNull((e) => e.identify(id, track));
-  }
-
   /// Centers the [participant], which means [focus]ing the [participant] and
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
@@ -1641,9 +1633,10 @@ class CallController extends GetxController {
 
   /// Returns all [Participant]s identified by an [id] and [source].
   Iterable<Participant> _findParticipants(
-    CallMemberId id,
-    MediaSourceKind source,
-  ) {
+    CallMemberId id, [
+    MediaSourceKind? source,
+  ]) {
+    source = source ?? MediaSourceKind.Device;
     return [
       ...locals.where((e) => e.member.id == id && e.source == source),
       ...remotes.where((e) => e.member.id == id && e.source == source),
@@ -1667,13 +1660,20 @@ class CallController extends GetxController {
     }
   }
 
-  /// Finds [Participant] with nullable audio or video and puts [track] to it.
-  /// Creates new [Participant] if there are no [Participant]'s available for
-  /// this [member] or they already has tracks.
+  /// Puts the provided [track] to one of the provided [member]'s [Participant].
+  ///
+  ///  If there is no suitable [Participant] for this [track] then create new
+  ///  [Participant].
   void _putParticipant(CallMember member, Track? track) {
-    Participant? participant = findParticipantByTrack(member.id, track);
+    var participants = _findParticipants(member.id, track?.source);
 
-    if (participant == null || track?.source == MediaSourceKind.Display) {
+    if (track?.source == MediaSourceKind.Display ||
+        participants.isEmpty ||
+        (track != null &&
+            participants.none((e) => track.kind == MediaKind.Video
+                ? e.video.value == null
+                : e.audio.value == null &&
+                    e.video.value?.source != MediaSourceKind.Display))) {
       Participant participant = Participant(
         member,
         video: track?.kind == MediaKind.Video ? track : null,
@@ -1715,6 +1715,11 @@ class CallController extends GetxController {
       }
     } else {
       if (track != null) {
+        var participant = participants.firstWhere((e) =>
+            track.kind == MediaKind.Video
+                ? e.video.value == null
+                : e.audio.value == null &&
+                    e.video.value?.source != MediaSourceKind.Display);
         if (track.kind == MediaKind.Video) {
           participant.video.value = track;
         } else {
@@ -1724,11 +1729,14 @@ class CallController extends GetxController {
     }
   }
 
-  /// Removes [Participant] if its not the last available [Participant] of the
-  /// provided [member].
+  /// Removes [member]'s [Participant] with the provided [track].
+  ///
+  /// If there is the last [member]'s [Participant] then removes the provided
+  /// [track] from it.
   void _removeParticipant(CallMember member, Track track) {
+    final participants = _findParticipants(member.id, track.source);
+
     if (track.kind == MediaKind.Video) {
-      final participants = _findParticipants(member.id, track.source);
       if (participants.length == 1 && track.source == MediaSourceKind.Device) {
         participants.first.video.value = null;
       } else {
@@ -1742,10 +1750,9 @@ class CallController extends GetxController {
         }
       }
     } else {
-      final participants = _findParticipants(member.id, track.source);
-      if (participants.length == 1 && track.source == MediaSourceKind.Device) {
-        participants.first.audio.value = null;
-      }
+      final participant =
+          participants.firstWhereOrNull((p) => p.audio.value == track);
+      participant?.audio.value = null;
     }
   }
 }
@@ -1787,20 +1794,4 @@ class Participant {
   /// available.
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
-
-  /// Identifies [Participant] by provided [id] and [track].
-  bool identify(CallMemberId id, Track? track) {
-    if (member.id != id) {
-      return false;
-    } else if (track == null) {
-      return video.value == null;
-    }
-
-    switch (track.kind) {
-      case MediaKind.Audio:
-        return (audio.value == track || audio.value == null);
-      case MediaKind.Video:
-        return (video.value == track || video.value == null);
-    }
-  }
 }

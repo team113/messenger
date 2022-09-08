@@ -87,41 +87,6 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
-      bool hasVideoWhenDisabled =
-          participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value.isEmitting ?? false) &&
-              participant.member.owner == MediaOwnerKind.remote;
-      List<Widget> additionally = [];
-
-      if (isMuted) {
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
-            child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
-
-      if (hasVideoWhenDisabled ||
-          participant.source == MediaSourceKind.Display) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
-        }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
-
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
         return useCallCover &&
@@ -247,6 +212,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.video.value?.renderer.value == null &&
               (participant.video.value?.direction.value.isEmitting ?? false) &&
               participant.member.owner == MediaOwnerKind.remote;
+      bool hasAudioWhenDisabled =
+          participant.audio.value?.renderer.value == null &&
+              !isMuted &&
+              participant.source != MediaSourceKind.Display &&
+              participant.member.owner == MediaOwnerKind.remote;
       List<Widget> additionally = [];
 
       if (isMuted) {
@@ -256,6 +226,18 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: SvgLoader.asset(
               'assets/icons/microphone_off_small.svg',
               height: 12,
+            ),
+          ),
+        );
+      } else if (hasAudioWhenDisabled) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            // TODO: replace icon to one with smaller padding
+            child: SvgLoader.asset(
+              'assets/icons/speaker_off.svg',
+              height: 35,
+              fit: BoxFit.fitWidth,
             ),
           ),
         );
