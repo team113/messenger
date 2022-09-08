@@ -235,20 +235,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         break;
     }
 
+    bool fromMe = widget.item.value.authorId == widget.me;
+    bool isRead = _isRead();
+    bool isSent = widget.item.value.status.value == SendingStatus.sent;
+
     return Column(
       children: [
         const SizedBox(height: 8),
-        Center(
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              border: style.systemMessageBorder,
-              color: style.systemMessageColor,
-            ),
-            child: DefaultTextStyle.merge(
-              style: style.systemMessageTextStyle,
-              child: content,
+        SwipeableStatus(
+          animation: widget.animation,
+          asStack: !fromMe,
+          isSent: isSent && fromMe,
+          isDelivered: isSent &&
+              fromMe &&
+              widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
+                  false,
+          isRead: isSent && (!fromMe || isRead),
+          isError: message.status.value == SendingStatus.error,
+          isSending: message.status.value == SendingStatus.sending,
+          swipeable:
+              Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
+              ),
+              child: DefaultTextStyle.merge(
+                style: style.systemMessageTextStyle,
+                child: content,
+              ),
             ),
           ),
         ),
