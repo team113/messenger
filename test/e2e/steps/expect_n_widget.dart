@@ -14,23 +14,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
-/// Taps a [Widget] containing the provided text.
+import '../parameters/keys.dart';
+
+/// Indicates whether the provided number of specific [Widget]s are visible.
 ///
 /// Examples:
-/// - When I tap "Dummy" text
-final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
-  RegExp(r'I tap {string} text'),
-  (text, context) async {
+/// - Then I expect to see 1 `ChatMessage`
+final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
+  RegExp(r'I expect to see {int} {key}'),
+  (quantity, key, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(text, FindType.text).last;
 
-    await context.world.appDriver.scrollIntoView(finder);
+    final finder = find.byKey(Key(key.name), skipOffstage: false);
+    await context.world.appDriver.scrollIntoView(finder.last);
     await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver
-        .tap(finder, timeout: context.configuration.timeout);
-    await context.world.appDriver.waitForAppToSettle();
+
+    final finder2 = find.byKey(Key(key.name), skipOffstage: false);
+    context.expectMatch(finder2.evaluate().length, quantity);
   },
 );

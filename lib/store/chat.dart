@@ -28,6 +28,7 @@ import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -217,6 +218,7 @@ class ChatRepository implements AbstractChatRepository {
   Future<void> resendChatItem(ChatItem item) async {
     HiveRxChat? rxChat = _chats[item.chatId] ?? (await get(item.chatId));
 
+    // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
       for (var e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
@@ -534,6 +536,31 @@ class ChatRepository implements AbstractChatRepository {
       rethrow;
     }
   }
+
+  // TODO: Make [ChatForward]s to post like [ChatMessage]s.
+  @override
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) =>
+      _graphQlProvider.forwardChatItems(
+        from,
+        to,
+        items
+            .map(
+              (i) => ChatItemQuoteInput(
+                id: i.item.id,
+                attachments: i.attachments,
+                withText: i.withText,
+              ),
+            )
+            .toList(),
+        text: text,
+        attachments: attachments,
+      );
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

@@ -53,6 +53,7 @@ void main() async {
   Hive.init('./test/.temp_hive/my_profile_gallery_widget');
   Config.url = 'http://testUrl.com';
   Config.port = 0;
+
   var userData = {
     'id': 'id',
     'num': '1234567890123456',

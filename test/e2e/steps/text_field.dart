@@ -34,6 +34,15 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   _fillField,
 );
 
+/// Enters the given text into the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - Then I fill `MessageField` field with 8192 "A" symbols
+StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
+  'I fill {key} field with {int} {string} symbol(s)?',
+  (key, quantity, text, context) => _fillField(key, text * quantity, context),
+);
+
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
 /// [WidgetKey].
 ///

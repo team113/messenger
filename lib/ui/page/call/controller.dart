@@ -314,12 +314,12 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// Timer for updating [duration] of the call.
+  /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
   Timer? _durationTimer;
 
-  /// Timer to toggle [showUi] value.
+  /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
@@ -568,7 +568,7 @@ class CallController extends GetxController {
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
-          (timer) {
+          (_) {
             duration.value = DateTime.now().difference(begunAt);
             if (hoveredRendererTimeout > 0) {
               --hoveredRendererTimeout;

@@ -14,23 +14,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:gherkin/gherkin.dart';
+import 'attachment.dart';
+import 'chat_item.dart';
 
-/// Taps a [Widget] containing the provided text.
-///
-/// Examples:
-/// - When I tap "Dummy" text
-final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
-  RegExp(r'I tap {string} text'),
-  (text, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(text, FindType.text).last;
+/// Quote of a [ChatItem] to be forwarded.
+class ChatItemQuote {
+  ChatItemQuote({
+    required this.item,
+    this.withText = true,
+    this.attachments = const [],
+  });
 
-    await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver
-        .tap(finder, timeout: context.configuration.timeout);
-    await context.world.appDriver.waitForAppToSettle();
-  },
-);
+  /// [ChatItem] to be forwarded.
+  final ChatItem item;
+
+  /// Indicator whether a forward should contain the full [ChatMessageText] of
+  /// the original [ChatItem] (if it contains any).
+  final bool withText;
+
+  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
+  ///
+  /// If no [Attachment]s are provided, then [ChatForward] will only contain a
+  /// [ChatMessageText].
+  final List<AttachmentId> attachments;
+}

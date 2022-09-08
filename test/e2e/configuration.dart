@@ -35,6 +35,7 @@ import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
@@ -50,6 +51,7 @@ import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/updates_bio.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
@@ -62,7 +64,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         attachFile,
         copyFromField,
+        expectNWidget,
         fillField,
+        fillFieldN,
         goToUserPage,
         hasDialogWithMe,
         haveInternetWithDelay,
@@ -82,6 +86,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapText,
         tapWidget,
         twoUsers,
+        untilAttachmentExists,
         untilTextExists,
         updateBio,
         user,
