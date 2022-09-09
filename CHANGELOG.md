@@ -19,7 +19,8 @@ All user visible changes to this project will be documented in this file. This p
     - User information auto-updating on changes ([#7], [#4]);
     - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
-        - Language selection ([#23], [#29]).
+        - Language selection ([#23], [#29]);
+        - No password reminder on logout ([#39]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
@@ -79,6 +80,7 @@ All user visible changes to this project will be documented in this file. This p
 [#34]: /../../pull/34
 [#35]: /../../pull/35
 [#38]: /../../pull/38
+[#39]: /../../pull/39
 [#41]: /../../issues/41
 [#42]: /../../pull/42
 [#44]: /../../issues/44
