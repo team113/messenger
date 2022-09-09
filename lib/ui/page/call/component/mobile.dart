@@ -768,9 +768,9 @@ Widget _primaryView(CallController c, BuildContext context) {
     List<Participant> primary;
 
     if (c.minimized.value) {
-      primary = List.from([...c.primary, ...c.secondary]);
+      primary = List<Participant>.from([...c.primary, ...c.secondary]);
     } else {
-      primary = List.from(c.primary);
+      primary = List<Participant>.from(c.primary);
     }
 
     void onDragEnded(_DragData d) {

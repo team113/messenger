@@ -33,7 +33,7 @@ class CallSettingsController extends GetxController {
   /// Settings repository, used to update the [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Returns local video tracks.
+  /// Returns local tracks.
   ObsList<Track>? get localTracks => _call.value.localTracks;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.

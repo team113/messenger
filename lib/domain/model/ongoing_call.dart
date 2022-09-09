@@ -100,13 +100,13 @@ extension LocalTrackStateImpl on LocalTrackState {
   }
 }
 
-/// Extension adding helping indicators to a [TrackMediaDirection].
-extension TrackMediaDirectionImpl on TrackMediaDirection {
-  /// Indicates whether this [TrackMediaDirection] is in sending state.
-  bool get isEmitting {
-    return this == TrackMediaDirection.SendRecv ||
-        this == TrackMediaDirection.SendOnly;
-  }
+/// Extension adding [isEmitting] indicator to a [TrackMediaDirection].
+extension TrackMediaDirectionEmitting on TrackMediaDirection {
+  /// Indicates whether the current value is [TrackMediaDirection.SendRecv] or
+  /// [TrackMediaDirection.SendOnly].
+  bool get isEmitting =>
+      this == TrackMediaDirection.SendRecv ||
+      this == TrackMediaDirection.SendOnly;
 }
 
 /// Ongoing [ChatCall] in a [Chat].
@@ -155,7 +155,7 @@ class OngoingCall {
   final Rx<ChatId> chatId;
 
   /// [CallMemberId] of the authenticated [MyUser].
-  final CallMemberId _me;
+  CallMemberId _me;
 
   /// [ChatCall] associated with this [OngoingCall].
   ///
@@ -248,6 +248,9 @@ class OngoingCall {
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
+  /// Returns a [CallMember] of the currently authorized [MyUser].
+  CallMember get me => members[_me]!;
+
   /// Returns the local [Track]s.
   ObsList<Track>? get localTracks => members[_me]?.tracks;
 
@@ -312,6 +315,10 @@ class OngoingCall {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
+
+    var updated = CallMemberId(_me.userId, deviceId);
+    members.move(_me, updated);
+    _me = updated;
 
     connected = true;
     _heartbeat?.cancel();
@@ -861,7 +868,7 @@ class OngoingCall {
 
     _room!.onLocalTrack((e) => _addLocalTrack(e));
 
-    members[_me] = CallMember(_me);
+    members[_me] = CallMember.me(_me);
 
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
@@ -1151,7 +1158,7 @@ class OngoingCall {
     for (Track t in members.values.expand((e) => e.tracks)) {
       t.dispose();
     }
-    members.clear();
+    members.removeWhere((key, value) => key != _me);
   }
 
   /// Updates the local media settings with [audioDevice] or [videoDevice].
@@ -1188,7 +1195,7 @@ class OngoingCall {
     }
   }
 
-  /// Updates the local [CallMember.tracks] corresponding to the current media
+  /// Updates the local tracks corresponding to the current media
   /// [LocalTrackState]s.
   Future<void> _updateTracks() async {
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
@@ -1200,14 +1207,14 @@ class OngoingCall {
         videoDevice: videoDevice.value,
       ),
     );
-    _disposeLocalMedia();
 
+    _disposeLocalMedia();
     for (LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
   }
 
-  /// Adds local [track] to the [CallMember.tracks] and initializes video
+  /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
     if (track.kind() == MediaKind.Video) {
@@ -1253,7 +1260,7 @@ class OngoingCall {
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
-        t.stop();
+        t.dispose();
         return true;
       }
       return false;
@@ -1415,8 +1422,11 @@ class CallMemberId {
 class CallMember {
   CallMember(this.id, {this.connection, bool? isHandRaised})
       : isHandRaised = RxBool(isHandRaised ?? false),
-        owner =
-            id.deviceId == null ? MediaOwnerKind.local : MediaOwnerKind.remote;
+        owner = MediaOwnerKind.remote;
+
+  CallMember.me(this.id, {this.connection, bool? isHandRaised})
+      : isHandRaised = RxBool(isHandRaised ?? false),
+        owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
   CallMemberId id;

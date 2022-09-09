@@ -364,7 +364,7 @@ class CallController extends GetxController {
   Rx<OngoingCallState> get state => _currentCall.value.state;
 
   /// Returns a [CallMember] of the currently authorized [MyUser].
-  CallMember get me => members[CallMemberId(_calls.me, null)]!;
+  CallMember get me => _currentCall.value.me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing =>
@@ -812,7 +812,6 @@ class CallController extends GetxController {
   /// Raises/lowers a hand.
   Future<void> toggleHand() async {
     keepUi();
-
     await _currentCall.value.toggleHand(_calls, chatId);
   }
 
@@ -844,7 +843,7 @@ class CallController extends GetxController {
     if (participant.video.value?.direction.value.isEmitting ?? false) {
       await _currentCall.value.setMemberVideoEnabled(
         participant.member.id,
-        participant.video.value!.renderer.value == null,
+        !participant.video.value!.isEnabled.value,
         source: participant.video.value!.source,
       );
     }
@@ -879,7 +878,7 @@ class CallController extends GetxController {
     remotes.remove(participant);
     focused.remove(participant);
 
-    for (Participant r in List.from(focused, growable: false)) {
+    for (var r in List<Participant>.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
     focused.add(participant);
@@ -938,11 +937,11 @@ class CallController extends GetxController {
   /// [focus]es all [Participant]s, which means putting them in theirs `default`
   /// groups.
   void focusAll() {
-    for (Participant r in List.from(paneled, growable: false)) {
+    for (var r in List<Participant>.from(paneled, growable: false)) {
       _putVideoFrom(r, paneled);
     }
 
-    for (Participant r in List.from(focused, growable: false)) {
+    for (var r in List<Participant>.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
 
@@ -952,8 +951,8 @@ class CallController extends GetxController {
   /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
   /// group.
   void unfocusAll() {
-    for (Participant r
-        in List.from([...focused, ...locals, ...remotes], growable: false)) {
+    for (var r in List<Participant>.from([...focused, ...locals, ...remotes],
+        growable: false)) {
       _putVideoTo(r, paneled);
     }
 
@@ -1614,7 +1613,7 @@ class CallController extends GetxController {
       // If every [RtcVideoRenderer] is in focus, then put everyone outside of
       // it.
       if (paneled.isEmpty && focused.isNotEmpty) {
-        List<Participant> copy = List.from(focused, growable: false);
+        var copy = List<Participant>.from(focused, growable: false);
         for (Participant r in copy) {
           _putVideoFrom(r, focused);
         }
@@ -1645,13 +1644,9 @@ class CallController extends GetxController {
     ];
   }
 
-  /// Puts the member with tracks to [Participant]s identified by an [member]'s
-  /// id.
-  ///
-  /// Puts empty [Participant], if member has no tracks.
+  /// Puts the provided [member]'s tracks to [Participant]s.
   void _putMember(CallMember member) {
-    if (!member.tracks.any((t) =>
-        t.kind == MediaKind.Video && t.source == MediaSourceKind.Device)) {
+    if (member.tracks.none((t) => t.source == MediaSourceKind.Device)) {
       _putParticipant(member, null);
     }
 
@@ -1662,8 +1657,8 @@ class CallController extends GetxController {
 
   /// Puts the provided [track] to one of the provided [member]'s [Participant].
   ///
-  ///  If there is no suitable [Participant] for this [track] then create new
-  ///  [Participant].
+  /// If there is no suitable [Participant] for [track] then create new
+  /// [Participant].
   void _putParticipant(CallMember member, Track? track) {
     var participants = _findParticipants(member.id, track?.source);
 
@@ -1731,7 +1726,7 @@ class CallController extends GetxController {
 
   /// Removes [member]'s [Participant] with the provided [track].
   ///
-  /// If there is the last [member]'s [Participant] then removes the provided
+  /// If there is only one [member]'s [Participant] then removes the provided
   /// [track] from it.
   void _removeParticipant(CallMember member, Track track) {
     final participants = _findParticipants(member.id, track.source);
@@ -1790,6 +1785,7 @@ class Participant {
   final GlobalKey videoKey = GlobalKey();
 
   /// Returns [MediaSourceKind] of this [Participant].
+  ///
   /// Returns [MediaSourceKind.Device] by default if there are no tracks
   /// available.
   MediaSourceKind get source =>

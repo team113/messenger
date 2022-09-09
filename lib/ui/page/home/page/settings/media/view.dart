@@ -114,8 +114,9 @@ class MediaSettingsView extends StatelessWidget {
                 stream: c.localTracks?.changes,
                 builder: (context, snapshot) {
                   RtcVideoRenderer? local = c.localTracks
-                      ?.firstWhereOrNull(
-                          (t) => t.source == MediaSourceKind.Device)
+                      ?.firstWhereOrNull((t) =>
+                          t.source == MediaSourceKind.Device &&
+                          t.renderer.value is RtcVideoRenderer)
                       ?.renderer
                       .value as RtcVideoRenderer?;
                   return row(

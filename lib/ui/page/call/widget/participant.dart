@@ -207,7 +207,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      bool isMuted;
+      if (participant.source == MediaSourceKind.Display) {
+        isMuted = false;
+      } else {
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      }
+
       bool hasVideoWhenDisabled =
           participant.video.value?.renderer.value == null &&
               (participant.video.value?.direction.value.isEmitting ?? false) &&
@@ -233,7 +239,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
-            // TODO: replace icon to one with smaller padding
+            // TODO: replace `speaker_off` icon to one with smaller padding
             child: SvgLoader.asset(
               'assets/icons/speaker_off.svg',
               height: 35,

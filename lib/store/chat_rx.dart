@@ -242,7 +242,7 @@ class HiveRxChat implements RxChat {
     ChatItem? repliesTo,
   }) async {
     // Copy the [attachments] list since we're going to manipulate it here.
-    List<Attachment> uploaded = List.from(attachments ?? []);
+    var uploaded = List<Attachment>.from(attachments ?? []);
 
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,

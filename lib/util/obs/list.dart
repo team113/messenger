@@ -128,12 +128,14 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   @override
   void removeWhere(bool Function(E p1) test) {
-    for (int i = 0; i < length; ++i) {
-      if (test(this[i])) {
-        _changes.add(ListChangeNotification<E>.removed(this[i], i));
+    var stored = List<E>.from(this, growable: false);
+
+    super.removeWhere(test);
+    for (int i = 0; i < stored.length; ++i) {
+      if (!contains(stored[i])) {
+        _changes.add(ListChangeNotification<E>.removed(stored[i], i));
       }
     }
-    super.removeWhere(test);
   }
 
   @override

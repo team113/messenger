@@ -43,7 +43,7 @@ class MediaSettingsController extends GetxController {
   /// removed [Track]s.
   late final StreamSubscription? _localTracks;
 
-  /// Returns local video tracks.
+  /// Returns local tracks.
   ObsList<Track>? get localTracks => _call.value.localTracks;
 
   /// Returns a list of [MediaDeviceInfo] of all the available devices.
