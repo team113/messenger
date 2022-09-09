@@ -23,7 +23,11 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../controller.dart'
-    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
+    show
+        ChatCallFinishReasonL10n,
+        ChatController,
+        FileAttachmentIsVideo,
+        SelectionItem;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -43,19 +47,20 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
-import 'listener_widget.dart';
+import 'custom_selection_text.dart';
 import 'swipeable_status.dart';
+import 'switcher_by_animation.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
 class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
     Key? key,
+    required this.controller,
+    required this.chatIndex,
     required this.chat,
     required this.item,
     required this.me,
-    required this.selectedText,
-    required this.isTapMessage,
     this.user,
     this.onJoinCall,
     this.animation,
@@ -69,6 +74,12 @@ class ChatItemWidget extends StatefulWidget {
     this.onResend,
   }) : super(key: key);
 
+  /// Controller for writing selected text.
+  final ChatController controller;
+
+  /// [ChatItemWidget] numbering in [FlutterListView].
+  final int chatIndex;
+
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
 
@@ -80,12 +91,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [User] posted this [item].
   final RxUser? user;
-
-  /// Selected text in [Chat].
-  final Rx<String?> selectedText;
-
-  /// Indicator whether text in [Chat] is selected.
-  final Rx<bool> isTapMessage;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final Function()? onHide;
@@ -193,10 +198,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Center(
-        child: ListenerWidget(
-          isTapMessage: widget.isTapMessage,
-          child: Text('${message.action}'),
-        ),
+        child: SelectionContainer.disabled(child: Text('${message.action}')),
       ),
     );
   }
@@ -205,10 +207,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatForward(BuildContext context) {
     return _rounded(
       context,
-      ListenerWidget(
-        isTapMessage: widget.isTapMessage,
-        child: Text('label_forwarded_message'.l10n),
-      ),
+      SelectionContainer.disabled(child: Text('label_forwarded_message'.l10n)),
     );
   }
 
@@ -236,8 +235,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (msg.text != null)
-            ListenerWidget(
-              isTapMessage: widget.isTapMessage,
+            CustomSelectionText(
+              controller: widget.controller,
+              type: SelectionItem.message,
+              groupId: widget.chatIndex,
               child: Text(msg.text!.val),
             ),
           if (msg.text != null && msg.attachments.isNotEmpty)
@@ -433,8 +434,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                       ),
                       Flexible(
-                        child: ListenerWidget(
-                          isTapMessage: widget.isTapMessage,
+                        child: SelectionContainer.disabled(
                           child: Text(
                             e.filename,
                             maxLines: 1,
@@ -445,8 +445,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       const SizedBox(width: 10),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 1),
-                        child: ListenerWidget(
-                          isTapMessage: widget.isTapMessage,
+                        child: SelectionContainer.disabled(
                           child: Text(
                             '${e.size ~/ 1024} KB',
                             style: const TextStyle(
@@ -553,8 +552,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Flexible(
-                    child: ListenerWidget(
-                      isTapMessage: widget.isTapMessage,
+                    child: CustomSelectionText(
+                      controller: widget.controller,
+                      type: SelectionItem.message,
+                      groupId: widget.chatIndex,
                       child: Text(
                         title,
                         maxLines: 1,
@@ -566,8 +567,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     const SizedBox(width: 9),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 1),
-                      child: ListenerWidget(
-                        isTapMessage: widget.isTapMessage,
+                      child: SelectionContainer.disabled(
                         child: Text(
                           time,
                           maxLines: 1,
@@ -608,8 +608,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
       }
 
-      return ListenerWidget(
-        isTapMessage: widget.isTapMessage,
+      return SelectionContainer.disabled(
         child: Text(
           desc.toString(),
           maxLines: 1,
@@ -653,17 +652,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
           ),
           Flexible(
-            child: ListenerWidget(
-              isTapMessage: widget.isTapMessage,
-              child: Text(title),
-            ),
+            child: SelectionContainer.disabled(child: Text(title)),
           ),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
-              child: ListenerWidget(
-                isTapMessage: widget.isTapMessage,
+              child: SelectionContainer.disabled(
                 child: Text(
                   time,
                   maxLines: 1,
@@ -678,22 +673,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      return ListenerWidget(
-        isTapMessage: widget.isTapMessage,
-        child: Text(item.action.toString()),
-      );
+      return SelectionContainer.disabled(child: Text(item.action.toString()));
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      return ListenerWidget(
-        isTapMessage: widget.isTapMessage,
-        child: const Text('Forwarded message'),
+      return const SelectionContainer.disabled(
+        child: Text('Forwarded message'),
       );
     }
 
-    return ListenerWidget(
-      isTapMessage: widget.isTapMessage,
-      child: Text('err_unknown'.l10n),
-    );
+    return SelectionContainer.disabled(child: Text('err_unknown'.l10n));
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
@@ -766,12 +754,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       String copyable = item.text?.val ?? '';
       contextMenu = ContextMenu(
         actions: [
-          ContextMenuButton(
-            key: const Key('CopyButton'),
-            label: 'btn_copy_text'.l10n,
-            onPressed: () =>
-                widget.onCopy?.call(widget.selectedText.value ?? copyable),
-          ),
+          if (copyable.isNotEmpty)
+            ContextMenuButton(
+              key: const Key('CopyButton'),
+              label: 'btn_copy_text'.l10n,
+              onPressed: () => widget.onCopy?.call(
+                  widget.controller.selectionText.isEmpty
+                      ? copyable
+                      : widget.controller.selectionText),
+            ),
           ...defaultButtonMenu,
         ],
       );
@@ -779,12 +770,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       contextMenu = Obx(
         () => ContextMenu(
           actions: [
-            if (widget.selectedText.value?.isNotEmpty == true)
+            if (widget.controller.isSelection)
               ContextMenuButton(
                 key: const Key('CopyButton'),
                 label: 'btn_copy_text'.l10n,
                 onPressed: () =>
-                    widget.onCopy?.call(widget.selectedText.value ?? ''),
+                    widget.onCopy?.call(widget.controller.selectionText),
               ),
             ...defaultButtonMenu,
           ],
@@ -804,9 +795,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isRead: isSent && (!fromMe || isRead),
       isError: widget.item.value.status.value == SendingStatus.error,
       isSending: widget.item.value.status.value == SendingStatus.sending,
-      swipeable: ListenerWidget(
-        isTapMessage: widget.isTapMessage,
-        child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+      swipeable: SwitcherByAnimation(
+        animation: widget.animation,
+        childBeforeAnimation: SelectionContainer.disabled(
+          child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+        ),
+        childAfterAnimation: CustomSelectionText(
+          controller: widget.controller,
+          type: SelectionItem.time,
+          groupId: widget.chatIndex,
+          child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
+        ),
       ),
       child: Row(
         crossAxisAlignment:

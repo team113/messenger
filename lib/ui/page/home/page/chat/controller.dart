@@ -185,6 +185,14 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
+  /// All chat elements [SelectionItem] for selection.
+  /// Filled in [CustomSelectionContainer].
+  List<SelectionData> selection = [];
+
+  /// Indicates whether user is in contact with any [CustomSelectionText]
+  /// to disable horizontal scrolling.
+  final Rx<bool> isTapMessage = Rx(false);
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -198,6 +206,35 @@ class ChatController extends GetxController {
       return false;
     }
   }
+
+  /// Formatted selected text.
+  /// Text sorted and formatted, for the last
+  /// [SelectionData] without formatting.
+  String get selectionText {
+    if (!isSelection) {
+      return '';
+    }
+    final selectionsNotEmpty =
+        selection.where((s) => s.data.value.isNotEmpty).toList();
+    final sortedSelection = _sortSelectionData(selectionsNotEmpty);
+
+    final StringBuffer result = StringBuffer();
+    for (int i = 0; i < sortedSelection.length; i++) {
+      SelectionData selectionData = sortedSelection[i];
+      if (i == sortedSelection.length - 1) {
+        result.write(selectionData.data.value);
+      } else {
+        result.write(selectionData.formatted);
+      }
+    }
+    return result.toString();
+  }
+
+  /// At least one [SelectionData.data] is not empty.
+  bool get isSelection =>
+      selection
+          .firstWhereOrNull((SelectionData s) => s.data.value.isNotEmpty) !=
+      null;
 
   @override
   void onInit() {
@@ -635,6 +672,19 @@ class ChatController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
+  /// First sort the groups [SelectionData.groupdId] in order, and then
+  /// by item order [SelectionItem.index].
+  List<SelectionData> _sortSelectionData(List<SelectionData> selection) {
+    selection.sort((SelectionData a, SelectionData b) {
+      int groupComp = a.groupdId.compareTo(b.groupdId);
+      if (groupComp == 0) {
+        return a.type.index.compareTo(b.type.index);
+      }
+      return groupComp;
+    });
+    return selection;
+  }
+
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
   /// [attachments].
   Future<void> _addXFileAttachment(XFile xFile) async {
@@ -956,4 +1006,42 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
+}
+
+/// Type of selected text in chat.
+/// Each of them will have its own formatting.
+enum SelectionItem { date, time, message }
+
+/// Contains selected text.
+/// Passed to [CustomSelectionContainer] which fills
+/// [data] with selected text.
+class SelectionData {
+  SelectionData(this.type, this.groupdId);
+
+  /// Selected text type.
+  final SelectionItem type;
+
+  /// Grouping multiple [SelectionData] in a group.
+  final int groupdId;
+
+  /// Selected text.
+  final RxString data = RxString('');
+
+  /// Text formatting [data] depending on the [type].
+  String get formatted {
+    String text = data.value;
+    if (text.isEmpty) {
+      return '';
+    }
+    switch (type) {
+      case SelectionItem.date:
+      case SelectionItem.time:
+        text += '\n';
+        break;
+      case SelectionItem.message:
+        text += '\n\n';
+        break;
+    }
+    return text;
+  }
 }

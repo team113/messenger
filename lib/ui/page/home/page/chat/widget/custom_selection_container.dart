@@ -16,18 +16,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 
-/// Allows selecting text with partial selection.
+import '../controller.dart';
+
+/// Creates a selection container to collect the [Selectable]s in the subtree
+/// and write the selected text to the controller.
 class CustomSelectionContainer extends StatefulWidget {
   const CustomSelectionContainer({
     super.key,
+    required this.controller,
+    required this.selectionData,
     required this.child,
-    required this.selection,
   });
 
+  /// Adding [SelectionData] to [ChatController].
+  final ChatController controller;
+
+  /// Contains selected text.
+  final SelectionData selectionData;
+
+  /// Widget in which there will be text to selection.
   final Widget child;
-  final Rx<String?> selection;
 
   @override
   State<StatefulWidget> createState() => _CustomSelectionContainerState();
@@ -35,15 +44,22 @@ class CustomSelectionContainer extends StatefulWidget {
 
 class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   late final _SelectableRegionContainerDelegate delegate;
+  late final SelectionData selectionData;
 
   @override
   void initState() {
     super.initState();
-    delegate = _SelectableRegionContainerDelegate(widget.selection);
+    delegate = _SelectableRegionContainerDelegate();
+    selectionData = widget.selectionData;
+    widget.controller.selection.add(selectionData);
+    delegate.addListener(_selectionChange);
   }
 
   @override
   void dispose() {
+    selectionData.data.close();
+    widget.controller.selection.remove(selectionData);
+    delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();
   }
@@ -55,18 +71,28 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
       child: widget.child,
     );
   }
+
+  /// Getting the selected text in a [delegate].
+  /// Writing data to [selectionData.data] via [RxString] stream.
+  void _selectionChange() {
+    final String oldText = selectionData.data.value;
+    final String newText = delegate.getSelectedContent()?.plainText ?? '';
+    if (oldText != newText) {
+      selectionData.data.value = newText;
+    }
+  }
 }
 
+/// The delegate for [SelectionEvent]s sent to selection container.
+///
+/// Taken from the framework of the same name.
 class _SelectableRegionContainerDelegate
     extends MultiSelectableSelectionContainerDelegate {
   final Set<Selectable> _hasReceivedStartEvent = <Selectable>{};
   final Set<Selectable> _hasReceivedEndEvent = <Selectable>{};
-  final Rx<String?> selection;
 
   Offset? _lastStartEdgeUpdateGlobalPosition;
   Offset? _lastEndEdgeUpdateGlobalPosition;
-
-  _SelectableRegionContainerDelegate(this.selection);
 
   @override
   void remove(Selectable selectable) {
@@ -150,15 +176,6 @@ class _SelectableRegionContainerDelegate
   @override
   SelectionResult dispatchSelectionEventToChild(
       Selectable selectable, SelectionEvent event) {
-    final join = _hasReceivedStartEvent
-        .map((s) => s.getSelectedContent()?.plainText)
-        .where((e) => e != null)
-        .join('\n');
-    if (join.isEmpty && selection.value != null) {
-      selection.value = null;
-    } else if (!(selection.value == null && join.isEmpty)) {
-      selection.value = join;
-    }
     switch (event.type) {
       case SelectionEventType.startEdgeUpdate:
         _hasReceivedStartEvent.add(selectable);
