@@ -252,7 +252,7 @@ label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_account_access_will_be_lost = Account access will be lost
-label_account_created = Account created
+label_account_created = Account is created
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->

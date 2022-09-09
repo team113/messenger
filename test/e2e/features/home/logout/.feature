@@ -14,33 +14,32 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Logout confirm
+Feature: Logout confirmation
 
-  Scenario: Logout confirm is displayed and password can be set
+  Scenario: Confirmation is displayed when password is unset
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present
-    And I copy from `NumCopyable` field
+
+    When I copy from `NumCopyable` field
     And I tap `CloseButton` button
+    And I tap `MenuButton` button
+    And I tap `LogoutButton` button
+    Then I wait until `ConfirmLogoutView` is present
 
-    When I tap `MenuButton` button
-    Then I tap `LogoutButton` button
-
-    And I wait until `ConfirmLogoutView` is present
-    And I tap `SetPasswordButton` button
-    Then I fill `PasswordField` field with "123"
-    And I fill `RepeatPasswordField` field with "123"
-
-    Then I tap `ChangePasswordButton` button
-    And I wait until `SuccessStage` is present
-    And I tap `CloseButton` button
-
-    Then I tap `LogoutButton` button
-    And I wait until `AuthView` is present
-
-    Then I tap `SignInButton` button
-    And I wait until `LoginView` is present
-    And I paste to `UsernameField` field
+    When I tap `SetPasswordButton` button
     And I fill `PasswordField` field with "123"
+    And I fill `RepeatPasswordField` field with "123"
+    And I tap `ChangePasswordButton` button
+    Then I wait until `SuccessStage` is present
+    And I tap `CloseButton` button
 
-    When I tap `LoginButton` button
-    And I wait until `HomeView` is present
+    When I tap `LogoutButton` button
+    Then I wait until `AuthView` is present
+
+    When I tap `SignInButton` button
+    Then I wait until `LoginView` is present
+
+    When I paste to `UsernameField` field
+    And I fill `PasswordField` field with "123"
+    And I tap `LoginButton` button
+    Then I wait until `HomeView` is present

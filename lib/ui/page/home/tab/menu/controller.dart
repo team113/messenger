@@ -60,7 +60,7 @@ class MenuTabController extends GetxController {
       }
     }
 
-    // TODO: [MyUserService.myUser] might still be `null` there.
+    // TODO: [MyUserService.myUser] might still be `null` here.
     if (_myUserService.myUser.value?.hasPassword != true) {
       if (await ConfirmLogoutView.show(router.context!) != true) {
         logout = false;

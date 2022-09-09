@@ -37,9 +37,7 @@ class LoginView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(maxWidth: 400),
       modalConstraints: const BoxConstraints(maxWidth: 520),
-      child: const LoginView(
-        key: Key('LoginView'),
-      ),
+      child: const LoginView(),
     );
   }
 

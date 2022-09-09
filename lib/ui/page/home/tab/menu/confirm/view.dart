@@ -102,6 +102,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
               ];
               break;
+
             case ConfirmLogoutViewStage.success:
               children = [
                 const SizedBox(height: 14),
@@ -122,6 +123,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
               ];
               break;
+
             default:
               children = [
                 Center(

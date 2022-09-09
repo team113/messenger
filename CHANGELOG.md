@@ -20,7 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Side bar resizing on desktop ([#89], [#82]).
     - Menu:
         - Language selection ([#23], [#29]);
-        - Unspecified password reminder on logout ([#39]).
+        - Unset password reminder on logout ([#39]).
     - Media panel:
         - Reorderable buttons dock on desktop ([#9], [#6]).
     - Chats tab:
