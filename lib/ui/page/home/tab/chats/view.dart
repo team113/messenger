@@ -120,6 +120,7 @@ class ChatsTabView extends StatelessWidget {
                             maxHeight: double.infinity,
                           ),
                           mobilePadding: const EdgeInsets.all(0),
+                          desktopPadding: const EdgeInsets.all(0),
                         );
                       },
                       icon: SvgLoader.asset(
@@ -381,7 +382,11 @@ class ChatsTabView extends StatelessWidget {
 
           switch (item.action) {
             case ChatMemberInfoAction.created:
-              content = const Text('Chat created');
+              if (chat.isGroup) {
+                content = const Text('Group created');
+              } else {
+                content = const Text('Dialog created');
+              }
               break;
 
             case ChatMemberInfoAction.added:

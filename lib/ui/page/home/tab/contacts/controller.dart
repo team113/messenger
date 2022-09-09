@@ -54,6 +54,8 @@ class ContactsTabController extends GetxController {
   /// [ChatContactId] of a [ChatContact] to rename.
   final Rx<ChatContactId?> contactToChangeNameOf = Rx<ChatContactId?>(null);
 
+  final RxBool sortByName = RxBool(true);
+
   /// [Chat] repository used to create a dialog [Chat].
   final AbstractChatRepository _chatRepository;
 

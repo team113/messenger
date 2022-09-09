@@ -51,27 +51,23 @@ class MenuTabController extends GetxController {
   ///
   /// Shows a confirmation popup if there's any ongoing calls.
   Future<bool> confirmLogout() async {
-    bool value = true;
-
     if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
       if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
           true) {
-        value = false;
+        return false;
       }
     }
 
+    // TODO: [MyUserService.myUser] might still be `null` here.
     if (_myUserService.myUser.value?.hasPassword != true) {
       if (await ConfirmLogoutView.show(router.context!) != true) {
-        value = false;
+        return false;
       }
     }
 
-    return value;
+    return true;
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() async {
-    _myUserService.clearCached();
-    return await _auth.logout();
-  }
+  Future<String> logout() => _auth.logout();
 }

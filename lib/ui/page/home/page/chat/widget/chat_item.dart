@@ -216,7 +216,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     switch (message.action) {
       case ChatMemberInfoAction.created:
-        content = const Text('Chat created');
+        if (widget.chat.value?.isGroup == true) {
+          content = const Text('Group created');
+        } else {
+          content = const Text('Dialog created');
+        }
         break;
 
       case ChatMemberInfoAction.added:

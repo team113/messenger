@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -36,6 +37,7 @@ class ContactTile extends StatelessWidget {
     this.actions,
     this.canDelete = false,
     this.onDelete,
+    this.subtitle,
     this.preventContextMenu = false,
   }) : super(key: key);
 
@@ -54,6 +56,8 @@ class ContactTile extends StatelessWidget {
 
   final bool preventContextMenu;
   final List<ContextMenuButton>? actions;
+
+  final Widget? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -96,16 +100,45 @@ class ContactTile extends StatelessWidget {
                       AvatarWidget.fromRxUser(user, radius: 26),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        contact?.contact.value.name.val ??
-                            contact?.user.value?.user.value.name?.val ??
-                            contact?.user.value?.user.value.num.val ??
-                            user?.user.value.name?.val ??
-                            user?.user.value.num.val ??
-                            '...',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.headline5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  contact?.contact.value.name.val ??
+                                      contact
+                                          ?.user.value?.user.value.name?.val ??
+                                      contact?.user.value?.user.value.num.val ??
+                                      user?.user.value.name?.val ??
+                                      user?.user.value.num.val ??
+                                      '...',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (contact?.user.value != null) ...[
+                            const SizedBox(height: 5),
+                            Obx(() {
+                              final subtitle =
+                                  contact?.user.value?.user.value.getStatus();
+                              if (subtitle != null) {
+                                return Text(
+                                  subtitle,
+                                  style:
+                                      const TextStyle(color: Color(0xFF888888)),
+                                );
+                              }
+
+                              return Container();
+                            }),
+                          ],
+                        ],
                       ),
                     ),
                     ...trailing,

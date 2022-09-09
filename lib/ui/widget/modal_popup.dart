@@ -32,7 +32,7 @@ abstract class ModalPopup {
     BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
     EdgeInsets desktopPadding =
-        const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        const EdgeInsets.all(10),
     bool isDismissible = true,
   }) {
     if (context.isMobile && PlatformUtils.isMobile) {

@@ -14,11 +14,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/repository/contact.dart';
@@ -31,6 +33,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
+import 'search/view.dart';
 
 /// View of the `HomeTab.contacts` tab.
 class ContactsTabView extends StatelessWidget {
@@ -50,16 +53,10 @@ class ContactsTabView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('ContactsTab'),
-      init: ContactsTabController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
+      init: ContactsTabController(Get.find(), Get.find(), Get.find()),
       builder: (ContactsTabController c) => Scaffold(
-        // backgroundColor: Colors.white,
-        // backgroundColor: const Color(0xFFF5F8FA),
-        appBar: AppBar(
-          // backgroundColor: const Color(0xFFF9FBFB),
+        appBar: CustomAppBar.from(
+          context: context,
           title: Text(
             'label_contacts'.l10n,
             style: Theme.of(context).textTheme.caption?.copyWith(
@@ -68,77 +65,97 @@ class ContactsTabView extends StatelessWidget {
                   fontSize: 18,
                 ),
           ),
-          leading: IconButton(
-            splashColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onPressed: () {},
-            icon: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
-          ),
-          // bottom: PreferredSize(
-          //   preferredSize: const Size.fromHeight(0.5),
-          //   child: Container(
-          //     color: const Color(0xFFE0E0E0),
-          //     height: 0.5,
-          //   ),
-          // ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: c.sortByName.toggle,
+                icon: Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 300.milliseconds,
+                    child: c.sortByName.value
+                        ? const Icon(
+                            Icons.sort_by_alpha,
+                            key: Key('SortByAlpha'),
+                            color: Color(0xFF63B4FF),
+                          )
+                        : const Icon(
+                            Icons.sort,
+                            key: Key('Sort'),
+                            color: Color(0xFF63B4FF),
+                          ),
+                  );
+                }),
+              ),
+            ),
+          ],
+          leading: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: IconButton(
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onPressed: () async {
+                  await ModalPopup.show(
+                    context: context,
+                    desktopConstraints: const BoxConstraints(
+                      maxWidth: double.infinity,
+                      maxHeight: double.infinity,
+                    ),
+                    modalConstraints: const BoxConstraints(maxWidth: 380),
+                    mobileConstraints: const BoxConstraints(
+                      maxWidth: double.infinity,
+                      maxHeight: double.infinity,
+                    ),
+                    mobilePadding: const EdgeInsets.all(0),
+                    child: const SearchContactView(),
+                  );
+                },
+                icon: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
+              ),
+            ),
+          ],
         ),
-        extendBodyBehindAppBar: false,
-        extendBody: false,
+        extendBodyBehindAppBar: true,
+        extendBody: true,
         body: Obx(() {
-          if (!c.contactsReady.value) {
-            return UserSearchBar(
-              onUserTap: (user) => router.user(user.id),
-              // TODO: Show an `add` icon only if user is not in contacts already.
-              //       E.g. by looking if `MyUser.contacts` field is empty or not.
-              trailingIcon: const Icon(Icons.person_add),
-              onTrailingTap: c.addToContacts,
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          if (c.favorites.isEmpty && c.contacts.isEmpty) {
-            return UserSearchBar(
-              onUserTap: (user) => router.user(user.id),
-              // TODO: Show an `add` icon only if user is not in contacts already.
-              //       E.g. by looking if `MyUser.contacts` field is empty or not.
-              trailingIcon: const Icon(Icons.person_add),
-              onTrailingTap: c.addToContacts,
-              body: Center(child: Text('label_no_contacts'.l10n)),
-            );
-          }
-
           var metrics = MediaQuery.of(context);
-          return UserSearchBar(
-            onUserTap: (user) => router.user(user.id),
-            // TODO: Show an `add` icon only if user is not in contacts already.
-            //       E.g. by looking if `MyUser.contacts` field is empty or not.
-            trailingIcon: const Icon(Icons.person_add),
-            onTrailingTap: c.addToContacts,
-            body: Padding(
+          return MediaQuery(
+            data: metrics.copyWith(
+              padding: metrics.padding.copyWith(
+                top: metrics.padding.top + 56 + 4,
+                bottom: metrics.padding.bottom - 18,
+              ),
+            ),
+            child: Padding(
               padding: const EdgeInsets.only(top: 10, bottom: 10),
               child: ContextMenuInterceptor(
-                child: ListView(
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
+                child: AnimationLimiter(
+                  child: ListView.builder(
+                    controller: ScrollController(),
+                    itemCount: c.contacts.length,
+                    itemBuilder: (BuildContext context, int i) {
+                      RxChatContact? e = c.contacts.values.elementAt(i);
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50.0,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: _contact(context, e, c),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  controller: ScrollController(),
-                  children: [
-                    if (c.favorites.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                        child: Text('label_favorite_contacts'.l10n),
-                      ),
-                      ...c.favorites.entries
-                          .map((e) => _contact(context, e.value, c))
-                    ],
-                    if (c.favorites.isNotEmpty && c.contacts.isNotEmpty)
-                      ...divider,
-                    ...c.contacts.entries
-                        .map((e) => _contact(context, e.value, c)),
-                    const SizedBox(height: 60),
-                  ],
                 ),
               ),
             ),
@@ -201,26 +218,26 @@ class ContactsTabView extends StatelessWidget {
           onPressed: () => c.deleteFromContacts(contact.contact.value),
         ),
       ],
-      trailing: [
-        if (contact.contact.value.users.isNotEmpty) ...[
-          IconButton(
-            onPressed: () =>
-                c.startAudioCall(contact.contact.value.users.first),
-            icon: Icon(
-              Icons.call,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          IconButton(
-            onPressed: () =>
-                c.startVideoCall(contact.contact.value.users.first),
-            icon: Icon(
-              Icons.video_call,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ]
-      ],
+      // trailing: [
+      //   if (contact.contact.value.users.isNotEmpty) ...[
+      //     IconButton(
+      //       onPressed: () =>
+      //           c.startAudioCall(contact.contact.value.users.first),
+      //       icon: Icon(
+      //         Icons.call,
+      //         color: Theme.of(context).colorScheme.primary,
+      //       ),
+      //     ),
+      //     IconButton(
+      //       onPressed: () =>
+      //           c.startVideoCall(contact.contact.value.users.first),
+      //       icon: Icon(
+      //         Icons.video_call,
+      //         color: Theme.of(context).colorScheme.primary,
+      //       ),
+      //     ),
+      //   ]
+      // ],
     );
 
     return ContextMenuRegion(

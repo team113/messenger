@@ -24,7 +24,6 @@ import '/ui/widget/text_field.dart';
 
 /// Possible [ConfirmLogoutViewStage] flow stage.
 enum ConfirmLogoutViewStage {
-  alert,
   password,
   success,
 }
@@ -34,7 +33,7 @@ class ConfirmLogoutController extends GetxController {
   ConfirmLogoutController(this._myUser);
 
   /// [ConfirmLogoutViewStage] currently being displayed.
-  final Rx<ConfirmLogoutViewStage> stage = Rx(ConfirmLogoutViewStage.alert);
+  final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
 
   /// Field for password input.
   late final TextFieldState password;
@@ -42,13 +41,13 @@ class ConfirmLogoutController extends GetxController {
   /// Field for password repeat input.
   late final TextFieldState repeat;
 
-  /// Indicates obscuring of password field.
+  /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Indicates obscuring of repeat password field.
+  /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
-  /// [MyUserService] updating the password.
+  /// [MyUserService] setting the password.
   final MyUserService _myUser;
 
   @override
@@ -58,21 +57,19 @@ class ConfirmLogoutController extends GetxController {
         password.error.value = null;
         repeat.error.value = null;
 
-        try {
-          if (s.text.isEmpty) {
-            throw const FormatException();
-          }
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
 
-          UserPassword(s.text);
-
-          if (repeat.text != password.text && repeat.isValidated) {
-            repeat.error.value = 'err_passwords_mismatch'.l10n;
-          }
-        } on FormatException {
-          if (s.text.isEmpty) {
-            s.error.value = 'err_password_empty'.l10n;
-          } else {
-            s.error.value = 'err_password_incorrect'.l10n;
+            if (repeat.text != password.text && repeat.isValidated) {
+              repeat.error.value = 'err_passwords_mismatch'.l10n;
+            }
+          } on FormatException {
+            if (s.text.isEmpty) {
+              s.error.value = 'err_password_empty'.l10n;
+            } else {
+              s.error.value = 'err_password_incorrect'.l10n;
+            }
           }
         }
       },
@@ -83,21 +80,19 @@ class ConfirmLogoutController extends GetxController {
         password.error.value = null;
         repeat.error.value = null;
 
-        try {
-          if (s.text.isEmpty) {
-            throw const FormatException();
-          }
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
 
-          UserPassword(s.text);
-
-          if (repeat.text != password.text && password.isValidated) {
-            repeat.error.value = 'err_passwords_mismatch'.l10n;
-          }
-        } on FormatException {
-          if (s.text.isEmpty) {
-            s.error.value = 'err_repeat_password_empty'.l10n;
-          } else {
-            s.error.value = 'err_password_incorrect'.l10n;
+            if (repeat.text != password.text && password.isValidated) {
+              repeat.error.value = 'err_passwords_mismatch'.l10n;
+            }
+          } on FormatException {
+            if (s.text.isEmpty) {
+              s.error.value = 'err_repeat_password_empty'.l10n;
+            } else {
+              s.error.value = 'err_password_incorrect'.l10n;
+            }
           }
         }
       },
@@ -106,7 +101,7 @@ class ConfirmLogoutController extends GetxController {
     super.onInit();
   }
 
-  /// Updates [User]'s password remotely.
+  /// Validates and sets the [password] of the currently authenticated [MyUser].
   Future<void> setPassword() async {
     if (password.error.value != null ||
         repeat.error.value != null ||
@@ -138,7 +133,7 @@ class ConfirmLogoutController extends GetxController {
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
     } catch (e) {
-      repeat.error.value = e.toString();
+      repeat.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
       password.status.value = RxStatus.empty();

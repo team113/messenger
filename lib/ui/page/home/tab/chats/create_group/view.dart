@@ -175,259 +175,229 @@ class CreateGroupView extends StatelessWidget {
             );
           }
 
-          Widget child;
-
-          switch (c.stage.value) {
-            case CreateGroupFlowStage.success:
-              List<Widget> children = [
-                const Center(child: Text('Success')),
-                const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => c.stage.value = null,
-                    child: const Text('Close'),
-                  ),
+          List<Widget> children = [
+            Center(
+              child: Text(
+                'Create group'.l10n,
+                style: thin?.copyWith(fontSize: 18),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Center(
+                child: ReactiveTextField(
+                  state: c.search,
+                  label: 'Search',
+                  style: thin,
+                  onChanged: () => c.query.value = c.search.text,
                 ),
-              ];
-
-              child = ListView(
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                physics: const ClampingScrollPhysics(),
+              ),
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              height: 15,
+              child: Row(
                 children: [
-                  const SizedBox(height: 25),
-                  ...children,
-                  const SizedBox(height: 25),
-                ],
-              );
-              break;
-
-            default:
-              List<Widget> children = [
-                Center(
-                  child: Text(
-                    'Create group'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Center(
-                    child: ReactiveTextField(
-                      state: c.search,
-                      label: 'Search',
-                      style: thin,
-                      onChanged: () => c.query.value = c.search.text,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      children: [
+                        WidgetButton(
+                          onPressed: () => c.jumpTo(0),
+                          child: Obx(() {
+                            return Text(
+                              'Chats',
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 0
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 20),
+                        WidgetButton(
+                          onPressed: () => c.jumpTo(1),
+                          child: Obx(() {
+                            return Text(
+                              'Contacts',
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 1
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 20),
+                        WidgetButton(
+                          onPressed: () => c.jumpTo(2),
+                          child: Obx(() {
+                            return Text(
+                              'Users',
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 2
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                SizedBox(
-                  height: 15,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          children: [
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(0),
-                              child: Obx(() {
-                                return Text(
-                                  'Chats',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value == 0
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                            const SizedBox(width: 20),
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(1),
-                              child: Obx(() {
-                                return Text(
-                                  'Contacts',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value == 1
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                            const SizedBox(width: 20),
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(2),
-                              child: Obx(() {
-                                return Text(
-                                  'Users',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value == 2
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                          ],
+                  Obx(() {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Selected: ',
+                          style: thin?.copyWith(fontSize: 15),
                         ),
-                      ),
-                      Obx(() {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Selected: ',
-                              style: thin?.copyWith(fontSize: 15),
-                            ),
-                            Container(
-                              constraints: const BoxConstraints(minWidth: 14),
-                              child: Text(
-                                '${c.selectedContacts.length + c.selectedUsers.length + c.selectedChats.length}',
-                                style: thin?.copyWith(fontSize: 15),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: Obx(() {
-                    if (c.chats.isEmpty &&
-                        c.contacts.isEmpty &&
-                        c.users.isEmpty) {
-                      if (c.searchStatus.value.isSuccess) {
-                        return const Center(child: Text('Nothing was found'));
-                      } else if (c.searchStatus.value.isEmpty) {
-                        return const Center(
-                          child: Text('Use search to find an user or a chat'),
-                        );
-                      }
-
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    return FlutterListView(
-                      controller: c.controller,
-                      // shrinkWrap: true,
-                      delegate: FlutterListViewDelegate(
-                        (context, i) {
-                          dynamic e = c.getIndex(i);
-
-                          if (e is RxUser) {
-                            return Obx(() {
-                              return _tile(
-                                user: e,
-                                selected: c.selectedUsers.contains(e),
-                                onTap: () => c.selectUser(e),
-                              );
-                            });
-                          } else if (e is RxChatContact) {
-                            return Obx(() {
-                              return _tile(
-                                contact: e,
-                                selected: c.selectedContacts.contains(e),
-                                onTap: () => c.selectContact(e),
-                              );
-                            });
-                          } else if (e is RxChat) {
-                            return Obx(() {
-                              return _chat(
-                                chat: e,
-                                selected: c.selectedChats.contains(e),
-                                onTap: () => c.selectChat(e),
-                              );
-                            });
-                          }
-
-                          return Container();
-                        },
-                        childCount:
-                            c.contacts.length + c.users.length + c.chats.length,
-                      ),
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 14),
+                          child: Text(
+                            '${c.selectedContacts.length + c.selectedUsers.length + c.selectedChats.length}',
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                        ),
+                      ],
                     );
                   }),
-                ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      // Expanded(
-                      //   child: OutlinedRoundedButton(
-                      //     key: const Key('BackButton'),
-                      //     maxWidth: null,
-                      //     title: const Text(
-                      //       'Back',
-                      //       overflow: TextOverflow.ellipsis,
-                      //       maxLines: 1,
-                      //       style: TextStyle(color: Colors.white),
-                      //     ),
-                      //     onPressed: () => c.stage.value = null,
-                      //     color: const Color(0xFF63B4FF),
-                      //   ),
-                      // ),
-                      // const SizedBox(width: 10),
-                      Expanded(
-                        child: Obx(() {
-                          bool enabled = (c.selectedContacts.isNotEmpty ||
-                                  c.selectedUsers.isNotEmpty ||
-                                  c.selectedChats.isNotEmpty) &&
-                              c.status.value.isEmpty;
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Expanded(
+              child: Obx(() {
+                if (c.chats.isEmpty && c.contacts.isEmpty && c.users.isEmpty) {
+                  if (c.searchStatus.value.isSuccess) {
+                    return const Center(child: Text('Nothing was found'));
+                  } else if (c.searchStatus.value.isEmpty) {
+                    return const Center(
+                      child: Text('Use search to find an user or a chat'),
+                    );
+                  }
 
-                          return OutlinedRoundedButton(
-                            key: const Key('AddDialogMembersButton'),
-                            maxWidth: null,
-                            title: Text(
-                              'Create group',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: TextStyle(
-                                color: enabled ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            onPressed: enabled ? c.createGroup : null,
-                            color: enabled
-                                ? const Color(0xFF63B4FF)
-                                : const Color(0xFFEEEEEE),
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return FlutterListView(
+                  controller: c.controller,
+                  // shrinkWrap: true,
+                  delegate: FlutterListViewDelegate(
+                    (context, i) {
+                      dynamic e = c.getIndex(i);
+
+                      if (e is RxUser) {
+                        return Obx(() {
+                          return _tile(
+                            user: e,
+                            selected: c.selectedUsers.contains(e),
+                            onTap: () => c.selectUser(e),
                           );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              ];
+                        });
+                      } else if (e is RxChatContact) {
+                        return Obx(() {
+                          return _tile(
+                            contact: e,
+                            selected: c.selectedContacts.contains(e),
+                            onTap: () => c.selectContact(e),
+                          );
+                        });
+                      } else if (e is RxChat) {
+                        return Obx(() {
+                          return _chat(
+                            chat: e,
+                            selected: c.selectedChats.contains(e),
+                            onTap: () => c.selectChat(e),
+                          );
+                        });
+                      }
 
-              child = Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
+                      return Container();
+                    },
+                    childCount:
+                        c.contacts.length + c.users.length + c.chats.length,
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Obx(() {
+                      bool enabled = (c.selectedContacts.isNotEmpty ||
+                              c.selectedUsers.isNotEmpty ||
+                              c.selectedChats.isNotEmpty) &&
+                          c.status.value.isEmpty;
+
+                      return OutlinedRoundedButton(
+                        key: const Key('AddDialogMembersButton'),
+                        maxWidth: null,
+                        title: Text(
+                          'Create group',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: enabled ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        onPressed: enabled ? c.createGroup : null,
+                        color: enabled
+                            ? const Color(0xFF63B4FF)
+                            : const Color(0xFFEEEEEE),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ];
+
+          Widget child = Stack(
+            children: [
+              Container(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 constraints: const BoxConstraints(maxHeight: 650),
-                // height: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    // const SizedBox(height: 25),
                     const SizedBox(height: 16),
                     ...children,
                     const SizedBox(height: 16),
                   ],
                 ),
-              );
-              break;
-          }
+              ),
+              Positioned.fill(
+                child: Obx(() {
+                  return AnimatedSwitcher(
+                    duration: 300.milliseconds,
+                    child: c.status.value.isLoading
+                        ? Container(
+                            color: const Color(0x33000000),
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : const IgnorePointer(child: SizedBox()),
+                  );
+                }),
+              ),
+            ],
+          );
 
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),

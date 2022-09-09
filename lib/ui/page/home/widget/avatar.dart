@@ -412,9 +412,11 @@ extension _InitialsExtension on String {
   String initials() {
     List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
 
-    if (words.length >= 3) {
-      return '${words[0][0]}${words[1][0]}${words[2][0]}'.toUpperCase();
-    } else if (words.length >= 2) {
+    // if (words.length >= 3) {
+    //   return '${words[0][0]}${words[1][0]}${words[2][0]}'.toUpperCase();
+    // } else
+
+    if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
     } else if (words.isNotEmpty) {
       if (words[0].length >= 2) {
