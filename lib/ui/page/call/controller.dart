@@ -23,6 +23,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/page/call/participant/view.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -635,7 +637,7 @@ class CallController extends GetxController {
 
     panel = RxList([
       SettingsButton(this),
-      AddMemberCallButton(this),
+      ParticipantsButton(this),
       HandButton(this),
       ScreenButton(this),
       RemoteVideoButton(this),
@@ -1075,20 +1077,21 @@ class CallController extends GetxController {
   /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
   /// [AddDialogMemberView].
   Future<dynamic> openAddMember(BuildContext context) {
-    if (isGroup) {
-      return showDialog(
-        context: context,
-        builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
-      );
-    } else if (isDialog) {
-      return showDialog(
-        context: context,
-        builder: (_) =>
-            AddDialogMemberView(chat.value!.chat.value.id, _currentCall),
-      );
-    }
-
-    return Future.value();
+    keepUi(false);
+    return ModalPopup.show(
+      context: context,
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      mobilePadding: const EdgeInsets.all(0),
+      child: ParticipantView(_currentCall, duration),
+    );
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].

@@ -18,6 +18,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '/util/platform_utils.dart';
+
 /// Application themes constants.
 class Themes {
   /// Returns a light theme.
@@ -27,26 +29,65 @@ class Themes {
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
-          background: Colors.white,
+          // background: Colors.white,
+          // background: const Color(0xFFFAFAFA),
+          background: const Color(0xFFF5F8FA),
           onBackground: Colors.black,
         );
 
-    SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-        ? SystemUiOverlayStyle.dark
-        : SystemUiOverlayStyle.light);
+    if (PlatformUtils.isAndroid) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Color(0xFFF0F0F0),
+        ),
+      );
+    } else {
+      SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark
+          : SystemUiOverlayStyle.light);
+    }
 
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            callDock: const Color(0xFF1E88E5),
+            cardBorder: Border.all(
+              color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            secondaryBorder: Border.all(
+              color: const Color(0xFFDADADA),
+              width: 0.5,
+            ),
+            primaryBorder: Border.all(
+              color: const Color(0xFFB9D9FA),
+              width: 0.5,
+            ),
+            cardRadius: BorderRadius.circular(14),
+            cardColor: Colors.white.withOpacity(0.95),
+            cardBlur: 5,
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            unreadMessageThickness: 4,
+            systemMessageTextStyle: GoogleFonts.roboto(
+              color: const Color(0xFF888888),
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
+            systemMessageBorder:
+                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
+            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: colors.background,
+        scaffoldBackgroundColor: Colors.transparent,
+        //colors.background,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
@@ -64,39 +105,84 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
+              titleTextStyle: GoogleFonts.roboto(
+                color: Colors.black,
+                fontWeight: FontWeight.w300,
+                fontSize: 18,
+              ),
             ),
         tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: ThemeData.light()
-            .primaryTextTheme
-            .copyWith(headline6: TextStyle(color: colors.primary)),
+        primaryTextTheme: GoogleFonts.robotoTextTheme(),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
+          headline1: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 24,
+          ),
+          headline2: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 15.4,
+          ),
           headline3: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: TextStyle(color: colors.primary, fontSize: 24),
-          headline5: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w400,
-            fontSize: 20,
+          headline4: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 18,
           ),
-          caption: const TextStyle(
+          headline5: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+            fontSize: 18,
+          ),
+          headline6: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          caption: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 13,
+          ),
+          button: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 24 * 0.7,
+          ),
+          overline: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 17,
           ),
-          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
+          subtitle1: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          subtitle2: TextStyle(
+            color: colors.primary,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
           bodyText1: const TextStyle(
             color: Colors.black,
             fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          bodyText2: const TextStyle(
+            color: Colors.black,
+            fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -170,7 +256,7 @@ class Themes {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: colors.secondary,
+            foregroundColor: colors.secondary,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
@@ -180,9 +266,20 @@ class Themes {
             ),
           ),
         ),
-        scrollbarTheme: ThemeData.light()
-            .scrollbarTheme
-            .copyWith(thickness: MaterialStateProperty.all(6)),
+        sliderTheme: ThemeData.light().sliderTheme.copyWith(
+              trackHeight: 2,
+              activeTrackColor: Colors.blue,
+              inactiveTrackColor: Colors.white.withOpacity(.5),
+              thumbColor: Colors.blue,
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 6,
+              ),
+              overlayShape: SliderComponentShape.noOverlay,
+            ),
+        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
+              thickness: MaterialStateProperty.all(6),
+              // radius: Radius.zero,
+            ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
@@ -234,21 +331,66 @@ class CustomBoxShadow extends BoxShadow {
   }
 }
 
-/// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.callDock,
+    required this.cardRadius,
+    required this.cardBorder,
+    required this.primaryBorder,
+    required this.secondaryBorder,
+    required this.cardBlur,
+    required this.cardColor,
     required this.boldBody,
+    required this.unreadMessageThickness,
+    required this.systemMessageTextStyle,
+    required this.systemMessageBorder,
+    required this.systemMessageColor,
   });
 
-  /// [TextStyle] to use in the body to make content readable.
+  final Color callDock;
+  final BorderRadius cardRadius;
+  final Border cardBorder;
+  final Border primaryBorder;
+  final Border secondaryBorder;
+  final double cardBlur;
+  final Color cardColor;
   final TextStyle boldBody;
+
+  final double unreadMessageThickness;
+  final TextStyle systemMessageTextStyle;
+  final Border systemMessageBorder;
+  final Color systemMessageColor;
 
   @override
   ThemeExtension<Style> copyWith({
+    Color? callDock,
+    BorderRadius? cardRadius,
+    Border? cardBorder,
+    Border? primaryBorder,
+    Border? secondaryBorder,
+    double? cardBlur,
+    Color? cardColor,
     TextStyle? boldBody,
+    double? unreadMessageThickness,
+    TextStyle? systemMessageTextStyle,
+    Border? systemMessageBorder,
+    Color? systemMessageColor,
   }) {
     return Style(
+      callDock: callDock ?? this.callDock,
+      cardRadius: cardRadius ?? this.cardRadius,
+      cardBorder: cardBorder ?? this.cardBorder,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
+      cardBlur: cardBlur ?? this.cardBlur,
+      cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
+      unreadMessageThickness:
+          unreadMessageThickness ?? this.unreadMessageThickness,
+      systemMessageTextStyle:
+          systemMessageTextStyle ?? this.systemMessageTextStyle,
+      systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
+      systemMessageColor: systemMessageColor ?? this.systemMessageColor,
     );
   }
 
@@ -259,7 +401,25 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      callDock: Color.lerp(callDock, other.callDock, t)!,
+      cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
+      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
+      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      systemMessageTextStyle: TextStyle.lerp(
+        systemMessageTextStyle,
+        other.systemMessageTextStyle,
+        t,
+      )!,
+      unreadMessageThickness:
+          unreadMessageThickness * (1.0 - t) + other.unreadMessageThickness * t,
+      systemMessageBorder:
+          Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
+      systemMessageColor:
+          Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
     );
   }
 }

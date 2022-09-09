@@ -207,8 +207,8 @@ class SettingsButton extends CallButton {
 }
 
 /// [CallButton] invoking the [CallController.openAddMember].
-class AddMemberCallButton extends CallButton {
-  const AddMemberCallButton(CallController c) : super(c);
+class ParticipantsButton extends CallButton {
+  const ParticipantsButton(CallController c) : super(c);
 
   @override
   String get hint => 'btn_add_participant'.l10n;

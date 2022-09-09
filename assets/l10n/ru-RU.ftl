@@ -150,6 +150,10 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_participants = Список участников
+btn_participants_desc =
+    Список
+    участников
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку

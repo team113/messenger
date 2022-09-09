@@ -16,8 +16,13 @@
 
 import 'dart:math';
 
+import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
+import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/repository/user.dart';
 
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -42,6 +47,8 @@ class AvatarWidget extends StatelessWidget {
     this.title,
     this.color,
     this.opacity = 1,
+    this.showBadge = false,
+    this.isAway = false,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -65,6 +72,42 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
+  static Widget fromRxContact(
+      RxChatContact? contact, {
+        Avatar? avatar,
+        double? radius,
+        double? maxRadius,
+        double? minRadius,
+        double opacity = 1,
+      }) {
+    if (contact == null) {
+      return AvatarWidget.fromContact(
+        contact?.contact.value,
+        avatar: avatar,
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(() {
+      return AvatarWidget(
+        showBadge: contact.user.value?.user.value.online == true,
+        isAway: contact.user.value?.user.value.presence == Presence.away,
+        avatar: contact.user.value?.user.value.avatar,
+        title: '${contact.contact.value.name}',
+        color: (contact.user.value == null)
+            ? contact.contact.value.name.val.sum()
+            : contact.user.value?.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    });
+  }
+
   /// Creates an [AvatarWidget] from the specified [myUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
@@ -86,12 +129,14 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [user].
   factory AvatarWidget.fromUser(
     User? user, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
   }) =>
       AvatarWidget(
+        key: key,
         avatar: user?.avatar,
         title: user?.name?.val ?? user?.num.val,
         color: user?.num.val.sum(),
@@ -100,6 +145,44 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
       );
+
+  /// Creates an [AvatarWidget] from the specified [user].
+  static Widget fromRxUser(
+    RxUser? user, {
+    Key? key,
+    double? radius,
+    double? maxRadius,
+    double? minRadius,
+    double opacity = 1,
+  }) {
+    if (user == null) {
+      return AvatarWidget(
+        key: key,
+        avatar: user?.user.value.avatar,
+        title: user?.user.value.name?.val ?? user?.user.value.num.val,
+        color: user?.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(
+      () => AvatarWidget(
+        key: key,
+        showBadge: user.user.value.online == true,
+        isAway: user.user.value.presence == Presence.away,
+        avatar: user.user.value.avatar,
+        title: user.user.value.name?.val ?? user.user.value.num.val,
+        color: user.user.value.num.val.sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      ),
+    );
+  }
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
@@ -187,13 +270,15 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
+  final bool showBadge;
+  final bool isAway;
+
   /// Avatar color swatches.
   static const List<Color> colors = [
     Colors.purple,
     Colors.deepPurple,
     Colors.indigo,
     Colors.blue,
-    Colors.lightBlue,
     Colors.cyan,
     Colors.lightGreen,
     Colors.lime,
@@ -234,9 +319,10 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = colors[color! % colors.length];
+        gradient = AvatarWidget.colors[color! % AvatarWidget.colors.length];
       } else if (title != null) {
-        gradient = colors[(title!.hashCode) % colors.length];
+        gradient =
+        AvatarWidget.colors[(title!.hashCode) % AvatarWidget.colors.length];
       } else {
         gradient = const Color(0xFF555555);
       }
@@ -246,44 +332,67 @@ class AvatarWidget extends StatelessWidget {
       var maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       var maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      return Container(
-        constraints: BoxConstraints(
-          minHeight: minHeight,
-          minWidth: minWidth,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [gradient.lighten(), gradient],
+      double badgeSize = max(5, maxWidth / 12);
+      if (maxWidth < 40) {
+        badgeSize = maxWidth / 8;
+      }
+
+      return Badge(
+        showBadge: showBadge,
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
           ),
-          image: avatar == null
-              ? null
-              : DecorationImage(
-                  image: NetworkImage(
-                    '${Config.url}:${Config.port}/files${avatar?.original}',
-                  ),
-                  fit: BoxFit.cover,
-                  isAntiAlias: true,
-                ),
-          shape: BoxShape.circle,
+          padding: EdgeInsets.all(badgeSize),
         ),
-        child: avatar == null
-            ? LayoutBuilder(builder: (context, constraints) {
-                return Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                );
-              })
-            : null,
+        padding: EdgeInsets.all(badgeSize / 3),
+        badgeColor: Colors.white,
+        animationType: BadgeAnimationType.scale,
+        position: BadgePosition.bottomEnd(
+          bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+          end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
+        ),
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
+            ),
+            image: avatar == null
+                ? null
+                : DecorationImage(
+              image: NetworkImage(
+                '${Config.url}:${Config.port}/files${avatar?.original}',
+              ),
+              fit: BoxFit.cover,
+              isAntiAlias: true,
+            ),
+            shape: BoxShape.circle,
+          ),
+          child: avatar == null
+              ? LayoutBuilder(builder: (context, constraints) {
+            return Center(
+              child: Text(
+                (title ?? '??').initials(),
+                style: Theme.of(context).textTheme.headline4?.copyWith(
+                  fontSize: 15 * (maxWidth / 40.0),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          })
+              : null,
+        ),
       );
     });
   }
@@ -317,8 +426,8 @@ extension SumStringExtension on String {
   int sum() => codeUnits.fold(0, (a, b) => a + b);
 }
 
-/// Extension adding an ability to lighten a color.
-extension _LightenColorExtension on Color {
+/// Extension adding an ability to lighten or darken a color.
+extension LightenColorExtension on Color {
   /// Returns a lighten variant of this color.
   Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
@@ -326,6 +435,17 @@ extension _LightenColorExtension on Color {
     final hsl = HSLColor.fromColor(this);
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+
+  /// Returns a darken variant of this color.
+  Color darken([double amount = .2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
   }
