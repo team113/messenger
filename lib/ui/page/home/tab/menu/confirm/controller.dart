@@ -22,7 +22,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
 import '/ui/widget/text_field.dart';
 
-/// Possible [ConfirmLogoutViewStage] flow stage.
+/// Possible [ConfirmLogoutView] flow stage.
 enum ConfirmLogoutViewStage {
   password,
   success,

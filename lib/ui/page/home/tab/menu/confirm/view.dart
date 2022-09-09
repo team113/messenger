@@ -25,7 +25,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View for alerting about password existence and password setting.
+/// View for alerting password being unset.
 ///
 /// Intended to be displayed with the [show] method.
 class ConfirmLogoutView extends StatelessWidget {
@@ -154,9 +154,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         maxWidth: null,
                         title: Text(
                           'btn_set_password'.l10n,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
+                          style: const TextStyle(color: Colors.white),
                         ),
                         onPressed: () =>
                             c.stage.value = ConfirmLogoutViewStage.password,
