@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -202,6 +203,7 @@ class ContactsTabView extends StatelessWidget {
           // TODO: Open [Routes.contact] page when it's implemented.
           ? () => router.user(contact.contact.value.users.first.id)
           : null,
+
       actions: [
         ContextMenuButton(
           label: 'btn_change_contact_name'.l10n,
@@ -238,6 +240,20 @@ class ContactsTabView extends StatelessWidget {
       //     ),
       //   ]
       // ],
+      subtitle: [
+        const SizedBox(height: 5),
+        Obx(() {
+          final subtitle = contact.user.value?.user.value.getStatus();
+          if (subtitle != null) {
+            return Text(
+              subtitle,
+              style: const TextStyle(color: Color(0xFF888888)),
+            );
+          }
+
+          return Container();
+        }),
+      ],
     );
 
     return ContextMenuRegion(

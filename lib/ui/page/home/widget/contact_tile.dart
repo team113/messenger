@@ -16,8 +16,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -29,6 +31,7 @@ class ContactTile extends StatelessWidget {
     Key? key,
     this.contact,
     this.user,
+    this.myUser,
     this.leading = const [],
     this.trailing = const [],
     this.onTap,
@@ -37,12 +40,13 @@ class ContactTile extends StatelessWidget {
     this.actions,
     this.canDelete = false,
     this.onDelete,
-    this.subtitle,
+    this.subtitle = const [],
     this.preventContextMenu = false,
   }) : super(key: key);
 
   final RxChatContact? contact;
   final RxUser? user;
+  final MyUser? myUser;
 
   final List<Widget> leading;
   final List<Widget> trailing;
@@ -57,7 +61,7 @@ class ContactTile extends StatelessWidget {
   final bool preventContextMenu;
   final List<ContextMenuButton>? actions;
 
-  final Widget? subtitle;
+  final List<Widget> subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +71,7 @@ class ContactTile extends StatelessWidget {
       height: 84,
       child: ContextMenuRegion(
         key: contact != null || user != null
-            ? Key('ContextMenuRegion_${contact?.id ?? user?.id}')
+            ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
             : null,
         preventContextMenu: preventContextMenu,
         actions: actions,
@@ -88,7 +92,7 @@ class ContactTile extends StatelessWidget {
               onTap: onTap,
               hoverColor: selected
                   ? const Color(0x00D7ECFF)
-                  : const Color(0xFFD7ECFF).withOpacity(0.8),
+                  : const Color.fromARGB(255, 244, 249, 255),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
                 child: Row(
@@ -96,8 +100,10 @@ class ContactTile extends StatelessWidget {
                     ...leading,
                     if (contact != null)
                       AvatarWidget.fromRxContact(contact, radius: 26)
+                    else if (user != null)
+                      AvatarWidget.fromRxUser(user, radius: 26)
                     else
-                      AvatarWidget.fromRxUser(user, radius: 26),
+                      AvatarWidget.fromMyUser(myUser, radius: 26),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -114,7 +120,11 @@ class ContactTile extends StatelessWidget {
                                       contact?.user.value?.user.value.num.val ??
                                       user?.user.value.name?.val ??
                                       user?.user.value.num.val ??
-                                      '...',
+                                      myUser?.name?.val ??
+                                      myUser?.num.val ??
+                                      (myUser == null
+                                          ? '...'
+                                          : 'btn_your_profile'.l10n),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: Theme.of(context).textTheme.headline5,
@@ -122,22 +132,7 @@ class ContactTile extends StatelessWidget {
                               ),
                             ],
                           ),
-                          if (contact?.user.value != null) ...[
-                            const SizedBox(height: 5),
-                            Obx(() {
-                              final subtitle =
-                                  contact?.user.value?.user.value.getStatus();
-                              if (subtitle != null) {
-                                return Text(
-                                  subtitle,
-                                  style:
-                                      const TextStyle(color: Color(0xFF888888)),
-                                );
-                              }
-
-                              return Container();
-                            }),
-                          ],
+                          ...subtitle,
                         ],
                       ),
                     ),

@@ -16,7 +16,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -42,99 +44,165 @@ class MenuTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
-      builder: (MenuTabController c) => Scaffold(
-        // backgroundColor: Colors.white,
-        // backgroundColor: const Color(0xFFF5F8FA),
-        appBar: CustomAppBar.from(
-          context: context,
-          // backgroundColor: const Color(0xFFF9FBFB),
-          title: Text(
-            'label_menu'.l10n,
-            style: Theme.of(context).textTheme.caption?.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 18,
+      builder: (MenuTabController c) {
+        Widget button({
+          Key? key,
+          Widget? leading,
+          required Widget title,
+          void Function()? onTap,
+        }) {
+          Style style = Theme.of(context).extension<Style>()!;
+          return Padding(
+            key: key,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: SizedBox(
+              height: 55,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  border: style.cardBorder,
+                  color: Colors.transparent,
                 ),
-          ),
-          // bottom: PreferredSize(
-          //   preferredSize: const Size.fromHeight(0.5),
-          //   child: Container(
-          //     color: const Color(0xFFE0E0E0),
-          //     height: 0.5,
-          //   ),
-          // ),
-        ),
-        body: Obx(
-          () => ListView(
-            controller: ScrollController(),
-            children: [
-              const SizedBox(height: 10),
-              Material(
-                type: MaterialType.transparency,
-                child: InkWell(
-                  onTap: router.me,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                    child: Row(
-                      children: [
-                        AvatarWidget.fromMyUser(c.myUser.value, radius: 25),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            c.myUser.value?.name?.val ??
-                                'btn_your_profile'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.headline5,
+                child: Material(
+                  type: MaterialType.card,
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                  child: InkWell(
+                    borderRadius: style.cardRadius,
+                    onTap: onTap,
+                    hoverColor: const Color.fromARGB(255, 244, 249, 255),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                      child: Row(
+                        children: [
+                          if (leading != null) ...[
+                            const SizedBox(width: 12),
+                            leading,
+                            const SizedBox(width: 18),
+                          ],
+                          Expanded(
+                            child: DefaultTextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5!,
+                              child: title,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-              // ListTile(
-              //   key: const Key('MyProfileButton'),
-              //   title: Text(c.myUser.value?.name?.val ?? 'btn_your_profile'.l10n),
-              //   leading: AvatarWidget.fromMyUser(c.myUser.value),
-              //   onTap: router.me,
-              // ),
-              ...divider,
-              ListTile(
-                key: const Key('PersonalizationButton'),
-                title: Text('btn_personalize'.l10n),
-                leading: const Icon(Icons.design_services),
-                onTap: router.personalization,
-              ),
-              ListTile(
-                key: const Key('SettingsButton'),
-                title: Text('btn_settings'.l10n),
-                leading: const Icon(Icons.settings),
-                onTap: router.settings,
-              ),
-              ...divider,
-              ListTile(
-                key: const Key('DownloadButton'),
-                title: Text('Download application'.l10n),
-                leading: const Icon(Icons.download),
-                onTap: router.download,
-              ),
-              ...divider,
-              ListTile(
-                key: const Key('LogoutButton'),
-                title: Text('btn_logout'.l10n),
-                leading: const Icon(Icons.logout),
-                onTap: () async {
-                  if (await c.confirmLogout()) {
-                    router.go(await c.logout());
-                    router.tab = HomeTab.chats;
-                  }
-                },
-              ),
-            ],
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: CustomAppBar.from(
+            context: context,
+            title: Text(
+              'label_menu'.l10n,
+              style: Theme.of(context).textTheme.caption?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 18,
+                  ),
+            ),
           ),
-        ),
-      ),
+          body: Obx(() {
+            return ListView(
+              controller: ScrollController(),
+              children: [
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ContactTile(
+                    darken: 0,
+                    myUser: c.myUser.value,
+                    onTap: router.me,
+                    subtitle: const [
+                      SizedBox(height: 5),
+                      Text(
+                        'В сети',
+                        style: TextStyle(color: Color(0xFF888888)),
+                      ),
+                    ],
+                  ),
+                ),
+                // Material(
+                //   type: MaterialType.transparency,
+                //   child: InkWell(
+                //     onTap: router.me,
+                //     child: Padding(
+                //       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                //       child: Row(
+                //         children: [
+                //           AvatarWidget.fromMyUser(c.myUser.value, radius: 25),
+                //           const SizedBox(width: 12),
+                //           Expanded(
+                //             child: Text(
+                //               c.myUser.value?.name?.val ??
+                //                   'btn_your_profile'.l10n,
+                //               overflow: TextOverflow.ellipsis,
+                //               maxLines: 1,
+                //               style: Theme.of(context).textTheme.headline5,
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                const SizedBox(height: 18),
+                button(
+                  leading: const Icon(
+                    Icons.design_services,
+                    color: Color(0xFF63B4FF),
+                  ),
+                  title: Text('btn_personalize'.l10n),
+                  onTap: router.personalization,
+                ),
+                const SizedBox(height: 8),
+                button(
+                  key: const Key('SettingsButton'),
+                  leading: const Icon(
+                    Icons.settings,
+                    color: Color(0xFF63B4FF),
+                  ),
+                  title: Text('btn_settings'.l10n),
+                  onTap: router.settings,
+                ),
+                const SizedBox(height: 8),
+                button(
+                  key: const Key('DownloadButton'),
+                  leading: const Icon(
+                    Icons.download,
+                    color: Color(0xFF63B4FF),
+                  ),
+                  title: Text('Download application'.l10n),
+                  onTap: router.download,
+                ),
+                const SizedBox(height: 8),
+                button(
+                  key: const Key('LogoutButton'),
+                  leading: const Icon(
+                    Icons.design_services,
+                    color: Color(0xFF63B4FF),
+                  ),
+                  title: Text('btn_logout'.l10n),
+                  onTap: () async {
+                    if (await c.confirmLogout()) {
+                      router.go(await c.logout());
+                      router.tab = HomeTab.chats;
+                    }
+                  },
+                ),
+              ],
+            );
+          }),
+        );
+      },
     );
   }
 }
