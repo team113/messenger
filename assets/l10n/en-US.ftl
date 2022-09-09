@@ -445,3 +445,5 @@ label_video = Video
 label_video_call = Video call
 label_you = You
 label_you_were_added_to_group = You were added to the group
+btn_personalize = Personalization
+label_personalization = Personalization

@@ -27,6 +27,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../domain/repository/settings.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -67,7 +68,8 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService, {
+    this._userService, 
+    this._settingsRepository,{
     this.itemId,
   });
 
@@ -179,6 +181,8 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -191,6 +195,8 @@ class ChatController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].

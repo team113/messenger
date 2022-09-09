@@ -37,6 +37,7 @@ import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
+import 'provider/hive/background.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/gallery_item.dart';
@@ -77,6 +78,7 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
+  static const personalization = '/personalization';
   static const settings = '/settings';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
@@ -386,11 +388,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+                deps.put(BackgroundHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find()),
+                SettingsRepository(Get.find(), Get.find(), Get.find()),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
@@ -470,11 +473,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+              deps.put(BackgroundHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find()),
+              SettingsRepository(Get.find(), Get.find(), Get.find()),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -564,6 +568,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.me ||
         _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
+        _state.route == Routes.personalization ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -630,6 +635,8 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
+
+  void personalization() => go(Routes.personalization);
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

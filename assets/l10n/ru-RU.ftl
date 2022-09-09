@@ -459,3 +459,5 @@ label_video = Видео
 label_video_call = Видеозвонок
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+btn_personalize = Персонализация
+label_personalization = Персонализация

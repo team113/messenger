@@ -89,6 +89,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         itemId: widget.itemId,
       ),
       tag: widget.id.val,

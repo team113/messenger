@@ -27,6 +27,7 @@ import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
+import 'page/personalization/view.dart';
 import 'page/settings/media/controller.dart';
 import 'page/settings/view.dart';
 import 'page/user/view.dart';
@@ -60,6 +61,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
+        ));
+      } else if (route == Routes.personalization) {
+        pages.add(const MaterialPage(
+          key: ValueKey('PersonalizationPage'),
+          name: Routes.personalization,
+          child: PersonalizationView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const MaterialPage(
