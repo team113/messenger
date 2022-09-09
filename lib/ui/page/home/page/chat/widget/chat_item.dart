@@ -157,7 +157,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
-
     super.initState();
   }
 
@@ -194,20 +193,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     Style style = Theme.of(context).extension<Style>()!;
     return DefaultTextStyle(
       style: style.boldBody,
-      child: SelectionArea(
-        child: Obx(() {
-          if (widget.item.value is ChatMessage) {
-            return _renderAsChatMessage(context);
-          } else if (widget.item.value is ChatForward) {
-            return _renderAsChatForward(context);
-          } else if (widget.item.value is ChatCall) {
-            return _renderAsChatCall(context);
-          } else if (widget.item.value is ChatMemberInfo) {
-            return _renderAsChatMemberInfo();
-          }
-          throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
-        }),
-      ),
+      child: Obx(() {
+        if (widget.item.value is ChatMessage) {
+          return _renderAsChatMessage(context);
+        } else if (widget.item.value is ChatForward) {
+          return _renderAsChatForward(context);
+        } else if (widget.item.value is ChatCall) {
+          return _renderAsChatCall(context);
+        } else if (widget.item.value is ChatMemberInfo) {
+          return _renderAsChatMemberInfo();
+        }
+        throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
+      }),
     );
   }
 
@@ -244,7 +241,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         const SizedBox(height: 8),
         SwipeableStatus(
           animation: widget.animation,
-          asStack: !fromMe,
+          asStack: true,
           isSent: isSent && fromMe,
           isDelivered: isSent &&
               fromMe &&
@@ -601,6 +598,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMessage(BuildContext context) {
     var msg = widget.item.value as ChatMessage;
 
+    String? text = msg.text?.val.replaceAll(' ', '');
+    if (text?.isEmpty == true) {
+      text = null;
+    } else {
+      text = msg.text?.val;
+    }
+
     bool ignoreFirstRmb = msg.text?.val.isNotEmpty ?? false;
     Style style = Theme.of(context).extension<Style>()!;
 
@@ -634,7 +638,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         } else if (replied.text == null && replied.attachments.isNotEmpty) {
           avatarOffset = 86 - 4;
         } else if (replied.text != null) {
-          avatarOffset = 55 - 4 + 8;
+          if (msg.attachments.isEmpty && text == null) {
+            avatarOffset = 59 - 4;
+          } else {
+            avatarOffset = 55 - 4 + 8;
+          }
         }
       }
     }
@@ -713,13 +721,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        8,
+                        msg.attachments.isEmpty && text == null ? 4 : 8,
                         9,
-                        files.isEmpty &&
-                                attachments.isNotEmpty &&
-                                msg.text == null
+                        files.isEmpty && attachments.isNotEmpty && text == null
                             ? 8
-                            : files.isNotEmpty && msg.text == null
+                            : files.isNotEmpty && text == null
                                 ? 0
                                 : 4,
                       ),
@@ -731,7 +737,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     ),
                   ),
-                if (msg.text != null)
+                if (text != null)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
                     opacity: isRead
@@ -759,7 +765,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ignoring: ContextMenuOverlay.of(context).id.value !=
                                 widget.item.value.id.val,
                             child: SelectableText(
-                              msg.text!.val,
+                              text!,
                               style: style.boldBody,
                             ),
                           );
@@ -786,14 +792,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (attachments.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.only(
-                      topLeft: msg.text != null ||
+                      topLeft: text != null ||
                               msg.repliesTo != null ||
                               (!fromMe && widget.chat.value?.isGroup == true)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
-                      topRight: msg.text != null ||
+                      topRight: text != null ||
                               msg.repliesTo != null ||
                               (!fromMe && widget.chat.value?.isGroup == true)
                           ? Radius.zero
@@ -1804,7 +1810,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   Widget _buildDelete2(ChatItem item) {
     ThemeData theme = Theme.of(context);
-    Style style = theme.extension<Style>()!;
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 

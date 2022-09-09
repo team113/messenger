@@ -292,8 +292,15 @@ class ChatsTabView extends StatelessWidget {
             desc.write('${'label_you'.l10n}: ');
           }
 
-          if (item.text != null) {
-            desc.write(item.text!.val);
+          String? text = item.text?.val.replaceAll(' ', '');
+          if (text?.isEmpty == true) {
+            text = null;
+          } else {
+            text = item.text?.val;
+          }
+
+          if (text != null) {
+            desc.write(text);
             if (item.attachments.isNotEmpty) {
               desc.write(
                   ' [${item.attachments.length} ${'label_attachments'.l10n}]');
@@ -301,6 +308,8 @@ class ChatsTabView extends StatelessWidget {
           } else if (item.attachments.isNotEmpty) {
             desc.write(
                 '[${item.attachments.length} ${'label_attachments'.l10n}]');
+          } else {
+            desc.write('[Quoted message]');
           }
 
           subtitle = [

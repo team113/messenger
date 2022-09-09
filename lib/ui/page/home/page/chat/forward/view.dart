@@ -20,11 +20,14 @@ import 'dart:ui';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -60,6 +63,9 @@ class ChatForwardView extends StatelessWidget {
     Key? key,
     required this.from,
     required this.quotes,
+    this.noEditing = false,
+    this.text,
+    this.attachments,
   }) : super(key: key);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -68,12 +74,20 @@ class ChatForwardView extends StatelessWidget {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
+  final bool noEditing;
+
+  final String? text;
+  final RxList<Attachment>? attachments;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
     ChatId from,
-    List<ChatItemQuote> quotes,
-  ) {
+    List<ChatItemQuote> quotes, {
+    bool noEditing = false,
+    String? text,
+    RxList<Attachment>? attachments,
+  }) {
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
@@ -87,7 +101,13 @@ class ChatForwardView extends StatelessWidget {
       ),
       mobilePadding: const EdgeInsets.all(0),
       desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-      child: ChatForwardView(from: from, quotes: quotes),
+      child: ChatForwardView(
+        from: from,
+        quotes: quotes,
+        noEditing: noEditing,
+        attachments: attachments,
+        text: text,
+      ),
     );
   }
 
@@ -97,8 +117,11 @@ class ChatForwardView extends StatelessWidget {
       init: ChatForwardController(
         Get.find(),
         Get.find(),
+        Get.find(),
         from: from,
         quotes: quotes,
+        attachments: attachments,
+        text: text,
       ),
       builder: (ChatForwardController c) {
         ThemeData theme = Theme.of(context);
@@ -113,86 +136,223 @@ class ChatForwardView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Center(
+              child: ReactiveTextField(
+                state: c.search,
+                label: 'Search',
+                style: thin,
+                onChanged: () => c.query.value = c.search.text,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: SizedBox(
+              height: 15,
+              child: Row(
+                children: [
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      children: [
+                        WidgetButton(
+                          onPressed: () => c.jumpTo(0),
+                          child: Obx(() {
+                            return Text(
+                              'Chats',
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 0
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 20),
+                        WidgetButton(
+                          onPressed: () => c.jumpTo(1),
+                          child: Obx(() {
+                            return Text(
+                              'Contacts',
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 1
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Obx(() {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Selected: ',
+                          style: thin?.copyWith(fontSize: 15),
+                        ),
+                        Container(
+                          constraints: const BoxConstraints(minWidth: 14),
+                          child: Text(
+                            '${c.selectedContacts.length + c.selectedChats.length}',
+                            style: thin?.copyWith(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
           Expanded(
             child: Obx(() {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ListView(
+                child: FlutterListView(
                   // shrinkWrap: true,
                   primary: false,
-                  children: [
-                    ...c.chats.map(
-                      (e) {
-                        bool selected =
-                            c.selectedChats.contains(e.chat.value.id);
-                        return _chat(
-                          context,
-                          chat: e,
-                          onTap: () {
-                            if (selected) {
-                              c.selectedChats
-                                  .removeWhere((m) => m == e.chat.value.id);
-                            } else {
-                              c.selectedChats.add(e.chat.value.id);
-                            }
-                          },
-                          selected: c.selectedChats.contains(e.chat.value.id),
-                        );
-                      },
-                    )
-                  ],
+                  controller: c.controller,
+                  delegate: FlutterListViewDelegate(
+                    (context, i) {
+                      dynamic e = c.getIndex(i);
+
+                      if (e is RxChatContact) {
+                        return Obx(() {
+                          bool selected = c.selectedContacts.contains(e);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 3,
+                            ),
+                            child: ContactTile(
+                              contact: e,
+                              onTap: () => c.selectContact(e),
+                              selected: selected,
+                              trailing: [
+                                SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: selected
+                                        ? const CircleAvatar(
+                                            backgroundColor: Color(0xFF63B4FF),
+                                            radius: 12,
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 14,
+                                            ),
+                                          )
+                                        : const CircleAvatar(
+                                            backgroundColor: Color(0xFFD7D7D7),
+                                            radius: 12,
+                                          ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                      } else if (e is RxChat) {
+                        return Obx(() {
+                          return _chat(
+                            context,
+                            chat: e,
+                            selected: c.selectedChats.contains(e),
+                            onTap: () => c.selectChat(e),
+                          );
+                        });
+                      }
+
+                      return Container();
+                    },
+                    childCount: c.contacts.length + c.chats.length,
+                  ),
                 ),
               );
             }),
           ),
-          // const SizedBox(height: 18),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                shadowColor: const Color(0x55000000),
-                iconTheme: const IconThemeData(color: Colors.blue),
-                inputDecorationTheme: InputDecorationTheme(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusColor: Colors.white,
-                  fillColor: Colors.white,
-                  hoverColor: Colors.transparent,
-                  filled: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.fromLTRB(
-                    15,
-                    PlatformUtils.isDesktop ? 30 : 23,
-                    15,
-                    0,
+          if (noEditing) ...[
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: OutlinedRoundedButton(
+                maxWidth: null,
+                title: const Text(
+                  'Send',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  c.forward();
+                  Navigator.of(context).pop(true);
+                },
+                color: const Color(0xFF63B4FF),
+              ),
+            ),
+            const SizedBox(height: 18),
+          ] else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  shadowColor: const Color(0x55000000),
+                  iconTheme: const IconThemeData(color: Colors.blue),
+                  inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusColor: Colors.white,
+                    fillColor: Colors.white,
+                    hoverColor: Colors.transparent,
+                    filled: true,
+                    isDense: true,
+                    contentPadding: EdgeInsets.fromLTRB(
+                      15,
+                      PlatformUtils.isDesktop ? 30 : 23,
+                      15,
+                      0,
+                    ),
                   ),
                 ),
+                child: _sendField(context, c),
               ),
-              child: _sendField(context, c),
             ),
-          ),
         ];
 
         return Container(
@@ -535,196 +695,6 @@ class ChatForwardView extends StatelessWidget {
                       ),
                     )
                   : const SizedBox(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns a visual representation of the provided [item] to be forwarded.
-  Widget _forwardedMessage2(
-    BuildContext context,
-    ChatForwardController c,
-    ChatItem item,
-  ) {
-    Style style = Theme.of(context).extension<Style>()!;
-
-    Widget? content;
-    List<Widget> additional = [];
-
-    if (item is ChatMessage) {
-      var desc = StringBuffer();
-
-      if (item.text != null) {
-        desc.write(item.text!.val);
-      }
-
-      if (item.attachments.isNotEmpty) {
-        additional = item.attachments.map((a) {
-          ImageAttachment? image = a is ImageAttachment ? a : null;
-          return Container(
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: const Color(0XFFF0F2F6),
-              borderRadius: BorderRadius.circular(4),
-              image: image == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.small}'),
-                    ),
-            ),
-            width: 50,
-            height: 50,
-            child:
-                image == null ? const Icon(Icons.attach_file, size: 16) : null,
-          );
-        }).toList();
-      }
-
-      if (desc.isNotEmpty) {
-        content = Text(
-          desc.toString(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style.boldBody,
-        );
-      }
-    } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool fromMe = c.me == item.authorId;
-      bool isMissed = false;
-
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
-      } else {
-        title = item.authorId == c.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title, style: style.boldBody)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody
-                    .copyWith(color: const Color(0xFF888888), fontSize: 13),
-              ),
-            ),
-          ],
-        ],
-      );
-    } else if (item is ChatForward) {
-      // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
-    } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFE2E2E2),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: FutureBuilder<RxUser?>(
-                key: Key('BuilderRxUser_${item.id}'),
-                future: c.getUser(item.authorId),
-                builder: (context, snapshot) {
-                  Color color = item.authorId == c.me
-                      ? const Color(0xFF63B4FF)
-                      : AvatarWidget.colors[
-                          (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                              AvatarWidget.colors.length];
-
-                  return Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(Icons.reply, size: 30, color: color),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              left: BorderSide(width: 4, color: color),
-                            ),
-                          ),
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (snapshot.data != null)
-                                Obx(() {
-                                  return Text(
-                                    snapshot.data!.user.value.name?.val ??
-                                        snapshot.data!.user.value.num.val,
-                                    style:
-                                        style.boldBody.copyWith(color: color),
-                                  );
-                                })
-                              else
-                                Text(
-                                  '...',
-                                  style: style.boldBody.copyWith(color: color),
-                                ),
-                              if (content != null) ...[
-                                const SizedBox(height: 2),
-                                DefaultTextStyle.merge(
-                                  maxLines: 1,
-                                  child: content,
-                                ),
-                              ],
-                              if (additional.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Row(children: additional),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -1139,10 +1109,10 @@ class ChatForwardView extends StatelessWidget {
                   Obx(() {
                     return WidgetButton(
                       onPressed: c.selectedChats.isEmpty
-                          ? () {}
+                          ? null
                           : () {
-                              c.send.submit();
-                              Navigator.of(context).pop();
+                              c.forward();
+                              Navigator.of(context).pop(true);
                             },
                       child: SizedBox(
                         width: 56,

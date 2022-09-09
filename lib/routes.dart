@@ -54,6 +54,7 @@ import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
+import 'ui/page/style/test/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/widget/context_menu/overlay.dart';
 import 'ui/widget/lifecycle_observer.dart';

@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/obs/obs.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -61,7 +62,7 @@ class HiveRxChat implements RxChat {
   final Rx<Chat> chat;
 
   @override
-  final RxList<Rx<ChatItem>> messages = RxList<Rx<ChatItem>>();
+  final RxObsList<Rx<ChatItem>> messages = RxObsList<Rx<ChatItem>>();
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
@@ -304,7 +305,7 @@ class HiveRxChat implements RxChat {
       }
 
       if (uploaded.whereType<LocalAttachment>().isNotEmpty) {
-        throw ConnectionException(PostChatMessageException(
+        throw const ConnectionException(PostChatMessageException(
           PostChatMessageErrorCode.unknownAttachment,
         ));
       }
@@ -524,9 +525,11 @@ class HiveRxChat implements RxChat {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
-      var i = messages.indexWhere((e) => e.value.timestamp == event.key);
+      int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
-        messages.removeAt(i);
+        if (i != -1) {
+          messages.removeAt(i);
+        }
       } else {
         if (i == -1) {
           Rx<ChatItem> item = Rx<ChatItem>(event.value.value);

@@ -20,8 +20,11 @@ import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
@@ -48,21 +51,41 @@ export 'view.dart';
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._contactService, {
     required this.from,
     required List<ChatItemQuote> quotes,
-  }) : quotes = RxList(quotes);
+    this.text,
+    RxList<Attachment>? attachments,
+  })  : quotes = RxList(quotes),
+        attachments = attachments ?? RxList();
 
   /// Reactive list of the sorted [Chat]s.
-  late final RxList<RxChat> chats;
+  late final RxList<RxChat> sortedChats;
 
   /// [Chat]s to forward the [quotes] to.
-  final RxList<ChatId> selectedChats = RxList<ChatId>([]);
+  final RxList<RxChat> selectedChats = RxList();
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
   final Rx<ChatItem?> hoveredReply = Rx(null);
+
+  /// [User]s search results.
+  final Rx<RxList<RxUser>?> searchResults = Rx(null);
+
+  final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
+  final String? text;
+  late final TextFieldState search;
+
+  /// Worker to react on [SearchResult.status] changes.
+  Worker? _searchStatusWorker;
+  Worker? _searchWorker;
+  Worker? _searchDebounce;
+
+  final RxnString query = RxnString();
 
   /// [ChatItemQuote]s to be forwarded.
   final RxList<ChatItemQuote> quotes;
@@ -71,7 +94,23 @@ class ChatForwardController extends GetxController {
   late final TextFieldState send;
 
   /// [Attachment]s to attach to the [quotes].
-  final RxList<Attachment> attachments = RxList();
+  final RxList<Attachment> attachments;
+
+  final RxInt selected = RxInt(0);
+  final FlutterListViewController controller = FlutterListViewController();
+
+  void jumpTo(int i) {
+    if (i == 0) {
+      controller.jumpTo(0);
+    } else if (i == 1) {
+      double to = chats.length * (84 + 10);
+      if (to > controller.position.maxScrollExtent) {
+        controller.jumpTo(controller.position.maxScrollExtent);
+      } else {
+        controller.jumpTo(to);
+      }
+    }
+  }
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
@@ -79,61 +118,135 @@ class ChatForwardController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [ChatContact]s service used to get [contacts] list.
+  final ContactService _contactService;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
+  dynamic getIndex(int i) {
+    return [...chats.values, ...contacts.values].elementAt(i);
+  }
+
   @override
   void onInit() {
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
+    sortedChats = RxList<RxChat>(_chatService.chats.values.toList());
     _sortChats();
 
     send = TextFieldState(
+      text: text,
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        s.status.value = RxStatus.loading();
-        s.editable.value = false;
+    );
 
-        try {
-          List<Future> uploads = attachments
-              .whereType<LocalAttachment>()
-              .map((e) => e.upload.value?.future)
-              .whereNotNull()
-              .toList();
-          if (uploads.isNotEmpty) {
-            await Future.wait(uploads);
-          }
+    _searchWorker = ever(query, (String? q) {
+      if (q == null || q.isEmpty) {
+        searchResults.value = null;
+        searchStatus.value = RxStatus.empty();
+        populate();
+      } else {
+        searchStatus.value = RxStatus.loading();
+        populate();
+      }
+    });
 
-          if (attachments.whereType<LocalAttachment>().isNotEmpty) {
-            throw const ConnectionException(ForwardChatItemsException(
-              ForwardChatItemsErrorCode.unknownAttachment,
-            ));
-          }
-
-          List<Future<void>> futures = selectedChats.map((e) {
-            return _chatService.forwardChatItems(
-              from,
-              e,
-              quotes,
-              text: s.text == '' ? null : ChatMessageText(s.text),
-              attachments: attachments.isEmpty
-                  ? null
-                  : attachments.map((a) => a.id).toList(),
-            );
-          }).toList();
-
-          await Future.wait(futures);
-        } on ForwardChatItemsException catch (e) {
-          MessagePopup.error(e);
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        } finally {
-          s.unsubmit();
-        }
+    search = TextFieldState(
+      onChanged: (d) {
+        query.value = d.text;
       },
     );
 
+    controller.sliverController.onPaintItemPositionsCallback = (d, list) {
+      int? first = list.firstOrNull?.index;
+      if (first != null) {
+        if (first >= chats.length) {
+          selected.value = 1;
+        } else {
+          selected.value = 0;
+        }
+      }
+    };
+
     super.onInit();
+  }
+
+  Future<void> forward() async {
+    send.status.value = RxStatus.loading();
+    send.editable.value = false;
+
+    try {
+      List<Future> uploads = attachments
+          .whereType<LocalAttachment>()
+          .map((e) => e.upload.value?.future)
+          .whereNotNull()
+          .toList();
+      if (uploads.isNotEmpty) {
+        await Future.wait(uploads);
+      }
+
+      if (attachments.whereType<LocalAttachment>().isNotEmpty) {
+        throw const ConnectionException(ForwardChatItemsException(
+          ForwardChatItemsErrorCode.unknownAttachment,
+        ));
+      }
+
+      List<Future<void>> futures = [
+        ...selectedContacts.map((e) async {
+          ChatId? id = e.user.value?.user.value.dialog?.id;
+          id ??=
+              (await _chatService.createDialogChat(e.user.value!.user.value.id))
+                  .chat
+                  .value
+                  .id;
+
+          return _chatService.forwardChatItems(
+            from,
+            id,
+            quotes,
+            text: send.text == '' ? null : ChatMessageText(send.text),
+            attachments: attachments.isEmpty
+                ? null
+                : attachments.map((a) => a.id).toList(),
+          );
+        }),
+        ...selectedChats.map((e) {
+          return _chatService.forwardChatItems(
+            from,
+            e.chat.value.id,
+            quotes,
+            text: send.text == '' ? null : ChatMessageText(send.text),
+            attachments: attachments.isEmpty
+                ? null
+                : attachments.map((a) => a.id).toList(),
+          );
+        })
+      ];
+
+      await Future.wait(futures);
+    } on ForwardChatItemsException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      send.unsubmit();
+    }
+  }
+
+  /// Selects or unselects the specified [contact].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact)) {
+      selectedContacts.remove(contact);
+    } else {
+      selectedContacts.add(contact);
+    }
+  }
+
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat)) {
+      selectedChats.remove(chat);
+    } else {
+      selectedChats.add(chat);
+    }
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
@@ -198,7 +311,7 @@ class ChatForwardController extends GetxController {
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {
-    chats.sort((a, b) {
+    sortedChats.sort((a, b) {
       if (a.chat.value.currentCall != null &&
           b.chat.value.currentCall == null) {
         return -1;
@@ -209,6 +322,8 @@ class ChatForwardController extends GetxController {
 
       return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
     });
+
+    populate();
   }
 
   /// Opens a file choose popup of the specified [type] and adds the selected
@@ -256,5 +371,49 @@ class ChatForwardController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+  }
+
+  final RxMap<ChatId, RxChat> chats = RxMap();
+  final RxMap<UserId, RxChatContact> contacts = RxMap();
+
+  void populate() {
+    chats.value = {
+      for (var c in sortedChats.where((p) {
+        if (query.value != null) {
+          if (query.value != null &&
+              p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+            return true;
+          }
+          return false;
+        }
+
+        return true;
+      }))
+        c.chat.value.id: c,
+    };
+
+    contacts.value = {
+      for (var u in _contactService.contacts.values.where((e) {
+        if (e.contact.value.users.length == 1) {
+          bool contains = chats.values.firstWhereOrNull((m) =>
+                  m.chat.value.isDialog &&
+                  m.members[e.user.value!.id] != null) !=
+              null;
+
+          if (!contains) {
+            if (query.value != null) {
+              if (e.contact.value.name.val.contains(query.value!) == true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }))
+        u.user.value!.id: u,
+    };
   }
 }

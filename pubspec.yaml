@@ -60,7 +60,6 @@ dependencies:
   medea_jason:
     git:
       url: https://github.com/instrumentisto/medea-jason.git
-      ref: fix-macos-linking
       path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0

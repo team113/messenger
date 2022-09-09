@@ -28,10 +28,12 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/ui/page/call/widget/animated_delayed_scale.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/call/widget/fit_wrap.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
+import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -63,6 +65,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
+import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/init_callback.dart';
 import 'widget/my_dismissible.dart';
@@ -114,452 +117,556 @@ class _ChatViewState extends State<ChatView>
       ),
       tag: widget.id.val,
       builder: (c) {
-        return Obx(() {
-          if (c.status.value.isSuccess) {
-            Chat chat = c.chat!.chat.value;
-
-            // Opens [Routes.chatInfo] or [Routes.user] page basing on the
-            // [Chat.isGroup] indicator.
-            void onDetailsTap() {
-              if (chat.isGroup) {
-                router.chatInfo(widget.id);
-              } else if (chat.members.isNotEmpty) {
-                router.user(
-                  chat.members
-                          .firstWhereOrNull((e) => e.user.id != c.me)
-                          ?.user
-                          .id ??
-                      chat.members.first.user.id,
-                  push: true,
-                );
-              }
+        // Opens [Routes.chatInfo] or [Routes.user] page basing on the
+        // [Chat.isGroup] indicator.
+        void onDetailsTap() {
+          Chat? chat = c.chat?.chat.value;
+          if (chat != null) {
+            if (chat.isGroup) {
+              router.chatInfo(widget.id);
+            } else if (chat.members.isNotEmpty) {
+              router.user(
+                chat.members
+                        .firstWhereOrNull((e) => e.user.id != c.me)
+                        ?.user
+                        .id ??
+                    chat.members.first.user.id,
+                push: true,
+              );
             }
+          }
+        }
 
-            return DropTarget(
-              onDragDone: (details) => c.dropFiles(details),
-              onDragEntered: (_) => c.isDraggingFiles.value = true,
-              onDragExited: (_) => c.isDraggingFiles.value = false,
-              child: GestureDetector(
-                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-                child: Stack(
-                  children: [
-                    Scaffold(
-                      resizeToAvoidBottomInset: true,
-                      appBar: CustomAppBar.from(
-                        context: context,
-                        title: Row(
-                          children: [
-                            Material(
-                              elevation: 6,
-                              type: MaterialType.circle,
-                              shadowColor: const Color(0x55000000),
-                              color: Colors.white,
-                              child: InkWell(
-                                customBorder: const CircleBorder(),
-                                onTap: onDetailsTap,
-                                child: Center(
-                                  child: AvatarWidget.fromRxChat(
-                                    c.chat,
-                                    radius: 17,
-                                  ),
+        return Obx(() {
+          if (c.status.value.isEmpty) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
+            );
+          } else if (!c.status.value.isSuccess) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          Chat chat = c.chat!.chat.value;
+          return DropTarget(
+            onDragDone: (details) => c.dropFiles(details),
+            onDragEntered: (_) => c.isDraggingFiles.value = true,
+            onDragExited: (_) => c.isDraggingFiles.value = false,
+            child: GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: Stack(
+                children: [
+                  Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    appBar: CustomAppBar.from(
+                      context: context,
+                      title: Row(
+                        children: [
+                          Material(
+                            elevation: 6,
+                            type: MaterialType.circle,
+                            shadowColor: const Color(0x55000000),
+                            color: Colors.white,
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: onDetailsTap,
+                              child: Center(
+                                child: AvatarWidget.fromRxChat(
+                                  c.chat,
+                                  radius: 17,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: InkWell(
-                                splashFactory: NoSplash.splashFactory,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: onDetailsTap,
-                                child: DefaultTextStyle.merge(
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        c.chat!.title.value,
-                                        style: const TextStyle(
-                                            color: Colors.black),
-                                      ),
-                                      _chatSubtitle(c),
-                                    ],
-                                  ),
+                          ),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: InkWell(
+                              splashFactory: NoSplash.splashFactory,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: onDetailsTap,
+                              child: DefaultTextStyle.merge(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      c.chat!.title.value,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                    _chatSubtitle(c),
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                        automaticallyImplyLeading: false,
-                        padding: const EdgeInsets.only(left: 4, right: 20),
-                        leading: const [StyledBackButton()],
-                        actions: [
-                          if (chat.currentCall == null) ...[
-                            WidgetButton(
-                              onPressed: () => c.call(true),
-                              child: SvgLoader.asset(
-                                'assets/icons/chat_video_call.svg',
-                                height: 17,
-                              ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                      automaticallyImplyLeading: false,
+                      padding: const EdgeInsets.only(left: 4, right: 20),
+                      leading: const [StyledBackButton()],
+                      actions: [
+                        if (chat.currentCall == null) ...[
+                          WidgetButton(
+                            onPressed: () => c.call(true),
+                            child: SvgLoader.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
                             ),
-                            const SizedBox(width: 28),
-                            WidgetButton(
-                              onPressed: () => c.call(false),
-                              child: SvgLoader.asset(
-                                'assets/icons/chat_audio_call.svg',
-                                height: 19,
-                              ),
+                          ),
+                          const SizedBox(width: 28),
+                          WidgetButton(
+                            onPressed: () => c.call(false),
+                            child: SvgLoader.asset(
+                              'assets/icons/chat_audio_call.svg',
+                              height: 19,
                             ),
-                          ] else ...[
-                            AnimatedSwitcher(
-                              key: const Key('ActiveCallButton'),
-                              duration: 300.milliseconds,
-                              child: c.isInCall()
-                                  ? WidgetButton(
-                                      key: const Key('Drop'),
-                                      onPressed: c.dropCall,
-                                      child: Container(
-                                        height: 32,
-                                        width: 32,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: SvgLoader.asset(
-                                            'assets/icons/call_end.svg',
-                                            width: 32,
-                                            height: 32,
-                                          ),
-                                        ),
+                          ),
+                        ] else ...[
+                          AnimatedSwitcher(
+                            key: const Key('ActiveCallButton'),
+                            duration: 300.milliseconds,
+                            child: c.isInCall()
+                                ? WidgetButton(
+                                    key: const Key('Drop'),
+                                    onPressed: c.dropCall,
+                                    child: Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
                                       ),
-                                    )
-                                  : WidgetButton(
-                                      key: const Key('Join'),
-                                      onPressed: c.joinCall,
-                                      child: Container(
-                                        height: 32,
-                                        width: 32,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF63B4FF),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: SvgLoader.asset(
-                                            'assets/icons/audio_call_start.svg',
-                                            width: 15,
-                                            height: 15,
-                                          ),
+                                      child: Center(
+                                        child: SvgLoader.asset(
+                                          'assets/icons/call_end.svg',
+                                          width: 32,
+                                          height: 32,
                                         ),
                                       ),
                                     ),
-                            ),
-                          ],
-                          // const SizedBox(width: 10),
+                                  )
+                                : WidgetButton(
+                                    key: const Key('Join'),
+                                    onPressed: c.joinCall,
+                                    child: Container(
+                                      height: 32,
+                                      width: 32,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF63B4FF),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: SvgLoader.asset(
+                                          'assets/icons/audio_call_start.svg',
+                                          width: 15,
+                                          height: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          ),
                         ],
-                      ),
-                      body: Listener(
-                        onPointerSignal: (s) {
-                          if (s is PointerPanZoomUpdateEvent) {
-                            if (s.delta.dy.abs() < 3 &&
-                                (s.delta.dx.abs() > 3 ||
-                                    c.horizontalScrollTimer.value != null)) {
-                              double value =
-                                  _animation.value + s.delta.dx / 100;
-                              _animation.value = value.clamp(0, 1);
+                        // const SizedBox(width: 10),
+                      ],
+                    ),
+                    body: Listener(
+                      onPointerSignal: (s) {
+                        if (s is PointerScrollEvent) {
+                          // TODO: Look at `PointerPanZoomUpdateEvent`:
+                          //       https://github.com/flutter/flutter/issues/23604
+                          if (s.scrollDelta.dy.abs() < 3 &&
+                              (s.scrollDelta.dx.abs() > 3 ||
+                                  c.horizontalScrollTimer.value != null)) {
+                            double value =
+                                _animation.value + s.scrollDelta.dx / 100;
+                            _animation.value = value.clamp(0, 1);
 
-                              if (_animation.value == 0 ||
-                                  _animation.value == 1) {
-                                _resetHorizontalScroll(c, 100.milliseconds);
-                              } else {
-                                _resetHorizontalScroll(c);
-                              }
+                            if (_animation.value == 0 ||
+                                _animation.value == 1) {
+                              _resetHorizontalScroll(c, 100.milliseconds);
+                            } else {
+                              _resetHorizontalScroll(c);
                             }
                           }
-                          // } else if (s is PointerScrollEvent) {
-                          //   // TODO: Look into `PointerChange` and seek for
-                          //   //       related for panning events on a new Flutter
-                          //   //       release:
-                          //   // https://github.com/flutter/flutter/issues/23604
-                          //   if (s.scrollDelta.dy.abs() < 3 &&
-                          //       (s.scrollDelta.dx.abs() > 3 ||
-                          //           c.horizontalScrollTimer.value != null)) {
-                          //     double value =
-                          //         _animation.value + s.scrollDelta.dx / 100;
-                          //     _animation.value = value.clamp(0, 1);
+                        }
+                      },
+                      child: RawGestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        gestures: c.horizontalScrollTimer.value == null
+                            ? {
+                                AllowMultipleHorizontalDragGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                        AllowMultipleHorizontalDragGestureRecognizer>(
+                                  () =>
+                                      AllowMultipleHorizontalDragGestureRecognizer(),
+                                  (AllowMultipleHorizontalDragGestureRecognizer
+                                      instance) {
+                                    instance.onStart = (d) {};
 
-                          //     if (_animation.value == 0 ||
-                          //         _animation.value == 1) {
-                          //       _resetHorizontalScroll(c, 100.milliseconds);
-                          //     } else {
-                          //       _resetHorizontalScroll(c);
-                          //     }
-                          //   }
-                          // }
-                        },
-                        child: RawGestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          gestures: c.horizontalScrollTimer.value == null
-                              ? {
-                                  AllowMultipleHorizontalDragGestureRecognizer:
-                                      GestureRecognizerFactoryWithHandlers<
-                                          AllowMultipleHorizontalDragGestureRecognizer>(
-                                    () =>
-                                        AllowMultipleHorizontalDragGestureRecognizer(),
-                                    (AllowMultipleHorizontalDragGestureRecognizer
-                                        instance) {
-                                      instance.onStart = (d) {};
-
-                                      instance.onUpdate = (d) {
-                                        if (!c.isItemDragged.value) {
-                                          double value = _animation.value -
-                                              d.delta.dx / 100;
-                                          _animation.value = value.clamp(0, 1);
-
-                                          if (_animation.value == 1 ||
-                                              _animation.value == 0) {
-                                            if (!c.timelineFeedback.value) {
-                                              HapticFeedback.selectionClick();
-                                            }
-                                            c.timelineFeedback.value = true;
-                                          } else {
-                                            c.timelineFeedback.value = false;
-                                          }
-                                        }
-                                      };
-
-                                      instance.onEnd = (d) {
-                                        c.timelineFeedback.value = false;
-                                        if (!c.isItemDragged.value) {
-                                          if (_animation.value >= 0.5) {
-                                            _animation.forward();
-                                          } else {
-                                            _animation.reverse();
-                                          }
-                                        }
-                                      };
-                                    },
-                                  )
-                                }
-                              : {},
-                          // onHorizontalDragUpdate: (d) {
-                          // print('onHorizontalDragUpdate');
-                          // double value = _animation.value - d.delta.dx / 100;
-                          // _animation.value = value.clamp(0, 1);
-                          // },
-                          // onHorizontalDragEnd: (d) {
-                          //   if (_animation.value >= 0.5) {
-                          //     _animation.forward();
-                          //   } else {
-                          //     _animation.reverse();
-                          //   }
-                          // },
-                          child: Stack(
-                            children: [
-                              // Required for the [Stack] to take [Scaffold]'s size.
-                              IgnorePointer(
-                                child:
-                                    ContextMenuInterceptor(child: Container()),
-                              ),
-                              GestureDetector(
-                                onHorizontalDragUpdate: PlatformUtils.isDesktop
-                                    ? (d) {
+                                    instance.onUpdate = (d) {
+                                      if (!c.isItemDragged.value) {
                                         double value =
                                             _animation.value - d.delta.dx / 100;
                                         _animation.value = value.clamp(0, 1);
+
+                                        if (_animation.value == 1 ||
+                                            _animation.value == 0) {
+                                          if (!c.timelineFeedback.value) {
+                                            HapticFeedback.selectionClick();
+                                          }
+                                          c.timelineFeedback.value = true;
+                                        } else {
+                                          c.timelineFeedback.value = false;
+                                        }
                                       }
-                                    : null,
-                                onHorizontalDragEnd: PlatformUtils.isDesktop
-                                    ? (d) {
+                                    };
+
+                                    instance.onEnd = (d) {
+                                      c.timelineFeedback.value = false;
+                                      if (!c.isItemDragged.value) {
                                         if (_animation.value >= 0.5) {
                                           _animation.forward();
                                         } else {
                                           _animation.reverse();
                                         }
                                       }
-                                    : null,
-                              ),
-                              FlutterListView(
+                                    };
+                                  },
+                                )
+                              }
+                            : {},
+                        child: Stack(
+                          children: [
+                            // Required for the [Stack] to take [Scaffold]'s size.
+                            IgnorePointer(
+                              child: ContextMenuInterceptor(child: Container()),
+                            ),
+                            GestureDetector(
+                              onHorizontalDragUpdate: PlatformUtils.isDesktop
+                                  ? (d) {
+                                      double value =
+                                          _animation.value - d.delta.dx / 100;
+                                      _animation.value = value.clamp(0, 1);
+                                    }
+                                  : null,
+                              onHorizontalDragEnd: PlatformUtils.isDesktop
+                                  ? (d) {
+                                      if (_animation.value >= 0.5) {
+                                        _animation.forward();
+                                      } else {
+                                        _animation.reverse();
+                                      }
+                                    }
+                                  : null,
+                            ),
+                            Obx(() {
+                              return FlutterListView(
                                 key: const Key('MessagesList'),
                                 controller: c.listController,
                                 physics: c.horizontalScrollTimer.value == null
                                     ? const BouncingScrollPhysics()
                                     : const NeverScrollableScrollPhysics(),
                                 delegate: FlutterListViewDelegate(
-                                  (context, j) =>
-                                      _chatItemBuilder(c, context, j),
-                                  childCount: (c.chat?.messages.length ?? 0),
-                                  // childCount: (c.chat?.messages.length ?? 0) + 2,
+                                  (context, i) => _listElement(context, c, i),
+                                  childCount: c.elements.length,
+                                  keepPosition: true,
+                                  onItemKey: (i) => c.elements[i]?.id ?? '$i',
+                                  onItemSticky: (i) => c.elements.values
+                                      .elementAt(i) is DateTimeElement,
                                   initIndex: c.initIndex,
                                   initOffset: c.initOffset,
                                   initOffsetBasedOnBottom: false,
-                                  keepPosition: true,
-                                  onItemKey: (i) {
-                                    // if (j == 0) {
-                                    //   return '';
-                                    // }
+                                  // (context, j) =>
+                                  //     _chatItemBuilder(c, context, j),
+                                  // childCount: (c.chat?.messages.length ?? 0),
 
-                                    // if (j ==
-                                    //     (c.chat?.messages.length ?? 0) + 1) {
-                                    //   return '';
-                                    // }
-
-                                    // int i = j - 1;
-                                    return c.chat!.messages[i].value.id.val;
-                                  },
+                                  // keepPosition: true,
+                                  // onItemKey: (i) =>
+                                  //     c.chat!.messages[i].value.id.val,
                                 ),
-                              ),
+                              );
+                            }),
 
+                            Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty)
-                                const Center(child: Text('No messages')),
-                              if (c.chat!.status.value.isLoading)
-                                const Center(child: CircularProgressIndicator())
-                            ],
-                          ),
-                        ),
-                      ),
-                      floatingActionButton: Obx(
-                        () => SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: AnimatedSwitcher(
-                            duration: 200.milliseconds,
-                            child: c.chat!.status.value.isLoadingMore
-                                ? const CircularProgressIndicator()
-                                : c.canGoBack.isTrue
-                                    ? FloatingActionButton(
-                                        onPressed: c.animateToBack,
-                                        child: const Icon(Icons.arrow_upward),
-                                      )
-                                    : c.canGoDown.isTrue
-                                        ? FloatingActionButton(
-                                            onPressed: c.animateToBottom,
-                                            child: const Icon(
-                                              Icons.arrow_downward,
-                                            ),
-                                          )
-                                        : Container(),
-                          ),
-                        ),
-                      ),
-                      bottomNavigationBar: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                        child:
-                            NotificationListener<SizeChangedLayoutNotification>(
-                          onNotification: (l) {
-                            Rect previous = c.bottomBarRect.value ??
-                                const Rect.fromLTWH(0, 0, 0, 65);
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              c.bottomBarRect.value =
-                                  c.bottomBarKey.globalPaintBounds;
-                              if (c.bottomBarRect.value != null &&
-                                  c.listController.position.maxScrollExtent >
-                                      0 &&
-                                  c.listController.position.pixels <
-                                      c.listController.position
-                                          .maxScrollExtent) {
-                                Rect current = c.bottomBarRect.value!;
-                                c.listController.jumpTo(
-                                    c.listController.position.pixels +
-                                        (current.height - previous.height));
+                                  c.chat!.messages.isEmpty) {
+                                return const Center(
+                                  child: Text('No messages'),
+                                );
                               }
-                            });
+                              if (c.chat!.status.value.isLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
 
-                            return true;
-                          },
-                          child: SizeChangedLayoutNotifier(
-                            key: c.bottomBarKey,
-                            child: _bottomBar(c, context),
-                          ),
+                              return Container();
+                            }),
+                          ],
                         ),
                       ),
                     ),
-                    IgnorePointer(
-                      child: Obx(() {
-                        return AnimatedSwitcher(
+                    floatingActionButton: Obx(() {
+                      return SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: AnimatedSwitcher(
                           duration: 200.milliseconds,
-                          child: c.isDraggingFiles.value
-                              ? Container(
-                                  color: const Color(0x40000000),
-                                  child: Center(
-                                    child: AnimatedDelayedScale(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      beginScale: 1,
-                                      endScale: 1.06,
-                                      child: ConditionalBackdropFilter(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                            color: const Color(0x40000000),
+                          child: c.chat!.status.value.isLoadingMore
+                              ? const CircularProgressIndicator()
+                              : c.canGoBack.isTrue
+                                  ? FloatingActionButton(
+                                      onPressed: c.animateToBack,
+                                      child: const Icon(Icons.arrow_upward),
+                                    )
+                                  : c.canGoDown.isTrue
+                                      ? FloatingActionButton(
+                                          onPressed: c.animateToBottom,
+                                          child: const Icon(
+                                            Icons.arrow_downward,
                                           ),
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(16),
-                                            child: Icon(
-                                              Icons.add_rounded,
-                                              size: 50,
-                                              color: Colors.white,
-                                            ),
+                                        )
+                                      : Container(),
+                        ),
+                      );
+                    }),
+                    bottomNavigationBar: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                      child:
+                          NotificationListener<SizeChangedLayoutNotification>(
+                        onNotification: (l) {
+                          Rect previous = c.bottomBarRect.value ??
+                              const Rect.fromLTWH(0, 0, 0, 65);
+                          SchedulerBinding.instance.addPostFrameCallback((_) {
+                            c.bottomBarRect.value =
+                                c.bottomBarKey.globalPaintBounds;
+                            if (c.bottomBarRect.value != null &&
+                                c.listController.position.maxScrollExtent > 0 &&
+                                c.listController.position.pixels <
+                                    c.listController.position.maxScrollExtent) {
+                              Rect current = c.bottomBarRect.value!;
+                              c.listController.jumpTo(
+                                  c.listController.position.pixels +
+                                      (current.height - previous.height));
+                            }
+                          });
+
+                          return true;
+                        },
+                        child: SizeChangedLayoutNotifier(
+                          key: c.bottomBarKey,
+                          child: _bottomBar(c, context),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IgnorePointer(
+                    child: Obx(() {
+                      return AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: c.isDraggingFiles.value
+                            ? Container(
+                                color: const Color(0x40000000),
+                                child: Center(
+                                  child: AnimatedDelayedScale(
+                                    duration: const Duration(milliseconds: 300),
+                                    beginScale: 1,
+                                    endScale: 1.06,
+                                    child: ConditionalBackdropFilter(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          color: const Color(0x40000000),
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: Icon(
+                                            Icons.add_rounded,
+                                            size: 50,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                )
-                              : null,
-                        );
-                      }),
-                    ),
-                    // AnimatedSwitcher(
-                    //   duration: const Duration(milliseconds: 200),
-                    //   child: c.isDraggingFiles.value
-                    //       ? Container(
-                    //           color: Colors.white.withOpacity(0.9),
-                    //           child: Center(
-                    //             child: Column(
-                    //               mainAxisAlignment: MainAxisAlignment.center,
-                    //               children: [
-                    //                 const Icon(
-                    //                   Icons.upload_file,
-                    //                   size: 30,
-                    //                 ),
-                    //                 const SizedBox(height: 5),
-                    //                 Text(
-                    //                   'label_drop_here'.l10n,
-                    //                   textAlign: TextAlign.center,
-                    //                 ),
-                    //               ],
-                    //             ),
-                    //           ),
-                    //         )
-                    //       : null,
-                    // ),
-                  ],
-                ),
+                                ),
+                              )
+                            : null,
+                      );
+                    }),
+                  ),
+                  // AnimatedSwitcher(
+                  //   duration: const Duration(milliseconds: 200),
+                  //   child: c.isDraggingFiles.value
+                  //       ? Container(
+                  //           color: Colors.white.withOpacity(0.9),
+                  //           child: Center(
+                  //             child: Column(
+                  //               mainAxisAlignment: MainAxisAlignment.center,
+                  //               children: [
+                  //                 const Icon(
+                  //                   Icons.upload_file,
+                  //                   size: 30,
+                  //                 ),
+                  //                 const SizedBox(height: 5),
+                  //                 Text(
+                  //                   'label_drop_here'.l10n,
+                  //                   textAlign: TextAlign.center,
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         )
+                  //       : null,
+                  // ),
+                ],
               ),
-            );
-          } else if (c.status.value.isEmpty) {
-            return Scaffold(
-              appBar: AppBar(),
-              body: Center(child: Text('label_no_chat_found'.l10n)),
-            );
-          } else {
-            return Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          }
+            ),
+          );
         });
       },
     );
+  }
+
+  Widget _listElement(BuildContext context, ChatController c, int i) {
+    ListElement element = c.elements.values.elementAt(i);
+
+    if (element is ChatMessageElement ||
+        element is ChatCallElement ||
+        element is ChatMemberInfoElement) {
+      Rx<ChatItem> e;
+
+      if (element is ChatMessageElement) {
+        e = element.item;
+      } else if (element is ChatCallElement) {
+        e = element.item;
+      } else if (element is ChatMemberInfoElement) {
+        e = element.item;
+      } else {
+        throw Exception('Unreachable');
+      }
+
+      bool isLast = i == c.elements.length - 1;
+      return Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(e.value.authorId),
+          builder: (_, u) => ChatItemWidget(
+            key: Key('ChatItemWidget_${e.value.id}'),
+            chat: c.chat!.chat,
+            item: e,
+            me: c.me!,
+            user: u.data,
+            getUser: c.getUser,
+            animation: _animation,
+            onJoinCall: c.joinCall,
+            onHide: () => c.hideChatItem(e.value),
+            onDelete: () => c.deleteMessage(e.value),
+            onReply: () {
+              if (c.repliedMessages.contains(e.value)) {
+                c.repliedMessages.remove(e.value);
+              } else {
+                c.repliedMessages.insert(0, e.value);
+              }
+            },
+            onCopy: c.copyText,
+            onRepliedTap: (id) => c.animateTo(id),
+            onGallery: c.calculateGallery,
+            onResend: () => c.resendItem(e.value),
+            onEdit: () => c.editMessage(e.value),
+            onDrag: (d) => c.isItemDragged.value = d,
+          ),
+        ),
+      );
+    } else if (element is ChatForwardElement) {
+      bool isLast = i == c.elements.length - 1;
+      return Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(element.authorId),
+          builder: (_, u) => ChatForwardWidget(
+            key: Key('ChatForwardWidget_${element.id}'),
+            id: element.id,
+            chat: c.chat!.chat,
+            forwards: element.forwards,
+            note: element.note,
+            authorId: element.authorId,
+            me: c.me!,
+            user: u.data,
+            getUser: c.getUser,
+            animation: _animation,
+            onReply: () {
+              if (c.repliedMessages.contains(element.forwards.last.value)) {
+                c.repliedMessages.remove(element.forwards.last.value);
+              } else {
+                c.repliedMessages.insert(0, element.forwards.last.value);
+              }
+            },
+            onRepliedTap: (id) => c.animateTo(id),
+            onGallery: c.calculateGallery,
+            onDrag: (d) => c.isItemDragged.value = d,
+            onForwardedTap: (id, chatId) {
+              if (chatId == c.id) {
+                c.animateTo(id);
+              } else {
+                router.chat(
+                  chatId,
+                  itemId: id,
+                  push: true,
+                );
+              }
+            },
+          ),
+        ),
+      );
+    } else if (element is DateTimeElement) {
+      return _timeLabel(element.at.val);
+    } else if (element is UnreadMessagesElement) {
+      Style style = Theme.of(context).extension<Style>()!;
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.systemMessageBorder,
+                  color: style.systemMessageColor,
+                  // color: const Color(0xFFF8F8F8),
+                ),
+                child: Center(
+                  child: Text(
+                    '${c.unreadMessages} unread messages',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF888888),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+      );
+    }
+
+    return Container();
   }
 
   Widget _chatItemBuilder(ChatController c, BuildContext context, int i) {
@@ -1318,50 +1425,117 @@ class _ChatViewState extends State<ChatView>
                   //   ),
                   // ),
                   // const SizedBox(width: 20),
-                  WidgetButton(
-                    onPressed: c.send.isEmpty.value &&
-                            c.attachments.isEmpty &&
-                            c.repliedMessages.isEmpty
-                        ? () {}
-                        : c.send.submit,
-                    child: SizedBox(
-                      width: 56,
-                      height: 56,
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          child: SizedBox(
-                            key: const Key('Send'),
-                            // key: c.send.isEmpty.value && c.attachments.isEmpty
-                            //     ? const Key('Mic')
-                            //     : const Key('Send'),
-                            width: 25.18,
-                            height: 22.85,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 0),
-                              child: SvgLoader.asset(
-                                'assets/icons/send.svg',
-                                height: 22.85,
+
+                  GestureDetector(
+                    onLongPress: c.forwarding.toggle,
+                    child: AnimatedSwitcher(
+                      duration: 300.milliseconds,
+                      child: c.forwarding.value
+                          ? WidgetButton(
+                              onPressed: () async {
+                                if (c.repliedMessages.isNotEmpty) {
+                                  bool? result = await ChatForwardView.show(
+                                    context,
+                                    c.id,
+                                    c.repliedMessages.map((e) {
+                                      List<AttachmentId> attachments = [];
+
+                                      if (e is ChatMessage) {
+                                        attachments.addAll(
+                                          e.attachments.map((e) => e.id),
+                                        );
+                                      } else if (e is ChatForward) {
+                                        ChatItem nested = e.item;
+                                        if (nested is ChatMessage) {
+                                          attachments.addAll(
+                                            nested.attachments.map((e) => e.id),
+                                          );
+                                        }
+                                      }
+
+                                      return ChatItemQuote(
+                                        item: e,
+                                        attachments: attachments,
+                                      );
+                                    }).toList(),
+                                    noEditing: true,
+                                    text: c.send.text,
+                                    attachments: c.attachments,
+                                  );
+
+                                  if (result == true) {
+                                    c.repliedMessages.clear();
+                                    c.forwarding.value = false;
+                                    c.attachments.clear();
+                                    c.send.clear();
+                                  }
+                                }
+                              },
+                              child: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: Center(
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 150),
+                                    child: SizedBox(
+                                      width: 26,
+                                      height: 22,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/forward2.svg',
+                                        width: 26,
+                                        height: 22,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : WidgetButton(
+                              onPressed: c.send.isEmpty.value &&
+                                      c.attachments.isEmpty &&
+                                      c.repliedMessages.isEmpty
+                                  ? () {}
+                                  : c.send.submit,
+                              child: SizedBox(
+                                width: 56,
+                                height: 56,
+                                child: Center(
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 150),
+                                    child: SizedBox(
+                                      key: const Key('Send'),
+                                      // key: c.send.isEmpty.value && c.attachments.isEmpty
+                                      //     ? const Key('Mic')
+                                      //     : const Key('Send'),
+                                      width: 25.18,
+                                      height: 22.85,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 0),
+                                        child: SvgLoader.asset(
+                                          'assets/icons/send.svg',
+                                          height: 22.85,
+                                        ),
+                                      ),
+                                      // child: c.send.isEmpty.value && c.attachments.isEmpty
+                                      //     ? TooltipHint(
+                                      //         hint: 'Голосовое сообщение',
+                                      //         child: SvgLoader.asset(
+                                      //           'assets/icons/audio_message_outline.svg',
+                                      //           height: iconSize,
+                                      //         ),
+                                      //       )
+                                      //     : Padding(
+                                      //         padding: const EdgeInsets.only(top: 0),
+                                      //         child: SvgLoader.asset(
+                                      //           'assets/icons/send.svg',
+                                      //           height: 22.85,
+                                      //         ),
+                                      //       ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            // child: c.send.isEmpty.value && c.attachments.isEmpty
-                            //     ? TooltipHint(
-                            //         hint: 'Голосовое сообщение',
-                            //         child: SvgLoader.asset(
-                            //           'assets/icons/audio_message_outline.svg',
-                            //           height: iconSize,
-                            //         ),
-                            //       )
-                            //     : Padding(
-                            //         padding: const EdgeInsets.only(top: 0),
-                            //         child: SvgLoader.asset(
-                            //           'assets/icons/send.svg',
-                            //           height: 22.85,
-                            //         ),
-                            //       ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                   // const SizedBox(width: 20),
@@ -1569,7 +1743,6 @@ class _ChatViewState extends State<ChatView>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 0),
                   WidgetButton(
                     onPressed: c.edit!.submit,
                     child: SizedBox(
@@ -1950,7 +2123,7 @@ class _ChatViewState extends State<ChatView>
     }
 
     return MyDismissible(
-      key: e.key,
+      key: Key(e.id.val),
       direction: MyDismissDirection.up,
       onDismissed: (_) => c.attachments.remove(e),
       child: _attachment(),

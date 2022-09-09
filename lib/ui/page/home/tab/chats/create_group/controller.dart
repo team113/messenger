@@ -95,9 +95,6 @@ class CreateGroupController extends GetxController {
   /// [ChatContact]s service used to get [contacts] list.
   final ContactService _contactService;
 
-  /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
-  late final Worker _stateWorker;
-
   UserId? get me => _chatService.me;
 
   @override
@@ -145,7 +142,6 @@ class CreateGroupController extends GetxController {
 
   @override
   void onClose() {
-    _stateWorker.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _searchStatusWorker?.dispose();
