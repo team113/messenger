@@ -25,7 +25,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
-/// View for alerting password being unset.
+/// View for alerting about password not being set.
 ///
 /// Intended to be displayed with the [show] method.
 class ConfirmLogoutView extends StatelessWidget {

@@ -16,7 +16,7 @@
 
 Feature: Logout confirmation
 
-  Scenario: Confirmation is displayed when password is unset
+  Scenario: Confirmation is displayed when password isn't set
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present
 
