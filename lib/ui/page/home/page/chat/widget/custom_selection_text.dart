@@ -12,19 +12,23 @@ class CustomSelectionText extends StatelessWidget {
   const CustomSelectionText({
     Key? key,
     required this.controller,
+    required this.position,
     required this.type,
-    required this.groupId,
+    this.animation,
     required this.child,
   }) : super(key: key);
 
   /// Records a contact on the [CustomSelectionContainer].
   final ChatController controller;
 
+  /// Message position index.
+  final int position;
+
   /// Selected text type.
   final SelectionItem type;
 
-  /// Grouping multiple [SelectionData] in a group.
-  final int groupId;
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
 
   /// Widget in which there will be text to selection.
   final Widget child;
@@ -51,7 +55,8 @@ class CustomSelectionText extends StatelessWidget {
       },
       child: CustomSelectionContainer(
         controller: controller,
-        selectionData: SelectionData(type, groupId),
+        selectionData: SelectionData(position, type),
+        animation: animation,
         child: child,
       ),
     );

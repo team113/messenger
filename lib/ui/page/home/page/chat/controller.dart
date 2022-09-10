@@ -185,9 +185,9 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
-  /// All chat elements [SelectionItem] for selection.
-  /// Filled in [CustomSelectionContainer].
-  List<SelectionData> selection = [];
+  /// Each [CustomSelectionContainer] creates a [SelectionData] and adds it to the [selections].
+  /// [CustomSelectionContainer] adds selected text to [SelectionData.data].
+  List<SelectionData> selections = [];
 
   /// Indicates whether user is in contact with any [CustomSelectionText]
   /// to disable horizontal scrolling.
@@ -207,24 +207,25 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Formatted selected text.
-  /// Text sorted and formatted, for the last
-  /// [SelectionData] without formatting.
-  String get selectionText {
+  /// Formatted and sorted selected text.
+  String get selection {
     if (!isSelection) {
       return '';
     }
-    final selectionsNotEmpty =
-        selection.where((s) => s.data.value.isNotEmpty).toList();
-    final sortedSelection = _sortSelectionData(selectionsNotEmpty);
+    final List<SelectionData> sorted = _sortSelections(selectionsNotEmpty);
 
     final StringBuffer result = StringBuffer();
-    for (int i = 0; i < sortedSelection.length; i++) {
-      SelectionData selectionData = sortedSelection[i];
-      if (i == sortedSelection.length - 1) {
-        result.write(selectionData.data.value);
+    for (int i = 0; i < sorted.length; i++) {
+      SelectionData data = sorted[i];
+      // Do not indent last message.
+      if (i == sorted.length - 1) {
+        result.write(data.data.value);
       } else {
-        result.write(selectionData.formatted);
+        result.write(data.formatted);
+        // Add a blank line after each message.
+        if (data.position != sorted[i + 1].position) {
+          result.write('\n');
+        }
       }
     }
     return result.toString();
@@ -232,9 +233,18 @@ class ChatController extends GetxController {
 
   /// At least one [SelectionData.data] is not empty.
   bool get isSelection =>
-      selection
+      selections
           .firstWhereOrNull((SelectionData s) => s.data.value.isNotEmpty) !=
       null;
+
+  /// Not an empty [SelectionData.data] in [selections].
+  List<SelectionData> get selectionsNotEmpty =>
+      selections.where((s) => s.data.value.isNotEmpty).toList();
+
+  /// Find [SelectionData]s by position.
+  List<SelectionData> findSelections(int position) {
+    return selections.where((s) => s.position == position).toList();
+  }
 
   @override
   void onInit() {
@@ -672,15 +682,15 @@ class ChatController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
-  /// First sort the groups [SelectionData.groupdId] in order, and then
-  /// by item order [SelectionItem.index].
-  List<SelectionData> _sortSelectionData(List<SelectionData> selection) {
+  /// First sort the groups [SelectionData.chatPosition] in order, and then
+  /// by [SelectionItem.type] order.
+  List<SelectionData> _sortSelections(List<SelectionData> selection) {
     selection.sort((SelectionData a, SelectionData b) {
-      int groupComp = a.groupdId.compareTo(b.groupdId);
-      if (groupComp == 0) {
+      int groupCompare = a.position.compareTo(b.position);
+      if (groupCompare == 0) {
         return a.type.index.compareTo(b.type.index);
       }
-      return groupComp;
+      return groupCompare;
     });
     return selection;
   }
@@ -1016,13 +1026,13 @@ enum SelectionItem { date, time, message }
 /// Passed to [CustomSelectionContainer] which fills
 /// [data] with selected text.
 class SelectionData {
-  SelectionData(this.type, this.groupdId);
+  SelectionData(this.position, this.type);
+
+  /// Message position index.
+  final int position;
 
   /// Selected text type.
   final SelectionItem type;
-
-  /// Grouping multiple [SelectionData] in a group.
-  final int groupdId;
 
   /// Selected text.
   final RxString data = RxString('');
@@ -1036,10 +1046,8 @@ class SelectionData {
     switch (type) {
       case SelectionItem.date:
       case SelectionItem.time:
-        text += '\n';
-        break;
       case SelectionItem.message:
-        text += '\n\n';
+        text += '\n';
         break;
     }
     return text;

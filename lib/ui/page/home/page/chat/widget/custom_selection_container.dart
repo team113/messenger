@@ -26,6 +26,7 @@ class CustomSelectionContainer extends StatefulWidget {
     super.key,
     required this.controller,
     required this.selectionData,
+    required this.animation,
     required this.child,
   });
 
@@ -34,6 +35,9 @@ class CustomSelectionContainer extends StatefulWidget {
 
   /// Contains selected text.
   final SelectionData selectionData;
+
+  /// Optional animation that controls a [SwipeableStatus].
+  final AnimationController? animation;
 
   /// Widget in which there will be text to selection.
   final Widget child;
@@ -45,20 +49,22 @@ class CustomSelectionContainer extends StatefulWidget {
 class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   late final _SelectableRegionContainerDelegate delegate;
   late final SelectionData selectionData;
+  late final AnimationController? animation;
 
   @override
   void initState() {
     super.initState();
     delegate = _SelectableRegionContainerDelegate();
     selectionData = widget.selectionData;
-    widget.controller.selection.add(selectionData);
+    animation = widget.animation;
+    widget.controller.selections.add(selectionData);
     delegate.addListener(_selectionChange);
   }
 
   @override
   void dispose() {
     selectionData.data.close();
-    widget.controller.selection.remove(selectionData);
+    widget.controller.selections.remove(selectionData);
     delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();
@@ -75,10 +81,12 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   /// Getting the selected text in a [delegate].
   /// Writing data to [selectionData.data] via [RxString] stream.
   void _selectionChange() {
-    final String oldText = selectionData.data.value;
-    final String newText = delegate.getSelectedContent()?.plainText ?? '';
-    if (oldText != newText) {
-      selectionData.data.value = newText;
+    if (animation == null || animation?.isCompleted == true) {
+      final String oldText = selectionData.data.value;
+      final String newText = delegate.getSelectedContent()?.plainText ?? '';
+      if (oldText != newText) {
+        selectionData.data.value = newText;
+      }
     }
   }
 }

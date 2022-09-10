@@ -50,7 +50,6 @@ import 'widget/chat_item.dart';
 import 'widget/custom_selection_area.dart';
 import 'widget/custom_selection_text.dart';
 import 'widget/swipeable_status.dart';
-import 'widget/switcher_by_animation.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
@@ -234,7 +233,6 @@ class _ChatViewState extends State<ChatView>
                                     (BuildContext context, int i) {
                                       List<Widget> widgets = [];
                                       Rx<ChatItem> e = c.chat!.messages[i];
-
                                       if (c.lastReadItem.value == e) {
                                         widgets.add(
                                           Container(
@@ -268,7 +266,7 @@ class _ChatViewState extends State<ChatView>
                                           builder: (_, u) => ChatItemWidget(
                                             key: Key(e.value.id.val),
                                             controller: c,
-                                            chatIndex: i,
+                                            position: i,
                                             chat: c.chat!.chat,
                                             item: e,
                                             me: c.me!,
@@ -319,7 +317,7 @@ class _ChatViewState extends State<ChatView>
                                         widgets.add(_timeLabel(
                                           time: e.value.at.val,
                                           chatController: c,
-                                          chatIndex: i,
+                                          position: i,
                                         ));
                                       } else {
                                         Rx<ChatItem>? previous =
@@ -335,7 +333,7 @@ class _ChatViewState extends State<ChatView>
                                             widgets.add(_timeLabel(
                                               time: e.value.at.val,
                                               chatController: c,
-                                              chatIndex: i,
+                                              position: i,
                                             ));
                                           }
                                         }
@@ -356,8 +354,23 @@ class _ChatViewState extends State<ChatView>
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
                                     keepPosition: true,
-                                    onItemKey: (i) =>
-                                        c.chat!.messages[i].value.id.val,
+                                    onItemKey: (int i) => '$i',
+                                    onIsPermanent: (String i) {
+                                      if (!c.isSelection) {
+                                        return false;
+                                      }
+
+                                      final String currentMessage = c
+                                          .findSelections(int.parse(i))
+                                          .map((c) => c.data.value)
+                                          .join();
+
+                                      if (currentMessage.isEmpty) {
+                                        return false;
+                                      }
+
+                                      return true;
+                                    },
                                   ),
                                 ),
                               ),
@@ -523,7 +536,7 @@ class _ChatViewState extends State<ChatView>
   Widget _timeLabel({
     required DateTime time,
     required ChatController chatController,
-    required int chatIndex,
+    required int position,
   }) {
     return Column(
       children: [
@@ -535,17 +548,12 @@ class _ChatViewState extends State<ChatView>
           crossAxisAlignment: CrossAxisAlignment.center,
           swipeable: Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: SwitcherByAnimation(
+            child: CustomSelectionText(
+              controller: chatController,
+              type: SelectionItem.date,
+              position: position,
               animation: _animation,
-              childBeforeAnimation: SelectionContainer.disabled(
-                child: Text(DateFormat('dd.MM.yy').format(time)),
-              ),
-              childAfterAnimation: CustomSelectionText(
-                controller: chatController,
-                type: SelectionItem.date,
-                groupId: chatIndex,
-                child: Text(DateFormat('dd.MM.yy').format(time)),
-              ),
+              child: Text(DateFormat('dd.MM.yy').format(time)),
             ),
           ),
           child: Center(

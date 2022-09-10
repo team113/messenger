@@ -54,12 +54,12 @@ class CustomSelectionArea extends StatelessWidget {
 class _CopySelectionAction extends Action<CopySelectionTextIntent> {
   _CopySelectionAction(this.controller);
 
-  /// Pass [controller.selectionText] to [controller.copyText].
+  /// Pass [controller.selection] to [controller.copyText].
   final ChatController controller;
 
   @override
   Future<void> invoke(_) async {
-    final String clipboard = controller.selectionText;
+    final String clipboard = controller.selection;
     if (clipboard.isNotEmpty) {
       controller.copyText(clipboard.toString());
     }

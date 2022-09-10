@@ -49,7 +49,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import 'custom_selection_text.dart';
 import 'swipeable_status.dart';
-import 'switcher_by_animation.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
 /// [ChatItem] visual representation.
@@ -57,7 +56,7 @@ class ChatItemWidget extends StatefulWidget {
   const ChatItemWidget({
     Key? key,
     required this.controller,
-    required this.chatIndex,
+    required this.position,
     required this.chat,
     required this.item,
     required this.me,
@@ -77,8 +76,8 @@ class ChatItemWidget extends StatefulWidget {
   /// Controller for writing selected text.
   final ChatController controller;
 
-  /// [ChatItemWidget] numbering in [FlutterListView].
-  final int chatIndex;
+  /// Message position.
+  final int position;
 
   /// Reactive value of a [ChatItem] to display.
   final Rx<ChatItem> item;
@@ -238,7 +237,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             CustomSelectionText(
               controller: widget.controller,
               type: SelectionItem.message,
-              groupId: widget.chatIndex,
+              position: widget.position,
               child: Text(msg.text!.val),
             ),
           if (msg.text != null && msg.attachments.isNotEmpty)
@@ -555,7 +554,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: CustomSelectionText(
                       controller: widget.controller,
                       type: SelectionItem.message,
-                      groupId: widget.chatIndex,
+                      position: widget.position,
                       child: Text(
                         title,
                         maxLines: 1,
@@ -759,9 +758,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               key: const Key('CopyButton'),
               label: 'btn_copy_text'.l10n,
               onPressed: () => widget.onCopy?.call(
-                  widget.controller.selectionText.isEmpty
+                  widget.controller.selection.isEmpty
                       ? copyable
-                      : widget.controller.selectionText),
+                      : widget.controller.selection),
             ),
           ...defaultButtonMenu,
         ],
@@ -775,7 +774,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 key: const Key('CopyButton'),
                 label: 'btn_copy_text'.l10n,
                 onPressed: () =>
-                    widget.onCopy?.call(widget.controller.selectionText),
+                    widget.onCopy?.call(widget.controller.selection),
               ),
             ...defaultButtonMenu,
           ],
@@ -795,17 +794,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isRead: isSent && (!fromMe || isRead),
       isError: widget.item.value.status.value == SendingStatus.error,
       isSending: widget.item.value.status.value == SendingStatus.sending,
-      swipeable: SwitcherByAnimation(
+      swipeable: CustomSelectionText(
+        controller: widget.controller,
+        type: SelectionItem.time,
+        position: widget.position,
         animation: widget.animation,
-        childBeforeAnimation: SelectionContainer.disabled(
-          child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-        ),
-        childAfterAnimation: CustomSelectionText(
-          controller: widget.controller,
-          type: SelectionItem.time,
-          groupId: widget.chatIndex,
-          child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-        ),
+        child: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       ),
       child: Row(
         crossAxisAlignment:
