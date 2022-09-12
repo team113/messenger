@@ -1,0 +1,23 @@
+nameOverride: messenger
+
+
+image:
+  tag: edge
+  pullPolicy: Always
+
+deployment:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: "role/application"
+                operator: In
+                values: ["true"]
+
+ingress:
+  tls:
+    enabled: yes
+    auto: yes
+  httpAuth:
+    enabled: no

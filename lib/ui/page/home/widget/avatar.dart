@@ -312,7 +312,7 @@ extension _InitialsExtension on String {
 }
 
 /// Extension adding an ability to get a sum of [String] code units.
-extension _SumStringExtension on String {
+extension SumStringExtension on String {
   /// Returns a sum of [codeUnits].
   int sum() => codeUnits.fold(0, (a, b) => a + b);
 }

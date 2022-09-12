@@ -28,16 +28,16 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -46,7 +46,6 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -54,7 +53,6 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -72,22 +70,6 @@ void main() async {
   Hive.init('./test/.temp_hive/chat_attachment_widget');
   Config.init();
 
-  var userData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
-
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'startname',
@@ -100,10 +82,7 @@ void main() async {
     'createdAt': '2021-12-15T15:11:18.316846+00:00',
     'updatedAt': '2021-12-15T15:11:18.316846+00:00',
     'lastReads': [
-      {
-        'memberId': '0d72d245-8425-467a-9ebd-082d4f47850a',
-        'at': '2022-01-01T07:27:30.151628+00:00'
-      },
+      {'memberId': 'me', 'at': '2022-01-01T07:27:30.151628+00:00'},
     ],
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
@@ -134,41 +113,6 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     ChatVersion('0'),
   )).thenAnswer((_) => Future.value(chatEvents.stream));
-
-  when(graphQlProvider.myUserEvents(null)).thenAnswer(
-    (_) => Future.value(Stream.fromIterable([
-      QueryResult.internal(
-        parserFn: (_) => null,
-        source: null,
-        data: {
-          'myUserEvents': {'__typename': 'MyUser', ...userData},
-        },
-      ),
-    ])),
-  );
-
-  when(graphQlProvider.signIn(
-          UserPassword('testPass'), null, null, null, null, true))
-      .thenAnswer(
-    (_) => Future.value(SignIn$Mutation.fromJson({
-      'createSession': {
-        '__typename': 'CreateSessionOk',
-        'user': userData,
-        'session': {
-          'expireAt': '2022-08-02T13:17:55Z',
-          'token':
-              'eyJpZCI6IjU3ZTMwZjhhLWVlNmMtNDdkYy1hNTMwLWNiZDc5MmJmMjRhNiIsInNlY3JldCI6Imh4UERlekFQT0xuQ2hEOVpwOE9UUHdSOE02ODJjTFQrTW80S2ZpNGxUMnc9In0=',
-          'ver': '30611347541830950583282840677231825138'
-        },
-        'remembered': {
-          'expireAt': '2023-08-02T12:47:55Z',
-          'token':
-              'eyJpZCI6ImE0MzlmYjAwLTRiZjMtNGU5Yi1iMWE4LWJmNzYyMjdlYWQ2ZiIsInNlY3JldCI6IkdqaGVKY1BVV21hS1UyTWRNeFNwNmxTYjZUZkhhQXo0RFdiVnhYalRicWs9In0=',
-          'ver': '30611347541270427360343145140867880719'
-        }
-      }
-    }).createSession as SignIn$Mutation$CreateSession$CreateSessionOk),
-  );
 
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -214,7 +158,7 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': '0d72d245-8425-467a-9ebd-082d4f47850a',
+              'authorId': 'me',
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
               'repliesTo': null,
@@ -280,16 +224,22 @@ void main() async {
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
-  AuthService authService =
-      AuthService(AuthRepository(graphQlProvider), SessionDataHiveProvider());
-  await authService.init();
+  await sessionProvider.init();
+  await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RememberToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
 
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -311,8 +261,7 @@ void main() async {
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
-  await messagesProvider.init(
-      userId: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'));
+  await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
@@ -336,10 +285,10 @@ void main() async {
       ),
     );
     await authService.init();
-    await authService.signIn(UserPassword('testPass'));
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
+    router = RouterState(authService);
+    router.provider = MockPlatformRouteInformationProvider();
+
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -349,17 +298,15 @@ void main() async {
         graphQlProvider,
         chatProvider,
         userRepository,
-        me: const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+        me: const UserId('me'),
       ),
     );
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
 
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     Get.put(UserService(userRepository));
     Get.put(CallService(authService, settingsRepository, callRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

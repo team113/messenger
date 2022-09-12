@@ -320,12 +320,12 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// Timer for updating [duration] of the call.
+  /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
   Timer? _durationTimer;
 
-  /// Timer to toggle [showUi] value.
+  /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
@@ -496,7 +496,7 @@ class CallController extends GetxController {
         ? RxDouble(50)
         : RxDouble(size.height / 2 - height.value / 2);
 
-    void _onChat(RxChat? v) {
+    void onChat(RxChat? v) {
       chat.value = v;
 
       _putParticipant(RemoteMemberId(me, null));
@@ -517,7 +517,7 @@ class CallController extends GetxController {
         _durationSubscription?.cancel();
 
         if (v != null) {
-          void _updateTitle() {
+          void updateTitle() {
             final Map<String, String> args = {
               'title': v.title.value,
               'state': state.value.name,
@@ -558,19 +558,19 @@ class CallController extends GetxController {
             );
           }
 
-          _updateTitle();
+          updateTitle();
 
           _titleSubscription =
-              _currentCall.value.members.listen((_) => _updateTitle());
-          _durationSubscription = duration.listen((_) => _updateTitle());
+              _currentCall.value.members.listen((_) => updateTitle());
+          _durationSubscription = duration.listen((_) => updateTitle());
         }
       }
     }
 
-    _chatService.get(_currentCall.value.chatId.value).then(_onChat);
+    _chatService.get(_currentCall.value.chatId.value).then(onChat);
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_onChat),
+      (ChatId id) => _chatService.get(id).then(onChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -580,7 +580,7 @@ class CallController extends GetxController {
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
-          (timer) {
+          (_) {
             duration.value = DateTime.now().difference(begunAt);
             if (hoveredRendererTimeout > 0) {
               --hoveredRendererTimeout;

@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
@@ -81,7 +82,10 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(MaterialPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chat}/$id',
-          child: ChatView(ChatId(id)),
+          child: ChatView(
+            ChatId(id),
+            itemId: router.arguments?['itemId'] as ChatItemId?,
+          ),
         ));
 
         if (route.endsWith(Routes.chatInfo)) {

@@ -5,7 +5,6 @@ Feature: Chat attachments have correct sending status
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    And I wait until `ChatView` is present
 
   Scenario: File attachment status changes from `sending` to `sent`
     Given I have Internet with delay of 3 seconds

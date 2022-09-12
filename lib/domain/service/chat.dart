@@ -19,24 +19,25 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
+import 'auth.dart';
 import 'disposable_service.dart';
-import 'my_user.dart';
 
 /// Service responsible for [Chat]s related functionality.
 class ChatService extends DisposableService {
-  ChatService(this._chatRepository, this._myUser);
+  ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
   final AbstractChatRepository _chatRepository;
 
-  /// Service to get an authorized user.
-  final MyUserService _myUser;
+  /// [AuthService] to get an authorized user.
+  final AuthService _authService;
 
   /// Changes to `true` once the underlying data storage is initialized and
   /// [chats] value is fetched.
@@ -46,7 +47,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUser.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   @override
   void onInit() {
@@ -94,20 +95,64 @@ class ChatService extends DisposableService {
     ChatMessageText? text,
     List<Attachment>? attachments,
     ChatItem? repliesTo,
-  }) =>
-      _chatRepository.sendChatMessage(
+  }) {
+    // Forward the [repliesTo] message to this [Chat], if [text] and
+    // [attachments] are not provided.
+    if (text?.val.isNotEmpty != true &&
+        attachments?.isNotEmpty != true &&
+        repliesTo != null) {
+      List<AttachmentId> attachments = [];
+      if (repliesTo is ChatMessage) {
+        attachments = repliesTo.attachments.map((a) => a.id).toList();
+      } else if (repliesTo is ChatForward) {
+        ChatItem nested = repliesTo.item;
+        if (nested is ChatMessage) {
+          attachments = nested.attachments.map((a) => a.id).toList();
+        }
+      }
+
+      return _chatRepository.forwardChatItems(
         chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
+        chatId,
+        [ChatItemQuote(item: repliesTo, attachments: attachments)],
       );
+    }
+
+    if (text != null && text.val.length > ChatMessageText.maxLength) {
+      final List<ChatMessageText> chunks = text.split();
+      int i = 0;
+
+      return Future.forEach<ChatMessageText>(
+        chunks,
+        (text) => _chatRepository.sendChatMessage(
+          chatId,
+          text: text,
+          attachments: i++ != chunks.length - 1 ? null : attachments,
+          repliesTo: repliesTo,
+        ),
+      );
+    }
+
+    return _chatRepository.sendChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) =>
       _chatRepository.resendChatItem(item);
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
-  Future<void> hideChat(ChatId id) => _chatRepository.hideChat(id);
+  Future<void> hideChat(ChatId id) {
+    if (router.route.startsWith('${Routes.chat}/$id')) {
+      router.home();
+    }
+
+    return _chatRepository.hideChat(id);
+  }
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].
@@ -116,8 +161,26 @@ class ChatService extends DisposableService {
 
   /// Removes an [User] from a [Chat]-group by the authority of the
   /// authenticated [MyUser].
-  Future<void> removeChatMember(ChatId chatId, UserId userId) =>
-      _chatRepository.removeChatMember(chatId, userId);
+  Future<void> removeChatMember(ChatId chatId, UserId userId) async {
+    RxChat? chat;
+
+    if (userId == me) {
+      chat = chats.remove(chatId);
+      if (router.route.startsWith('${Routes.chat}/$chatId')) {
+        router.home();
+      }
+    }
+
+    try {
+      await _chatRepository.removeChatMember(chatId, userId);
+    } catch (_) {
+      if (chat != null) {
+        chats[chatId] = chat;
+      }
+
+      rethrow;
+    }
+  }
 
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until
   /// the specified [ChatItem] inclusively.
@@ -125,9 +188,9 @@ class ChatService extends DisposableService {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This method should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -137,55 +200,45 @@ class ChatService extends DisposableService {
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(ChatMessage item, ChatMessageText? text) =>
-      _chatRepository.editChatMessageText(item.id, text);
+      _chatRepository.editChatMessageText(item, text);
 
-  /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> deleteChatMessage(ChatMessage item) async {
-    UserId me = _myUser.myUser.value!.id;
-    if (item.authorId != me) {
-      throw const DeleteChatMessageException(
-        DeleteChatMessageErrorCode.notAuthor,
-      );
+  /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
+  Future<void> deleteChatItem(ChatItem item) async {
+    if (item is! ChatMessage && item is! ChatForward) {
+      throw UnimplementedError('Deletion of $item is not implemented.');
     }
+
     Chat? chat = chats[item.chatId]?.chat.value;
-    if (chat == null) {
-      throw const DeleteChatMessageException(
-        DeleteChatMessageErrorCode.unknownChatItem,
-      );
-    } else {
-      if (chat.isRead(item, me)) {
+
+    if (item is ChatMessage) {
+      if (item.authorId != me) {
+        throw const DeleteChatMessageException(
+          DeleteChatMessageErrorCode.notAuthor,
+        );
+      }
+
+      if (me != null && chat?.isRead(item, me!) == true) {
         throw const DeleteChatMessageException(DeleteChatMessageErrorCode.read);
       }
-      await _chatRepository.deleteChatMessage(item);
-    }
-  }
 
-  /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
-  Future<void> deleteChatForward(ChatForward item) async {
-    UserId me = _myUser.myUser.value!.id;
-    if (item.authorId != me) {
-      throw const DeleteChatForwardException(
-        DeleteChatForwardErrorCode.notAuthor,
-      );
-    }
-    Chat? chat = chats[item.chatId]?.chat.value;
-    if (chat == null) {
-      throw const DeleteChatForwardException(
-        DeleteChatForwardErrorCode.unknownChatItem,
-      );
-    } else {
-      if (chat.isRead(item, me)) {
+      await _chatRepository.deleteChatMessage(item);
+    } else if (item is ChatForward) {
+      if (item.authorId != me) {
+        throw const DeleteChatForwardException(
+          DeleteChatForwardErrorCode.notAuthor,
+        );
+      }
+
+      if (me != null && chat?.isRead(item, me!) == true) {
         throw const DeleteChatForwardException(DeleteChatForwardErrorCode.read);
       }
-      await _chatRepository.deleteChatForward(item.chatId, item.id);
+
+      await _chatRepository.deleteChatForward(item);
     }
   }
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
-    if (!chats.containsKey(item.chatId)) {
-      throw const HideChatItemException(HideChatItemErrorCode.unknownChatItem);
-    }
     await _chatRepository.hideChatItem(item.chatId, item.id);
   }
 
@@ -209,6 +262,30 @@ class ChatService extends DisposableService {
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  }) {
+    return _chatRepository.forwardChatItems(
+      from,
+      to,
+      items,
+      text: text,
+      attachments: attachments,
+    );
+  }
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

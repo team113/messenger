@@ -26,13 +26,11 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -41,7 +39,6 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -50,7 +47,6 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/model/chat.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -65,22 +61,6 @@ import 'chat_direct_link_chat_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_direct_link_widget');
-
-  var userData = {
-    'id': 'id',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
 
   var chatData = {
     '__typename': 'Chat',
@@ -126,9 +106,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -171,18 +148,6 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ChatVersion('0'),
     )).thenAnswer((_) => Future.value(chatEvents.stream));
-
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
-          },
-        ),
-      ])),
-    );
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -269,8 +234,6 @@ void main() async {
       ])),
     );
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -287,10 +250,8 @@ void main() async {
     );
 
     Get.put(ContactService(contactRepository));
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
     Get.put(UserService(userRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, settingsRepository, callRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
@@ -343,7 +304,6 @@ void main() async {
     await Get.deleteAll(force: true);
   });
 
-  await myUserProvider.clear();
   await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();

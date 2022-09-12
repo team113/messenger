@@ -559,7 +559,9 @@ class HiveRxChat implements RxChat {
       BoxEvent event = _localSubscription!.current;
       var i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
-        messages.removeAt(i);
+        if (i != -1) {
+          messages.removeAt(i);
+        }
       } else {
         if (event.value.value is ChatMessage && !PlatformUtils.isWeb) {
           _initializeAttachments(event.value.value as ChatMessage);
@@ -874,7 +876,7 @@ class HiveRxChat implements RxChat {
 
 /// Extension adding an ability to insert the element based on some condition to
 /// [List].
-extension _ListInsertAfter<T> on List<T> {
+extension ListInsertAfter<T> on List<T> {
   /// Inserts the [element] after the [test] condition becomes `true`.
   void insertAfter(T element, bool Function(T) test) {
     bool done = false;

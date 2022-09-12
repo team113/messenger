@@ -32,9 +32,6 @@ fragment ChatForward on ChatForward {
             ... on ChatMessage {
                 ...ChatMessage
             }
-            ... on ChatForward {
-                ...NestedChatForward
-            }
         }
         cursor
     }
