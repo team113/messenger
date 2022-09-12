@@ -431,7 +431,7 @@ class CallController extends GetxController {
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
 
     _currentCall.value.init();
@@ -808,7 +808,7 @@ class CallController extends GetxController {
   /// Raises/lowers a hand.
   Future<void> toggleHand() {
     keepUi();
-    return _currentCall.value.toggleHand(_calls, chatId);
+    return _currentCall.value.toggleHand(_calls);
   }
 
   /// Toggles the [displayMore].
@@ -1652,7 +1652,7 @@ class CallController extends GetxController {
 
   /// Puts the provided [track] to the [Participant] this [member] represents.
   ///
-  /// If no suitable [Participant]s for this [track] found, then a new
+  /// If no suitable [Participant]s for this [track] are found, then a new
   /// [Participant] with this [track] is added.
   void _putParticipant(CallMember member, Track? track) {
     final Iterable<Participant> participants =

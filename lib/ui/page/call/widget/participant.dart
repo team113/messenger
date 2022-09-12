@@ -243,7 +243,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
-            // TODO: Replace `speaker_off` icon to one with smaller padding.
             child: SvgLoader.asset(
               'assets/icons/speaker_off.svg',
               height: 35,

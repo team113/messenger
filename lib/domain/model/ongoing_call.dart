@@ -969,9 +969,9 @@ class OngoingCall {
   }
 
   /// Raises/lowers a hand of the authorized [MyUser].
-  Future<void> toggleHand(CallService service, ChatId chatId) async {
+  Future<void> toggleHand(CallService service) {
     members[_me]!.isHandRaised.toggle();
-    await _toggleHand(service);
+    return _toggleHand(service);
   }
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
