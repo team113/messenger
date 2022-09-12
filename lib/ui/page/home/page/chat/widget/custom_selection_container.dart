@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -50,6 +51,8 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   late final _SelectableRegionContainerDelegate delegate;
   late final SelectionData selectionData;
   late final AnimationController? animation;
+  int lastTap = DateTime.now().millisecondsSinceEpoch;
+  int consecutiveTaps = 0;
 
   @override
   void initState() {
@@ -72,9 +75,25 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return SelectionContainer(
-      delegate: delegate,
-      child: widget.child,
+    return GestureDetector(
+      onTap: () {
+        int now = DateTime.now().millisecondsSinceEpoch;
+        if (consecutiveTaps == 0 ||
+            now - lastTap <= kDoubleTapTimeout.inMilliseconds) {
+          consecutiveTaps++;
+          if (consecutiveTaps == 3) {
+            delegate.handleSelectAll(const SelectAllSelectionEvent());
+            consecutiveTaps = 0;
+          }
+        } else {
+          consecutiveTaps = 0;
+        }
+        lastTap = now;
+      },
+      child: SelectionContainer(
+        delegate: delegate,
+        child: widget.child,
+      ),
     );
   }
 
