@@ -55,114 +55,124 @@ class ContactsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(Get.find(), Get.find(), Get.find()),
-      builder: (ContactsTabController c) => Scaffold(
-        appBar: CustomAppBar.from(
-          context: context,
-          title: Text(
-            'label_contacts'.l10n,
-            style: Theme.of(context).textTheme.caption?.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 18,
+      builder: (ContactsTabController c) {
+        return Scaffold(
+          appBar: CustomAppBar.from(
+            context: context,
+            title: Text(
+              'label_contacts'.l10n,
+              style: Theme.of(context).textTheme.caption?.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w300,
+                    fontSize: 18,
+                  ),
+            ),
+            actions: [
+              const SizedBox(width: 40),
+              // Padding(
+              //   padding: const EdgeInsets.only(right: 8.0),
+              //   child: IconButton(
+              //     splashColor: Colors.transparent,
+              //     hoverColor: Colors.transparent,
+              //     highlightColor: Colors.transparent,
+              //     onPressed: c.sortByName.toggle,
+              //     icon: Obx(() {
+              //       return AnimatedSwitcher(
+              //         duration: 300.milliseconds,
+              //         child: c.sortByName.value
+              //             ? SvgLoader.asset(
+              //                 'assets/icons/sort_abc.svg',
+              //                 key: const Key('SortByAlpha'),
+              //                 width: 27.07,
+              //                 height: 18.41,
+              //               )
+              //             : SvgLoader.asset(
+              //                 'assets/icons/sort_time.svg',
+              //                 key: const Key('SortByTime'),
+              //                 width: 34.13,
+              //                 height: 22.63,
+              //               ),
+              //       );
+              //     }),
+              //   ),
+              // ),
+            ],
+            leading: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: IconButton(
+                  splashColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () async {
+                    await ModalPopup.show(
+                      context: context,
+                      desktopConstraints: const BoxConstraints(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                      ),
+                      modalConstraints: const BoxConstraints(maxWidth: 380),
+                      mobileConstraints: const BoxConstraints(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                      ),
+                      mobilePadding: const EdgeInsets.all(0),
+                      child: const SearchContactView(),
+                    );
+                  },
+                  icon:
+                      SvgLoader.asset('assets/icons/search.svg', width: 17.77),
                 ),
+              ),
+            ],
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: IconButton(
-                splashColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onPressed: c.sortByName.toggle,
-                icon: Obx(() {
-                  return AnimatedSwitcher(
-                    duration: 300.milliseconds,
-                    child: c.sortByName.value
-                        ? const Icon(
-                            Icons.sort_by_alpha,
-                            key: Key('SortByAlpha'),
-                            color: Color(0xFF63B4FF),
-                          )
-                        : const Icon(
-                            Icons.sort,
-                            key: Key('Sort'),
-                            color: Color(0xFF63B4FF),
-                          ),
-                  );
-                }),
+          extendBodyBehindAppBar: true,
+          extendBody: true,
+          body: Obx(() {
+            if (c.contacts.isEmpty) {
+              return Center(child: Text('label_no_contacts'.l10n));
+            }
+
+            var metrics = MediaQuery.of(context);
+            return MediaQuery(
+              data: metrics.copyWith(
+                padding: metrics.padding.copyWith(
+                  top: metrics.padding.top + 56 + 4,
+                  bottom: metrics.padding.bottom - 18,
+                ),
               ),
-            ),
-          ],
-          leading: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: IconButton(
-                splashColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-                onPressed: () async {
-                  await ModalPopup.show(
-                    context: context,
-                    desktopConstraints: const BoxConstraints(
-                      maxWidth: double.infinity,
-                      maxHeight: double.infinity,
-                    ),
-                    modalConstraints: const BoxConstraints(maxWidth: 380),
-                    mobileConstraints: const BoxConstraints(
-                      maxWidth: double.infinity,
-                      maxHeight: double.infinity,
-                    ),
-                    mobilePadding: const EdgeInsets.all(0),
-                    child: const SearchContactView(),
-                  );
-                },
-                icon: SvgLoader.asset('assets/icons/search.svg', width: 17.77),
-              ),
-            ),
-          ],
-        ),
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        body: Obx(() {
-          var metrics = MediaQuery.of(context);
-          return MediaQuery(
-            data: metrics.copyWith(
-              padding: metrics.padding.copyWith(
-                top: metrics.padding.top + 56 + 4,
-                bottom: metrics.padding.bottom - 18,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: ContextMenuInterceptor(
-                child: AnimationLimiter(
-                  child: ListView.builder(
-                    controller: ScrollController(),
-                    itemCount: c.contacts.length,
-                    itemBuilder: (BuildContext context, int i) {
-                      RxChatContact? e = c.contacts.values.elementAt(i);
-                      return AnimationConfiguration.staggeredList(
-                        position: i,
-                        duration: const Duration(milliseconds: 375),
-                        child: SlideAnimation(
-                          horizontalOffset: 50.0,
-                          child: FadeInAnimation(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 10, right: 10),
-                              child: _contact(context, e, c),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: ContextMenuInterceptor(
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                      controller: ScrollController(),
+                      itemCount: c.contacts.length,
+                      itemBuilder: (BuildContext context, int i) {
+                        RxChatContact? e = c.contacts.values.elementAt(i);
+                        return AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            horizontalOffset: 50.0,
+                            child: FadeInAnimation(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: _contact(context, e, c),
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
-      ),
+            );
+          }),
+        );
+      },
     );
   }
 

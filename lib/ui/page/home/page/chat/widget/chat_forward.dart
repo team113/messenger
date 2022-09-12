@@ -208,14 +208,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
               children: [
                 if (!fromMe && widget.chat.value!.isGroup)
-                  Padding(
-                    padding: EdgeInsets.only(top: 8 + avatarOffset),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => router.user(widget.authorId, push: true),
-                      child: AvatarWidget.fromRxUser(widget.user, radius: 15),
-                    ),
-                  ),
+                  const SizedBox(width: 30),
                 Flexible(
                   child: LayoutBuilder(builder: (context, constraints) {
                     return ConstrainedBox(
@@ -322,6 +315,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
                               child: ClipRRect(
+                                clipBehavior:
+                                    fromMe ? Clip.antiAlias : Clip.none,
                                 borderRadius: BorderRadius.circular(15),
                                 child: IntrinsicWidth(
                                   child: AnimatedContainer(
@@ -330,9 +325,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                       color: fromMe
                                           ? isRead
                                               ? const Color.fromRGBO(
-                                                  210, 227, 249, 1)
+                                                  210,
+                                                  227,
+                                                  249,
+                                                  1,
+                                                )
                                               : const Color.fromARGB(
-                                                  255, 244, 249, 255)
+                                                  255,
+                                                  244,
+                                                  249,
+                                                  255,
+                                                )
                                           : Colors.white,
                                       borderRadius: BorderRadius.circular(15),
                                       border: fromMe
@@ -350,39 +353,66 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        ...widget.forwards
-                                            .map(_forwardedMessage),
+                                        ...widget.forwards.mapIndexed(
+                                          (i, e) => ClipRRect(
+                                            clipBehavior: i == 0
+                                                ? Clip.antiAlias
+                                                : Clip.none,
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topLeft: Radius.circular(15),
+                                              topRight: Radius.circular(15),
+                                            ),
+                                            child: _forwardedMessage(e),
+                                          ),
+                                        ),
                                         if (widget.note.value == null &&
                                             !fromMe &&
                                             widget.chat.value?.isGroup == true)
-                                          AnimatedOpacity(
-                                            duration: const Duration(
-                                                milliseconds: 500),
-                                            opacity: isRead
-                                                ? 1
-                                                : fromMe
-                                                    ? 0.55
-                                                    : 1,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                12,
-                                                0,
-                                                9,
-                                                4,
-                                              ),
-                                              child: Text(
-                                                widget.user?.user.value.name
-                                                        ?.val ??
-                                                    widget.user?.user.value.num
-                                                        .val ??
-                                                    '...',
-                                                style: style.boldBody
-                                                    .copyWith(color: color),
-                                              ),
+                                          Transform.translate(
+                                            offset: const Offset(-36, 0),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Transform.translate(
+                                                  offset: const Offset(0, -2),
+                                                  child: InkWell(
+                                                    customBorder:
+                                                        const CircleBorder(),
+                                                    onTap: () => router.user(
+                                                        widget.authorId,
+                                                        push: true),
+                                                    child:
+                                                        AvatarWidget.fromRxUser(
+                                                      widget.user,
+                                                      radius: 15,
+                                                      useLayoutBuilder: false,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                    12 + 6,
+                                                    4,
+                                                    9,
+                                                    4,
+                                                  ),
+                                                  child: Text(
+                                                    widget.user?.user.value.name
+                                                            ?.val ??
+                                                        widget.user?.user.value
+                                                            .num.val ??
+                                                        '...',
+                                                    style: style.boldBody
+                                                        .copyWith(color: color),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        if (widget.note.value != null) _note(),
+                                        if (widget.note.value != null)
+                                          ..._note(),
                                       ],
                                     ),
                                   ),
@@ -415,6 +445,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     Widget? content;
     List<Widget> additional = [];
+
+    bool isFirst = widget.forwards.indexOf(forward) == 0;
 
     if (item is ChatMessage) {
       var desc = StringBuffer();
@@ -630,7 +662,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             Row(
                               children: [
                                 // const SizedBox(width: 6),
-                                Icon(Icons.reply, size: 17, color: color),
+                                Transform.scale(
+                                  scaleX: -1,
+                                  child:
+                                      Icon(Icons.reply, size: 17, color: color),
+                                ),
                                 const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
@@ -670,7 +706,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  Widget _note() {
+  List<Widget> _note() {
     Rx<ChatItem> e = widget.note.value!;
     ChatItem item = e.value;
 
@@ -696,57 +732,61 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
 
-      return IntrinsicWidth(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (item.repliesTo != null)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: (item.repliesTo!.authorId == widget.me)
-                      ? isRead
-                          ? const Color.fromRGBO(219, 234, 253, 1)
-                          : const Color.fromRGBO(230, 241, 254, 1)
-                      : isRead
-                          ? const Color.fromRGBO(249, 249, 249, 1)
-                          : const Color.fromRGBO(255, 255, 255, 1),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  ),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: isRead
-                        ? 1
-                        : fromMe
-                            ? 0.55
-                            : 1,
-                    child: WidgetButton(
-                      onPressed: () =>
-                          widget.onRepliedTap?.call(item.repliesTo!.id),
-                      child: _repliedMessage(item.repliesTo!),
-                    ),
-                  ),
-                ),
+      return [
+        if (item.repliesTo != null)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: (item.repliesTo!.authorId == widget.me)
+                  ? isRead
+                      ? const Color.fromRGBO(219, 234, 253, 1)
+                      : const Color.fromRGBO(230, 241, 254, 1)
+                  : isRead
+                      ? const Color.fromRGBO(249, 249, 249, 1)
+                      : const Color.fromRGBO(255, 255, 255, 1),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
               ),
-            if (!fromMe && widget.chat.value?.isGroup == true)
-              AnimatedOpacity(
+            ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
+              child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
                 opacity: isRead
                     ? 1
                     : fromMe
                         ? 0.55
                         : 1,
-                child: Padding(
+                child: WidgetButton(
+                  onPressed: () =>
+                      widget.onRepliedTap?.call(item.repliesTo!.id),
+                  child: _repliedMessage(item.repliesTo!),
+                ),
+              ),
+            ),
+          ),
+        if (!fromMe && widget.chat.value?.isGroup == true)
+          Transform.translate(
+            offset: const Offset(-36, 0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => router.user(widget.authorId, push: true),
+                  child: AvatarWidget.fromRxUser(
+                    widget.user,
+                    radius: 15,
+                    useLayoutBuilder: false,
+                  ),
+                ),
+                Padding(
                   padding: EdgeInsets.fromLTRB(
-                    12,
+                    12 + 6,
                     8,
                     9,
                     files.isEmpty && attachments.isNotEmpty && item.text == null
@@ -762,107 +802,106 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     style: style.boldBody.copyWith(color: color),
                   ),
                 ),
+              ],
+            ),
+          ),
+        if (item.text != null)
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 500),
+            opacity: isRead
+                ? 1
+                : fromMe
+                    ? 0.55
+                    : 1,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                12,
+                (!fromMe && widget.chat.value?.isGroup == true) ? 0 : 10,
+                9,
+                files.isEmpty ? 10 : 0,
               ),
-            if (item.text != null)
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: isRead
-                    ? 1
-                    : fromMe
-                        ? 0.55
-                        : 1,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    12,
-                    (!fromMe && widget.chat.value?.isGroup == true) ? 0 : 10,
-                    9,
-                    files.isEmpty ? 10 : 0,
-                  ),
-                  child: Text(item.text!.val, style: style.boldBody),
-                ),
+              child: Text(item.text!.val, style: style.boldBody),
+            ),
+          ),
+        if (files.isNotEmpty)
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 500),
+            opacity: isRead
+                ? 1
+                : fromMe
+                    ? 0.55
+                    : 1,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+              child: Column(
+                children: files.map((e) => _buildFileAttachment(e)).toList(),
               ),
-            if (files.isNotEmpty)
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: isRead
-                    ? 1
-                    : fromMe
-                        ? 0.55
-                        : 1,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                  child: Column(
-                    children:
-                        files.map((e) => _buildFileAttachment(e)).toList(),
-                  ),
-                ),
-              ),
-            if (attachments.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topLeft: item.text != null ||
-                          item.repliesTo != null ||
-                          (!fromMe && widget.chat.value?.isGroup == true)
-                      ? Radius.zero
-                      : files.isEmpty
-                          ? const Radius.circular(15)
-                          : Radius.zero,
-                  topRight: item.text != null ||
-                          item.repliesTo != null ||
-                          (!fromMe && widget.chat.value?.isGroup == true)
-                      ? Radius.zero
-                      : files.isEmpty
-                          ? const Radius.circular(15)
-                          : Radius.zero,
-                  bottomLeft: const Radius.circular(15),
-                  bottomRight: const Radius.circular(15),
-                  // bottomLeft: files.isEmpty
-                  //     ? const Radius.circular(15)
-                  //     : Radius.zero,
-                  // bottomRight: files.isEmpty
-                  //     ? const Radius.circular(15)
-                  //     : Radius.zero,
-                ),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: isRead
-                      ? 1
-                      : fromMe
-                          ? 0.55
-                          : 1,
-                  child: attachments.length == 1
-                      ? _buildMediaAttachment(
-                          0,
-                          attachments.first,
-                          attachments,
-                          _noteKeys[0],
-                          filled: false,
-                        )
-                      : SizedBox(
-                          width: attachments.length * 120,
-                          height: max(attachments.length * 60, 300),
-                          child: FitView(
-                            dividerColor: Colors.transparent,
-                            children: attachments
-                                .mapIndexed(
-                                  (i, e) => _buildMediaAttachment(
-                                    i,
-                                    e,
-                                    attachments,
-                                    _noteKeys[i],
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                ),
-              ),
-          ],
-        ),
-      );
+            ),
+          ),
+        if (attachments.isNotEmpty)
+          ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: item.text != null ||
+                      item.repliesTo != null ||
+                      (!fromMe && widget.chat.value?.isGroup == true)
+                  ? Radius.zero
+                  : files.isEmpty
+                      ? const Radius.circular(15)
+                      : Radius.zero,
+              topRight: item.text != null ||
+                      item.repliesTo != null ||
+                      (!fromMe && widget.chat.value?.isGroup == true)
+                  ? Radius.zero
+                  : files.isEmpty
+                      ? const Radius.circular(15)
+                      : Radius.zero,
+              bottomLeft: const Radius.circular(15),
+              bottomRight: const Radius.circular(15),
+              // bottomLeft: files.isEmpty
+              //     ? const Radius.circular(15)
+              //     : Radius.zero,
+              // bottomRight: files.isEmpty
+              //     ? const Radius.circular(15)
+              //     : Radius.zero,
+            ),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: isRead
+                  ? 1
+                  : fromMe
+                      ? 0.55
+                      : 1,
+              child: attachments.length == 1
+                  ? _buildMediaAttachment(
+                      0,
+                      attachments.first,
+                      attachments,
+                      _noteKeys[0],
+                      filled: false,
+                    )
+                  : SizedBox(
+                      width: attachments.length * 120,
+                      height: max(attachments.length * 60, 300),
+                      child: FitView(
+                        dividerColor: Colors.transparent,
+                        children: attachments
+                            .mapIndexed(
+                              (i, e) => _buildMediaAttachment(
+                                i,
+                                e,
+                                attachments,
+                                _noteKeys[i],
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+            ),
+          ),
+      ];
     }
 
-    return Container();
+    return [];
   }
 
   Widget _buildFileAttachment(Attachment e) {

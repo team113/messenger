@@ -2053,8 +2053,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           key: const ValueKey('TitleBar'),
                           opacity: c.secondaryHovered.value ? 1 : 0,
                           child: ConditionalBackdropFilter(
+                            condition: PlatformUtils.isWeb,
                             child: Container(
-                              color: const Color(0x9D165084),
+                              // TODO: Wait for fix on `Flutter` end.
+                              color: PlatformUtils.isWeb
+                                  ? const Color(0x9D165084)
+                                  : const Color.fromRGBO(22, 80, 132, 0.916),
                               child: Row(
                                 children: [
                                   const SizedBox(width: 7),

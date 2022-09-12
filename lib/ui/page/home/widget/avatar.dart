@@ -49,6 +49,7 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.showBadge = false,
     this.isAway = false,
+    this.useLayoutBuilder = true,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -156,6 +157,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    bool useLayoutBuilder = true,
   }) {
     if (user == null) {
       return AvatarWidget(
@@ -167,6 +169,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        useLayoutBuilder: useLayoutBuilder,
       );
     }
 
@@ -182,6 +185,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        useLayoutBuilder: false,
       ),
     );
   }
@@ -279,6 +283,7 @@ class AvatarWidget extends StatelessWidget {
 
   final bool showBadge;
   final bool isAway;
+  final bool useLayoutBuilder;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -323,7 +328,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this
   Widget _avatar(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    Widget child(BoxConstraints? constraints) {
       Color gradient;
 
       if (color != null) {
@@ -335,10 +340,22 @@ class AvatarWidget extends StatelessWidget {
         gradient = const Color(0xFF555555);
       }
 
-      var minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-      var minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-      var maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-      var maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+      double minWidth = min(
+        _minDiameter,
+        constraints?.smallest.shortestSide ?? _minDiameter,
+      );
+      double minHeight = min(
+        _minDiameter,
+        constraints?.smallest.shortestSide ?? _minDiameter,
+      );
+      double maxWidth = min(
+        _maxDiameter,
+        constraints?.biggest.shortestSide ?? _maxDiameter,
+      );
+      double maxHeight = min(
+        _maxDiameter,
+        constraints?.biggest.shortestSide ?? _maxDiameter,
+      );
 
       double badgeSize = max(5, maxWidth / 12);
       if (maxWidth < 40) {
@@ -387,22 +404,26 @@ class AvatarWidget extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: avatar == null
-              ? LayoutBuilder(builder: (context, constraints) {
-                  return Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40.0),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  );
-                })
+              ? Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                )
               : null,
         ),
       );
-    });
+    }
+
+    if (!useLayoutBuilder) {
+      return child(null);
+    }
+
+    return LayoutBuilder(builder: (context, constraints) => child(constraints));
   }
 }
 
