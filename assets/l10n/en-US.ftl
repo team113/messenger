@@ -406,6 +406,7 @@ label_offline = Offline
 label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_set_successfully = Password successfully set
 label_password_was_changed = Password was changed

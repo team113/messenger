@@ -1090,7 +1090,7 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantView(_currentCall, duration),
+      child: ParticipantsView(_currentCall, duration),
     );
   }
 

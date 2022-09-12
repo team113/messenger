@@ -420,6 +420,7 @@ label_offline = Офлайн
 label_online = Онлайн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен

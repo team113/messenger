@@ -19,29 +19,46 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/call.dart';
-import 'package:messenger/domain/service/user.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 
-import '/domain/model/user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
+import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import 'view.dart';
 
 export 'view.dart';
 
+/// Stage of an chat member addition modal.
 enum ParticipantsFlowStage {
+  /// Participants adding stage.
   adding,
-  addedSuccess,
+
+  /// Chat participants stage.
+  participants,
+}
+
+/// Part of an users search result.
+enum SearchResultPart {
+  /// Recent users part.
+  recent,
+
+  /// Contacts part.
+  contacts,
+
+  /// Global users part.
+  users,
 }
 
 /// Controller of the chat member addition modal.
@@ -58,13 +75,19 @@ class ParticipantController extends GetxController {
   /// Reactive state of the [Chat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  final Rx<RxUser?> hoveredUser = Rx(null);
-
   /// Pops the [ParticipantsView] this controller is bound to.
   final Function() pop;
 
-  final Rx<ParticipantsFlowStage?> stage = Rx(null);
+  /// [ParticipantsFlowStage] of this addition modal.
+  final Rx<ParticipantsFlowStage> stage =
+      Rx(ParticipantsFlowStage.participants);
 
+  /// Status of an [addMembers] completion.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [addMembers] is executing.
+  /// - `status.isLoading`, meaning [addMembers] is executing.
+  /// - `status.isSuccess`, meaning the [addMembers] was successfully executed.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   /// Reactive list of the selected [ChatContact]s.
@@ -76,17 +99,45 @@ class ParticipantController extends GetxController {
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
+  /// Status of an [_search] completion.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [_search] is executing.
+  /// - `status.isLoading`, meaning [_search] is executing.
+  /// - `status.isLoadingMore`, meaning some [searchResults] is exist.
+  /// - `status.isSuccess`, meaning the [_search] was successfully executed.
+  /// - `status.isError`, meaning the [_search] got an error.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
+  /// Reactive map of recent [User]s passed [query].
+  final RxMap<UserId, RxUser> recent = RxMap();
+
+  /// Reactive map of [ChatContact]s passed [query].
+  final RxMap<UserId, RxChatContact> contacts = RxMap();
+
+  /// Reactive map of [User]s passed [query].
+  final RxMap<UserId, RxUser> users = RxMap();
+
+  /// [FlutterListViewController] of a [User]s and [ChatContact]s.
+  final FlutterListViewController controller = FlutterListViewController();
+
+  /// [TextFieldState] of a [User]s search field.
   late final TextFieldState search;
+
+  /// Reactive value of the [search].
+  final RxnString query = RxnString();
+
+  /// Selected contacts users or recent
+  final Rx<SearchResultPart> selected = Rx(SearchResultPart.recent);
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
 
+  /// Worker to react on [query] changes.
   Worker? _searchWorker;
-  Worker? _searchDebounce;
 
-  final RxnString query = RxnString();
+  /// Worker performing a [_search] on [query] changes with debounce.
+  Worker? _searchDebounce;
 
   /// The [OngoingCall] that this settings are bound to.
   final Rx<OngoingCall> _call;
@@ -94,9 +145,10 @@ class ParticipantController extends GetxController {
   /// [Chat]s service used to add members to a [Chat].
   final ChatService _chatService;
 
-  /// Calls service used to transform current call into group call.
+  /// Calls service used to transform dialog call into group call.
   final CallService _callService;
 
+  /// Users service used to search [Users]s.
   final UserService _userService;
 
   /// [ChatContact]s service used to get [contacts] list.
@@ -108,16 +160,11 @@ class ParticipantController extends GetxController {
   /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
   late final Worker _stateWorker;
 
+  /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   /// ID of the [Chat] this modal is about.
   Rx<ChatId> get chatId => _call.value.chatId;
-
-  // /// Returns the current reactive map of [ChatContact]s.
-  // RxObsMap<ChatContactId, RxChatContact> get contacts =>
-  //     _contactService.contacts;
-
-  // RxObsMap<ChatId, RxChat> get chats => _chatService.chats;
 
   @override
   void onInit() {
@@ -145,11 +192,15 @@ class ParticipantController extends GetxController {
       }
     });
 
-    _searchDebounce = debounce(query, (String? v) {
-      if (v != null) {
-        _search(v);
-      }
-    });
+    _searchDebounce = debounce(
+      query,
+      (String? q) {
+        if (q != null) {
+          _search(q);
+        }
+      },
+      time: 100.milliseconds,
+    );
 
     _searchWorker = ever(query, (String? q) {
       if (q == null || q.isEmpty) {
@@ -172,11 +223,11 @@ class ParticipantController extends GetxController {
       int? first = list.firstOrNull?.index;
       if (first != null) {
         if (first >= recent.length + contacts.length) {
-          selected.value = 2;
+          selected.value = SearchResultPart.users;
         } else if (first >= recent.length) {
-          selected.value = 1;
+          selected.value = SearchResultPart.contacts;
         } else {
-          selected.value = 0;
+          selected.value = SearchResultPart.recent;
         }
       }
     };
@@ -201,9 +252,11 @@ class ParticipantController extends GetxController {
     super.onClose();
   }
 
-  /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
-  /// [Chat]-group with the current [Chat]-dialog members, [selectedContacts]
-  /// and [selectedUsers].
+  /// Adds [selectedContacts] and [selectedUsers] to [chat].
+  ///
+  /// If [chat] is [Chat]-dialog then moves an ongoing [ChatCall] in a
+  /// [Chat]-dialog to a newly created [Chat]-group with the current
+  /// [Chat]-dialog members, [selectedContacts] and [selectedUsers].
   Future<void> addMembers({ChatName? groupName}) async {
     status.value = RxStatus.loading();
 
@@ -229,7 +282,8 @@ class ParticipantController extends GetxController {
       }
 
       status.value = RxStatus.success();
-      stage.value = ParticipantsFlowStage.addedSuccess;
+      stage.value = ParticipantsFlowStage.participants;
+      MessagePopup.success('label_participants_added_successfully'.l10n);
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } on TransformDialogCallIntoGroupCallException catch (e) {
@@ -251,6 +305,7 @@ class ParticipantController extends GetxController {
     }
   }
 
+  /// Selects or unselects the specified [user].
   void selectUser(RxUser user) {
     if (selectedUsers.contains(user)) {
       selectedUsers.remove(user);
@@ -268,6 +323,9 @@ class ParticipantController extends GetxController {
     }
   }
 
+  /// Performs searching for [User]s based on the provided [query].
+  ///
+  /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
     _searchStatusWorker?.dispose();
     _searchStatusWorker = null;
@@ -284,7 +342,7 @@ class ParticipantController extends GetxController {
       }
 
       try {
-        name = UserName(query);
+        name = UserName.unchecked(query);
       } catch (e) {
         // No-op.
       }
@@ -319,9 +377,6 @@ class ParticipantController extends GetxController {
     }
   }
 
-  final RxInt selected = RxInt(0);
-  final FlutterListViewController controller = FlutterListViewController();
-
   void jumpTo(int i) {
     if (i == 0) {
       controller.jumpTo(0);
@@ -340,20 +395,6 @@ class ParticipantController extends GetxController {
         controller.jumpTo(to);
       }
     }
-  }
-
-  final RxMap<UserId, RxUser> recent = RxMap();
-  final RxMap<UserId, RxChatContact> contacts = RxMap();
-  final RxMap<UserId, RxUser> users = RxMap();
-
-  RxMap<UserId, dynamic> getMap(int i) {
-    if (i >= recent.length + contacts.length) {
-      return recent;
-    } else if (i >= recent.length) {
-      return contacts;
-    }
-
-    return users;
   }
 
   dynamic getIndex(int i) {
@@ -387,7 +428,7 @@ class ParticipantController extends GetxController {
         u.id: u,
     };
 
-    Map allContacts = {
+    Map<UserId, RxChatContact> allContacts = {
       for (var u in _contactService.contacts.values.where((e) {
         if (e.contact.value.users.length == 1) {
           RxUser? user = e.user.value;
@@ -429,7 +470,7 @@ class ParticipantController extends GetxController {
     };
 
     if (searchResults.value?.isNotEmpty == true) {
-      Map allUsers = {
+      Map<UserId, RxUser> allUsers = {
         for (var u in searchResults.value!.where((e) {
           if (chat.value?.members.containsKey(e.id) != true &&
               !recent.containsKey(e.id) &&
@@ -456,7 +497,7 @@ class ParticipantController extends GetxController {
         ...allUsers,
       };
     } else {
-      Map allUsers = {
+      Map<UserId, RxUser> allUsers = {
         for (var u in _chatService.chats.values.map((e) {
           if (e.chat.value.isDialog) {
             RxUser? user =
@@ -498,8 +539,5 @@ class ParticipantController extends GetxController {
         ...allUsers,
       };
     }
-
-    print(
-        '_populate, recent: ${recent.length}, contact: ${contacts.length}, user: ${users.length}');
   }
 }

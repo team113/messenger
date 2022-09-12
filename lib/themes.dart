@@ -18,8 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/util/platform_utils.dart';
-
 /// Application themes constants.
 class Themes {
   /// Returns a light theme.
@@ -27,28 +25,15 @@ class Themes {
     ColorScheme colors = ThemeData.light().colorScheme.copyWith(
           primary: const Color(0xFF888888),
           onPrimary: Colors.white,
-          secondary: const Color(0xFF63B4FF),
+          secondary: Colors.blue,
           onSecondary: Colors.white,
-          // background: Colors.white,
-          // background: const Color(0xFFFAFAFA),
-          background: const Color(0xFFF5F8FA),
+          background: Colors.white,
           onBackground: Colors.black,
         );
 
-    if (PlatformUtils.isAndroid) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Color(0xFFF0F0F0),
-        ),
-      );
-    } else {
-      SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light);
-    }
+    SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
+        ? SystemUiOverlayStyle.dark
+        : SystemUiOverlayStyle.light);
 
     return ThemeData.light().copyWith(
         extensions: [
@@ -86,8 +71,7 @@ class Themes {
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: Colors.transparent,
-        //colors.background,
+        scaffoldBackgroundColor: colors.background,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
@@ -105,96 +89,44 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: GoogleFonts.roboto(
-                color: Colors.black,
-                fontWeight: FontWeight.w300,
-                fontSize: 18,
-              ),
             ),
         tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: GoogleFonts.robotoTextTheme(),
+        primaryTextTheme: ThemeData.light()
+            .primaryTextTheme
+            .copyWith(headline6: TextStyle(color: colors.primary)),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
-        textTheme: GoogleFonts.robotoTextTheme().copyWith(
-          headline1: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w300,
-            fontSize: 24,
-          ),
-          headline2: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w300,
-            fontSize: 15.4,
-          ),
-          headline3: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
-          headline4: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 18,
-          ),
-          headline5: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w400,
-            fontSize: 18,
-          ),
-          headline6: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-          caption: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w300,
-            fontSize: 13,
-          ),
-          button: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 24 * 0.7,
-          ),
-          overline: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w300,
-            fontSize: 17,
-          ),
-          subtitle1: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          subtitle2: TextStyle(
-            color: colors.primary,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          bodyText1: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-            fontWeight: FontWeight.w300,
-          ),
-          bodyText2: const TextStyle(
-            color: Colors.black,
-            fontSize: 13,
-            fontWeight: FontWeight.w300,
-          ),
+        textTheme: GoogleFonts.robotoTextTheme(
+          ThemeData.light().textTheme.copyWith(
+                headline3: TextStyle(color: colors.primary, fontSize: 30),
+                headline4: TextStyle(color: colors.primary, fontSize: 24),
+                headline5: TextStyle(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
+                ),
+                caption: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w300,
+                  fontSize: 17,
+                ),
+                subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
+                subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
+              ),
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
               hoverColor: colors.secondary,
               fillColor: colors.secondary,
-              hintStyle: GoogleFonts.roboto(color: colors.primary),
-              labelStyle: GoogleFonts.roboto(color: colors.primary),
-              errorStyle: GoogleFonts.roboto(color: Colors.red, fontSize: 13),
+              hintStyle: TextStyle(color: colors.primary),
+              labelStyle: TextStyle(color: colors.primary),
+              errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
               errorMaxLines: 5,
-              floatingLabelStyle: GoogleFonts.roboto(color: colors.primary),
+              floatingLabelStyle: TextStyle(color: colors.primary),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(color: colors.secondary),
@@ -233,7 +165,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.primary,
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
               color: colors.primary,
               fontSize: 17,
             ),
@@ -248,7 +180,7 @@ class Themes {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             side: BorderSide(width: 1, color: colors.primary),
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
               color: colors.primary,
               fontSize: 17,
             ),
@@ -256,30 +188,16 @@ class Themes {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: colors.secondary,
+            backgroundColor: colors.secondary,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
-            textStyle: GoogleFonts.roboto(
+            textStyle: TextStyle(
               color: colors.primary,
               fontSize: 15,
             ),
           ),
         ),
-        sliderTheme: ThemeData.light().sliderTheme.copyWith(
-              trackHeight: 2,
-              activeTrackColor: Colors.blue,
-              inactiveTrackColor: Colors.white.withOpacity(.5),
-              thumbColor: Colors.blue,
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6,
-              ),
-              overlayShape: SliderComponentShape.noOverlay,
-            ),
-        scrollbarTheme: ThemeData.light().scrollbarTheme.copyWith(
-              thickness: MaterialStateProperty.all(6),
-              // radius: Radius.zero,
-            ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),

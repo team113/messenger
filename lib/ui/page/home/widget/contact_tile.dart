@@ -15,13 +15,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/domain/model/contact.dart';
+import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/region.dart';
+
+/// [ChatContact] or [User] visual representation.
+///
+/// If [contact] and [user] exist then [contact]'s information will be
+/// displayed.
 class ContactTile extends StatelessWidget {
   const ContactTile({
     Key? key,
@@ -32,27 +37,29 @@ class ContactTile extends StatelessWidget {
     this.onTap,
     this.selected = false,
     this.darken = 0.05,
-    this.actions,
-    this.canDelete = false,
-    this.onDelete,
-    this.preventContextMenu = false,
   }) : super(key: key);
 
+  /// [RxChatContact] of this [ContactTile].
   final RxChatContact? contact;
+
+  /// [RxUser] of this [ContactTile].
   final RxUser? user;
 
+  /// Optional leading [Widget]s.
   final List<Widget> leading;
+
+  /// Optional trailing [Widget]s.
   final List<Widget> trailing;
 
-  final bool canDelete;
-  final void Function()? onDelete;
-
+  /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
-  final bool selected;
-  final double darken;
 
-  final bool preventContextMenu;
-  final List<ContextMenuButton>? actions;
+  /// Indicator whether this [ChatContact] or [User] is selected.
+  final bool selected;
+
+  /// Indicated how match background of unselected widget is darken then
+  /// default background.
+  final double darken;
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +71,7 @@ class ContactTile extends StatelessWidget {
         key: contact != null || user != null
             ? Key('ContextMenuRegion_${contact?.id ?? user?.id}')
             : null,
-        preventContextMenu: preventContextMenu,
-        actions: actions,
+        preventContextMenu: false,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,

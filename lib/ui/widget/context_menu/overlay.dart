@@ -18,7 +18,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:messenger/routes.dart';
 
 /// Overlay of a context menu.
 ///
@@ -111,7 +110,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                       if (d.buttons & kSecondaryButton != 0) {
                         Future.delayed(
                           Duration.zero,
-                              () {
+                          () {
                             final renderObj = context.findRenderObject();
                             if (renderObj is RenderBox) {
                               final result = BoxHitTestResult();
@@ -120,7 +119,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                                 for (HitTestEntry entry in result.path) {
                                   if (entry.target is RenderPointerListener) {
                                     var target =
-                                    entry.target as RenderPointerListener;
+                                        entry.target as RenderPointerListener;
                                     target.onPointerDown?.call(d);
                                     target.onPointerUp?.call(
                                       PointerUpEvent(
@@ -180,12 +179,10 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   }
 
   /// Sets the current menu to [child] at [position].
-  void show(Widget child, Offset position) {
-    setState(() {
-      _position = position;
-      menu.value = child;
-    });
-  }
+  void show(Widget child, Offset position) => setState(() {
+        _position = position;
+        menu.value = child;
+      });
 
   /// Hides the current menu if there is one.
   void hide() => setState(() => menu.value = null);

@@ -32,7 +32,6 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding =
         const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
-    bool isDismissible = true,
   }) {
     if (context.isMobile && PlatformUtils.isMobile) {
       return showModalBottomSheet(
@@ -40,8 +39,6 @@ abstract class ModalPopup {
         barrierColor: const Color(0xBB000000),
         isScrollControlled: true,
         backgroundColor: Colors.white,
-        isDismissible: isDismissible,
-        enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -54,17 +51,16 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                if (isDismissible)
-                  Center(
-                    child: Container(
-                      width: 60,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFCCCCCC),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                Center(
+                  child: Container(
+                    width: 60,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCCCCCC),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                ),
                 const SizedBox(height: 12),
                 Flexible(
                   child: Padding(
@@ -85,7 +81,6 @@ abstract class ModalPopup {
       return showDialog(
         context: context,
         barrierColor: const Color(0xBB000000),
-        barrierDismissible: isDismissible,
         builder: (context) {
           return Center(
             child: Container(
@@ -120,17 +115,15 @@ abstract class ModalPopup {
                             : EdgeInsets.zero,
                         child: SizedBox(
                           height: 16,
-                          child: isDismissible
-                              ? InkResponse(
-                                  onTap: Navigator.of(context).pop,
-                                  radius: 11,
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Color(0xBB818181),
-                                  ),
-                                )
-                              : null,
+                          child: InkResponse(
+                            onTap: Navigator.of(context).pop,
+                            radius: 11,
+                            child: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Color(0xBB818181),
+                            ),
+                          ),
                         ),
                       ),
                     ),

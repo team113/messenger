@@ -18,31 +18,31 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
-/// View of the chat member addition modal.
-class ParticipantView extends StatelessWidget {
-  const ParticipantView(this._call, this._duration, {Key? key})
+/// View of the chat members addition modal.
+class ParticipantsView extends StatelessWidget {
+  const ParticipantsView(this._call, this._duration, {Key? key})
       : super(key: key);
 
-  /// The [OngoingCall] that this settings are bound to.
+  /// The [OngoingCall] that this modal are bound to.
   final Rx<OngoingCall> _call;
 
+  /// Duration of the [_call].
   final Rx<Duration> _duration;
 
   @override
@@ -66,7 +66,7 @@ class ParticipantView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          Widget _tile({
+          Widget tile({
             RxUser? user,
             RxChatContact? contact,
             void Function()? onTap,
@@ -147,7 +147,8 @@ class ParticipantView extends StatelessWidget {
                                   'Recent',
                                   style: thin?.copyWith(
                                     fontSize: 15,
-                                    color: c.selected.value == 0
+                                    color: c.selected.value ==
+                                            SearchResultPart.recent
                                         ? const Color(0xFF63B4FF)
                                         : null,
                                   ),
@@ -162,7 +163,8 @@ class ParticipantView extends StatelessWidget {
                                   'Contacts',
                                   style: thin?.copyWith(
                                     fontSize: 15,
-                                    color: c.selected.value == 1
+                                    color: c.selected.value ==
+                                            SearchResultPart.contacts
                                         ? const Color(0xFF63B4FF)
                                         : null,
                                   ),
@@ -177,7 +179,8 @@ class ParticipantView extends StatelessWidget {
                                   'Users',
                                   style: thin?.copyWith(
                                     fontSize: 15,
-                                    color: c.selected.value == 2
+                                    color: c.selected.value ==
+                                            SearchResultPart.users
                                         ? const Color(0xFF63B4FF)
                                         : null,
                                   ),
@@ -228,14 +231,13 @@ class ParticipantView extends StatelessWidget {
 
                     return FlutterListView(
                       controller: c.controller,
-                      // shrinkWrap: true,
                       delegate: FlutterListViewDelegate(
                         (context, i) {
                           dynamic e = c.getIndex(i);
 
                           if (e is RxUser) {
                             return Obx(() {
-                              return _tile(
+                              return tile(
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
                                 onTap: () => c.selectUser(e),
@@ -243,7 +245,7 @@ class ParticipantView extends StatelessWidget {
                             });
                           } else if (e is RxChatContact) {
                             return Obx(() {
-                              return _tile(
+                              return tile(
                                 contact: e,
                                 selected: c.selectedContacts.contains(e),
                                 onTap: () => c.selectContact(e),
@@ -275,7 +277,8 @@ class ParticipantView extends StatelessWidget {
                             maxLines: 1,
                             style: TextStyle(color: Colors.white),
                           ),
-                          onPressed: () => c.stage.value = null,
+                          onPressed: () => c.stage.value =
+                              ParticipantsFlowStage.participants,
                           color: const Color(0xFF63B4FF),
                         ),
                       ),
@@ -311,55 +314,26 @@ class ParticipantView extends StatelessWidget {
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
                 constraints: const BoxConstraints(maxHeight: 650),
-                // height: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    // const SizedBox(height: 25),
                     const SizedBox(height: 16),
                     ...children,
                     const SizedBox(height: 16),
                   ],
                 ),
               );
-
               break;
 
-            case ParticipantsFlowStage.addedSuccess:
-              List<Widget> children = [
-                const Center(child: Text('Success')),
-                const SizedBox(height: 16),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => c.stage.value = null,
-                    child: const Text('Close'),
-                  ),
-                ),
-              ];
-
-              child = ListView(
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  const SizedBox(height: 25),
-                  ...children,
-                  const SizedBox(height: 25),
-                ],
-              );
-              break;
-
-            default:
+            case ParticipantsFlowStage.participants:
               List<Widget> children = [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: _chat(context, c),
                 ),
                 const SizedBox(height: 25),
-                // const SizedBox(height: 18),
                 Center(
                   child: Text(
                     'Participants'.l10n,
@@ -388,7 +362,7 @@ class ParticipantView extends StatelessWidget {
 
               child = Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+                key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
                 constraints: const BoxConstraints(maxHeight: 650),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -419,138 +393,73 @@ class ParticipantView extends StatelessWidget {
 
       var actualMembers = _call.value.members.keys.map((k) => k.userId).toSet();
 
-      return ContextMenuRegion(
-        key: Key('ContextMenuRegion_${chat.chat.value.id}'),
-        preventContextMenu: false,
-        actions: [
-          // ContextMenuButton(
-          //   key: const Key('ButtonHideChat'),
-          //   label: 'btn_hide_chat'.l10n,
-          //   onPressed: () => c.hideChat(chat.id),
-          // ),
-          // if (chat.isGroup)
-          //   ContextMenuButton(
-          //     key: const Key('ButtonLeaveChat'),
-          //     label: 'btn_leave_chat'.l10n,
-          //     onPressed: () => c.leaveChat(chat.id),
-          //   ),
-        ],
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-          child: Container(
-            decoration: BoxDecoration(
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            color: Colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: style.cardColor.darken(0.05),
+            child: InkWell(
               borderRadius: style.cardRadius,
-              color: Colors.transparent,
-            ),
-            child: Material(
-              type: MaterialType.card,
-              borderRadius: style.cardRadius,
-              color: style.cardColor.darken(0.05),
-              child: InkWell(
-                borderRadius: style.cardRadius,
-                // onTap: () => router.chat(chat.id),
-                onTap: () {},
-                hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                  // child: Row(
-                  //   children: [
-                  //     AvatarWidget.fromRxChat(chat, radius: 30),
-                  //     const SizedBox(width: 12),
-                  //     Expanded(
-                  //       child: Text(
-                  //         chat.title.value,
-                  //         overflow: TextOverflow.ellipsis,
-                  //         maxLines: 1,
-                  //         style: Theme.of(context).textTheme.headline5,
-                  //       ),
-                  //     ),
-                  //     SizedBox(
-                  //       height: 40,
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.end,
-                  //         mainAxisSize: MainAxisSize.min,
-                  //         children: [
-                  //           Text(
-                  //             '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
-                  //             style: Theme.of(context).textTheme.subtitle2,
-                  //           ),
-                  //           const Spacer(),
-                  //           Text(
-                  //             _duration.value.hhMmSs(),
-                  //             style: Theme.of(context).textTheme.subtitle2,
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  child: Row(
-                    children: [
-                      AvatarWidget.fromRxChat(chat, radius: 30),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    chat.title.value,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
-                                  ),
+              onTap: () {},
+              hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                child: Row(
+                  children: [
+                    AvatarWidget.fromRxChat(chat, radius: 30),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  chat.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
-                                // const SizedBox(height: 10),
-                                // Text(
-                                //   _duration.value.hhMmSs(),
-                                //   style: Theme.of(context).textTheme.subtitle2,
-                                // ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                                  style: Theme.of(context).textTheme.subtitle2,
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  width: 1,
+                                  height: 12,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      ?.color,
+                                ),
+                                Text(
+                                  _duration.value.hhMmSs(),
+                                  style: Theme.of(context).textTheme.subtitle2,
+                                ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
-                                    style:
-                                        Theme.of(context).textTheme.subtitle2,
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    width: 1,
-                                    height: 12,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .subtitle2
-                                        ?.color,
-                                  ),
-                                  Text(
-                                    _duration.value.hhMmSs(),
-                                    style:
-                                        Theme.of(context).textTheme.subtitle2,
-                                  ),
-                                  // const Spacer(),
-                                  // Text(
-                                  //   _duration.value.hhMmSs(),
-                                  //   style:
-                                  //       Theme.of(context).textTheme.subtitle2,
-                                  // ),
-                                  // const SizedBox(width: 6),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -573,75 +482,28 @@ class ParticipantView extends StatelessWidget {
 
           if (!inCall) {
             return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Material(
-                  color: const Color(0xFF63B4FF),
-                  type: MaterialType.circle,
-                  child: InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(60),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Center(
-                        child: SvgLoader.asset(
-                          'assets/icons/audio_call_start.svg',
-                          width: 13,
-                          height: 13,
-                        ),
-                      ),
-                    ),
-                  ),
-                ));
-
-            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: WidgetButton(
-                onPressed: () {},
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF63B4FF),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgLoader.asset(
-                      'assets/icons/audio_call_start.svg',
-                      width: 13,
-                      height: 13,
+              child: Material(
+                color: const Color(0xFF63B4FF),
+                type: MaterialType.circle,
+                child: InkWell(
+                  onTap: () {},
+                  borderRadius: BorderRadius.circular(60),
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Center(
+                      child: SvgLoader.asset(
+                        'assets/icons/audio_call_start.svg',
+                        width: 13,
+                        height: 13,
+                      ),
                     ),
                   ),
                 ),
               ),
             );
-
-            // return Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 6),
-            //   child: ElevatedButton(
-            //     onPressed: () {},
-            //     child: Row(
-            //       mainAxisSize: MainAxisSize.min,
-            //       children: [
-            //         const Icon(
-            //           Icons.call,
-            //           size: 21,
-            //           color: Colors.white,
-            //         ),
-            //         const SizedBox(width: 5),
-            //         Flexible(
-            //           child: Text(
-            //             'Call'.l10n,
-            //             maxLines: 1,
-            //             overflow: TextOverflow.ellipsis,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // );
           }
-
           return Container();
         }),
       ],
