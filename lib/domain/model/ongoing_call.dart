@@ -72,10 +72,11 @@ enum LocalTrackState {
   enabled,
 }
 
+/// Extension adding helper methods to a [LocalTrackState].
 extension LocalTrackStateImpl on LocalTrackState {
   /// Indicates whether the current value is [LocalTrackState.enabling] or
   /// [LocalTrackState.disabling].
-  bool isTransition() {
+  bool get isTransition {
     switch (this) {
       case LocalTrackState.enabling:
       case LocalTrackState.disabling:
@@ -88,7 +89,7 @@ extension LocalTrackStateImpl on LocalTrackState {
 
   /// Indicates whether the current value is [LocalTrackState.enabled] or
   /// [LocalTrackState.disabling].
-  bool isEnabled() {
+  bool get isEnabled {
     switch (this) {
       case LocalTrackState.enabled:
       case LocalTrackState.disabling:
@@ -100,13 +101,20 @@ extension LocalTrackStateImpl on LocalTrackState {
   }
 }
 
-/// Extension adding [isEmitting] indicator to a [TrackMediaDirection].
+/// Extension adding helper methods to a [TrackMediaDirection].
 extension TrackMediaDirectionEmitting on TrackMediaDirection {
   /// Indicates whether the current value is [TrackMediaDirection.SendRecv] or
   /// [TrackMediaDirection.SendOnly].
-  bool get isEmitting =>
-      this == TrackMediaDirection.SendRecv ||
-      this == TrackMediaDirection.SendOnly;
+  bool get isEmitting {
+    switch (this) {
+      case TrackMediaDirection.SendRecv:
+      case TrackMediaDirection.SendOnly:
+        return true;
+      case TrackMediaDirection.RecvOnly:
+      case TrackMediaDirection.Inactive:
+        return false;
+    }
+  }
 }
 
 /// Ongoing [ChatCall] in a [Chat].
@@ -153,9 +161,6 @@ class OngoingCall {
 
   /// ID of the [Chat] this [OngoingCall] takes place in.
   final Rx<ChatId> chatId;
-
-  /// [CallMemberId] of the authenticated [MyUser].
-  CallMemberId _me;
 
   /// [ChatCall] associated with this [OngoingCall].
   ///
@@ -228,6 +233,9 @@ class OngoingCall {
   /// Room on a media server representing this [OngoingCall].
   RoomHandle? _room;
 
+  /// [CallMemberId] of the authenticated [MyUser].
+  CallMemberId _me;
+
   /// Heartbeat subscription indicating that [MyUser] is connected and this
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
@@ -248,7 +256,7 @@ class OngoingCall {
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
-  /// Returns a [CallMember] of the currently authorized [MyUser].
+  /// Returns the [CallMember] of the currently authorized [MyUser].
   CallMember get me => members[_me]!;
 
   /// Returns the local [Track]s.
@@ -302,7 +310,7 @@ class OngoingCall {
 
       if (state.value == OngoingCallState.active &&
           call.value?.joinLink != null) {
-        _joinRoom(call.value!.joinLink!);
+        await _joinRoom(call.value!.joinLink!);
       }
     }
   }
@@ -316,9 +324,9 @@ class OngoingCall {
       return;
     }
 
-    var updated = CallMemberId(_me.userId, deviceId);
-    members.move(_me, updated);
-    _me = updated;
+    CallMemberId id = CallMemberId(_me.userId, deviceId);
+    members.move(_me, id);
+    _me = id;
 
     connected = true;
     _heartbeat?.cancel();
@@ -344,7 +352,7 @@ class OngoingCall {
 
               if (node.call.joinLink != null) {
                 if (!_background) {
-                  _joinRoom(node.call.joinLink!);
+                  await _joinRoom(node.call.joinLink!);
                 }
                 state.value = OngoingCallState.active;
               }
@@ -363,7 +371,7 @@ class OngoingCall {
                   var node = event as EventChatCallRoomReady;
 
                   if (!_background) {
-                    _joinRoom(node.joinLink);
+                    await _joinRoom(node.joinLink);
                   }
 
                   call.value?.joinLink = node.joinLink;
@@ -491,7 +499,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Display);
             screenShareState.value = LocalTrackState.enabled;
-            if (!isActive || members.length < 2) {
+            if (!isActive || members.length <= 1) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -582,7 +590,7 @@ class OngoingCall {
           try {
             await _room?.enableVideo(MediaSourceKind.Device);
             videoState.value = LocalTrackState.enabled;
-            if (!isActive || members.length < 2) {
+            if (!isActive || members.length <= 1) {
               _updateTracks();
             }
           } on MediaStateTransitionException catch (_) {
@@ -734,7 +742,7 @@ class OngoingCall {
     bool enabled, {
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
-    var member = members[id];
+    CallMember? member = members[id];
     for (Track t in member?.tracks
             .where((t) => t.kind == MediaKind.Video && t.source == source) ??
         <Track>[]) {
@@ -751,7 +759,7 @@ class OngoingCall {
   /// Sets inbound audio of a [CallMember] identified by the provided [id] as
   /// [enabled].
   Future<void> setMemberAudioEnabled(CallMemberId id, bool enabled) async {
-    var member = members[id];
+    CallMember? member = members[id];
     for (Track t in member?.tracks.where((t) => t.kind == MediaKind.Audio) ??
         <Track>[]) {
       if (enabled) {
@@ -960,27 +968,25 @@ class OngoingCall {
     });
   }
 
-  /// Raises/lowers a hand.
+  /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service, ChatId chatId) async {
-    final CallMember me = members[_me]!;
-
-    me.isHandRaised.toggle();
-    await _toggleHand(service, chatId);
+    members[_me]!.isHandRaised.toggle();
+    await _toggleHand(service);
   }
 
   /// Invokes a [CallService.toggleHand] if the [_toggleHandGuard] is not
   /// locked.
-  Future<void> _toggleHand(CallService service, ChatId chatId) async {
+  Future<void> _toggleHand(CallService service) async {
     if (!_toggleHandGuard.isLocked) {
       final CallMember me = members[_me]!;
 
-      var raised = me.isHandRaised.value;
+      bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
-        await service.toggleHand(chatId, raised);
+        await service.toggleHand(chatId.value, raised);
       });
 
       if (raised != me.isHandRaised.value) {
-        _toggleHand(service, chatId);
+        _toggleHand(service);
       }
     }
   }
@@ -1140,7 +1146,7 @@ class OngoingCall {
       _initRoom();
     }
 
-    await _room?.join('$link/${_me.userId}.$deviceId?token=$creds');
+    await _room?.join('$link/$_me?token=$creds');
     Log.print('Room joined!', 'CALL');
   }
 
@@ -1158,7 +1164,7 @@ class OngoingCall {
     for (Track t in members.values.expand((e) => e.tracks)) {
       t.dispose();
     }
-    members.removeWhere((key, value) => key != _me);
+    members.removeWhere((id, _) => id != _me);
   }
 
   /// Updates the local media settings with [audioDevice] or [videoDevice].
@@ -1183,7 +1189,7 @@ class OngoingCall {
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
 
-          if (!isActive || members.length < 2) {
+          if (!isActive || members.length <= 1) {
             await _updateTracks();
           }
         } catch (_) {
@@ -1200,9 +1206,9 @@ class OngoingCall {
   Future<void> _updateTracks() async {
     List<LocalMediaTrack> tracks = await _mediaManager!.initLocalTracks(
       _mediaStreamSettings(
-        audio: audioState.value.isEnabled(),
-        video: videoState.value.isEnabled(),
-        screen: screenShareState.value.isEnabled(),
+        audio: audioState.value.isEnabled,
+        video: videoState.value.isEnabled,
+        screen: screenShareState.value.isEnabled,
         audioDevice: audioDevice.value,
         videoDevice: videoDevice.value,
       ),
@@ -1324,7 +1330,7 @@ abstract class RtcRenderer {
 /// Convenience wrapper around a [webrtc.VideoRenderer].
 class RtcVideoRenderer extends RtcRenderer {
   factory RtcVideoRenderer.local(LocalMediaTrack track) {
-    var renderer = RtcVideoRenderer._(track.getTrack());
+    RtcVideoRenderer renderer = RtcVideoRenderer._(track.getTrack());
     renderer.inner.mirror = track.mediaSourceKind() == MediaSourceKind.Device;
     return renderer;
   }
@@ -1363,8 +1369,7 @@ class RtcVideoRenderer extends RtcRenderer {
 /// Convenience wrapper around an [webrtc.AudioRenderer].
 class RtcAudioRenderer extends RtcRenderer {
   factory RtcAudioRenderer.local(LocalMediaTrack track) {
-    var renderer = RtcAudioRenderer._(track.getTrack());
-    return renderer;
+    return RtcAudioRenderer._(track.getTrack());
   }
 
   factory RtcAudioRenderer.remote(RemoteMediaTrack track) {
@@ -1440,7 +1445,7 @@ class CallMember {
   /// [MediaOwnerKind] of this [CallMember].
   MediaOwnerKind owner;
 
-  /// Indicator whether hand was raised by this [CallMember].
+  /// Indicator whether the hand of this [CallMember] is raised.
   RxBool isHandRaised;
 }
 

@@ -14,9 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -38,10 +35,6 @@ class MediaSettingsController extends GetxController {
 
   /// Settings repository, used to update the [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// [StreamSubscription] to the [OngoingCall.localTracks] disposing the
-  /// removed [Track]s.
-  late final StreamSubscription? _localTracks;
 
   /// Returns local tracks.
   ObsList<Track>? get localTracks => _call.value.localTracks;
@@ -71,32 +64,13 @@ class MediaSettingsController extends GetxController {
       mediaSettings: _settingsRepo.mediaSettings.value,
     ));
 
-    _localTracks = _call.value.localTracks?.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          // No-op.
-          break;
-
-        case OperationKind.removed:
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => e.element.dispose());
-          break;
-
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    });
-
     _call.value.init();
   }
 
   @override
   void onClose() {
-    super.onClose();
-
-    _localTracks?.cancel();
     _call.value.dispose();
+    super.onClose();
   }
 
   /// Sets device with [id] as a used by default [camera] device.

@@ -87,6 +87,8 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      bool hasVideo = participant.video.value?.renderer.value != null;
+
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
         return useCallCover &&
@@ -126,13 +128,13 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          if (participant.video.value?.renderer.value == null) ...background(),
+          if (!hasVideo) ...background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            child: participant.video.value?.renderer.value == null
+            child: !hasVideo
                 ? Container()
                 : Center(
                     child: RtcVideoView(
@@ -155,7 +157,8 @@ class ParticipantWidget extends StatelessWidget {
                   ),
           ),
           Positioned.fill(
-              child: _handRaisedIcon(participant.member.isHandRaised.value)),
+            child: _handRaisedIcon(participant.member.isHandRaised.value),
+          ),
         ],
       );
     });
@@ -208,21 +211,22 @@ class ParticipantOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       bool isMuted;
+
       if (participant.source == MediaSourceKind.Display) {
         isMuted = false;
       } else {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
       }
 
-      bool hasVideoWhenDisabled =
-          participant.video.value?.renderer.value == null &&
-              (participant.video.value?.direction.value.isEmitting ?? false) &&
-              participant.member.owner == MediaOwnerKind.remote;
-      bool hasAudioWhenDisabled =
-          participant.audio.value?.renderer.value == null &&
-              !isMuted &&
-              participant.source != MediaSourceKind.Display &&
-              participant.member.owner == MediaOwnerKind.remote;
+      bool isVideoDisabled = participant.video.value?.renderer.value == null &&
+          (participant.video.value?.direction.value.isEmitting ?? false) &&
+          participant.member.owner == MediaOwnerKind.remote;
+
+      bool isAudioDisabled = participant.audio.value?.renderer.value == null &&
+          !isMuted &&
+          participant.source != MediaSourceKind.Display &&
+          participant.member.owner == MediaOwnerKind.remote;
+
       List<Widget> additionally = [];
 
       if (isMuted) {
@@ -235,11 +239,11 @@ class ParticipantOverlayWidget extends StatelessWidget {
             ),
           ),
         );
-      } else if (hasAudioWhenDisabled) {
+      } else if (isAudioDisabled) {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
-            // TODO: replace `speaker_off` icon to one with smaller padding
+            // TODO: Replace `speaker_off` icon to one with smaller padding.
             child: SvgLoader.asset(
               'assets/icons/speaker_off.svg',
               height: 35,
@@ -249,8 +253,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       }
 
-      if (hasVideoWhenDisabled ||
-          participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
@@ -260,6 +263,21 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: SvgLoader.asset(
               'assets/icons/screen_share_small.svg',
               height: 12,
+            ),
+          ),
+        );
+      }
+
+      if (isVideoDisabled && participant.source == MediaSourceKind.Device) {
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 3));
+        }
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            child: SvgLoader.asset(
+              'assets/icons/video_off.svg',
+              height: 35,
             ),
           ),
         );

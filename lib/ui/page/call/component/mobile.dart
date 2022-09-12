@@ -365,7 +365,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               [
                 if (PlatformUtils.isMobile)
                   padding(
-                    c.videoState.value.isEnabled()
+                    c.videoState.value.isEnabled
                         ? withDescription(
                             SwitchButton(c).build(),
                             AnimatedOpacity(
@@ -564,7 +564,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 ? [
                                     if (PlatformUtils.isMobile)
                                       padding(
-                                        c.videoState.value.isEnabled()
+                                        c.videoState.value.isEnabled
                                             ? SwitchButton(c).build(blur: true)
                                             : SpeakerButton(c)
                                                 .build(blur: true),
@@ -817,7 +817,7 @@ Widget _primaryView(CallController c, BuildContext context) {
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
                 bool muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
+                    ? !c.audioState.value.isEnabled
                     : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
@@ -1050,7 +1050,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
               return Obx(() {
                 bool muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
+                    ? !c.audioState.value.isEnabled
                     : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||

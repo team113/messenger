@@ -335,7 +335,7 @@ class GraphQlClient {
 
     // Send a [ResubscriptionRequiredException] to all the ongoing subscriptions
     // having listeners.
-    for (var s in List<SubscriptionConnection>.from(_subscriptions)) {
+    for (SubscriptionConnection s in List.from(_subscriptions)) {
       if (s.hasListener) {
         Future.delayed(Duration.zero, () {
           s.addError(const ResubscriptionRequiredException());
