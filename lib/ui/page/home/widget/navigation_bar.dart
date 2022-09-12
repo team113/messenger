@@ -61,7 +61,7 @@ class CustomNavigationBar extends StatelessWidget {
 
     return Padding(
       padding:
-          isMobile ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          isMobile ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: Container(
         decoration: BoxDecoration(
           boxShadow: const [

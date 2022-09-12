@@ -65,7 +65,7 @@ class ChatsTabView extends StatelessWidget {
         return Stack(
           children: [
             Scaffold(
-              extendBodyBehindAppBar: true,
+              // extendBodyBehindAppBar: true,
               appBar: CustomAppBar.from(
                 context: context,
                 title: Text('label_chats'.l10n),
@@ -138,41 +138,30 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   var metrics = MediaQuery.of(context);
-                  return MediaQuery(
-                    data: metrics.copyWith(
-                      padding: metrics.padding.copyWith(
-                        top: metrics.padding.top + 56 + 4,
-                        bottom: metrics.padding.bottom - 18,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
-                      child: ContextMenuInterceptor(
-                        child: AnimationLimiter(
-                          child: ListView.builder(
-                            controller: ScrollController(),
-                            itemCount: c.chats.length,
-                            itemBuilder: (BuildContext context, int i) {
-                              var e = c.chats[i];
-                              return AnimationConfiguration.staggeredList(
-                                position: i,
-                                duration: const Duration(milliseconds: 375),
-                                child: SlideAnimation(
-                                  horizontalOffset: 50.0,
-                                  child: FadeInAnimation(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 10,
-                                      ),
-                                      child: buildChatTile(context, c, e),
-                                    ),
+                  return ContextMenuInterceptor(
+                    child: AnimationLimiter(
+                      child: ListView.builder(
+                        controller: ScrollController(),
+                        itemCount: c.chats.length,
+                        itemBuilder: (BuildContext context, int i) {
+                          var e = c.chats[i];
+                          return AnimationConfiguration.staggeredList(
+                            position: i,
+                            duration: const Duration(milliseconds: 375),
+                            child: SlideAnimation(
+                              horizontalOffset: 50.0,
+                              child: FadeInAnimation(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
+                                    right: 10,
                                   ),
+                                  child: buildChatTile(context, c, e),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );

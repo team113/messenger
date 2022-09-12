@@ -56,6 +56,8 @@ class ContactsTabController extends GetxController {
 
   final RxBool sortByName = RxBool(true);
 
+  final RxList<dynamic> elements = RxList([]);
+
   /// [Chat] repository used to create a dialog [Chat].
   final AbstractChatRepository _chatRepository;
 
@@ -84,6 +86,16 @@ class ContactsTabController extends GetxController {
 
   @override
   void onInit() {
+    elements.add('Favorites');
+    for (var c in favorites.values) {
+      elements.add(c);
+    }
+
+    elements.add('Contacts');
+    for (var c in contacts.values) {
+      elements.add(c);
+    }
+
     contactName = TextFieldState(
       onChanged: (s) async {
         s.error.value = null;

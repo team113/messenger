@@ -163,7 +163,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ),
                         ),
-                        extendBody: true,
+                        // extendBody: true,
                         bottomNavigationBar: SafeArea(
                           child: Obx(
                             () => CustomNavigationBar(

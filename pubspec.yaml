@@ -83,6 +83,8 @@ dependencies:
   wakelock: ^0.6.2
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.7
+  sticky_headers: ^0.3.0+2
+
 
 dev_dependencies:
   artemis: ^7.9.0-beta

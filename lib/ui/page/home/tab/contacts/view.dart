@@ -14,15 +14,23 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
+import 'package:messenger/ui/page/home/tab/chats/create_group/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/util/platform_utils.dart';
+import 'package:sticky_headers/sticky_headers.dart';
 
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
@@ -68,7 +76,35 @@ class ContactsTabView extends StatelessWidget {
                   ),
             ),
             actions: [
-              const SizedBox(width: 40),
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: IconButton(
+                  splashColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () async {
+                    await ModalPopup.show(
+                      context: context,
+                      child: const CreateGroupView(),
+                      desktopConstraints: const BoxConstraints(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                      ),
+                      modalConstraints: const BoxConstraints(maxWidth: 380),
+                      mobileConstraints: const BoxConstraints(
+                        maxWidth: double.infinity,
+                        maxHeight: double.infinity,
+                      ),
+                      mobilePadding: const EdgeInsets.all(0),
+                      desktopPadding: const EdgeInsets.all(0),
+                    );
+                  },
+                  icon: SvgLoader.asset(
+                    'assets/icons/group.svg',
+                    height: 18.44,
+                  ),
+                ),
+              ),
               // Padding(
               //   padding: const EdgeInsets.only(right: 8.0),
               //   child: IconButton(
@@ -126,15 +162,89 @@ class ContactsTabView extends StatelessWidget {
               ),
             ],
           ),
-          extendBodyBehindAppBar: true,
-          extendBody: true,
+          // extendBodyBehindAppBar: true,
+          // extendBody: true,
           body: Obx(() {
             if (c.contacts.isEmpty) {
               return Center(child: Text('label_no_contacts'.l10n));
             }
 
-            var metrics = MediaQuery.of(context);
-            return MediaQuery(
+            Widget center(String title) {
+              Style style = Theme.of(context).extension<Style>()!;
+              return Center(
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: style.systemMessageBorder,
+                    color: style.systemMessageColor.withOpacity(0.99),
+                  ),
+                  child: Center(
+                    child: Text(
+                      title,
+                      style: const TextStyle(color: Color(0xFF888888)),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return ContextMenuInterceptor(
+              child: ListView(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                children: [
+                  StickyHeader(
+                    header: center('Favorites'),
+                    content: Column(
+                      children: c.favorites.values.map((e) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: _contact(context, e, c),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  StickyHeader(
+                    header: center('Contacts'),
+                    content: Column(
+                      children: c.contacts.values.map((e) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: _contact(context, e, c),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                  // if (c.favorites.isEmpty)
+                  //   const Padding(
+                  //     padding: EdgeInsets.symmetric(vertical: 16),
+                  //     // child: Center(child: Text('No favorites yet')),
+                  //   ),
+                  // ...c.favorites.values.map((e) {
+                  //   return Padding(
+                  //     padding: const EdgeInsets.only(left: 10, right: 10),
+                  //     child: _contact(context, e, c),
+                  //   );
+                  // }),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(vertical: 8),
+                  //   child: center('Contacts'),
+                  // ),
+                  // ...c.contacts.values.map((e) {
+                  //   return Padding(
+                  //     padding: const EdgeInsets.only(left: 10, right: 10),
+                  //     child: _contact(context, e, c),
+                  //   );
+                  // }),
+                ],
+              ),
+            );
+
+            /*return MediaQuery(
               data: metrics.copyWith(
                 padding: metrics.padding.copyWith(
                   top: metrics.padding.top + 56 + 4,
@@ -145,31 +255,142 @@ class ContactsTabView extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 10, bottom: 10),
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
-                    child: ListView.builder(
-                      controller: ScrollController(),
-                      itemCount: c.contacts.length,
-                      itemBuilder: (BuildContext context, int i) {
-                        RxChatContact? e = c.contacts.values.elementAt(i);
-                        return AnimationConfiguration.staggeredList(
-                          position: i,
-                          duration: const Duration(milliseconds: 375),
-                          child: SlideAnimation(
-                            horizontalOffset: 50.0,
-                            child: FadeInAnimation(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 10, right: 10),
-                                child: _contact(context, e, c),
+                    child: ReorderableListView(
+                      buildDefaultDragHandles: PlatformUtils.isMobile,
+                      onReorder: (int old, int to) {
+                        if (old < to) {
+                          --to;
+                        }
+
+                        // final ChatItem item = c.repliedMessages.removeAt(old);
+                        // c.repliedMessages.insert(to, item);
+
+                        HapticFeedback.lightImpact();
+                      },
+                      proxyDecorator: (child, i, animation) {
+                        return AnimatedBuilder(
+                          animation: animation,
+                          builder: (
+                            BuildContext context,
+                            Widget? child,
+                          ) {
+                            final double t =
+                                Curves.easeInOut.transform(animation.value);
+                            final double elevation = lerpDouble(0, 6, t)!;
+                            final Color color = Color.lerp(
+                              const Color(0x00000000),
+                              const Color(0x33000000),
+                              t,
+                            )!;
+
+                            return InitCallback(
+                              initState: HapticFeedback.selectionClick,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    CustomBoxShadow(
+                                      color: color,
+                                      blurRadius: elevation,
+                                    ),
+                                  ],
+                                ),
+                                child: child,
                               ),
-                            ),
-                          ),
+                            );
+                          },
+                          child: child,
                         );
                       },
+                      children: [
+                        const SizedBox(key: Key('SizedBox'), height: 60),
+                        // const Text('Favorites', key: Key('Favorites')),
+                        Center(
+                          key: const Key('Favorites'),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: style.systemMessageBorder,
+                              color: style.systemMessageColor,
+                              // border: style.cardBorder,
+                              // color: const Color(0xFFF8F8F8),
+                            ),
+                            child: Text(
+                              time.toRelative(),
+                              style: const TextStyle(color: Color(0xFF888888)),
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          'Drag here to add to favorites',
+                          key: Key('Favorites2'),
+                        ),
+                        ...c.favorites.values.map((e) {
+                          return ReorderableDragStartListener(
+                            key: Key('Handle_${e.id}'),
+                            enabled: !PlatformUtils.isMobile,
+                            index: [
+                              0,
+                              0,
+                              0,
+                              ...c.favorites.values,
+                              0,
+                              ...c.contacts.values
+                            ].indexOf(e),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: _contact(context, e, c),
+                            ),
+                          );
+                        }),
+                        const Text('Contacts', key: Key('Contacts')),
+                        ...c.contacts.values.map((e) {
+                          return ReorderableDragStartListener(
+                            key: Key('Handle_${e.id}'),
+                            enabled: !PlatformUtils.isMobile,
+                            index: [
+                              0,
+                              0,
+                              0,
+                              ...c.favorites.values,
+                              0,
+                              ...c.contacts.values,
+                            ].indexOf(e),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 10, right: 10),
+                              child: _contact(context, e, c),
+                            ),
+                          );
+                        }),
+                      ],
                     ),
+                    // child: ListView.builder(
+                    //   controller: ScrollController(),
+                    //   itemCount: c.contacts.length,
+                    //   itemBuilder: (BuildContext context, int i) {
+                    //     RxChatContact? e = c.contacts.values.elementAt(i);
+                    //     return AnimationConfiguration.staggeredList(
+                    //       position: i,
+                    //       duration: const Duration(milliseconds: 375),
+                    //       child: SlideAnimation(
+                    //         horizontalOffset: 50.0,
+                    //         child: FadeInAnimation(
+                    //           child: Padding(
+                    //             padding:
+                    //                 const EdgeInsets.only(left: 10, right: 10),
+                    //             child: _contact(context, e, c),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                   ),
                 ),
               ),
-            );
+            );*/
           }),
         );
       },

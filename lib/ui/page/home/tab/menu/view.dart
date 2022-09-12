@@ -187,7 +187,7 @@ class MenuTabView extends StatelessWidget {
                 button(
                   key: const Key('LogoutButton'),
                   leading: const Icon(
-                    Icons.design_services,
+                    Icons.logout,
                     color: Color(0xFF63B4FF),
                   ),
                   title: Text('btn_logout'.l10n),

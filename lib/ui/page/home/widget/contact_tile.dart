@@ -94,7 +94,7 @@ class ContactTile extends StatelessWidget {
                   ? const Color(0x00D7ECFF)
                   : const Color.fromARGB(255, 244, 249, 255),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 child: Row(
                   children: [
                     ...leading,
