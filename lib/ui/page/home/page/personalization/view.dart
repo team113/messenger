@@ -40,33 +40,33 @@ class PersonalizationView extends StatelessWidget {
           child: Obx(
             () => Scaffold(
               appBar: AppBar(title: Text('label_personalization'.l10n)),
-              body: ListView(
+              body: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        height: 60,
-                        child: c.background.value == null
-                            ? Container(color: Colors.grey)
-                            : Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedRoundedButton(
-                        title: Text('Change'),
-                        onPressed: c.pickBackground,
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedRoundedButton(
-                        title: Text('Remove'),
-                        onPressed: c.removeBackground,
-                      ),
-                    ],
-                  )
+                  SizedBox(
+                    width: 100,
+                    height: 60,
+                    child: c.background.value == null
+                        ? Container(color: Colors.grey)
+                        : Image.memory(
+                            c.background.value!,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedRoundedButton(
+                      title: const Text('Change'),
+                      onPressed: c.pickBackground,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedRoundedButton(
+                      title: const Text('Remove'),
+                      onPressed: c.removeBackground,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -125,6 +125,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) {
     return Navigator(
+      transitionDelegate: _NoAnimationTransitionDelegate(),
       key: navigatorKey,
       pages: _pages,
       onPopPage: (route, result) {
@@ -140,6 +141,42 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     // This is not required for inner router delegate because it doesn't parse
     // routes.
     assert(false, 'unexpected setNewRoutePath() call');
+  }
+}
+
+/// Removes or adds routes without animated transitions.
+class _NoAnimationTransitionDelegate extends TransitionDelegate<void> {
+  @override
+  Iterable<RouteTransitionRecord> resolve({
+    required List<RouteTransitionRecord> newPageRouteHistory,
+    required Map<RouteTransitionRecord?, RouteTransitionRecord>
+        locationToExitingPageRoute,
+    required Map<RouteTransitionRecord?, List<RouteTransitionRecord>>
+        pageRouteToPagelessRoutes,
+  }) {
+    final List<RouteTransitionRecord> results = <RouteTransitionRecord>[];
+
+    for (final RouteTransitionRecord pageRoute in newPageRouteHistory) {
+      if (pageRoute.isWaitingForEnteringDecision) {
+        pageRoute.markForAdd();
+      }
+      results.add(pageRoute);
+    }
+    for (final RouteTransitionRecord exitingPageRoute
+        in locationToExitingPageRoute.values) {
+      if (exitingPageRoute.isWaitingForExitingDecision) {
+        exitingPageRoute.markForRemove();
+        final List<RouteTransitionRecord>? pagelessRoutes =
+            pageRouteToPagelessRoutes[exitingPageRoute];
+        if (pagelessRoutes != null) {
+          for (final RouteTransitionRecord pagelessRoute in pagelessRoutes) {
+            pagelessRoute.markForRemove();
+          }
+        }
+      }
+      results.add(exitingPageRoute);
+    }
+    return results;
   }
 }
 

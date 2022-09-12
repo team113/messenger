@@ -124,7 +124,6 @@ class _ChatViewState extends State<ChatView>
                 child: Stack(
                   children: [
                     Scaffold(
-                      backgroundColor: const Color(0xFFF6F6F6),
                       resizeToAvoidBottomInset: true,
                       appBar: PreferredSize(
                         preferredSize: const Size(double.infinity, 57),

@@ -46,7 +46,7 @@ class Themes {
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: colors.background,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
