@@ -36,6 +36,10 @@ dependencies:
   flutter_list_view: ^1.1.12
   flutter_local_notifications: ^10.0.0-dev.21
   flutter_svg: ^1.1.4
+  flutter_staggered_animations:
+    git:
+      url: https://github.com/Tkko/flutter_staggered_animations
+      ref: Flutter-3.0.0
   flutter_web_plugins:
     sdk: flutter
   font_awesome_flutter: ^10.1.0

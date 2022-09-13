@@ -50,6 +50,10 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            primaryBorder: Border.all(
+              color: const Color(0xFFB9D9FA),
+              width: 0.5,
+            ),
           ),
         ],
         colorScheme: colors,
@@ -254,12 +258,14 @@ class Style extends ThemeExtension<Style> {
     required this.cardColor,
     required this.cardBorder,
     required this.boldBody,
+    required this.primaryBorder,
   });
 
   final BorderRadius cardRadius;
   final double cardBlur;
   final Color cardColor;
   final Border cardBorder;
+  final Border primaryBorder;
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
@@ -271,6 +277,7 @@ class Style extends ThemeExtension<Style> {
     Color? cardColor,
     Border? cardBorder,
     TextStyle? boldBody,
+    Border? primaryBorder,
   }) {
     return Style(
       cardRadius: cardRadius ?? this.cardRadius,
@@ -278,6 +285,7 @@ class Style extends ThemeExtension<Style> {
       cardColor: cardColor ?? this.cardColor,
       cardBorder: cardBorder ?? this.cardBorder,
       boldBody: boldBody ?? this.boldBody,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
     );
   }
 
@@ -293,6 +301,7 @@ class Style extends ThemeExtension<Style> {
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
     );
   }
 }
