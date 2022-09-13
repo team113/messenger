@@ -16,8 +16,13 @@
 
 import 'dart:math';
 
+import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
+import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/repository/user.dart';
 
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -42,6 +47,8 @@ class AvatarWidget extends StatelessWidget {
     this.title,
     this.color,
     this.opacity = 1,
+    this.showBadge = false,
+    this.isAway = false,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -74,6 +81,8 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
   }) =>
       AvatarWidget(
+        showBadge: true,
+        isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.val,
         color: myUser?.num.val.sum(),
@@ -131,8 +140,14 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
   }) =>
       chat != null
-          ? Obx(
-              () => AvatarWidget(
+          ? Obx(() {
+              RxUser? user =
+                  chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
+
+              return AvatarWidget(
+                showBadge:
+                    chat.chat.value.isDialog && user?.user.value.online == true,
+                isAway: user?.user.value.presence == Presence.away,
                 avatar: chat.avatar.value,
                 title: chat.title.value,
                 color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -140,8 +155,8 @@ class AvatarWidget extends StatelessWidget {
                 maxRadius: maxRadius,
                 minRadius: minRadius,
                 opacity: opacity,
-              ),
-            )
+              );
+            })
           : AvatarWidget(
               radius: radius,
               maxRadius: maxRadius,
@@ -184,8 +199,14 @@ class AvatarWidget extends StatelessWidget {
   /// Integer that determining the gradient color of the avatar.
   final int? color;
 
-  /// Opacity of this [AvatarWidget].
+  /// Opacity of this.
   final double opacity;
+
+  /// Allows you to hide or show [Badge].
+  final bool showBadge;
+
+  /// Allows you to paint the [Badge] [Colors.orange] if [Presence.away] otherwise [Colors.green].
+  final bool isAway;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -193,7 +214,6 @@ class AvatarWidget extends StatelessWidget {
     Colors.deepPurple,
     Colors.indigo,
     Colors.blue,
-    Colors.lightBlue,
     Colors.cyan,
     Colors.lightGreen,
     Colors.lime,
@@ -246,33 +266,52 @@ class AvatarWidget extends StatelessWidget {
       var maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       var maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      return Container(
-        constraints: BoxConstraints(
-          minHeight: minHeight,
-          minWidth: minWidth,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [gradient.lighten(), gradient],
+      double badgeSize = max(5, maxWidth / (maxWidth >= 40 ? 12 : 8));
+      double position = maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5;
+
+      return Badge(
+        showBadge: showBadge,
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
           ),
-          image: avatar == null
-              ? null
-              : DecorationImage(
-                  image: NetworkImage(
-                    '${Config.url}:${Config.port}/files${avatar?.original}',
-                  ),
-                  fit: BoxFit.cover,
-                  isAntiAlias: true,
-                ),
-          shape: BoxShape.circle,
+          padding: EdgeInsets.all(badgeSize),
         ),
-        child: avatar == null
-            ? LayoutBuilder(builder: (context, constraints) {
-                return Center(
+        padding: EdgeInsets.all(badgeSize / 3),
+        badgeColor: Colors.white,
+        animationType: BadgeAnimationType.scale,
+        position: BadgePosition.bottomEnd(
+          bottom: position,
+          end: position,
+        ),
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
+            ),
+            image: avatar == null
+                ? null
+                : DecorationImage(
+                    image: NetworkImage(
+                      '${Config.url}:${Config.port}/files${avatar?.original}',
+                    ),
+                    fit: BoxFit.cover,
+                    isAntiAlias: true,
+                  ),
+            shape: BoxShape.circle,
+          ),
+          child: avatar == null
+              ? Center(
                   child: Text(
                     (title ?? '??').initials(),
                     style: Theme.of(context).textTheme.headline4?.copyWith(
@@ -281,9 +320,9 @@ class AvatarWidget extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                );
-              })
-            : null,
+                )
+              : null,
+        ),
       );
     });
   }
@@ -317,15 +356,26 @@ extension SumStringExtension on String {
   int sum() => codeUnits.fold(0, (a, b) => a + b);
 }
 
-/// Extension adding an ability to lighten a color.
-extension _LightenColorExtension on Color {
+/// Extension adding an ability to lighten or darken a color.
+extension LightenColorExtension on Color {
   /// Returns a lighten variant of this color.
-  Color lighten([double amount = .2]) {
+  Color lighten([double amount = 0.2]) {
     assert(amount >= 0 && amount <= 1);
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+
+  /// Returns a darken variant of this color.
+  Color darken([double amount = 0.2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
   }

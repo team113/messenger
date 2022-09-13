@@ -74,6 +74,9 @@ class HomeController extends GetxController {
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUser.myUser;
+
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
       _settings.applicationSettings.value?.sideBarWidth ?? 350;
