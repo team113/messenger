@@ -304,7 +304,6 @@ class CallWorker extends DisposableService {
             break;
 
           case ProcessingState.completed:
-            // if (PlatformUtils.isWindows)
             if (_playerStateSubscription != null) {
               await _audioPlayer?.seek(Duration.zero);
               if (_playerStateSubscription != null) {
@@ -337,7 +336,10 @@ class CallWorker extends DisposableService {
   Future<void> _initAudio() async {
     try {
       _audioPlayer = AudioPlayer();
-      await _audioPlayer?.setLoopMode(LoopMode.one);
+
+      if (!PlatformUtils.isWindows) {
+        await _audioPlayer?.setLoopMode(LoopMode.one);
+      }
     } on MissingPluginException {
       _audioPlayer = null;
     }
