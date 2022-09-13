@@ -342,7 +342,7 @@ class ParticipantController extends GetxController {
       }
 
       try {
-        name = UserName.unchecked(query);
+        name = UserName(query);
       } catch (e) {
         // No-op.
       }
