@@ -60,6 +60,8 @@ class CallWorker extends DisposableService {
   /// [AudioPlayer] currently playing an audio.
   AudioPlayer? _audioPlayer;
 
+  StreamSubscription? _playerStateSubscription;
+
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
 
@@ -269,6 +271,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
+    _playerStateSubscription?.cancel();
+    _playerStateSubscription = null;
     _audioPlayer?.dispose();
 
     _subscription.cancel();
@@ -290,6 +294,26 @@ class CallWorker extends DisposableService {
     runZonedGuarded(() async {
       await _audioPlayer?.setAsset('assets/audio/$asset');
       await _audioPlayer?.play();
+      _playerStateSubscription =
+          _audioPlayer?.playerStateStream.listen((e) async {
+        switch (e.processingState) {
+          case ProcessingState.idle:
+          case ProcessingState.loading:
+          case ProcessingState.buffering:
+          case ProcessingState.ready:
+            break;
+
+          case ProcessingState.completed:
+            // if (PlatformUtils.isWindows)
+            if (_playerStateSubscription != null) {
+              await _audioPlayer?.seek(Duration.zero);
+              if (_playerStateSubscription != null) {
+                await _audioPlayer?.play();
+              }
+            }
+            break;
+        }
+      });
     }, (e, _) {
       if (!e.toString().contains('NotAllowedError')) {
         throw e;
@@ -304,6 +328,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
+    _playerStateSubscription?.cancel();
+    _playerStateSubscription = null;
     await _audioPlayer?.stop();
   }
 
