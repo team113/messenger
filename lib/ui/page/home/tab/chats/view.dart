@@ -137,14 +137,13 @@ class ChatsTabView extends StatelessWidget {
                     return Center(child: Text('label_no_chats'.l10n));
                   }
 
-                  var metrics = MediaQuery.of(context);
                   return ContextMenuInterceptor(
                     child: AnimationLimiter(
                       child: ListView.builder(
                         controller: ScrollController(),
                         itemCount: c.chats.length,
                         itemBuilder: (BuildContext context, int i) {
-                          var e = c.chats[i];
+                          RxChat e = c.chats[i];
                           return AnimationConfiguration.staggeredList(
                             position: i,
                             duration: const Duration(milliseconds: 375),
@@ -152,9 +151,11 @@ class ChatsTabView extends StatelessWidget {
                               horizontalOffset: 50.0,
                               child: FadeInAnimation(
                                 child: Padding(
-                                  padding: const EdgeInsets.only(
+                                  padding: EdgeInsets.only(
+                                    top: i == 0 ? 10 : 0,
                                     left: 10,
                                     right: 10,
+                                    bottom: i == c.chats.length - 1 ? 10 : 0,
                                   ),
                                   child: buildChatTile(context, c, e),
                                 ),

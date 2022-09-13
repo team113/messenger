@@ -17,13 +17,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -271,11 +271,6 @@ class CallWorker extends DisposableService {
   void onClose() {
     _audioPlayer?.dispose();
 
-    [
-      AudioCache.instance.loadedFiles['audio/ringing.mp3'],
-      AudioCache.instance.loadedFiles['audio/chinese.mp3'],
-    ].whereNotNull().forEach(AudioCache.instance.clear);
-
     _subscription.cancel();
     _storageSubscription?.cancel();
     _workers.forEach((_, value) => value.dispose());
@@ -293,12 +288,8 @@ class CallWorker extends DisposableService {
   /// Plays the given [asset].
   Future<void> play(String asset) async {
     runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer?.play(
-        AssetSource('audio/$asset'),
-        position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
-      );
+      await _audioPlayer?.setAsset('assets/audio/$asset');
+      await _audioPlayer?.play();
     }, (e, _) {
       if (!e.toString().contains('NotAllowedError')) {
         throw e;
@@ -313,17 +304,14 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
-    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
     await _audioPlayer?.stop();
-    await _audioPlayer?.release();
   }
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
     try {
       _audioPlayer = AudioPlayer();
-      await AudioCache.instance
-          .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
+      await _audioPlayer?.setLoopMode(LoopMode.one);
     } on MissingPluginException {
       _audioPlayer = null;
     }

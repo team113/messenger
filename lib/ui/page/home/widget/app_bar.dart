@@ -32,13 +32,11 @@ abstract class CustomAppBar {
     bool automaticallyImplyLeading = false,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
-    bool isMobile = false; //context.isMobile;
 
     return PreferredSize(
-      preferredSize: Size(double.infinity, isMobile ? 56 : 56 + 8 - 4),
+      preferredSize: const Size(double.infinity, 60),
       child: Padding(
-        padding:
-            isMobile ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 4, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
@@ -57,7 +55,7 @@ abstract class CustomAppBar {
               sigmaX: style.cardBlur,
               sigmaY: style.cardBlur,
             ),
-            borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
+            borderRadius: style.cardRadius,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius,
@@ -76,16 +74,6 @@ abstract class CustomAppBar {
                   if (actions != null) ...actions,
                 ],
               ),
-              // ClipRRect(
-              //   borderRadius: isMobile ? BorderRadius.zero : style.cardRadius,
-              //   child: AppBar(
-              //     backgroundColor: style.cardColor,
-              //     title: title,
-              //     leading: leading,
-              //     actions: actions,
-              //     automaticallyImplyLeading: automaticallyImplyLeading,
-              //   ),
-              // ),
             ),
           ),
         ),

@@ -84,7 +84,9 @@ dependencies:
   web_socket_channel: ^2.2.0
   window_manager: ^0.2.7
   sticky_headers: ^0.3.0+2
-
+  just_audio: ^0.9.28
+  just_audio_windows: ^0.1.0
+  just_audio_mpv: ^0.1.4
 
 dev_dependencies:
   artemis: ^7.9.0-beta
