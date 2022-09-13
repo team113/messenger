@@ -6,7 +6,7 @@ Feature: Attachments downloading
     And Bob has dialog with me
     And I am in chat with Bob
 
-  Scenario: Attachments has correct status during downloading
+  Scenario: Attachments can be downloaded
     When Bob sends "test.txt" attachment to me
     Then I wait until status of "test.txt" file is empty
 
@@ -14,7 +14,7 @@ Feature: Attachments downloading
     Then I wait until status of "test.txt" file is downloading
     And I wait until status of "test.txt" file is downloaded
 
-  Scenario: Canceling attachment downloading work correctly
+  Scenario: Attachment downloading can be canceled
     When Bob sends "test.txt" attachment to me
     Then I wait until status of "test.txt" file is empty
 

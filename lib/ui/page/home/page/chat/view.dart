@@ -310,8 +310,6 @@ class _ChatViewState extends State<ChatView>
                                             onEdit: () =>
                                                 c.editMessage(e.value),
                                             onFileTap: c.onFileTap,
-                                            onDownloadCancel:
-                                                c.cancelDownloading,
                                           ),
                                         ),
                                       );

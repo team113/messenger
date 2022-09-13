@@ -30,13 +30,13 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import 'web/web_utils.dart';
 
-/// Global entry to access platform utils.
+/// Global variable to access [PlatformUtilsImpl].
+///
+/// May be reassigned to mock specific functionally.
 // ignore: non_constant_identifier_names
 PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing access to platform related features.
-///
-/// Used to add ability to mock [PlatformUtils].
 class PlatformUtilsImpl {
   /// Path to the download directory.
   String? _downloadDirectory;
@@ -155,11 +155,9 @@ class PlatformUtilsImpl {
     } else {
       String name = p.basenameWithoutExtension(filename);
       String extension = p.extension(filename);
-
       String path = await downloadDirectory;
 
-      var file = File('$path/$filename');
-
+      File file = File('$path/$filename');
       for (int i = 1; await file.exists(); ++i) {
         file = File('$path/$name ($i)$extension');
       }
@@ -175,11 +173,10 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads the image with provided [url] and saves it to the gallery.
+  /// Downloads an image from the provided [url] and saves it to the gallery.
   Future<void> saveToGallery(String url, String name) async {
     if (isMobile && !isWeb) {
-      var temp = await getTemporaryDirectory();
-
+      Directory temp = await getTemporaryDirectory();
       String path = '${temp.path}/$name';
       await Dio().download(url, path);
       await ImageGallerySaver.saveFile(path, name: name);
@@ -187,13 +184,13 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads the file with provided [url] and opens share dialog with it.
+  /// Downloads a file from the provided [url] and opens share dialog with it.
   Future<void> share(String url, String name) async {
-    var appDocDir = await getTemporaryDirectory();
-    String savePath = '${appDocDir.path}/$name';
-    await Dio().download(url, savePath);
-    await Share.shareFiles([savePath]);
-    File(savePath).delete();
+    Directory temp = await getTemporaryDirectory();
+    String path = '${temp.path}/$name';
+    await Dio().download(url, path);
+    await Share.shareFiles([path]);
+    File(path).delete();
   }
 }
 

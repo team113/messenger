@@ -70,7 +70,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onResend,
     this.onFileTap,
-    this.onDownloadCancel,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -126,10 +125,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final Function(FileAttachment)? onFileTap;
-
-  /// Callback, called when a cancel download action of a [FileAttachment] of
-  /// this [ChatItem] is triggered.
-  final Function(FileAttachment)? onDownloadCancel;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -819,8 +814,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns visual representation of the provided file-[Attachment].
   Widget _fileAttachment(Attachment e) {
-    bool isLocal = e is LocalAttachment;
-
     bool isFile = e is FileAttachment;
     Widget leading = Container();
 
@@ -828,7 +821,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       switch ((e).downloading.value) {
         case DownloadingStatus.downloading:
           leading = InkWell(
-            onTap: () => widget.onDownloadCancel?.call(e),
+            onTap: () => widget.onFileTap?.call(e),
             child: Stack(
               alignment: AlignmentDirectional.center,
               children: [
@@ -868,10 +861,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           break;
       }
 
-      leading = Container(
-        key: const Key('Sent'),
-        child: leading,
-      );
+      leading = Container(key: const Key('Sent'), child: leading);
     } else if (e is LocalAttachment) {
       switch (e.status.value) {
         case SendingStatus.sending:

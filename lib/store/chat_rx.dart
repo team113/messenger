@@ -352,7 +352,7 @@ class HiveRxChat implements RxChat {
           return;
         }
 
-        var saved = _local.get(item.value.timestamp);
+        HiveChatItem? saved = _local.get(item.value.timestamp);
         if (saved == null) {
           _local.put(item);
         } else {
@@ -802,8 +802,10 @@ class HiveRxChat implements RxChat {
                   // one is found in the [_pending] messages, and this message
                   // is not yet added to the store, then remove the [pending].
                   if (pending != null &&
-                      await get(item.value.id,
-                              timestamp: item.value.timestamp) ==
+                      await get(
+                            item.value.id,
+                            timestamp: item.value.timestamp,
+                          ) ==
                           null) {
                     (item.value as ChatMessage).attachments =
                         pending.attachments;

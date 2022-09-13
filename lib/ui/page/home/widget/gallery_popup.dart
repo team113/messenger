@@ -61,7 +61,7 @@ class GalleryItem {
   /// Original URL to the file this [GalleryItem] represents.
   final String link;
 
-  /// File name associated with this [GalleryItem].
+  /// File name of this this [GalleryItem].
   final String name;
 }
 

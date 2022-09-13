@@ -37,6 +37,7 @@ import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/download_file.dart';
 import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';

@@ -643,22 +643,17 @@ class ChatController extends GetxController {
   }
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
-  /// otherwise opens it.
+  /// otherwise opens it or cancels the download.
   ///
   /// No-op, if download of the [attachment] is in progress.
   Future<void> onFileTap(FileAttachment attachment) async {
     if (attachment.isDownloading) {
-      // No-op.
+      attachment.cancelDownload();
     } else if (attachment.local != null) {
       attachment.open();
     } else {
       attachment.download();
     }
-  }
-
-  /// Cancels downloading of the provided [attachment].
-  void cancelDownloading(FileAttachment attachment) {
-    attachment.cancelDownload();
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it

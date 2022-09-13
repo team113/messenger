@@ -110,7 +110,7 @@ class FileAttachment extends Attachment {
   /// Progress of this [FileAttachment] downloading.
   RxDouble progress = RxDouble(0);
 
-  /// [CancelToken] of this [FileAttachment] downloading.
+  /// [CancelToken] canceling the download of this [FileAttachment], if any.
   CancelToken? _token;
 
   /// Indicates whether this [FileAttachment] is downloading.
@@ -119,7 +119,7 @@ class FileAttachment extends Attachment {
   /// Initializes this [FileAttachment.downloading] status.
   Future<void> init() async {
     if (local != null) {
-      var file = File(local!);
+      File file = File(local!);
       if (await file.exists() && await file.length() == size) {
         downloading.value = DownloadingStatus.downloaded;
         return;
@@ -186,6 +186,7 @@ class FileAttachment extends Attachment {
     await download();
   }
 
+  /// Cancels the downloading of this [FileAttachment].
   void cancelDownload() => _token?.cancel();
 }
 
@@ -232,7 +233,7 @@ enum DownloadingStatus {
   /// Download has not yet started.
   empty,
 
-  /// Downloading in progress.
+  /// Downloading is in progress.
   downloading,
 
   /// Downloaded successfully.
