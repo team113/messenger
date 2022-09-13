@@ -1,4 +1,6 @@
 PODS:
+  - audio_session (0.0.1):
+    - FlutterMacOS
   - audioplayers_darwin (0.0.1):
     - FlutterMacOS
   - connectivity_plus_macos (0.0.1):
@@ -11,6 +13,8 @@ PODS:
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - just_audio (0.0.1):
+    - FlutterMacOS
   - medea_flutter_webrtc (0.8.0-dev):
     - FlutterMacOS
   - medea_jason (0.3.0-dev):
@@ -39,12 +43,14 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
   - connectivity_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus_macos/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
   - flutter_app_badger (from `Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
   - medea_jason (from `Flutter/ephemeral/.symlinks/plugins/medea_jason/macos`)
   - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
@@ -62,6 +68,8 @@ SPEC REPOS:
     - Sentry
 
 EXTERNAL SOURCES:
+  audio_session:
+    :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
   audioplayers_darwin:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos
   connectivity_plus_macos:
@@ -74,6 +82,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  just_audio:
+    :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
   medea_flutter_webrtc:
     :path: Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos
   medea_jason:
@@ -96,12 +106,14 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
+  audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
   audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
   connectivity_plus_macos: f6e86fd000e971d361e54b5afcadc8c8fa773308
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
+  just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   medea_flutter_webrtc: 028a81d72434f27a0004d2847055dfbb3be11d19
   medea_jason: 074d7303ba539375fde3b3bdb98069b456a5ed0a
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
@@ -115,6 +127,6 @@ SPEC CHECKSUMS:
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
-PODFILE CHECKSUM: 59da05cf0bd74d77c27867ff4b93b4bf9a656cc6
+PODFILE CHECKSUM: 31573e14573c76b4f4f4af3b8a9da654890309cd
 
 COCOAPODS: 1.11.3
