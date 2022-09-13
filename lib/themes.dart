@@ -71,6 +71,11 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
+              titleTextStyle: GoogleFonts.roboto(
+                color: Colors.black,
+                fontWeight: FontWeight.w300,
+                fontSize: 18,
+              ),
             ),
         tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
               labelColor: colors.secondary,

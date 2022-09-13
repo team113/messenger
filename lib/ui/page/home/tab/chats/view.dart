@@ -19,6 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../widget/svg/svg.dart';
+import '../../widget/app_bar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -35,7 +37,6 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'controller.dart';
-import 'create_group/controller.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -48,22 +49,41 @@ class ChatsTabView extends StatelessWidget {
       init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (ChatsTabController c) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: CustomAppBar.from(
+            context: context,
             title: Text('label_chats'.l10n),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(0.5),
-              child: Container(
-                color: const Color(0xFFE0E0E0),
-                height: 0.5,
-              ),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (c) => const CreateGroupView(),
+            leading: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: IconButton(
+                  splashColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () {
+                    // TODO: Implement ModalPopup SearchView.
+                  },
+                  icon: SvgLoader.asset(
+                    'assets/icons/search.svg',
+                    width: 17.77,
+                  ),
                 ),
-                icon: const Icon(Icons.add),
+              ),
+            ],
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: IconButton(
+                  splashColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onPressed: () {
+                    // TODO: Implement ModalPopup CreateGroupView.
+                  },
+                  icon: SvgLoader.asset(
+                    'assets/icons/group.svg',
+                    height: 18.44,
+                  ),
+                ),
               ),
             ],
           ),
