@@ -116,12 +116,6 @@ extension MobileExtensionOnContext on BuildContext {
   bool get isMobile => PlatformUtils.isDesktop
       ? MediaQuery.of(this).size.width < 600
       : MediaQuery.of(this).size.shortestSide < 600;
-
-  /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
-  /// [MediaQuery]'s shortest side is less than `600p` on mobile.
-  bool get isNarrow => PlatformUtils.isDesktop
-      ? MediaQuery.of(this).size.width < 600
-      : MediaQuery.of(this).size.shortestSide < 600;
 }
 
 /// Listener interface for receiving window events.

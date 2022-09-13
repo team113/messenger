@@ -114,7 +114,7 @@ class _HomeViewState extends State<HomeView> {
         ///    correct).
         final sideBar = AnimatedOpacity(
           duration: 150.milliseconds,
-          opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
+          opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
               Obx(() {
@@ -189,7 +189,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 );
               }),
-              if (!context.isNarrow) ...[
+              if (!context.isMobile) ...[
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -245,9 +245,9 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   _BackgroundImage(homeController: c),
                   if (c.authStatus.value.isSuccess) ...[
-                    Container(child: context.isNarrow ? null : navigation),
+                    Container(child: context.isMobile ? null : navigation),
                     sideBar,
-                    Container(child: context.isNarrow ? navigation : null),
+                    Container(child: context.isMobile ? navigation : null),
                   ] else ...[
                     const Scaffold(
                       backgroundColor: Colors.transparent,
@@ -276,22 +276,32 @@ class _BackgroundImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: IgnorePointer(
-        child: Obx(() {
-          if (homeController.background.value != null) {
+        child: Obx(
+          () {
+            final Widget image;
+            if (homeController.background.value != null) {
+              image = Image.memory(
+                homeController.background.value!,
+                fit: BoxFit.cover,
+              );
+            } else {
+              image = SvgLoader.asset(
+                'assets/images/background_light.svg',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              );
+            }
+
             return Stack(
               children: [
-                Positioned.fill(
-                  child: Image.memory(
-                    homeController.background.value!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                Positioned.fill(child: image),
                 Positioned.fill(
                   child: Container(
-                    color: Colors.black.withOpacity(0.05),
+                    color: const Color(0xFF000000).withOpacity(0.05),
                   ),
                 ),
-                if (!context.isNarrow) ...[
+                if (!context.isMobile) ...[
                   Row(
                     children: [
                       ConditionalBackdropFilter(
@@ -303,62 +313,21 @@ class _BackgroundImage extends StatelessWidget {
                           double width = homeController.sideBarWidth.value;
                           return ConstrainedBox(
                             constraints: BoxConstraints(
-                                maxWidth: context.isNarrow ? 0 : width),
-                            child: Container(),
+                                maxWidth: context.isMobile ? 0 : width),
+                            child: const SizedBox.expand(),
                           );
                         }),
                       ),
                       Expanded(
-                        child: IgnorePointer(
-                          child: Container(color: const Color(0x04000000)),
-                        ),
+                        child: Container(color: const Color(0x04000000)),
                       ),
                     ],
                   ),
                 ]
               ],
             );
-          }
-
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: SvgLoader.asset(
-                  'assets/images/background_light.svg',
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withOpacity(0.05),
-                ),
-              ),
-              if (!context.isNarrow) ...[
-                Row(
-                  children: [
-                    Obx(() {
-                      double width = homeController.sideBarWidth.value;
-                      return ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxWidth: context.isNarrow ? 0 : width),
-                        child: Container(),
-                      );
-                    }),
-                    Expanded(
-                      child: IgnorePointer(
-                        child: Container(
-                          color: const Color(0x04000000),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          );
-        }),
+          },
+        ),
       ),
     );
   }

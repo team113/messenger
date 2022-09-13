@@ -68,8 +68,8 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService, 
-    this._settingsRepository,{
+    this._userService,
+    this._settingsRepository, {
     this.itemId,
   });
 
@@ -181,6 +181,7 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Worker capturing any [RxChat.messages] changes.
@@ -196,6 +197,7 @@ class ChatController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Returns [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a

@@ -34,7 +34,7 @@ class PersonalizationView extends StatelessWidget {
       init: PersonalizationController(Get.find()),
       builder: (PersonalizationController c) {
         return DropTarget(
-          onDragDone: (details) {},
+          onDragDone: (_) {},
           onDragEntered: (_) {},
           onDragExited: (_) {},
           child: Obx(

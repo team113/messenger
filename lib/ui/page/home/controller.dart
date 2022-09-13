@@ -79,6 +79,7 @@ class HomeController extends GetxController {
   double get sideBarAllowedWidth =>
       _settings.applicationSettings.value?.sideBarWidth ?? 350;
 
+  /// Returns [Uint8List] of the background.
   Rx<Uint8List?> get background => _settings.background;
 
   @override
