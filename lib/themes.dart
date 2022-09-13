@@ -27,7 +27,7 @@ class Themes {
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
-          background: const Color(0xFFF5F8FA),
+          background: Colors.white,
           onBackground: Colors.black,
         );
 
@@ -94,34 +94,40 @@ class Themes {
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: GoogleFonts.robotoTextTheme(),
+        primaryTextTheme: ThemeData.light()
+            .primaryTextTheme
+            .copyWith(headline6: TextStyle(color: colors.primary)),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
-                headline3: TextStyle(color: colors.primary, fontSize: 30),
-                headline4: TextStyle(color: colors.primary, fontSize: 24),
-                headline5: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 18,
-                ),
-                caption: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w300,
-                  fontSize: 17,
-                ),
-                subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-                subtitle2: TextStyle(
-                  color: colors.primary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w300,
-                ),
-                bodyText1: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w300,
-                ),
+          headline3: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 18,
+          ),
+          headline4: TextStyle(color: colors.primary, fontSize: 24),
+          headline5: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+            fontSize: 18,
+          ),
+          caption: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 17,
+          ),
+          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
+          subtitle2: TextStyle(
+            color: colors.primary,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          bodyText1: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
         ),
         inputDecorationTheme: ThemeData.light().inputDecorationTheme.copyWith(
               focusColor: colors.secondary,
@@ -178,8 +184,8 @@ class Themes {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: colors.primary,
             backgroundColor: Colors.transparent,
+            foregroundColor: colors.primary,
             minimumSize: const Size(100, 60),
             maximumSize: const Size(250, 60),
             shape:

@@ -14,12 +14,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
@@ -34,19 +38,76 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
-/// View of the chat members addition modal.
-class ParticipantsView extends StatelessWidget {
-  const ParticipantsView(this._call, this._duration, {Key? key})
+typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
+
+/// View of the search modal.
+class SearchView extends StatelessWidget {
+  const SearchView(
+      {required this.searchTypes,
+      required this.title,
+      this.submitLabel,
+      this.ongoingCall,
+      this.callDuration,
+      this.chatId,
+      this.selectable = true,
+      this.onItemTap,
+      this.onSubmit,
+      Key? key})
       : super(key: key);
 
-  /// The [OngoingCall] that this modal are bound to.
-  final Rx<OngoingCall> _call;
+  /// Crates [SearchView] for an [OngoingCall].
+  factory SearchView.call(
+    Rx<OngoingCall> call,
+    Rx<Duration> duration,
+    SubmitCallback onSubmit, {
+    Key? key,
+  }) {
+    return SearchView(
+      key: key,
+      ongoingCall: call,
+      callDuration: duration,
+      searchTypes: const [
+        SearchType.recent,
+        SearchType.contacts,
+        SearchType.users
+      ],
+      onSubmit: onSubmit,
+      title: 'label_add_participants'.l10n,
+      submitLabel: 'btn_add'.l10n,
+    );
+  }
 
-  /// Duration of the [_call].
-  final Rx<Duration> _duration;
+  /// The [OngoingCall] that this modal are bound to.
+  final Rx<OngoingCall>? ongoingCall;
+
+  /// Duration of the [ongoingCall].
+  final Rx<Duration>? callDuration;
+
+  /// [SearchType]s this modal doing search.
+  final List<SearchType> searchTypes;
+
+  /// [ChatId] this modal are bound to.
+  final ChatId? chatId;
+
+  /// Indicator whether searched items is selectable.
+  final bool selectable;
+
+  /// Title showed on search stage.
+  final String title;
+
+  /// Label showed in the submit button.
+  final String? submitLabel;
+
+  /// Callback, called when an searched item is tapped.
+  final void Function(dynamic)? onItemTap;
+
+  /// Callback, called when the submit button tapped.
+  final SubmitCallback? onSubmit;
 
   @override
   Widget build(BuildContext context) {
+    assert(searchTypes.isNotEmpty);
+
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
@@ -54,11 +115,12 @@ class ParticipantsView extends StatelessWidget {
     return GetBuilder(
       init: ParticipantController(
         Navigator.of(context).pop,
-        _call,
+        ongoingCall,
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
+        chatId: chatId,
+        searchTypes: searchTypes,
       ),
       builder: (ParticipantController c) {
         return Obx(() {
@@ -80,27 +142,28 @@ class ParticipantsView extends StatelessWidget {
                 onTap: onTap,
                 selected: selected,
                 trailing: [
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: AnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: selected
-                          ? const CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
-                              radius: 12,
-                              child: Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 14,
+                  if (selectable)
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: selected
+                            ? const CircleAvatar(
+                                backgroundColor: Color(0xFF63B4FF),
+                                radius: 12,
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              )
+                            : const CircleAvatar(
+                                backgroundColor: Color(0xFFD7D7D7),
+                                radius: 12,
                               ),
-                            )
-                          : const CircleAvatar(
-                              backgroundColor: Color(0xFFD7D7D7),
-                              radius: 12,
-                            ),
+                      ),
                     ),
-                  ),
                 ],
               ),
             );
@@ -109,11 +172,11 @@ class ParticipantsView extends StatelessWidget {
           Widget child;
 
           switch (c.stage.value) {
-            case ParticipantsFlowStage.adding:
+            case ParticipantsFlowStage.search:
               List<Widget> children = [
                 Center(
                   child: Text(
-                    'Add participant'.l10n,
+                    title,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -123,7 +186,7 @@ class ParticipantsView extends StatelessWidget {
                   child: Center(
                     child: ReactiveTextField(
                       state: c.search,
-                      label: 'Search',
+                      label: 'label_search'.l10n,
                       style: thin,
                       onChanged: () => c.query.value = c.search.text,
                     ),
@@ -131,81 +194,46 @@ class ParticipantsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 SizedBox(
-                  height: 15,
+                  height: 17,
                   child: Row(
                     children: [
                       const SizedBox(width: 10),
                       Expanded(
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          children: [
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(0),
-                              child: Obx(() {
-                                return Text(
-                                  'Recent',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value ==
-                                            SearchResultPart.recent
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                            const SizedBox(width: 20),
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(1),
-                              child: Obx(() {
-                                return Text(
-                                  'Contacts',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value ==
-                                            SearchResultPart.contacts
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                            const SizedBox(width: 20),
-                            WidgetButton(
-                              onPressed: () => c.jumpTo(2),
-                              child: Obx(() {
-                                return Text(
-                                  'Users',
-                                  style: thin?.copyWith(
-                                    fontSize: 15,
-                                    color: c.selected.value ==
-                                            SearchResultPart.users
-                                        ? const Color(0xFF63B4FF)
-                                        : null,
-                                  ),
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
+                        child: Builder(builder: (context) {
+                          List<Widget> widgets = [];
+
+                          if (searchTypes.contains(SearchType.recent)) {
+                            widgets.add(_type(c, SearchType.recent, thin));
+                          }
+
+                          if (searchTypes.contains(SearchType.contacts)) {
+                            if (widgets.isNotEmpty) {
+                              widgets.add(const SizedBox(width: 20));
+                            }
+                            widgets.add(_type(c, SearchType.contacts, thin));
+                          }
+
+                          if (searchTypes.contains(SearchType.users)) {
+                            if (widgets.isNotEmpty) {
+                              widgets.add(const SizedBox(width: 20));
+                            }
+                            widgets.add(_type(c, SearchType.users, thin));
+                          }
+
+                          return ListView(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            children: widgets,
+                          );
+                        }),
                       ),
                       Obx(() {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Selected: ',
-                              style: thin?.copyWith(fontSize: 15),
-                            ),
-                            Container(
-                              constraints: const BoxConstraints(minWidth: 14),
-                              child: Text(
-                                '${c.selectedContacts.length + c.selectedUsers.length}',
-                                style: thin?.copyWith(fontSize: 15),
-                              ),
-                            ),
-                          ],
+                        return Text(
+                          'label_selected'.l10nfmt({
+                            'count': c.selectedContacts.length +
+                                c.selectedUsers.length
+                          }),
+                          style: thin?.copyWith(fontSize: 15),
                         );
                       }),
                       const SizedBox(width: 10),
@@ -219,10 +247,10 @@ class ParticipantsView extends StatelessWidget {
                         c.contacts.isEmpty &&
                         c.users.isEmpty) {
                       if (c.searchStatus.value.isSuccess) {
-                        return const Center(child: Text('Nothing was found'));
+                        return Center(child: Text('label_nothing_found'.l10n));
                       } else if (c.searchStatus.value.isEmpty) {
-                        return const Center(
-                          child: Text('Use search to find an user'),
+                        return Center(
+                          child: Text('label_use_search'.l10n),
                         );
                       }
 
@@ -240,7 +268,9 @@ class ParticipantsView extends StatelessWidget {
                               return tile(
                                 user: e,
                                 selected: c.selectedUsers.contains(e),
-                                onTap: () => c.selectUser(e),
+                                onTap: () => selectable
+                                    ? c.selectUser(e)
+                                    : onItemTap?.call(e),
                               );
                             });
                           } else if (e is RxChatContact) {
@@ -248,7 +278,9 @@ class ParticipantsView extends StatelessWidget {
                               return tile(
                                 contact: e,
                                 selected: c.selectedContacts.contains(e),
-                                onTap: () => c.selectContact(e),
+                                onTap: () => selectable
+                                    ? c.selectContact(e)
+                                    : onItemTap?.call(e),
                               );
                             });
                           }
@@ -262,54 +294,59 @@ class ParticipantsView extends StatelessWidget {
                     );
                   }),
                 ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('BackButton'),
-                          maxWidth: null,
-                          title: const Text(
-                            'Back',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () => c.stage.value =
-                              ParticipantsFlowStage.participants,
-                          color: const Color(0xFF63B4FF),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Obx(() {
-                          bool enabled = (c.selectedContacts.isNotEmpty ||
-                                  c.selectedUsers.isNotEmpty) &&
-                              c.status.value.isEmpty;
-
-                          return OutlinedRoundedButton(
-                            key: const Key('AddDialogMembersButton'),
-                            maxWidth: null,
-                            title: Text(
-                              'Add',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: TextStyle(
-                                color: enabled ? Colors.white : Colors.black,
+                if (onSubmit != null && submitLabel != null) ...[
+                  const SizedBox(height: 18),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        if (ongoingCall != null) ...[
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('BackButton'),
+                              maxWidth: null,
+                              title: Text(
+                                'btn_back'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(color: Colors.white),
                               ),
+                              onPressed: () => c.stage.value =
+                                  ParticipantsFlowStage.participants,
+                              color: const Color(0xFF63B4FF),
                             ),
-                            onPressed: enabled ? c.addMembers : null,
-                            color: enabled
-                                ? const Color(0xFF63B4FF)
-                                : const Color(0xFFEEEEEE),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                        Expanded(
+                          child: Obx(() {
+                            bool enabled = (c.selectedContacts.isNotEmpty ||
+                                    c.selectedUsers.isNotEmpty) &&
+                                c.status.value.isEmpty;
+
+                            return OutlinedRoundedButton(
+                              key: const Key('SearchSubmitButton'),
+                              maxWidth: null,
+                              title: Text(
+                                submitLabel!,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: enabled ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              onPressed: () =>
+                                  enabled ? c.submit(onSubmit!) : null,
+                              color: enabled
+                                  ? const Color(0xFF63B4FF)
+                                  : const Color(0xFFEEEEEE),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ];
 
               child = Container(
@@ -331,12 +368,12 @@ class ParticipantsView extends StatelessWidget {
               List<Widget> children = [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: _chat(context, c),
+                  child: _chat(context, c.chat.value),
                 ),
                 const SizedBox(height: 25),
                 Center(
                   child: Text(
-                    'Participants'.l10n,
+                    'label_participants'.l10n,
                     style: thin?.copyWith(fontSize: 18),
                   ),
                 ),
@@ -348,7 +385,7 @@ class ParticipantsView extends StatelessWidget {
                     children: c.chat.value!.members.values.map((e) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: _user(context, c, e),
+                        child: _user(c, e),
                       );
                     }).toList(),
                   ),
@@ -386,12 +423,29 @@ class ParticipantsView extends StatelessWidget {
     );
   }
 
-  Widget _chat(BuildContext context, ParticipantController c) {
+  /// Returns button to jump to the provided [SearchType] search results.
+  Widget _type(ParticipantController c, SearchType type, TextStyle? textStyle) {
+    return WidgetButton(
+      onPressed: () => c.jumpTo(type),
+      child: Obx(() {
+        return Text(
+          type.name.capitalizeFirst!,
+          style: textStyle?.copyWith(
+            fontSize: 15,
+            color: c.selected.value == type ? const Color(0xFF63B4FF) : null,
+          ),
+        );
+      }),
+    );
+  }
+
+  /// Returns [Widget] with the information of the provided [chat].
+  Widget _chat(BuildContext context, RxChat? chat) {
     return Obx(() {
       Style style = Theme.of(context).extension<Style>()!;
-      RxChat chat = c.chat.value!;
 
-      var actualMembers = _call.value.members.keys.map((k) => k.userId).toSet();
+      var actualMembers =
+          ongoingCall!.value.members.keys.map((k) => k.userId).toSet();
 
       return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
@@ -422,7 +476,7 @@ class ParticipantsView extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  chat.title.value,
+                                  chat?.title.value ?? '',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: Theme.of(context).textTheme.headline5,
@@ -435,7 +489,7 @@ class ParticipantsView extends StatelessWidget {
                             child: Row(
                               children: [
                                 Text(
-                                  '${actualMembers.length + 1} of ${c.chat.value?.members.length}',
+                                  '${actualMembers.length + 1} of ${chat?.members.length}',
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                                 Container(
@@ -450,7 +504,7 @@ class ParticipantsView extends StatelessWidget {
                                       ?.color,
                                 ),
                                 Text(
-                                  _duration.value.hhMmSs(),
+                                  callDuration!.value.hhMmSs(),
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                               ],
@@ -469,14 +523,15 @@ class ParticipantsView extends StatelessWidget {
     });
   }
 
-  Widget _user(BuildContext context, ParticipantController c, RxUser user) {
+  /// Returns [Widget] with the information of the provided [user].
+  Widget _user(ParticipantController c, RxUser user) {
     return ContactTile(
       user: user,
       onTap: () {},
       trailing: [
         Obx(() {
           bool inCall = user.id == c.me ||
-              _call.value.members.keys
+              ongoingCall!.value.members.keys
                   .where((e) => e.userId == user.id)
                   .isNotEmpty;
 
@@ -510,14 +565,15 @@ class ParticipantsView extends StatelessWidget {
     );
   }
 
+  /// Returns button to change stage to [ParticipantsFlowStage.search].
   Widget _addParticipant(BuildContext context, ParticipantController c) {
     return OutlinedRoundedButton(
       maxWidth: null,
-      title: const Text(
-        'Add participant',
+      title: Text(
+        'btn_add_participants'.l10n,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
       onPressed: () {
         c.status.value = RxStatus.empty();
@@ -528,7 +584,7 @@ class ParticipantsView extends StatelessWidget {
         c.query.value = null;
         c.search.clear();
         c.populate();
-        c.stage.value = ParticipantsFlowStage.adding;
+        c.stage.value = ParticipantsFlowStage.search;
       },
       color: const Color(0xFF63B4FF),
     );

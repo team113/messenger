@@ -23,26 +23,28 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/page/call/participant/view.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/call/participant/view.dart';
 import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
+import '/ui/widget/modal_popup.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -1090,8 +1092,37 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantsView(_currentCall, duration),
+      child: SearchView.call(_currentCall, duration, addMembers),
     );
+  }
+
+  /// Adds the provided [UserId]s to [chat].
+  ///
+  /// If [chat] is [Chat]-dialog then moves an ongoing [ChatCall] in a
+  /// [Chat]-dialog to a newly created [Chat]-group with the current
+  /// [Chat]-dialog members and the provided [UserId]s.
+  Future<void> addMembers(List<UserId> ids) async {
+    try {
+      if (chat.value?.chat.value.isGroup != false) {
+        List<Future> futures =
+            ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
+
+        await Future.wait(futures);
+      } else {
+        await _calls.transformDialogCallIntoGroupCall(chatId, ids, null);
+      }
+
+      MessagePopup.success('label_participants_added_successfully'.l10n);
+    } on AddChatMemberException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } on TransformDialogCallIntoGroupCallException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
