@@ -115,6 +115,18 @@ extension TrackMediaDirectionEmitting on TrackMediaDirection {
         return false;
     }
   }
+
+  /// Indicates whether the current value is [TrackMediaDirection.SendRecv].
+  bool get isEnabled {
+    switch (this) {
+      case TrackMediaDirection.SendRecv:
+        return true;
+      case TrackMediaDirection.SendOnly:
+      case TrackMediaDirection.RecvOnly:
+      case TrackMediaDirection.Inactive:
+        return false;
+    }
+  }
 }
 
 /// Ongoing [ChatCall] in a [Chat].
@@ -743,16 +755,11 @@ class OngoingCall {
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
     CallMember? member = members[id];
-    for (Track t in member?.tracks
-            .where((t) => t.kind == MediaKind.Video && t.source == source) ??
-        <Track>[]) {
-      if (enabled) {
-        t.isEnabled.value = true;
-        await member?.connection?.enableRemoteVideo(source);
-      } else {
-        t.isEnabled.value = false;
-        await member?.connection?.disableRemoteVideo(source);
-      }
+
+    if (enabled) {
+      await member?.connection?.enableRemoteVideo(source);
+    } else {
+      await member?.connection?.disableRemoteVideo(source);
     }
   }
 
@@ -760,15 +767,11 @@ class OngoingCall {
   /// [enabled].
   Future<void> setMemberAudioEnabled(CallMemberId id, bool enabled) async {
     CallMember? member = members[id];
-    for (Track t in member?.tracks.where((t) => t.kind == MediaKind.Audio) ??
-        <Track>[]) {
-      if (enabled) {
-        t.isEnabled.value = true;
-        await member?.connection?.enableRemoteAudio();
-      } else {
-        t.isEnabled.value = false;
-        await member?.connection?.disableRemoteAudio();
-      }
+
+    if (enabled) {
+      await member?.connection?.enableRemoteAudio();
+    } else {
+      await member?.connection?.disableRemoteAudio();
     }
   }
 
@@ -889,14 +892,6 @@ class OngoingCall {
             false,
       );
 
-      if (isRemoteAudioEnabled.isFalse) {
-        setMemberAudioEnabled(id, false);
-      }
-
-      if (isRemoteVideoEnabled.isFalse) {
-        setMemberVideoEnabled(id, false);
-      }
-
       conn.onClose(() => members.remove(id));
       conn.onRemoteTrackAdded((track) async {
         final Track t = RemoteTrack(track);
@@ -907,7 +902,7 @@ class OngoingCall {
             if (isRemoteAudioEnabled.isTrue) {
               await t.createRenderer();
             } else {
-              t.isEnabled.value = false;
+              setMemberAudioEnabled(id, false);
             }
             break;
 
@@ -915,7 +910,7 @@ class OngoingCall {
             if (isRemoteVideoEnabled.isTrue) {
               await t.createRenderer();
             } else {
-              t.isEnabled.value = false;
+              setMemberVideoEnabled(id, false, source: t.source);
             }
             break;
         }
@@ -933,22 +928,26 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.SendRecv:
-            case TrackMediaDirection.SendOnly:
               switch (track.kind()) {
                 case MediaKind.Audio:
-                  if (t.isEnabled.value) {
-                    await t.createRenderer();
-                  } else {
-                    t.removeRenderer();
-                  }
+                  await t.createRenderer();
                   break;
 
                 case MediaKind.Video:
-                  if (t.isEnabled.value) {
-                    await t.createRenderer();
-                  } else {
-                    t.removeRenderer();
-                  }
+                  await t.createRenderer();
+                  break;
+              }
+
+              member?.tracks.addIf(!member.tracks.contains(t), t);
+              break;
+            case TrackMediaDirection.SendOnly:
+              switch (track.kind()) {
+                case MediaKind.Audio:
+                  t.removeRenderer();
+                  break;
+
+                case MediaKind.Video:
+                  t.removeRenderer();
                   break;
               }
 
@@ -1425,7 +1424,7 @@ class CallMemberId {
 
 /// Participant of an [OngoingCall].
 class CallMember {
-  CallMember(this.id, {this.connection, bool? isHandRaised})
+  CallMember(this.id, {required this.connection, bool? isHandRaised})
       : isHandRaised = RxBool(isHandRaised ?? false),
         owner = MediaOwnerKind.remote;
 
@@ -1451,7 +1450,7 @@ class CallMember {
 
 /// Convenience wrapper around a media track.
 abstract class Track {
-  Track(this.source, this.kind);
+  Track(this.source, this.kind, bool muted) : isMuted = RxBool(muted);
 
   /// [RtcRenderer] of this [Track], if any.
   final Rx<RtcRenderer?> renderer = Rx(null);
@@ -1466,10 +1465,7 @@ abstract class Track {
   final MediaKind kind;
 
   /// Indicator whether this [Track] is muted.
-  final RxBool isMuted = RxBool(false);
-
-  /// Indicator whether this [Track] is enabled.
-  final RxBool isEnabled = RxBool(true);
+  final RxBool isMuted;
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer();
@@ -1486,7 +1482,8 @@ abstract class Track {
 
 /// [Track] implementation for [RemoteMediaTrack].
 class RemoteTrack extends Track {
-  RemoteTrack(this.track) : super(track.mediaSourceKind(), track.kind());
+  RemoteTrack(this.track)
+      : super(track.mediaSourceKind(), track.kind(), track.muted());
 
   /// [RemoteMediaTrack] this [Track] represents.
   final RemoteMediaTrack track;
@@ -1527,7 +1524,7 @@ class RemoteTrack extends Track {
 
 /// [Track] implementation for [LocalMediaTrack].
 class LocalTrack extends Track {
-  LocalTrack(this.track) : super(track.mediaSourceKind(), track.kind());
+  LocalTrack(this.track) : super(track.mediaSourceKind(), track.kind(), false);
 
   /// [LocalMediaTrack] this [Track] represents.
   final LocalMediaTrack track;

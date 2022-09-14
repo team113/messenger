@@ -838,7 +838,7 @@ class CallController extends GetxController {
     if (participant.video.value?.direction.value.isEmitting ?? false) {
       await _currentCall.value.setMemberVideoEnabled(
         participant.member.id,
-        !participant.video.value!.isEnabled.value,
+        !participant.video.value!.direction.value.isEnabled,
         source: participant.video.value!.source,
       );
     }
