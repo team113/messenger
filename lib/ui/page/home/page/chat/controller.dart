@@ -67,14 +67,18 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService,
-  );
+    this._userService, {
+    this.itemId,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
+
+  /// ID of the [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -251,7 +255,9 @@ class ChatController extends GetxController {
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
       onSubmitted: (s) {
-        if (s.text.isNotEmpty || attachments.isNotEmpty) {
+        if (s.text.isNotEmpty ||
+            attachments.isNotEmpty ||
+            repliedMessage.value != null) {
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
@@ -649,14 +655,23 @@ class ChatController extends GetxController {
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].
   List<Attachment> calculateGallery() {
-    List<Attachment> attachments = [];
+    final List<Attachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
-        var msg = m.value as ChatMessage;
+        final ChatMessage msg = m.value as ChatMessage;
         attachments.addAll(msg.attachments.where(
           (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         ));
+      } else if (m.value is ChatForward) {
+        final ChatForward msg = m.value as ChatForward;
+        final ChatItem item = msg.item;
+
+        if (item is ChatMessage) {
+          attachments.addAll(item.attachments.where(
+            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          ));
+        }
       }
     }
 
@@ -807,19 +822,27 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    PreciseDateTime? myRead = chat!.chat.value.lastReads
-        .firstWhereOrNull((e) => e.memberId == me)
-        ?.at;
+    if (itemId != null) {
+      int i = chat!.messages.indexWhere((e) => e.value.id == itemId);
+      if (i != -1) {
+        index = i;
+        offset = (MediaQuery.of(router.context!).size.height) / 3;
+      }
+    } else {
+      PreciseDateTime? myRead = chat!.chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
-    if (chat?.messages.isEmpty == false) {
-      if (chat!.chat.value.unreadCount == 0) {
-        index = chat!.messages.length - 1;
-        offset = 0;
-      } else if (myRead != null) {
-        int i = chat!.messages.indexOf(lastReadItem.value);
-        if (i != -1) {
-          index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
+      if (chat?.messages.isEmpty == false) {
+        if (chat!.chat.value.unreadCount == 0) {
+          index = chat!.messages.length - 1;
+          offset = 0;
+        } else if (myRead != null) {
+          int i = chat!.messages.indexOf(lastReadItem.value);
+          if (i != -1) {
+            index = i;
+            offset = (MediaQuery.of(router.context!).size.height) / 3;
+          }
         }
       }
     }

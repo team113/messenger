@@ -23,8 +23,10 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/web/web_utils.dart';
+import 'confirm/view.dart';
 
 export 'view.dart';
 
@@ -56,12 +58,16 @@ class MenuTabController extends GetxController {
       }
     }
 
-    return Future.sync(() => true);
+    // TODO: [MyUserService.myUser] might still be `null` here.
+    if (_myUserService.myUser.value?.hasPassword != true) {
+      if (await ConfirmLogoutView.show(router.context!) != true) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() async {
-    _myUserService.clearCached();
-    return await _auth.logout();
-  }
+  Future<String> logout() => _auth.logout();
 }
