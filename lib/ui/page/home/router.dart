@@ -148,7 +148,8 @@ class FadeAnimationPage extends Page {
   Route createRoute(BuildContext context) {
     return CustomPageRouteBuilder(
       settings: this,
-      pageBuilder: (_, animation, secondaryAnimation) {
+      pageBuilder: (_, Animation<double> animation,
+          Animation<double> secondaryAnimation) {
         Animation<double> opacityClosing = Tween<double>(
           begin: 1,
           end: 0,
