@@ -51,7 +51,6 @@ class UserView extends StatelessWidget {
           if (c.status.value.isSuccess) {
             return Scaffold(
               body: LayoutBuilder(builder: (context, constraints) {
-                print(constraints);
                 return CustomScrollView(
                   key: const Key('UserColumn'),
                   physics: const BouncingScrollPhysics(),
