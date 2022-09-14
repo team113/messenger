@@ -72,29 +72,6 @@ class SearchView extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 selected: selected,
-                // trailing: [
-                //   SizedBox(
-                //     width: 30,
-                //     height: 30,
-                //     child: AnimatedSwitcher(
-                //       duration: 200.milliseconds,
-                //       child: selected
-                //           ? const CircleAvatar(
-                //               backgroundColor: Color(0xFF63B4FF),
-                //               radius: 12,
-                //               child: Icon(
-                //                 Icons.check,
-                //                 color: Colors.white,
-                //                 size: 14,
-                //               ),
-                //             )
-                //           : const CircleAvatar(
-                //               backgroundColor: Color(0xFFD7D7D7),
-                //               radius: 12,
-                //             ),
-                //     ),
-                //   ),
-                // ],
               ),
             );
           }

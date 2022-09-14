@@ -17,15 +17,18 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '/domain/repository/settings.dart';
+import '/ui/widget/modal_popup.dart';
 import 'participant/controller.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -58,6 +61,7 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
+    this._settingsRepository,
   );
 
   /// Duration of the current ongoing call.
@@ -316,6 +320,8 @@ class CallController extends GetxController {
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Current [OngoingCall].
   final Rx<OngoingCall> _currentCall;
 
@@ -329,6 +335,9 @@ class CallController extends GetxController {
 
   /// Timer to toggle [showUi] value.
   Timer? _uiTimer;
+
+  Worker? _buttonsWorker;
+  Worker? _settingsWorker;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
@@ -623,13 +632,68 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
-    buttons = RxList([
-      ScreenButton(this),
-      VideoButton(this),
-      EndCallButton(this),
-      AudioButton(this),
-      MoreButton(this),
-    ]);
+    List<CallButton> toButtons(List<String>? list) {
+      List<CallButton>? persisted = list
+          ?.map((e) {
+            switch (e) {
+              case 'ScreenButton':
+                return ScreenButton(this);
+
+              case 'VideoButton':
+                return VideoButton(this);
+
+              case 'EndCallButton':
+                return EndCallButton(this);
+
+              case 'AudioButton':
+                return AudioButton(this);
+
+              case 'MoreButton':
+                return MoreButton(this);
+
+              case 'SettingsButton':
+                return SettingsButton(this);
+
+              case 'AddMemberCallButton':
+                return AddMemberCallButton(this);
+
+              case 'HandButton':
+                return HandButton(this);
+
+              case 'RemoteVideoButton':
+                return RemoteVideoButton(this);
+
+              case 'RemoteAudioButton':
+                return RemoteAudioButton(this);
+            }
+          })
+          .whereNotNull()
+          .toList();
+
+      if (persisted?.isNotEmpty != true) {
+        persisted = [
+          ScreenButton(this),
+          VideoButton(this),
+          EndCallButton(this),
+          AudioButton(this),
+          MoreButton(this),
+        ];
+      }
+
+      if (persisted!.whereType<EndCallButton>().isEmpty) {
+        persisted.add(EndCallButton(this));
+      }
+
+      if (persisted.whereType<MoreButton>().isEmpty) {
+        persisted.add(MoreButton(this));
+      }
+
+      return persisted;
+    }
+
+    buttons = RxList(
+      toButtons(_settingsRepository.applicationSettings.value?.callButtons),
+    );
 
     panel = RxList([
       SettingsButton(this),
@@ -641,6 +705,23 @@ class CallController extends GetxController {
       VideoButton(this),
       AudioButton(this),
     ]);
+
+    _buttonsWorker = ever(buttons, (List<CallButton> list) {
+      _settingsRepository
+          .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
+    });
+
+    List<String>? _previousCallButtons =
+        _settingsRepository.applicationSettings.value?.callButtons;
+    _settingsWorker = ever(_settingsRepository.applicationSettings,
+        (ApplicationSettings? settings) {
+      if (settings?.callButtons != _previousCallButtons) {
+        if (settings != null) {
+          buttons.value = toButtons(settings.callButtons);
+        }
+        _previousCallButtons = settings?.callButtons;
+      }
+    });
 
     _showUiWorker = ever(showUi, (bool showUi) {
       if (displayMore.value && !showUi) {
@@ -759,6 +840,9 @@ class CallController extends GetxController {
     _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+
+    _buttonsWorker?.dispose();
+    _settingsWorker?.dispose();
 
     secondaryEntry?.remove();
 

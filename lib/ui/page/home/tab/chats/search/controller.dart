@@ -60,7 +60,6 @@ class SearchController extends GetxController {
 
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
-
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   late final TextFieldState search;

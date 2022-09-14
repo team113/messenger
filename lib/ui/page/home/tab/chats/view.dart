@@ -16,16 +16,21 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
+import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -60,15 +65,108 @@ class ChatsTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       builder: (ChatsTabController c) {
+        Widget tile({
+          RxUser? user,
+          RxChatContact? contact,
+          void Function()? onTap,
+          bool selected = false,
+        }) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: ContactTile(
+              contact: contact,
+              user: user,
+              darken: 0,
+              onTap: () {
+                onTap?.call();
+              },
+              selected: selected,
+            ),
+          );
+        }
+
         return Stack(
           children: [
             Scaffold(
               // extendBodyBehindAppBar: true,
               appBar: CustomAppBar.from(
                 context: context,
-                title: Text('label_chats'.l10n),
+                title: Obx(() {
+                  final TextStyle? thin = Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(color: Colors.black);
+
+                  if (c.searching.value) {
+                    Style style = Theme.of(context).extension<Style>()!;
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        shadowColor: const Color(0x55000000),
+                        iconTheme: const IconThemeData(color: Colors.blue),
+                        inputDecorationTheme: InputDecorationTheme(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusColor: Colors.white,
+                          fillColor: Colors.white,
+                          hoverColor: Colors.transparent,
+                          filled: true,
+                          isDense: true,
+                          contentPadding: EdgeInsets.fromLTRB(
+                            15,
+                            PlatformUtils.isDesktop ? 30 : 23,
+                            15,
+                            0,
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ReactiveTextField(
+                          state: c.search,
+                          hint: 'Search',
+                          maxLines: 1,
+                          filled: false,
+                          dense: true,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          style: style.boldBody.copyWith(fontSize: 17),
+                          onChanged: () => c.query.value = c.search.text,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Text('label_chats'.l10n);
+                }),
                 leading: [
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
@@ -76,21 +174,14 @@ class ChatsTabView extends StatelessWidget {
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
-                      onPressed: () async {
-                        await ModalPopup.show(
-                          context: context,
-                          child: const SearchView(),
-                          desktopConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                          ),
-                          modalConstraints: const BoxConstraints(maxWidth: 380),
-                          mobileConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                          ),
-                          mobilePadding: const EdgeInsets.all(0),
-                        );
+                      onPressed: () {
+                        if (c.searching.isFalse) {
+                          c.searching.value = true;
+                          Future.delayed(
+                            Duration.zero,
+                            c.search.focus.requestFocus,
+                          );
+                        }
                       },
                       icon: SvgLoader.asset(
                         'assets/icons/search.svg',
@@ -102,66 +193,227 @@ class ChatsTabView extends StatelessWidget {
                 actions: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8.0),
-                    child: IconButton(
-                      splashColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onPressed: () async {
-                        await ModalPopup.show(
-                          context: context,
-                          child: const CreateGroupView(),
-                          desktopConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
+                    child: Obx(() {
+                      Widget child;
+                      if (c.searching.value) {
+                        child = IconButton(
+                          key: const Key('CloseSearch'),
+                          splashColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onPressed: () {
+                            c.search.clear();
+                            c.query.value = null;
+                            c.searchResults.value = null;
+                            c.searchStatus.value = RxStatus.empty();
+                            c.searching.value = false;
+                          },
+                          icon: SvgLoader.asset(
+                            'assets/icons/close_primary.svg',
+                            height: 15,
                           ),
-                          modalConstraints: const BoxConstraints(maxWidth: 380),
-                          mobileConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                          ),
-                          mobilePadding: const EdgeInsets.all(0),
-                          desktopPadding: const EdgeInsets.all(0),
                         );
-                      },
-                      icon: SvgLoader.asset(
-                        'assets/icons/group.svg',
-                        height: 18.44,
-                      ),
-                    ),
+                      } else {
+                        child = IconButton(
+                          splashColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onPressed: () async {
+                            await ModalPopup.show(
+                              context: context,
+                              child: const CreateGroupView(),
+                              desktopConstraints: const BoxConstraints(
+                                maxWidth: double.infinity,
+                                maxHeight: double.infinity,
+                              ),
+                              modalConstraints:
+                                  const BoxConstraints(maxWidth: 380),
+                              mobileConstraints: const BoxConstraints(
+                                maxWidth: double.infinity,
+                                maxHeight: double.infinity,
+                              ),
+                              mobilePadding: const EdgeInsets.all(0),
+                              desktopPadding: const EdgeInsets.all(0),
+                            );
+                          },
+                          icon: SvgLoader.asset(
+                            'assets/icons/group.svg',
+                            height: 18.44,
+                          ),
+                        );
+                      }
+
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: child,
+                      );
+                    }),
                   ),
                 ],
               ),
               body: Obx(() {
                 if (c.chatsReady.value) {
-                  if (c.chats.isEmpty) {
-                    return Center(child: Text('label_no_chats'.l10n));
+                  Widget? center;
+
+                  if (c.query.isNotEmpty != true && c.chats.isEmpty) {
+                    center = Center(child: Text('label_no_chats'.l10n));
+                  } else if (c.query.isNotEmpty == true &&
+                      c.chats.isEmpty &&
+                      c.contacts.isEmpty &&
+                      c.users.isEmpty) {
+                    if (c.searchStatus.value.isSuccess) {
+                      center = Center(child: Text('No user found'.l10n));
+                    } else {
+                      center = const Center(child: CircularProgressIndicator());
+                    }
                   }
+
+                  ThemeData theme = Theme.of(context);
+                  final TextStyle? thin =
+                      theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+
+                  return Column(
+                    children: [
+                      AnimatedSizeAndFade.showHide(
+                        fadeDuration: 300.milliseconds,
+                        sizeDuration: 300.milliseconds,
+                        show: c.searching.value && c.query.isNotEmpty == true,
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
+                          height: 15,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              WidgetButton(
+                                onPressed: () => c.jumpTo(0),
+                                child: Obx(() {
+                                  return Text(
+                                    'Chats',
+                                    style: thin?.copyWith(
+                                      fontSize: 15,
+                                      color: c.selected.value == 0
+                                          ? const Color(0xFF63B4FF)
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(width: 20),
+                              WidgetButton(
+                                onPressed: () => c.jumpTo(1),
+                                child: Obx(() {
+                                  return Text(
+                                    'Contacts',
+                                    style: thin?.copyWith(
+                                      fontSize: 15,
+                                      color: c.selected.value == 1
+                                          ? const Color(0xFF63B4FF)
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(width: 20),
+                              WidgetButton(
+                                onPressed: () => c.jumpTo(2),
+                                child: Obx(() {
+                                  return Text(
+                                    'Users',
+                                    style: thin?.copyWith(
+                                      fontSize: 15,
+                                      color: c.selected.value == 2
+                                          ? const Color(0xFF63B4FF)
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(width: 20),
+                              WidgetButton(
+                                onPressed: () => c.jumpTo(2),
+                                child: Obx(() {
+                                  return Text(
+                                    'Messages',
+                                    style: thin?.copyWith(
+                                      fontSize: 15,
+                                      color: c.selected.value == 3
+                                          ? const Color(0xFF63B4FF)
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: center ??
+                            ContextMenuInterceptor(
+                              child: FlutterListView(
+                                controller: c.controller,
+                                delegate: FlutterListViewDelegate(
+                                  (context, i) {
+                                    dynamic e = c.getIndex(i);
+
+                                    Widget child = Container();
+
+                                    if (e is RxChat) {
+                                      child = Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                        ),
+                                        child: buildChatTile(context, c, e),
+                                      );
+                                    } else if (e is RxUser) {
+                                      child = tile(
+                                        user: e,
+                                        onTap: () {
+                                          c.openChat(user: e);
+                                        },
+                                      );
+                                    } else if (e is RxChatContact) {
+                                      child = tile(
+                                        contact: e,
+                                        onTap: () {
+                                          c.openChat(contact: e);
+                                        },
+                                      );
+                                    }
+
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        top: i == 0 ? 10 : 0,
+                                        bottom: i ==
+                                                c.chats.length +
+                                                    c.contacts.length +
+                                                    c.users.length -
+                                                    1
+                                            ? 10
+                                            : 0,
+                                      ),
+                                      child: child,
+                                    );
+                                  },
+                                  childCount: c.chats.length +
+                                      c.contacts.length +
+                                      c.users.length,
+                                ),
+                              ),
+                            ),
+                      ),
+                    ],
+                  );
 
                   return ContextMenuInterceptor(
                     child: AnimationLimiter(
                       child: ListView.builder(
                         controller: ScrollController(),
-                        itemCount: c.chats.length,
+                        itemCount:
+                            c.chats.length + c.contacts.length + c.users.length,
                         itemBuilder: (BuildContext context, int i) {
-                          RxChat e = c.chats[i];
-                          return AnimationConfiguration.staggeredList(
-                            position: i,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              horizontalOffset: 50.0,
-                              child: FadeInAnimation(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    top: i == 0 ? 10 : 0,
-                                    left: 10,
-                                    right: 10,
-                                    bottom: i == c.chats.length - 1 ? 10 : 0,
-                                  ),
-                                  child: buildChatTile(context, c, e),
-                                ),
-                              ),
-                            ),
-                          );
+                          return Container();
                         },
                       ),
                     ),
@@ -555,7 +807,7 @@ class ChatsTabView extends StatelessWidget {
             ),
         ],
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
           child: ConditionalBackdropFilter(
             condition: false,
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
