@@ -636,6 +636,7 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
 
+  /// Changes router location to the [Routes.personalization] page.
   void personalization() => go(Routes.personalization);
 
   /// Changes router location to the [Routes.me] page.

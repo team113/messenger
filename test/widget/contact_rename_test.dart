@@ -217,8 +217,10 @@ void main() async {
     );
     Get.put(ContactService(contactRepository));
 
-    AbstractSettingsRepository settingsRepository = Get.put(SettingsRepository(
-        settingsProvider, applicationSettingsProvider, backgroundProvider));
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+          settingsProvider, applicationSettingsProvider, backgroundProvider),
+    );
 
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));

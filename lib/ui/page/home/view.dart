@@ -22,11 +22,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-import '../../widget/svg/svg.dart';
-import '../call/widget/conditional_backdrop.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
@@ -264,6 +264,7 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
+/// Widget displaying background from [homeController].
 class _BackgroundImage extends StatelessWidget {
   const _BackgroundImage({
     Key? key,

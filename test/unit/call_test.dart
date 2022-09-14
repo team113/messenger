@@ -75,7 +75,7 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  
+
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
     provider.setCredentials(
@@ -121,10 +121,10 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractSettingsRepository settingsRepository = Get.put(SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider));
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(mediaSettingsProvider, applicationSettingsProvider,
+          backgroundProvider),
+    );
 
     CallRepository callRepository =
         Get.put(CallRepository(graphQlProvider, userRepository));
@@ -208,10 +208,10 @@ void main() async {
 
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    AbstractSettingsRepository settingsRepository = Get.put(SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider));
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(mediaSettingsProvider, applicationSettingsProvider,
+          backgroundProvider),
+    );
 
     CallRepository callRepository =
         Get.put(CallRepository(graphQlProvider, userRepository));
@@ -253,10 +253,10 @@ void main() async {
     AuthService authService = Get.put(AuthService(authRepository, provider));
     await authService.init();
 
-    AbstractSettingsRepository settingsRepository = Get.put(SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider));
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(mediaSettingsProvider, applicationSettingsProvider,
+          backgroundProvider),
+    );
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
 

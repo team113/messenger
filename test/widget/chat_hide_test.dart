@@ -225,7 +225,9 @@ void main() async {
     );
 
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider, backgroundProvider));
+      SettingsRepository(
+          settingsProvider, applicationSettingsProvider, backgroundProvider),
+    );
 
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(graphQlProvider, chatProvider, userRepository),

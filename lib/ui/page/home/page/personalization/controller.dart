@@ -32,8 +32,10 @@ class PersonalizationController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
+  /// Remove background from application.
   Future<void> removeBackground() => _settingsRepo.setBackground(null);
 
+  /// Retrieve image from base platform and set background.
   Future<void> pickBackground() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,

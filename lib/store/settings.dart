@@ -79,7 +79,7 @@ class SettingsRepository extends DisposableInterface
   void onClose() {
     _mediaSubscription?.cancel();
     _settingsSubscription?.cancel();
-     _backgroundSubscription?.cancel();
+    _backgroundSubscription?.cancel();
     super.onClose();
   }
 

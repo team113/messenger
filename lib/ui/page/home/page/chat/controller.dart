@@ -27,7 +27,6 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../domain/repository/settings.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -37,6 +36,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';

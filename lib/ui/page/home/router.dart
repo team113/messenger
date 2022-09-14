@@ -57,28 +57,24 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
-        pages.add(const MaterialPage(
+        pages.add(const FadeAnimationPage(
           key: ValueKey('MyProfilePage'),
-          name: Routes.me,
           child: MyProfileView(),
         ));
       } else if (route == Routes.personalization) {
-        pages.add(const MaterialPage(
+        pages.add(const FadeAnimationPage(
           key: ValueKey('PersonalizationPage'),
-          name: Routes.personalization,
           child: PersonalizationView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
-        pages.add(const MaterialPage(
+        pages.add(const FadeAnimationPage(
           key: ValueKey('SettingsPage'),
-          name: Routes.settings,
           child: SettingsView(),
         ));
 
         if (route == Routes.settingsMedia) {
-          pages.add(const MaterialPage(
+          pages.add(const FadeAnimationPage(
             key: ValueKey('MediaSettingsPage'),
-            name: Routes.settingsMedia,
             child: MediaSettingsView(),
           ));
         }
@@ -86,9 +82,8 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(MaterialPage(
+        pages.add(FadeAnimationPage(
           key: ValueKey('ChatPage$id'),
-          name: '${Routes.chat}/$id',
           child: ChatView(
             ChatId(id),
             itemId: router.arguments?['itemId'] as ChatItemId?,
@@ -96,24 +91,21 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         ));
 
         if (route.endsWith(Routes.chatInfo)) {
-          pages.add(MaterialPage(
+          pages.add(FadeAnimationPage(
             key: ValueKey('ChatInfoPage$id'),
-            name: '${Routes.chat}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
           ));
         }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
-        pages.add(MaterialPage(
+        pages.add(FadeAnimationPage(
           key: ValueKey('ContactPage$id'),
-          name: '${Routes.contact}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(MaterialPage(
+        pages.add(FadeAnimationPage(
           key: ValueKey('UserPage$id'),
-          name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
         ));
       }
@@ -125,7 +117,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      transitionDelegate: _NoAnimationTransitionDelegate(),
       key: navigatorKey,
       pages: _pages,
       onPopPage: (route, result) {
@@ -144,39 +135,43 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 }
 
-/// Removes or adds routes without animated transitions.
-class _NoAnimationTransitionDelegate extends TransitionDelegate<void> {
-  @override
-  Iterable<RouteTransitionRecord> resolve({
-    required List<RouteTransitionRecord> newPageRouteHistory,
-    required Map<RouteTransitionRecord?, RouteTransitionRecord>
-        locationToExitingPageRoute,
-    required Map<RouteTransitionRecord?, List<RouteTransitionRecord>>
-        pageRouteToPagelessRoutes,
-  }) {
-    final List<RouteTransitionRecord> results = <RouteTransitionRecord>[];
+/// [Page] transition with opacity effect.
+class FadeAnimationPage extends Page {
+  const FadeAnimationPage({super.key, required this.child});
 
-    for (final RouteTransitionRecord pageRoute in newPageRouteHistory) {
-      if (pageRoute.isWaitingForEnteringDecision) {
-        pageRoute.markForAdd();
-      }
-      results.add(pageRoute);
-    }
-    for (final RouteTransitionRecord exitingPageRoute
-        in locationToExitingPageRoute.values) {
-      if (exitingPageRoute.isWaitingForExitingDecision) {
-        exitingPageRoute.markForRemove();
-        final List<RouteTransitionRecord>? pagelessRoutes =
-            pageRouteToPagelessRoutes[exitingPageRoute];
-        if (pagelessRoutes != null) {
-          for (final RouteTransitionRecord pagelessRoute in pagelessRoutes) {
-            pagelessRoute.markForRemove();
-          }
-        }
-      }
-      results.add(exitingPageRoute);
-    }
-    return results;
+  final Widget child;
+
+  @override
+  Route createRoute(BuildContext context) {
+    return PageRouteBuilder(
+      settings: this,
+      pageBuilder: (context, animation, animation2) {
+        Animation<double> opacity = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(
+              0.4,
+              1,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
+
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: FadeTransition(
+            opacity: opacity,
+            child: child,
+          ),
+        );
+      },
+    );
   }
 }
 
