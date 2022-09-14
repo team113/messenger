@@ -42,18 +42,18 @@ typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
 
 /// View of the search modal.
 class SearchView extends StatelessWidget {
-  const SearchView(
-      {required this.searchTypes,
-      required this.title,
-      this.submitLabel,
-      this.ongoingCall,
-      this.callDuration,
-      this.chatId,
-      this.selectable = true,
-      this.onItemTap,
-      this.onSubmit,
-      Key? key})
-      : super(key: key);
+  const SearchView({
+    required this.searchTypes,
+    required this.title,
+    this.submitLabel,
+    this.ongoingCall,
+    this.callDuration,
+    this.chatId,
+    this.selectable = true,
+    this.onItemTap,
+    this.onSubmit,
+    Key? key,
+  }) : super(key: key);
 
   /// Crates [SearchView] for an [OngoingCall].
   factory SearchView.call(
@@ -66,27 +66,23 @@ class SearchView extends StatelessWidget {
       key: key,
       ongoingCall: call,
       callDuration: duration,
-      searchTypes: const [
-        SearchType.recent,
-        SearchType.contacts,
-        SearchType.users
-      ],
+      searchTypes: const [Search.recent, Search.contacts, Search.users],
       onSubmit: onSubmit,
       title: 'label_add_participants'.l10n,
       submitLabel: 'btn_add'.l10n,
     );
   }
 
-  /// The [OngoingCall] that this modal are bound to.
+  /// The [OngoingCall] that this modal is bound to.
   final Rx<OngoingCall>? ongoingCall;
 
   /// Duration of the [ongoingCall].
   final Rx<Duration>? callDuration;
 
-  /// [SearchType]s this modal doing search.
-  final List<SearchType> searchTypes;
+  /// [Search] types this modal doing.
+  final List<Search> searchTypes;
 
-  /// [ChatId] this modal are bound to.
+  /// ID of the [Chat] this modal is bound to.
   final ChatId? chatId;
 
   /// Indicator whether searched items is selectable.
@@ -95,7 +91,7 @@ class SearchView extends StatelessWidget {
   /// Title showed on search stage.
   final String title;
 
-  /// Label showed in the submit button.
+  /// Label showed on the submit button.
   final String? submitLabel;
 
   /// Callback, called when an searched item is tapped.
@@ -106,8 +102,6 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(searchTypes.isNotEmpty);
-
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
@@ -172,7 +166,7 @@ class SearchView extends StatelessWidget {
           Widget child;
 
           switch (c.stage.value) {
-            case ParticipantsFlowStage.search:
+            case SearchFlowStage.search:
               List<Widget> children = [
                 Center(
                   child: Text(
@@ -202,22 +196,22 @@ class SearchView extends StatelessWidget {
                         child: Builder(builder: (context) {
                           List<Widget> widgets = [];
 
-                          if (searchTypes.contains(SearchType.recent)) {
-                            widgets.add(_type(c, SearchType.recent, thin));
+                          if (searchTypes.contains(Search.recent)) {
+                            widgets.add(_type(c, Search.recent, thin));
                           }
 
-                          if (searchTypes.contains(SearchType.contacts)) {
+                          if (searchTypes.contains(Search.contacts)) {
                             if (widgets.isNotEmpty) {
                               widgets.add(const SizedBox(width: 20));
                             }
-                            widgets.add(_type(c, SearchType.contacts, thin));
+                            widgets.add(_type(c, Search.contacts, thin));
                           }
 
-                          if (searchTypes.contains(SearchType.users)) {
+                          if (searchTypes.contains(Search.users)) {
                             if (widgets.isNotEmpty) {
                               widgets.add(const SizedBox(width: 20));
                             }
-                            widgets.add(_type(c, SearchType.users, thin));
+                            widgets.add(_type(c, Search.users, thin));
                           }
 
                           return ListView(
@@ -264,25 +258,35 @@ class SearchView extends StatelessWidget {
                           dynamic e = c.getIndex(i);
 
                           if (e is RxUser) {
-                            return Obx(() {
-                              return tile(
-                                user: e,
-                                selected: c.selectedUsers.contains(e),
-                                onTap: () => selectable
-                                    ? c.selectUser(e)
-                                    : onItemTap?.call(e),
-                              );
-                            });
+                            return Column(
+                              children: [
+                                if (i > 0) const SizedBox(height: 7),
+                                Obx(() {
+                                  return tile(
+                                    user: e,
+                                    selected: c.selectedUsers.contains(e),
+                                    onTap: () => selectable
+                                        ? c.selectUser(e)
+                                        : onItemTap?.call(e),
+                                  );
+                                }),
+                              ],
+                            );
                           } else if (e is RxChatContact) {
-                            return Obx(() {
-                              return tile(
-                                contact: e,
-                                selected: c.selectedContacts.contains(e),
-                                onTap: () => selectable
-                                    ? c.selectContact(e)
-                                    : onItemTap?.call(e),
-                              );
-                            });
+                            return Column(
+                              children: [
+                                if (i > 0) const SizedBox(height: 7),
+                                Obx(() {
+                                  return tile(
+                                    contact: e,
+                                    selected: c.selectedContacts.contains(e),
+                                    onTap: () => selectable
+                                        ? c.selectContact(e)
+                                        : onItemTap?.call(e),
+                                  );
+                                }),
+                              ],
+                            );
                           }
 
                           return Container();
@@ -311,8 +315,8 @@ class SearchView extends StatelessWidget {
                                 maxLines: 1,
                                 style: const TextStyle(color: Colors.white),
                               ),
-                              onPressed: () => c.stage.value =
-                                  ParticipantsFlowStage.participants,
+                              onPressed: () =>
+                                  c.stage.value = SearchFlowStage.participants,
                               color: const Color(0xFF63B4FF),
                             ),
                           ),
@@ -364,7 +368,7 @@ class SearchView extends StatelessWidget {
               );
               break;
 
-            case ParticipantsFlowStage.participants:
+            case SearchFlowStage.participants:
               List<Widget> children = [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -423,8 +427,8 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Returns button to jump to the provided [SearchType] search results.
-  Widget _type(ParticipantController c, SearchType type, TextStyle? textStyle) {
+  /// Returns button to jump to the provided [Search] type search results.
+  Widget _type(ParticipantController c, Search type, TextStyle? textStyle) {
     return WidgetButton(
       onPressed: () => c.jumpTo(type),
       child: Obx(() {
@@ -565,7 +569,7 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Returns button to change stage to [ParticipantsFlowStage.search].
+  /// Returns button to change stage to [SearchFlowStage.search].
   Widget _addParticipant(BuildContext context, ParticipantController c) {
     return OutlinedRoundedButton(
       maxWidth: null,
@@ -584,7 +588,7 @@ class SearchView extends StatelessWidget {
         c.query.value = null;
         c.search.clear();
         c.populate();
-        c.stage.value = ParticipantsFlowStage.search;
+        c.stage.value = SearchFlowStage.search;
       },
       color: const Color(0xFF63B4FF),
     );

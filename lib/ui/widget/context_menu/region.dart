@@ -29,7 +29,7 @@ class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
-    this.menu,
+    required this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
     this.decoration,
@@ -39,7 +39,7 @@ class ContextMenuRegion extends StatefulWidget {
   final Widget child;
 
   /// Context menu to show.
-  final Widget? menu;
+  final Widget menu;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
@@ -73,20 +73,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             behavior: HitTestBehavior.translucent,
             onPointerDown: (d) => _buttons = d.buttons,
             onPointerUp: (d) {
-              if (_buttons & kSecondaryButton != 0 && widget.menu != null) {
-                ContextMenuOverlay.of(context).show(widget.menu!, d.position);
+              if (_buttons & kSecondaryButton != 0) {
+                ContextMenuOverlay.of(context).show(widget.menu, d.position);
               }
             },
             child: Stack(
               children: [
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (d) {
-                    if (widget.menu != null) {
-                      ContextMenuOverlay.of(context)
-                          .show(widget.menu!, d.globalPosition);
-                    }
-                  },
+                  onLongPressStart: (d) => ContextMenuOverlay.of(context)
+                      .show(widget.menu, d.globalPosition),
                   child: widget.child,
                 ),
 

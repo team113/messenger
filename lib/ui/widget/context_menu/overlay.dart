@@ -50,8 +50,6 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
   /// Currently opened context menu.
   final Rx<Widget?> menu = Rx(null);
 
-  final RxnString id = RxnString(null);
-
   /// Size of the [ContextMenuOverlay].
   Size? _area;
 

@@ -25,8 +25,7 @@ import '/ui/widget/context_menu/region.dart';
 
 /// [ChatContact] or [User] visual representation.
 ///
-/// If [contact] and [user] exist then [contact]'s information will be
-/// displayed.
+/// If [contact] and [user] exist then [contact]'s data will be displayed.
 class ContactTile extends StatelessWidget {
   const ContactTile({
     Key? key,
@@ -67,55 +66,49 @@ class ContactTile extends StatelessWidget {
 
     return SizedBox(
       height: 84,
-      child: ContextMenuRegion(
-        key: contact != null || user != null
-            ? Key('ContextMenuRegion_${contact?.id ?? user?.id}')
-            : null,
-        preventContextMenu: false,
-        child: Container(
-          decoration: BoxDecoration(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: selected
+              ? const Color(0xFFD7ECFF).withOpacity(0.8)
+              : style.cardColor.darken(darken),
+          child: InkWell(
             borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: selected
-                ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                : style.cardColor.darken(darken),
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onTap,
-              hoverColor: selected
-                  ? const Color(0x00D7ECFF)
-                  : const Color(0xFFD7ECFF).withOpacity(0.8),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    ...leading,
-                    if (contact != null)
-                      AvatarWidget.fromRxContact(contact, radius: 26)
-                    else
-                      AvatarWidget.fromRxUser(user, radius: 26),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        contact?.contact.value.name.val ??
-                            contact?.user.value?.user.value.name?.val ??
-                            contact?.user.value?.user.value.num.val ??
-                            user?.user.value.name?.val ??
-                            user?.user.value.num.val ??
-                            '...',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.headline5,
-                      ),
+            onTap: onTap,
+            hoverColor: selected
+                ? const Color(0x00D7ECFF)
+                : const Color(0xFFD7ECFF).withOpacity(0.8),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+              child: Row(
+                children: [
+                  ...leading,
+                  if (contact != null)
+                    AvatarWidget.fromRxContact(contact, radius: 26)
+                  else
+                    AvatarWidget.fromRxUser(user, radius: 26),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      contact?.contact.value.name.val ??
+                          contact?.user.value?.user.value.name?.val ??
+                          contact?.user.value?.user.value.num.val ??
+                          user?.user.value.name?.val ??
+                          user?.user.value.num.val ??
+                          '...',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.headline5,
                     ),
-                    ...trailing,
-                  ],
-                ),
+                  ),
+                  ...trailing,
+                ],
               ),
             ),
           ),

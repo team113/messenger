@@ -39,16 +39,16 @@ import 'view.dart';
 export 'view.dart';
 
 /// Stage of an search modal.
-enum ParticipantsFlowStage {
-  /// Participants search stage.
+enum SearchFlowStage {
+  /// Search stage.
   search,
 
-  /// Chat participants stage.
+  /// Participants stage.
   participants,
 }
 
 /// Type of searching.
-enum SearchType {
+enum Search {
   /// Recent users.
   recent,
 
@@ -70,8 +70,8 @@ class ParticipantController extends GetxController {
     required this.searchTypes,
     ChatId? chatId,
   })  : stage = _call != null
-            ? Rx(ParticipantsFlowStage.participants)
-            : Rx(ParticipantsFlowStage.search),
+            ? Rx(SearchFlowStage.participants)
+            : Rx(SearchFlowStage.search),
         _chatId = chatId?.obs ?? _call?.value.chatId;
 
   /// Reactive state of the [Chat] this modal is about.
@@ -80,8 +80,8 @@ class ParticipantController extends GetxController {
   /// Pops the [SearchView] this controller is bound to.
   final Function() pop;
 
-  /// [ParticipantsFlowStage] of this addition modal.
-  final Rx<ParticipantsFlowStage> stage;
+  /// [SearchFlowStage] of this addition modal.
+  final Rx<SearchFlowStage> stage;
 
   /// Status of an [submit] completion.
   ///
@@ -104,7 +104,8 @@ class ParticipantController extends GetxController {
   /// May be:
   /// - `status.isEmpty`, meaning no [_search] is executing.
   /// - `status.isLoading`, meaning [_search] is executing.
-  /// - `status.isLoadingMore`, meaning some [searchResults] is exist.
+  /// - `status.isLoadingMore`, meaning some [searchResults] is exist and
+  /// [_search] is executing.
   /// - `status.isSuccess`, meaning the [_search] was successfully executed.
   /// - `status.isError`, meaning the [_search] got an error.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
@@ -118,17 +119,17 @@ class ParticipantController extends GetxController {
   /// Reactive map of [User]s passed [query].
   final RxMap<UserId, RxUser> users = RxMap();
 
-  /// [FlutterListViewController] of a [User]s and [ChatContact]s.
+  /// [FlutterListViewController] of a search results.
   final FlutterListViewController controller = FlutterListViewController();
 
-  /// [TextFieldState] of a [User]s search field.
+  /// [TextFieldState] of the search field.
   late final TextFieldState search;
 
-  /// Reactive value of the [search].
+  /// Reactive value of the [search] field.
   final RxnString query = RxnString();
 
-  /// Selected contacts users or recent
-  final Rx<SearchType> selected = Rx(SearchType.recent);
+  /// Selected [Search] type results.
+  final Rx<Search> selected = Rx(Search.recent);
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -136,17 +137,23 @@ class ParticipantController extends GetxController {
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
 
+  /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
+  Worker? _stateWorker;
+
+  /// Worker performing a [_fetchChat] on [chatId] changes.
+  Worker? _chatIdWorker;
+
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
-  /// The [OngoingCall] that this modal are bound to.
+  /// The [OngoingCall] that this modal is bound to.
   final Rx<OngoingCall>? _call;
 
-  /// [ChatId] this modal are bound to.
+  /// ID of the [Chat] this modal is bound to.
   final Rx<ChatId>? _chatId;
 
-  /// [SearchType]s this modal doing search.
-  final List<SearchType> searchTypes;
+  /// [Search] types this modal doing.
+  final List<Search> searchTypes;
 
   /// [Chat]s service used to add members to a [Chat].
   final ChatService _chatService;
@@ -160,17 +167,16 @@ class ParticipantController extends GetxController {
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
-  /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
-  Worker? _stateWorker;
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// ID of the [Chat] this modal is about.
+  /// ID of the [Chat] this modal is bound to.
   Rx<ChatId>? get chatId => _chatId;
 
   @override
   void onInit() {
+    assert(searchTypes.isNotEmpty);
+
     if (chatId != null) {
       _chatsSubscription = _chatService.chats.changes.listen((e) {
         switch (e.op) {
@@ -188,6 +194,10 @@ class ParticipantController extends GetxController {
             // No-op.
             break;
         }
+      });
+
+      _chatIdWorker = ever(chatId!, (_) {
+        _fetchChat();
       });
     }
 
@@ -229,11 +239,11 @@ class ParticipantController extends GetxController {
       int? first = list.firstOrNull?.index;
       if (first != null) {
         if (first >= recent.length + contacts.length) {
-          selected.value = SearchType.users;
+          selected.value = Search.users;
         } else if (first >= recent.length) {
-          selected.value = SearchType.contacts;
+          selected.value = Search.contacts;
         } else {
-          selected.value = SearchType.recent;
+          selected.value = Search.recent;
         }
       }
     };
@@ -253,13 +263,14 @@ class ParticipantController extends GetxController {
     _stateWorker?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
+    _chatIdWorker?.dispose();
     _searchStatusWorker?.dispose();
     _searchStatusWorker = null;
     super.onClose();
   }
 
   /// Calls the provided [callback] and closes this modal or changes stage to
-  /// [ParticipantsFlowStage.participants] if bound to an [OngoingCall].
+  /// [SearchFlowStage.participants] if bound to an [OngoingCall].
   Future<void> submit(SubmitCallback callback) async {
     status.value = RxStatus.loading();
 
@@ -272,7 +283,7 @@ class ParticipantController extends GetxController {
       await callback(ids);
 
       if (_call != null) {
-        stage.value = ParticipantsFlowStage.participants;
+        stage.value = SearchFlowStage.participants;
       } else {
         pop();
       }
@@ -302,6 +313,7 @@ class ParticipantController extends GetxController {
   /// Fetches the [chat].
   void _fetchChat() async {
     if (chatId != null) {
+      chat.value = null;
       chat.value = (await _chatService.get(chatId!.value));
       if (chat.value == null) {
         MessagePopup.error('err_unknown_chat'.l10n);
@@ -314,6 +326,10 @@ class ParticipantController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
+    if (!searchTypes.contains(Search.users)) {
+      return;
+    }
+
     _searchStatusWorker?.dispose();
     _searchStatusWorker = null;
 
@@ -365,18 +381,18 @@ class ParticipantController extends GetxController {
   }
 
   /// Jumps to the provided [part] of the search results.
-  void jumpTo(SearchType part) {
+  void jumpTo(Search part) {
     if (controller.hasClients) {
-      if (part == SearchType.recent) {
+      if (part == Search.recent && recent.isNotEmpty) {
         controller.jumpTo(0);
-      } else if (part == SearchType.contacts) {
+      } else if (part == Search.contacts && contacts.isNotEmpty) {
         double to = recent.length * (84 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
         } else {
           controller.jumpTo(to);
         }
-      } else if (part == SearchType.users) {
+      } else if (part == Search.users && users.isNotEmpty) {
         double to = (recent.length + contacts.length) * (84 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
@@ -387,7 +403,7 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Gets [RxUser] or [RxChatContact] from combined array with [recent],
+  /// Gets [RxUser] or [RxChatContact] from combined array from [recent],
   /// [contacts] and [users].
   dynamic getIndex(int i) {
     return [...recent.values, ...contacts.values, ...users.values].elementAt(i);
@@ -395,31 +411,35 @@ class ParticipantController extends GetxController {
 
   /// Sets [recent], [contacts] and [users] according to [query].
   void populate() {
-    if (searchTypes.contains(SearchType.recent)) {
+    if (searchTypes.contains(Search.recent)) {
       recent.value = {
-        for (var u in _chatService.chats.values.map((e) {
-          if (e.chat.value.isDialog) {
-            RxUser? user =
-                e.members.values.firstWhereOrNull((u) => u.user.value.id != me);
+        for (var u in _chatService.chats.values
+            .map((e) {
+              if (e.chat.value.isDialog) {
+                RxUser? user = e.members.values
+                    .firstWhereOrNull((u) => u.user.value.id != me);
 
-            if (chat.value?.members.containsKey(user?.id) != true) {
-              if (query.value != null) {
-                if (user?.user.value.name?.val.contains(query.value!) == true) {
-                  return user;
+                if (chat.value?.members.containsKey(user?.id) != true) {
+                  if (query.value != null) {
+                    if (user?.user.value.name?.val.contains(query.value!) ==
+                        true) {
+                      return user;
+                    }
+                  } else {
+                    return user;
+                  }
                 }
-              } else {
-                return user;
               }
-            }
-          }
 
-          return null;
-        }).whereNotNull())
+              return null;
+            })
+            .whereNotNull()
+            .take(3))
           u.id: u,
       };
     }
 
-    if (searchTypes.contains(SearchType.contacts)) {
+    if (searchTypes.contains(Search.contacts)) {
       Map<UserId, RxChatContact> allContacts = {
         for (var u in _contactService.contacts.values.where((e) {
           if (e.contact.value.users.length == 1) {
@@ -462,76 +482,78 @@ class ParticipantController extends GetxController {
       };
     }
 
-    if (searchResults.value?.isNotEmpty == true &&
-        searchTypes.contains(SearchType.users)) {
-      Map<UserId, RxUser> allUsers = {
-        for (var u in searchResults.value!.where((e) {
-          if (chat.value?.members.containsKey(e.id) != true &&
-              !recent.containsKey(e.id) &&
-              !contacts.containsKey(e.id)) {
-            return true;
-          }
-
-          return false;
-        }))
-          u.id: u,
-      };
-
-      users.value = {
-        for (var u in selectedUsers.where((e) {
-          if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-            if (e.user.value.name?.val.contains(query.value!) == true) {
+    if (searchTypes.contains(Search.users)) {
+      if (searchResults.value?.isNotEmpty == true) {
+        Map<UserId, RxUser> allUsers = {
+          for (var u in searchResults.value!.where((e) {
+            if (chat.value?.members.containsKey(e.id) != true &&
+                !recent.containsKey(e.id) &&
+                !contacts.containsKey(e.id)) {
               return true;
             }
-          }
 
-          return false;
-        }))
-          u.id: u,
-        ...allUsers,
-      };
-    } else {
-      Map<UserId, RxUser> allUsers = {
-        for (var u in _chatService.chats.values.map((e) {
-          if (e.chat.value.isDialog) {
-            RxUser? user =
-                e.members.values.firstWhereOrNull((u) => u.user.value.id != me);
+            return false;
+          }))
+            u.id: u,
+        };
 
-            if (chat.value?.members.containsKey(user?.id) != true &&
-                !recent.containsKey(user?.id) &&
-                !contacts.containsKey(user?.id)) {
-              if (query.value != null) {
-                if (user?.user.value.name?.val.contains(query.value!) == true) {
-                  return user;
-                }
-              } else {
-                return user;
-              }
-            }
-          }
-
-          return null;
-        }).whereNotNull())
-          u.id: u
-      };
-
-      users.value = {
-        for (var u in selectedUsers.where((e) {
-          if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-            if (query.value != null) {
+        users.value = {
+          for (var u in selectedUsers.where((e) {
+            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
               if (e.user.value.name?.val.contains(query.value!) == true) {
                 return true;
               }
-            } else {
-              return true;
             }
-          }
 
-          return false;
-        }))
-          u.id: u,
-        ...allUsers,
-      };
+            return false;
+          }))
+            u.id: u,
+          ...allUsers,
+        };
+      } else {
+        Map<UserId, RxUser> allUsers = {
+          for (var u in _chatService.chats.values.map((e) {
+            if (e.chat.value.isDialog) {
+              RxUser? user = e.members.values
+                  .firstWhereOrNull((u) => u.user.value.id != me);
+
+              if (chat.value?.members.containsKey(user?.id) != true &&
+                  !recent.containsKey(user?.id) &&
+                  !contacts.containsKey(user?.id)) {
+                if (query.value != null) {
+                  if (user?.user.value.name?.val.contains(query.value!) ==
+                      true) {
+                    return user;
+                  }
+                } else {
+                  return user;
+                }
+              }
+            }
+
+            return null;
+          }).whereNotNull())
+            u.id: u
+        };
+
+        users.value = {
+          for (var u in selectedUsers.where((e) {
+            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+              if (query.value != null) {
+                if (e.user.value.name?.val.contains(query.value!) == true) {
+                  return true;
+                }
+              } else {
+                return true;
+              }
+            }
+
+            return false;
+          }))
+            u.id: u,
+          ...allUsers,
+        };
+      }
     }
   }
 }
