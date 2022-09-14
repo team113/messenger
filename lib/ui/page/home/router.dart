@@ -52,7 +52,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
     List<Page<dynamic>> pages = [
-      MaterialPage(child: _NestedHomeView(_state.tab))
+      FadeAnimationPage(child: _NestedHomeView(_state.tab))
     ];
 
     for (String route in _state.routes) {
@@ -136,41 +136,99 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
 }
 
 /// [Page] transition with opacity effect.
+///
+/// Cancels the page closing animation in [CupertinoPageTransitionsBuilder].
 class FadeAnimationPage extends Page {
   const FadeAnimationPage({super.key, required this.child});
 
+  /// [Widget] page.
   final Widget child;
 
   @override
   Route createRoute(BuildContext context) {
-    return PageRouteBuilder(
+    return CustomPageRouteBuilder(
       settings: this,
-      pageBuilder: (context, animation, animation2) {
-        Animation<double> opacity = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
+      pageBuilder: (_, animation, secondaryAnimation) {
+        Animation<double> opacityClosing = Tween<double>(
+          begin: 1,
+          end: 0,
+        ).animate(
+          CurvedAnimation(
+            parent: secondaryAnimation,
+            curve: const Interval(
+              0,
+              0.05,
+              curve: Curves.easeIn,
+            ),
+          ),
+        );
+
+        Animation<double> opacityAppearing = Tween<double>(
+          begin: 0,
+          end: 1,
         ).animate(
           CurvedAnimation(
             parent: animation,
             curve: const Interval(
-              0.4,
+              0,
               1,
               curve: Curves.easeIn,
             ),
           ),
         );
 
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(1, 0),
-            end: Offset.zero,
-          ).animate(animation),
+        return FadeTransition(
+          opacity: opacityClosing,
           child: FadeTransition(
-            opacity: opacity,
+            opacity: opacityAppearing,
             child: child,
           ),
         );
       },
+    );
+  }
+}
+
+/// [PageRoute] in android [FadeUpwardsPageTransitionsBuilder] and ios [CupertinoPageTransitionsBuilder].
+class CustomPageRouteBuilder<T> extends PageRoute<T> {
+  CustomPageRouteBuilder({super.settings, required this.pageBuilder})
+      : matchingBuilder = PlatformUtils.isAndroid
+            ? const FadeUpwardsPageTransitionsBuilder()
+            : const CupertinoPageTransitionsBuilder();
+
+  /// Page transition animation.
+  final PageTransitionsBuilder matchingBuilder;
+
+  /// Route's primary contents.
+  final RoutePageBuilder pageBuilder;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 480);
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    return pageBuilder(context, animation, secondaryAnimation);
+  }
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    return matchingBuilder.buildTransitions<T>(
+      this,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
     );
   }
 }
