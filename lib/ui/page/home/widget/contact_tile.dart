@@ -40,6 +40,7 @@ class ContactTile extends StatelessWidget {
     this.actions,
     this.canDelete = false,
     this.onDelete,
+    this.folded = false,
     this.subtitle = const [],
     this.preventContextMenu = false,
   }) : super(key: key);
@@ -57,6 +58,7 @@ class ContactTile extends StatelessWidget {
   final void Function()? onTap;
   final bool selected;
   final double darken;
+  final bool folded;
 
   final bool preventContextMenu;
   final List<ContextMenuButton>? actions;
@@ -75,69 +77,80 @@ class ContactTile extends StatelessWidget {
             : null,
         preventContextMenu: preventContextMenu,
         actions: actions,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: selected
-                ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                : style.cardColor.darken(darken),
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onTap,
-              hoverColor: selected
-                  ? const Color(0x00D7ECFF)
-                  : const Color.fromARGB(255, 244, 249, 255),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                child: Row(
-                  children: [
-                    ...leading,
-                    if (contact != null)
-                      AvatarWidget.fromRxContact(contact, radius: 26)
-                    else if (user != null)
-                      AvatarWidget.fromRxUser(user, radius: 26)
-                    else
-                      AvatarWidget.fromMyUser(myUser, radius: 26),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
+        child: ClipPath(
+          clipper: folded
+              ? _FoldedClipper(radius: style.cardRadius.topLeft.x)
+              : null,
+          child: CustomPaint(
+            foregroundPainter:
+                folded ? const _QuadPainter(color: Color(0xFFD9D9D9)) : null,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                border: style.cardBorder,
+                color: Colors.transparent,
+              ),
+              child: Material(
+                type: MaterialType.card,
+                borderRadius: style.cardRadius,
+                color: selected
+                    ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                    : style.cardColor.darken(darken),
+                child: InkWell(
+                  borderRadius: style.cardRadius,
+                  onTap: onTap,
+                  hoverColor: selected
+                      ? const Color(0x00D7ECFF)
+                      : const Color.fromARGB(255, 244, 249, 255),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                    child: Row(
+                      children: [
+                        ...leading,
+                        if (contact != null)
+                          AvatarWidget.fromRxContact(contact, radius: 26)
+                        else if (user != null)
+                          AvatarWidget.fromRxUser(user, radius: 26)
+                        else
+                          AvatarWidget.fromMyUser(myUser, radius: 26),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  contact?.contact.value.name.val ??
-                                      contact
-                                          ?.user.value?.user.value.name?.val ??
-                                      contact?.user.value?.user.value.num.val ??
-                                      user?.user.value.name?.val ??
-                                      user?.user.value.num.val ??
-                                      myUser?.name?.val ??
-                                      myUser?.num.val ??
-                                      (myUser == null
-                                          ? '...'
-                                          : 'btn_your_profile'.l10n),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      contact?.contact.value.name.val ??
+                                          contact?.user.value?.user.value.name
+                                              ?.val ??
+                                          contact?.user.value?.user.value.num
+                                              .val ??
+                                          user?.user.value.name?.val ??
+                                          user?.user.value.num.val ??
+                                          myUser?.name?.val ??
+                                          myUser?.num.val ??
+                                          (myUser == null
+                                              ? '...'
+                                              : 'btn_your_profile'.l10n),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style:
+                                          Theme.of(context).textTheme.headline5,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              ...subtitle,
                             ],
                           ),
-                          ...subtitle,
-                        ],
-                      ),
+                        ),
+                        ...trailing,
+                      ],
                     ),
-                    ...trailing,
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -146,4 +159,85 @@ class ContactTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _QuadPainter extends CustomPainter {
+  const _QuadPainter({this.color = Colors.black});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double width = 15;
+    final Paint paint = Paint()..color = color;
+
+    Path path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(0, width);
+    path.lineTo(width, width);
+    path.lineTo(width, 0);
+    path.lineTo(0, 0);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class _FoldedClipper extends CustomClipper<Path> {
+  const _FoldedClipper({this.radius = 10});
+
+  final double radius;
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    path.moveTo(size.width - radius, 0);
+
+    path.cubicTo(
+      size.width - radius,
+      0,
+      size.width,
+      0,
+      size.width,
+      radius,
+    );
+
+    path.lineTo(
+      size.width,
+      size.height - radius,
+    );
+
+    path.cubicTo(
+      size.width,
+      size.height - radius,
+      size.width,
+      size.height,
+      size.width - radius,
+      size.height,
+    );
+
+    path.lineTo(radius, size.height);
+
+    path.cubicTo(
+      radius,
+      size.height,
+      0,
+      size.height,
+      0,
+      size.height - radius,
+    );
+
+    path.lineTo(0, radius);
+    path.lineTo(radius, 0);
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }

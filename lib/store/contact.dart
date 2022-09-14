@@ -131,6 +131,14 @@ class ContactRepository implements AbstractContactRepository {
   Future<void> changeContactName(ChatContactId id, UserName name) =>
       _graphQlProvider.changeContactName(id, name);
 
+  @override
+  Future<void> favoriteChatContact(ChatContactId id, ChatContactPosition pos) =>
+      _graphQlProvider.favoriteChatContact(id, pos);
+
+  @override
+  Future<void> unfavoriteChatContact(ChatContactId id) =>
+      _graphQlProvider.unfavoriteChatContact(id);
+
   /// Puts the provided [contact] to [Hive].
   Future<void> _putChatContact(HiveChatContact contact) async {
     var saved = _contactLocal.get(contact.value.id);

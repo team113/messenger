@@ -88,9 +88,9 @@ List<String?>?
 ChatContactPosition fromGraphQLChatContactPositionToDartChatContactPosition(
         double v) =>
     ChatContactPosition(v);
-String fromDartChatContactPositionToGraphQLChatContactPosition(
+double fromDartChatContactPositionToGraphQLChatContactPosition(
         ChatContactPosition v) =>
-    v.val.toString();
+    v.val;
 List<ChatContactPosition>
     fromGraphQLListChatContactPositionToDartListChatContactPosition(
             List<Object?> v) =>
@@ -98,7 +98,7 @@ List<ChatContactPosition>
             .map((e) => fromGraphQLChatContactPositionToDartChatContactPosition(
                 e as double))
             .toList();
-List<String> fromDartListChatContactPositionToGraphQLListChatContactPosition(
+List<double> fromDartListChatContactPositionToGraphQLListChatContactPosition(
         List<ChatContactPosition> v) =>
     v
         .map((e) => fromDartChatContactPositionToGraphQLChatContactPosition(e))
@@ -111,7 +111,7 @@ List<ChatContactPosition>?
                 fromGraphQLChatContactPositionToDartChatContactPosition(
                     e as double))
             .toList();
-List<String>?
+List<double>?
     fromDartListNullableChatContactPositionToGraphQLListNullableChatContactPosition(
             List<ChatContactPosition>? v) =>
         v
@@ -123,9 +123,9 @@ ChatContactPosition?
     fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
             double? v) =>
         v == null ? null : ChatContactPosition(v);
-String? fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable(
+double? fromDartChatContactPositionNullableToGraphQLChatContactPositionNullable(
         ChatContactPosition? v) =>
-    v?.val.toString();
+    v?.val;
 List<ChatContactPosition?>
     fromGraphQLListChatContactPositionNullableToDartListChatContactPositionNullable(
             List<Object?> v) =>
@@ -134,7 +134,7 @@ List<ChatContactPosition?>
                 fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
                     e as double?))
             .toList();
-List<String?>
+List<double?>
     fromDartListChatContactPositionNullableToGraphQLListChatContactPositionNullable(
             List<ChatContactPosition?> v) =>
         v
@@ -150,7 +150,7 @@ List<ChatContactPosition?>?
                 fromGraphQLChatContactPositionNullableToDartChatContactPositionNullable(
                     e as double?))
             .toList();
-List<String?>?
+List<double?>?
     fromDartListNullableChatContactPositionNullableToGraphQLListNullableChatContactPositionNullable(
             List<ChatContactPosition?>? v) =>
         v

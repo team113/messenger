@@ -17,13 +17,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:audioplayers/audioplayers.dart' as audioplayers;
 import 'package:callkeep/callkeep.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:just_audio/just_audio.dart' as just;
 import 'package:vibration/vibration.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -58,7 +59,8 @@ class CallWorker extends DisposableService {
   final BackgroundWorker _background;
 
   /// [AudioPlayer] currently playing an audio.
-  AudioPlayer? _audioPlayer;
+  just.AudioPlayer? _justPlayer;
+  audioplayers.AudioPlayer? _audioPlayer;
 
   StreamSubscription? _playerStateSubscription;
 
@@ -275,6 +277,13 @@ class CallWorker extends DisposableService {
     _playerStateSubscription = null;
     _audioPlayer?.dispose();
 
+    if (PlatformUtils.isWindows) {
+      [
+        audioplayers.AudioCache.instance.loadedFiles['audio/ringing.mp3'],
+        audioplayers.AudioCache.instance.loadedFiles['audio/chinese.mp3'],
+      ].whereNotNull().forEach(audioplayers.AudioCache.instance.clear);
+    }
+
     _subscription.cancel();
     _storageSubscription?.cancel();
     _workers.forEach((_, value) => value.dispose());
@@ -292,27 +301,36 @@ class CallWorker extends DisposableService {
   /// Plays the given [asset].
   Future<void> play(String asset) async {
     runZonedGuarded(() async {
-      await _audioPlayer?.setAsset('assets/audio/$asset');
-      await _audioPlayer?.play();
-      _playerStateSubscription =
-          _audioPlayer?.playerStateStream.listen((e) async {
-        switch (e.processingState) {
-          case ProcessingState.idle:
-          case ProcessingState.loading:
-          case ProcessingState.buffering:
-          case ProcessingState.ready:
-            break;
+      if (PlatformUtils.isWindows) {
+        await _audioPlayer?.setReleaseMode(audioplayers.ReleaseMode.loop);
+        await _audioPlayer?.play(
+          audioplayers.AssetSource('audio/$asset'),
+          position: Duration.zero,
+          mode: audioplayers.PlayerMode.mediaPlayer,
+        );
+      } else {
+        await _justPlayer?.setAsset('assets/audio/$asset');
+        await _justPlayer?.play();
+        _playerStateSubscription =
+            _justPlayer?.playerStateStream.listen((e) async {
+          switch (e.processingState) {
+            case just.ProcessingState.idle:
+            case just.ProcessingState.loading:
+            case just.ProcessingState.buffering:
+            case just.ProcessingState.ready:
+              break;
 
-          case ProcessingState.completed:
-            if (_playerStateSubscription != null) {
-              await _audioPlayer?.seek(Duration.zero);
+            case just.ProcessingState.completed:
               if (_playerStateSubscription != null) {
-                await _audioPlayer?.play();
+                await _justPlayer?.seek(Duration.zero);
+                if (_playerStateSubscription != null) {
+                  await _justPlayer?.play();
+                }
               }
-            }
-            break;
-        }
-      });
+              break;
+          }
+        });
+      }
     }, (e, _) {
       if (!e.toString().contains('NotAllowedError')) {
         throw e;
@@ -329,19 +347,24 @@ class CallWorker extends DisposableService {
 
     _playerStateSubscription?.cancel();
     _playerStateSubscription = null;
+    await _justPlayer?.stop();
     await _audioPlayer?.stop();
   }
 
   /// Initializes the [_audioPlayer].
   Future<void> _initAudio() async {
     try {
-      _audioPlayer = AudioPlayer();
-
-      if (!PlatformUtils.isWindows) {
-        await _audioPlayer?.setLoopMode(LoopMode.one);
+      if (PlatformUtils.isWindows) {
+        _audioPlayer = audioplayers.AudioPlayer();
+        await audioplayers.AudioCache.instance
+            .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
+      } else {
+        _justPlayer = just.AudioPlayer();
+        await _justPlayer?.setLoopMode(just.LoopMode.one);
       }
     } on MissingPluginException {
       _audioPlayer = null;
+      _justPlayer = null;
     }
   }
 

@@ -57,6 +57,9 @@ abstract class AbstractContactRepository {
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name);
+
+  Future<void> favoriteChatContact(ChatContactId id, ChatContactPosition pos);
+  Future<void> unfavoriteChatContact(ChatContactId id);
 }
 
 /// Unified reactive [ChatContact] entity.

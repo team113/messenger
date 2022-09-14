@@ -14,8 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -165,7 +169,7 @@ class ContactsTabView extends StatelessWidget {
           // extendBodyBehindAppBar: true,
           // extendBody: true,
           body: Obx(() {
-            if (c.contacts.isEmpty) {
+            if (c.contacts.isEmpty && c.favorites.isEmpty) {
               return Center(child: Text('label_no_contacts'.l10n));
             }
 
@@ -190,6 +194,40 @@ class ContactsTabView extends StatelessWidget {
                 ),
               );
             }
+
+            return ContextMenuInterceptor(
+              child: CustomScrollView(
+                slivers: [
+                  SliverReorderableList(
+                    itemBuilder: (context, i) {
+                      RxChatContact contact = c.favorites.values.elementAt(i);
+                      return MyReorderableDelayedDragStartListener(
+                        key: Key(contact.id.val),
+                        index: i,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: i == 0 ? 10 : 0),
+                          child: _contact(context, contact, c),
+                        ),
+                      );
+                    },
+                    itemCount: c.favorites.length,
+                    onReorder: (int i, int j) {},
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate.fixed(
+                      c.contacts.values.mapIndexed((i, e) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            top: i == 0 && c.favorites.isEmpty ? 10 : 0,
+                          ),
+                          child: _contact(context, e, c),
+                        );
+                      }).toList(),
+                    ),
+                  )
+                ],
+              ),
+            );
 
             return ContextMenuInterceptor(
               child: ListView(
@@ -405,8 +443,8 @@ class ContactsTabView extends StatelessWidget {
   ) {
     if (c.contactToChangeNameOf.value == contact.contact.value.id) {
       return Container(
-        key: Key(contact.contact.value.id.val),
-        padding: const EdgeInsets.all(3),
+        key: Key(contact.id.val),
+        padding: const EdgeInsets.fromLTRB(13, 3, 13, 3),
         child: Row(
           children: [
             IconButton(
@@ -427,64 +465,81 @@ class ContactsTabView extends StatelessWidget {
       );
     }
 
-    return ContactTile(
-      contact: contact,
-      darken: 0,
-      onTap: contact.contact.value.users.isNotEmpty
-          // TODO: Open [Routes.contact] page when it's implemented.
-          ? () => router.user(contact.contact.value.users.first.id)
-          : null,
+    bool favorite = c.favorites.values.contains(contact);
 
-      actions: [
-        ContextMenuButton(
-          label: 'btn_change_contact_name'.l10n,
-          onPressed: () {
-            c.contactToChangeNameOf.value = contact.contact.value.id;
-            c.contactName.clear();
-            c.contactName.unchecked = contact.contact.value.name.val;
-            SchedulerBinding.instance.addPostFrameCallback(
-                (_) => c.contactName.focus.requestFocus());
-          },
-        ),
-        ContextMenuButton(
-          label: 'btn_delete_from_contacts'.l10n,
-          onPressed: () => c.deleteFromContacts(contact.contact.value),
-        ),
-      ],
-      // trailing: [
-      //   if (contact.contact.value.users.isNotEmpty) ...[
-      //     IconButton(
-      //       onPressed: () =>
-      //           c.startAudioCall(contact.contact.value.users.first),
-      //       icon: Icon(
-      //         Icons.call,
-      //         color: Theme.of(context).colorScheme.primary,
-      //       ),
-      //     ),
-      //     IconButton(
-      //       onPressed: () =>
-      //           c.startVideoCall(contact.contact.value.users.first),
-      //       icon: Icon(
-      //         Icons.video_call,
-      //         color: Theme.of(context).colorScheme.primary,
-      //       ),
-      //     ),
-      //   ]
-      // ],
-      subtitle: [
-        const SizedBox(height: 5),
-        Obx(() {
-          final subtitle = contact.user.value?.user.value.getStatus();
-          if (subtitle != null) {
-            return Text(
-              subtitle,
-              style: const TextStyle(color: Color(0xFF888888)),
-            );
-          }
+    return Padding(
+      key: Key(contact.id.val),
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: ContactTile(
+        contact: contact,
+        darken: 0,
+        folded: favorite,
+        onTap: contact.contact.value.users.isNotEmpty
+            // TODO: Open [Routes.contact] page when it's implemented.
+            ? () => router.user(contact.contact.value.users.first.id)
+            : null,
 
-          return Container();
-        }),
-      ],
+        actions: [
+          if (favorite)
+            ContextMenuButton(
+              label: 'Unfavorite'.l10n,
+              onPressed: () => c.unfavorite(contact),
+            )
+          else
+            ContextMenuButton(
+              label: 'Favorite'.l10n,
+              onPressed: () => c.favorite(contact),
+            ),
+          ContextMenuButton(
+            label: 'btn_change_contact_name'.l10n,
+            onPressed: () {
+              c.contactToChangeNameOf.value = contact.contact.value.id;
+              c.contactName.clear();
+              c.contactName.unchecked = contact.contact.value.name.val;
+              SchedulerBinding.instance.addPostFrameCallback(
+                  (_) => c.contactName.focus.requestFocus());
+            },
+          ),
+          ContextMenuButton(
+            label: 'btn_delete_from_contacts'.l10n,
+            onPressed: () => c.deleteFromContacts(contact.contact.value),
+          ),
+        ],
+        // trailing: [
+        //   if (contact.contact.value.users.isNotEmpty) ...[
+        //     IconButton(
+        //       onPressed: () =>
+        //           c.startAudioCall(contact.contact.value.users.first),
+        //       icon: Icon(
+        //         Icons.call,
+        //         color: Theme.of(context).colorScheme.primary,
+        //       ),
+        //     ),
+        //     IconButton(
+        //       onPressed: () =>
+        //           c.startVideoCall(contact.contact.value.users.first),
+        //       icon: Icon(
+        //         Icons.video_call,
+        //         color: Theme.of(context).colorScheme.primary,
+        //       ),
+        //     ),
+        //   ]
+        // ],
+        subtitle: [
+          const SizedBox(height: 5),
+          Obx(() {
+            final subtitle = contact.user.value?.user.value.getStatus();
+            if (subtitle != null) {
+              return Text(
+                subtitle,
+                style: const TextStyle(color: Color(0xFF888888)),
+              );
+            }
+
+            return Container();
+          }),
+        ],
+      ),
     );
 
     return ContextMenuRegion(
@@ -627,5 +682,183 @@ class ContactsTabView extends StatelessWidget {
                     : null,
               ),*/
     );
+  }
+}
+
+class SectionHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final String title;
+  final double height;
+
+  SectionHeaderDelegate(this.title, [this.height = 42]);
+
+  @override
+  Widget build(context, double shrinkOffset, bool overlapsContent) {
+    Style style = Theme.of(context).extension<Style>()!;
+    return Padding(
+      padding: const EdgeInsets.only(top: 0),
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          height: height,
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor.withOpacity(0.99),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: const TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => false;
+}
+
+class MyReorderableDelayedDragStartListener
+    extends ReorderableDragStartListener {
+  const MyReorderableDelayedDragStartListener({
+    super.key,
+    required super.child,
+    required super.index,
+    super.enabled,
+  });
+
+  @override
+  MultiDragGestureRecognizer createRecognizer() {
+    return MyVerticalMultiDragGestureRecognizer(debugOwner: this);
+  }
+}
+
+class MyVerticalMultiDragGestureRecognizer extends MultiDragGestureRecognizer {
+  MyVerticalMultiDragGestureRecognizer({
+    super.debugOwner,
+    @Deprecated(
+      'Migrate to supportedDevices. '
+      'This feature was deprecated after v2.3.0-1.0.pre.',
+    )
+        super.kind,
+    super.supportedDevices,
+  });
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
+    return _MyVerticalPointerState(
+      event.position,
+      event.kind == PointerDeviceKind.touch
+          ? 200.milliseconds
+          : 10.milliseconds,
+      event.kind,
+      gestureSettings,
+    );
+  }
+
+  @override
+  String get debugDescription => 'vertical multidrag';
+}
+
+class _MyVerticalPointerState extends MultiDragPointerState {
+  _MyVerticalPointerState(
+    super.initialPosition,
+    Duration delay,
+    super.kind,
+    super.deviceGestureSettings,
+  ) {
+    _timer = Timer(delay, _delayPassed);
+  }
+
+  Timer? _timer;
+  GestureMultiDragStartCallback? _starter;
+
+  void _delayPassed() {
+    assert(_timer != null);
+    _timer = null;
+
+    HapticFeedback.lightImpact();
+  }
+
+  void _ensureTimerStopped() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void checkForResolutionAfterMove() {
+    assert(pendingDelta != null);
+
+    if (pendingDelta!.dy.abs() > computeHitSlop(kind, gestureSettings) &&
+        (_timer == null || kind != PointerDeviceKind.touch)) {
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(GestureMultiDragStartCallback starter) {
+    assert(_starter == null);
+    if ((_timer == null)) {
+      starter(initialPosition);
+    } else {
+      _starter = starter;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ensureTimerStopped();
+    super.dispose();
+  }
+}
+
+class MyLongPressDraggable extends Draggable {
+  const MyLongPressDraggable({
+    super.key,
+    required super.child,
+    required super.feedback,
+    super.data,
+    super.axis,
+    super.childWhenDragging,
+    super.feedbackOffset,
+    @Deprecated(
+      'Use dragAnchorStrategy instead. '
+      'Replace "dragAnchor: DragAnchor.child" with "dragAnchorStrategy: childDragAnchorStrategy". '
+      'Replace "dragAnchor: DragAnchor.pointer" with "dragAnchorStrategy: pointerDragAnchorStrategy". '
+      'This feature was deprecated after v2.1.0-10.0.pre.',
+    )
+        super.dragAnchor,
+    super.dragAnchorStrategy,
+    super.maxSimultaneousDrags,
+    super.onDragStarted,
+    super.onDragUpdate,
+    super.onDraggableCanceled,
+    super.onDragEnd,
+    super.onDragCompleted,
+    super.ignoringFeedbackSemantics,
+    super.ignoringFeedbackPointer,
+  });
+
+  @override
+  MyVerticalMultiDragGestureRecognizer createRecognizer(
+      GestureMultiDragStartCallback onStart) {
+    return MyVerticalMultiDragGestureRecognizer()
+      ..onStart = (Offset position) {
+        final Drag? result = onStart(position);
+        if (result != null) {
+          HapticFeedback.selectionClick();
+        }
+        return result;
+      };
   }
 }

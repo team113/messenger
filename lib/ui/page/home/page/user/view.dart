@@ -17,6 +17,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
@@ -37,6 +43,57 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return GetBuilder(
+      init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
+      tag: id.val,
+      builder: (UserController c) {
+        return Obx(() {
+          if (c.status.value.isSuccess) {
+            return Scaffold(
+              body: LayoutBuilder(builder: (context, constraints) {
+                print(constraints);
+                return CustomScrollView(
+                  key: const Key('UserColumn'),
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    // App bar with gallery.
+                    SliverAppBar(
+                      elevation: 0,
+                      pinned: true,
+                      stretch: true,
+                      backgroundColor: context.theme.scaffoldBackgroundColor,
+                      leading: IconButton(
+                        onPressed: router.pop,
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      expandedHeight: MediaQuery.of(context).size.height * 0.6,
+                      flexibleSpace: FlexibleSpaceBar(background: _gallery(c)),
+                    ),
+
+                    // Main content of this page.
+                    // context.isNarrow
+                    (constraints.maxWidth < 450 || context.isNarrow)
+                        ? _mobile(context, c)
+                        : _desktop(context, c),
+                  ],
+                );
+              }),
+            );
+          } else if (c.status.value.isEmpty) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text('err_unknown_user'.l10n)),
+            );
+          } else {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+        });
+      },
+    );
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -113,6 +170,233 @@ class UserView extends StatelessWidget {
           }
         });
       },
+    );
+  }
+
+  SliverList _mobile(BuildContext context, UserController c) {
+    Style style = Theme.of(context).extension<Style>()!;
+    return SliverList(
+      delegate: SliverChildListDelegate.fixed(
+        [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Align(
+              alignment: Alignment.center,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 450),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    ContactTile(
+                      user: c.user,
+                      darken: 0,
+                      subtitle: [
+                        const SizedBox(height: 5),
+                        Obx(() {
+                          final subtitle = c.user?.user.value.getStatus();
+                          if (subtitle != null) {
+                            return Text(
+                              subtitle,
+                              style: const TextStyle(
+                                color: Color(0xFF888888),
+                              ),
+                            );
+                          }
+
+                          return Container();
+                        }),
+                      ],
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: style.cardRadius,
+                        border: style.cardBorder,
+                        color: style.cardColor,
+                      ),
+                      height: 55,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(12 * 1.5, 8, 12 * 1.5, 8),
+                        child: Row(
+                          children: [
+                            Center(
+                              child: WidgetButton(
+                                onPressed: () => c.call(false),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_video_call.svg',
+                                  height: 17,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: WidgetButton(
+                                onPressed: () => c.call(true),
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat_audio_call.svg',
+                                  height: 19,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: WidgetButton(
+                                onPressed: c.openChat,
+                                child: SvgLoader.asset(
+                                  'assets/icons/chat.svg',
+                                  width: 21.13,
+                                  height: 22.62,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: WidgetButton(
+                                onPressed: c.inContacts.value
+                                    ? c.removeFromContacts
+                                    : c.addToContacts,
+                                child: c.inContacts.value
+                                    ? Transform.translate(
+                                        offset: const Offset(0, 1),
+                                        child: SvgLoader.asset(
+                                          'assets/icons/contact_remove.svg',
+                                          width: 25.4,
+                                          height: 22.77,
+                                        ),
+                                      )
+                                    : Transform.translate(
+                                        offset: const Offset(0, 1),
+                                        child: SvgLoader.asset(
+                                          'assets/icons/contact_add.svg',
+                                          width: 25.4,
+                                          height: 22.77,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ].map((e) => Expanded(child: e)).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SliverList _desktop(BuildContext context, UserController c) {
+    Style style = Theme.of(context).extension<Style>()!;
+    return SliverList(
+      delegate: SliverChildListDelegate.fixed(
+        [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    border: style.cardBorder,
+                    color: style.cardColor,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        AvatarWidget.fromRxUser(c.user, radius: 26),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                c.user?.user.value.name?.val ??
+                                    c.user?.user.value.num.val ??
+                                    '...',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                              const SizedBox(height: 3),
+                              Obx(() {
+                                final subtitle = c.user?.user.value.getStatus();
+                                if (subtitle != null) {
+                                  return Text(
+                                    subtitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Color(0xFF888888),
+                                    ),
+                                  );
+                                }
+
+                                return Container();
+                              }),
+                            ],
+                          ),
+                        ),
+                        WidgetButton(
+                          onPressed: () => c.call(true),
+                          child: SvgLoader.asset(
+                            'assets/icons/chat_video_call.svg',
+                            height: 17,
+                          ),
+                        ),
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: () => c.call(false),
+                          child: SvgLoader.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: c.openChat,
+                          child: SvgLoader.asset(
+                            'assets/icons/chat.svg',
+                            width: 21.13,
+                            height: 22.62,
+                          ),
+                        ),
+                        const SizedBox(width: 28),
+                        WidgetButton(
+                          onPressed: c.inContacts.value
+                              ? c.removeFromContacts
+                              : c.addToContacts,
+                          child: c.inContacts.value
+                              ? Transform.translate(
+                                  offset: const Offset(0, 1),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contact_remove.svg',
+                                    width: 25.4,
+                                    height: 22.77,
+                                  ),
+                                )
+                              : Transform.translate(
+                                  offset: const Offset(0, 1),
+                                  child: SvgLoader.asset(
+                                    'assets/icons/contact_add.svg',
+                                    width: 25.4,
+                                    height: 22.77,
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

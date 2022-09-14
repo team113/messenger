@@ -1044,7 +1044,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
                 child: _scaler(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  // TODO: https://github.com/flutter/flutter/issues/89351
+                  cursor: PlatformUtils.isMacOS
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1101,7 +1104,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: _scaler(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                  cursor: PlatformUtils.isMacOS
+                      ? SystemMouseCursors.resizeRow
+                      : SystemMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1641,7 +1646,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.topLeft) {
           widget = _scaler(
-            cursor: SystemMouseCursors.resizeUpLeftDownRight,
+            cursor: PlatformUtils.isMacOS
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1680,7 +1687,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
           );
         } else if (alignment == Alignment.bottomRight) {
           widget = _scaler(
-            cursor: SystemMouseCursors.resizeUpLeftDownRight,
+            cursor: PlatformUtils.isMacOS
+                ? SystemMouseCursors.resizeRow
+                : SystemMouseCursors.resizeUpLeftDownRight,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
             onDrag: (dx, dy) => c.resizeSecondary(

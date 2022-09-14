@@ -238,4 +238,34 @@ abstract class ContactGraphQlMixin {
     return UpdateChatContactName$Mutation.fromJson(result.data!)
         .updateChatContactName as ChatContactEventsVersionedMixin;
   }
+
+  Future<ChatContactEventsVersionedMixin> favoriteChatContact(
+      ChatContactId id, ChatContactPosition pos) async {
+    FavoriteChatContactArguments variables =
+        FavoriteChatContactArguments(id: id, pos: pos);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'FavoriteChatContact',
+        document: FavoriteChatContactMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return FavoriteChatContact$Mutation.fromJson(result.data!)
+        .favoriteChatContact as ChatContactEventsVersionedMixin;
+  }
+
+  Future<ChatContactEventsVersionedMixin> unfavoriteChatContact(
+      ChatContactId id) async {
+    UnfavoriteChatContactArguments variables =
+        UnfavoriteChatContactArguments(id: id);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnfavoriteChatContact',
+        document: UnfavoriteChatContactMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UnfavoriteChatContact$Mutation.fromJson(result.data!)
+        .unfavoriteChatContact as ChatContactEventsVersionedMixin;
+  }
 }
