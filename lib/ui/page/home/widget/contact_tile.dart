@@ -21,7 +21,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/context_menu/region.dart';
 
 /// [ChatContact] or [User] visual representation.
 ///
