@@ -32,7 +32,7 @@ import '../world/custom_world.dart';
 /// becomes the provided [DownloadingStatus].
 ///
 /// Examples:
-/// - Then I wait until status of "test.txt" file is empty
+/// - Then I wait until status of "test.txt" file is not downloaded
 /// - Then I wait until status of "test.pdf" file is downloading
 /// - Then I wait until status of "test.doc" file is downloaded
 final StepDefinitionGeneric waitUntilFileStatus =
@@ -56,7 +56,7 @@ final StepDefinitionGeneric waitUntilFileStatus =
 
         if (attachment != null &&
             await context.world.appDriver.isPresent(finder)) {
-          return status == DownloadingStatus.empty
+          return status == DownloadingStatus.notDownloaded
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,

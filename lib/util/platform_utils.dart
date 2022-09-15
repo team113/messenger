@@ -102,7 +102,7 @@ class PlatformUtilsImpl {
     String path;
 
     if (PlatformUtils.isMobile) {
-      path = (await getApplicationDocumentsDirectory()).path;
+      path = (await getTemporaryDirectory()).path;
     } else {
       path = (await getDownloadsDirectory())!.path;
     }

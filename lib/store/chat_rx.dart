@@ -168,8 +168,13 @@ class HiveRxChat implements RxChat {
 
       _initLocalSubscription();
       if (!PlatformUtils.isWeb) {
-        for (var message in messages.where((e) => e.value is ChatMessage)) {
-          await _initializeAttachments(message.value as ChatMessage);
+        for (var message in messages.map((e) => e.value).where((e) =>
+            e is ChatMessage || (e is ChatForward && e.item is ChatMessage))) {
+          if(message is ChatMessage) {
+            await _initializeAttachments(message);
+          } else if(message is ChatForward){
+            await _initializeAttachments(message.item as ChatMessage);
+          }
         }
       }
 
@@ -331,8 +336,6 @@ class HiveRxChat implements RxChat {
       if (event != null && event.item.firstOrNull is HiveChatMessage) {
         remove(message.value.id, message.value.timestamp);
         _pending.remove(message.value);
-        ((event.item.first as HiveChatMessage).value as ChatMessage)
-            .attachments = uploaded;
         message = event.item.first as HiveChatMessage;
       }
     } catch (e) {
@@ -363,23 +366,6 @@ class HiveRxChat implements RxChat {
                 item.value.at.subtract(const Duration(milliseconds: 1));
             put(item);
           } else if (saved.ver < item.ver || ignoreVersion) {
-            // Saves attachments from old message to prevent
-            // [FileAttachment.local] and [FileAttachment.downloading] loosing.
-            if (item.value is ChatMessage && item.value.authorId == me) {
-              (item.value as ChatMessage).attachments =
-                  (item.value as ChatMessage).attachments.map((e) {
-                if (e is! FileAttachment) {
-                  return e;
-                }
-
-                var savedFile = (saved.value as ChatMessage)
-                    .attachments
-                    .firstWhereOrNull((sa) => sa.id == e.id);
-
-                return savedFile ?? e;
-              }).toList();
-            }
-
             _local.put(item);
           }
         }
@@ -807,8 +793,6 @@ class HiveRxChat implements RxChat {
                             timestamp: item.value.timestamp,
                           ) ==
                           null) {
-                    (item.value as ChatMessage).attachments =
-                        pending.attachments;
                     remove(pending.id, pending.timestamp);
                     _pending.remove(pending);
                   }

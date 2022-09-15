@@ -851,7 +851,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
 
-        case DownloadingStatus.empty:
+        case DownloadingStatus.notDownloaded:
           leading = const Icon(
             Icons.download,
             key: Key('Download'),

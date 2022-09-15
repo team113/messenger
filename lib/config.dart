@@ -47,7 +47,7 @@ class Config {
   static String origin = '';
 
   /// Directory to download files to.
-  static late String downloads;
+  static String downloads = '';
 
   /// Indicator whether all looped animations should be disabled.
   ///

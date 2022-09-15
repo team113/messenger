@@ -105,7 +105,7 @@ class FileAttachment extends Attachment {
   String? local;
 
   /// [DownloadingStatus] of this [FileAttachment].
-  Rx<DownloadingStatus> downloading = Rx(DownloadingStatus.empty);
+  Rx<DownloadingStatus> downloading = Rx(DownloadingStatus.notDownloaded);
 
   /// Progress of this [FileAttachment] downloading.
   RxDouble progress = RxDouble(0);
@@ -139,7 +139,7 @@ class FileAttachment extends Attachment {
       downloading.value = DownloadingStatus.downloaded;
       local = file.path;
     } else {
-      downloading.value = DownloadingStatus.empty;
+      downloading.value = DownloadingStatus.notDownloaded;
       local = null;
     }
   }
@@ -160,14 +160,14 @@ class FileAttachment extends Attachment {
       );
 
       if (_token?.isCancelled == true || file == null) {
-        downloading.value = DownloadingStatus.empty;
+        downloading.value = DownloadingStatus.notDownloaded;
         local = null;
       } else {
         downloading.value = DownloadingStatus.downloaded;
         local = file.path;
       }
     } catch (_) {
-      downloading.value = DownloadingStatus.empty;
+      downloading.value = DownloadingStatus.notDownloaded;
       local = null;
     }
   }
@@ -231,7 +231,7 @@ class LocalAttachment extends Attachment {
 /// Status of a [FileAttachment] downloading progress.
 enum DownloadingStatus {
   /// Download has not yet started.
-  empty,
+  notDownloaded,
 
   /// Downloading is in progress.
   downloading,
