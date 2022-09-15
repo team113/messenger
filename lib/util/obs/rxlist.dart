@@ -28,33 +28,33 @@ class RxObsList<E> extends ListMixin<E>
     with NotifyManager<ObsList<E>>, RxObjectMixin<ObsList<E>>
     implements RxInterface<ObsList<E>> {
   /// Creates a new list with the provided [initial] values.
-  RxObsList([List<E> initial = const []]) : _value = ObsList.from(initial);
+  RxObsList([List<E> initial = const []]) : _value = ObsList<E>.from(initial);
 
   /// Creates a new list of the given length with the provided [fill] element at
   /// each position.
   factory RxObsList.filled(int length, E fill, {bool growable = false}) =>
-      RxObsList(List.filled(length, fill, growable: growable));
+      RxObsList(List<E>.filled(length, fill, growable: growable));
 
   /// Creates an empty list.
   factory RxObsList.empty({bool growable = false}) =>
-      RxObsList(List.empty(growable: growable));
+      RxObsList(List<E>.empty(growable: growable));
 
   /// Creates a new list containing all the provided [elements].
   factory RxObsList.from(Iterable elements, {bool growable = true}) =>
-      RxObsList(List.from(elements, growable: growable));
+      RxObsList(List<E>.from(elements, growable: growable));
 
   /// Creates a list from the provided [elements].
   factory RxObsList.of(Iterable<E> elements, {bool growable = true}) =>
-      RxObsList(List.of(elements, growable: growable));
+      RxObsList(List<E>.of(elements, growable: growable));
 
   /// Generates a list of values.
   factory RxObsList.generate(int length, E Function(int index) generator,
           {bool growable = true}) =>
-      RxObsList(List.generate(length, generator, growable: growable));
+      RxObsList(List<E>.generate(length, generator, growable: growable));
 
   /// Creates an unmodifiable list containing all the provided [elements].
   factory RxObsList.unmodifiable(Iterable elements) =>
-      RxObsList(List.unmodifiable(elements));
+      RxObsList(List<E>.unmodifiable(elements));
 
   /// Internal actual value of the [ObsList] this [RxObsMap] holds.
   late ObsList<E> _value;
@@ -107,20 +107,6 @@ class RxObsList<E> extends ListMixin<E>
   void removeWhere(bool Function(E element) test) {
     _value.removeWhere(test);
     refresh();
-  }
-
-  @override
-  bool remove(Object? element) {
-    bool result = _value.remove(element);
-    refresh();
-    return result;
-  }
-
-  @override
-  E removeAt(int index) {
-    E result = _value.removeAt(index);
-    refresh();
-    return result;
   }
 
   @override

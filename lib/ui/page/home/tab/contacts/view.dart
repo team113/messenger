@@ -100,14 +100,11 @@ class ContactsTabView extends StatelessWidget {
           appBar: CustomAppBar.from(
             context: context,
             title: Obx(() {
-              final TextStyle? thin = Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  ?.copyWith(color: Colors.black);
+              Widget child;
 
               if (c.searching.value) {
                 Style style = Theme.of(context).extension<Style>()!;
-                return Theme(
+                child = Theme(
                   data: Theme.of(context).copyWith(
                     shadowColor: const Color(0x55000000),
                     iconTheme: const IconThemeData(color: Colors.blue),
@@ -163,21 +160,24 @@ class ContactsTabView extends StatelessWidget {
                     ),
                   ),
                 );
+              } else {
+                child = Text('label_contacts'.l10n);
               }
 
-              return Text('label_contacts'.l10n);
+              return AnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: child,
+              );
             }),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(left: 12, right: 18),
                 child: Obx(() {
                   Widget child;
+
                   if (c.searching.value) {
-                    child = IconButton(
+                    child = WidgetButton(
                       key: const Key('CloseSearch'),
-                      splashColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
                       onPressed: () {
                         c.search.clear();
                         c.query.value = null;
@@ -185,16 +185,13 @@ class ContactsTabView extends StatelessWidget {
                         c.searchStatus.value = RxStatus.empty();
                         c.searching.value = false;
                       },
-                      icon: SvgLoader.asset(
+                      child: SvgLoader.asset(
                         'assets/icons/close_primary.svg',
                         height: 15,
                       ),
                     );
                   } else {
-                    child = IconButton(
-                      splashColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
+                    child = WidgetButton(
                       onPressed: () async {
                         await ModalPopup.show(
                           context: context,
@@ -212,41 +209,45 @@ class ContactsTabView extends StatelessWidget {
                           desktopPadding: const EdgeInsets.all(0),
                         );
                       },
-                      icon: SvgLoader.asset(
+                      child: SvgLoader.asset(
                         'assets/icons/group.svg',
                         height: 18.44,
                       ),
                     );
                   }
 
-                  return AnimatedSwitcher(
-                    duration: 250.milliseconds,
-                    child: child,
+                  return SizedBox(
+                    width: 21.77,
+                    child: AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: child,
+                    ),
                   );
                 }),
               ),
             ],
             leading: [
               Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: IconButton(
-                  splashColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onPressed: () {
-                    if (c.searching.isFalse) {
-                      c.searching.value = true;
-                      Future.delayed(
-                        Duration.zero,
-                        c.search.focus.requestFocus,
-                      );
-                    }
-                  },
-                  icon: SvgLoader.asset(
-                    'assets/icons/search.svg',
-                    width: 17.77,
-                  ),
-                ),
+                padding: const EdgeInsets.only(left: 20, right: 12),
+                child: Obx(() {
+                  return WidgetButton(
+                    onPressed: c.searching.value
+                        ? null
+                        : () {
+                            if (c.searching.isFalse) {
+                              c.searching.value = true;
+                              Future.delayed(
+                                Duration.zero,
+                                c.search.focus.requestFocus,
+                              );
+                            }
+                          },
+                    child: SvgLoader.asset(
+                      'assets/icons/search.svg',
+                      width: 17.77,
+                    ),
+                  );
+                }),
               ),
             ],
           ),

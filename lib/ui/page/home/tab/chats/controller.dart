@@ -173,11 +173,13 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
+          _populate();
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           sortedChats.removeWhere((e) => e.chat.value.id == event.key);
+          _populate();
           break;
 
         case OperationKind.updated:

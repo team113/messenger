@@ -87,42 +87,10 @@ class ParticipantWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
-      bool hasVideo = participant.video.value?.isEnabled == true;
-
-      List<Widget> additionally = [];
-
-      if (isMuted) {
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
-            child: SvgLoader.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
-
-      if (isVideoDisabled ||
-          participant.video.value?.source == MediaSourceKind.Display) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
-        }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
-            ),
-          ),
-        );
-      }
+      bool hasVideo = participant.video.value?.renderer.value != null;
 
       // [Widget]s to display in background when no video is available.
-      List<Widget> _background() {
+      List<Widget> background() {
         return useCallCover &&
                 participant.user.value?.user.value.callCover != null
             ? [CallCoverWidget(participant.user.value?.user.value.callCover)]
@@ -160,7 +128,7 @@ class ParticipantWidget extends StatelessWidget {
 
       return Stack(
         children: [
-          if (!hasVideo) ..._background(),
+          if (!hasVideo) ...background(),
           AnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
@@ -170,10 +138,13 @@ class ParticipantWidget extends StatelessWidget {
                 ? Container()
                 : Center(
                     child: RtcVideoView(
-                      participant.video.value!,
+                      participant.video.value!.renderer.value
+                          as RtcVideoRenderer,
+                      source: participant.source,
                       key: participant.videoKey,
-                      mirror: participant.owner == MediaOwnerKind.local &&
-                          participant.source == MediaSourceKind.Device,
+                      mirror:
+                          participant.member.owner == MediaOwnerKind.local &&
+                              participant.source == MediaSourceKind.Device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       outline: outline,
@@ -181,11 +152,13 @@ class ParticipantWidget extends StatelessWidget {
                       enableContextMenu: false,
                       respectAspectRatio: respectAspectRatio,
                       offstageUntilDetermined: offstageUntilDetermined,
-                      framelessBuilder: () => Stack(children: _background()),
+                      framelessBuilder: () => Stack(children: background()),
                     ),
                   ),
           ),
-          Positioned.fill(child: _handRaisedIcon(participant.handRaised.value)),
+          Positioned.fill(
+            child: _handRaisedIcon(participant.member.isHandRaised.value),
+          ),
         ],
       );
     });
@@ -237,8 +210,23 @@ class ParticipantOverlayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      bool isMuted = muted ?? participant.audio.value?.muted ?? false;
-      bool isVideoDisabled = participant.video.value?.isEnabled == false;
+      bool isMuted;
+
+      if (participant.source == MediaSourceKind.Display) {
+        isMuted = false;
+      } else {
+        isMuted = muted ?? participant.audio.value?.isMuted.value ?? false;
+      }
+
+      bool isVideoDisabled = participant.video.value?.renderer.value == null &&
+          (participant.video.value?.direction.value.isEmitting ?? false) &&
+          participant.member.owner == MediaOwnerKind.remote;
+
+      bool isAudioDisabled = !isMuted &&
+          participant.audio.value != null &&
+          participant.audio.value!.renderer.value == null &&
+          participant.source != MediaSourceKind.Display &&
+          participant.member.owner == MediaOwnerKind.remote;
 
       List<Widget> additionally = [];
 
@@ -252,10 +240,20 @@ class ParticipantOverlayWidget extends StatelessWidget {
             ),
           ),
         );
+      } else if (isAudioDisabled) {
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            child: SvgLoader.asset(
+              'assets/icons/speaker_off.svg',
+              height: 35,
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        );
       }
 
-      if (isVideoDisabled ||
-          participant.video.value?.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
@@ -265,6 +263,19 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: SvgLoader.asset(
               'assets/icons/screen_share_small.svg',
               height: 12,
+            ),
+          ),
+        );
+      } else if (isVideoDisabled) {
+        if (additionally.isNotEmpty) {
+          additionally.add(const SizedBox(width: 3));
+        }
+        additionally.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 2),
+            child: SvgLoader.asset(
+              'assets/icons/video_off.svg',
+              height: 35,
             ),
           ),
         );
