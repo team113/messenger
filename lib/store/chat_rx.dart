@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/obs/rxlist.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -61,7 +62,7 @@ class HiveRxChat implements RxChat {
   final Rx<Chat> chat;
 
   @override
-  final RxList<Rx<ChatItem>> messages = RxList<Rx<ChatItem>>();
+  final RxObsList<Rx<ChatItem>> messages = RxObsList<Rx<ChatItem>>();
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
