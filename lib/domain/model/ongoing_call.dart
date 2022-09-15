@@ -310,6 +310,8 @@ class OngoingCall {
         return;
       }
 
+      members[_me] = CallMember.me(_me);
+
       _mediaManager = _jason!.mediaManager();
       _mediaManager?.onDeviceChange(() async {
         await enumerateDevices();
@@ -865,8 +867,6 @@ class OngoingCall {
         connectionLost = false;
       }
     });
-
-    members[_me] = CallMember.me(_me);
 
     _room!.onLocalTrack((e) => _addLocalTrack(e));
 
