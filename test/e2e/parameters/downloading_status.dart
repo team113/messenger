@@ -25,15 +25,19 @@ class DownloadingStatusParameter extends CustomParameter<DownloadingStatus> {
           RegExp(
             '(${DownloadingStatus.values.map(
                   (e) => e.name.replaceAllMapped(
-                    r'[A-Z]',
-                    (match) => ' ${match.input.toLowerCase()}',
+                    RegExp(r'[A-Z]'),
+                    (match) => ' ${match[0]!.toLowerCase()}',
                   ),
                 ).join('|')})',
             caseSensitive: true,
           ),
-          (c) => DownloadingStatus.values.firstWhere((e) =>
-              e.name.replaceAllMapped(
-                  r' \w', (match) => match.input.toUpperCase()) ==
-              c),
+          (c) {
+            return DownloadingStatus.values.firstWhere(
+              (e) =>
+                  e.name ==
+                  c.replaceAllMapped(RegExp(r' \w'),
+                      (match) => match[0]!.trim().toUpperCase()),
+            );
+          },
         );
 }
