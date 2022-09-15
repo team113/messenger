@@ -836,8 +836,7 @@ class CallController extends GetxController {
   /// Toggles the provided [participant]'s incoming video on and off.
   Future<void> toggleVideoEnabled(Participant participant) async {
     if (participant.video.value?.direction.value.isEmitting ?? false) {
-      await _currentCall.value.setMemberVideoEnabled(
-        participant.member.id,
+      await participant.member.setVideoEnabled(
         !participant.video.value!.direction.value.isEnabled,
         source: participant.video.value!.source,
       );

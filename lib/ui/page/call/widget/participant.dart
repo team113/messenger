@@ -266,9 +266,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             ),
           ),
         );
-      }
-
-      if (isVideoDisabled && participant.source == MediaSourceKind.Device) {
+      } else if (isVideoDisabled) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 3));
         }
