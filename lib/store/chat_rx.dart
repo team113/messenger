@@ -170,9 +170,9 @@ class HiveRxChat implements RxChat {
       if (!PlatformUtils.isWeb) {
         for (var message in messages.map((e) => e.value).where((e) =>
             e is ChatMessage || (e is ChatForward && e.item is ChatMessage))) {
-          if(message is ChatMessage) {
+          if (message is ChatMessage) {
             await _initializeAttachments(message);
-          } else if(message is ChatForward){
+          } else if (message is ChatForward) {
             await _initializeAttachments(message.item as ChatMessage);
           }
         }
