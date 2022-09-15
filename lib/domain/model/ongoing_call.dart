@@ -1465,10 +1465,10 @@ class Track {
   /// Indicator whether this [Track] is muted.
   late final RxBool isMuted;
 
-  /// Returns the [MediaSourceKind] of this [Track].
+  /// [MediaSourceKind] of this [Track].
   final MediaSourceKind source;
 
-  /// Returns the [MediaKind] of this [Track].
+  /// [MediaKind] of this [Track].
   final MediaKind kind;
 
   /// Creates the [renderer] for this [Track].
