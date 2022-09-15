@@ -1308,6 +1308,9 @@ abstract class RtcRenderer {
 
   /// Native media track of this [RtcRenderer].
   final webrtc.MediaStreamTrack track;
+
+  /// Disposes this [RtcRenderer] and its [track].
+  Future<void> dispose();
 }
 
 /// Convenience wrapper around a [webrtc.VideoRenderer].
@@ -1341,6 +1344,9 @@ class RtcVideoRenderer extends RtcRenderer {
 
   /// Initializes inner [webrtc.VideoRenderer].
   Future<void> initialize() => _delegate.initialize();
+
+  @override
+  Future<void> dispose() => Future.wait([track.dispose(), _delegate.dispose()]);
 }
 
 /// Convenience wrapper around an [webrtc.AudioRenderer].
@@ -1354,6 +1360,9 @@ class RtcAudioRenderer extends RtcRenderer {
 
   /// Sets [webrtc.AudioRenderer.srcObject] property.
   set srcObject(webrtc.MediaStreamTrack? track) => _delegate.srcObject = track;
+
+  @override
+  Future<void> dispose() => Future.wait([track.dispose(), _delegate.dispose()]);
 }
 
 /// Call member ID of an [OngoingCall] containing its [UserId] and
@@ -1489,7 +1498,7 @@ class Track {
 
   /// Disposes the [renderer] of this [Track].
   void removeRenderer() {
-    renderer.value?.track.dispose();
+    renderer.value?.dispose();
     renderer.value = null;
   }
 
