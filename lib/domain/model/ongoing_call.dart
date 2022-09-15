@@ -710,7 +710,9 @@ class OngoingCall {
         isRemoteAudioEnabled.toggle();
       } else if (!enabled && isRemoteAudioEnabled.isTrue) {
         for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.add(m.setAudioEnabled(false));
+          if (m.tracks.any((e) => e.kind == MediaKind.Audio)) {
+            futures.add(m.setAudioEnabled(false));
+          }
         }
 
         isRemoteAudioEnabled.toggle();
@@ -740,10 +742,9 @@ class OngoingCall {
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
         for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.addAll([
-            m.setVideoEnabled(false, source: MediaSourceKind.Device),
-            m.setVideoEnabled(false, source: MediaSourceKind.Display),
-          ]);
+          m.tracks.where((e) => e.kind == MediaKind.Video).forEach((e) {
+            futures.add(m.setVideoEnabled(false, source: e.source));
+          });
         }
 
         isRemoteVideoEnabled.toggle();
