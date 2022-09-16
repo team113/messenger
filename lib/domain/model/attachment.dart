@@ -105,7 +105,7 @@ class FileAttachment extends Attachment {
   String? path;
 
   /// [DownloadStatus] of this [FileAttachment].
-  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notDownloaded);
+  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notStarted);
 
   /// Download progress of this [FileAttachment].
   RxDouble progress = RxDouble(0);
@@ -117,7 +117,7 @@ class FileAttachment extends Attachment {
   bool _initialized = false;
 
   /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloadStatus.value == DownloadStatus.downloading;
+  bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
 
   // TODO: Compare hashes.
   /// Initializes the [downloadStatus].
@@ -131,7 +131,7 @@ class FileAttachment extends Attachment {
     if (path != null) {
       File file = File(path!);
       if (await file.exists() && await file.length() == size) {
-        downloadStatus.value = DownloadStatus.downloaded;
+        downloadStatus.value = DownloadStatus.isFinished;
         return;
       }
     }
@@ -146,10 +146,10 @@ class FileAttachment extends Attachment {
     }
 
     if (await file.exists()) {
-      downloadStatus.value = DownloadStatus.downloaded;
+      downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
-      downloadStatus.value = DownloadStatus.notDownloaded;
+      downloadStatus.value = DownloadStatus.notStarted;
       path = null;
     }
   }
@@ -157,7 +157,7 @@ class FileAttachment extends Attachment {
   /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
-      downloadStatus.value = DownloadStatus.downloading;
+      downloadStatus.value = DownloadStatus.inProgress;
       progress.value = 0;
 
       _token = CancelToken();
@@ -170,14 +170,14 @@ class FileAttachment extends Attachment {
       );
 
       if (_token?.isCancelled == true || file == null) {
-        downloadStatus.value = DownloadStatus.notDownloaded;
+        downloadStatus.value = DownloadStatus.notStarted;
         path = null;
       } else {
-        downloadStatus.value = DownloadStatus.downloaded;
+        downloadStatus.value = DownloadStatus.isFinished;
         path = file.path;
       }
     } catch (_) {
-      downloadStatus.value = DownloadStatus.notDownloaded;
+      downloadStatus.value = DownloadStatus.notStarted;
       path = null;
     }
   }
@@ -241,11 +241,11 @@ class LocalAttachment extends Attachment {
 /// Download status of a [FileAttachment].
 enum DownloadStatus {
   /// Download has not yet started.
-  notDownloaded,
+  notStarted,
 
   /// Download is in progress.
-  downloading,
+  inProgress,
 
   /// Downloaded successfully.
-  downloaded,
+  isFinished,
 }

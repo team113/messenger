@@ -819,7 +819,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     if (isFile) {
       switch (e.downloadStatus.value) {
-        case DownloadStatus.downloading:
+        case DownloadStatus.inProgress:
           leading = InkWell(
             onTap: () => widget.onFileTap?.call(e),
             child: Stack(
@@ -842,7 +842,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
 
-        case DownloadStatus.downloaded:
+        case DownloadStatus.isFinished:
           leading = const Icon(
             Icons.attach_file,
             key: Key('Downloaded'),
@@ -851,7 +851,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
 
-        case DownloadStatus.notDownloaded:
+        case DownloadStatus.notStarted:
           leading = const Icon(
             Icons.download,
             key: Key('Download'),

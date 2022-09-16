@@ -56,14 +56,14 @@ final StepDefinitionGeneric waitUntilFileStatus =
 
         if (attachment != null &&
             await context.world.appDriver.isPresent(finder)) {
-          return status == DownloadStatus.notDownloaded
+          return status == DownloadStatus.notStarted
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,
                     context.world.appDriver.findByKeySkipOffstage('Download'),
                   ),
                 )
-              : status == DownloadStatus.downloading
+              : status == DownloadStatus.inProgress
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,

@@ -48,7 +48,7 @@
 [downloads]
 # Directory to download files to.
 #
-# Unused for web, as browser picks the directory itself.
+# Unused for Web, as browser picks the directory itself.
 #
 # Default:
 #   directory = "messenger"
