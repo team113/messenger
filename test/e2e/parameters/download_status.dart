@@ -35,8 +35,10 @@ class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
             return DownloadStatus.values.firstWhere(
               (e) =>
                   e.name ==
-                  c.replaceAllMapped(RegExp(r' \w'),
-                      (match) => match[0]!.trim().toUpperCase()),
+                  c.replaceAllMapped(
+                    RegExp(r' \w'),
+                    (match) => match[0]!.trim().toUpperCase(),
+                  ),
             );
           },
         );

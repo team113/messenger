@@ -52,6 +52,7 @@ final StepDefinitionGeneric sendsAttachmentToMe =
       text: null,
       attachments: [response.attachment.toModel().id],
     );
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
