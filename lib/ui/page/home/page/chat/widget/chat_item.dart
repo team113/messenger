@@ -1241,6 +1241,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   Widget _buildFileAttachment(Attachment e) {
+    bool isRead = _isRead();
     bool fromMe = widget.item.value.authorId == widget.me;
     Style style = Theme.of(context).extension<Style>()!;
 
@@ -1274,7 +1275,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           leading = Icon(
             Icons.file_copy,
             key: const Key('Downloaded'),
-            color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+            color: fromMe
+                ? isRead
+                    ? Colors.white
+                    : const Color(0xFFDDDDDD)
+                : const Color(0xFFDDDDDD),
             size: 28,
           );
           break;
@@ -1284,7 +1289,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Icons.download,
             key: const Key('Download'),
             size: 28,
-            color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+            color: fromMe
+                ? isRead
+                    ? Colors.white
+                    : const Color(0xFFDDDDDD)
+                : const Color(0xFFDDDDDD),
           );
           break;
       }
@@ -1295,6 +1304,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       child: WidgetButton(
+        onPressed: e is FileAttachment
+            ? e.isDownloading
+                ? null
+                : () => widget.onFileTap?.call(e)
+            : null,
         child: Container(
           height: 50,
           decoration: BoxDecoration(
@@ -1307,11 +1321,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: Row(
             children: [
               const SizedBox(width: 10),
-              Icon(
-                Icons.file_copy,
-                color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-                size: 28,
-              ),
+              leading,
+              // Icon(
+              //   Icons.file_copy,
+              //   color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+              //   size: 28,
+              // ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
