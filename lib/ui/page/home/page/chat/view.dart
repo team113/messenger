@@ -726,12 +726,8 @@ class _ChatViewState extends State<ChatView>
                   minLines: 1,
                   maxLines: 6,
                   style: const TextStyle(fontSize: 17),
-                  type: PlatformUtils.isDesktop
-                      ? TextInputType.text
-                      : TextInputType.multiline,
-                  textInputAction: PlatformUtils.isDesktop
-                      ? TextInputAction.send
-                      : TextInputAction.newline,
+                  type: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                 ),
               ),
             ),
