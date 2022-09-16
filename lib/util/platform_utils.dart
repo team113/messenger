@@ -36,9 +36,9 @@ import 'web/web_utils.dart';
 // ignore: non_constant_identifier_names
 PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
-/// Helper providing access to platform related features.
+/// Helper providing platform related features.
 class PlatformUtilsImpl {
-  /// Path to the download directory.
+  /// Path to the downloads directory.
   String? _downloadDirectory;
 
   /// Indicates whether application is running in a web browser.
@@ -93,14 +93,13 @@ class PlatformUtilsImpl {
     return const Stream.empty();
   }
 
-  /// Returns a path to the download directory.
-  Future<String> get downloadDirectory async {
+  /// Returns a path to the downloads directory.
+  Future<String> get downloadsDirectory async {
     if (_downloadDirectory != null) {
       return _downloadDirectory!;
     }
 
     String path;
-
     if (PlatformUtils.isMobile) {
       path = (await getTemporaryDirectory()).path;
     } else {
@@ -142,7 +141,7 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads the file from the provided [url].
+  /// Downloads a file from the provided [url].
   FutureOr<File?> download(
     String url,
     String filename, {
@@ -153,10 +152,11 @@ class PlatformUtilsImpl {
       WebUtils.downloadFile(url, filename);
       return null;
     } else {
-      String name = p.basenameWithoutExtension(filename);
-      String extension = p.extension(filename);
-      String path = await downloadDirectory;
+      final String name = p.basenameWithoutExtension(filename);
+      final String extension = p.extension(filename);
+      final String path = await downloadsDirectory;
 
+      // TODO: File might already be downloaded, compare hashes.
       File file = File('$path/$filename');
       for (int i = 1; await file.exists(); ++i) {
         file = File('$path/$name ($i)$extension');
@@ -176,18 +176,18 @@ class PlatformUtilsImpl {
   /// Downloads an image from the provided [url] and saves it to the gallery.
   Future<void> saveToGallery(String url, String name) async {
     if (isMobile && !isWeb) {
-      Directory temp = await getTemporaryDirectory();
-      String path = '${temp.path}/$name';
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
       await Dio().download(url, path);
       await ImageGallerySaver.saveFile(path, name: name);
       File(path).delete();
     }
   }
 
-  /// Downloads a file from the provided [url] and opens share dialog with it.
+  /// Downloads a file from the provided [url] and opens [Share] dialog with it.
   Future<void> share(String url, String name) async {
-    Directory temp = await getTemporaryDirectory();
-    String path = '${temp.path}/$name';
+    final Directory temp = await getTemporaryDirectory();
+    final String path = '${temp.path}/$name';
     await Dio().download(url, path);
     await Share.shareFiles([path]);
     File(path).delete();

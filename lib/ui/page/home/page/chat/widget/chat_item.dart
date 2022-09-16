@@ -815,11 +815,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns visual representation of the provided file-[Attachment].
   Widget _fileAttachment(Attachment e) {
     bool isFile = e is FileAttachment;
-    Widget leading = Container();
+    Widget leading;
 
     if (isFile) {
-      switch ((e).downloading.value) {
-        case DownloadingStatus.downloading:
+      switch (e.downloadStatus.value) {
+        case DownloadStatus.downloading:
           leading = InkWell(
             onTap: () => widget.onFileTap?.call(e),
             child: Stack(
@@ -842,7 +842,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
 
-        case DownloadingStatus.downloaded:
+        case DownloadStatus.downloaded:
           leading = const Icon(
             Icons.attach_file,
             key: Key('Downloaded'),
@@ -851,7 +851,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
 
-        case DownloadingStatus.notDownloaded:
+        case DownloadStatus.notDownloaded:
           leading = const Icon(
             Icons.download,
             key: Key('Download'),
@@ -861,7 +861,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           break;
       }
 
-      leading = Container(key: const Key('Sent'), child: leading);
+      leading = KeyedSubtree(key: const Key('Sent'), child: leading);
     } else if (e is LocalAttachment) {
       switch (e.status.value) {
         case SendingStatus.sending:
@@ -875,6 +875,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           );
           break;
+
         case SendingStatus.sent:
           leading = const Icon(
             Icons.check_circle,
@@ -883,6 +884,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             color: Colors.green,
           );
           break;
+
         case SendingStatus.error:
           leading = const Icon(
             Icons.error_outline,
@@ -892,6 +894,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           );
           break;
       }
+    } else {
+      leading = Container();
     }
 
     return Padding(
@@ -910,9 +914,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               key: Key('AttachmentStatus_${e.id}'),
               padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-              child: ElasticAnimatedSwitcher(
-                child: leading,
-              ),
+              child: ElasticAnimatedSwitcher(child: leading),
             ),
             Flexible(
               child: Text(

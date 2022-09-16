@@ -17,13 +17,13 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/attachment.dart';
 
-/// [CustomParameter] representing a [DownloadingStatus].
-class DownloadingStatusParameter extends CustomParameter<DownloadingStatus> {
-  DownloadingStatusParameter()
+/// [CustomParameter] representing a [DownloadStatus].
+class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
+  DownloadStatusParameter()
       : super(
-          'downloading',
+          'downloadStatus',
           RegExp(
-            '(${DownloadingStatus.values.map(
+            '(${DownloadStatus.values.map(
                   (e) => e.name.replaceAllMapped(
                     RegExp(r'[A-Z]'),
                     (match) => ' ${match[0]!.toLowerCase()}',
@@ -32,7 +32,7 @@ class DownloadingStatusParameter extends CustomParameter<DownloadingStatus> {
             caseSensitive: true,
           ),
           (c) {
-            return DownloadingStatus.values.firstWhere(
+            return DownloadStatus.values.firstWhere(
               (e) =>
                   e.name ==
                   c.replaceAllMapped(RegExp(r' \w'),

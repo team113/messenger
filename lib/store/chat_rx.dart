@@ -167,15 +167,26 @@ class HiveRxChat implements RxChat {
       }
 
       _initLocalSubscription();
+
       if (!PlatformUtils.isWeb) {
-        for (var message in messages.map((e) => e.value).where((e) =>
-            e is ChatMessage || (e is ChatForward && e.item is ChatMessage))) {
-          if (message is ChatMessage) {
-            await _initializeAttachments(message);
-          } else if (message is ChatForward) {
-            await _initializeAttachments(message.item as ChatMessage);
+        final List<Future> futures = [];
+
+        for (ChatItem item in messages.map((e) => e.value)) {
+          if (item is ChatMessage) {
+            futures.addAll(item.attachments
+                .whereType<FileAttachment>()
+                .map((e) => e.init()));
+          } else if (item is ChatForward) {
+            ChatItem nested = item.item;
+            if (nested is ChatMessage) {
+              futures.addAll(nested.attachments
+                  .whereType<FileAttachment>()
+                  .map((e) => e.init()));
+            }
           }
         }
+
+        await Future.wait(futures);
       }
 
       status.value = RxStatus.success();
@@ -448,13 +459,6 @@ class HiveRxChat implements RxChat {
     );
   }
 
-  /// Initialize downloaded status of the provided [ChatMessage]'s attachments.
-  Future<void> _initializeAttachments(ChatMessage message) async {
-    for (var attachment in message.attachments.whereType<FileAttachment>()) {
-      attachment.init();
-    }
-  }
-
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields() async {
     if (chat.value.name != null) {
@@ -549,15 +553,29 @@ class HiveRxChat implements RxChat {
           messages.removeAt(i);
         }
       } else {
-        if (event.value.value is ChatMessage && !PlatformUtils.isWeb) {
-          _initializeAttachments(event.value.value as ChatMessage);
-        }
         if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
+          Rx<ChatItem> message = Rx<ChatItem>(event.value.value);
+
           messages.insertAfter(
-            item,
-            (e) => item.value.at.compareTo(e.value.at) == 1,
+            message,
+            (e) => message.value.at.compareTo(e.value.at) == 1,
           );
+
+          if (!PlatformUtils.isWeb) {
+            ChatItem item = message.value;
+            if (item is ChatMessage) {
+              for (var a in item.attachments.whereType<FileAttachment>()) {
+                a.init();
+              }
+            } else if (item is ChatForward) {
+              ChatItem nested = item.item;
+              if (nested is ChatMessage) {
+                for (var a in nested.attachments.whereType<FileAttachment>()) {
+                  a.init();
+                }
+              }
+            }
+          }
         } else {
           messages[i].value = event.value.value;
           messages[i].refresh();

@@ -28,16 +28,16 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Waits until [FileAttachment.downloading] of the specified [FileAttachment]
-/// becomes the provided [DownloadingStatus].
+/// Waits until [FileAttachment.downloadStatus] of the specified
+/// [FileAttachment] becomes the provided [DownloadStatus].
 ///
 /// Examples:
-/// - Then I wait until status of "test.txt" file is not downloaded
-/// - Then I wait until status of "test.pdf" file is downloading
-/// - Then I wait until status of "test.doc" file is downloaded
+/// - Then I wait until "test.txt" file is not downloaded
+/// - Then I wait until "test.pdf" file is downloading
+/// - Then I wait until "test.doc" file is downloaded
 final StepDefinitionGeneric waitUntilFileStatus =
-    then2<String, DownloadingStatus, CustomWorld>(
-  'I wait until status of {string} file is {downloading}',
+    then2<String, DownloadStatus, CustomWorld>(
+  'I wait until {string} file is {downloadStatus}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
@@ -56,14 +56,14 @@ final StepDefinitionGeneric waitUntilFileStatus =
 
         if (attachment != null &&
             await context.world.appDriver.isPresent(finder)) {
-          return status == DownloadingStatus.notDownloaded
+          return status == DownloadStatus.notDownloaded
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,
                     context.world.appDriver.findByKeySkipOffstage('Download'),
                   ),
                 )
-              : status == DownloadingStatus.downloading
+              : status == DownloadStatus.downloading
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,

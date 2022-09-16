@@ -817,11 +817,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
       await PlatformUtils.saveToGallery(item.link, item.name);
-      MessagePopup.success(
-        item.isVideo
-            ? 'label_video_saved_to_gallery'.l10n
-            : 'label_image_saved_to_gallery'.l10n,
-      );
+      MessagePopup.success(item.isVideo
+          ? 'label_video_saved_to_gallery'.l10n
+          : 'label_image_saved_to_gallery'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }

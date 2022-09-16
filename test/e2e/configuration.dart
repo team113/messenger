@@ -31,7 +31,7 @@ import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
-import 'parameters/downloading_status.dart';
+import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
@@ -68,8 +68,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
-        cancelDownloadingFile,
+        cancelFileDownload,
         copyFromField,
+        downloadFile,
         expectNWidget,
         fillField,
         fillFieldN,
@@ -89,7 +90,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
-        startDownloadingFile,
         tapDropdownItem,
         tapText,
         tapWidget,
@@ -121,7 +121,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
-        DownloadingStatusParameter(),
+        DownloadStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),

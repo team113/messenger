@@ -457,7 +457,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static void downloadFile(String url, String name) {
-    html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    final html.AnchorElement anchorElement = html.AnchorElement(href: url);
     anchorElement.download = name;
     anchorElement.click();
   }

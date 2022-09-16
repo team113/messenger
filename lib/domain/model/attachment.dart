@@ -102,31 +102,32 @@ class FileAttachment extends Attachment {
 
   /// Path to the downloaded [FileAttachment] in the local filesystem.
   @HiveField(4)
-  String? local;
+  String? path;
 
-  /// [DownloadingStatus] of this [FileAttachment].
-  Rx<DownloadingStatus> downloading = Rx(DownloadingStatus.notDownloaded);
+  /// [DownloadStatus] of this [FileAttachment].
+  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notDownloaded);
 
-  /// Progress of this [FileAttachment] downloading.
+  /// Download progress of this [FileAttachment].
   RxDouble progress = RxDouble(0);
 
   /// [CancelToken] canceling the download of this [FileAttachment], if any.
   CancelToken? _token;
 
   /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloading.value == DownloadingStatus.downloading;
+  bool get isDownloading => downloadStatus.value == DownloadStatus.downloading;
 
-  /// Initializes this [FileAttachment.downloading] status.
+  // TODO: Compare hashes.
+  /// Initializes the [downloadStatus].
   Future<void> init() async {
-    if (local != null) {
-      File file = File(local!);
+    if (path != null) {
+      File file = File(path!);
       if (await file.exists() && await file.length() == size) {
-        downloading.value = DownloadingStatus.downloaded;
+        downloadStatus.value = DownloadStatus.downloaded;
         return;
       }
     }
 
-    String downloads = await PlatformUtils.downloadDirectory;
+    String downloads = await PlatformUtils.downloadsDirectory;
     String name = p.basenameWithoutExtension(filename);
     String ext = p.extension(filename);
     File file = File('$downloads/$filename');
@@ -136,18 +137,18 @@ class FileAttachment extends Attachment {
     }
 
     if (await file.exists()) {
-      downloading.value = DownloadingStatus.downloaded;
-      local = file.path;
+      downloadStatus.value = DownloadStatus.downloaded;
+      path = file.path;
     } else {
-      downloading.value = DownloadingStatus.notDownloaded;
-      local = null;
+      downloadStatus.value = DownloadStatus.notDownloaded;
+      path = null;
     }
   }
 
   /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
-      downloading.value = DownloadingStatus.downloading;
+      downloadStatus.value = DownloadStatus.downloading;
       progress.value = 0;
 
       _token = CancelToken();
@@ -160,25 +161,25 @@ class FileAttachment extends Attachment {
       );
 
       if (_token?.isCancelled == true || file == null) {
-        downloading.value = DownloadingStatus.notDownloaded;
-        local = null;
+        downloadStatus.value = DownloadStatus.notDownloaded;
+        path = null;
       } else {
-        downloading.value = DownloadingStatus.downloaded;
-        local = file.path;
+        downloadStatus.value = DownloadStatus.downloaded;
+        path = file.path;
       }
     } catch (_) {
-      downloading.value = DownloadingStatus.notDownloaded;
-      local = null;
+      downloadStatus.value = DownloadStatus.notDownloaded;
+      path = null;
     }
   }
 
   /// Opens this [FileAttachment], if downloaded, or otherwise downloads it.
   Future<void> open() async {
-    if (local != null) {
-      File file = File(local!);
+    if (path != null) {
+      File file = File(path!);
 
       if (await file.exists() && await file.length() == size) {
-        await OpenFile.open(local!);
+        await OpenFile.open(path!);
         return;
       }
     }
@@ -228,12 +229,12 @@ class LocalAttachment extends Attachment {
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
 }
 
-/// Status of a [FileAttachment] downloading progress.
-enum DownloadingStatus {
+/// Download status of a [FileAttachment].
+enum DownloadStatus {
   /// Download has not yet started.
   notDownloaded,
 
-  /// Downloading is in progress.
+  /// Download is in progress.
   downloading,
 
   /// Downloaded successfully.

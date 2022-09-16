@@ -141,6 +141,7 @@ class Config {
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
+            downloads = remote['downloads']?['directory'] ?? downloads;
             origin = url;
           }
         }

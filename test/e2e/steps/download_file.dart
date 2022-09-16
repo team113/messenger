@@ -27,15 +27,15 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Presses download button of the [FileAttachment] with provided name in the
-/// currently opened [Chat].
+/// Downloads a [FileAttachment] with the provided name in the currently opened
+/// [Chat].
 ///
 /// Examples:
-/// - Then I start downloading "test.txt" file
-/// - Then I start downloading "test.pdf" file
-/// - Then I start downloading "test.doc" file
-final StepDefinitionGeneric startDownloadingFile = then1<String, CustomWorld>(
-  'I start downloading {string} file',
+/// - Then I download "test.txt" file
+/// - Then I download "test.pdf" file
+/// - Then I download "test.doc" file
+final StepDefinitionGeneric downloadFile = then1<String, CustomWorld>(
+  'I download {string} file',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
@@ -58,15 +58,15 @@ final StepDefinitionGeneric startDownloadingFile = then1<String, CustomWorld>(
   },
 );
 
-/// Presses cancel download button of the [FileAttachment] with provided name in
-/// the currently opened [Chat].
+/// Cancels download of a [FileAttachment] with the provided name in the
+/// currently opened [Chat].
 ///
 /// Examples:
-/// - Then I cancel downloading "test.txt" file
-/// - Then I cancel downloading "test.pdf" file
-/// - Then I cancel downloading "test.doc" file
-final StepDefinitionGeneric cancelDownloadingFile = then1<String, CustomWorld>(
-  'I cancel downloading {string} file',
+/// - Then I cancel "test.txt" file download
+/// - Then I cancel "test.pdf" file download
+/// - Then I cancel "test.doc" file download
+final StepDefinitionGeneric cancelFileDownload = then1<String, CustomWorld>(
+  'I cancel {string} file download',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
