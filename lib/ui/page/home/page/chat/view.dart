@@ -309,7 +309,7 @@ class _ChatViewState extends State<ChatView>
                                                 c.resendItem(e.value),
                                             onEdit: () =>
                                                 c.editMessage(e.value),
-                                            onFileTap: c.onFileTap,
+                                            onFileTap: c.download,
                                           ),
                                         ),
                                       );

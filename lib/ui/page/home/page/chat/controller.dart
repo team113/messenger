@@ -672,7 +672,7 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> onFileTap(FileAttachment attachment) async {
+  Future<void> download(FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (attachment.path != null) {
