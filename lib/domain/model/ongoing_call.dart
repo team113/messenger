@@ -221,7 +221,7 @@ class OngoingCall {
   /// Temporary stream of the errors happening in this [OngoingCall].
   Stream<String> get errors => _errors.stream;
 
-  /// Reactive map of [CallMember]s of this call.
+  /// Reactive map of [CallMember]s of this [OngoingCall].
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
 
