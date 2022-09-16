@@ -113,12 +113,21 @@ class FileAttachment extends Attachment {
   /// [CancelToken] canceling the download of this [FileAttachment], if any.
   CancelToken? _token;
 
+  /// Indicator whether this [FileAttachment] has already been [init]ialized.
+  bool _initialized = false;
+
   /// Indicates whether this [FileAttachment] is downloading.
   bool get isDownloading => downloadStatus.value == DownloadStatus.downloading;
 
   // TODO: Compare hashes.
   /// Initializes the [downloadStatus].
   Future<void> init() async {
+    if (_initialized) {
+      return;
+    }
+
+    _initialized = true;
+
     if (path != null) {
       File file = File(path!);
       if (await file.exists() && await file.length() == size) {
