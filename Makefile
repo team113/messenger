@@ -528,11 +528,7 @@ ifeq ($(pull),yes)
 	docker-compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
-	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
-endif
-ifeq ($(wildcard .cache/minio),)
-	@mkdir -p .cache/minio/data/files/
-	@mkdir -p .cache/minio/certs/
+	rm -rf .cache/baza/ .cache/cockroachdb/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
