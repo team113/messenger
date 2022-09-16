@@ -29,7 +29,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Message forwarding ([#72], [#8]);
         - Failed messages persistence ([#5], [#3]);
-        - Message splitting when character limit is exceeded ([#115], [#100]).
+        - Message splitting when character limit is exceeded ([#115], [#100]);
+        - Send field multiline support ([#139]).
 - Deployment:
     - [Helm] chart ([#73], [#85]).
 
@@ -55,8 +56,7 @@ All user visible changes to this project will be documented in this file. This p
     - UI not hiding on window focus loses ([#60]).
 - UI:
     - Chat page:
-        - Missing avatars in group creation popup ([#15], [#2]);
-        - Send field not supporting multiline on desktop ([#139]).
+        - Missing avatars in group creation popup ([#15], [#2]).
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
