@@ -401,7 +401,7 @@ class ChatController extends GetxController {
     } else {
       _messagesWorker ??= ever(
         chat!.messages,
-        (List<Rx<ChatItem>> msgs) {
+        (_) {
           if (atBottom) {
             Future.delayed(
               Duration.zero,
@@ -668,6 +668,18 @@ class ChatController extends GetxController {
       _typingSubscription?.cancel();
       _typingSubscription = null;
     });
+  }
+
+  /// Downloads the provided [FileAttachment], if not downloaded already, or
+  /// otherwise opens it or cancels the download.
+  Future<void> download(FileAttachment attachment) async {
+    if (attachment.isDownloading) {
+      attachment.cancelDownload();
+    } else if (attachment.path != null) {
+      attachment.open();
+    } else {
+      attachment.download();
+    }
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
