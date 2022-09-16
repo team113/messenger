@@ -141,6 +141,14 @@ class ChatController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
+  /// Clicking on [SelectionData].
+  final Rx<bool> isTapMessage = Rx(false);
+
+  /// Storage [SelectionData].
+  ///
+  /// Key is position of message in chat, and value is all selected text.
+  final Map<int, List<SelectionData>> selections = {};
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -189,14 +197,6 @@ class ChatController extends GetxController {
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
 
-  /// Each [CustomSelectionContainer] creates a [SelectionData] and adds it to the [selections].
-  /// [CustomSelectionContainer] adds selected text to [SelectionData.data].
-  List<SelectionData> selections = [];
-
-  /// Indicates whether user is in contact with any [CustomSelectionText]
-  /// to disable horizontal scrolling.
-  final Rx<bool> isTapMessage = Rx(false);
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -211,43 +211,14 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Formatted and sorted selected text.
-  String get selection {
-    if (!isSelection) {
-      return '';
-    }
-    final List<SelectionData> sorted = _sortSelections(selectionsNotEmpty);
+  /// Returns not an empty [SelectionData].
+  List<SelectionData>? get selectionsNotEmpty {
+    List<SelectionData> list = selections.values
+        .expand((List<SelectionData> l) => l)
+        .where((SelectionData s) => s.isNotEmpty)
+        .toList();
 
-    final StringBuffer result = StringBuffer();
-    for (int i = 0; i < sorted.length; i++) {
-      SelectionData data = sorted[i];
-      // Do not indent last message.
-      if (i == sorted.length - 1) {
-        result.write(data.data.value);
-      } else {
-        result.write(data.formatted);
-        // Add a blank line after each message.
-        if (data.position != sorted[i + 1].position) {
-          result.write('\n');
-        }
-      }
-    }
-    return result.toString();
-  }
-
-  /// At least one [SelectionData.data] is not empty.
-  bool get isSelection =>
-      selections
-          .firstWhereOrNull((SelectionData s) => s.data.value.isNotEmpty) !=
-      null;
-
-  /// Not an empty [SelectionData.data] in [selections].
-  List<SelectionData> get selectionsNotEmpty =>
-      selections.where((s) => s.data.value.isNotEmpty).toList();
-
-  /// Find [SelectionData]s by position.
-  List<SelectionData> findSelections(int position) {
-    return selections.where((s) => s.position == position).toList();
+    return list.isEmpty ? null : list;
   }
 
   @override
@@ -648,8 +619,10 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   void copyText(String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    MessagePopup.success('label_copied_to_clipboard'.l10n);
+    if (text.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: text));
+      MessagePopup.success('label_copied_to_clipboard'.l10n);
+    }
   }
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
@@ -697,7 +670,39 @@ class ChatController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
-  /// First sort the groups [SelectionData.chatPosition] in order, and then
+  /// Get selected formatted text.
+  String? formatSelection() {
+    final List<SelectionData>? notEmpty = selectionsNotEmpty;
+    if (notEmpty == null) return null;
+    final List<SelectionData> sorted = _sortSelections(notEmpty);
+
+    final StringBuffer result = StringBuffer();
+    for (int i = 0; i < sorted.length; i++) {
+      SelectionData s = sorted[i];
+      // Do not indent last message.
+      if (i == sorted.length - 1) {
+        result.write(s.data.value);
+      } else {
+        result.write(s.newLine);
+        // TODO: Flutter should indent itself when copying.
+        // Add a blank line after each message.
+        if (s.position != sorted[i + 1].position) {
+          result.write('\n');
+        }
+      }
+    }
+    return result.toString();
+  }
+
+  /// Indicates whether there is a selection by [position].
+  bool isSelectionByPosition(int position) =>
+      selections[position]
+          ?.firstWhereOrNull((SelectionData s) => s.isNotEmpty) !=
+      null;
+
+  /// Return sorted [selection].
+  ///
+  /// First sort [SelectionData.chatPosition] in order, and then
   /// by [SelectionItem.type] order.
   List<SelectionData> _sortSelections(List<SelectionData> selection) {
     selection.sort((SelectionData a, SelectionData b) {
@@ -1042,10 +1047,34 @@ class _ListViewIndexCalculationResult {
 }
 
 /// Type of selected text in chat.
-/// Each of them will have its own formatting.
-enum SelectionItem { date, time, message }
+///
+/// Identification of selected text for sorting and formatting.
+/// Sorting is by [SelectionItem.index].
+enum SelectionItem {
+  /// Relative time (for example, 4 days ago, 14:28).
+  relativeTime,
+
+  /// Date opposite label with relative time (for example, 16.09.2022).
+  date,
+
+  /// Time opposite message text (for example, 14:28).
+  time,
+
+  /// Replied or forwarded message author's name (for example, Artur).
+  title,
+
+  /// Message of reply (for example, some text).
+  replyMessage,
+
+  /// Main message (for example, some text).
+  message,
+
+  /// Message file (for example, name.txt 339 KB).
+  messageFile,
+}
 
 /// Contains selected text.
+///
 /// Passed to [CustomSelectionContainer] which fills
 /// [data] with selected text.
 class SelectionData {
@@ -1058,21 +1087,28 @@ class SelectionData {
   final SelectionItem type;
 
   /// Selected text.
-  final RxString data = RxString('');
+  final RxnString data = RxnString(null);
 
-  /// Text formatting [data] depending on the [type].
-  String get formatted {
-    String text = data.value;
-    if (text.isEmpty) {
+  /// Get [data] with newline.
+  String get newLine {
+    String? text = data.value;
+    if (text == null || text.isEmpty) {
       return '';
     }
     switch (type) {
+      case SelectionItem.relativeTime:
       case SelectionItem.date:
       case SelectionItem.time:
+      case SelectionItem.title:
+      case SelectionItem.replyMessage:
       case SelectionItem.message:
+      case SelectionItem.messageFile:
         text += '\n';
         break;
     }
     return text;
   }
+
+  /// Indicates whether [data] is not empty.
+  bool get isNotEmpty => data.value?.isNotEmpty == true;
 }

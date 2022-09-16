@@ -16,24 +16,24 @@
 
 import 'package:flutter/material.dart';
 
-import '../controller.dart';
-
-/// [child] in which the text will be selected
-/// and catch the intent of copying the text.
+/// Area in which the text will be highlighted.
+///
+/// Overrides [Action] copy with [_CopySelectionAction].
 class CustomSelectionArea extends StatelessWidget {
   const CustomSelectionArea({
     super.key,
-    required this.controller,
+    required this.formatSelection,
+    required this.copyText,
     required this.child,
   });
 
-  /// Сontroller passed to [_CopySelectionAction]
-  /// to copy text to [Clipboard].
-  final ChatController controller;
+  /// Callback, called when called [onCopy].
+  final String? Function() formatSelection;
 
-  /// Any [Text] in [child] will be selectable
-  /// unless explicitly specified [SelectionContainer.disabled]
-  /// above [Text].
+  /// Widget with content to selected.
+  final void Function(String text) copyText;
+
+  /// [Widget] in which there will be text to selection.
   final Widget child;
 
   @override
@@ -41,7 +41,7 @@ class CustomSelectionArea extends StatelessWidget {
     return Actions(
       actions: <Type, Action<Intent>>{
         CopySelectionTextIntent: Action.overridable(
-          defaultAction: _CopySelectionAction(controller),
+          defaultAction: _CopySelectionAction(formatSelection, copyText),
           context: context,
         ),
       },
@@ -50,18 +50,21 @@ class CustomSelectionArea extends StatelessWidget {
   }
 }
 
-/// Overridable copy [Action].
+/// [Action] for copy.
 class _CopySelectionAction extends Action<CopySelectionTextIntent> {
-  _CopySelectionAction(this.controller);
+  _CopySelectionAction(this.formatSelection, this.copyText);
 
-  /// Pass [controller.selection] to [controller.copyText].
-  final ChatController controller;
+  /// Callback, called when called [onCopy].
+  final String? Function() formatSelection;
+
+  /// Callback to save to clipboard.
+  final void Function(String text) copyText;
 
   @override
   Future<void> invoke(_) async {
-    final String clipboard = controller.selection;
-    if (clipboard.isNotEmpty) {
-      controller.copyText(clipboard.toString());
+    final String? clipboard = formatSelection();
+    if (clipboard != null && clipboard.isNotEmpty) {
+      copyText(clipboard);
     }
   }
 }

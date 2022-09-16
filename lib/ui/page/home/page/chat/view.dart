@@ -20,11 +20,13 @@ import 'dart:io';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -226,7 +228,8 @@ class _ChatViewState extends State<ChatView>
                             ),
                             SafeArea(
                               child: CustomSelectionArea(
-                                controller: c,
+                                formatSelection: c.formatSelection,
+                                copyText: c.copyText,
                                 child: FlutterListView(
                                   key: const Key('MessagesList'),
                                   controller: c.listController,
@@ -246,8 +249,11 @@ class _ChatViewState extends State<ChatView>
                                               vertical: 4,
                                             ),
                                             child: Center(
-                                              child:
-                                                  SelectionContainer.disabled(
+                                              child: CustomSelectionText(
+                                                selections: c.selections,
+                                                isTapMessage: c.isTapMessage,
+                                                position: i,
+                                                type: SelectionItem.message,
                                                 child: Text(
                                                   'label_unread_messages'.l10n,
                                                   style: const TextStyle(
@@ -269,12 +275,13 @@ class _ChatViewState extends State<ChatView>
                                           future: c.getUser(e.value.authorId),
                                           builder: (_, u) => ChatItemWidget(
                                             key: Key(e.value.id.val),
-                                            controller: c,
-                                            position: i,
                                             chat: c.chat!.chat,
                                             item: e,
                                             me: c.me!,
                                             user: u.data,
+                                            selections: c.selections,
+                                            isTapMessage: c.isTapMessage,
+                                            position: i,
                                             getUser: c.getUser,
                                             onJoinCall: c.joinCall,
                                             onHide: () =>
@@ -303,6 +310,8 @@ class _ChatViewState extends State<ChatView>
                                                 c.resendItem(e.value),
                                             onEdit: () =>
                                                 c.editMessage(e.value),
+                                            onFormatSelection:
+                                                c.formatSelection,
                                           ),
                                         ),
                                       );
@@ -332,8 +341,11 @@ class _ChatViewState extends State<ChatView>
                                         // Display a time over the first message.
                                         widgets.add(_timeLabel(
                                           time: e.value.at.val,
-                                          chatController: c,
                                           position: i,
+                                          isTapMessage: c.isTapMessage,
+                                          selections: c.selections,
+                                          onCopy: (text) => c.copyText(text),
+                                          onFormatSelection: c.formatSelection,
                                         ));
                                       } else {
                                         Rx<ChatItem>? previous =
@@ -348,8 +360,13 @@ class _ChatViewState extends State<ChatView>
                                               -30) {
                                             widgets.add(_timeLabel(
                                               time: e.value.at.val,
-                                              chatController: c,
                                               position: i,
+                                              isTapMessage: c.isTapMessage,
+                                              selections: c.selections,
+                                              onCopy: (text) =>
+                                                  c.copyText(text),
+                                              onFormatSelection:
+                                                  c.formatSelection,
                                             ));
                                           }
                                         }
@@ -372,19 +389,10 @@ class _ChatViewState extends State<ChatView>
                                     keepPosition: true,
                                     onItemKey: (int i) => '$i',
                                     onIsPermanent: (String i) {
-                                      if (!c.isSelection) {
+                                      if (!c.isSelectionByPosition(
+                                          int.parse(i))) {
                                         return false;
                                       }
-
-                                      final String currentMessage = c
-                                          .findSelections(int.parse(i))
-                                          .map((c) => c.data.value)
-                                          .join();
-
-                                      if (currentMessage.isEmpty) {
-                                        return false;
-                                      }
-
                                       return true;
                                     },
                                   ),
@@ -396,9 +404,7 @@ class _ChatViewState extends State<ChatView>
                                     c.chat!.status.value.isEmpty) &&
                                 c.chat!.messages.isEmpty)
                               const Center(
-                                child: SelectionContainer.disabled(
-                                  child: Text('No messages'),
-                                ),
+                                child: Text('No messages'),
                               ),
                             if (c.chat!.status.value.isLoading)
                               const Center(child: CircularProgressIndicator()),
@@ -465,11 +471,9 @@ class _ChatViewState extends State<ChatView>
                                       size: 30,
                                     ),
                                     const SizedBox(height: 5),
-                                    SelectionContainer.disabled(
-                                      child: Text(
-                                        'label_drop_here'.l10n,
-                                        textAlign: TextAlign.center,
-                                      ),
+                                    Text(
+                                      'label_drop_here'.l10n,
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
@@ -485,9 +489,7 @@ class _ChatViewState extends State<ChatView>
             return Scaffold(
               appBar: AppBar(),
               body: Center(
-                child: SelectionContainer.disabled(
-                  child: Text('label_no_chat_found'.l10n),
-                ),
+                child: Text('label_no_chat_found'.l10n),
               ),
             );
           } else {
@@ -552,9 +554,15 @@ class _ChatViewState extends State<ChatView>
   /// Returns a centered [time] label.
   Widget _timeLabel({
     required DateTime time,
-    required ChatController chatController,
-    required int position,
+    int? position,
+    Rx<bool>? isTapMessage,
+    Map<int, List<SelectionData>>? selections,
+    Function(String text)? onCopy,
+    String? Function()? onFormatSelection,
   }) {
+    String date = DateFormat('dd.MM.yy').format(time);
+    String timeRelative = time.toRelative();
+
     return Column(
       children: [
         const SizedBox(height: 7),
@@ -565,12 +573,27 @@ class _ChatViewState extends State<ChatView>
           crossAxisAlignment: CrossAxisAlignment.center,
           swipeable: Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: CustomSelectionText(
-              controller: chatController,
-              type: SelectionItem.date,
-              position: position,
-              animation: _animation,
-              child: Text(DateFormat('dd.MM.yy').format(time)),
+            child: ContextMenuRegion(
+              preventContextMenu: false,
+              menu: ContextMenu(
+                actions: [
+                  ContextMenuButton(
+                    key: const Key('CopyButton'),
+                    label: 'btn_copy_text'.l10n,
+                    onPressed: () => onCopy?.call(
+                      onFormatSelection?.call() ?? date,
+                    ),
+                  ),
+                ],
+              ),
+              child: _wrapSelection(
+                Text(DateFormat('dd.MM.yy').format(time)),
+                SelectionItem.date,
+                isTapMessage,
+                selections,
+                position,
+                _animation,
+              ),
             ),
           ),
           child: Center(
@@ -580,10 +603,28 @@ class _ChatViewState extends State<ChatView>
                 borderRadius: BorderRadius.circular(30),
                 color: Colors.white,
               ),
-              child: SelectionContainer.disabled(
-                child: Text(
-                  time.toRelative(),
-                  style: const TextStyle(color: Color(0xFF888888)),
+              child: ContextMenuRegion(
+                preventContextMenu: false,
+                menu: ContextMenu(
+                  actions: [
+                    ContextMenuButton(
+                      key: const Key('CopyButton'),
+                      label: 'btn_copy_text'.l10n,
+                      onPressed: () => onCopy?.call(
+                        onFormatSelection?.call() ?? timeRelative,
+                      ),
+                    ),
+                  ],
+                ),
+                child: _wrapSelection(
+                  Text(
+                    timeRelative,
+                    style: const TextStyle(color: Color(0xFF888888)),
+                  ),
+                  SelectionItem.relativeTime,
+                  isTapMessage,
+                  selections,
+                  position,
                 ),
               ),
             ),
@@ -1273,6 +1314,32 @@ class _ChatViewState extends State<ChatView>
       }
       c.horizontalScrollTimer.value = null;
     });
+  }
+
+  /// Get [Widget] with selectable text.
+  Widget _wrapSelection(
+    Widget content,
+    SelectionItem? type,
+    Rx<bool>? isTapMessage,
+    Map<int, List<SelectionData>>? selections,
+    int? position, [
+    AnimationController? animation,
+  ]) {
+    if (type != null &&
+        isTapMessage != null &&
+        selections != null &&
+        position != null) {
+      return CustomSelectionText(
+        isTapMessage: isTapMessage,
+        selections: selections,
+        type: type,
+        position: position,
+        animation: animation,
+        child: content,
+      );
+    } else {
+      return content;
+    }
   }
 }
 

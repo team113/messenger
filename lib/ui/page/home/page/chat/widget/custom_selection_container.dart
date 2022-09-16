@@ -20,22 +20,30 @@ import 'package:flutter/rendering.dart';
 
 import '../controller.dart';
 
-/// Creates a selection container to collect the [Selectable]s in the subtree
-/// and write the selected text to the controller.
+/// [CustomSelectionContainer] manages selected text.
+///
+///
+/// Responsible for creating [_SelectableRegionContainerDelegate] and [SelectionData].
+/// Get selected text with [_SelectableRegionContainerDelegate].
+/// Writes selected text to [SelectionData].
 class CustomSelectionContainer extends StatefulWidget {
   const CustomSelectionContainer({
     super.key,
-    required this.controller,
-    required this.selectionData,
+    required this.selections,
+    required this.position,
+    required this.type,
     required this.animation,
     required this.child,
   });
 
-  /// Adding [SelectionData] to [ChatController].
-  final ChatController controller;
+  /// Storage [SelectionData].
+  final Map<int, List<SelectionData>> selections;
 
-  /// Contains selected text.
-  final SelectionData selectionData;
+  /// Message position index.
+  final int position;
+
+  /// Selected text type.
+  final SelectionItem type;
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
@@ -47,27 +55,39 @@ class CustomSelectionContainer extends StatefulWidget {
   State<StatefulWidget> createState() => _CustomSelectionContainerState();
 }
 
+/// State of an [CustomSelectionContainer] controls selected text.
 class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
+  /// Selectable content delegate.
   late final _SelectableRegionContainerDelegate delegate;
+  
+  /// Selectable text storage.
   late final SelectionData selectionData;
-  late final AnimationController? animation;
+
+  /// Time in milliseconds of last click on this object.
   int lastTap = DateTime.now().millisecondsSinceEpoch;
+
+  /// Click counter.
   int consecutiveTaps = 0;
 
   @override
   void initState() {
     super.initState();
     delegate = _SelectableRegionContainerDelegate();
-    selectionData = widget.selectionData;
-    animation = widget.animation;
-    widget.controller.selections.add(selectionData);
     delegate.addListener(_selectionChange);
+
+    selectionData = SelectionData(widget.position, widget.type);
+    if (widget.selections[selectionData.position] == null) {
+      widget.selections[selectionData.position] = [selectionData];
+    } else {
+      widget.selections[selectionData.position]?.add(selectionData);
+    }
+    
   }
 
   @override
   void dispose() {
     selectionData.data.close();
-    widget.controller.selections.remove(selectionData);
+    widget.selections.remove(selectionData.position);
     delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();
@@ -76,20 +96,7 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        int now = DateTime.now().millisecondsSinceEpoch;
-        if (consecutiveTaps == 0 ||
-            now - lastTap <= kDoubleTapTimeout.inMilliseconds) {
-          consecutiveTaps++;
-          if (consecutiveTaps == 3) {
-            delegate.handleSelectAll(const SelectAllSelectionEvent());
-            consecutiveTaps = 0;
-          }
-        } else {
-          consecutiveTaps = 0;
-        }
-        lastTap = now;
-      },
+      onTap: _onTap,
       child: SelectionContainer(
         delegate: delegate,
         child: widget.child,
@@ -97,12 +104,31 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
     );
   }
 
-  /// Getting the selected text in a [delegate].
-  /// Writing data to [selectionData.data] via [RxString] stream.
+  /// Handles tap on [Widget].
+  ///
+  /// Call [SelectAllSelectionEvent] on triple click.
+  void _onTap() {
+    int now = DateTime.now().millisecondsSinceEpoch;
+    if (consecutiveTaps == 0 ||
+        now - lastTap <= kDoubleTapTimeout.inMilliseconds) {
+      consecutiveTaps++;
+      if (consecutiveTaps == 3) {
+        delegate.handleSelectAll(const SelectAllSelectionEvent());
+        consecutiveTaps = 0;
+        lastTap = 0;
+        return;
+      }
+    } else {
+      consecutiveTaps = 0;
+    }
+    lastTap = now;
+  }
+
+  /// Writes data to [selectionData.data].
   void _selectionChange() {
-    if (animation == null || animation?.isCompleted == true) {
-      final String oldText = selectionData.data.value;
-      final String newText = delegate.getSelectedContent()?.plainText ?? '';
+    if (widget.animation == null || widget.animation?.isCompleted == true) {
+      final String? oldText = selectionData.data.value;
+      final String? newText = delegate.getSelectedContent()?.plainText;
       if (oldText != newText) {
         selectionData.data.value = newText;
       }
@@ -110,9 +136,9 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   }
 }
 
-/// The delegate for [SelectionEvent]s sent to selection container.
+/// Delegate for [SelectionEvent]s.
 ///
-/// Taken from the framework of the same name.
+/// Taken from Flutter framework.
 class _SelectableRegionContainerDelegate
     extends MultiSelectableSelectionContainerDelegate {
   final Set<Selectable> _hasReceivedStartEvent = <Selectable>{};
