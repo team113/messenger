@@ -103,11 +103,9 @@ class ChatsTabView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Stack(
               children: [
-                // TODO: Pressing
                 ContactTile(
                   contact: contact,
                   user: user,
-                  onTap: onTap,
                   darken: 0,
                   selected: selected,
                   trailing: [
@@ -134,6 +132,26 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   ],
                 ),
+                Positioned.fill(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: WidgetButton(
+                          onPressed: () =>
+                              router.user(user?.id ?? contact!.user.value!.id),
+                          child: Container(),
+                        ),
+                      ),
+                      WidgetButton(
+                        onPressed: onTap,
+                        child: const SizedBox(
+                          width: 60,
+                          height: double.infinity,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           );
@@ -148,71 +166,97 @@ class ChatsTabView extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: SizedBox(
-              height: 84,
-              child: ContextMenuRegion(
-                key: Key('ContextMenuRegion_${chat.chat.value.id}'),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius,
-                    border: style.cardBorder,
-                    color: Colors.transparent,
-                  ),
-                  child: Material(
-                    type: MaterialType.card,
-                    borderRadius: style.cardRadius,
-                    color: selected
-                        ? const Color(0xFFD7ECFF).withOpacity(0.8)
-                        : style.cardColor,
-                    child: InkWell(
-                      borderRadius: style.cardRadius,
-                      onTap: onTap,
-                      hoverColor: selected
-                          ? const Color(0x00D7ECFF)
-                          : const Color(0xFFD7ECFF).withOpacity(0.8),
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                        child: Row(
-                          children: [
-                            AvatarWidget.fromRxChat(chat, radius: 26),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                chat.title.value,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.headline5,
-                              ),
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: 72,
+                  child: ContextMenuRegion(
+                    key: Key('ContextMenuRegion_${chat.chat.value.id}'),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: style.cardRadius,
+                        border: style.cardBorder,
+                        color: Colors.transparent,
+                      ),
+                      child: Material(
+                        type: MaterialType.card,
+                        borderRadius: style.cardRadius,
+                        color: selected
+                            ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                            : style.cardColor,
+                        child: InkWell(
+                          borderRadius: style.cardRadius,
+                          onTap: onTap,
+                          hoverColor: selected
+                              ? const Color(0x00D7ECFF)
+                              : const Color.fromARGB(255, 244, 249, 255),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                            child: Row(
+                              children: [
+                                AvatarWidget.fromRxChat(chat, radius: 26),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    chat.title.value,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style:
+                                        Theme.of(context).textTheme.headline5,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: selected
+                                        ? const CircleAvatar(
+                                            backgroundColor: Color(0xFF63B4FF),
+                                            radius: 12,
+                                            child: Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 14,
+                                            ),
+                                          )
+                                        : const CircleAvatar(
+                                            backgroundColor: Color(0xFFD7D7D7),
+                                            radius: 12,
+                                          ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(
-                              width: 30,
-                              height: 30,
-                              child: AnimatedSwitcher(
-                                duration: 200.milliseconds,
-                                child: selected
-                                    ? const CircleAvatar(
-                                        backgroundColor: Color(0xFF63B4FF),
-                                        radius: 12,
-                                        child: Icon(
-                                          Icons.check,
-                                          color: Colors.white,
-                                          size: 14,
-                                        ),
-                                      )
-                                    : const CircleAvatar(
-                                        backgroundColor: Color(0xFFD7D7D7),
-                                        radius: 12,
-                                      ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+                Positioned.fill(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: WidgetButton(
+                          onPressed: () => router.user(chat.members.values
+                              .firstWhere((e) => e.id != c.me)
+                              .id),
+                          child: Container(),
+                        ),
+                      ),
+                      WidgetButton(
+                        onPressed: onTap,
+                        child: const SizedBox(
+                          width: 60,
+                          height: double.infinity,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -357,21 +401,37 @@ class ChatsTabView extends StatelessWidget {
                         child: AnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: WidgetButton(
-                            onPressed:
-                                c.searching.value || c.groupCreating.value
-                                    ? null
-                                    : () {
-                                        if (c.groupCreating.isFalse) {
-                                          c.groupCreating.value = true;
-                                          router.navigation.value =
-                                              createGroupButton();
-                                          Future.delayed(
-                                            Duration.zero,
-                                            c.search.focus.requestFocus,
-                                          );
-                                          c.populate();
-                                        }
-                                      },
+                            onPressed: c.searching.value
+                                ? null
+                                : () {
+                                    if (c.groupCreating.value) {
+                                      if (c.selectedChats.isEmpty &&
+                                          c.selectedContacts.isEmpty &&
+                                          c.selectedUsers.isEmpty &&
+                                          c.query.value?.isEmpty != false) {
+                                        c.search.clear();
+                                        c.query.value = null;
+                                        c.searchResults.value = null;
+                                        c.searchStatus.value = RxStatus.empty();
+                                        c.searching.value = false;
+                                        c.groupCreating.value = false;
+                                        router.navigation.value = null;
+                                        c.selectedChats.clear();
+                                        c.selectedUsers.clear();
+                                        c.selectedContacts.clear();
+                                        c.populate();
+                                      }
+                                    } else if (c.groupCreating.isFalse) {
+                                      c.groupCreating.value = true;
+                                      router.navigation.value =
+                                          createGroupButton();
+                                      Future.delayed(
+                                        Duration.zero,
+                                        c.search.focus.requestFocus,
+                                      );
+                                      c.populate();
+                                    }
+                                  },
                             child: c.searching.value
                                 ? SvgLoader.asset(
                                     'assets/icons/search.svg',
@@ -475,6 +535,27 @@ class ChatsTabView extends StatelessWidget {
                   ThemeData theme = Theme.of(context);
                   final TextStyle? thin =
                       theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+                  Style style = Theme.of(context).extension<Style>()!;
+
+                  Widget chip(Widget child) {
+                    return DefaultTextStyle(
+                      style: style.systemMessageTextStyle.copyWith(
+                        fontSize: 11,
+                        color: Colors.black,
+                      ),
+                      maxLines: 1,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                        // margin: const EdgeInsets.only(right: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          // border: style.systemMessageBorder,
+                          color: Colors.white,
+                        ),
+                        child: child,
+                      ),
+                    );
+                  }
 
                   return Column(
                     children: [
@@ -486,7 +567,7 @@ class ChatsTabView extends StatelessWidget {
                                 c.groupCreating.value),
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
-                          height: 15,
+                          height: 30,
                           child: Row(
                             mainAxisAlignment: c.groupCreating.value
                                 ? MainAxisAlignment.start
@@ -497,61 +578,69 @@ class ChatsTabView extends StatelessWidget {
                               WidgetButton(
                                 onPressed: () => c.jumpTo(0),
                                 child: Obx(() {
-                                  return Text(
-                                    c.groupCreating.value ? 'Recent' : 'Chats',
-                                    style: thin?.copyWith(
-                                      fontSize: 15,
-                                      color: c.selected.value == 0
-                                          ? const Color(0xFF63B4FF)
-                                          : null,
+                                  return chip(
+                                    Text(
+                                      'Chats',
+                                      style:
+                                          style.systemMessageTextStyle.copyWith(
+                                        fontSize: 15,
+                                        color: c.selected.value == 0
+                                            ? const Color(0xFF63B4FF)
+                                            : Colors.black,
+                                      ),
                                     ),
                                   );
                                 }),
                               ),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 8),
                               WidgetButton(
                                 onPressed: () => c.jumpTo(1),
                                 child: Obx(() {
-                                  return Text(
-                                    'Contacts',
-                                    style: thin?.copyWith(
-                                      fontSize: 15,
-                                      color: c.selected.value == 1
-                                          ? const Color(0xFF63B4FF)
-                                          : null,
+                                  return chip(
+                                    Text(
+                                      'Contacts',
+                                      style:
+                                          style.systemMessageTextStyle.copyWith(
+                                        fontSize: 15,
+                                        color: c.selected.value == 1
+                                            ? const Color(0xFF63B4FF)
+                                            : Colors.black,
+                                      ),
                                     ),
                                   );
                                 }),
                               ),
-                              const SizedBox(width: 20),
+                              const SizedBox(width: 8),
                               WidgetButton(
                                 onPressed: () => c.jumpTo(2),
                                 child: Obx(() {
-                                  return Text(
+                                  return chip(Text(
                                     'Users',
-                                    style: thin?.copyWith(
+                                    style:
+                                        style.systemMessageTextStyle.copyWith(
                                       fontSize: 15,
                                       color: c.selected.value == 2
                                           ? const Color(0xFF63B4FF)
-                                          : null,
+                                          : Colors.black,
                                     ),
-                                  );
+                                  ));
                                 }),
                               ),
                               if (!c.groupCreating.value) ...[
-                                const SizedBox(width: 20),
+                                const SizedBox(width: 8),
                                 WidgetButton(
                                   onPressed: () => c.jumpTo(2),
                                   child: Obx(() {
-                                    return Text(
+                                    return chip(Text(
                                       'Messages',
-                                      style: thin?.copyWith(
+                                      style:
+                                          style.systemMessageTextStyle.copyWith(
                                         fontSize: 15,
                                         color: c.selected.value == 3
                                             ? const Color(0xFF63B4FF)
-                                            : null,
+                                            : Colors.black,
                                       ),
-                                    );
+                                    ));
                                   }),
                                 ),
                               ] else ...[
@@ -560,18 +649,20 @@ class ChatsTabView extends StatelessWidget {
                                   return Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                        'Selected: ',
-                                        style: thin?.copyWith(fontSize: 15),
-                                      ),
-                                      Container(
+                                      // Text(
+                                      //   'Selected: ',
+                                      //   style: thin?.copyWith(fontSize: 15),
+                                      // ),
+                                      chip(Container(
                                         constraints:
-                                            const BoxConstraints(minWidth: 14),
-                                        child: Text(
-                                          '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
-                                          style: thin?.copyWith(fontSize: 15),
+                                            const BoxConstraints(minWidth: 10),
+                                        child: Center(
+                                          child: Text(
+                                            '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
+                                            style: thin?.copyWith(fontSize: 15),
+                                          ),
                                         ),
-                                      ),
+                                      )),
                                     ],
                                   );
                                 }),

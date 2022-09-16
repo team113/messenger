@@ -254,7 +254,7 @@ class ContactsTabView extends StatelessWidget {
           body: Obx(() {
             Widget? center;
 
-            if (c.query.isNotEmpty != false &&
+            if (c.query.isNotEmpty != true &&
                 c.contacts.isEmpty &&
                 c.allFavorites.isEmpty) {
               center = Center(child: Text('label_no_contacts'.l10n));
@@ -353,68 +353,70 @@ class ContactsTabView extends StatelessWidget {
                 Expanded(
                   child: center ??
                       ContextMenuInterceptor(
-                        child: CustomScrollView(
-                          slivers: [
-                            const SliverPadding(
-                              padding: EdgeInsets.only(top: 10),
-                            ),
-                            if (!isSearching)
-                              SliverReorderableList(
-                                itemBuilder: (context, i) {
-                                  RxChatContact contact =
-                                      c.allFavorites.values.elementAt(i);
-                                  return MyReorderableDelayedDragStartListener(
-                                    key: Key(contact.id.val),
-                                    index: i,
-                                    child: _contact(context, contact, c),
-                                  );
-                                },
-                                itemCount: c.allFavorites.length,
-                                onReorder: (int i, int j) {},
+                        child: Obx(() {
+                          return CustomScrollView(
+                            slivers: [
+                              const SliverPadding(
+                                padding: EdgeInsets.only(top: 10),
                               ),
-                            SliverList(
-                              delegate: SliverChildListDelegate.fixed(
-                                c.favorites.values.mapIndexed((i, e) {
-                                  return _contact(context, e, c);
-                                }).toList(),
+                              if (!isSearching)
+                                SliverReorderableList(
+                                  itemBuilder: (context, i) {
+                                    RxChatContact contact =
+                                        c.allFavorites.values.elementAt(i);
+                                    return MyReorderableDelayedDragStartListener(
+                                      key: Key(contact.id.val),
+                                      index: i,
+                                      child: _contact(context, contact, c),
+                                    );
+                                  },
+                                  itemCount: c.allFavorites.length,
+                                  onReorder: (int i, int j) {},
+                                ),
+                              SliverList(
+                                delegate: SliverChildListDelegate.fixed(
+                                  c.favorites.values.mapIndexed((i, e) {
+                                    return _contact(context, e, c);
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                            SliverList(
-                              delegate: SliverChildListDelegate.fixed(
-                                c.contacts.values.mapIndexed((i, e) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      top: i == 0 && c.allFavorites.isEmpty
-                                          ? 10
-                                          : 0,
-                                    ),
-                                    child: _contact(context, e, c),
-                                  );
-                                }).toList(),
+                              SliverList(
+                                delegate: SliverChildListDelegate.fixed(
+                                  c.contacts.values.mapIndexed((i, e) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        top: i == 0 && c.allFavorites.isEmpty
+                                            ? 10
+                                            : 0,
+                                      ),
+                                      child: _contact(context, e, c),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                            SliverList(
-                              delegate: SliverChildListDelegate.fixed(
-                                c.users.values.mapIndexed((i, e) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      top: i == 0 && c.allFavorites.isEmpty
-                                          ? 10
-                                          : 0,
-                                    ),
-                                    child: tile(
-                                      user: e,
-                                      onTap: () => router.user(e.id),
-                                    ),
-                                  );
-                                }).toList(),
+                              SliverList(
+                                delegate: SliverChildListDelegate.fixed(
+                                  c.users.values.mapIndexed((i, e) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        top: i == 0 && c.allFavorites.isEmpty
+                                            ? 10
+                                            : 0,
+                                      ),
+                                      child: tile(
+                                        user: e,
+                                        onTap: () => router.user(e.id),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                            const SliverPadding(
-                              padding: EdgeInsets.only(top: 10),
-                            ),
-                          ],
-                        ),
+                              const SliverPadding(
+                                padding: EdgeInsets.only(top: 10),
+                              ),
+                            ],
+                          );
+                        }),
                       ),
                 ),
               ],

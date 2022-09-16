@@ -236,7 +236,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
             padding: const EdgeInsets.only(left: 1, right: 1),
             child: SvgLoader.asset(
               'assets/icons/microphone_off_small.svg',
-              height: 12,
+              height: 16.5,
             ),
           ),
         );
@@ -245,8 +245,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
-              'assets/icons/speaker_off.svg',
-              height: 35,
+              'assets/icons/audio_off_small.svg',
+              width: 20.88,
+              height: 17,
               fit: BoxFit.fitWidth,
             ),
           ),
@@ -274,8 +275,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
-              'assets/icons/video_off.svg',
-              height: 35,
+              'assets/icons/video_off_small.svg',
+              width: 19.8,
+              height: 17,
             ),
           ),
         );

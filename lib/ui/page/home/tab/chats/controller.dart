@@ -416,9 +416,49 @@ class ChatsTabController extends GetxController {
           }
 
           return false;
-        }).take(3))
+        }))
           u.chat.value.id: u,
       };
+
+      contacts.value = {
+        for (var u in _contactService.contacts.values.where((e) {
+          if (e.user.value != null && e.contact.value.users.length == 1) {
+            if (query.value != null) {
+              if (e.contact.value.name.val.contains(query.value!) == true) {
+                if (chats.values.firstWhereOrNull(
+                        (c) => c.members.containsKey(e.user.value!.id)) ==
+                    null) {
+                  return true;
+                }
+              }
+            }
+
+            return true;
+          }
+
+          return false;
+        }))
+          u.user.value!.id: u,
+      };
+
+      if (searchResults.value?.isNotEmpty == true) {
+        users.value = {
+          for (var u in searchResults.value!.where((e) {
+            if (!contacts.containsKey(e.id)) {
+              if (chats.values
+                      .firstWhereOrNull((c) => c.members.containsKey(e.id)) ==
+                  null) {
+                return true;
+              }
+            }
+
+            return false;
+          }))
+            u.id: u,
+        };
+      } else {
+        users.value = {};
+      }
 
       return;
     }
