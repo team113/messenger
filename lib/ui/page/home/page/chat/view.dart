@@ -586,6 +586,7 @@ class _ChatViewState extends State<ChatView>
             onResend: () => c.resendItem(e.value),
             onEdit: () => c.editMessage(e.value),
             onDrag: (d) => c.isItemDragged.value = d,
+            onFileTap: c.download,
           ),
         ),
       );
@@ -1386,12 +1387,8 @@ class _ChatViewState extends State<ChatView>
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           style: style.boldBody.copyWith(fontSize: 17),
-                          type: PlatformUtils.isDesktop
-                              ? TextInputType.text
-                              : TextInputType.multiline,
-                          textInputAction: PlatformUtils.isDesktop
-                              ? TextInputAction.send
-                              : TextInputAction.newline,
+                          type: TextInputType.multiline,
+                          textInputAction: TextInputAction.newline,
                         ),
                       ),
                     ),
@@ -1960,9 +1957,9 @@ class _ChatViewState extends State<ChatView>
                     var link = '${Config.url}/files${o.original}';
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(link);
+                      return GalleryItem.image(link, o.filename);
                     }
-                    return GalleryItem.video(link);
+                    return GalleryItem.video(link, o.filename);
                   }).toList(),
                 ),
               );

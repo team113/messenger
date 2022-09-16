@@ -129,6 +129,8 @@ class RouterState extends ChangeNotifier {
   /// Routes history stack.
   RxList<String> routes = RxList([]);
 
+  Rx<Widget?> navigation = Rx(null);
+
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 

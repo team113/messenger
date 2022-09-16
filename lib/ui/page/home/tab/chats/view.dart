@@ -93,16 +93,191 @@ class ChatsTabView extends StatelessWidget {
           );
         }
 
+        Widget selectedTile({
+          RxUser? user,
+          RxChatContact? contact,
+          void Function()? onTap,
+          bool selected = false,
+        }) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Stack(
+              children: [
+                // TODO: Pressing
+                ContactTile(
+                  contact: contact,
+                  user: user,
+                  onTap: onTap,
+                  darken: 0,
+                  selected: selected,
+                  trailing: [
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: AnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: selected
+                            ? const CircleAvatar(
+                                backgroundColor: Color(0xFF63B4FF),
+                                radius: 12,
+                                child: Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              )
+                            : const CircleAvatar(
+                                backgroundColor: Color(0xFFD7D7D7),
+                                radius: 12,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        Widget selectedChat({
+          required RxChat chat,
+          void Function()? onTap,
+          bool selected = false,
+        }) {
+          Style style = Theme.of(context).extension<Style>()!;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: SizedBox(
+              height: 84,
+              child: ContextMenuRegion(
+                key: Key('ContextMenuRegion_${chat.chat.value.id}'),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    border: style.cardBorder,
+                    color: Colors.transparent,
+                  ),
+                  child: Material(
+                    type: MaterialType.card,
+                    borderRadius: style.cardRadius,
+                    color: selected
+                        ? const Color(0xFFD7ECFF).withOpacity(0.8)
+                        : style.cardColor,
+                    child: InkWell(
+                      borderRadius: style.cardRadius,
+                      onTap: onTap,
+                      hoverColor: selected
+                          ? const Color(0x00D7ECFF)
+                          : const Color(0xFFD7ECFF).withOpacity(0.8),
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                        child: Row(
+                          children: [
+                            AvatarWidget.fromRxChat(chat, radius: 26),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                chat.title.value,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: AnimatedSwitcher(
+                                duration: 200.milliseconds,
+                                child: selected
+                                    ? const CircleAvatar(
+                                        backgroundColor: Color(0xFF63B4FF),
+                                        radius: 12,
+                                        child: Icon(
+                                          Icons.check,
+                                          color: Colors.white,
+                                          size: 14,
+                                        ),
+                                      )
+                                    : const CircleAvatar(
+                                        backgroundColor: Color(0xFFD7D7D7),
+                                        radius: 12,
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        Widget createGroupButton() {
+          return Obx(() {
+            Widget child = const SizedBox();
+
+            if (c.groupCreating.value) {
+              bool enabled = (c.selectedContacts.isNotEmpty ||
+                      c.selectedUsers.isNotEmpty ||
+                      c.selectedChats.isNotEmpty) &&
+                  c.creatingStatus.value.isEmpty;
+
+              child = Container(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                child: Container(
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: Color(0x22000000),
+                        blurStyle: BlurStyle.outer,
+                      ),
+                    ],
+                    // borderRadius: style.cardRadius,
+                    // border: style.cardBorder,
+                  ),
+                  child: OutlinedRoundedButton(
+                    key: const Key('AddDialogMembersButton'),
+                    maxWidth: null,
+                    title: Text(
+                      'Create group',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: enabled ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    onPressed: enabled ? c.createGroup : null,
+                    color: enabled ? const Color(0xFF63B4FF) : Colors.white,
+                  ),
+                ),
+              );
+            }
+
+            return AnimatedSwitcher(
+              duration: 250.milliseconds,
+              child: child,
+            );
+          });
+        }
+
         return Stack(
           children: [
             Scaffold(
               // extendBodyBehindAppBar: true,
+              resizeToAvoidBottomInset: false,
               appBar: CustomAppBar.from(
                 context: context,
                 title: Obx(() {
                   Widget child;
 
-                  if (c.searching.value) {
+                  if (c.searching.value || c.groupCreating.value) {
                     Style style = Theme.of(context).extension<Style>()!;
                     child = Theme(
                       data: Theme.of(context).copyWith(
@@ -148,15 +323,18 @@ class ChatsTabView extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: ReactiveTextField(
-                          state: c.search,
-                          hint: 'Search',
-                          maxLines: 1,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.boldBody.copyWith(fontSize: 17),
-                          onChanged: () => c.query.value = c.search.text,
+                        child: Transform.translate(
+                          offset: const Offset(0, 1),
+                          child: ReactiveTextField(
+                            state: c.search,
+                            hint: 'Search',
+                            maxLines: 1,
+                            filled: false,
+                            dense: true,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            style: style.boldBody.copyWith(fontSize: 17),
+                            onChanged: () => c.query.value = c.search.text,
+                          ),
                         ),
                       ),
                     );
@@ -173,21 +351,38 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     child: Obx(() {
-                      return WidgetButton(
-                        onPressed: c.searching.value
-                            ? null
-                            : () {
-                                if (c.searching.isFalse) {
-                                  c.searching.value = true;
-                                  Future.delayed(
-                                    Duration.zero,
-                                    c.search.focus.requestFocus,
-                                  );
-                                }
-                              },
-                        child: SvgLoader.asset(
-                          'assets/icons/search.svg',
-                          width: 17.77,
+                      return SizedBox(
+                        width: 26.36,
+                        height: 18.44,
+                        child: AnimatedSwitcher(
+                          duration: 250.milliseconds,
+                          child: WidgetButton(
+                            onPressed:
+                                c.searching.value || c.groupCreating.value
+                                    ? null
+                                    : () {
+                                        if (c.groupCreating.isFalse) {
+                                          c.groupCreating.value = true;
+                                          router.navigation.value =
+                                              createGroupButton();
+                                          Future.delayed(
+                                            Duration.zero,
+                                            c.search.focus.requestFocus,
+                                          );
+                                          c.populate();
+                                        }
+                                      },
+                            child: c.searching.value
+                                ? SvgLoader.asset(
+                                    'assets/icons/search.svg',
+                                    width: 17.77,
+                                  )
+                                : SvgLoader.asset(
+                                    'assets/icons/create_group.svg',
+                                    width: 26.36,
+                                    height: 18.44,
+                                  ),
+                          ),
                         ),
                       );
                     }),
@@ -199,7 +394,7 @@ class ChatsTabView extends StatelessWidget {
                     child: Obx(() {
                       Widget child;
 
-                      if (c.searching.value) {
+                      if (c.searching.value || c.groupCreating.value) {
                         child = WidgetButton(
                           key: const Key('CloseSearch'),
                           onPressed: () {
@@ -208,6 +403,12 @@ class ChatsTabView extends StatelessWidget {
                             c.searchResults.value = null;
                             c.searchStatus.value = RxStatus.empty();
                             c.searching.value = false;
+                            c.groupCreating.value = false;
+                            router.navigation.value = null;
+                            c.selectedChats.clear();
+                            c.selectedUsers.clear();
+                            c.selectedContacts.clear();
+                            c.populate();
                           },
                           child: SvgLoader.asset(
                             'assets/icons/close_primary.svg',
@@ -216,27 +417,29 @@ class ChatsTabView extends StatelessWidget {
                         );
                       } else {
                         child = WidgetButton(
-                          onPressed: () async {
-                            await ModalPopup.show(
-                              context: context,
-                              child: const CreateGroupView(),
-                              desktopConstraints: const BoxConstraints(
-                                maxWidth: double.infinity,
-                                maxHeight: double.infinity,
-                              ),
-                              modalConstraints:
-                                  const BoxConstraints(maxWidth: 380),
-                              mobileConstraints: const BoxConstraints(
-                                maxWidth: double.infinity,
-                                maxHeight: double.infinity,
-                              ),
-                              mobilePadding: const EdgeInsets.all(0),
-                              desktopPadding: const EdgeInsets.all(0),
-                            );
-                          },
-                          child: SvgLoader.asset(
-                            'assets/icons/group.svg',
-                            height: 18.44,
+                          onPressed: c.searching.value || c.groupCreating.value
+                              ? null
+                              : () {
+                                  if (c.searching.isFalse) {
+                                    c.searching.value = true;
+                                    Future.delayed(
+                                      Duration.zero,
+                                      c.search.focus.requestFocus,
+                                    );
+                                  }
+                                },
+                          child: SizedBox(
+                            width: 26.36,
+                            child: c.groupCreating.value
+                                ? SvgLoader.asset(
+                                    'assets/icons/create_group.svg',
+                                    width: 26.36,
+                                    height: 18.44,
+                                  )
+                                : SvgLoader.asset(
+                                    'assets/icons/search.svg',
+                                    width: 17.77,
+                                  ),
                           ),
                         );
                       }
@@ -278,18 +481,24 @@ class ChatsTabView extends StatelessWidget {
                       AnimatedSizeAndFade.showHide(
                         fadeDuration: 300.milliseconds,
                         sizeDuration: 300.milliseconds,
-                        show: c.searching.value && c.query.isNotEmpty == true,
+                        show:
+                            (c.searching.value && c.query.isNotEmpty == true ||
+                                c.groupCreating.value),
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(2, 12, 2, 2),
                           height: 15,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: c.groupCreating.value
+                                ? MainAxisAlignment.start
+                                : MainAxisAlignment.spaceEvenly,
                             children: [
+                              if (c.groupCreating.value)
+                                const SizedBox(width: 10),
                               WidgetButton(
                                 onPressed: () => c.jumpTo(0),
                                 child: Obx(() {
                                   return Text(
-                                    'Chats',
+                                    c.groupCreating.value ? 'Recent' : 'Chats',
                                     style: thin?.copyWith(
                                       fontSize: 15,
                                       color: c.selected.value == 0
@@ -329,21 +538,45 @@ class ChatsTabView extends StatelessWidget {
                                   );
                                 }),
                               ),
-                              const SizedBox(width: 20),
-                              WidgetButton(
-                                onPressed: () => c.jumpTo(2),
-                                child: Obx(() {
-                                  return Text(
-                                    'Messages',
-                                    style: thin?.copyWith(
-                                      fontSize: 15,
-                                      color: c.selected.value == 3
-                                          ? const Color(0xFF63B4FF)
-                                          : null,
-                                    ),
+                              if (!c.groupCreating.value) ...[
+                                const SizedBox(width: 20),
+                                WidgetButton(
+                                  onPressed: () => c.jumpTo(2),
+                                  child: Obx(() {
+                                    return Text(
+                                      'Messages',
+                                      style: thin?.copyWith(
+                                        fontSize: 15,
+                                        color: c.selected.value == 3
+                                            ? const Color(0xFF63B4FF)
+                                            : null,
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ] else ...[
+                                const Spacer(),
+                                Obx(() {
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Selected: ',
+                                        style: thin?.copyWith(fontSize: 15),
+                                      ),
+                                      Container(
+                                        constraints:
+                                            const BoxConstraints(minWidth: 14),
+                                        child: Text(
+                                          '${c.selectedChats.length + c.selectedUsers.length + c.selectedContacts.length}',
+                                          style: thin?.copyWith(fontSize: 15),
+                                        ),
+                                      ),
+                                    ],
                                   );
                                 }),
-                              ),
+                                const SizedBox(width: 10),
+                              ],
                             ],
                           ),
                         ),
@@ -359,28 +592,59 @@ class ChatsTabView extends StatelessWidget {
 
                                     Widget child = Container();
 
-                                    if (e is RxChat) {
-                                      child = Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 10,
-                                          right: 10,
-                                        ),
-                                        child: buildChatTile(context, c, e),
-                                      );
-                                    } else if (e is RxUser) {
-                                      child = tile(
-                                        user: e,
-                                        onTap: () {
-                                          c.openChat(user: e);
-                                        },
-                                      );
-                                    } else if (e is RxChatContact) {
-                                      child = tile(
-                                        contact: e,
-                                        onTap: () {
-                                          c.openChat(contact: e);
-                                        },
-                                      );
+                                    if (c.groupCreating.value) {
+                                      if (e is RxUser) {
+                                        child = Obx(() {
+                                          return selectedTile(
+                                            user: e,
+                                            selected:
+                                                c.selectedUsers.contains(e),
+                                            onTap: () => c.selectUser(e),
+                                          );
+                                        });
+                                      } else if (e is RxChatContact) {
+                                        child = Obx(() {
+                                          return selectedTile(
+                                            contact: e,
+                                            selected:
+                                                c.selectedContacts.contains(e),
+                                            onTap: () => c.selectContact(e),
+                                          );
+                                        });
+                                      } else if (e is RxChat) {
+                                        child = Obx(() {
+                                          return selectedChat(
+                                            chat: e,
+                                            selected:
+                                                c.selectedChats.contains(e),
+                                            onTap: () => c.selectChat(e),
+                                          );
+                                        });
+                                      }
+                                    } else {
+                                      if (e is RxChat) {
+                                        child = Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 10,
+                                            right: 10,
+                                          ),
+                                          child: buildChatTile(context, c, e),
+                                        );
+                                      } else if (e is RxUser) {
+                                        child = tile(
+                                          user: e,
+                                          onTap: () {
+                                            c.openChat(user: e);
+                                          },
+                                        );
+                                      } else if (e is RxChatContact) {
+                                        child = tile(
+                                          contact: e,
+                                          onTap: () {
+                                            c.openChat(contact: e);
+                                          },
+                                        );
+                                      }
                                     }
 
                                     return Padding(
@@ -569,17 +833,6 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ),
             Flexible(child: Text(desc.toString(), maxLines: 2)),
-            ElasticAnimatedSwitcher(
-              child: item.status.value == SendingStatus.sending
-                  ? const Icon(Icons.access_alarm, size: 15)
-                  : item.status.value == SendingStatus.error
-                      ? const Icon(
-                          Icons.error_outline,
-                          size: 15,
-                          color: Colors.red,
-                        )
-                      : Container(),
-            ),
           ];
         } else if (item is ChatForward) {
           subtitle = [
@@ -602,23 +855,6 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
-            ElasticAnimatedSwitcher(
-              child: item.status.value == SendingStatus.sending
-                  ? const Padding(
-                      padding: EdgeInsets.only(left: 4),
-                      child: Icon(Icons.access_alarm, size: 15),
-                    )
-                  : item.status.value == SendingStatus.error
-                      ? const Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.error_outline,
-                            size: 15,
-                            color: Colors.red,
-                          ),
-                        )
-                      : Container(),
-            ),
           ];
         } else if (item is ChatMemberInfo) {
           Widget content = Text('${item.action}');

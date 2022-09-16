@@ -1045,9 +1045,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 for (var o in attachments) {
                   var link = '${Config.url}/files${o.original}';
                   if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link));
+                    gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link));
+                    gallery.add(GalleryItem.image(link, o.filename));
                   }
                 }
 

@@ -54,7 +54,7 @@ Future<void> main() async {
   await Config.init();
 
   // Initializes and runs the [App].
-  Future<void> _appRunner() async {
+  Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
@@ -90,7 +90,7 @@ Future<void> main() async {
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
   if (Config.sentryDsn.isEmpty || kDebugMode) {
-    return _appRunner();
+    return appRunner();
   }
 
   return SentryFlutter.init(
@@ -121,7 +121,7 @@ Future<void> main() async {
         }
       },
     },
-    appRunner: _appRunner,
+    appRunner: appRunner,
   );
 }
 

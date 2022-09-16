@@ -1095,12 +1095,8 @@ class ChatForwardView extends StatelessWidget {
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           style: style.boldBody.copyWith(fontSize: 17),
-                          type: PlatformUtils.isDesktop
-                              ? TextInputType.text
-                              : TextInputType.multiline,
-                          textInputAction: PlatformUtils.isDesktop
-                              ? TextInputAction.send
-                              : TextInputAction.newline,
+                          type: TextInputType.multiline,
+                          textInputAction: TextInputAction.newline,
                         ),
                       ),
                     ),

@@ -3,7 +3,7 @@ version: 0.1.0-alpha.5
 publish_to: none
 
 environment:
-  flutter: ">=3.0.0"
+  flutter: ">=3.3.0"
   sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
@@ -50,6 +50,7 @@ dependencies:
   hive: ^2.2.3
   http: ^0.13.5
   http_parser: ^4.0.0
+  image_gallery_saver: ^1.7.1
   image_picker:
     git:
       url: https://github.com/krida2000/image_picker.git
@@ -63,6 +64,13 @@ dependencies:
       path: flutter/
   mime: ^1.0.2
   mutex: ^3.0.0
+  # TODO: Switch to pub.dev version when the following pull request is merged
+  #       into it:
+  #       https://github.com/crazecoder/open_file/pull/205
+  open_file:
+    git:
+      url: https://github.com/adaptolearning/open_file
+  path: ^1.8.1
   path_provider: ^2.0.11
   path_provider_android: ^2.0.20
   path_provider_ios: ^2.0.11
@@ -111,7 +119,6 @@ dev_dependencies:
   network_image_mock: ^2.1.1
   sentry_dart_plugin: ^1.0.0-beta.2
   yaml: ^3.1.0
-  auto_size_text: ^3.0.0
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.

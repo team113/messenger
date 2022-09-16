@@ -83,6 +83,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onResend,
     this.onDrag,
+    this.onFileTap,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -137,6 +138,9 @@ class ChatItemWidget extends StatefulWidget {
   final Function(ChatItemId, ChatId)? onForwardedTap;
 
   final Function(bool)? onDrag;
+
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  final Function(FileAttachment)? onFileTap;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -334,7 +338,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return _rounded(
       context,
       Container(
-        alignment: fromMe ? Alignment.centerRight : Alignment.centerLeft,
+        // alignment: fromMe ? Alignment.centerRight : Alignment.centerLeft,
         padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
         child: IntrinsicWidth(
           child: AnimatedContainer(
@@ -755,7 +759,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
               color: fromMe
-                  ? Colors.white.withOpacity(0.25)
+                  ? Colors.white.withOpacity(0.40)
                   : Colors.black.withOpacity(0.03),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -1240,6 +1244,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     bool fromMe = widget.item.value.authorId == widget.me;
     Style style = Theme.of(context).extension<Style>()!;
 
+    Widget leading = Container();
+    if (e is FileAttachment) {
+      switch (e.downloadStatus.value) {
+        case DownloadStatus.downloading:
+          leading = InkWell(
+            onTap: () => widget.onFileTap?.call(e),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.square(
+                  dimension: 28,
+                  child: CircularProgressIndicator(
+                    key: const Key('Downloading'),
+                    value: e.progress.value,
+                  ),
+                ),
+                const Icon(
+                  Icons.clear,
+                  key: Key('CancelDownloading'),
+                  size: 28,
+                ),
+              ],
+            ),
+          );
+          break;
+
+        case DownloadStatus.downloaded:
+          leading = Icon(
+            Icons.file_copy,
+            key: const Key('Downloaded'),
+            color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+            size: 28,
+          );
+          break;
+
+        case DownloadStatus.notDownloaded:
+          leading = Icon(
+            Icons.download,
+            key: const Key('Download'),
+            size: 28,
+            color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+          );
+          break;
+      }
+    }
+
+    leading = KeyedSubtree(key: const Key('Sent'), child: leading);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
       child: WidgetButton(
@@ -1421,9 +1473,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 for (var o in attachments) {
                   var link = '${Config.url}/files${o.original}';
                   if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link));
+                    gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link));
+                    gallery.add(GalleryItem.image(link, o.filename));
                   }
                 }
 

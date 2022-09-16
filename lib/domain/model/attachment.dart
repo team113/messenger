@@ -15,14 +15,19 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
+import '/config.dart';
 import '/util/new_type.dart';
-import 'chat_item.dart';
+import '/util/platform_utils.dart';
 import 'image_gallery_item.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -94,6 +99,96 @@ class FileAttachment extends Attachment {
     required String filename,
     required int size,
   }) : super(id, original, filename, size);
+
+  /// Path to the downloaded [FileAttachment] in the local filesystem.
+  @HiveField(4)
+  String? path;
+
+  /// [DownloadStatus] of this [FileAttachment].
+  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notDownloaded);
+
+  /// Download progress of this [FileAttachment].
+  RxDouble progress = RxDouble(0);
+
+  /// [CancelToken] canceling the download of this [FileAttachment], if any.
+  CancelToken? _token;
+
+  /// Indicates whether this [FileAttachment] is downloading.
+  bool get isDownloading => downloadStatus.value == DownloadStatus.downloading;
+
+  // TODO: Compare hashes.
+  /// Initializes the [downloadStatus].
+  Future<void> init() async {
+    if (path != null) {
+      File file = File(path!);
+      if (await file.exists() && await file.length() == size) {
+        downloadStatus.value = DownloadStatus.downloaded;
+        return;
+      }
+    }
+
+    String downloads = await PlatformUtils.downloadsDirectory;
+    String name = p.basenameWithoutExtension(filename);
+    String ext = p.extension(filename);
+    File file = File('$downloads/$filename');
+
+    for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+      file = File('$downloads/$name ($i)$ext');
+    }
+
+    if (await file.exists()) {
+      downloadStatus.value = DownloadStatus.downloaded;
+      path = file.path;
+    } else {
+      downloadStatus.value = DownloadStatus.notDownloaded;
+      path = null;
+    }
+  }
+
+  /// Downloads this [FileAttachment].
+  Future<void> download() async {
+    try {
+      downloadStatus.value = DownloadStatus.downloading;
+      progress.value = 0;
+
+      _token = CancelToken();
+
+      File? file = await PlatformUtils.download(
+        '${Config.url}/files${original.val}',
+        filename,
+        onReceiveProgress: (count, total) => progress.value = count / total,
+        cancelToken: _token,
+      );
+
+      if (_token?.isCancelled == true || file == null) {
+        downloadStatus.value = DownloadStatus.notDownloaded;
+        path = null;
+      } else {
+        downloadStatus.value = DownloadStatus.downloaded;
+        path = file.path;
+      }
+    } catch (_) {
+      downloadStatus.value = DownloadStatus.notDownloaded;
+      path = null;
+    }
+  }
+
+  /// Opens this [FileAttachment], if downloaded, or otherwise downloads it.
+  Future<void> open() async {
+    if (path != null) {
+      File file = File(path!);
+
+      if (await file.exists() && await file.length() == size) {
+        await OpenFile.open(path!);
+        return;
+      }
+    }
+
+    await download();
+  }
+
+  /// Cancels the downloading of this [FileAttachment].
+  void cancelDownload() => _token?.cancel();
 }
 
 /// Unique ID of an [Attachment].
@@ -132,4 +227,16 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+}
+
+/// Download status of a [FileAttachment].
+enum DownloadStatus {
+  /// Download has not yet started.
+  notDownloaded,
+
+  /// Download is in progress.
+  downloading,
+
+  /// Downloaded successfully.
+  downloaded,
 }

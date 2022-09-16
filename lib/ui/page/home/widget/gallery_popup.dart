@@ -26,11 +26,13 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -41,22 +43,26 @@ import '/util/web/web_utils.dart';
 class GalleryItem {
   const GalleryItem({
     required this.link,
+    required this.name,
     this.isVideo = false,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link) =>
-      GalleryItem(link: link, isVideo: false);
+  factory GalleryItem.image(String link, String name) =>
+      GalleryItem(link: link, name: name, isVideo: false);
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link) =>
-      GalleryItem(link: link, isVideo: true);
+  factory GalleryItem.video(String link, String name) =>
+      GalleryItem(link: link, name: name, isVideo: true);
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
   final String link;
+
+  /// File name of this this [GalleryItem].
+  final String name;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -105,6 +111,7 @@ class GalleryPopup extends StatefulWidget {
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       transitionDuration: Duration.zero,
+      useRootNavigator: PlatformUtils.isMobile ? false : true,
     );
   }
 
@@ -336,67 +343,83 @@ class _GalleryPopupState extends State<GalleryPopup>
   Widget _pageView() {
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      return PhotoViewGallery.builder(
-        scrollPhysics: const BouncingScrollPhysics(),
-        wantKeepAlive: false,
-        builder: (BuildContext context, int index) {
-          GalleryItem e = widget.children[index];
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => _saveToGallery(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => _share(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          wantKeepAlive: false,
+          builder: (BuildContext context, int index) {
+            GalleryItem e = widget.children[index];
 
-          if (!e.isVideo) {
-            return PhotoViewGalleryPageOptions(
-              imageProvider: NetworkImage(e.link),
-              initialScale: PhotoViewComputedScale.contained * 0.99,
-              minScale: PhotoViewComputedScale.contained * 0.99,
+            if (!e.isVideo) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(e.link),
+                initialScale: PhotoViewComputedScale.contained * 0.99,
+                minScale: PhotoViewComputedScale.contained * 0.99,
+                maxScale: PhotoViewComputedScale.contained * 3,
+              );
+            }
+
+            return PhotoViewGalleryPageOptions.customChild(
+              disableGestures: e.isVideo,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? Video(
+                        e.link,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                      )
+                    : Image.network(e.link),
+              ),
+              minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
             );
-          }
-
-          return PhotoViewGalleryPageOptions.customChild(
-            disableGestures: e.isVideo,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: e.isVideo
-                  ? Video(
-                      e.link,
-                      onClose: _dismiss,
-                      isFullscreen: _isFullscreen,
-                      toggleFullscreen: () {
-                        node.requestFocus();
-                        _toggleFullscreen();
-                      },
-                      onController: (c) {
-                        if (c == null) {
-                          _videoControllers.remove(index);
-                        } else {
-                          _videoControllers[index] = c;
-                        }
-                      },
-                    )
-                  : Image.network(e.link),
-            ),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: PhotoViewComputedScale.contained * 3,
-          );
-        },
-        itemCount: widget.children.length,
-        loadingBuilder: (context, event) => Center(
-          child: SizedBox(
-            width: 20.0,
-            height: 20.0,
-            child: CircularProgressIndicator(
-              value: event == null
-                  ? 0
-                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+          },
+          itemCount: widget.children.length,
+          loadingBuilder: (context, event) => Center(
+            child: SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
             ),
           ),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          pageController: _pageController,
+          onPageChanged: (i) {
+            setState(() => _page = i);
+            _bounds = _calculatePosition() ?? _bounds;
+            widget.onPageChanged?.call(i);
+          },
         ),
-        backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-        pageController: _pageController,
-        onPageChanged: (i) {
-          setState(() => _page = i);
-          _bounds = _calculatePosition() ?? _bounds;
-          widget.onPageChanged?.call(i);
-        },
       );
     }
 
@@ -825,9 +848,46 @@ class _GalleryPopupState extends State<GalleryPopup>
       setState(() => _ignorePageSnapping = false);
     });
   }
+
+  /// Downloads the provided [GalleryItem].
+  Future<void> _download(GalleryItem item) async {
+    try {
+      await PlatformUtils.download(item.link, item.name);
+      MessagePopup.success(item.isVideo
+          ? 'label_video_downloaded'.l10n
+          : 'label_image_downloaded'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  Future<void> _saveToGallery(GalleryItem item) async {
+    try {
+      await PlatformUtils.saveToGallery(item.link, item.name);
+      MessagePopup.success(item.isVideo
+          ? 'label_video_saved_to_gallery'.l10n
+          : 'label_image_saved_to_gallery'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and opens a share dialog with it.
+  Future<void> _share(GalleryItem item) async {
+    try {
+      await PlatformUtils.share(item.link, item.name);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
 }
 
+/// Extension of a [GlobalKey] allowing getting global
+/// [RenderObject.paintBounds].
 extension GlobalKeyExtension on GlobalKey {
+  /// Returns a [Rect] representing the [RenderObject.paintBounds] of the
+  /// [Object] this [GlobalKey] represents.
   Rect? get globalPaintBounds {
     final renderObject = currentContext?.findRenderObject();
     final matrix = renderObject?.getTransformTo(null);

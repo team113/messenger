@@ -128,6 +128,7 @@ class _HomeViewState extends State<HomeView> {
                     child: Container(
                       color: const Color(0xFFFFFFFF).withOpacity(0.4),
                       child: Scaffold(
+                        resizeToAvoidBottomInset: false,
                         // backgroundColor: Colors.transparent,
                         body: Listener(
                           onPointerSignal: (s) {
@@ -145,7 +146,8 @@ class _HomeViewState extends State<HomeView> {
                           },
                           child: Obx(
                             () => PageView(
-                              physics: c.verticalScrollTimer.value == null
+                              physics: (c.verticalScrollTimer.value == null ||
+                                      router.navigation.value != null)
                                   ? null
                                   : const NeverScrollableScrollPhysics(),
                               controller: c.pages,
@@ -165,81 +167,92 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         // extendBody: true,
                         bottomNavigationBar: SafeArea(
-                          child: Obx(
-                            () => CustomNavigationBar(
-                              selectedColor: const Color(0xFF63B4FF),
-                              unselectedColor: const Color(0xFF88c6ff),
-                              size: 30,
-                              items: [
-                                CustomNavigationBarItem(
-                                  key: Key('ContactsButton'),
-                                  // icon: FontAwesomeIcons.solidCircleUser,
-                                  // label: 'label_tab_contacts'.l10n,
-                                  leading: Obx(
-                                    () => AnimatedOpacity(
-                                      duration: 150.milliseconds,
-                                      opacity: c.page.value == HomeTab.contacts
-                                          ? 1
-                                          : 0.6,
-                                      child: SvgLoader.asset(
-                                        'assets/icons/contacts_active.svg',
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                CustomNavigationBarItem(
-                                  key: const Key('ChatsButton'),
-                                  // icon: FontAwesomeIcons.solidComment,
-                                  // label: 'label_tab_chats'.l10n,
-                                  badge: c.unreadChatsCount.value == 0
-                                      ? null
-                                      : '${c.unreadChatsCount.value}',
-                                  leading: Obx(
-                                    () => Padding(
-                                      padding: const EdgeInsets.only(top: 0),
-                                      child: AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity: c.page.value == HomeTab.chats
-                                            ? 1
-                                            : 0.6,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/chats_active.svg',
-                                          width: 36.06,
-                                          height: 30,
+                          child: Obx(() {
+                            Widget child = router.navigation.value ??
+                                CustomNavigationBar(
+                                  selectedColor: const Color(0xFF63B4FF),
+                                  unselectedColor: const Color(0xFF88c6ff),
+                                  size: 30,
+                                  items: [
+                                    CustomNavigationBarItem(
+                                      key: const Key('ContactsButton'),
+                                      // icon: FontAwesomeIcons.solidCircleUser,
+                                      // label: 'label_tab_contacts'.l10n,
+                                      leading: Obx(
+                                        () => AnimatedOpacity(
+                                          duration: 150.milliseconds,
+                                          opacity:
+                                              c.page.value == HomeTab.contacts
+                                                  ? 1
+                                                  : 0.6,
+                                          child: SvgLoader.asset(
+                                            'assets/icons/contacts_active.svg',
+                                            width: 30,
+                                            height: 30,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                CustomNavigationBarItem(
-                                  key: const Key('MenuButton'),
-                                  // icon: FontAwesomeIcons.bars,
-                                  leading: Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Obx(
-                                      () => AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity: c.page.value == HomeTab.menu
-                                            ? 1
-                                            : 0.6,
-                                        child: AvatarWidget.fromMyUser(
-                                          c.myUser.value,
-                                          radius: 15,
+                                    CustomNavigationBarItem(
+                                      key: const Key('ChatsButton'),
+                                      // icon: FontAwesomeIcons.solidComment,
+                                      // label: 'label_tab_chats'.l10n,
+                                      badge: c.unreadChatsCount.value == 0
+                                          ? null
+                                          : '${c.unreadChatsCount.value}',
+                                      leading: Obx(
+                                        () => Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 0),
+                                          child: AnimatedOpacity(
+                                            duration: 150.milliseconds,
+                                            opacity:
+                                                c.page.value == HomeTab.chats
+                                                    ? 1
+                                                    : 0.6,
+                                            child: SvgLoader.asset(
+                                              'assets/icons/chats_active.svg',
+                                              width: 36.06,
+                                              height: 30,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  // label: 'label_tab_menu'.l10n,
-                                ),
-                              ],
-                              currentIndex: router.tab.index,
-                              onTap: (i) {
-                                c.pages.jumpToPage(i);
-                              },
-                            ),
-                          ),
+                                    CustomNavigationBarItem(
+                                      key: const Key('MenuButton'),
+                                      // icon: FontAwesomeIcons.bars,
+                                      leading: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 2),
+                                        child: Obx(
+                                          () => AnimatedOpacity(
+                                            duration: 150.milliseconds,
+                                            opacity:
+                                                c.page.value == HomeTab.menu
+                                                    ? 1
+                                                    : 0.6,
+                                            child: AvatarWidget.fromMyUser(
+                                              c.myUser.value,
+                                              radius: 15,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // label: 'label_tab_menu'.l10n,
+                                    ),
+                                  ],
+                                  currentIndex: router.tab.index,
+                                  onTap: (i) {
+                                    c.pages.jumpToPage(i);
+                                  },
+                                );
+
+                            return AnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
+                            );
+                          }),
                         ),
                       ),
                     ),

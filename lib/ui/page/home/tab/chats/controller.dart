@@ -40,7 +40,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show RemoveChatMemberException, HideChatException;
+    show CreateGroupChatException, HideChatException, RemoveChatMemberException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -57,6 +57,8 @@ class ChatsTabController extends GetxController {
     this._contactService,
   );
 
+  final RxBool groupCreating = RxBool(false);
+
   final RxBool searching = RxBool(false);
   late final TextFieldState search;
 
@@ -64,9 +66,15 @@ class ChatsTabController extends GetxController {
   final RxMap<UserId, RxChatContact> contacts = RxMap();
   final RxMap<UserId, RxUser> users = RxMap();
 
+  final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
+  final RxList<RxChat> selectedChats = RxList();
+  final RxList<RxUser> selectedUsers = RxList<RxUser>([]);
+
   final RxnString query = RxnString();
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
+
+  final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> sortedChats;
@@ -113,10 +121,10 @@ class ChatsTabController extends GetxController {
           searchStatus.value = RxStatus.empty();
           query.value = null;
           search.clear();
-          _populate();
+          populate();
         } else {
           searchStatus.value = RxStatus.loading();
-          _populate();
+          populate();
         }
       },
     );
@@ -131,23 +139,25 @@ class ChatsTabController extends GetxController {
           users.clear();
           contacts.clear();
           chats.clear();
-          _populate();
+          populate();
         } else {
           searchStatus.value = RxStatus.loading();
-          _populate();
+          populate();
         }
       },
     );
 
     search.focus.addListener(() {
       if (search.focus.hasFocus == false) {
-        if (search.text.isEmpty) {
-          searching.value = false;
-          query.value = null;
-          search.clear();
-          searchResults.value = null;
-          searchStatus.value = RxStatus.empty();
-          _populate();
+        if (!groupCreating.value) {
+          if (search.text.isEmpty) {
+            searching.value = false;
+            query.value = null;
+            search.clear();
+            searchResults.value = null;
+            searchStatus.value = RxStatus.empty();
+            populate();
+          }
         }
       }
     });
@@ -173,13 +183,13 @@ class ChatsTabController extends GetxController {
           _sortChats();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, _sortChats);
-          _populate();
+          populate();
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           sortedChats.removeWhere((e) => e.chat.value.id == event.key);
-          _populate();
+          populate();
           break;
 
         case OperationKind.updated:
@@ -201,7 +211,7 @@ class ChatsTabController extends GetxController {
       }
     };
 
-    _populate();
+    populate();
 
     super.onInit();
   }
@@ -313,6 +323,66 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Selects or unselects the specified [contact].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact)) {
+      selectedContacts.remove(contact);
+    } else {
+      selectedContacts.add(contact);
+    }
+  }
+
+  void selectUser(RxUser user) {
+    if (selectedUsers.contains(user)) {
+      selectedUsers.remove(user);
+    } else {
+      selectedUsers.add(user);
+    }
+  }
+
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat)) {
+      selectedChats.remove(chat);
+    } else {
+      selectedChats.add(chat);
+    }
+  }
+
+  /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
+  Future<void> createGroup() async {
+    String? groupChatName;
+
+    creatingStatus.value = RxStatus.loading();
+    try {
+      ChatName? chatName;
+      if (groupChatName?.isNotEmpty == true) {
+        chatName = ChatName(groupChatName!);
+      }
+
+      RxChat chat = (await _chatService.createGroupChat(
+        {
+          ...selectedChats.expand((e) => e.members.keys),
+          ...selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...selectedUsers.map((e) => e.id),
+        }.toList(),
+        name: chatName,
+      ));
+
+      // TODO: Do not pop async.
+      router.chat(chat.chat.value.id);
+    } on CreateGroupChatException catch (e) {
+      MessagePopup.error(e);
+    } on FormatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      creatingStatus.value = RxStatus.empty();
+    }
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
@@ -331,7 +401,28 @@ class ChatsTabController extends GetxController {
     });
   }
 
-  void _populate() {
+  void populate() {
+    if (groupCreating.value) {
+      chats.value = {
+        for (var u in _chatService.chats.values.where((e) {
+          if (e.chat.value.isDialog) {
+            if (query.value != null) {
+              if (e.title.value.contains(query.value!) == true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+
+          return false;
+        }).take(3))
+          u.chat.value.id: u,
+      };
+
+      return;
+    }
+
     if (query.value?.isNotEmpty != true) {
       chats.value = {
         for (var c in sortedChats) c.chat.value.id: c,
@@ -391,7 +482,7 @@ class ChatsTabController extends GetxController {
     }
 
     print(
-      '_populate, recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
+      'populate, recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
     );
   }
 
@@ -433,10 +524,10 @@ class ChatsTabController extends GetxController {
         searchStatus.value = result.status.value;
         _searchStatusWorker = ever(result.status, (RxStatus s) {
           searchStatus.value = s;
-          _populate();
+          populate();
         });
 
-        _populate();
+        populate();
 
         searchStatus.value = RxStatus.success();
       }
