@@ -378,21 +378,34 @@ class _GalleryPopupState extends State<GalleryPopup>
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1),
                 child: e.isVideo
-                    ? Video(
-                        e.link,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
+                    ? ContextMenuRegion(
+                        enabled: !PlatformUtils.isWeb,
+                        actions: [
+                          ContextMenuButton(
+                            label: 'btn_download'.l10n,
+                            onPressed: () => _download(widget.children[_page]),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_info'.l10n,
+                            onPressed: () {},
+                          ),
+                        ],
+                        child: Video(
+                          e.link,
+                          onClose: _dismiss,
+                          isFullscreen: _isFullscreen,
+                          toggleFullscreen: () {
+                            node.requestFocus();
+                            _toggleFullscreen();
+                          },
+                          onController: (c) {
+                            if (c == null) {
+                              _videoControllers.remove(index);
+                            } else {
+                              _videoControllers[index] = c;
+                            }
+                          },
+                        ),
                       )
                     : Image.network(e.link),
               ),
