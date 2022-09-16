@@ -55,7 +55,8 @@ All user visible changes to this project will be documented in this file. This p
     - UI not hiding on window focus loses ([#60]).
 - UI:
     - Chat page:
-        - Missing avatars in group creation popup ([#15], [#2]).
+        - Missing avatars in group creation popup ([#15], [#2]);
+        - Send field not supporting multiline on desktop ([#139]).
     - Home page:
         - Horizontal scroll overlapping with vertical ([#42], [#41]).
     - Media panel:
@@ -107,6 +108,7 @@ All user visible changes to this project will be documented in this file. This p
 [#112]: /../../pull/112
 [#115]: /../../pull/115
 [#117]: /../../pull/117
+[#139]: /../../pull/139
 
 
 
