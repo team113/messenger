@@ -474,11 +474,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                       enabled: !PlatformUtils.isWeb,
                       actions: [
                         ContextMenuButton(
-                          label: 'Download',
-                          onPressed: () {},
+                          label: 'btn_download'.l10n,
+                          onPressed: () => _download(widget.children[_page]),
                         ),
                         ContextMenuButton(
-                          label: 'Info',
+                          label: 'btn_info'.l10n,
                           onPressed: () {},
                         ),
                       ],

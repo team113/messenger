@@ -554,29 +554,28 @@ class HiveRxChat implements RxChat {
           messages.removeAt(i);
         }
       } else {
-        if (i == -1) {
-          Rx<ChatItem> message = Rx<ChatItem>(event.value.value);
-
-          messages.insertAfter(
-            message,
-            (e) => message.value.at.compareTo(e.value.at) == 1,
-          );
-
-          if (!PlatformUtils.isWeb) {
-            ChatItem item = message.value;
-            if (item is ChatMessage) {
-              for (var a in item.attachments.whereType<FileAttachment>()) {
+        if (!PlatformUtils.isWeb) {
+          ChatItem item = event.value.value;
+          if (item is ChatMessage) {
+            for (var a in item.attachments.whereType<FileAttachment>()) {
+              a.init();
+            }
+          } else if (item is ChatForward) {
+            ChatItem nested = item.item;
+            if (nested is ChatMessage) {
+              for (var a in nested.attachments.whereType<FileAttachment>()) {
                 a.init();
-              }
-            } else if (item is ChatForward) {
-              ChatItem nested = item.item;
-              if (nested is ChatMessage) {
-                for (var a in nested.attachments.whereType<FileAttachment>()) {
-                  a.init();
-                }
               }
             }
           }
+        }
+
+        if (i == -1) {
+          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
+          messages.insertAfter(
+            item,
+            (e) => item.value.at.compareTo(e.value.at) == 1,
+          );
         } else {
           messages[i].value = event.value.value;
           messages[i].refresh();

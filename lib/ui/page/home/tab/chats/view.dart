@@ -352,7 +352,7 @@ class ChatsTabView extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     child: Obx(() {
                       return SizedBox(
-                        width: 26.36,
+                        width: 21.77,
                         height: 18.44,
                         child: AnimatedSwitcher(
                           duration: 250.milliseconds,
@@ -378,8 +378,8 @@ class ChatsTabView extends StatelessWidget {
                                     width: 17.77,
                                   )
                                 : SvgLoader.asset(
-                                    'assets/icons/create_group.svg',
-                                    width: 26.36,
+                                    'assets/icons/group.svg',
+                                    width: 21.77,
                                     height: 18.44,
                                   ),
                           ),
@@ -429,11 +429,11 @@ class ChatsTabView extends StatelessWidget {
                                   }
                                 },
                           child: SizedBox(
-                            width: 26.36,
+                            width: 21.77,
                             child: c.groupCreating.value
                                 ? SvgLoader.asset(
-                                    'assets/icons/create_group.svg',
-                                    width: 26.36,
+                                    'assets/icons/group.svg',
+                                    width: 21.77,
                                     height: 18.44,
                                   )
                                 : SvgLoader.asset(
