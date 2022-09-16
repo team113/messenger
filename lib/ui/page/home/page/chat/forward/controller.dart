@@ -18,7 +18,8 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
@@ -126,6 +127,34 @@ class ChatForwardController extends GetxController {
           s.unsubmit();
         }
       },
+      focus: FocusNode(
+        onKey: (FocusNode node, RawKeyEvent e) {
+          if (e.logicalKey == LogicalKeyboardKey.enter &&
+              e is RawKeyDownEvent) {
+            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+              int cursor;
+
+              if (send.controller.selection.isCollapsed) {
+                cursor = send.controller.selection.base.offset;
+                send.text =
+                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+              } else {
+                cursor = send.controller.selection.start;
+                send.text =
+                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+              }
+
+              send.controller.selection =
+                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
+            } else if (!e.isShiftPressed) {
+              send.submit();
+              return KeyEventResult.handled;
+            }
+          }
+
+          return KeyEventResult.ignored;
+        },
+      ),
     );
 
     super.onInit();
