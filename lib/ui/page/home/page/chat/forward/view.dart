@@ -587,10 +587,8 @@ class ChatForwardView extends StatelessWidget {
                     minLines: 1,
                     maxLines: 6,
                     style: const TextStyle(fontSize: 17),
-                    type: PlatformUtils.isDesktop
-                        ? TextInputType.text
-                        : TextInputType.multiline,
-                    textInputAction: TextInputAction.send,
+                    type: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
                   ),
                 ),
               ),
