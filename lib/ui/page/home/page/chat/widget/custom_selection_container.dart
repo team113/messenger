@@ -59,7 +59,7 @@ class CustomSelectionContainer extends StatefulWidget {
 class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   /// Selectable content delegate.
   late final _SelectableRegionContainerDelegate delegate;
-  
+
   /// Selectable text storage.
   late final SelectionData selectionData;
 
@@ -81,7 +81,6 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
     } else {
       widget.selections[selectionData.position]?.add(selectionData);
     }
-    
   }
 
   @override
@@ -141,10 +140,16 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
 /// Taken from Flutter framework.
 class _SelectableRegionContainerDelegate
     extends MultiSelectableSelectionContainerDelegate {
+  /// Storage of [Selectable]s on [SelectionEventType.startEdgeUpdate].
   final Set<Selectable> _hasReceivedStartEvent = <Selectable>{};
+
+  /// Storage of [Selectable]s on [SelectionEventType.endEdgeUpdate].
   final Set<Selectable> _hasReceivedEndEvent = <Selectable>{};
 
+  /// Global position of start of selection.
   Offset? _lastStartEdgeUpdateGlobalPosition;
+
+  /// Global position of end of selection.
   Offset? _lastEndEdgeUpdateGlobalPosition;
 
   @override
