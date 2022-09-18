@@ -56,6 +56,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.sideBarWidth] value.
   Future<void> setSideBarWidth(double width);
 
-  /// Sets the [ApplicationSettings.background] value.
+  /// Sets the [AbstractSettingsRepository.background] value.
   Future<void> setBackground(Uint8List? bytes);
 }
