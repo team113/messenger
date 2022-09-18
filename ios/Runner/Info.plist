@@ -51,7 +51,7 @@
   <key>UIViewControllerBasedStatusBarAppearance</key>
   <false/>
   <key>NSPhotoLibraryUsageDescription</key>
-  <string>We need access to your photos to upload them</string>
+  <string>We need access to your photos to save and upload them</string>
   <key>NSCameraUsageDescription</key>
   <string>We need access to your camera to take photos/videos</string>
   <key>NSMicrophoneUsageDescription</key>

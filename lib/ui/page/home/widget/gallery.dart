@@ -91,8 +91,12 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   initial: widget.index,
                   initialKey: _galleryKey,
                   children: (widget.items ?? [])
-                      .map((e) =>
-                          GalleryItem.image('${Config.url}/files${e.original}'))
+                      .map(
+                        (e) => GalleryItem.image(
+                          '${Config.url}/files${e.original}',
+                          'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.original.val.split('.').last}',
+                        ),
+                      )
                       .toList(),
                   onPageChanged: (i) => _controller.jumpToPage(i),
                 ),

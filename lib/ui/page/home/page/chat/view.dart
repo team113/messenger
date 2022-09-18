@@ -25,8 +25,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -41,6 +39,8 @@ import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -312,6 +312,7 @@ class _ChatViewState extends State<ChatView>
                                                 c.editMessage(e.value),
                                             onFormatSelection:
                                                 c.formatSelection,
+                                            onFileTap: c.download,
                                           ),
                                         ),
                                       );
@@ -826,12 +827,8 @@ class _ChatViewState extends State<ChatView>
                   minLines: 1,
                   maxLines: 6,
                   style: const TextStyle(fontSize: 17),
-                  type: PlatformUtils.isDesktop
-                      ? TextInputType.text
-                      : TextInputType.multiline,
-                  textInputAction: PlatformUtils.isDesktop
-                      ? TextInputAction.send
-                      : TextInputAction.newline,
+                  type: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                 ),
               ),
             ),
