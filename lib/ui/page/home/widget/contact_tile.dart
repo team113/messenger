@@ -43,6 +43,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.subtitle = const [],
     this.preventContextMenu = false,
+    this.margin = const EdgeInsets.symmetric(vertical: 4),
   }) : super(key: key);
 
   final RxChatContact? contact;
@@ -62,6 +63,7 @@ class ContactTile extends StatelessWidget {
 
   final bool preventContextMenu;
   final List<ContextMenuButton>? actions;
+  final EdgeInsets margin;
 
   final List<Widget> subtitle;
 
@@ -70,7 +72,7 @@ class ContactTile extends StatelessWidget {
     Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      margin: margin,
       height: 72,
       child: ContextMenuRegion(
         key: contact != null || user != null

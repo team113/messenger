@@ -100,7 +100,7 @@ class ChatsTabView extends StatelessWidget {
           bool selected = false,
         }) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
             child: Stack(
               children: [
                 ContactTile(
@@ -108,6 +108,7 @@ class ChatsTabView extends StatelessWidget {
                   user: user,
                   darken: 0,
                   selected: selected,
+                  margin: const EdgeInsets.symmetric(vertical: 0),
                   trailing: [
                     SizedBox(
                       width: 30,
@@ -163,9 +164,8 @@ class ChatsTabView extends StatelessWidget {
           bool selected = false,
         }) {
           Style style = Theme.of(context).extension<Style>()!;
-
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
             child: Stack(
               children: [
                 SizedBox(

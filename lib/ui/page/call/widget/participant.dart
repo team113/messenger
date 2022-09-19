@@ -233,7 +233,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       if (isMuted) {
         additionally.add(
           Padding(
-            padding: const EdgeInsets.only(left: 1, right: 1),
+            padding: const EdgeInsets.only(left: 2, right: 2),
             child: SvgLoader.asset(
               'assets/icons/microphone_off_small.svg',
               height: 16.5,

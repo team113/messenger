@@ -146,8 +146,8 @@ class _HomeViewState extends State<HomeView> {
                           },
                           child: Obx(
                             () => PageView(
-                              physics: (c.verticalScrollTimer.value == null ||
-                                      router.navigation.value != null)
+                              physics: (c.verticalScrollTimer.value == null &&
+                                      router.navigation.value == null)
                                   ? null
                                   : const NeverScrollableScrollPhysics(),
                               controller: c.pages,
