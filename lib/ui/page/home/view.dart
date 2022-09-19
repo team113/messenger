@@ -216,6 +216,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 Obx(() {
                   double width = c.sideBarWidth.value;
+
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isMobile ? 0 : width),

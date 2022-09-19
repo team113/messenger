@@ -148,44 +148,7 @@ class FadeAnimationPage extends Page {
   Route createRoute(BuildContext context) {
     return CustomPageRouteBuilder(
       settings: this,
-      pageBuilder: (_, Animation<double> animation,
-          Animation<double> secondaryAnimation) {
-        Animation<double> opacityClosing = Tween<double>(
-          begin: 1,
-          end: 0,
-        ).animate(
-          CurvedAnimation(
-            parent: secondaryAnimation,
-            curve: const Interval(
-              0,
-              0.05,
-              curve: Curves.easeIn,
-            ),
-          ),
-        );
-
-        Animation<double> opacityAppearing = Tween<double>(
-          begin: 0,
-          end: 1,
-        ).animate(
-          CurvedAnimation(
-            parent: animation,
-            curve: const Interval(
-              0,
-              1,
-              curve: Curves.easeIn,
-            ),
-          ),
-        );
-
-        return FadeTransition(
-          opacity: opacityClosing,
-          child: FadeTransition(
-            opacity: opacityAppearing,
-            child: child,
-          ),
-        );
-      },
+      pageBuilder: (_, __, ___) => child,
     );
   }
 }
@@ -217,21 +180,30 @@ class CustomPageRouteBuilder<T> extends PageRoute<T> {
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return pageBuilder(context, animation, secondaryAnimation);
-  }
+          Animation<double> secondaryAnimation) =>
+      pageBuilder(context, animation, secondaryAnimation);
 
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
-    return matchingBuilder.buildTransitions<T>(
-      this,
-      context,
-      animation,
-      secondaryAnimation,
-      child,
-    );
-  }
+          Animation<double> secondaryAnimation, Widget child) =>
+      ClipRect(
+        child: FadeTransition(
+          opacity: animation,
+          child: FadeTransition(
+            opacity: Tween<double>(
+              begin: 1,
+              end: 0,
+            ).animate(secondaryAnimation),
+            child: matchingBuilder.buildTransitions(
+              this,
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ),
+          ),
+        ),
+      );
 }
 
 /// View of the [Routes.home] page of the nested navigation.
