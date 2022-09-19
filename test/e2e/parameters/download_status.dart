@@ -22,20 +22,20 @@ class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
   DownloadStatusParameter()
       : super(
           'downloadStatus',
-          RegExp(
-            '(not downloaded|downloading|downloaded)',
-            caseSensitive: true,
-          ),
+          RegExp('(not downloaded|downloading|downloaded)'),
           (c) {
             switch (c) {
               case 'not downloaded':
                 return DownloadStatus.notStarted;
+
               case 'downloading':
                 return DownloadStatus.inProgress;
+
               case 'downloaded':
                 return DownloadStatus.isFinished;
             }
-            return null;
+
+            throw ArgumentError.value(c);
           },
         );
 }
