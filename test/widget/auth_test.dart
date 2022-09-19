@@ -134,7 +134,6 @@ void main() async {
     await tester.runAsync(() {
       return Future.delayed(const Duration(seconds: 2));
     });
-    await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.pump(const Duration(seconds: 5));
     final homeView = find.byType(HomeView);
     expect(homeView, findsOneWidget);
