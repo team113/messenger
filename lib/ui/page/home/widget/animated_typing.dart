@@ -14,11 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedTyping extends StatefulWidget {

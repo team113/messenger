@@ -524,11 +524,9 @@ class HiveRxChat implements RxChat {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
-      var i = messages.indexWhere((e) => e.value.timestamp == event.key);
+      int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
-        if (i != -1) {
-          messages.removeAt(i);
-        }
+        messages.removeAt(i);
       } else {
         if (i == -1) {
           Rx<ChatItem> item = Rx<ChatItem>(event.value.value);

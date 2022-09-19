@@ -19,7 +19,6 @@ import 'dart:collection';
 
 import 'package:get/get.dart';
 
-import '../../../../../util/web/web_utils.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -39,6 +38,7 @@ import '/provider/gql/exceptions.dart'
     show RemoveChatMemberException, HideChatException;
 import '/routes.dart';
 import '/util/message_popup.dart';
+import '/util/web/web_utils.dart';
 import '/util/obs/obs.dart';
 
 export 'view.dart';
@@ -123,9 +123,11 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
+  /// Indicates whether call is active in the [Chat] identified by the provided [id].
   bool isInCall(ChatId id) =>
       _callService.calls[id] != null || WebUtils.containsCall(id);
-      
+
+  /// Drops the call in the [Chat] identified by the provided [id].
   Future<void> dropCall(ChatId id) => _callService.drop(id);
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]

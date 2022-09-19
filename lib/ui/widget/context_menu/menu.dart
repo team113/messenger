@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -83,16 +84,19 @@ class ContextMenu extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xE6FFFFFF),
-            borderRadius: borderRadius,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              color: const Color(0xAAFFFFFF),
+              borderRadius: borderRadius,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            ),
           ),
         ),
       ),
@@ -140,26 +144,34 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           width: double.infinity,
+          height: 50,
           decoration: BoxDecoration(
-            color: isMouseOver ? const Color(0x22000000) : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            color: isMouseOver
+                ? const Color.fromARGB(255, 229, 231, 233)
+                : Colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.leading != null) ...[
-                widget.leading!,
-                const SizedBox(width: 10),
-              ],
-              Text(
-                widget.label,
-                style: context.theme.outlinedButtonTheme.style!.textStyle!
-                    .resolve({MaterialState.disabled})!.copyWith(
-                        color: Colors.black),
+              Expanded(
+                child: Text(
+                  widget.label,
+                  style: context.theme.outlinedButtonTheme.style!.textStyle!
+                      .resolve({MaterialState.disabled})!.copyWith(
+                          color: Colors.black),
+                ),
               ),
-              const Spacer(),
+              if (widget.leading != null) ...[
+                const SizedBox(width: 14),
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+              ],
             ],
           ),
         ),

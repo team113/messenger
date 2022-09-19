@@ -27,7 +27,7 @@ class Themes {
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
-          background: Colors.white,
+          background: const Color(0xFFF5F8FA),
           onBackground: Colors.black,
         );
 
@@ -92,27 +92,69 @@ class Themes {
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
         textTheme: GoogleFonts.robotoTextTheme().copyWith(
+          headline1: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 24,
+          ),
+          headline2: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 15.4,
+          ),
           headline3: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 18,
           ),
-          headline4: TextStyle(color: colors.primary, fontSize: 24),
-          headline5: TextStyle(
-            color: colors.primary,
-            fontWeight: FontWeight.w400,
-            fontSize: 20,
+          headline4: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 18,
           ),
-          caption: const TextStyle(
+          headline5: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+            fontSize: 18,
+          ),
+          headline6: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          caption: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.w300,
+            fontSize: 13,
+          ),
+          button: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w300,
+            fontSize: 24 * 0.7,
+          ),
+          overline: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
             fontSize: 17,
           ),
-          subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
+          subtitle1: const TextStyle(
+            color: Colors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          subtitle2: TextStyle(
+            color: colors.primary,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
           bodyText1: const TextStyle(
             color: Colors.black,
             fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
+          bodyText2: const TextStyle(
+            color: Colors.black,
+            fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
         ),

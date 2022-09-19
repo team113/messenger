@@ -21,30 +21,29 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
+import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../../../../../api/backend/schema.dart';
-import '../../../../../themes.dart';
-import '../../../../widget/svg/svg.dart';
-import '../../../../widget/widget_button.dart';
-import '../../../call/widget/conditional_backdrop.dart';
-import '../../widget/animated_typing.dart';
-import '../../widget/app_bar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/call/widget/animated_dots.dart';
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
+import '/ui/page/home/widget/custom_app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 import 'widget/hovered_ink.dart';
 
@@ -59,8 +58,8 @@ class ChatsTabView extends StatelessWidget {
       init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (ChatsTabController c) {
         return Scaffold(
-          appBar: CustomAppBar.from(
-            context: context,
+          extendBodyBehindAppBar: true,
+          appBar: CustomAppBar(
             title: Text('label_chats'.l10n),
             leading: [
               Padding(
@@ -69,9 +68,7 @@ class ChatsTabView extends StatelessWidget {
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () {
-                    // TODO: Implement ModalPopup SearchView.
-                  },
+                  onPressed: () async {},
                   icon: SvgLoader.asset(
                     'assets/icons/search.svg',
                     width: 17.77,
@@ -81,14 +78,12 @@ class ChatsTabView extends StatelessWidget {
             ],
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () {
-                    // TODO: Implement ModalPopup CreateGroupView.
-                  },
+                  onPressed: () async {},
                   icon: SvgLoader.asset(
                     'assets/icons/group.svg',
                     height: 18.44,
@@ -103,7 +98,8 @@ class ChatsTabView extends StatelessWidget {
                 return Center(child: Text('label_no_chats'.l10n));
               }
 
-              var metrics = MediaQuery.of(context);
+              MediaQueryData metrics = MediaQuery.of(context);
+
               return MediaQuery(
                 data: metrics.copyWith(
                   padding: metrics.padding.copyWith(
@@ -119,7 +115,8 @@ class ChatsTabView extends StatelessWidget {
                         controller: ScrollController(),
                         itemCount: c.chats.length,
                         itemBuilder: (BuildContext context, int i) {
-                          var e = c.chats[i];
+                          RxChat e = c.chats[i];
+                          
                           return AnimationConfiguration.staggeredList(
                             position: i,
                             duration: const Duration(milliseconds: 375),
@@ -159,7 +156,6 @@ class ChatsTabView extends StatelessWidget {
   ) {
     return Obx(() {
       Chat chat = rxChat.chat.value;
-
       ChatItem? item;
       if (rxChat.messages.isNotEmpty) {
         item = rxChat.messages.last.value;
@@ -173,7 +169,6 @@ class ChatsTabView extends StatelessWidget {
           .where((e) => e.id != c.me)
           .map((e) => e.name?.val ?? e.num.val);
 
-      // if (chat.currentCall == null) {
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
           subtitle = [
@@ -181,7 +176,7 @@ class ChatsTabView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'Печатает'.l10n,
+                  'label_typing'.l10n,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                   ),
@@ -230,13 +225,6 @@ class ChatsTabView extends StatelessWidget {
                 child: Icon(Icons.call, size: 16, color: subtitleColor),
               ),
               Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              //   child: ElevatedButton(
-              //     onPressed: () => c.joinCall(chat.id),
-              //     child: Text('btn_chat_join_call'.l10n),
-              //   ),
-              // ),
             ];
           } else {
             description =
@@ -360,117 +348,8 @@ class ChatsTabView extends StatelessWidget {
           ];
         }
       }
-      /*  } else {
 
-
-        final TextStyle? thin = Theme.of(context)
-            .textTheme
-            .bodyText1
-            ?.copyWith(color: Colors.black);
-
-        subtitle = [
-          // Expanded(
-          //   child: OutlinedRoundedButton(
-          //     maxWidth: null,
-          //     title: Text(
-          //       'btn_join_call'.l10n,
-          //       style: thin?.copyWith(color: Colors.white),
-          //     ),
-          //     height: 27,
-          //     borderRadius: BorderRadius.circular(30),
-          //     onPressed: () => c.joinCall(chat.id),
-          //     color: const Color(0xFF63B4FF),
-          //   ),
-          // ),
-          // const Expanded(
-          //   child: Text(
-          //     'Присоединиться',
-          //     style: TextStyle(
-          //       color: Color(0xFF63B4FF),
-          //     ),
-          //   ),
-          // ),
-          // const SizedBox(width: 6),
-          // _circleButton(
-          //   onPressed: () => c.joinCall(chat.id, withVideo: true),
-          //   child: SvgLoader.asset(
-          //     'assets/icons/chat_video_call_white.svg',
-          //     width: 27.72,
-          //     height: 19,
-          //   ),
-          // ),
-          // const SizedBox(width: 12),
-          // _circleButton(
-          //   onPressed: () => c.joinCall(chat.id),
-          //   child: SvgLoader.asset(
-          //     'assets/icons/chat_audio_call_white.svg',
-          //     width: 21,
-          //     height: 21,
-          //   ),
-          // ),
-          if (chat.unreadCount != 0) const SizedBox(width: 12),
-          // Expanded(
-          //   child: OutlinedRoundedButton(
-          //     height: 35,
-          //     color: const Color(0xFF63B4FF),
-          //     onPressed: () => c.joinCall(chat.id),
-          //     title: SvgLoader.asset(
-          //       'assets/icons/chat_audio_call_white.svg',
-          //       width: 21,
-          //       height: 21,
-          //     ),
-          //   ),
-          // ),
-          // const SizedBox(width: 6),
-          // Expanded(
-          //   child: OutlinedRoundedButton(
-          //     height: 35,
-          //     color: const Color(0xFF63B4FF),
-          //     onPressed: () => c.joinCall(chat.id, withVideo: true),
-          //     title: SvgLoader.asset(
-          //       'assets/icons/chat_video_call_white.svg',
-          //       width: 27.72,
-          //       height: 19,
-          //     ),
-          //   ),
-          // ),
-          // if (chat.unreadCount != 0) const SizedBox(width: 6),
-        ];
-        // subtitle = [
-        //   Flexible(
-        //     child: Padding(
-        //       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        //       child: ElevatedButton(
-        //         onPressed: () => c.joinCall(chat.id),
-        //         child: Row(
-        //           mainAxisSize: MainAxisSize.min,
-        //           children: [
-        //             const Icon(Icons.call, size: 21, color: Colors.white),
-        //             const SizedBox(width: 5),
-        //             Flexible(
-        //               child: Text(
-        // 'btn_join_call'.l10n,
-        // maxLines: 1,
-        // overflow: TextOverflow.ellipsis,
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        //   Padding(
-        //     padding: const EdgeInsets.fromLTRB(10, 4, 0, 4),
-        //     child: ElevatedButton(
-        //       onPressed: () => c.joinCall(chat.id, withVideo: true),
-        //       child:
-        //           const Icon(Icons.video_call, size: 22, color: Colors.white),
-        //     ),
-        //   ),
-        // ];
-      }*/
-
-      Widget _circleButton({
+      Widget circleButton({
         Key? key,
         void Function()? onPressed,
         Color? color,
@@ -540,7 +419,6 @@ class ChatsTabView extends StatelessWidget {
               borderRadius: style.cardRadius,
               onTap: () => router.chat(chat.id),
               unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
-              // unselectedHoverColor: const Color.fromRGBO(230, 241, 254, 1),
               selectedHoverColor: const Color.fromRGBO(210, 227, 249, 1),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
@@ -566,7 +444,6 @@ class ChatsTabView extends StatelessWidget {
                               if (chat.currentCall == null)
                                 Text(
                                   chat.currentCall == null ? '10:10' : '32:02',
-                                  // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .subtitle2
@@ -619,7 +496,7 @@ class ChatsTabView extends StatelessWidget {
                         key: const Key('ActiveCallButton'),
                         duration: 300.milliseconds,
                         child: c.isInCall(chat.id)
-                            ? _circleButton(
+                            ? circleButton(
                                 key: const Key('Drop'),
                                 onPressed: () => c.dropCall(chat.id),
                                 color: Colors.red,
@@ -629,7 +506,7 @@ class ChatsTabView extends StatelessWidget {
                                   height: 38,
                                 ),
                               )
-                            : _circleButton(
+                            : circleButton(
                                 key: const Key('Join'),
                                 onPressed: () => c.joinCall(chat.id),
                                 child: SvgLoader.asset(
