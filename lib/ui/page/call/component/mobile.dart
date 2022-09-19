@@ -848,6 +848,8 @@ Widget _primaryView(CallController c, BuildContext context) {
                             muted: muted,
                             hovered: isHovered,
                             preferBackdrop: !c.minimized.value,
+                            onEnableVideo: () =>
+                                c.toggleVideoEnabled(participant),
                           ),
                   ),
                 );
@@ -1081,6 +1083,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             muted: muted,
                             hovered: isHovered,
                             preferBackdrop: !c.minimized.value,
+                            onEnableVideo: () =>
+                                c.toggleVideoEnabled(participant),
                           ),
                   ),
                 );

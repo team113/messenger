@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '../controller.dart';
 import '/domain/model/ongoing_call.dart';
@@ -190,6 +191,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
+    this.onEnableVideo,
+    this.onEnableAudio,
   }) : super(key: key);
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
@@ -207,6 +210,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
   /// Indicator whether [ConditionalBackdropFilter] should be enabled.
   final bool preferBackdrop;
 
+  final void Function()? onEnableVideo;
+  final void Function()? onEnableAudio;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -222,15 +228,29 @@ class ParticipantOverlayWidget extends StatelessWidget {
           (participant.video.value?.direction.value.isEmitting ?? false) &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      bool isAudioDisabled = !isMuted &&
-          participant.audio.value != null &&
+      bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
           participant.source != MediaSourceKind.Display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       List<Widget> additionally = [];
 
-      if (isMuted) {
+      if (isAudioDisabled) {
+        additionally.add(
+          WidgetButton(
+            onPressed: onEnableAudio,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 3, right: 3),
+              child: SvgLoader.asset(
+                'assets/icons/audio_off_small.svg',
+                width: 20.88,
+                height: 17,
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+        );
+      } else if (isMuted) {
         additionally.add(
           Padding(
             padding: const EdgeInsets.only(left: 2, right: 2),
@@ -240,44 +260,48 @@ class ParticipantOverlayWidget extends StatelessWidget {
             ),
           ),
         );
-      } else if (isAudioDisabled) {
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/audio_off_small.svg',
-              width: 20.88,
-              height: 17,
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-        );
       }
 
       if (participant.source == MediaSourceKind.Display) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/screen_share_small.svg',
-              height: 12,
+
+        if (isVideoDisabled) {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          additionally.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 4),
+              child: SvgLoader.asset(
+                'assets/icons/screen_share_small.svg',
+                height: 12,
+              ),
+            ),
+          );
+        }
       } else if (isVideoDisabled) {
         if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 3));
+          additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgLoader.asset(
-              'assets/icons/video_off_small.svg',
-              width: 19.8,
-              height: 17,
+          WidgetButton(
+            onPressed: onEnableVideo,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5, right: 5),
+              child: SvgLoader.asset(
+                'assets/icons/video_off_small.svg',
+                width: 19.8,
+                height: 17,
+              ),
             ),
           ),
         );
@@ -287,7 +311,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const SizedBox(width: double.infinity, height: double.infinity),
+            const IgnorePointer(
+              child: SizedBox(width: double.infinity, height: double.infinity),
+            ),
             Positioned.fill(
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -324,7 +350,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                                   top: 4,
                                   bottom: 4,
                                 ),
-                                height: 28,
+                                height: 32, //28,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

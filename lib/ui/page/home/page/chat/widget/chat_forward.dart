@@ -131,8 +131,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     bool isSent =
         widget.forwards.first.value.status.value == SendingStatus.sent;
 
-    double avatarOffset = 0;
-
     return DefaultTextStyle(
       style: style.boldBody,
       child: SwipeableStatus(
@@ -353,19 +351,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        ...widget.forwards.mapIndexed(
-                                          (i, e) => ClipRRect(
-                                            clipBehavior: i == 0
-                                                ? Clip.antiAlias
-                                                : Clip.none,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                              topLeft: Radius.circular(15),
-                                              topRight: Radius.circular(15),
-                                            ),
-                                            child: _forwardedMessage(e),
-                                          ),
-                                        ),
+                                        if (widget.note.value != null)
+                                          ..._note(),
                                         if (widget.note.value == null &&
                                             !fromMe &&
                                             widget.chat.value?.isGroup == true)
@@ -411,8 +398,31 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                               ],
                                             ),
                                           ),
-                                        if (widget.note.value != null)
-                                          ..._note(),
+                                        ...widget.forwards.mapIndexed(
+                                          (i, e) => ClipRRect(
+                                            clipBehavior:
+                                                i == widget.forwards.length - 1
+                                                    ? Clip.antiAlias
+                                                    : Clip.none,
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: widget.note.value != null
+                                                  ? Radius.zero
+                                                  : const Radius.circular(15),
+                                              topRight: widget.note.value !=
+                                                      null
+                                                  ? Radius.zero
+                                                  : const Radius.circular(15),
+                                              bottomLeft:
+                                                  const Radius.circular(15),
+                                              bottomRight:
+                                                  const Radius.circular(15),
+                                            ),
+                                            child: _forwardedMessage(e),
+                                          ),
+                                        ),
+
+                                        // if (widget.note.value != null)
+                                        //   ..._note(),
                                       ],
                                     ),
                                   ),
@@ -445,8 +455,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     Widget? content;
     List<Widget> additional = [];
-
-    bool isFirst = widget.forwards.indexOf(forward) == 0;
 
     if (item is ChatMessage) {
       var desc = StringBuffer();
@@ -490,11 +498,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             if (media.isNotEmpty)
               ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.zero,
-                  topRight: Radius.zero,
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
-                ),
+                    // topLeft: Radius.zero,
+                    // topRight: Radius.zero,
+                    // bottomLeft: Radius.circular(15),
+                    // bottomRight: Radius.circular(15),
+                    ),
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 500),
                   opacity: isRead
@@ -609,6 +617,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             : isRead
                 ? const Color.fromRGBO(249, 249, 249, 1)
                 : const Color.fromRGBO(255, 255, 255, 1),
+
         // borderRadius: BorderRadius.only(
         //   topLeft: const Radius.circular(15),
         //   topRight: const Radius.circular(15),
@@ -855,8 +864,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   : files.isEmpty
                       ? const Radius.circular(15)
                       : Radius.zero,
-              bottomLeft: const Radius.circular(15),
-              bottomRight: const Radius.circular(15),
+              // bottomLeft: const Radius.circular(15),
+              // bottomRight: const Radius.circular(15),
               // bottomLeft: files.isEmpty
               //     ? const Radius.circular(15)
               //     : Radius.zero,

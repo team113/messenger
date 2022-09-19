@@ -51,4 +51,4 @@
 # Unused for web, as browser picks the directory itself.
 #
 # Default:
-#   directory = "messenger"
+#   directory = ""

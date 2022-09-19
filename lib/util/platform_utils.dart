@@ -106,7 +106,7 @@ class PlatformUtilsImpl {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    _downloadDirectory = '$path/${Config.downloads}';
+    _downloadDirectory = '$path${Config.downloads}';
     return _downloadDirectory!;
   }
 

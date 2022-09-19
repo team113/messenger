@@ -921,6 +921,16 @@ class CallController extends GetxController {
     }
   }
 
+  /// Toggles the provided [participant]'s incoming video on and off.
+  Future<void> toggleAudioEnabled(Participant participant) async {
+    if (participant.member.id == me.id) {
+      await toggleAudio();
+    } else if (participant.audio.value?.direction.value.isEmitting ?? false) {
+      await participant.member
+          .setAudioEnabled(!participant.audio.value!.direction.value.isEnabled);
+    }
+  }
+
   /// Keeps UI open for some amount of time and then hides it if [enabled] is
   /// `null`, otherwise toggles its state immediately to [enabled].
   void keepUi([bool? enabled]) {

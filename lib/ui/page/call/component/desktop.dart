@@ -1181,7 +1181,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
         case OngoingCallState.active:
           var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          args['members'] = '${actualMembers.length + 1}';
+          args['members'] = '${actualMembers.length}';
           args['allMembers'] = '${c.chat.value?.members.length}';
           args['duration'] = c.duration.value.hhMmSs();
           break;
@@ -1419,21 +1419,34 @@ Widget _primaryView(CallController c) {
                                   onPressed: () =>
                                       c.toggleVideoEnabled(participant),
                                 ),
+                              if (participant.member.id != c.me.id &&
+                                  (participant.audio.value?.direction.value
+                                          .isEmitting ??
+                                      false))
+                                ContextMenuButton(
+                                  label: (participant
+                                              .audio.value?.renderer.value !=
+                                          null)
+                                      ? 'Disable audio'.l10n
+                                      : 'Enable audio'.l10n,
+                                  onPressed: () =>
+                                      c.toggleAudioEnabled(participant),
+                                ),
                               if (participant.member.id != c.me.id)
                                 ContextMenuButton(
                                   label: 'Remove participant',
                                   onPressed: () {},
                                 ),
                             ],
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
-                                key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
-                              ),
+                            child: ParticipantOverlayWidget(
+                              participant,
+                              key: ObjectKey(participant),
+                              muted: muted,
+                              hovered: isHovered,
+                              preferBackdrop:
+                                  !c.minimized.value || c.fullscreen.value,
+                              onEnableVideo: () =>
+                                  c.toggleVideoEnabled(participant),
                             ),
                           ),
                   ),
@@ -1933,15 +1946,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       c.toggleVideoEnabled(participant),
                                 )
                             ],
-                            child: IgnorePointer(
-                              child: ParticipantOverlayWidget(
-                                participant,
-                                key: ObjectKey(participant),
-                                muted: muted,
-                                hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
-                              ),
+                            child: ParticipantOverlayWidget(
+                              participant,
+                              key: ObjectKey(participant),
+                              muted: muted,
+                              hovered: isHovered,
+                              preferBackdrop:
+                                  !c.minimized.value || c.fullscreen.value,
+                              onEnableVideo: () =>
+                                  c.toggleVideoEnabled(participant),
                             ),
                           ),
                   ),
