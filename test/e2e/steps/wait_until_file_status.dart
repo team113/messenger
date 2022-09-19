@@ -32,12 +32,12 @@ import '../world/custom_world.dart';
 /// [FileAttachment] becomes the provided [DownloadStatus].
 ///
 /// Examples:
-/// - Then I wait until "test.txt" file downloading is not started
-/// - Then I wait until "test.pdf" file downloading is in progress
-/// - Then I wait until "test.doc" file downloading is finished
+/// - Then I wait until "test.txt" file is not downloaded
+/// - Then I wait until "test.pdf" file is downloading
+/// - Then I wait until "test.doc" file is downloaded
 final StepDefinitionGeneric waitUntilFileStatus =
     then2<String, DownloadStatus, CustomWorld>(
-  'I wait until {string} file downloading (?:is {downloadStatus}|{downloadStatus})',
+  'I wait until {string} file is {downloadStatus}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {

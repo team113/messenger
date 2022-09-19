@@ -23,23 +23,19 @@ class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
       : super(
           'downloadStatus',
           RegExp(
-            '(${DownloadStatus.values.map(
-                  (e) => e.name.replaceAllMapped(
-                    RegExp(r'[A-Z]'),
-                    (match) => ' ${match[0]!.toLowerCase()}',
-                  ),
-                ).join('|')})',
+            '(not downloaded|downloading|downloaded)',
             caseSensitive: true,
           ),
           (c) {
-            return DownloadStatus.values.firstWhere(
-              (e) =>
-                  e.name ==
-                  c.replaceAllMapped(
-                    RegExp(r' \w'),
-                    (match) => match[0]!.trim().toUpperCase(),
-                  ),
-            );
+            switch (c) {
+              case 'not downloaded':
+                return DownloadStatus.notStarted;
+              case 'downloading':
+                return DownloadStatus.inProgress;
+              case 'downloaded':
+                return DownloadStatus.isFinished;
+            }
+            return null;
           },
         );
 }
