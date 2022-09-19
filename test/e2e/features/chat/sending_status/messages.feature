@@ -5,7 +5,6 @@ Feature: Chat messages have correct sending status
     And user Bob
     And Bob has dialog with Alice
     And I am in chat with Bob
-    And I wait until `ChatView` is present
 
   Scenario: User sends message
     When I fill `MessageField` field with "123"

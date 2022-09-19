@@ -46,6 +46,9 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
+  /// Directory to download files to.
+  static String downloads = '';
+
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
@@ -85,6 +88,10 @@ class Config {
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
         : (document['sentry']?['dsn'] ?? '');
+
+    downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+        : (document['downloads']?['directory'] ?? 'messenger');
 
     origin = url;
 
@@ -134,6 +141,7 @@ class Config {
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
+            downloads = remote['downloads']?['directory'] ?? downloads;
             origin = url;
           }
         }

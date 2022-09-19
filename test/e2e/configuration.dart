@@ -29,7 +29,9 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
+import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/download_status.dart';
 import 'parameters/chat.dart';
 import 'parameters/enabled.dart';
 import 'parameters/hand_status.dart';
@@ -39,6 +41,8 @@ import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/add_user_to_call.dart';
 import 'steps/attach_file.dart';
+import 'steps/download_file.dart';
+import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_chat.dart';
 import 'steps/in_chat_with.dart';
@@ -48,6 +52,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/popup.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
+import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
@@ -58,7 +63,9 @@ import 'steps/updates_bio.dart';
 import 'steps/user_call.dart';
 import 'steps/user_hand.dart';
 import 'steps/users.dart';
+import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_popup_call.dart';
@@ -73,8 +80,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         addsUserToCall,
         attachFile,
+        cancelFileDownload,
         copyFromField,
+        downloadFile,
+        expectNWidget,
         fillField,
+        fillFieldN,
         fillFieldWithUser,
         goToUserPage,
         hasChat,
@@ -91,6 +102,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         raiseHand,
         restartApp,
         seesAs,
+        sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
@@ -98,6 +110,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapUserInSearch,
         tapWidget,
         twoUsers,
+        untilAttachmentExists,
         untilMyUserHand,
         untilPopupCall,
         untilTextExists,
@@ -110,6 +123,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         userJoinCall,
         userStartCall,
         waitUntilAttachmentStatus,
+        waitUntilFileStatus,
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
@@ -131,6 +145,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        DownloadStatusParameter(),
         ChatTypeParameter(),
         EnabledParameter(),
         HandStatusParameter(),
@@ -143,6 +158,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
+  PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);
 }

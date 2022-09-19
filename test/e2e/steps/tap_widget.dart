@@ -17,6 +17,7 @@
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 
+import '../configuration.dart';
 import '../parameters/keys.dart';
 
 /// Taps the widget found with the given [WidgetKey].
@@ -34,7 +35,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   (key, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
-      final finder = context.world.appDriver.findBy(key.name, FindType.key);
+      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);

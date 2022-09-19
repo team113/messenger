@@ -15,45 +15,61 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
 import 'web/web_utils.dart';
 
-// TODO: Remove when jonataslaw/getx#1936 is fixed:
-//       https://github.com/jonataslaw/getx/issues/1936
-/// [GetPlatform] adapter that fixes incorrect [GetPlatform.isMacOS] detection.
-class PlatformUtils {
-  /// Indicates whether application is running in a web browser.
-  static bool get isWeb => GetPlatform.isWeb;
+/// Global variable to access [PlatformUtilsImpl].
+///
+/// May be reassigned to mock specific functionally.
+// ignore: non_constant_identifier_names
+PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
+/// Helper providing platform related features.
+class PlatformUtilsImpl {
+  /// Path to the downloads directory.
+  String? _downloadDirectory;
+
+  /// Indicates whether application is running in a web browser.
+  bool get isWeb => GetPlatform.isWeb;
+
+  // TODO: Remove when jonataslaw/getx#1936 is fixed:
+  //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
-  static bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
+  bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
 
   /// Indicates whether device's OS is Windows.
-  static bool get isWindows => GetPlatform.isWindows;
+  bool get isWindows => GetPlatform.isWindows;
 
   /// Indicates whether device's OS is Linux.
-  static bool get isLinux => GetPlatform.isLinux;
+  bool get isLinux => GetPlatform.isLinux;
 
   /// Indicates whether device's OS is Android.
-  static bool get isAndroid => GetPlatform.isAndroid;
+  bool get isAndroid => GetPlatform.isAndroid;
 
   /// Indicates whether device's OS is iOS.
-  static bool get isIOS => GetPlatform.isIOS;
+  bool get isIOS => GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  static bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
+  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
-  static bool get isDesktop =>
+  bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   /// Returns a stream broadcasting fullscreen changes.
-  static Stream<bool> get onFullscreenChange {
+  Stream<bool> get onFullscreenChange {
     if (isWeb) {
       return WebUtils.onFullscreenChange;
     } else if (isDesktop) {
@@ -77,8 +93,25 @@ class PlatformUtils {
     return const Stream.empty();
   }
 
+  /// Returns a path to the downloads directory.
+  Future<String> get downloadsDirectory async {
+    if (_downloadDirectory != null) {
+      return _downloadDirectory!;
+    }
+
+    String path;
+    if (PlatformUtils.isMobile) {
+      path = (await getTemporaryDirectory()).path;
+    } else {
+      path = (await getDownloadsDirectory())!.path;
+    }
+
+    _downloadDirectory = '$path/${Config.downloads}';
+    return _downloadDirectory!;
+  }
+
   /// Enters fullscreen mode.
-  static Future<void> enterFullscreen() async {
+  Future<void> enterFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(true);
     } else if (isDesktop) {
@@ -90,7 +123,7 @@ class PlatformUtils {
   }
 
   /// Exits fullscreen mode.
-  static Future<void> exitFullscreen() async {
+  Future<void> exitFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(false);
     } else if (isDesktop) {
@@ -106,6 +139,58 @@ class PlatformUtils {
         overlays: SystemUiOverlay.values,
       );
     }
+  }
+
+  /// Downloads a file from the provided [url].
+  FutureOr<File?> download(
+    String url,
+    String filename, {
+    Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
+  }) async {
+    if (PlatformUtils.isWeb) {
+      WebUtils.downloadFile(url, filename);
+      return null;
+    } else {
+      final String name = p.basenameWithoutExtension(filename);
+      final String extension = p.extension(filename);
+      final String path = await downloadsDirectory;
+
+      // TODO: File might already be downloaded, compare hashes.
+      File file = File('$path/$filename');
+      for (int i = 1; await file.exists(); ++i) {
+        file = File('$path/$name ($i)$extension');
+      }
+
+      await Dio().download(
+        url,
+        file.path,
+        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
+      );
+
+      return file;
+    }
+  }
+
+  /// Downloads an image from the provided [url] and saves it to the gallery.
+  Future<void> saveToGallery(String url, String name) async {
+    if (isMobile && !isWeb) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await Dio().download(url, path);
+      await ImageGallerySaver.saveFile(path, name: name);
+      File(path).delete();
+    }
+  }
+
+  /// Downloads a file from the provided [url] and opens [Share] dialog with it.
+  Future<void> share(String url, String name) async {
+    final Directory temp = await getTemporaryDirectory();
+    final String path = '${temp.path}/$name';
+    await Dio().download(url, path);
+    await Share.shareFiles([path]);
+    File(path).delete();
   }
 }
 

@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
+import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -121,6 +122,9 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
+  /// Dynamic arguments of the [route].
+  Map<String, dynamic>? arguments;
+
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 
@@ -151,12 +155,14 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
+    arguments = null;
     _routes = [_guarded(to)];
     notifyListeners();
   }
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    arguments = null;
     int pageIndex = _routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
       while (_routes.length - 1 > pageIndex) {
@@ -430,13 +436,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              MyUserService myUserService =
-                  deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               deps.put(
                   CallService(Get.find(), settingsRepository, callRepository));
-              deps.put(ChatService(chatRepository, myUserService));
+              deps.put(ChatService(chatRepository, Get.find()));
 
               return deps;
             },
@@ -525,7 +530,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
             ));
             ChatService chatService =
-                deps.put(ChatService(chatRepository, myUserService));
+                deps.put(ChatService(chatRepository, Get.find()));
 
             deps.put(CallWorker(
               Get.find(),
@@ -644,8 +649,19 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.chat] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void chat(ChatId id, {bool push = false}) =>
-      push ? this.push('${Routes.chat}/$id') : go('${Routes.chat}/$id');
+  void chat(
+    ChatId id, {
+    bool push = false,
+    ChatItemId? itemId,
+  }) {
+    if (push) {
+      this.push('${Routes.chat}/$id');
+    } else {
+      go('${Routes.chat}/$id');
+    }
+
+    arguments = {'itemId': itemId};
+  }
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');

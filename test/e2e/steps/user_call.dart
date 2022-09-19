@@ -51,7 +51,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     final callRepository = CallRepository(provider, null);
 
     await callRepository.join(ongoingCall.obs);
-    await ongoingCall.init(customUser.userId);
+    await ongoingCall.init();
     await ongoingCall.connect(null, callRepository.heartbeat);
 
     customUser.call = ongoingCall;
@@ -90,7 +90,7 @@ final StepDefinitionGeneric userStartCall = when1<TestUser, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    var ongoingCall = OngoingCall(
+    final OngoingCall ongoingCall = OngoingCall(
       customUser.chat!,
       customUser.userId,
       withAudio: false,
@@ -100,10 +100,10 @@ final StepDefinitionGeneric userStartCall = when1<TestUser, CustomWorld>(
       state: OngoingCallState.joining,
     );
 
-    final callRepository = CallRepository(provider, null);
+    final CallRepository callRepository = CallRepository(provider, null);
 
     await callRepository.start(ongoingCall.obs);
-    await ongoingCall.init(customUser.userId);
+    await ongoingCall.init();
     await ongoingCall.connect(null, callRepository.heartbeat);
 
     customUser.call = ongoingCall;

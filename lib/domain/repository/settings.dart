@@ -47,4 +47,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.showIntroduction] value.
   Future<void> setShowIntroduction(bool show);
+
+  /// Sets the [ApplicationSettings.sideBarWidth] value.
+  Future<void> setSideBarWidth(double width);
 }

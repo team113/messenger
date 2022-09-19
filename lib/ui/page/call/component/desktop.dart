@@ -194,8 +194,10 @@ Widget desktopCall(CallController c, BuildContext context) {
       } else {
         // Call is not active.
         content.add(Obx(() {
-          RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
-              c.paneled.firstOrNull?.video.value;
+          RtcVideoRenderer? local =
+              (c.locals.firstOrNull?.video.value?.renderer.value ??
+                      c.paneled.firstOrNull?.video.value?.renderer.value)
+                  as RtcVideoRenderer?;
           var callCover = c.chat.value?.callCover;
 
           return c.videoState.value == LocalTrackState.disabled || local == null
@@ -252,7 +254,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ? [
                     if (PlatformUtils.isMobile)
                       padding(
-                        c.videoState.value.isEnabled()
+                        c.videoState.value.isEnabled
                             ? SwitchButton(c).build(blur: true)
                             : SpeakerButton(c).build(blur: true),
                       ),
@@ -527,6 +529,31 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
+        // More panel [MouseRegion] toggling UI on hover loss.
+        Obx(() {
+          bool enabled = c.displayMore.value &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
+
+          if (enabled) {
+            return Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 450,
+                width: double.infinity,
+                child: MouseRegion(
+                  opaque: false,
+                  hitTestBehavior: HitTestBehavior.translucent,
+                  onEnter: (d) => c.keepUi(true),
+                  onExit: (d) => c.keepUi(),
+                ),
+              ),
+            );
+          }
+
+          return Container();
+        }),
+
         // Display the more hint, if not dismissed.
         Obx(() {
           return AnimatedSwitcher(
@@ -572,7 +599,9 @@ Widget desktopCall(CallController c, BuildContext context) {
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: preferTitle &&
-                      c.primary.where((e) => e.video.value != null).isNotEmpty
+                      c.primary
+                          .where((e) => e.video.value?.renderer.value != null)
+                          .isNotEmpty
                   ? Container(color: const Color(0x55000000))
                   : null,
             );
@@ -1037,7 +1066,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 
         case OngoingCallState.active:
           var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          args['members'] = '${actualMembers.length + 1}';
+          args['members'] = '${actualMembers.length}';
           args['allMembers'] = '${c.chat.value?.members.length}';
           args['duration'] = c.duration.value.hhMmSs();
           break;
@@ -1129,23 +1158,6 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
-    List<Participant> primary = List.from(c.primary);
-    if (!c.isGroup) {
-      Participant? self = [...c.primary, ...c.secondary]
-          .where((e) =>
-              e.owner == MediaOwnerKind.local &&
-              e.source == MediaSourceKind.Device)
-          .firstOrNull;
-
-      if (self != null) {
-        if (self.video.value == null) {
-          primary.removeWhere((e) =>
-              e.owner == MediaOwnerKind.local &&
-              e.source == MediaSourceKind.Device);
-        }
-      }
-    }
-
     void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
       c.draggedRenderer.value = null;
@@ -1163,8 +1175,9 @@ Widget _primaryView(CallController c) {
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
             if (d?.chatId == c.chatId) {
-              if (d?.participant.user.value?.id != c.me ||
-                  d?.participant.source != MediaSourceKind.Display) {
+              if (d?.participant.member.id.userId != c.me.id.userId ||
+                  d?.participant.video.value?.source !=
+                      MediaSourceKind.Display) {
                 c.primaryTargets.value = 1;
               }
 
@@ -1198,16 +1211,9 @@ Widget _primaryView(CallController c) {
 
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
-                bool? muted = participant.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.source == MediaSourceKind.Display
-                        ? c
-                            .findParticipant(
-                                participant.id, MediaSourceKind.Device)
-                            ?.audio
-                            .value
-                            ?.muted
-                        : null;
+                bool? muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1216,11 +1222,15 @@ Widget _primaryView(CallController c) {
                 bool isHovered = c.hoveredRenderer.value == participant &&
                     !anyDragIsHappening;
 
-                BoxFit? fit = participant.video.value == null
+                BoxFit? fit = participant.video.value?.renderer.value == null
                     ? null
-                    : c.rendererBoxFit[participant.video.value!.track.id()] ??
+                    : c.rendererBoxFit[participant
+                            .video.value?.renderer.value!.track
+                            .id()] ??
                         RtcVideoView.determineBoxFit(
-                          participant.video.value!,
+                          participant.video.value?.renderer.value
+                              as RtcVideoRenderer,
+                          participant.source,
                           constraints,
                           context,
                         );
@@ -1256,8 +1266,8 @@ Widget _primaryView(CallController c) {
                             menu: ContextMenu(
                               key: ObjectKey(participant),
                               actions: [
-                                if (participant.video.value?.isEnabled ==
-                                    true) ...[
+                                if (participant.video.value?.renderer.value !=
+                                    null) ...[
                                   if (participant.source ==
                                       MediaSourceKind.Device)
                                     ContextMenuButton(
@@ -1266,11 +1276,11 @@ Widget _primaryView(CallController c) {
                                           : 'btn_call_cut_video'.l10n,
                                       onPressed: () {
                                         c.rendererBoxFit[participant
-                                                .video.value!.track
-                                                .id()] =
-                                            fit == null || fit == BoxFit.cover
-                                                ? BoxFit.contain
-                                                : BoxFit.cover;
+                                            .video.value!.renderer.value!.track
+                                            .id()] = fit == null ||
+                                                fit == BoxFit.cover
+                                            ? BoxFit.contain
+                                            : BoxFit.cover;
                                         if (c.focused.isNotEmpty) {
                                           c.focused.refresh();
                                         } else {
@@ -1284,14 +1294,17 @@ Widget _primaryView(CallController c) {
                                     onPressed: () => c.center(participant),
                                   ),
                                 ],
-                                if (participant.video.value != null)
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
                                   ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
+                                    label: (participant
+                                                .video.value?.renderer.value !=
+                                            null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
                                   ),
                               ],
                             ),
@@ -1322,9 +1335,9 @@ Widget _primaryView(CallController c) {
                 useCallCover: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.refresh,
-                fit:
-                    c.rendererBoxFit[participant.video.value?.track.id() ?? ''],
+                onSizeDetermined: participant.video.value?.renderer.refresh,
+                fit: c.rendererBoxFit[
+                    participant.video.value?.renderer.value?.track.id() ?? ''],
                 expanded: c.doughDraggedRenderer.value == participant,
               );
             });
@@ -1732,16 +1745,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool? muted = participant.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.source == MediaSourceKind.Display
-                        ? c
-                            .findParticipant(
-                                participant.id, MediaSourceKind.Device)
-                            ?.audio
-                            .value
-                            ?.muted
-                        : null;
+                bool muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -1780,23 +1786,27 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             preventContextMenu: true,
                             menu: ContextMenu(
                               actions: [
-                                if ((participant.owner !=
+                                if ((participant.member.owner !=
                                             MediaOwnerKind.local ||
                                         participant.source !=
                                             MediaSourceKind.Display) &&
-                                    participant.video.value?.isEnabled == true)
+                                    participant.video.value?.renderer.value !=
+                                        null)
                                   ContextMenuButton(
                                     label: 'btn_call_center_video'.l10n,
                                     onPressed: () => c.center(participant),
                                   ),
-                                if (participant.video.value != null)
+                                if (participant.video.value?.direction.value
+                                        .isEmitting ??
+                                    false)
                                   ContextMenuButton(
-                                    label: participant.video.value?.isEnabled ==
-                                            true
+                                    label: (participant
+                                                .video.value?.renderer.value !=
+                                            null)
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
-                                    onPressed: () => c.toggleRendererEnabled(
-                                        participant.video),
+                                    onPressed: () =>
+                                        c.toggleVideoEnabled(participant),
                                   )
                               ],
                             ),

@@ -198,7 +198,6 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  // TODO: Search in the local storage.
   /// Searches [User]s by the given criteria.
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified

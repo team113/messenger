@@ -67,14 +67,18 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService,
-  );
+    this._userService, {
+    this.itemId,
+  });
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// [RxChat] of this page.
   RxChat? chat;
+
+  /// ID of the [ChatItem] to scroll to initially in this [ChatView].
+  final ChatItemId? itemId;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -204,7 +208,9 @@ class ChatController extends GetxController {
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
       onSubmitted: (s) {
-        if (s.text.isNotEmpty || attachments.isNotEmpty) {
+        if (s.text.isNotEmpty ||
+            attachments.isNotEmpty ||
+            repliedMessage.value != null) {
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
@@ -233,6 +239,34 @@ class ChatController extends GetxController {
           }
         }
       },
+      focus: FocusNode(
+        onKey: (FocusNode node, RawKeyEvent e) {
+          if (e.logicalKey == LogicalKeyboardKey.enter &&
+              e is RawKeyDownEvent) {
+            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+              int cursor;
+
+              if (send.controller.selection.isCollapsed) {
+                cursor = send.controller.selection.base.offset;
+                send.text =
+                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+              } else {
+                cursor = send.controller.selection.start;
+                send.text =
+                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+              }
+
+              send.controller.selection =
+                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
+            } else if (!e.isShiftPressed) {
+              send.submit();
+              return KeyEventResult.handled;
+            }
+          }
+
+          return KeyEventResult.ignored;
+        },
+      ),
     );
 
     super.onInit();
@@ -367,7 +401,7 @@ class ChatController extends GetxController {
     } else {
       _messagesWorker ??= ever(
         chat!.messages,
-        (List<Rx<ChatItem>> msgs) {
+        (_) {
           if (atBottom) {
             Future.delayed(
               Duration.zero,
@@ -602,14 +636,23 @@ class ChatController extends GetxController {
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].
   List<Attachment> calculateGallery() {
-    List<Attachment> attachments = [];
+    final List<Attachment> attachments = [];
 
     for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
-        var msg = m.value as ChatMessage;
+        final ChatMessage msg = m.value as ChatMessage;
         attachments.addAll(msg.attachments.where(
           (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         ));
+      } else if (m.value is ChatForward) {
+        final ChatForward msg = m.value as ChatForward;
+        final ChatItem item = msg.item;
+
+        if (item is ChatMessage) {
+          attachments.addAll(item.attachments.where(
+            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          ));
+        }
       }
     }
 
@@ -625,6 +668,18 @@ class ChatController extends GetxController {
       _typingSubscription?.cancel();
       _typingSubscription = null;
     });
+  }
+
+  /// Downloads the provided [FileAttachment], if not downloaded already, or
+  /// otherwise opens it or cancels the download.
+  Future<void> download(FileAttachment attachment) async {
+    if (attachment.isDownloading) {
+      attachment.cancelDownload();
+    } else if (attachment.path != null) {
+      attachment.open();
+    } else {
+      attachment.download();
+    }
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
@@ -747,19 +802,27 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    PreciseDateTime? myRead = chat!.chat.value.lastReads
-        .firstWhereOrNull((e) => e.memberId == me)
-        ?.at;
+    if (itemId != null) {
+      int i = chat!.messages.indexWhere((e) => e.value.id == itemId);
+      if (i != -1) {
+        index = i;
+        offset = (MediaQuery.of(router.context!).size.height) / 3;
+      }
+    } else {
+      PreciseDateTime? myRead = chat!.chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
-    if (chat?.messages.isEmpty == false) {
-      if (chat!.chat.value.unreadCount == 0) {
-        index = chat!.messages.length - 1;
-        offset = 0;
-      } else if (myRead != null) {
-        int i = chat!.messages.indexOf(lastReadItem.value);
-        if (i != -1) {
-          index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
+      if (chat?.messages.isEmpty == false) {
+        if (chat!.chat.value.unreadCount == 0) {
+          index = chat!.messages.length - 1;
+          offset = 0;
+        } else if (myRead != null) {
+          int i = chat!.messages.indexOf(lastReadItem.value);
+          if (i != -1) {
+            index = i;
+            offset = (MediaQuery.of(router.context!).size.height) / 3;
+          }
         }
       }
     }
