@@ -245,7 +245,8 @@ class _ChatViewState extends State<ChatView>
                                       : const NeverScrollableScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
                                     (BuildContext context, int i) {
-                                      ListElement? e = c.elements.values.elementAt(i);
+                                      ListElement? e =
+                                          c.elements.values.elementAt(i);
 
                                       Widget widget = Container();
 
@@ -306,7 +307,10 @@ class _ChatViewState extends State<ChatView>
                                     },
                                     childCount: c.elements.length,
                                     keepPosition: true,
-                                    onItemKey: (i) => c.elements.values.elementAt(i).id.toString(),
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
