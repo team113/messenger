@@ -21,7 +21,6 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:open_file/open_file.dart';
-import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
@@ -136,16 +135,9 @@ class FileAttachment extends Attachment {
       }
     }
 
-    String downloads = await PlatformUtils.downloadsDirectory;
-    String name = p.basenameWithoutExtension(filename);
-    String ext = p.extension(filename);
-    File file = File('$downloads/$filename');
+    File? file = await PlatformUtils.isFileExist(filename, size);
 
-    for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-      file = File('$downloads/$name ($i)$ext');
-    }
-
-    if (await file.exists()) {
+    if (file != null) {
       downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
@@ -165,6 +157,7 @@ class FileAttachment extends Attachment {
       File? file = await PlatformUtils.download(
         '${Config.url}/files${original.val}',
         filename,
+        size,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );

@@ -712,9 +712,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 for (var o in attachments) {
                   var link = '${Config.url}/files${o.original}';
                   if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, o.filename));
+                    gallery
+                        .add(GalleryItem.video(link, o.filename, size: o.size));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                    gallery
+                        .add(GalleryItem.image(link, o.filename, size: o.size));
                   }
                 }
 

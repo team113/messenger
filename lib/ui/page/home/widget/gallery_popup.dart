@@ -44,16 +44,17 @@ class GalleryItem {
   const GalleryItem({
     required this.link,
     required this.name,
+    required this.size,
     this.isVideo = false,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: false);
+  factory GalleryItem.image(String link, String name, {int? size}) =>
+      GalleryItem(link: link, name: name, size: size, isVideo: false);
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: true);
+  factory GalleryItem.video(String link, String name, {int? size}) =>
+      GalleryItem(link: link, name: name, size: size, isVideo: true);
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
@@ -61,8 +62,11 @@ class GalleryItem {
   /// Original URL to the file this [GalleryItem] represents.
   final String link;
 
-  /// File name of this [GalleryItem].
+  /// Name of the file this [GalleryItem] represents.
   final String name;
+
+  /// Size in bytes of the file this [GalleryItem] represents.
+  final int? size;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -804,7 +808,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      await PlatformUtils.download(item.link, item.name);
+      await PlatformUtils.download(item.link, item.name, item.size);
       MessagePopup.success(item.isVideo
           ? 'label_video_downloaded'.l10n
           : 'label_image_downloaded'.l10n);
