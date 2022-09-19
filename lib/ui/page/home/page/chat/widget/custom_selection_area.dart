@@ -27,7 +27,7 @@ class CustomSelectionArea extends StatelessWidget {
     required this.child,
   });
 
-  /// Callback, called when called [onCopy].
+  /// Callback, called when the selected text is received.
   final String? Function() formatSelection;
 
   /// Widget with content to selected.
@@ -54,7 +54,7 @@ class CustomSelectionArea extends StatelessWidget {
 class _CopySelectionAction extends Action<CopySelectionTextIntent> {
   _CopySelectionAction(this.formatSelection, this.copyText);
 
-  /// Callback, called when called [onCopy].
+  /// Callback, called when the selected text is received.
   final String? Function() formatSelection;
 
   /// Callback to save to clipboard.
