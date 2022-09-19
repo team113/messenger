@@ -489,9 +489,7 @@ class _ChatViewState extends State<ChatView>
           } else if (c.status.value.isEmpty) {
             return Scaffold(
               appBar: AppBar(),
-              body: Center(
-                child: Text('label_no_chat_found'.l10n),
-              ),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           } else {
             return const Scaffold(
