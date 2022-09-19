@@ -455,6 +455,13 @@ class WebUtils {
     return null;
   }
 
+  /// Downloads a file from the provided [url].
+  static void downloadFile(String url, String name) {
+    final html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    anchorElement.download = name;
+    anchorElement.click();
+  }
+
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);

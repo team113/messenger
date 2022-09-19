@@ -20,7 +20,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -128,8 +127,10 @@ Widget mobileCall(CallController c, BuildContext context) {
     } else {
       // Call is not active.
       content.add(Obx(() {
-        RtcVideoRenderer? local = c.locals.firstOrNull?.video.value ??
-            c.paneled.firstOrNull?.video.value;
+        RtcVideoRenderer? local =
+            (c.locals.firstOrNull?.video.value?.renderer.value ??
+                    c.paneled.firstOrNull?.video.value?.renderer.value)
+                as RtcVideoRenderer?;
 
         if (c.videoState.value != LocalTrackState.disabled && local != null) {
           return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
@@ -264,8 +265,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             duration: const Duration(milliseconds: 300),
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
-                    ([...c.primary, ...c.secondary]
-                            .firstWhereOrNull((e) => e.video.value != null) !=
+                    ([...c.primary, ...c.secondary].firstWhereOrNull(
+                            (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
                 ? Container(color: const Color(0x55000000))
@@ -364,7 +365,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               [
                 if (PlatformUtils.isMobile)
                   padding(
-                    c.videoState.value.isEnabled()
+                    c.videoState.value.isEnabled
                         ? withDescription(
                             SwitchButton(c).build(),
                             AnimatedOpacity(
@@ -445,7 +446,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   AnimatedOpacity(
                     opacity: c.isPanelOpen.value ? 1 : 0,
                     duration: 200.milliseconds,
-                    child: Text(c.isHandRaised.value
+                    child: Text(c.me.isHandRaised.value
                         ? 'btn_call_hand_down_desc'.l10n
                         : 'btn_call_hand_up_desc'.l10n),
                   ),
@@ -563,7 +564,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 ? [
                                     if (PlatformUtils.isMobile)
                                       padding(
-                                        c.videoState.value.isEnabled()
+                                        c.videoState.value.isEnabled
                                             ? SwitchButton(c).build(blur: true)
                                             : SpeakerButton(c)
                                                 .build(blur: true),
@@ -767,9 +768,9 @@ Widget _primaryView(CallController c, BuildContext context) {
     List<Participant> primary;
 
     if (c.minimized.value) {
-      primary = List.from([...c.primary, ...c.secondary]);
+      primary = List<Participant>.from([...c.primary, ...c.secondary]);
     } else {
-      primary = List.from(c.primary);
+      primary = List<Participant>.from(c.primary);
     }
 
     void onDragEnded(_DragData d) {
@@ -815,16 +816,9 @@ Widget _primaryView(CallController c, BuildContext context) {
 
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
-                bool? muted = participant.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.source == MediaSourceKind.Display
-                        ? c
-                            .findParticipant(
-                                participant.id, MediaSourceKind.Device)
-                            ?.audio
-                            .value
-                            ?.muted
-                        : null;
+                bool muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
@@ -881,12 +875,13 @@ Widget _primaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.refresh,
+                onSizeDetermined: participant.video.value?.renderer.refresh,
                 useCallCover: true,
                 fit: c.minimized.value
                     ? BoxFit.cover
                     : c.rendererBoxFit[
-                        participant.video.value?.track.id() ?? ''],
+                        participant.video.value?.renderer.value?.track.id() ??
+                            ''],
                 expanded: c.draggedRenderer.value == participant,
               );
             });
@@ -1054,16 +1049,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               var participant = data.participant;
 
               return Obx(() {
-                bool? muted = participant.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled()
-                    : participant.source == MediaSourceKind.Display
-                        ? c
-                            .findParticipant(
-                                participant.id, MediaSourceKind.Device)
-                            ?.audio
-                            .value
-                            ?.muted
-                        : null;
+                bool muted = participant.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : participant.audio.value?.isMuted.value ?? false;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||

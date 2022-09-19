@@ -299,7 +299,7 @@ abstract class ReactiveFieldState {
   RxBool get isEmpty;
 
   /// [FocusNode] of this [ReactiveFieldState] used to determine focus changes.
-  final FocusNode focus = FocusNode();
+  FocusNode get focus;
 
   /// Reactive error message.
   final RxnString error = RxnString();
@@ -318,8 +318,9 @@ class TextFieldState extends ReactiveFieldState {
     this.onChanged,
     this.onSubmitted,
     RxStatus? status,
+    FocusNode? focus,
     bool editable = true,
-  }) {
+  }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
 
@@ -327,12 +328,12 @@ class TextFieldState extends ReactiveFieldState {
     this.status = Rx(status ?? RxStatus.empty());
 
     if (onChanged != null) {
-      focus.addListener(
+      this.focus.addListener(
         () {
           if (controller.text != _previousText &&
               (_previousText != null || controller.text.isNotEmpty)) {
             isEmpty.value = controller.text.isEmpty;
-            if (!focus.hasFocus) {
+            if (!this.focus.hasFocus) {
               onChanged?.call(this);
               _previousText = controller.text;
             }
@@ -371,6 +372,9 @@ class TextFieldState extends ReactiveFieldState {
 
   @override
   late final RxBool isEmpty;
+
+  @override
+  late final FocusNode focus;
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
