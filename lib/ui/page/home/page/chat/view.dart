@@ -397,7 +397,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns [ChatItem] visual representation.
   Widget _chatItem(ChatController c, Rx<ChatItem> item) {
-    Widget widget = Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
       ),
@@ -435,24 +435,6 @@ class _ChatViewState extends State<ChatView>
         ),
       ),
     );
-
-    if (item.value.authorId != c.me &&
-        !c.chat!.chat.value.isReadBy(item.value, c.me) &&
-        c.status.value.isSuccess &&
-        !c.status.value.isLoadingMore) {
-      widget = VisibilityDetector(
-        key: Key('Detector_${item.value.id.val}'),
-        onVisibilityChanged: (info) {
-          if (info.visibleFraction > 0) {
-            if (c.lastVisibleItem.value?.at.isBefore(item.value.at) != false) {
-              c.lastVisibleItem.value = item.value;
-            }
-          }
-        },
-        child: widget,
-      );
-    }
-    return widget;
   }
 
   /// Returns a header subtitle of the [Chat].

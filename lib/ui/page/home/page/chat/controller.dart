@@ -26,12 +26,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/util/obs/obs.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -58,6 +57,7 @@ import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
 
@@ -126,9 +126,6 @@ class ChatController extends GetxController {
   /// [ChatMessage] is allowed to be edited.
   static const Duration editMessageTimeout = Duration(minutes: 5);
 
-  /// Count of unread messages.
-  int unreadMessages = 0;
-
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
@@ -163,14 +160,17 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   StreamSubscription? _typingSubscription;
 
+  /// Subscription for the [RxChat.messages] updating the [elements].
   late final StreamSubscription _messagesSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
+  /// Auto-sorted [Map] of [ListElement]s.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
+  /// Currently displayed [UnreadMessagesElement].
   UnreadMessagesElement? _unreadElement;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
@@ -412,7 +412,6 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      // TODO: Resolve conflicts when adding, removing and getting.
       void add(Rx<ChatItem> e) {
         ChatItem item = e.value;
 
@@ -423,11 +422,8 @@ class ChatController extends GetxController {
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e, e.value.at);
 
-          ListElement? previous;
           ListElementId? key = elements.lastKeyBefore(element.id);
-          if (key != null) {
-            previous = elements[key];
-          }
+          ListElement? previous = elements[key];
 
           bool insert = true;
 
@@ -470,8 +466,8 @@ class ChatController extends GetxController {
                         .difference(previous.forwards.last.value.at.val)
                         .inMilliseconds <
                     5) {
-              // TODO: order as well
               previous.forwards.add(e);
+              previous.forwards.sort();
               insert = false;
             }
           } else if (previous is ChatMessageElement) {
@@ -678,7 +674,6 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      unreadMessages = chat?.chat.value.unreadCount ?? 0;
       await chat!.fetchMessages(id);
 
       // Required in order for [Hive.boxEvents] to add the messages.
@@ -686,8 +681,6 @@ class ChatController extends GetxController {
 
       var lastRead = lastReadItem.value;
       _determineLastRead();
-
-      unreadMessages = chat?.chat.value.unreadCount ?? 0;
 
       // Scroll to the last message if [_lastRead] was updated. Otherwise,
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
@@ -1028,7 +1021,7 @@ class ChatController extends GetxController {
 
       if (lastReadItem.value != null) {
         if (_unreadElement != null) {
-          elements.remove(_unreadElement!.id.at);
+          elements.remove(_unreadElement!.id);
         }
 
         PreciseDateTime key = lastReadItem.value!.value.at;
@@ -1145,8 +1138,6 @@ class ListElementId implements Comparable<ListElementId> {
   final PreciseDateTime at;
 
   /// Part of [ListElementId] to make it unique.
-  ///
-  ///
   final String id;
 
   @override
@@ -1170,11 +1161,16 @@ class ListElementId implements Comparable<ListElementId> {
 }
 
 /// Item showed in an [Chat] messages list.
-abstract class ListElement {
+abstract class ListElement implements Comparable<ListElement> {
   ListElement(PreciseDateTime at, String id) : id = ListElementId(at, id);
 
   /// [ListElementId] of this [ListElement].
   final ListElementId id;
+
+  @override
+  int compareTo(ListElement other) {
+    return id.compareTo(other.id);
+  }
 }
 
 /// [ListElement] representing an [ChatMessage].

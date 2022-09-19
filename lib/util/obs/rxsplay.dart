@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 
 /// `GetX`-reactive [SplayTreeMap].
 ///
-/// Behaves like a wrapper around [Map] with its [changes] exposed.
+/// Behaves like a wrapper around [Map].
 class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
     with NotifyManager<SplayTreeMap<K, V>>, RxObjectMixin<SplayTreeMap<K, V>>
     implements RxInterface<SplayTreeMap<K, V>> {
