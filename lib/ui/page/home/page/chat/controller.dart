@@ -147,7 +147,8 @@ class ChatController extends GetxController {
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
-  /// Bottom visible [FlutterListViewItemPosition] in the [FlutterListView].
+  /// [FlutterListViewItemPosition] ot the bottom visible item in the
+  /// [FlutterListView].
   FlutterListViewItemPosition? _bottomVisibleItem;
 
   /// [ChatItem] to return to when the return FAB is pressed.
@@ -467,7 +468,8 @@ class ChatController extends GetxController {
                         .inMilliseconds <
                     5) {
               previous.forwards.add(e);
-              previous.forwards.sort();
+              previous.forwards
+                  .sort((f1, f2) => f1.value.at.compareTo(f2.value.at));
               insert = false;
             }
           } else if (previous is ChatMessageElement) {
@@ -500,17 +502,20 @@ class ChatController extends GetxController {
           case OperationKind.removed:
             ChatItem item = e.element.value;
             ListElementId key = ListElementId(item.at, item.id.val);
+            ListElement? element = elements[key];
 
             ListElementId? before = elements.lastKeyBefore(key);
             ListElementId? after = elements.firstKeyAfter(key);
             ListElement? beforeElement = elements[before];
             ListElement? afterElement = elements[after];
             if (beforeElement is DateTimeElement &&
-                (afterElement == null || afterElement is DateTimeElement)) {
+                (afterElement == null || afterElement is DateTimeElement) &&
+                (element is! ChatForwardElement ||
+                    (element.forwards.length == 1 &&
+                        element.note.value == null))) {
               elements.remove(before);
             }
 
-            ListElement? element = elements[key];
             if (item is ChatMessage) {
               if (element is ChatMessageElement &&
                   item.id == element.item.value.id) {
@@ -1161,16 +1166,11 @@ class ListElementId implements Comparable<ListElementId> {
 }
 
 /// Item showed in an [Chat] messages list.
-abstract class ListElement implements Comparable<ListElement> {
+abstract class ListElement {
   ListElement(PreciseDateTime at, String id) : id = ListElementId(at, id);
 
   /// [ListElementId] of this [ListElement].
   final ListElementId id;
-
-  @override
-  int compareTo(ListElement other) {
-    return id.compareTo(other.id);
-  }
 }
 
 /// [ListElement] representing an [ChatMessage].
