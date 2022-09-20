@@ -31,6 +31,7 @@ import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
@@ -75,7 +76,9 @@ void main() async {
   await settingsProvider.init(userId: const UserId('me'));
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init(userId: const UserId('me'));
-
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init(userId: const UserId('me'));
+  
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
     Get.put(myUserProvider);

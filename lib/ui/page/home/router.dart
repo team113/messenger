@@ -52,28 +52,28 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
     List<Page<dynamic>> pages = [
-      FadeAnimationPage(child: _NestedHomeView(_state.tab))
+      _FadeAnimationPage(child: _NestedHomeView(_state.tab))
     ];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
-        pages.add(const FadeAnimationPage(
+        pages.add(const _FadeAnimationPage(
           key: ValueKey('MyProfilePage'),
           child: MyProfileView(),
         ));
       } else if (route == Routes.personalization) {
-        pages.add(const FadeAnimationPage(
+        pages.add(const _FadeAnimationPage(
           key: ValueKey('PersonalizationPage'),
           child: PersonalizationView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
-        pages.add(const FadeAnimationPage(
+        pages.add(const _FadeAnimationPage(
           key: ValueKey('SettingsPage'),
           child: SettingsView(),
         ));
 
         if (route == Routes.settingsMedia) {
-          pages.add(const FadeAnimationPage(
+          pages.add(const _FadeAnimationPage(
             key: ValueKey('MediaSettingsPage'),
             child: MediaSettingsView(),
           ));
@@ -82,7 +82,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(FadeAnimationPage(
+        pages.add(_FadeAnimationPage(
           key: ValueKey('ChatPage$id'),
           child: ChatView(
             ChatId(id),
@@ -91,20 +91,20 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         ));
 
         if (route.endsWith(Routes.chatInfo)) {
-          pages.add(FadeAnimationPage(
+          pages.add(_FadeAnimationPage(
             key: ValueKey('ChatInfoPage$id'),
             child: ChatInfoView(ChatId(id)),
           ));
         }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
-        pages.add(FadeAnimationPage(
+        pages.add(_FadeAnimationPage(
           key: ValueKey('ContactPage$id'),
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(FadeAnimationPage(
+        pages.add(_FadeAnimationPage(
           key: ValueKey('UserPage$id'),
           child: UserView(UserId(id)),
         ));
@@ -135,32 +135,32 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 }
 
-/// [Page] transition with opacity effect.
-///
-/// Cancels the page closing animation in [CupertinoPageTransitionsBuilder].
-class FadeAnimationPage extends Page {
-  const FadeAnimationPage({super.key, required this.child});
+/// [Page] custom route page.
+class _FadeAnimationPage extends Page {
+  const _FadeAnimationPage({super.key, required this.child});
 
   /// [Widget] page.
   final Widget child;
 
   @override
   Route createRoute(BuildContext context) {
-    return CustomPageRouteBuilder(
+    return _CustomPageRouteBuilder(
       settings: this,
       pageBuilder: (_, __, ___) => child,
     );
   }
 }
 
-/// [PageRoute] in android [FadeUpwardsPageTransitionsBuilder] and ios [CupertinoPageTransitionsBuilder].
-class CustomPageRouteBuilder<T> extends PageRoute<T> {
-  CustomPageRouteBuilder({super.settings, required this.pageBuilder})
+/// [PageRoute] with opacity and clipped transitiion in [CupertinoPageTransitionsBuilder].
+///
+/// [FadeUpwardsPageTransitionsBuilder] on android and other platforms [CupertinoPageTransitionsBuilder].
+class _CustomPageRouteBuilder<T> extends PageRoute<T> {
+  _CustomPageRouteBuilder({super.settings, required this.pageBuilder})
       : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
             : const CupertinoPageTransitionsBuilder();
 
-  /// Page transition animation.
+  /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
 
   /// Route's primary contents.

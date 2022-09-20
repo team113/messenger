@@ -265,13 +265,14 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-/// Widget displaying background from [homeController].
+/// Background value display.
 class _BackgroundImage extends StatelessWidget {
   const _BackgroundImage({
     Key? key,
     required this.homeController,
   }) : super(key: key);
 
+  /// [HomeController] to get background value.
   final HomeController homeController;
 
   @override

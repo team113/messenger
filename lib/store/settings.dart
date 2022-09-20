@@ -51,7 +51,7 @@ class SettingsRepository extends DisposableInterface
   /// [ApplicationSettings] local [Hive] storage.
   final ApplicationSettingsHiveProvider _settingsLocal;
 
-  /// Background's [Uint8List] local [Hive] storage.
+  /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
@@ -67,7 +67,7 @@ class SettingsRepository extends DisposableInterface
   void onInit() {
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
-    background.value = _backgroundLocal.get;
+    background.value = _backgroundLocal.bytes;
     _initMediaSubscription();
     _initSettingsSubscription();
     _initBackgroundSubscription();
@@ -111,13 +111,8 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSideBarWidth(width);
 
   @override
-  Future<void> setBackground(Uint8List? bytes) {
-    if (bytes == null) {
-      return _backgroundLocal.delete();
-    } else {
-      return _backgroundLocal.set(bytes);
-    }
-  }
+  Future<void> setBackground(Uint8List? bytes) =>
+      bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
