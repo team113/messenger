@@ -1088,6 +1088,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               : Alignment.bottomLeft,
                           id: widget.item.value.id.val,
                           actions: [
+                            if (widget.item.value is ChatMessage &&
+                                (widget.item.value as ChatMessage)
+                                    .attachments
+                                    .isNotEmpty) ...[
+                              ContextMenuButton(
+                                label: 'Download all'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/copy_small.svg',
+                                  width: 14.82,
+                                  height: 17,
+                                ),
+                                onPressed: () {},
+                              ),
+                              ContextMenuButton(
+                                label: 'Download all as'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/copy_small.svg',
+                                  width: 14.82,
+                                  height: 17,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ],
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),

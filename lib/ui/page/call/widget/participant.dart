@@ -191,8 +191,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
-    this.onEnableVideo,
-    this.onEnableAudio,
   }) : super(key: key);
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
@@ -209,9 +207,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   /// Indicator whether [ConditionalBackdropFilter] should be enabled.
   final bool preferBackdrop;
-
-  final void Function()? onEnableVideo;
-  final void Function()? onEnableAudio;
 
   @override
   Widget build(BuildContext context) {
@@ -237,16 +232,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (isAudioDisabled) {
         additionally.add(
-          WidgetButton(
-            onPressed: onEnableAudio,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 3, right: 3),
-              child: SvgLoader.asset(
-                'assets/icons/audio_off_small.svg',
-                width: 20.88,
-                height: 17,
-                fit: BoxFit.fitWidth,
-              ),
+          Padding(
+            padding: const EdgeInsets.only(left: 3, right: 3),
+            child: SvgLoader.asset(
+              'assets/icons/audio_off_small.svg',
+              width: 20.88,
+              height: 17,
+              fit: BoxFit.fitWidth,
             ),
           ),
         );
@@ -293,15 +285,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
-          WidgetButton(
-            onPressed: onEnableVideo,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 5, right: 5),
-              child: SvgLoader.asset(
-                'assets/icons/video_off_small.svg',
-                width: 19.8,
-                height: 17,
-              ),
+          Padding(
+            padding: const EdgeInsets.only(left: 5, right: 5),
+            child: SvgLoader.asset(
+              'assets/icons/video_off_small.svg',
+              width: 19.8,
+              height: 17,
             ),
           ),
         );

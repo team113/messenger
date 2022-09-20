@@ -1438,15 +1438,15 @@ Widget _primaryView(CallController c) {
                                   onPressed: () {},
                                 ),
                             ],
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
-                              onEnableVideo: () =>
-                                  c.toggleVideoEnabled(participant),
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
                             ),
                           ),
                   ),
@@ -1946,15 +1946,15 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       c.toggleVideoEnabled(participant),
                                 )
                             ],
-                            child: ParticipantOverlayWidget(
-                              participant,
-                              key: ObjectKey(participant),
-                              muted: muted,
-                              hovered: isHovered,
-                              preferBackdrop:
-                                  !c.minimized.value || c.fullscreen.value,
-                              onEnableVideo: () =>
-                                  c.toggleVideoEnabled(participant),
+                            child: IgnorePointer(
+                              child: ParticipantOverlayWidget(
+                                participant,
+                                key: ObjectKey(participant),
+                                muted: muted,
+                                hovered: isHovered,
+                                preferBackdrop:
+                                    !c.minimized.value || c.fullscreen.value,
+                              ),
                             ),
                           ),
                   ),
