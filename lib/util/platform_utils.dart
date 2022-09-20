@@ -143,13 +143,14 @@ class PlatformUtilsImpl {
 
   /// Returns [File] if an file with the provided [filename] and [size] exist in
   /// the [downloadsDirectory].
-  Future<File?> isFileExist(String filename, int size) async {
+  Future<File?> fileExist(String filename, int size) async {
     if (!PlatformUtils.isWeb) {
       String downloads = await PlatformUtils.downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('$downloads/$filename');
 
+      // TODO: File might already be downloaded, compare hashes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
         file = File('$downloads/$name ($i)$ext');
       }
@@ -163,7 +164,7 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads a file from the provided [url].
-  Future<File?> download(
+  FutureOr<File?> download(
     String url,
     String filename,
     int? size, {
@@ -174,16 +175,17 @@ class PlatformUtilsImpl {
       WebUtils.downloadFile(url, filename);
       return null;
     } else {
-      size = size ?? (await Dio().head(url)).headers['content-length'] as int;
+      size = size ??
+          int.parse(((await Dio().head(url)).headers['content-length']
+              as List<String>)[0]);
 
-      File? file = await isFileExist(filename, size);
+      File? file = await fileExist(filename, size);
 
       if (file == null) {
         final String name = p.basenameWithoutExtension(filename);
         final String extension = p.extension(filename);
         final String path = await downloadsDirectory;
 
-        // TODO: File might already be downloaded, compare hashes.
         file = File('$path/$filename');
         for (int i = 1; await file!.exists(); ++i) {
           file = File('$path/$name ($i)$extension');

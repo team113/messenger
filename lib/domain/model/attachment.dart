@@ -135,7 +135,7 @@ class FileAttachment extends Attachment {
       }
     }
 
-    File? file = await PlatformUtils.isFileExist(filename, size);
+    File? file = await PlatformUtils.fileExist(filename, size);
 
     if (file != null) {
       downloadStatus.value = DownloadStatus.isFinished;
