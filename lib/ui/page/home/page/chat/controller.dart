@@ -211,16 +211,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Returns not an empty [SelectionData].
-  List<SelectionData>? get selectionsNotEmpty {
-    List<SelectionData> list = selections.values
-        .expand((List<SelectionData> l) => l)
-        .where((SelectionData s) => s.isNotEmpty)
-        .toList();
-
-    return list.isEmpty ? null : list;
-  }
-
   @override
   void onInit() {
     send = TextFieldState(
@@ -646,9 +636,19 @@ class ChatController extends GetxController {
   }
 
   /// Puts a [text] into the clipboard and shows a snackbar.
-  void copyText(String text) {
-    if (text.isNotEmpty) {
-      Clipboard.setData(ClipboardData(text: text));
+  ///
+  /// First get [selections.formatted], if it is not there then take [text].
+  void copyText([String? text]) {
+    String? result;
+    final String? selection = selections.formatted;
+    if (selection != null && selection.isNotEmpty) {
+      result = selection;
+    } else if (text != null && text.isNotEmpty) {
+      result = text;
+    }
+
+    if (result != null) {
+      Clipboard.setData(ClipboardData(text: result));
       MessagePopup.success('label_copied_to_clipboard'.l10n);
     }
   }
@@ -708,51 +708,6 @@ class ChatController extends GetxController {
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
-  }
-
-  /// Get selected formatted text.
-  String? formatSelection() {
-    final List<SelectionData>? notEmpty = selectionsNotEmpty;
-    if (notEmpty == null) return null;
-    final List<SelectionData> sorted = _sortSelections(notEmpty);
-
-    final StringBuffer result = StringBuffer();
-    for (int i = 0; i < sorted.length; i++) {
-      SelectionData s = sorted[i];
-      // Do not indent last message.
-      if (i == sorted.length - 1) {
-        result.write(s.data.value);
-      } else {
-        result.write(s.newLine);
-        // TODO: Flutter should indent itself when copying.
-        // Add a blank line after each message.
-        if (s.position != sorted[i + 1].position) {
-          result.write('\n');
-        }
-      }
-    }
-    return result.toString();
-  }
-
-  /// Indicates whether there is a selection by [position].
-  bool isSelectionByPosition(int position) =>
-      selections[position]
-          ?.firstWhereOrNull((SelectionData s) => s.isNotEmpty) !=
-      null;
-
-  /// Return sorted [selection].
-  ///
-  /// First sort [SelectionData.chatPosition] in order, and then
-  /// by [SelectionItem.type] order.
-  List<SelectionData> _sortSelections(List<SelectionData> selection) {
-    selection.sort((SelectionData a, SelectionData b) {
-      int groupCompare = a.position.compareTo(b.position);
-      if (groupCompare == 0) {
-        return a.type.index.compareTo(b.type.index);
-      }
-      return groupCompare;
-    });
-    return selection;
   }
 
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
@@ -1146,9 +1101,69 @@ class SelectionData {
         text += '\n';
         break;
     }
+
     return text;
   }
 
   /// Indicates whether [data] is not empty.
   bool get isNotEmpty => data.value?.isNotEmpty == true;
+}
+
+extension SelectionExtension on Map<int, List<SelectionData>> {
+  /// Gets selected formatted text.
+  String? get formatted {
+    final List<SelectionData>? notEmpty = _notEmpty;
+    if (notEmpty == null) return null;
+    final List<SelectionData> sorted = _sorted(notEmpty);
+
+    final StringBuffer result = StringBuffer();
+    for (int i = 0; i < sorted.length; i++) {
+      SelectionData s = sorted[i];
+      // Do not indent last message.
+      if (i == sorted.length - 1) {
+        result.write(s.data.value);
+      } else {
+        result.write(s.newLine);
+        // TODO: Flutter should indent itself when copying.
+        // Add a blank line after each message.
+        if (s.position != sorted[i + 1].position) {
+          result.write('\n');
+        }
+      }
+    }
+
+    return result.toString();
+  }
+
+  /// Returns not an empty [SelectionData].
+  List<SelectionData>? get _notEmpty {
+    List<SelectionData> list = values
+        .expand((List<SelectionData> l) => l)
+        .where((SelectionData s) => s.isNotEmpty)
+        .toList();
+
+    return list.isEmpty ? null : list;
+  }
+
+  /// Indicates whether there is a selection by [position].
+  bool isSelected(int position) =>
+      this[position]?.firstWhereOrNull((SelectionData s) => s.isNotEmpty) !=
+      null;
+
+  /// Return sorted [selection].
+  ///
+  /// First sort [SelectionData.chatPosition] in order, and then
+  /// by [SelectionItem.type] order.
+  List<SelectionData> _sorted(List<SelectionData> selection) {
+    selection.sort((SelectionData a, SelectionData b) {
+      int groupCompare = a.position.compareTo(b.position);
+      if (groupCompare == 0) {
+        return a.type.index.compareTo(b.type.index);
+      }
+
+      return groupCompare;
+    });
+
+    return selection;
+  }
 }

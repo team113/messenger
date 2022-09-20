@@ -79,7 +79,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onRepliedTap,
     this.onForwardedTap,
     this.onResend,
-    this.onFormatSelection,
     this.onFileTap,
   }) : super(key: key);
 
@@ -142,9 +141,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final Function()? onResend;
-
-  /// Callback, called when called [onCopy].
-  final String? Function()? onFormatSelection;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final Function(FileAttachment)? onFileTap;
@@ -233,13 +229,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ContextMenuButton(
                 key: const Key('CopyButton'),
                 label: 'btn_copy_text'.l10n,
-                onPressed: () => widget.onCopy?.call(
-                  widget.onFormatSelection?.call() ?? text,
-                ),
+                onPressed: () => widget.onCopy?.call(text),
               ),
             ],
           ),
-          child: _wrapSelection(Text(text), SelectionItem.message),
+          child: CustomSelectionText(
+            selections: widget.selections,
+            isTapMessage: widget.isTapMessage,
+            position: widget.position,
+            type: SelectionItem.message,
+            child: Text(text),
+          ),
         ),
       ),
     );
@@ -293,9 +293,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (desc.isNotEmpty) {
         final String text = desc.toString();
-        content = _wrapSelection(
-          Text(text, style: style.boldBody),
-          SelectionItem.message,
+        content = CustomSelectionText(
+          selections: widget.selections,
+          isTapMessage: widget.isTapMessage,
+          position: widget.position,
+          type: SelectionItem.message,
+          child: Text(text, style: style.boldBody),
         );
         _copyable[second] = text;
       }
@@ -341,19 +344,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: _wrapSelection(Text(title), SelectionItem.title)),
+          Flexible(
+            child: CustomSelectionText(
+              selections: widget.selections,
+              isTapMessage: widget.isTapMessage,
+              position: widget.position,
+              type: SelectionItem.title,
+              child: Text(title),
+            ),
+          ),
           if (time != null) ...[
             const SizedBox(width: 7),
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
-              child: _wrapSelection(
-                Text(
+              child: CustomSelectionText(
+                selections: widget.selections,
+                isTapMessage: widget.isTapMessage,
+                position: widget.position,
+                type: SelectionItem.time,
+                child: Text(
                   textTime,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: style.boldBody,
                 ),
-                SelectionItem.time,
               ),
             ),
           ],
@@ -362,23 +376,32 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     } else if (item is ChatMemberInfo) {
       final String text = item.action.toString();
       // TODO: Implement `ChatMemberInfo`.
-      content = _wrapSelection(
-        Text(text, style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text(text, style: style.boldBody),
       );
       _copyable[second] = text;
     } else if (item is ChatForward) {
       final String text = 'label_forwarded_message'.l10n;
-      content = _wrapSelection(
-        Text(text, style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text(text, style: style.boldBody),
       );
       _copyable[second] = text;
     } else {
       final String text = 'err_unknown'.l10n;
-      content = _wrapSelection(
-        Text(text, style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text(text, style: style.boldBody),
       );
       _copyable[second] = text;
     }
@@ -423,12 +446,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (snapshot.data?.user.value != null)
-                          _wrapSelection(
-                            Text(
+                          CustomSelectionText(
+                            selections: widget.selections,
+                            isTapMessage: widget.isTapMessage,
+                            position: widget.position,
+                            type: SelectionItem.title,
+                            child: Text(
                               userName,
                               style: style.boldBody.copyWith(color: color),
                             ),
-                            SelectionItem.title,
                           ),
                         if (content != null) ...[
                           const SizedBox(height: 2),
@@ -499,7 +525,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             if (msg.text != null) const SizedBox(height: 5),
           ],
-          if (text != null) _wrapSelection(Text(text), SelectionItem.message),
+          if (text != null)
+            CustomSelectionText(
+              selections: widget.selections,
+              isTapMessage: widget.isTapMessage,
+              position: widget.position,
+              type: SelectionItem.message,
+              child: Text(text),
+            ),
           if (msg.text != null && msg.attachments.isNotEmpty)
             const SizedBox(height: 5),
           if (media.isNotEmpty)
@@ -591,8 +624,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _wrapSelection(
-                Row(
+              CustomSelectionText(
+                selections: widget.selections,
+                isTapMessage: widget.isTapMessage,
+                position: widget.position,
+                type: SelectionItem.message,
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -620,7 +657,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ],
                   ],
                 ),
-                SelectionItem.message,
               ),
             ],
           ),
@@ -672,12 +708,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
 
       if (desc.isNotEmpty) {
-        content = _wrapSelection(
-          Text(
+        content = CustomSelectionText(
+          selections: widget.selections,
+          isTapMessage: widget.isTapMessage,
+          position: widget.position,
+          type: SelectionItem.replyMessage,
+          child: Text(
             desc.toString(),
             style: style.boldBody,
           ),
-          SelectionItem.replyMessage,
         );
         if (second != null) {
           _copyable[second] = desc.toString();
@@ -727,19 +766,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: _wrapSelection(Text(title), SelectionItem.title)),
+          Flexible(
+            child: CustomSelectionText(
+              selections: widget.selections,
+              isTapMessage: widget.isTapMessage,
+              position: widget.position,
+              type: SelectionItem.title,
+              child: Text(title),
+            ),
+          ),
           if (time != null) ...[
             const SizedBox(width: 7),
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
-              child: _wrapSelection(
-                Text(
+              child: CustomSelectionText(
+                selections: widget.selections,
+                isTapMessage: widget.isTapMessage,
+                position: widget.position,
+                type: SelectionItem.time,
+                child: Text(
                   textTime,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: style.boldBody,
                 ),
-                SelectionItem.time,
               ),
             ),
           ],
@@ -747,26 +797,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      content = _wrapSelection(
-        Text(item.action.toString(), style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text(item.action.toString(), style: style.boldBody),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
       }
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = _wrapSelection(
-        Text('label_forwarded_message'.l10n, style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text('label_forwarded_message'.l10n, style: style.boldBody),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
       }
     } else {
-      content = _wrapSelection(
-        Text('err_unknown'.l10n, style: style.boldBody),
-        SelectionItem.message,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        child: Text('err_unknown'.l10n, style: style.boldBody),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
@@ -807,12 +866,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (snapshot.data?.user.value != null)
-                      _wrapSelection(
-                        Text(
+                      CustomSelectionText(
+                        selections: widget.selections,
+                        isTapMessage: widget.isTapMessage,
+                        position: widget.position,
+                        type: SelectionItem.title,
+                        child: Text(
                           userName,
                           style: style.boldBody.copyWith(color: color),
                         ),
-                        SelectionItem.title,
                       ),
                     if (content != null) ...[
                       const SizedBox(height: 2),
@@ -1077,8 +1139,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: ElasticAnimatedSwitcher(child: leading),
             ),
             Flexible(
-              child: _wrapSelection(
-                Row(
+              child: CustomSelectionText(
+                selections: widget.selections,
+                isTapMessage: widget.isTapMessage,
+                position: widget.position,
+                type: SelectionItem.messageFile,
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Flexible(
@@ -1102,7 +1168,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   ],
                 ),
-                SelectionItem.messageFile,
               ),
             ),
           ],
@@ -1150,17 +1215,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               key: const Key('CopyButton'),
               label: 'btn_copy_text'.l10n,
               onPressed: () {
-                widget.onCopy?.call(
-                  widget.onFormatSelection?.call() ?? messageTime,
-                );
+                widget.onCopy?.call(messageTime);
               },
             ),
           ],
         ),
-        child: _wrapSelection(
-          Text(messageTime),
-          SelectionItem.time,
-          widget.animation,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          isTapMessage: widget.isTapMessage,
+          position: widget.position,
+          type: SelectionItem.time,
+          animation: widget.animation,
+          child: Text(messageTime),
         ),
       ),
       child: Row(
@@ -1241,10 +1307,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
                                 label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy?.call(
-                                  widget.onFormatSelection?.call() ??
-                                      _copyable.values.join('\n'),
-                                ),
+                                onPressed: () => widget.onCopy
+                                    ?.call(_copyable.values.join('\n')),
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(
@@ -1369,30 +1433,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .map((e) => GlobalKey())
             .toList();
       }
-    }
-  }
-
-  /// Get [Widget] with selectable text.
-  Widget _wrapSelection(
-    Widget content,
-    SelectionItem type, [
-    AnimationController? animation,
-  ]) {
-    Rx<bool>? isTapMessage = widget.isTapMessage;
-    Map<int, List<SelectionData>>? selections = widget.selections;
-    int? position = widget.position;
-
-    if (isTapMessage != null && selections != null && position != null) {
-      return CustomSelectionText(
-        isTapMessage: isTapMessage,
-        selections: selections,
-        type: type,
-        position: position,
-        animation: animation,
-        child: content,
-      );
-    } else {
-      return content;
     }
   }
 }

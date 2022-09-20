@@ -63,17 +63,35 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
   /// Selectable text storage.
   late final SelectionData selectionData;
 
-  /// Time in milliseconds of last click on this object.
-  int lastTap = DateTime.now().millisecondsSinceEpoch;
-
-  /// Click counter.
-  int consecutiveTaps = 0;
+  /// [GestureRecognizer] recognizes double and triple tap gestures.
+  ///
+  /// Double-tap selects a word, triple-tap selects all text.
+  final Map<Type, GestureRecognizerFactory> _gestureRecognizers =
+      <Type, GestureRecognizerFactory>{};
 
   @override
   void initState() {
     super.initState();
     delegate = _SelectableRegionContainerDelegate();
     delegate.addListener(_selectionChange);
+
+    _gestureRecognizers[SerialTapGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
+      () => SerialTapGestureRecognizer(),
+      (SerialTapGestureRecognizer instance) {
+        instance.onSerialTapUp = (SerialTapUpDetails details) {
+          if (details.count == 2) {
+            delegate.handleSelectWord(
+              SelectWordSelectionEvent(globalPosition: details.globalPosition),
+            );
+          }
+          if (details.count == 3) {
+            delegate.handleSelectAll(const SelectAllSelectionEvent());
+          }
+          _selectionChange();
+        };
+      },
+    );
 
     selectionData = SelectionData(widget.position, widget.type);
     if (widget.selections[selectionData.position] == null) {
@@ -94,33 +112,13 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _onTap,
+    return RawGestureDetector(
+      gestures: _gestureRecognizers,
       child: SelectionContainer(
         delegate: delegate,
         child: widget.child,
       ),
     );
-  }
-
-  /// Handles tap on [Widget].
-  ///
-  /// Call [SelectAllSelectionEvent] on triple click.
-  void _onTap() {
-    int now = DateTime.now().millisecondsSinceEpoch;
-    if (consecutiveTaps == 0 ||
-        now - lastTap <= kDoubleTapTimeout.inMilliseconds) {
-      consecutiveTaps++;
-      if (consecutiveTaps == 3) {
-        delegate.handleSelectAll(const SelectAllSelectionEvent());
-        consecutiveTaps = 0;
-        lastTap = 0;
-        return;
-      }
-    } else {
-      consecutiveTaps = 0;
-    }
-    lastTap = now;
   }
 
   /// Writes data to [selectionData.data].
@@ -159,6 +157,7 @@ class _SelectableRegionContainerDelegate
     super.remove(selectable);
   }
 
+  /// Get updated selection coordinates.
   void _updateLastEdgeEventsFromGeometries() {
     if (currentSelectionStartIndex != -1) {
       final Selectable start = selectables[currentSelectionStartIndex];

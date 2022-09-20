@@ -228,7 +228,6 @@ class _ChatViewState extends State<ChatView>
                             ),
                             SafeArea(
                               child: CustomSelectionArea(
-                                formatSelection: c.formatSelection,
                                 copyText: c.copyText,
                                 child: FlutterListView(
                                   key: const Key('MessagesList'),
@@ -310,8 +309,6 @@ class _ChatViewState extends State<ChatView>
                                                 c.resendItem(e.value),
                                             onEdit: () =>
                                                 c.editMessage(e.value),
-                                            onFormatSelection:
-                                                c.formatSelection,
                                             onFileTap: c.download,
                                           ),
                                         ),
@@ -346,7 +343,6 @@ class _ChatViewState extends State<ChatView>
                                           isTapMessage: c.isTapMessage,
                                           selections: c.selections,
                                           onCopy: (text) => c.copyText(text),
-                                          onFormatSelection: c.formatSelection,
                                         ));
                                       } else {
                                         Rx<ChatItem>? previous =
@@ -366,8 +362,6 @@ class _ChatViewState extends State<ChatView>
                                               selections: c.selections,
                                               onCopy: (text) =>
                                                   c.copyText(text),
-                                              onFormatSelection:
-                                                  c.formatSelection,
                                             ));
                                           }
                                         }
@@ -390,8 +384,8 @@ class _ChatViewState extends State<ChatView>
                                     keepPosition: true,
                                     onItemKey: (int i) => '$i',
                                     onIsPermanent: (String i) {
-                                      if (!c.isSelectionByPosition(
-                                          int.parse(i))) {
+                                      if (!c.selections
+                                          .isSelected(int.parse(i))) {
                                         return false;
                                       }
                                       return true;
@@ -585,13 +579,13 @@ class _ChatViewState extends State<ChatView>
                   ),
                 ],
               ),
-              child: _wrapSelection(
-                Text(DateFormat('dd.MM.yy').format(time)),
-                SelectionItem.date,
-                isTapMessage,
-                selections,
-                position,
-                _animation,
+              child: CustomSelectionText(
+                selections: selections,
+                isTapMessage: isTapMessage,
+                position: position,
+                type: SelectionItem.date,
+                animation: _animation,
+                child: Text(DateFormat('dd.MM.yy').format(time)),
               ),
             ),
           ),
@@ -615,15 +609,15 @@ class _ChatViewState extends State<ChatView>
                     ),
                   ],
                 ),
-                child: _wrapSelection(
-                  Text(
+                child: CustomSelectionText(
+                  selections: selections,
+                  isTapMessage: isTapMessage,
+                  position: position,
+                  type: SelectionItem.relativeTime,
+                  child: Text(
                     timeRelative,
                     style: const TextStyle(color: Color(0xFF888888)),
                   ),
-                  SelectionItem.relativeTime,
-                  isTapMessage,
-                  selections,
-                  position,
                 ),
               ),
             ),
@@ -1309,32 +1303,6 @@ class _ChatViewState extends State<ChatView>
       }
       c.horizontalScrollTimer.value = null;
     });
-  }
-
-  /// Get [Widget] with selectable text.
-  Widget _wrapSelection(
-    Widget content,
-    SelectionItem? type,
-    Rx<bool>? isTapMessage,
-    Map<int, List<SelectionData>>? selections,
-    int? position, [
-    AnimationController? animation,
-  ]) {
-    if (type != null &&
-        isTapMessage != null &&
-        selections != null &&
-        position != null) {
-      return CustomSelectionText(
-        isTapMessage: isTapMessage,
-        selections: selections,
-        type: type,
-        position: position,
-        animation: animation,
-        child: content,
-      );
-    } else {
-      return content;
-    }
   }
 }
 

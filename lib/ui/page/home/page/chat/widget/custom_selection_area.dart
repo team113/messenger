@@ -22,16 +22,12 @@ import 'package:flutter/material.dart';
 class CustomSelectionArea extends StatelessWidget {
   const CustomSelectionArea({
     super.key,
-    required this.formatSelection,
     required this.copyText,
     required this.child,
   });
 
-  /// Callback, called when the selected text is received.
-  final String? Function() formatSelection;
-
-  /// Widget with content to selected.
-  final void Function(String text) copyText;
+  /// Callback that is called on [CopySelectionTextIntent].
+  final void Function() copyText;
 
   /// [Widget] in which there will be text to selection.
   final Widget child;
@@ -41,7 +37,7 @@ class CustomSelectionArea extends StatelessWidget {
     return Actions(
       actions: <Type, Action<Intent>>{
         CopySelectionTextIntent: Action.overridable(
-          defaultAction: _CopySelectionAction(formatSelection, copyText),
+          defaultAction: _CopySelectionAction(copyText),
           context: context,
         ),
       },
@@ -52,19 +48,11 @@ class CustomSelectionArea extends StatelessWidget {
 
 /// [Action] for copy.
 class _CopySelectionAction extends Action<CopySelectionTextIntent> {
-  _CopySelectionAction(this.formatSelection, this.copyText);
+  _CopySelectionAction(this.copyText);
 
-  /// Callback, called when the selected text is received.
-  final String? Function() formatSelection;
-
-  /// Callback to save to clipboard.
-  final void Function(String text) copyText;
+  /// Callback that is called on [CopySelectionTextIntent].
+  final void Function() copyText;
 
   @override
-  Future<void> invoke(_) async {
-    final String? clipboard = formatSelection();
-    if (clipboard != null && clipboard.isNotEmpty) {
-      copyText(clipboard);
-    }
-  }
+  Future<void> invoke(_) async => copyText();
 }
