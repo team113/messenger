@@ -451,6 +451,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             isTapMessage: widget.isTapMessage,
                             position: widget.position,
                             type: SelectionItem.title,
+                            isIgnoreCursor: true,
                             child: Text(
                               userName,
                               style: style.boldBody.copyWith(color: color),
@@ -713,6 +714,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           isTapMessage: widget.isTapMessage,
           position: widget.position,
           type: SelectionItem.replyMessage,
+          isIgnoreCursor: true,
           child: Text(
             desc.toString(),
             style: style.boldBody,
@@ -772,6 +774,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               isTapMessage: widget.isTapMessage,
               position: widget.position,
               type: SelectionItem.title,
+              isIgnoreCursor: true,
               child: Text(title),
             ),
           ),
@@ -784,6 +787,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 isTapMessage: widget.isTapMessage,
                 position: widget.position,
                 type: SelectionItem.time,
+                isIgnoreCursor: true,
                 child: Text(
                   textTime,
                   maxLines: 1,
@@ -802,6 +806,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isTapMessage: widget.isTapMessage,
         position: widget.position,
         type: SelectionItem.message,
+        isIgnoreCursor: true,
         child: Text(item.action.toString(), style: style.boldBody),
       );
       if (second != null) {
@@ -814,6 +819,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isTapMessage: widget.isTapMessage,
         position: widget.position,
         type: SelectionItem.message,
+        isIgnoreCursor: true,
         child: Text('label_forwarded_message'.l10n, style: style.boldBody),
       );
       if (second != null) {
@@ -825,6 +831,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isTapMessage: widget.isTapMessage,
         position: widget.position,
         type: SelectionItem.message,
+        isIgnoreCursor: true,
         child: Text('err_unknown'.l10n, style: style.boldBody),
       );
       if (second != null) {
@@ -871,6 +878,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         isTapMessage: widget.isTapMessage,
                         position: widget.position,
                         type: SelectionItem.title,
+                        isIgnoreCursor: true,
                         child: Text(
                           userName,
                           style: style.boldBody.copyWith(color: color),
@@ -1144,6 +1152,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 isTapMessage: widget.isTapMessage,
                 position: widget.position,
                 type: SelectionItem.messageFile,
+                isIgnoreCursor: true,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

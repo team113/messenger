@@ -637,7 +637,7 @@ class ChatController extends GetxController {
 
   /// Puts a [text] into the clipboard and shows a snackbar.
   ///
-  /// First get [selections.formatted], if it is not there then take [text].
+  /// First get [selections] selected text, if it is not there then take [text].
   void copyText([String? text]) {
     String? result;
     final String? selection = selections.formatted;

@@ -29,14 +29,12 @@ class CustomSelectionText extends StatelessWidget {
     required this.type,
     this.isTapMessage,
     this.animation,
+    this.isIgnoreCursor,
     required this.child,
   }) : super(key: key);
 
   /// Storage [SelectionData].
   final Map<int, List<SelectionData>>? selections;
-
-  /// Clicking on [SelectionData].
-  final Rx<bool>? isTapMessage;
 
   /// Message position index.
   ///
@@ -48,8 +46,16 @@ class CustomSelectionText extends StatelessWidget {
   /// Sorting is by [SelectionItem.index] for each [position].
   final SelectionItem? type;
 
+  /// Clicking on [SelectionData].
+  final Rx<bool>? isTapMessage;
+
   /// Controller for an animation.
   final AnimationController? animation;
+
+  /// Indicates whether [child] can be selected.
+  ///
+  /// Text is not directly selected, only when all text is selected.
+  final bool? isIgnoreCursor;
 
   /// [Widget] in which there will be text to selection.
   final Widget child;
@@ -57,7 +63,7 @@ class CustomSelectionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type != null && selections != null && position != null) {
-      return Listener(
+      final Widget widget = Listener(
         onPointerDown: (_) => isTapMessage?.value = true,
         onPointerUp: (_) => isTapMessage?.value = false,
         onPointerCancel: (_) => isTapMessage?.value = false,
@@ -69,8 +75,14 @@ class CustomSelectionText extends StatelessWidget {
           child: child,
         ),
       );
+
+      if (isIgnoreCursor == true) {
+        return IgnorePointer(child: widget);
+      } else {
+        return widget;
+      }
     } else {
-      return child;
+      return SelectionContainer.disabled(child: child);
     }
   }
 }
