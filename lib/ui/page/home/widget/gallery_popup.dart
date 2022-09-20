@@ -341,22 +341,20 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              label: 'btn_save_to_gallery'.l10n,
-              onPressed: () => _saveToGallery(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_share'.l10n,
-              onPressed: () => _share(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_info'.l10n,
-              onPressed: () {},
-            ),
-          ],
-        ),
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => _saveToGallery(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => _share(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
           wantKeepAlive: false,
@@ -433,54 +431,47 @@ class _GalleryPopupState extends State<GalleryPopup>
       },
       pageSnapping: !_ignorePageSnapping,
       children: widget.children.mapIndexed((index, e) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              e.isVideo
-                  ? Video(
-                      e.link,
-                      onClose: _dismiss,
-                      isFullscreen: _isFullscreen,
-                      toggleFullscreen: () {
-                        node.requestFocus();
-                        _toggleFullscreen();
-                      },
-                      onController: (c) {
-                        if (c == null) {
-                          _videoControllers.remove(index);
-                        } else {
-                          _videoControllers[index] = c;
-                        }
-                      },
-                    )
-                  : ContextMenuRegion(
-                      enabled: !PlatformUtils.isWeb,
-                      menu: ContextMenu(
-                        actions: [
-                          ContextMenuButton(
-                            label: 'btn_download'.l10n,
-                            onPressed: () => _download(widget.children[_page]),
-                          ),
-                          ContextMenuButton(
-                            label: 'btn_info'.l10n,
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                      child: GestureDetector(
-                        onTap: () {},
-                        onDoubleTap: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        child: PlatformUtils.isWeb
-                            ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
-                      ),
-                    ),
-            ],
+        return ContextMenuRegion(
+          enabled: !PlatformUtils.isWeb,
+          actions: [
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () => _download(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: e.isVideo
+                ? Video(
+                    e.link,
+                    onClose: _dismiss,
+                    isFullscreen: _isFullscreen,
+                    toggleFullscreen: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    onController: (c) {
+                      if (c == null) {
+                        _videoControllers.remove(index);
+                      } else {
+                        _videoControllers[index] = c;
+                      }
+                    },
+                  )
+                : GestureDetector(
+                    onTap: () {},
+                    onDoubleTap: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    child: PlatformUtils.isWeb
+                        ? IgnorePointer(child: WebImage(e.link))
+                        : Image.network(e.link),
+                  ),
           ),
         );
       }).toList(),

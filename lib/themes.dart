@@ -38,6 +38,7 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            cardRadius: BorderRadius.circular(14),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
@@ -237,18 +238,24 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.cardRadius,
     required this.boldBody,
   });
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
+  /// [BorderRadius] of card-like [Widget]s.
+  final BorderRadius? cardRadius;
+
   @override
   ThemeExtension<Style> copyWith({
+    BorderRadius? cardRadius,
     TextStyle? boldBody,
   }) {
     return Style(
       boldBody: boldBody ?? this.boldBody,
+      cardRadius: cardRadius ?? this.cardRadius,
     );
   }
 
@@ -260,6 +267,7 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
     );
   }
 }
