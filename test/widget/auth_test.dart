@@ -78,7 +78,7 @@ void main() async {
   await applicationSettingsProvider.init(userId: const UserId('me'));
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init(userId: const UserId('me'));
-  
+
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
