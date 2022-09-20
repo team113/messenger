@@ -39,7 +39,7 @@ class CustomSelectionText extends StatelessWidget {
   final Rx<bool>? isTapMessage;
 
   /// Message position index.
-  /// 
+  ///
   /// It is sorted.
   final int? position;
 
