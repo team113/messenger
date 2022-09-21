@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/listen_tap.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -248,17 +249,20 @@ class _ChatViewState extends State<ChatView>
                                               vertical: 4,
                                             ),
                                             child: Center(
-                                              child: CustomSelectionText(
-                                                selections: c.selections,
-                                                isTapMessage: c.isTapMessage,
-                                                position: i,
-                                                type: SelectionItem.message,
-                                                child: Text(
-                                                  'label_unread_messages'.l10n,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
+                                              child: ListenTap(
+                                                isTap: c.isTapMessage,
+                                                child: CustomSelectionText(
+                                                  selections: c.selections,
+                                                  position: i,
+                                                  type: SelectionItem.message,
+                                                  child: Text(
+                                                    'label_unread_messages'
+                                                        .l10n,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                    textAlign: TextAlign.center,
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
                                             ),
@@ -579,13 +583,15 @@ class _ChatViewState extends State<ChatView>
                   ),
                 ],
               ),
-              child: CustomSelectionText(
-                selections: selections,
-                isTapMessage: isTapMessage,
-                position: position,
-                type: SelectionItem.date,
-                animation: _animation,
-                child: Text(DateFormat('dd.MM.yy').format(time)),
+              child: ListenTap(
+                isTap: isTapMessage,
+                child: CustomSelectionText(
+                  selections: selections,
+                  position: position,
+                  type: SelectionItem.date,
+                  animation: _animation,
+                  child: Text(DateFormat('dd.MM.yy').format(time)),
+                ),
               ),
             ),
           ),
@@ -609,14 +615,16 @@ class _ChatViewState extends State<ChatView>
                     ),
                   ],
                 ),
-                child: CustomSelectionText(
-                  selections: selections,
-                  isTapMessage: isTapMessage,
-                  position: position,
-                  type: SelectionItem.relativeTime,
-                  child: Text(
-                    timeRelative,
-                    style: const TextStyle(color: Color(0xFF888888)),
+                child: ListenTap(
+                  isTap: isTapMessage,
+                  child: CustomSelectionText(
+                    selections: selections,
+                    position: position,
+                    type: SelectionItem.relativeTime,
+                    child: Text(
+                      timeRelative,
+                      style: const TextStyle(color: Color(0xFF888888)),
+                    ),
                   ),
                 ),
               ),

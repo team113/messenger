@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../controller.dart';
 import 'custom_selection_container.dart';
@@ -27,7 +26,6 @@ class CustomSelectionText extends StatelessWidget {
     required this.selections,
     required this.position,
     required this.type,
-    this.isTapMessage,
     this.animation,
     this.isIgnoreCursor,
     required this.child,
@@ -46,9 +44,6 @@ class CustomSelectionText extends StatelessWidget {
   /// Sorting is by [SelectionItem.index] for each [position].
   final SelectionItem? type;
 
-  /// Clicking on [SelectionData].
-  final Rx<bool>? isTapMessage;
-
   /// Controller for an animation.
   final AnimationController? animation;
 
@@ -63,17 +58,12 @@ class CustomSelectionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type != null && selections != null && position != null) {
-      final Widget widget = Listener(
-        onPointerDown: (_) => isTapMessage?.value = true,
-        onPointerUp: (_) => isTapMessage?.value = false,
-        onPointerCancel: (_) => isTapMessage?.value = false,
-        child: CustomSelectionContainer(
-          selections: selections!,
-          position: position!,
-          type: type!,
-          animation: animation,
-          child: child,
-        ),
+      final Widget widget = CustomSelectionContainer(
+        selections: selections!,
+        position: position!,
+        type: type!,
+        animation: animation,
+        child: child,
       );
 
       if (isIgnoreCursor == true) {

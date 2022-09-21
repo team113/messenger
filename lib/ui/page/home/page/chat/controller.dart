@@ -1044,8 +1044,7 @@ class _ListViewIndexCalculationResult {
 
 /// Type of selected text in chat.
 ///
-/// Identification of selected text for sorting and formatting.
-/// Sorting is by [SelectionItem.index].
+/// Identification of selected text to sort by [SelectionItem.index]
 enum SelectionItem {
   /// Relative time (for example, 4 days ago, 14:28).
   relativeTime,

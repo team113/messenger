@@ -53,6 +53,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import 'custom_selection_text.dart';
+import 'listen_tap.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -233,12 +234,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             ],
           ),
-          child: CustomSelectionText(
-            selections: widget.selections,
-            isTapMessage: widget.isTapMessage,
-            position: widget.position,
-            type: SelectionItem.message,
-            child: Text(text),
+          child: ListenTap(
+            isTap: widget.isTapMessage,
+            child: CustomSelectionText(
+              selections: widget.selections,
+              position: widget.position,
+              type: SelectionItem.message,
+              child: Text(text),
+            ),
           ),
         ),
       ),
@@ -293,12 +296,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (desc.isNotEmpty) {
         final String text = desc.toString();
-        content = CustomSelectionText(
-          selections: widget.selections,
-          isTapMessage: widget.isTapMessage,
-          position: widget.position,
-          type: SelectionItem.message,
-          child: Text(text, style: style.boldBody),
+        content = ListenTap(
+          isTap: widget.isTapMessage,
+          child: CustomSelectionText(
+            selections: widget.selections,
+            position: widget.position,
+            type: SelectionItem.message,
+            child: Text(text, style: style.boldBody),
+          ),
         );
         _copyable[second] = text;
       }
@@ -328,74 +333,82 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       } else {
         _copyable[second] = title;
       }
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        isIgnoreCursor: true,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
-                  ? SvgLoader.asset(
-                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 13,
-                    )
-                  : SvgLoader.asset(
-                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 15,
-                    ),
-            ),
-            Flexible(
-              child: Text(title),
-            ),
-            if (time != null) ...[
-              const SizedBox(width: 7),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          isIgnoreCursor: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  textTime,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody,
-                ),
+                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                child: item.withVideo
+                    ? SvgLoader.asset(
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                        height: 13,
+                      )
+                    : SvgLoader.asset(
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                        height: 15,
+                      ),
               ),
+              Flexible(
+                child: Text(title),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 7),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1),
+                  child: Text(
+                    textTime,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.boldBody,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       );
     } else if (item is ChatMemberInfo) {
       final String text = item.action.toString();
       // TODO: Implement `ChatMemberInfo`.
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        child: Text(text, style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          child: Text(text, style: style.boldBody),
+        ),
       );
       _copyable[second] = text;
     } else if (item is ChatForward) {
       final String text = 'label_forwarded_message'.l10n;
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        child: Text(text, style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          child: Text(text, style: style.boldBody),
+        ),
       );
       _copyable[second] = text;
     } else {
       final String text = 'err_unknown'.l10n;
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        child: Text(text, style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          child: Text(text, style: style.boldBody),
+        ),
       );
       _copyable[second] = text;
     }
@@ -440,15 +453,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (snapshot.data?.user.value != null)
-                          CustomSelectionText(
-                            selections: widget.selections,
-                            isTapMessage: widget.isTapMessage,
-                            position: widget.position,
-                            type: SelectionItem.title,
-                            isIgnoreCursor: true,
-                            child: Text(
-                              userName,
-                              style: style.boldBody.copyWith(color: color),
+                          ListenTap(
+                            isTap: widget.isTapMessage,
+                            child: CustomSelectionText(
+                              selections: widget.selections,
+                              position: widget.position,
+                              type: SelectionItem.title,
+                              isIgnoreCursor: true,
+                              child: Text(
+                                userName,
+                                style: style.boldBody.copyWith(color: color),
+                              ),
                             ),
                           ),
                         if (content != null) ...[
@@ -521,12 +536,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             if (msg.text != null) const SizedBox(height: 5),
           ],
           if (text != null)
-            CustomSelectionText(
-              selections: widget.selections,
-              isTapMessage: widget.isTapMessage,
-              position: widget.position,
-              type: SelectionItem.message,
-              child: Text(text),
+            ListenTap(
+              isTap: widget.isTapMessage,
+              child: CustomSelectionText(
+                selections: widget.selections,
+                position: widget.position,
+                type: SelectionItem.message,
+                child: Text(text),
+              ),
             ),
           if (msg.text != null && msg.attachments.isNotEmpty)
             const SizedBox(height: 5),
@@ -619,38 +636,40 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomSelectionText(
-                selections: widget.selections,
-                isTapMessage: widget.isTapMessage,
-                position: widget.position,
-                type: SelectionItem.message,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (time != null) ...[
-                      const SizedBox(width: 7),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 1),
+              ListenTap(
+                isTap: widget.isTapMessage,
+                child: CustomSelectionText(
+                  selections: widget.selections,
+                  position: widget.position,
+                  type: SelectionItem.message,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
                         child: Text(
-                          textTime,
+                          title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF888888),
-                            fontSize: 13,
-                          ),
                         ),
                       ),
+                      if (time != null) ...[
+                        const SizedBox(width: 7),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 1),
+                          child: Text(
+                            textTime,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF888888),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -703,15 +722,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
 
       if (desc.isNotEmpty) {
-        content = CustomSelectionText(
-          selections: widget.selections,
-          isTapMessage: widget.isTapMessage,
-          position: widget.position,
-          type: SelectionItem.replyMessage,
-          isIgnoreCursor: true,
-          child: Text(
-            desc.toString(),
-            style: style.boldBody,
+        content = ListenTap(
+          isTap: widget.isTapMessage,
+          child: CustomSelectionText(
+            selections: widget.selections,
+            position: widget.position,
+            type: SelectionItem.replyMessage,
+            isIgnoreCursor: true,
+            child: Text(
+              desc.toString(),
+              style: style.boldBody,
+            ),
           ),
         );
         if (second != null) {
@@ -747,79 +768,87 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
       }
 
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        isIgnoreCursor: true,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-              child: item.withVideo
-                  ? SvgLoader.asset(
-                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 13,
-                    )
-                  : SvgLoader.asset(
-                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                      height: 15,
-                    ),
-            ),
-            Flexible(
-              child: Text(title),
-            ),
-            if (time != null) ...[
-              const SizedBox(width: 7),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          isIgnoreCursor: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  textTime,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.boldBody,
-                ),
+                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                child: item.withVideo
+                    ? SvgLoader.asset(
+                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                        height: 13,
+                      )
+                    : SvgLoader.asset(
+                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                        height: 15,
+                      ),
               ),
+              Flexible(
+                child: Text(title),
+              ),
+              if (time != null) ...[
+                const SizedBox(width: 7),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1),
+                  child: Text(
+                    textTime,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.boldBody,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        isIgnoreCursor: true,
-        child: Text(item.action.toString(), style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          isIgnoreCursor: true,
+          child: Text(item.action.toString(), style: style.boldBody),
+        ),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
       }
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        isIgnoreCursor: true,
-        child: Text('label_forwarded_message'.l10n, style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          isIgnoreCursor: true,
+          child: Text('label_forwarded_message'.l10n, style: style.boldBody),
+        ),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
       }
     } else {
-      content = CustomSelectionText(
-        selections: widget.selections,
-        isTapMessage: widget.isTapMessage,
-        position: widget.position,
-        type: SelectionItem.message,
-        isIgnoreCursor: true,
-        child: Text('err_unknown'.l10n, style: style.boldBody),
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: SelectionItem.message,
+          isIgnoreCursor: true,
+          child: Text('err_unknown'.l10n, style: style.boldBody),
+        ),
       );
       if (second != null) {
         _copyable[second] = 'label_forwarded_message'.l10n;
@@ -860,15 +889,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (snapshot.data?.user.value != null)
-                      CustomSelectionText(
-                        selections: widget.selections,
-                        isTapMessage: widget.isTapMessage,
-                        position: widget.position,
-                        type: SelectionItem.title,
-                        isIgnoreCursor: true,
-                        child: Text(
-                          userName,
-                          style: style.boldBody.copyWith(color: color),
+                      ListenTap(
+                        isTap: widget.isTapMessage,
+                        child: CustomSelectionText(
+                          selections: widget.selections,
+                          position: widget.position,
+                          type: SelectionItem.title,
+                          isIgnoreCursor: true,
+                          child: Text(
+                            userName,
+                            style: style.boldBody.copyWith(color: color),
+                          ),
                         ),
                       ),
                     if (content != null) ...[
@@ -1134,35 +1165,37 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: ElasticAnimatedSwitcher(child: leading),
             ),
             Flexible(
-              child: CustomSelectionText(
-                selections: widget.selections,
-                isTapMessage: widget.isTapMessage,
-                position: widget.position,
-                type: SelectionItem.messageFile,
-                isIgnoreCursor: true,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        filename,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 1),
-                      child: Text(
-                        filesize,
-                        style: const TextStyle(
-                          color: Color(0xFF888888),
-                          fontSize: 13,
+              child: ListenTap(
+                isTap: widget.isTapMessage,
+                child: CustomSelectionText(
+                  selections: widget.selections,
+                  position: widget.position,
+                  type: SelectionItem.messageFile,
+                  isIgnoreCursor: true,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          filename,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 1),
+                        child: Text(
+                          filesize,
+                          style: const TextStyle(
+                            color: Color(0xFF888888),
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1216,13 +1249,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           ],
         ),
-        child: CustomSelectionText(
-          selections: widget.selections,
-          isTapMessage: widget.isTapMessage,
-          position: widget.position,
-          type: SelectionItem.time,
-          animation: widget.animation,
-          child: Text(messageTime),
+        child: ListenTap(
+          isTap: widget.isTapMessage,
+          child: CustomSelectionText(
+            selections: widget.selections,
+            position: widget.position,
+            type: SelectionItem.time,
+            animation: widget.animation,
+            child: Text(messageTime),
+          ),
         ),
       ),
       child: Row(
