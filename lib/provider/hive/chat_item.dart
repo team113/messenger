@@ -138,7 +138,7 @@ class HiveChatMessage extends HiveChatItem {
     required ChatId chatId,
     required UserId me,
     ChatMessageText? text,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
     List<Attachment> attachments = const [],
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
@@ -156,12 +156,12 @@ class HiveChatMessage extends HiveChatItem {
         ),
         const ChatItemsCursor(''),
         ChatItemVersion('0'),
-        const ChatItemsCursor(''),
+        [],
       );
 
-  /// Cursor of a [ChatMessage.repliesTo].
+  /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
-  ChatItemsCursor? repliesToCursor;
+  List<ChatItemsCursor>? repliesToCursor;
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].

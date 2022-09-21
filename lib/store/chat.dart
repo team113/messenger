@@ -179,7 +179,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) async {
     HiveRxChat? rxChat = _chats[chatId] ?? (await get(chatId));
     await rxChat?.postChatMessage(
@@ -205,7 +205,7 @@ class ChatRepository implements AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<ChatItemId> repliesTo = const [],
   }) =>
       _graphQlProvider.postChatMessage(
         chatId,
@@ -487,7 +487,6 @@ class ChatRepository implements AbstractChatRepository {
       var model = response.attachment.toModel();
       attachment.id = model.id;
       attachment.filename = model.filename;
-      attachment.size = model.size;
       attachment.original = model.original;
       attachment.upload.value?.complete(model);
       attachment.status.value = SendingStatus.sent;
@@ -565,14 +564,27 @@ class ChatRepository implements AbstractChatRepository {
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ [ChatItem]s of the [chat] ordered by their posting time.
-  Future<List<HiveChatItem>> messages(ChatId chatItemId) async {
+  Future<List<HiveChatItem>> messages(ChatId id) async {
     const maxInt = 120;
-    var query = await _graphQlProvider.chatItems(chatItemId, first: maxInt);
+    var query = await _graphQlProvider.chatItems(id, first: maxInt);
     return query.chat?.items.edges
             .map((e) => e.toHive())
             .expand((e) => e)
             .toList() ??
         [];
+  }
+
+  /// Fetches the [Attachment]s of the provided [item].
+  Future<List<Attachment>> attachments(HiveChatItem item) async {
+    var response = await _graphQlProvider.attachments(
+      item.value.chatId,
+      before: item.cursor,
+      after: item.cursor,
+      first: 1,
+      last: 0,
+    );
+
+    return response.chat?.items.toModel() ?? [];
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
@@ -732,6 +744,18 @@ class ChatRepository implements AbstractChatRepository {
         e.chatId,
         node.user.toModel(),
         node.at,
+      );
+    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+      _userRepo.put(node.user.toHive());
+      return EventChatCallMemberRedialed(
+        e.chatId,
+        node.at,
+        node.callId,
+        node.call.toModel(),
+        node.user.toModel(),
+        node.byUser.toModel(),
       );
     } else if (e.$$typename == 'EventChatDelivered') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;

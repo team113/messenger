@@ -30,25 +30,38 @@ class VideoThumbnail extends StatefulWidget {
     this.path,
     this.bytes,
     this.height,
+    this.onError,
   })  : assert(
             (path != null && bytes == null) || (path == null && bytes != null)),
         super(key: key);
 
   /// Constructs a [VideoThumbnail] from the provided [path].
   factory VideoThumbnail.path({
+    Key? key,
     required String path,
     double? height,
-    Key? key,
+    Future<void> Function()? onError,
   }) =>
-      VideoThumbnail._(key: key, path: path, height: height);
+      VideoThumbnail._(
+        key: key,
+        path: path,
+        height: height,
+        onError: onError,
+      );
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   factory VideoThumbnail.bytes({
+    Key? key,
     required Uint8List bytes,
     double? height,
-    Key? key,
+    Future<void> Function()? onError,
   }) =>
-      VideoThumbnail._(key: key, bytes: bytes, height: height);
+      VideoThumbnail._(
+        key: key,
+        bytes: bytes,
+        height: height,
+        onError: onError,
+      );
 
   /// URL of the video to display.
   final String? path;
@@ -58,6 +71,9 @@ class VideoThumbnail extends StatefulWidget {
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
+
+  /// Callback, called on the [VideoPlayerController] initialization errors.
+  final Future<void> Function()? onError;
 
   @override
   State<VideoThumbnail> createState() => _VideoThumbnailState();
@@ -134,9 +150,26 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       }
 
       await _controller.initialize();
-    } on PlatformException catch (_) {
-      // Plugin is not supported on the current platform.
-      _hasError = true;
+    } on PlatformException catch (e) {
+      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
+        if (widget.onError != null) {
+          await widget.onError?.call();
+          if (widget.bytes != null) {
+            _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
+          } else {
+            _controller = VideoPlayerController.network(widget.path!);
+          }
+
+          if (mounted) {
+            setState(() {});
+          }
+        } else {
+          _hasError = true;
+        }
+      } else {
+        // Plugin is not supported on the current platform.
+        _hasError = true;
+      }
     }
 
     if (mounted) {

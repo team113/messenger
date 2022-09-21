@@ -85,7 +85,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -166,7 +166,7 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     text: const ChatMessageText('reply message'),
     attachments: anyNamed('attachments'),
-    repliesTo: null,
+    repliesTo: [],
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',

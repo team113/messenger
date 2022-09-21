@@ -108,7 +108,7 @@ class ChatsTabView extends StatelessWidget {
             .where((e) => e.id != c.me)
             .map((e) => e.name?.val ?? e.num.val);
 
-        if (chat.currentCall == null) {
+        if (chat.ongoingCall == null) {
           if (typings.isNotEmpty) {
             subtitle = [
               Expanded(

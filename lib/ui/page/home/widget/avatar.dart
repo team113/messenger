@@ -263,7 +263,7 @@ class AvatarWidget extends StatelessWidget {
               ? null
               : DecorationImage(
                   image: NetworkImage(
-                    '${Config.url}:${Config.port}/files${avatar?.original}',
+                    '${Config.files}${avatar?.original.relativeRef}',
                   ),
                   fit: BoxFit.cover,
                   isAntiAlias: true,

@@ -92,7 +92,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]
@@ -283,7 +283,7 @@ void main() async {
             'gallery': {'nodes': []},
             'unreadCount': 0,
             'totalCount': 0,
-            'currentCall': null,
+            'ongoingCall': null,
             'ver': '0'
           },
           'event': null

@@ -90,7 +90,7 @@ class ChatWorker extends DisposableService {
     String? avatarUrl;
     Avatar? avatar = c.avatar.value;
     if (avatar != null) {
-      avatarUrl = '${Config.url}:${Config.port}/files${avatar.original}';
+      avatarUrl = '${Config.files}${avatar.original.relativeRef}';
     }
 
     // Display a new group chat notification.

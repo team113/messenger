@@ -94,28 +94,12 @@ class ChatService extends DisposableService {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) {
-    // Forward the [repliesTo] message to this [Chat], if [text] and
-    // [attachments] are not provided.
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
-        repliesTo != null) {
-      List<AttachmentId> attachments = [];
-      if (repliesTo is ChatMessage) {
-        attachments = repliesTo.attachments.map((a) => a.id).toList();
-      } else if (repliesTo is ChatForward) {
-        ChatItem nested = repliesTo.item;
-        if (nested is ChatMessage) {
-          attachments = nested.attachments.map((a) => a.id).toList();
-        }
-      }
-
-      return _chatRepository.forwardChatItems(
-        chatId,
-        chatId,
-        [ChatItemQuote(item: repliesTo, attachments: attachments)],
-      );
+        repliesTo.isNotEmpty) {
+      text ??= const ChatMessageText(' ');
     }
 
     if (text != null && text.val.length > ChatMessageText.maxLength) {

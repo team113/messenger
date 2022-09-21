@@ -41,28 +41,49 @@ import '/util/web/web_utils.dart';
 /// [GalleryItem] is treated as a video if [isVideo] is `true`, or as an image
 /// otherwise.
 class GalleryItem {
-  const GalleryItem({
+  GalleryItem({
     required this.link,
     required this.name,
     this.isVideo = false,
+    this.onDownloadError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: false);
+  factory GalleryItem.image(
+    String link,
+    String name, {
+    Future<void> Function()? onDownloadError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: false,
+        onDownloadError: onDownloadError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: true);
+  factory GalleryItem.video(
+    String link,
+    String name, {
+    Future<void> Function()? onDownloadError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: true,
+        onDownloadError: onDownloadError,
+      );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  final String link;
+  String link;
 
   /// File name of this [GalleryItem].
   final String name;
+
+  final Future<void> Function()? onDownloadError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -804,7 +825,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      await PlatformUtils.download(item.link, item.name);
+      try {
+        await PlatformUtils.download(item.link, item.name);
+      } catch (e) {
+        if (item.onDownloadError != null) {
+          await item.onDownloadError?.call();
+          await PlatformUtils.download(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_downloaded'.l10n
           : 'label_image_downloaded'.l10n);
@@ -816,7 +847,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      await PlatformUtils.saveToGallery(item.link, item.name);
+      try {
+        await PlatformUtils.saveToGallery(item.link, item.name);
+      } catch (e) {
+        if (item.onDownloadError != null) {
+          await item.onDownloadError?.call();
+          await PlatformUtils.saveToGallery(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_saved_to_gallery'.l10n
           : 'label_image_saved_to_gallery'.l10n);
@@ -828,7 +869,16 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
-      await PlatformUtils.share(item.link, item.name);
+      try {
+        await PlatformUtils.share(item.link, item.name);
+      } catch (e) {
+        if (item.onDownloadError != null) {
+          await item.onDownloadError?.call();
+          await PlatformUtils.share(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }

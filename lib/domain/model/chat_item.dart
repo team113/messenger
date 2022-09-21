@@ -95,7 +95,7 @@ class ChatMessage extends ChatItem {
     ChatId chatId,
     UserId authorId,
     PreciseDateTime at, {
-    this.repliesTo,
+    this.repliesTo = const [],
     this.text,
     this.editedAt,
     this.attachments = const [],
@@ -104,7 +104,7 @@ class ChatMessage extends ChatItem {
 
   /// Quote of the [ChatItem] this [ChatMessage] replies to.
   @HiveField(5)
-  ChatItem? repliesTo;
+  final List<ChatItem> repliesTo;
 
   /// Text of this [ChatMessage].
   @HiveField(6)
@@ -116,17 +116,18 @@ class ChatMessage extends ChatItem {
 
   /// [Attachment]s of this [ChatMessage].
   @HiveField(8)
-  List<Attachment> attachments;
+  final List<Attachment> attachments;
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
   /// [authorId], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
-        repliesTo?.id == other.repliesTo?.id &&
+        repliesTo.every((e) => other.repliesTo.any((m) => m.id == e.id)) &&
         authorId == other.authorId &&
         chatId == other.chatId &&
-        attachments.every((e) => other.attachments
-            .any((m) => m.size == e.size && m.filename == e.filename));
+        attachments.every((e) => other.attachments.any((m) =>
+            m.original.relativeRef == e.original.relativeRef &&
+            m.filename == e.filename));
   }
 }
 

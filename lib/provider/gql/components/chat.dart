@@ -44,7 +44,7 @@ abstract class ChatGraphQlMixin {
   ///
   /// Mandatory.
   Future<GetChat$Query> getChat(ChatId id) async {
-    var variables = GetChatArguments(id: id);
+    final variables = GetChatArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetChat',
@@ -75,7 +75,7 @@ abstract class ChatGraphQlMixin {
     int? last,
     RecentChatsCursor? before,
   }) async {
-    var variables = RecentChatsArguments(
+    final variables = RecentChatsArguments(
       first: first,
       after: after,
       last: last,
@@ -105,7 +105,7 @@ abstract class ChatGraphQlMixin {
   /// Succeeds as no-op if a [Chat] with the given responder [User] exists
   /// already, and returns this [Chat].
   Future<ChatMixin> createDialogChat(UserId responderId) async {
-    var variables = CreateDialogArguments(responderId: responderId);
+    final variables = CreateDialogArguments(responderId: responderId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'CreateDialog',
@@ -129,7 +129,8 @@ abstract class ChatGraphQlMixin {
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
-    var variables = CreateGroupChatArguments(memberIds: memberIds, name: name);
+    final variables =
+        CreateGroupChatArguments(memberIds: memberIds, name: name);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'CreateGroupChat',
@@ -203,13 +204,15 @@ abstract class ChatGraphQlMixin {
     ChatItemsCursor? after,
     int? last,
     ChatItemsCursor? before,
+    bool onlyAttachments = false,
   }) async {
-    var variables = GetMessagesArguments(
+    final variables = GetMessagesArguments(
       id: id,
       first: first,
       after: after,
       last: last,
       before: before,
+      onlyAttachments: onlyAttachments,
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -250,9 +253,9 @@ abstract class ChatGraphQlMixin {
     ChatId chatId, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
-    ChatItemId? repliesTo,
+    List<ChatItemId> repliesTo = const [],
   }) async {
-    var variables = PostChatMessageArguments(
+    final variables = PostChatMessageArguments(
       chatId: chatId,
       text: text,
       attachments: attachments,
@@ -292,7 +295,7 @@ abstract class ChatGraphQlMixin {
   /// a member of the specified [Chat] already.
   Future<ChatEventsVersionedMixin?> addChatMember(
       ChatId chatId, UserId userId) async {
-    var variables = AddChatMemberArguments(chatId: chatId, userId: userId);
+    final variables = AddChatMemberArguments(chatId: chatId, userId: userId);
     var result = await client.mutate(
       MutationOptions(
         operationName: 'AddChatMember',
@@ -409,7 +412,7 @@ abstract class ChatGraphQlMixin {
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
       ChatId chatId, ChatItemId untilId) async {
-    var variables = ReadChatArguments(id: chatId, untilId: untilId);
+    final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'ReadChat',
@@ -464,7 +467,7 @@ abstract class ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
-    var variables = RecentChatsTopEventsArguments(count: count);
+    final variables = RecentChatsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'RecentChatsTopEvents',
@@ -530,7 +533,7 @@ abstract class ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    var variables = ChatEventsArguments(id: id, ver: ver);
+    final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
@@ -743,7 +746,8 @@ abstract class ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> createChatDirectLink(
       ChatDirectLinkSlug slug,
       {ChatId? groupId}) async {
-    var variables = CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
+    final variables =
+        CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateChatDirectLink',
@@ -776,7 +780,7 @@ abstract class ChatGraphQlMixin {
   /// has no active [ChatDirectLink]s already.
   Future<ChatEventsVersionedMixin?> deleteChatDirectLink(
       {ChatId? groupId}) async {
-    var variables = DeleteChatDirectLinkArguments(groupId: groupId);
+    final variables = DeleteChatDirectLinkArguments(groupId: groupId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteChatDirectLink',
@@ -813,7 +817,7 @@ abstract class ChatGraphQlMixin {
   /// the [Chat]-dialog by the specified [ChatDirectLink].
   Future<UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk>
       useChatDirectLink(ChatDirectLinkSlug slug) async {
-    var variables = UseChatDirectLinkArguments(slug: slug);
+    final variables = UseChatDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UseChatDirectLink',
@@ -862,7 +866,7 @@ abstract class ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
   Future<Stream<QueryResult>> keepTyping(ChatId id) {
-    var variables = KeepTypingArguments(chatId: id);
+    final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'KeepTyping',
@@ -945,7 +949,7 @@ abstract class ChatGraphQlMixin {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) async {
-    var variables = ForwardChatItemsArguments(
+    final variables = ForwardChatItemsArguments(
       from: from,
       to: to,
       items: items,
@@ -966,5 +970,44 @@ abstract class ChatGraphQlMixin {
     );
     return ForwardChatItems$Mutation.fromJson(result.data!).forwardChatItems
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
+  }
+
+  /// Fetches only [Attachment]s of a [Chat] identified by its [id].
+  ///
+  /// It is allowed to specify both [first] and [last] at the same time provided
+  /// that [after] and [before] are equal. In such cases the returned page will
+  /// include the [Attachment]s of the [ChatItem] pointed by the cursor and the
+  /// requested number of [ChatItem]s preceding and following it.
+  ///
+  /// If it is desired to receive the [Attachment]s of the [ChatItem] under the
+  /// cursor without  querying in both directions one can specify [first] or
+  /// [last] as 0.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetAttachments$Query> attachments(
+    ChatId id, {
+    int? first,
+    ChatItemsCursor? after,
+    int? last,
+    ChatItemsCursor? before,
+  }) async {
+    final variables = GetAttachmentsArguments(
+      id: id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+      onlyAttachments: true,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetAttachments',
+        document: GetAttachmentsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetAttachments$Query.fromJson(result.data!);
   }
 }

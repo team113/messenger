@@ -165,7 +165,7 @@ class WebUtils {
   static WebCallPreferences? getCallPreferences(ChatId chatId) => null;
 
   /// Downloads the file from the provided [url].
-  static void downloadFile(String url, String name) {
+  static Future<void> downloadFile(String url, String name) async {
     // No-op.
   }
 

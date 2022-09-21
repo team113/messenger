@@ -20,6 +20,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/file.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
@@ -170,6 +171,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
+    await file.ensureCorrectMediaType();
+
     dio.MultipartFile upload;
 
     if (file.stream != null) {
@@ -506,12 +509,12 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserAvatarUpdated(
         node.userId,
         UserAvatar(
-            full: node.avatar.full,
-            original: node.avatar.original,
+            full: node.avatar.full.toModel(),
+            original: node.avatar.original.toModel(),
             galleryItemId: node.avatar.galleryItemId,
-            big: node.avatar.big,
-            medium: node.avatar.medium,
-            small: node.avatar.small,
+            big: node.avatar.big.toModel(),
+            medium: node.avatar.medium.toModel(),
+            small: node.avatar.small.toModel(),
             crop: node.avatar.crop != null
                 ? CropArea(
                     topLeft: CropPoint(
@@ -536,10 +539,10 @@ class MyUserRepository implements AbstractMyUserRepository {
         node.userId,
         UserCallCover(
             galleryItemId: node.callCover.galleryItemId,
-            full: node.callCover.full,
-            original: node.callCover.original,
-            vertical: node.callCover.vertical,
-            square: node.callCover.square,
+            full: node.callCover.full.toModel(),
+            original: node.callCover.original.toModel(),
+            vertical: node.callCover.vertical.toModel(),
+            square: node.callCover.square.toModel(),
             crop: node.callCover.crop != null
                 ? CropArea(
                     topLeft: CropPoint(
@@ -561,17 +564,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserGalleryItemAdded') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      var image = node.galleryItem
-          as MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem$ImageGalleryItem;
-      return EventUserGalleryItemAdded(
-        node.userId,
-        ImageGalleryItem(
-          original: Original(image.original),
-          square: Square(image.square),
-          id: image.id,
-          addedAt: image.addedAt,
-        ),
-      );
+      return EventUserGalleryItemAdded(node.userId, node.galleryItem.toModel());
     } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;

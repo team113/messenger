@@ -1,0 +1,5 @@
+fragment File on File {
+    relativeRef
+    checksum
+    size
+}

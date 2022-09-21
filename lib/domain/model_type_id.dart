@@ -99,4 +99,5 @@ class ModelTypeId {
   static const nativeFile = 77;
   static const localAttachment = 78;
   static const mediaType = 79;
+  static const storageFile = 80;
 }
