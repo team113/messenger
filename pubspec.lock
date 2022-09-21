@@ -562,16 +562,7 @@ packages:
       name: flutter_rust_bridge
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.40.0"
-  flutter_staggered_animations:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "Flutter-3.0.0"
-      resolved-ref: "4ae28e698b2fd54cd7de8d63e16dd3cd7d98d14c"
-      url: "https://github.com/Tkko/flutter_staggered_animations"
-    source: git
-    version: "1.0.0"
+    version: "1.44.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -775,7 +766,14 @@ packages:
       name: http_parser
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.0"
+  image_gallery_saver:
+    dependency: "direct main"
+    description:
+      name: image_gallery_saver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.7.1"
   image_picker:
     dependency: "direct main"
     description:
@@ -910,13 +908,13 @@ packages:
       name: medea_flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0-dev+rev.1c0c2769afb29a76f4e6b7c4707ab3526ceab937"
+    version: "0.8.0-dev+rev.a909030f9a6378036bb0571611fc9a3fe44fe917"
   medea_jason:
     dependency: "direct main"
     description:
       path: flutter
       ref: HEAD
-      resolved-ref: "89a4dfb062c7928fc6b9fce63534b12534f5d747"
+      resolved-ref: "34f37e9e3c3a5657445a2412070e3db4a49e01bc"
       url: "https://github.com/instrumentisto/medea-jason.git"
     source: git
     version: "0.3.0-dev"
@@ -976,6 +974,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.0+1"
+  open_file:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "9c7273ee8a1a5e124f69e770cba846ae66de68e1"
+      url: "https://github.com/adaptolearning/open_file"
+    source: git
+    version: "3.2.2"
   package_config:
     dependency: transitive
     description:
@@ -1026,7 +1033,7 @@ packages:
     source: hosted
     version: "2.0.0"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"

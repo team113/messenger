@@ -143,6 +143,7 @@ btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
 btn_hide_chat = Hide chat
 btn_hide_for_me = Delete for me
+btn_info = Info
 btn_join_call = Join
 btn_leave_chat = Leave chat
 btn_login = Log in
@@ -157,6 +158,7 @@ btn_save = Save
 btn_saved_messages = Saved messages
 btn_set_password = Set password
 btn_settings = Settings
+btn_share = Share
 btn_start = Start
 btn_submit = Submit
 btn_video_call = Video call
@@ -182,6 +184,7 @@ err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
 err_contact_unknown_user = User with the provided ID doesn\'t exist
+err_could_not_download = An error ocurred while downloading
 err_current_password_empty = Current password must not be empty
 err_data_transfer =
     Data transfer error. Please, check your network connection.
@@ -374,6 +377,8 @@ label_hint_drag_n_drop_video =
 
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
+label_image_downloaded = Image downloaded.
+label_image_saved_to_gallery = Image saved to gallery.
 label_incoming_call = Incoming call
 label_introduction_description =
     Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
@@ -445,5 +450,7 @@ label_unknown_page = Unknown page
 label_unread_messages = Unread messages
 label_video = Video
 label_video_call = Video call
+label_video_downloaded = Video downloaded.
+label_video_saved_to_gallery = Video saved to gallery.
 label_you = You
 label_you_were_added_to_group = You were added to the group

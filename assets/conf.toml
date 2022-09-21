@@ -44,3 +44,11 @@
 #
 # Default:
 #   dsn = ""
+
+[downloads]
+# Directory to download files to.
+#
+# Unused for Web, as browser picks the directory itself.
+#
+# Default:
+#   directory = "messenger"
