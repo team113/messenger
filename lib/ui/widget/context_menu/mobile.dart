@@ -119,16 +119,22 @@ class _AnimatedMenu extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
+  /// [Widget] context menu called on.
   final Widget child;
+
+  /// [GlobalKey] of the child [Widget].
   final GlobalKey globalKey;
+
+  /// Callback, called when a close action of this [_AnimatedMenu] is triggered.
   final void Function()? onClosed;
 
   /// List of [ContextMenuButton]s to display in this [ContextMenu].
   final List<ContextMenuButton> actions;
 
-  /// [Alignment] of this
+  /// [Alignment] of the context menu.
   final Alignment alignment;
 
+  /// ID of this [_AnimatedMenu].
   final String? id;
 
   @override
@@ -140,11 +146,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [AnimationController] controlling the opening and closing animation.
   late final AnimationController _fading;
 
-  /// [Rect] of an [Object] to animate this [NekoView] from/to.
+  /// [Rect] of [Widget] to animate.
   late Rect _bounds;
-
-  /// Discard the first [LayoutBuilder] frame since no widget is drawn yet.
-  bool _firstLayout = true;
 
   @override
   void initState() {
@@ -180,9 +183,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (_firstLayout) {
-          _firstLayout = false;
-        }
 
         var fade = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: _fading,
@@ -220,42 +220,46 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       ),
                     ),
                   ),
-                  Positioned(
-                    left: _bounds.left,
-                    width: _bounds.width,
-                    height: _bounds.height,
-                    bottom: (1 - _fading.value) *
-                            (constraints.maxHeight -
-                                _bounds.top -
-                                _bounds.height) +
-                        (10 + widget.actions.length * 50) * _fading.value,
-                    child: widget.child,
-                  ),
-                  Align(
-                    alignment: widget.alignment,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: widget.alignment == Alignment.bottomLeft
-                            ? _bounds.left
-                            : 0,
-                        right:
-                            widget.alignment == Alignment.bottomRight ? 10 : 0,
-                      ),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 220),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-                          child: SizeTransition(
-                            sizeFactor: _fading,
-                            child: FadeTransition(
-                              opacity: fade,
-                              child: _menu(),
+                  if (_fading.value == 1)
+                    SingleChildScrollView(
+                      reverse: true,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SafeArea(
+                            bottom: false,
+                            left: false,
+                            right: false,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: _bounds.left),
+                              child: SizedBox(
+                                width: _bounds.width,
+                                height: _bounds.height,
+                                child: widget.child,
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          _contextMenu(fade),
+                        ],
                       ),
+                    )
+                  else ...[
+                    _contextMenu(fade),
+                    Positioned(
+                      left: _bounds.left,
+                      width: _bounds.width,
+                      height: _bounds.height,
+                      bottom: (1 - _fading.value) *
+                              (constraints.maxHeight -
+                                  _bounds.top -
+                                  _bounds.height) +
+                          (10 + widget.actions.length * 50) * _fading.value,
+                      child: widget.child,
                     ),
-                  ),
+                  ]
                 ],
               );
             },
@@ -265,6 +269,38 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
+  /// Returns context menu visual representation.
+  Widget _contextMenu(Animation<double> fade) {
+    return Align(
+      alignment: widget.alignment,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
+          right: widget.alignment == Alignment.bottomRight ? 10 : 0,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+            child: SizeTransition(
+              sizeFactor: _fading,
+              child: FadeTransition(
+                opacity: fade,
+                child: SafeArea(
+                  top: false,
+                  left: false,
+                  right: false,
+                  child: _menu(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Returns context menu actions buttons.
   Widget _menu() {
     List<Widget> widgets = [];
 
