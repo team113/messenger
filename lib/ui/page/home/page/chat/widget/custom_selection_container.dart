@@ -93,18 +93,18 @@ class _CustomSelectionContainerState extends State<CustomSelectionContainer> {
       },
     );
 
-    selectionData = SelectionData(widget.position, widget.type);
-    if (widget.selections[selectionData.position] == null) {
-      widget.selections[selectionData.position] = [selectionData];
+    selectionData = SelectionData(widget.type);
+    if (widget.selections[widget.position] == null) {
+      widget.selections[widget.position] = [selectionData];
     } else {
-      widget.selections[selectionData.position]?.add(selectionData);
+      widget.selections[widget.position]?.add(selectionData);
     }
   }
 
   @override
   void dispose() {
     selectionData.data.close();
-    widget.selections.remove(selectionData.position);
+    widget.selections.remove(widget.position);
     delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();

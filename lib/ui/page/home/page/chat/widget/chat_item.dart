@@ -328,40 +328,34 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       } else {
         _copyable[second] = title;
       }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(
-            child: CustomSelectionText(
-              selections: widget.selections,
-              isTapMessage: widget.isTapMessage,
-              position: widget.position,
-              type: SelectionItem.title,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        isIgnoreCursor: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+              child: item.withVideo
+                  ? SvgLoader.asset(
+                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 13,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 15,
+                    ),
+            ),
+            Flexible(
               child: Text(title),
             ),
-          ),
-          if (time != null) ...[
-            const SizedBox(width: 7),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: CustomSelectionText(
-                selections: widget.selections,
-                isTapMessage: widget.isTapMessage,
-                position: widget.position,
-                type: SelectionItem.time,
+            if (time != null) ...[
+              const SizedBox(width: 7),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 1),
                 child: Text(
                   textTime,
                   maxLines: 1,
@@ -369,9 +363,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.boldBody,
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       );
     } else if (item is ChatMemberInfo) {
       final String text = item.action.toString();
@@ -753,41 +747,34 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
       }
 
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(
-            child: CustomSelectionText(
-              selections: widget.selections,
-              isTapMessage: widget.isTapMessage,
-              position: widget.position,
-              type: SelectionItem.title,
-              isIgnoreCursor: true,
+      content = CustomSelectionText(
+        selections: widget.selections,
+        isTapMessage: widget.isTapMessage,
+        position: widget.position,
+        type: SelectionItem.message,
+        isIgnoreCursor: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+              child: item.withVideo
+                  ? SvgLoader.asset(
+                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 13,
+                    )
+                  : SvgLoader.asset(
+                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 15,
+                    ),
+            ),
+            Flexible(
               child: Text(title),
             ),
-          ),
-          if (time != null) ...[
-            const SizedBox(width: 7),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: CustomSelectionText(
-                selections: widget.selections,
-                isTapMessage: widget.isTapMessage,
-                position: widget.position,
-                type: SelectionItem.time,
-                isIgnoreCursor: true,
+            if (time != null) ...[
+              const SizedBox(width: 7),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 1),
                 child: Text(
                   textTime,
                   maxLines: 1,
@@ -795,9 +782,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   style: style.boldBody,
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       );
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
