@@ -163,7 +163,7 @@ class ContactsTabView extends StatelessWidget {
                     position: BadgePosition.bottomEnd(bottom: 0, end: 0),
                     elevation: 0,
                     child: AvatarWidget.fromContact(
-                      contact.contact.value,
+                      contact: contact.contact.value,
                       avatar: contact.user.value?.user.value.avatar,
                     ),
                   ),

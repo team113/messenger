@@ -116,7 +116,7 @@ class CallService extends DisposableService {
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
+      final Rx<OngoingCall>? removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
       rethrow;
@@ -141,7 +141,7 @@ class CallService extends DisposableService {
           stored.value.state.value == OngoingCallState.ended) {
         // If we're joining an already disposed call, then replace it.
         if (stored?.value.state.value == OngoingCallState.ended) {
-          var removed = _callsRepo.remove(chatId);
+          final Rx<OngoingCall>? removed = _callsRepo.remove(chatId);
           removed?.value.dispose();
         }
 
@@ -173,7 +173,7 @@ class CallService extends DisposableService {
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
-      var removed = _callsRepo.remove(chatId);
+      final Rx<OngoingCall>? removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
       rethrow;
@@ -181,21 +181,12 @@ class CallService extends DisposableService {
   }
 
   /// Leaves an [OngoingCall] identified by the given [chatId].
-  Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
+  Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
-      await _callsRepo.leave(chatId, deviceId);
-    }
-  }
-
-  Future<void> drop(ChatId chatId) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      call.value.state.value = OngoingCallState.ended;
-      call.value.dispose();
-      await _callsRepo.leave(chatId, call.value.deviceId!);
+      await _callsRepo.leave(chatId, deviceId ?? call.value.deviceId!);
     }
     WebUtils.removeCall(chatId);
   }
@@ -257,7 +248,7 @@ class CallService extends DisposableService {
   void remove(ChatId chatId) {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
-      var removed = _callsRepo.remove(chatId);
+      final Rx<OngoingCall>? removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
@@ -380,7 +371,7 @@ class CallService extends DisposableService {
             // still just a notification and it should be removed.
             if (call?.value.connected == false &&
                 call?.value.isActive == false) {
-              var removed = _callsRepo.remove(e.call.chatId);
+              final Rx<OngoingCall>? removed = _callsRepo.remove(e.call.chatId);
               removed?.value.state.value = OngoingCallState.ended;
               removed?.value.dispose();
             }

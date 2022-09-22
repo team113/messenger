@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
- /// .
+/// Custom beautiful app bar.
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     Key? key,
@@ -29,30 +29,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading,
     this.actions,
     this.padding,
-    this.automaticallyImplyLeading = false,
   }) : super(key: key);
 
-  /// .
+  /// Primary widget displayed in the app bar.
   final Widget? title;
 
-  /// .
+  /// Widgets to display before the toolbar's [title].
   final List<Widget>? leading;
 
-  /// .
+  /// Widgets to display in a row after the [title] widget.
   final List<Widget>? actions;
 
-  /// .
+  /// [EdgeInsets] in app bar.
   final EdgeInsets? padding;
-
-  /// .
-  final bool automaticallyImplyLeading;
 
   @override
   Size get preferredSize => const Size(double.infinity, 60);
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
@@ -87,7 +83,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Expanded(
                   child: DefaultTextStyle.merge(
                     style: Theme.of(context).appBarTheme.titleTextStyle,
-                    child: Center(child: title ?? Container()),
+                    child: Center(child: title ?? const SizedBox.shrink()),
                   ),
                 ),
                 if (actions != null) ...actions!,

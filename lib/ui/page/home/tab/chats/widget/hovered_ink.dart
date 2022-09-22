@@ -1,5 +1,22 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 
+/// Widget creates styles on hover.
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
     Key? key,
@@ -15,24 +32,47 @@ class InkWellWithHover extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
-  final void Function()? onTap;
+  /// [BorderRadius] to paint behind the [child].
   final BorderRadius? borderRadius;
+
+  /// [Color] on selected hover.
   final Color? selectedHoverColor;
+
+  /// [Color] on unselected hover.
   final Color? unselectedHoverColor;
-  final Color? selectedColor;
-  final Color? unselectedColor;
+
+  /// [Border] on hovered.
   final Border? hoveredBorder;
+
+  /// [Border] on unhovered.
   final Border? unhoveredBorder;
-  final Widget child;
+
+  /// Indicator whether select on [child].
   final bool isSelected;
+
+  /// Callback on tap.
+  final void Function()? onTap;
+
+  /// Initial [Color] for selected chat.
+  final Color? selectedColor;
+
+  /// Initial [Color] for unselected chat.
+  final Color? unselectedColor;
+
+  /// [Widget] for hovering.
+  final Widget child;
 
   @override
   State<InkWellWithHover> createState() => _InkWellWithHoverState();
 }
 
+/// State of an [InkWellWithHover] maintaining the [isHovered] and [isSelected] indicator.
 class _InkWellWithHoverState extends State<InkWellWithHover> {
+  /// Indicates whether chat is hovered.
   bool isHovered = false;
-  late bool isSelected;
+
+  /// Indicates whether chat is selected.
+  late bool isSelected = widget.isSelected;
 
   @override
   void initState() {
@@ -48,11 +88,10 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius,
         border: isHovered ? widget.hoveredBorder : widget.unhoveredBorder,
-        color: Colors.transparent,
       ),
       child: Material(
         type: MaterialType.card,
@@ -70,11 +109,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
             setState(() {
               isSelected = true;
             });
-
             widget.onTap?.call();
           },
-          onHover: (b) => setState(() => isHovered = b),
-          hoverColor: Colors.transparent,
+          onHover: (bool isHover) => setState(() => isHovered = isHover),
           child: widget.child,
         ),
       ),

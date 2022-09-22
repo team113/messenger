@@ -16,8 +16,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'mobile.dart';
@@ -30,41 +28,41 @@ import 'overlay.dart';
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
-    required this.child,
     this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
     this.usePointerDown = false,
     this.enableLongTap = true,
-    this.decoration,
     this.alignment = Alignment.bottomCenter,
     this.actions,
-    this.id,
+    required this.child,
   }) : super(key: key);
-
-  /// Widget to wrap this region over.
-  final Widget child;
 
   /// Context menu to show.
   final Widget? menu;
 
-  final String? id;
-
   /// Indicator whether this region should be enabled.
   final bool enabled;
-
-  final Alignment alignment;
-
-  final List<ContextMenuButton>? actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
+  /// Whether indicator pointer down.
   final bool usePointerDown;
+
+  /// Whether indicator long tap.
   final bool enableLongTap;
-  final BoxDecoration? decoration;
+
+  /// Menu alignment directions.
+  final Alignment alignment;
+
+  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  final List<ContextMenuButton>? actions;
+
+  /// Widget to wrap this region over.
+  final Widget child;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -81,56 +79,29 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   @override
   Widget build(BuildContext context) {
     if (widget.enabled) {
-      // if (PlatformUtils.isMobile || widget.actions != null) {
-      //   return ContextMenuInterceptor(
-      //     enabled: widget.preventContextMenu,
-      //     child: FloatingContextMenu(
-      //       alignment: widget.alignment,
-      //       actions: widget.actions!,
-      //       child: widget.child,
-      //     ),
-      //   );
-      // }
-
       return ContextMenuInterceptor(
         enabled: widget.preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
-          onPointerDown: (d) {
+          onPointerDown: (PointerDownEvent d) {
             if (widget.usePointerDown) {
               _buttons = 0;
               if (d.buttons & kSecondaryButton != 0) {
                 _show(d.position);
-                // ContextMenuOverlay.of(context).show(
-                //   ContextMenuActions(
-                //     actions: widget.actions ?? [],
-                //     backdrop: true,
-                //   ),
-                //   d.position,
-                // );
               }
             } else {
               _buttons = d.buttons;
             }
           },
-          onPointerUp: (d) {
+          onPointerUp: (PointerUpEvent d) {
             if (_buttons & kSecondaryButton != 0) {
               _show(d.position);
-              // ContextMenuOverlay.of(context).show(
-              //   ContextMenuActions(
-              //     actions: widget.actions ?? [],
-              //     backdrop: true,
-              //   ),
-              //   d.position,
-              // );
             }
           },
           child: Stack(
             children: [
-              // if (widget.actions != null)
               if (PlatformUtils.isMobile)
                 FloatingContextMenu(
-                  id: widget.id,
                   alignment: widget.alignment,
                   actions: widget.actions ?? [],
                   child: widget.child,
@@ -139,7 +110,8 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onLongPressStart: widget.enableLongTap
-                      ? (d) => ContextMenuOverlay.of(context).show(
+                      ? (LongPressStartDetails d) =>
+                          ContextMenuOverlay.of(context).show(
                             ContextMenuActions(
                               actions: widget.actions ?? [],
                               backdrop: true,
@@ -149,24 +121,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       : null,
                   child: widget.child,
                 ),
-              // if (context.isMobile)
-              //   Positioned.fill(
-              //     child: Obx(() {
-              //       if (ContextMenuOverlay.of(context).menu.value ==
-              //           widget.menu) {
-              //         return Container(
-              //           width: double.infinity,
-              //           height: double.infinity,
-              //           decoration: widget.decoration?.copyWith(
-              //                 color: const Color(0x11000000),
-              //               ) ??
-              //               const BoxDecoration(color: Color(0x22000000)),
-              //         );
-              //       }
-
-              //       return Container();
-              //     }),
-              //   ),
             ],
           ),
         ),
@@ -176,6 +130,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     return widget.child;
   }
 
+  /// Shows dialog window.
   void _show(Offset position) {
     if (widget.actions?.isNotEmpty != true) {
       return;
@@ -192,7 +147,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           Alignment alignment = Alignment(qx, qy);
 
           return Listener(
-            onPointerUp: (d) => Navigator.of(context).pop(),
+            onPointerUp: (PointerUpEvent d) => Navigator.of(context).pop(),
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -216,26 +171,5 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         });
       },
     );
-
-    return;
-
-    OverlayEntry? entry;
-
-    entry = OverlayEntry(builder: (context) {
-      return Listener(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              left: position.dx,
-              top: position.dy,
-              child: widget.child,
-            )
-          ],
-        ),
-      );
-    });
-
-    Overlay.of(context, rootOverlay: true)!.insert(entry);
   }
 }

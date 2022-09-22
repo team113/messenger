@@ -16,15 +16,21 @@
 
 import 'package:flutter/material.dart';
 
+/// Button changes the cursor, which underlines the element that can be clicked.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
     Key? key,
-    required this.child,
     this.onPressed,
+    required this.child,
   }) : super(key: key);
 
-  final Widget child;
+  /// Callback, called when the button is tapped or activated other way.
+  ///
+  /// If this is set to `null`, the button is disabled.
   final void Function()? onPressed;
+
+  /// Widget being wrapped.
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +38,7 @@ class WidgetButton extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
-        child: Container(
-          color: Colors.transparent,
-          child: child,
-        ),
+        child: child,
       ),
     );
   }

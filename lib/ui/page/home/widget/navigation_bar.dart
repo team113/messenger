@@ -56,7 +56,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
@@ -99,7 +99,7 @@ class CustomNavigationBar extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                if (e.icon != null || e.leading != null)
+                                if (e.icon != null || e.child != null)
                                   Badge(
                                     badgeContent: e.badge == null
                                         ? null
@@ -124,7 +124,7 @@ class CustomNavigationBar extends StatelessWidget {
                                               : unselectedColor,
                                           fontSize: 11,
                                         ),
-                                        child: e.leading ??
+                                        child: e.child ??
                                             FaIcon(
                                               e.icon,
                                               color: e.color ??
@@ -162,7 +162,7 @@ class CustomNavigationBarItem {
     this.size,
     this.color,
     this.badge,
-    this.leading,
+    this.child,
   });
 
   /// Unique [Key] of this [CustomNavigationBarItem].
@@ -185,5 +185,6 @@ class CustomNavigationBarItem {
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
 
-  final Widget? leading;
+  /// [Widget] to display.
+  final Widget? child;
 }

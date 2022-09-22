@@ -128,7 +128,7 @@ class ChatsTabController extends GetxController {
       _callService.calls[id] != null || WebUtils.containsCall(id);
 
   /// Drops the call in the [Chat] identified by the provided [id].
-  Future<void> dropCall(ChatId id) => _callService.drop(id);
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.

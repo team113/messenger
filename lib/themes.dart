@@ -40,9 +40,15 @@ class Themes {
           Style(
             cardRadius: BorderRadius.circular(14),
             cardColor: Colors.white.withOpacity(0.95),
+            primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
+            unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
             cardBlur: 5,
             cardBorder: Border.all(
               color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            hoveredBorderUnselected: Border.all(
+              color: const Color(0xFFDAEDFF),
               width: 0.5,
             ),
             boldBody: GoogleFonts.roboto(
@@ -298,15 +304,36 @@ class Style extends ThemeExtension<Style> {
     required this.cardRadius,
     required this.cardBlur,
     required this.cardColor,
+    required this.primaryCardColor,
+    required this.unselectedHoverColor,
     required this.cardBorder,
+    required this.hoveredBorderUnselected,
     required this.boldBody,
     required this.primaryBorder,
   });
 
+  /// [BorderRadius] to use .
   final BorderRadius cardRadius;
+
+  /// Blur to use in sidebar for chats.
   final double cardBlur;
+
+  /// [Color] to use in sidebar for chats if chat is not selected.
   final Color cardColor;
+
+  /// [Color] to use in sidebar for chats if chat is selected.
+  final Color primaryCardColor;
+
+  /// [Color] to use in sidebar for chats when hovering.
+  final Color unselectedHoverColor;
+
+  /// [Border] to use in sidebar for chats if chat is not selected.
   final Border cardBorder;
+  
+  /// [Border] to use in sidebar for chats.
+  final Border hoveredBorderUnselected;
+
+  /// [Border] to use in sidebar for chats if chat is selected.
   final Border primaryBorder;
 
   /// [TextStyle] to use in the body to make content readable.
@@ -317,7 +344,10 @@ class Style extends ThemeExtension<Style> {
     BorderRadius? cardRadius,
     double? cardBlur,
     Color? cardColor,
+    Color? primaryCardColor,
+    Color? unselectedHoverColor,
     Border? cardBorder,
+    Border? hoveredBorderUnselected,
     TextStyle? boldBody,
     Border? primaryBorder,
   }) {
@@ -325,7 +355,10 @@ class Style extends ThemeExtension<Style> {
       cardRadius: cardRadius ?? this.cardRadius,
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
+      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
+      unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
       cardBorder: cardBorder ?? this.cardBorder,
+      hoveredBorderUnselected: hoveredBorderUnselected ?? this.hoveredBorderUnselected,
       boldBody: boldBody ?? this.boldBody,
       primaryBorder: primaryBorder ?? this.primaryBorder,
     );
@@ -341,7 +374,12 @@ class Style extends ThemeExtension<Style> {
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      primaryCardColor:
+          Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
+      unselectedHoverColor:
+          Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      hoveredBorderUnselected: Border.lerp(hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
     );

@@ -20,10 +20,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../widget/svg/svg.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/util/platform_utils.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
@@ -138,11 +138,10 @@ class _HomeViewState extends State<HomeView> {
                             ? null
                             : const NeverScrollableScrollPhysics(),
                         controller: c.pages,
-                        onPageChanged: (i) {
+                        onPageChanged: (int i) {
                           router.tab = HomeTab.values[i];
                           c.page.value = router.tab;
                         },
-
                         // [KeepAlivePage] used to keep the tabs' states.
                         children: const [
                           KeepAlivePage(child: ContactsTabView()),
@@ -162,7 +161,7 @@ class _HomeViewState extends State<HomeView> {
                         items: [
                           CustomNavigationBarItem(
                             key: const Key('ContactsButton'),
-                            leading: Obx(
+                            child: Obx(
                               () => AnimatedOpacity(
                                 duration: 150.milliseconds,
                                 opacity:
@@ -180,7 +179,7 @@ class _HomeViewState extends State<HomeView> {
                             badge: c.unreadChatsCount.value == 0
                                 ? null
                                 : '${c.unreadChatsCount.value}',
-                            leading: Obx(
+                            child: Obx(
                               () => Padding(
                                 padding: const EdgeInsets.only(top: 0),
                                 child: AnimatedOpacity(
@@ -198,7 +197,7 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           CustomNavigationBarItem(
                             key: const Key('MenuButton'),
-                            leading: Padding(
+                            child: Padding(
                               padding: const EdgeInsets.only(bottom: 2),
                               child: Obx(
                                 () => AnimatedOpacity(
@@ -261,7 +260,7 @@ class _HomeViewState extends State<HomeView> {
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isMobile ? 0 : width),
-                    child: Container(),
+                    child: const SizedBox.shrink(),
                   );
                 }),
                 Expanded(

@@ -77,7 +77,6 @@ class SharableTextField extends StatelessWidget {
         Expanded(
           child: ContextMenuRegion(
             enabled: (share ?? state.text).isNotEmpty,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(

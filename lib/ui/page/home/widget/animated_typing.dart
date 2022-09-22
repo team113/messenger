@@ -39,6 +39,7 @@ class AnimatedTyping extends StatefulWidget {
 /// State of an [AnimatedTyping] used to animate the dots.
 class _AnimatedTypingState extends State<AnimatedTyping>
     with SingleTickerProviderStateMixin {
+  /// [AnimationController] of this view.
   late final AnimationController _controller;
 
   @override
@@ -59,18 +60,17 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (context, child) {
-        Color begin = Theme.of(context).colorScheme.secondary;
+      builder: (BuildContext context, Widget? child) {
+        final Color begin = Theme.of(context).colorScheme.secondary;
         const Color end = Color(0xFFB6DCFF);
-
         const double size = 4;
         const double spacing = 1.6;
 
-        Color? color1 = ColorTween(begin: begin, end: end).lerp(
+        final Color? color1 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
-        Color? color2 = ColorTween(begin: begin, end: end).lerp(
+        final Color? color2 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
-        Color? color3 = ColorTween(begin: begin, end: end).lerp(
+        final Color? color3 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0.6, 1.0).transform(_controller.value)));
 
         return Row(

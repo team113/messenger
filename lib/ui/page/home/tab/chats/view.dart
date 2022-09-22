@@ -68,7 +68,9 @@ class ChatsTabView extends StatelessWidget {
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () async {},
+                  onPressed: () async {
+                    // TODO: Implement search.
+                  },
                   icon: SvgLoader.asset(
                     'assets/icons/search.svg',
                     width: 17.77,
@@ -78,12 +80,14 @@ class ChatsTabView extends StatelessWidget {
             ],
             actions: [
               Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 8),
                 child: IconButton(
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () async {},
+                  onPressed: () async {
+                    // TODO: Implement creating group.
+                  },
                   icon: SvgLoader.asset(
                     'assets/icons/group.svg',
                     height: 18.44,
@@ -97,13 +101,12 @@ class ChatsTabView extends StatelessWidget {
               if (c.chats.isEmpty) {
                 return Center(child: Text('label_no_chats'.l10n));
               }
-
               MediaQueryData metrics = MediaQuery.of(context);
 
               return MediaQuery(
                 data: metrics.copyWith(
                   padding: metrics.padding.copyWith(
-                    top: metrics.padding.top + 56 + 4,
+                    top: metrics.padding.top + 60,
                     bottom: metrics.padding.bottom - 18,
                   ),
                 ),
@@ -116,12 +119,12 @@ class ChatsTabView extends StatelessWidget {
                         itemCount: c.chats.length,
                         itemBuilder: (BuildContext context, int i) {
                           RxChat e = c.chats[i];
-                          
+
                           return AnimationConfiguration.staggeredList(
                             position: i,
                             duration: const Duration(milliseconds: 375),
                             child: SlideAnimation(
-                              horizontalOffset: 50.0,
+                              horizontalOffset: 50,
                               child: FadeInAnimation(
                                 child: Padding(
                                   padding: const EdgeInsets.only(
@@ -239,7 +242,7 @@ class ChatsTabView extends StatelessWidget {
             ];
           }
         } else if (item is ChatMessage) {
-          var desc = StringBuffer();
+          final desc = StringBuffer();
 
           if (!chat.isGroup && item.authorId == c.me) {
             desc.write('${'label_you'.l10n}: ');
@@ -262,7 +265,8 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
                   future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => AvatarWidget.fromRxUser(
+                  builder: (_, AsyncSnapshot<RxUser?> snapshot) =>
+                      AvatarWidget.fromRxUser(
                     snapshot.data,
                     radius: 10,
                   ),
@@ -402,24 +406,18 @@ class ChatsTabView extends StatelessWidget {
             borderRadius:
                 context.isMobile ? BorderRadius.zero : style.cardRadius,
             child: InkWellWithHover(
-              selectedColor: const Color.fromRGBO(210, 227, 249, 1),
+              selectedColor: style.primaryCardColor,
               unselectedColor: style.cardColor,
               isSelected: selected,
               hoveredBorder: selected
-                  ? Border.all(
-                      color: const Color(0xFFB9D9FA),
-                      width: 0.5,
-                    )
-                  : Border.all(
-                      color: const Color(0xFFDAEDFF),
-                      width: 0.5,
-                    ),
+                  ? style.primaryBorder
+                  : style.hoveredBorderUnselected,
               unhoveredBorder:
                   selected ? style.primaryBorder : style.cardBorder,
               borderRadius: style.cardRadius,
               onTap: () => router.chat(chat.id),
-              unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
-              selectedHoverColor: const Color.fromRGBO(210, 227, 249, 1),
+              unselectedHoverColor: style.unselectedHoverColor,
+              selectedHoverColor: style.primaryCardColor,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
                 child: Row(
@@ -474,7 +472,7 @@ class ChatsTabView extends StatelessWidget {
                                   toAnimate: false,
                                   elevation: 0,
                                   badgeContent: Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(2),
                                     child: Text(
                                       '${chat.unreadCount}',
                                       style: const TextStyle(
@@ -498,7 +496,7 @@ class ChatsTabView extends StatelessWidget {
                         child: c.isInCall(chat.id)
                             ? circleButton(
                                 key: const Key('Drop'),
-                                onPressed: () => c.dropCall(chat.id),
+                                onPressed: () => c.leaveChat(chat.id),
                                 color: Colors.red,
                                 child: SvgLoader.asset(
                                   'assets/icons/call_end.svg',

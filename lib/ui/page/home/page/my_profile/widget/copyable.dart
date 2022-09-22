@@ -72,7 +72,6 @@ class CopyableTextField extends StatelessWidget {
         Expanded(
           child: ContextMenuRegion(
             enabled: (copy ?? state.text).isNotEmpty,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
             menu: ContextMenu(
               actions: [
                 ContextMenuButton(
