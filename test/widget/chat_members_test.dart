@@ -354,7 +354,10 @@ void main() async {
     Get.put(ContactService(contactRepository));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-          settingsProvider, applicationSettingsProvider, backgroundProvider),
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
     );
     Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, settingsRepository, callRepository));

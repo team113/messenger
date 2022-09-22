@@ -302,7 +302,10 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-          settingsProvider, applicationSettingsProvider, backgroundProvider),
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(

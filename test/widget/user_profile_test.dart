@@ -339,7 +339,10 @@ void main() async {
     Get.put(ChatService(chatRepository, authService));
 
     SettingsRepository settingsRepository = SettingsRepository(
-        mediaProvider, applicationSettingsProvider, backgroundProvider);
+      mediaProvider,
+      applicationSettingsProvider,
+      backgroundProvider,
+    );
 
     CallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);

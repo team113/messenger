@@ -260,7 +260,10 @@ void main() async {
         ChatRepository(graphQlProvider, chatProvider, userRepository));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-          settingsProvider, applicationSettingsProvider, backgroundProvider),
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
     );
     AbstractCallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);

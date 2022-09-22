@@ -19,12 +19,12 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/provider/hive/background.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
+import '/provider/hive/background.dart';
 import '/provider/hive/media_settings.dart';
 
 /// Application settings repository.

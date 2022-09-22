@@ -278,7 +278,10 @@ void main() async {
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-          settingsProvider, applicationSettingsProvider, backgroundProvider),
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
     );
 
     Get.put(CallService(

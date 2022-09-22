@@ -26,16 +26,16 @@ import '/domain/repository/settings.dart';
 class PersonalizationController extends GetxController {
   PersonalizationController(this._settingsRepo);
 
-  /// Returns the current [ApplicationSettings] value.
-  Rx<Uint8List?> get background => _settingsRepo.background;
-
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// Remove background from application.
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
+
+  /// Removes the currently set [background].
   Future<void> removeBackground() => _settingsRepo.setBackground(null);
 
-  /// Retrieve image from base platform and set background.
+  /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,

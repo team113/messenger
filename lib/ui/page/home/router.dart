@@ -176,7 +176,7 @@ class _CustomPageRouteBuilder<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 480);
+  Duration get transitionDuration => const Duration(milliseconds: 400);
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
@@ -185,25 +185,23 @@ class _CustomPageRouteBuilder<T> extends PageRoute<T> {
 
   @override
   Widget buildTransitions(BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation, Widget child) =>
-      ClipRect(
+      Animation<double> secondaryAnimation, Widget child) {
+    return ClipRect(
+      child: FadeTransition(
+        opacity: animation,
         child: FadeTransition(
-          opacity: animation,
-          child: FadeTransition(
-            opacity: Tween<double>(
-              begin: 1,
-              end: 0,
-            ).animate(secondaryAnimation),
-            child: matchingBuilder.buildTransitions(
-              this,
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-            ),
+          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
+          child: matchingBuilder.buildTransitions(
+            this,
+            context,
+            animation,
+            secondaryAnimation,
+            child,
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// View of the [Routes.home] page of the nested navigation.
