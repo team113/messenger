@@ -113,7 +113,7 @@ class _HomeViewState extends State<HomeView> {
         ///    Navigator is drawn under the side bar (so the page animation is
         ///    correct).
         final sideBar = AnimatedOpacity(
-          duration: 150.milliseconds,
+          duration: 200.milliseconds,
           opacity: context.isMobile && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
@@ -139,8 +139,8 @@ class _HomeViewState extends State<HomeView> {
                           }
                         }
                       },
-                      child: Obx(
-                        () => PageView(
+                      child: Obx(() {
+                        return PageView(
                           physics: c.verticalScrollTimer.value == null
                               ? null
                               : const NeverScrollableScrollPhysics(),
@@ -153,12 +153,12 @@ class _HomeViewState extends State<HomeView> {
                             KeepAlivePage(child: ChatsTabView()),
                             KeepAlivePage(child: MenuTabView()),
                           ],
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                     bottomNavigationBar: SafeArea(
-                      child: Obx(
-                        () => CustomNavigationBar(
+                      child: Obx(() {
+                        return CustomNavigationBar(
                           selectedColor: Colors.blue,
                           unselectedColor: const Color(0xA6818181),
                           size: 20,
@@ -183,13 +183,13 @@ class _HomeViewState extends State<HomeView> {
                           ],
                           currentIndex: router.tab.index,
                           onTap: (i) => c.pages.jumpToPage(i),
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ),
                 );
               }),
-              if (!context.isMobile) ...[
+              if (!context.isMobile)
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -201,8 +201,7 @@ class _HomeViewState extends State<HomeView> {
                     width: 7,
                     height: context.height,
                   ),
-                )
-              ],
+                ),
             ],
           ),
         );
@@ -216,7 +215,6 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 Obx(() {
                   double width = c.sideBarWidth.value;
-
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isMobile ? 0 : width),
@@ -241,96 +239,72 @@ class _HomeViewState extends State<HomeView> {
         /// Otherwise, [Stack] widget will be updated, which will lead its
         /// children to be updated as well.
         return CallOverlayView(
-          child: Obx(() => Stack(
-                key: const Key('HomeView'),
-                children: [
-                  _BackgroundImage(homeController: c),
-                  if (c.authStatus.value.isSuccess) ...[
-                    Container(child: context.isMobile ? null : navigation),
-                    sideBar,
-                    Container(child: context.isMobile ? navigation : null),
-                  ] else ...[
-                    const Scaffold(
-                      backgroundColor: Colors.transparent,
-                      body: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  ],
-                ],
-              )),
+          child: Obx(() {
+            return Stack(
+              key: const Key('HomeView'),
+              children: [
+                _background(c),
+                if (c.authStatus.value.isSuccess) ...[
+                  Container(child: context.isMobile ? null : navigation),
+                  sideBar,
+                  Container(child: context.isMobile ? navigation : null),
+                ] else
+                  const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  )
+              ],
+            );
+          }),
         );
       },
     );
   }
-}
 
-/// Background value display.
-class _BackgroundImage extends StatelessWidget {
-  const _BackgroundImage({
-    Key? key,
-    required this.homeController,
-  }) : super(key: key);
-
-  /// [HomeController] to get background value.
-  final HomeController homeController;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Builds the [HomeController.background] visual representation.
+  Widget _background(HomeController c) {
     return Positioned.fill(
       child: IgnorePointer(
-        child: Obx(
-          () {
-            final Widget image;
-            if (homeController.background.value != null) {
-              image = Image.memory(
-                homeController.background.value!,
-                fit: BoxFit.cover,
-              );
-            } else {
-              image = SvgLoader.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              );
-            }
-
-            return Stack(
-              children: [
-                Positioned.fill(child: image),
-                Positioned.fill(
-                  child: Container(
-                    color: const Color(0xFF000000).withOpacity(0.05),
-                  ),
-                ),
-                if (!context.isMobile) ...[
-                  Row(
-                    children: [
-                      ConditionalBackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 100,
-                          sigmaY: 100,
-                        ),
-                        child: Obx(() {
-                          double width = homeController.sideBarWidth.value;
-                          return ConstrainedBox(
-                            constraints: BoxConstraints(
-                                maxWidth: context.isMobile ? 0 : width),
-                            child: const SizedBox.expand(),
-                          );
-                        }),
-                      ),
-                      Expanded(
-                        child: Container(color: const Color(0x04000000)),
-                      ),
-                    ],
-                  ),
-                ]
-              ],
+        child: Obx(() {
+          final Widget image;
+          if (c.background.value != null) {
+            image = Image.memory(c.background.value!, fit: BoxFit.cover);
+          } else {
+            image = SvgLoader.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
             );
-          },
-        ),
+          }
+
+          return Stack(
+            children: [
+              Positioned.fill(child: image),
+              const Positioned.fill(
+                child: ColoredBox(color: Color(0x0D000000)),
+              ),
+              if (!context.isMobile) ...[
+                Row(
+                  children: [
+                    ConditionalBackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                      child: Obx(() {
+                        double width = c.sideBarWidth.value;
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: context.isMobile ? 0 : width,
+                          ),
+                          child: const SizedBox.expand(),
+                        );
+                      }),
+                    ),
+                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                  ],
+                ),
+              ],
+            ],
+          );
+        }),
       ),
     );
   }
