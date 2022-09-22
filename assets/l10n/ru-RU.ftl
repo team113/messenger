@@ -142,7 +142,6 @@ btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hide_chat = Скрыть чат
-btn_hide_for_me = Удалить для меня
 btn_info = Информация
 btn_join_call = Присоединиться
 btn_leave_chat = Выйти из чата

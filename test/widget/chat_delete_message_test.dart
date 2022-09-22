@@ -328,7 +328,16 @@ void main() async {
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.tap(find.byKey(const Key('Delete')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.tap(find.byKey(const Key('DeleteForAll')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byKey(
+      const Key('Proceed'),
+      skipOffstage: false,
+    ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(
@@ -348,7 +357,13 @@ void main() async {
     await tester.longPress(hidden);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.tap(find.byKey(const Key('Delete')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.tap(find.byKey(const Key('HideForMe')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(

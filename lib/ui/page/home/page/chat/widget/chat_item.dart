@@ -1133,7 +1133,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 onPressed: () => widget.onEdit?.call(),
                               ),
                             ContextMenuButton(
-                              key: const Key('HideForMe'),
+                              key: const Key('Delete'),
                               label: 'Delete'.l10n,
                               leading: SvgLoader.asset(
                                 'assets/icons/delete_small.svg',
@@ -1238,8 +1238,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         (widget.item.value is ChatMessage || widget.item.value is ChatForward);
 
     return StatefulBuilder(builder: (context, setState) {
-      return ListView(
-        shrinkWrap: true,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 12),
           Center(
@@ -1251,6 +1251,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           const SizedBox(height: 25),
           if (deletable) ...[
             _button(
+              key: const Key('HideForMe'),
               context,
               text: 'label_delete_for_me'.l10n,
               deleteOption: DeleteOption.me,
@@ -1258,6 +1259,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
             const SizedBox(height: 10),
             _button(
+              key: const Key('DeleteForAll'),
               context,
               text: 'label_delete_for_everyone'.l10n,
               deleteOption: DeleteOption.everyone,
@@ -1275,6 +1277,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             children: [
               Expanded(
                 child: OutlinedRoundedButton(
+                  key: const Key('Proceed'),
                   maxWidth: null,
                   title: Text(
                     'btn_proceed'.l10n,
@@ -1319,6 +1322,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns radio button represented the provided [DeleteOption].
   Widget _button(
     BuildContext context, {
+    Key? key,
     required String text,
     DeleteOption deleteOption = DeleteOption.everyone,
     required StateSetter setState,
@@ -1329,6 +1333,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return Material(
+      key: key,
       type: MaterialType.card,
       borderRadius: style.cardRadius,
       child: InkWell(

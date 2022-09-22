@@ -19,11 +19,12 @@ import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
 import '/util/platform_utils.dart';
+import '/themes.dart';
 import 'menu.dart';
 import 'mobile.dart';
 import 'overlay.dart';
 
-/// Region of a context [actions] over a [child], showed on a secondary mouse click
+/// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
@@ -171,5 +172,67 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     );
 
     return;
+  }
+}
+
+/// Context menu actions buttons.
+class ContextMenuActions extends StatelessWidget {
+  const ContextMenuActions({
+    Key? key,
+    this.actions = const [],
+    this.width = 220,
+  }) : super(key: key);
+
+  /// Width of this [ContextMenuActions].
+  final double width;
+
+  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  final List<ContextMenuButton> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> widgets = [];
+
+    for (int i = 0; i < actions.length; ++i) {
+      // Adds a button.
+      widgets.add(
+        actions[i],
+      );
+
+      // Adds a divider if required.
+      if (i < actions.length - 1) {
+        widgets.add(
+          Container(
+            color: const Color(0x11000000),
+            height: 1,
+            width: double.infinity,
+          ),
+        );
+      }
+    }
+
+    return Container(
+      width: width,
+      margin: const EdgeInsets.only(left: 1, top: 1),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2F2F2),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: Color(0x33000000),
+            blurStyle: BlurStyle.outer,
+          )
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: widgets,
+        ),
+      ),
+    );
   }
 }

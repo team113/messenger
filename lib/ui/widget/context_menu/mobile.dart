@@ -18,13 +18,15 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
-import '/themes.dart';
+import '/routes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/overlay.dart';
 
+/// Region to show context menu with animation below the [child] on a long tap.
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
     Key? key,
@@ -34,6 +36,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.id,
   }) : super(key: key);
 
+  /// Widget to show context menu on.
   final Widget child;
 
   /// List of [ContextMenuButton]s to display in this [ContextMenu].
@@ -49,6 +52,7 @@ class FloatingContextMenu extends StatefulWidget {
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
 }
 
+/// State of [FloatingContextMenu] used to show context menu.
 class _FloatingContextMenuState extends State<FloatingContextMenu> {
   /// [OverlayEntry] of this [FloatingContextMenu].
   OverlayEntry? _entry;
@@ -56,7 +60,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   /// [GlobalKey] of this [FloatingContextMenu].
   final GlobalKey _key = GlobalKey();
 
-  /// Global [Rect] of the [_entry].
+  /// Global [Rect] of the child [Widget].
   Rect? _rect;
 
   @override
@@ -84,6 +88,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     );
   }
 
+  /// Shows context menu with [widget.actions].
   void _populateEntry(BuildContext context) {
     _rect = _key.globalPaintBounds;
     HapticFeedback.selectionClick();
@@ -108,6 +113,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   }
 }
 
+/// Animated context menu.
 class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
@@ -141,6 +147,7 @@ class _AnimatedMenu extends StatefulWidget {
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
 
+/// State of [_AnimatedMenu] used to play animation.
 class _AnimatedMenuState extends State<_AnimatedMenu>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] controlling the opening and closing animation.
@@ -183,7 +190,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-
         var fade = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: _fading,
           curve: const Interval(0, 0.3, curve: Curves.ease),
@@ -201,21 +207,18 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: _dismiss,
-                    child: AnimatedBuilder(
-                      animation: _fading,
-                      builder: (context, child) => ConditionalBackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 0.01 + 10 * _fading.value,
-                          sigmaY: 0.01 + 10 * _fading.value,
-                        ),
-                        child: Container(
-                          color: Color.fromARGB(
-                            (kCupertinoModalBarrierColor.alpha * _fading.value)
-                                .toInt(),
-                            kCupertinoModalBarrierColor.red,
-                            kCupertinoModalBarrierColor.green,
-                            kCupertinoModalBarrierColor.blue,
-                          ),
+                    child: ConditionalBackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 0.01 + 10 * _fading.value,
+                        sigmaY: 0.01 + 10 * _fading.value,
+                      ),
+                      child: Container(
+                        color: Color.fromARGB(
+                          (kCupertinoModalBarrierColor.alpha * _fading.value)
+                              .toInt(),
+                          kCupertinoModalBarrierColor.red,
+                          kCupertinoModalBarrierColor.green,
+                          kCupertinoModalBarrierColor.blue,
                         ),
                       ),
                     ),
@@ -256,7 +259,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               (constraints.maxHeight -
                                   _bounds.top -
                                   _bounds.height) +
-                          (10 + widget.actions.length * 50) * _fading.value,
+                          (10 +
+                                  router.context!.mediaQueryPadding.bottom +
+                                  widget.actions.length * 50) *
+                              _fading.value,
                       child: widget.child,
                     ),
                   ]
@@ -286,10 +292,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
               sizeFactor: _fading,
               child: FadeTransition(
                 opacity: fade,
-                child: SafeArea(
-                  top: false,
-                  left: false,
-                  right: false,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: router.context!.mediaQueryPadding.bottom,
+                  ),
                   child: _menu(),
                 ),
               ),
@@ -352,65 +358,4 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// Returns a [Rect] of an [Object] identified by the provided initial
   /// [GlobalKey].
   Rect? _calculatePosition() => widget.globalKey.globalPaintBounds;
-}
-
-class ContextMenuActions extends StatelessWidget {
-  const ContextMenuActions({
-    Key? key,
-    this.actions = const [],
-    this.width = 220,
-  }) : super(key: key);
-
-  /// Width of this [ContextMenuActions].
-  final double width;
-
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> widgets = [];
-
-    for (int i = 0; i < actions.length; ++i) {
-      // Adds a button.
-      widgets.add(
-        actions[i],
-      );
-
-      // Adds a divider if required.
-      if (i < actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
-      }
-    }
-
-    return Container(
-      width: width,
-      margin: const EdgeInsets.only(left: 1, top: 1),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: Color(0x33000000),
-            blurStyle: BlurStyle.outer,
-          )
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: widgets,
-        ),
-      ),
-    );
-  }
 }

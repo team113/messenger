@@ -142,7 +142,6 @@ btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_generate_direct_chat_link = Generate
 btn_hide_chat = Hide chat
-btn_hide_for_me = Delete for me
 btn_info = Info
 btn_join_call = Join
 btn_leave_chat = Leave chat

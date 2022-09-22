@@ -245,7 +245,7 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// [BorderRadius] of card-like [Widget]s.
+  /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius? cardRadius;
 
   @override
