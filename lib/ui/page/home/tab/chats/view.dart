@@ -385,19 +385,21 @@ class ChatsTabView extends StatelessWidget {
       return ContextMenuRegion(
         key: Key('ContextMenuRegion_${chat.id}'),
         preventContextMenu: false,
-        actions: [
-          ContextMenuButton(
-            key: const Key('ButtonHideChat'),
-            label: 'btn_hide_chat'.l10n,
-            onPressed: () => c.hideChat(chat.id),
-          ),
-          if (chat.isGroup)
+        menu: ContextMenu(
+          actions: [
             ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: () => c.leaveChat(chat.id),
+              key: const Key('ButtonHideChat'),
+              label: 'btn_hide_chat'.l10n,
+              onPressed: () => c.hideChat(chat.id),
             ),
-        ],
+            if (chat.isGroup)
+              ContextMenuButton(
+                key: const Key('ButtonLeaveChat'),
+                label: 'btn_leave_chat'.l10n,
+                onPressed: () => c.leaveChat(chat.id),
+              ),
+          ],
+        ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
           child: ConditionalBackdropFilter(

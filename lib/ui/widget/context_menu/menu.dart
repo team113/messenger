@@ -14,12 +14,93 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import 'overlay.dart';
 
-/// Styled button.
+/// Styled context menu of [actions].
+class ContextMenu extends StatelessWidget {
+  const ContextMenu({Key? key, required this.actions}) : super(key: key);
+
+  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  final List<ContextMenuButton> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    // Close this context menu if [actions] are empty.
+    if (actions.isEmpty) {
+      scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
+      return const SizedBox.shrink();
+    }
+
+    // Border radius is based on the [ContextMenuOverlay]'s alignment.
+    Alignment quadrant = ContextMenuOverlay.of(context).alignment;
+    BorderRadius borderRadius = BorderRadius.only(
+      topLeft: quadrant.x > 0 && quadrant.y > 0
+          ? Radius.zero
+          : const Radius.circular(10),
+      topRight: quadrant.x < 0 && quadrant.y > 0
+          ? Radius.zero
+          : const Radius.circular(10),
+      bottomLeft: quadrant.x > 0 && quadrant.y < 0
+          ? Radius.zero
+          : const Radius.circular(10),
+      bottomRight: quadrant.x < 0 && quadrant.y < 0
+          ? Radius.zero
+          : const Radius.circular(10),
+    );
+
+    List<Widget> widgets = [];
+    for (int i = 0; i < actions.length; ++i) {
+      // Adds a button.
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: actions[i],
+        ),
+      );
+
+      // Adds a divider if required.
+      if (i < actions.length - 1) {
+        widgets.add(
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+            color: const Color(0x99000000),
+            height: 1,
+            width: double.infinity,
+          ),
+        );
+      }
+    }
+
+    return Container(
+      decoration: const BoxDecoration(
+        boxShadow: [CustomBoxShadow(blurRadius: 6, color: Color(0x20000000))],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          decoration: BoxDecoration(
+            color: const Color(0xE6FFFFFF),
+            borderRadius: borderRadius,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Styled button used in [ContextMenu].
 class ContextMenuButton extends StatefulWidget {
   const ContextMenuButton({
     Key? key,
@@ -59,34 +140,26 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
           width: double.infinity,
-          height: 50,
           decoration: BoxDecoration(
-            color: isMouseOver
-                ? const Color.fromARGB(255, 229, 231, 233)
-                : Colors.transparent,
+            color: isMouseOver ? const Color(0x22000000) : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: Text(
-                  widget.label,
-                  style: context.theme.outlinedButtonTheme.style!.textStyle!
-                      .resolve({MaterialState.disabled})!.copyWith(
-                          color: Colors.black),
-                ),
-              ),
               if (widget.leading != null) ...[
-                const SizedBox(width: 14),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
-                  ),
-                  child: widget.leading!,
-                ),
+                widget.leading!,
+                const SizedBox(width: 10),
               ],
+              Text(
+                widget.label,
+                style: context.theme.outlinedButtonTheme.style!.textStyle!
+                    .resolve({MaterialState.disabled})!.copyWith(
+                        color: Colors.black),
+              ),
+              const Spacer(),
             ],
           ),
         ),

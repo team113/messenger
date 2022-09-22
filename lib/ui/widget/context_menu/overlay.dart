@@ -100,7 +100,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                   // Listens for taps outside the [menu].
                   Listener(
                     behavior: HitTestBehavior.opaque,
-                    onPointerDown: (PointerDownEvent d) {
+                    onPointerDown: (d) {
                       // If [kSecondaryButton] was pressed outside the [menu],
                       // then simulate the [PointerUpDown] and [PointerUpEvent]
                       // for every [RenderPointerListener] on
@@ -116,7 +116,7 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
                                   position: d.localPosition)) {
                                 for (HitTestEntry entry in result.path) {
                                   if (entry.target is RenderPointerListener) {
-                                    final target =
+                                    var target =
                                         entry.target as RenderPointerListener;
                                     target.onPointerDown?.call(d);
                                     target.onPointerUp?.call(

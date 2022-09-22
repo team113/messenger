@@ -24,14 +24,17 @@ import 'package:flutter/widgets.dart';
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
     Key? key,
+    required this.child,
     this.enabled = true,
     this.debug = false,
-    required this.child,
   }) : super(key: key) {
     if (!_registered) {
       _register();
     }
   }
+
+  /// Widget being wrapped.
+  final Widget child;
 
   /// Indicator whether this widget should be active or not.
   final bool enabled;
@@ -39,9 +42,6 @@ class ContextMenuInterceptor extends StatelessWidget {
   /// Indicator whether a semi-transparent red background should be renderer or
   /// not, used for debug purposes.
   final bool debug;
-
-  /// Widget being wrapped.
-  final Widget child;
 
   /// Indicator whether this widget has already registered its view factories or
   /// not.

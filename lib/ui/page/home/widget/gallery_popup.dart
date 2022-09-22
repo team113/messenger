@@ -341,20 +341,22 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       return ContextMenuRegion(
-        actions: [
-          ContextMenuButton(
-            label: 'btn_save_to_gallery'.l10n,
-            onPressed: () => _saveToGallery(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_share'.l10n,
-            onPressed: () => _share(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_info'.l10n,
-            onPressed: () {},
-          ),
-        ],
+        menu: ContextMenu(
+          actions: [
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () => _saveToGallery(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_share'.l10n,
+              onPressed: () => _share(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+        ),
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
           wantKeepAlive: false,
@@ -455,16 +457,18 @@ class _GalleryPopupState extends State<GalleryPopup>
                     )
                   : ContextMenuRegion(
                       enabled: !PlatformUtils.isWeb,
-                      actions: [
-                        ContextMenuButton(
-                          label: 'btn_download'.l10n,
-                          onPressed: () => _download(widget.children[_page]),
-                        ),
-                        ContextMenuButton(
-                          label: 'btn_info'.l10n,
-                          onPressed: () {},
-                        ),
-                      ],
+                      menu: ContextMenu(
+                        actions: [
+                          ContextMenuButton(
+                            label: 'btn_download'.l10n,
+                            onPressed: () => _download(widget.children[_page]),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_info'.l10n,
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
                       child: GestureDetector(
                         onTap: () {},
                         onDoubleTap: () {

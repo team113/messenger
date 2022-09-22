@@ -16,25 +16,30 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/util/platform_utils.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
-import 'mobile.dart';
 import '../menu_interceptor/menu_interceptor.dart';
-import 'menu.dart';
+import '/util/platform_utils.dart';
 import 'overlay.dart';
 
-/// Region of a context menu over a [child], showed on a secondary mouse click
+/// Region of a context [menu] over a [child], showed on a secondary mouse click
 /// or a long tap.
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
+    required this.child,
+    required this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
-    this.enableLongTap = true,
-    this.alignment = Alignment.bottomCenter,
-    this.actions,
-    required this.child,
+    this.decoration,
   }) : super(key: key);
+
+  /// Widget to wrap this region over.
+  final Widget child;
+
+  /// Context menu to show.
+  final Widget menu;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
@@ -44,17 +49,9 @@ class ContextMenuRegion extends StatefulWidget {
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  /// Whether indicator long tap.
-  final bool enableLongTap;
-
-  /// Menu alignment directions.
-  final Alignment alignment;
-
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton>? actions;
-
-  /// Widget to wrap this region over.
-  final Widget child;
+  /// [BoxDecoration] to put this [ContextMenuRegion] into when
+  /// [ContextMenuOverlay] displays this [menu].
+  final BoxDecoration? decoration;
 
   @override
   State<ContextMenuRegion> createState() => _ContextMenuRegionState();
@@ -62,90 +59,54 @@ class ContextMenuRegion extends StatefulWidget {
 
 /// State of [ContextMenuRegion] used to keep track of [_buttons].
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
+  /// Bit field of [PointerDownEvent]'s buttons.
+  ///
+  /// [PointerUpEvent] doesn't contain the button being released, so it's
+  /// required to store the buttons from.
+  int _buttons = 0;
+
   @override
-  Widget build(BuildContext context) {
-    if (widget.enabled) {
-      return ContextMenuInterceptor(
-        enabled: widget.preventContextMenu,
-        child: Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (PointerDownEvent d) {
-            if (d.buttons & kSecondaryButton != 0) {
-              _show(d.position);
-            }
-          },
-          child: Stack(
-            children: [
-              if (PlatformUtils.isMobile)
-                FloatingContextMenu(
-                  alignment: widget.alignment,
-                  actions: widget.actions ?? [],
-                  child: widget.child,
-                )
-              else
+  Widget build(BuildContext context) => widget.enabled
+      ? ContextMenuInterceptor(
+          enabled: widget.preventContextMenu,
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (d) => _buttons = d.buttons,
+            onPointerUp: (d) {
+              if (_buttons & kSecondaryButton != 0) {
+                ContextMenuOverlay.of(context).show(widget.menu, d.position);
+              }
+            },
+            child: Stack(
+              children: [
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (LongPressStartDetails d) =>
-                          ContextMenuOverlay.of(context).show(
-                            ContextMenuActions(
-                              actions: widget.actions ?? [],
-                              backdrop: true,
-                            ),
-                            d.globalPosition,
-                          )
-                      : null,
+                  onLongPressStart: (d) => ContextMenuOverlay.of(context)
+                      .show(widget.menu, d.globalPosition),
                   child: widget.child,
                 ),
-            ],
-          ),
-        ),
-      );
-    }
 
-    return widget.child;
-  }
+                // Display the provided [decoration] if [menu] is opened.
+                if (context.isMobile)
+                  Positioned.fill(
+                    child: Obx(() {
+                      if (ContextMenuOverlay.of(context).menu.value ==
+                          widget.menu) {
+                        return Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: widget.decoration
+                                  ?.copyWith(color: const Color(0x11000000)) ??
+                              const BoxDecoration(color: Color(0x11000000)),
+                        );
+                      }
 
-  /// Shows dialog window.
-  void _show(Offset position) {
-    if (widget.actions?.isNotEmpty != true) {
-      return;
-    }
-
-    showDialog(
-      barrierColor: Colors.transparent,
-      context: context,
-      builder: (context) {
-        return LayoutBuilder(builder: (context, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (PointerUpEvent d) => Navigator.of(context).pop(),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned(
-                  left: position.dx,
-                  top: position.dy,
-                  child: FractionalTranslation(
-                    translation: Offset(
-                      alignment.x > 0 ? 0 : -1,
-                      alignment.y > 0 ? 0 : -1,
-                    ),
-                    child: ContextMenuActions(
-                      actions: widget.actions ?? [],
-                      backdrop: true,
-                    ),
+                      return const SizedBox.shrink();
+                    }),
                   ),
-                )
               ],
             ),
-          );
-        });
-      },
-    );
-  }
+          ),
+        )
+      : widget.child;
 }
