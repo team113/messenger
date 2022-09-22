@@ -326,10 +326,10 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          envkey_COMPOSE_COCKROACH: ${{ secrets.E2E_COCKROACH }}
+          envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_MEDEA: ${{ secrets.E2E_MEDEA }}
+          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_PROJECT_NAME: messenger
           fail_on_empty: true
 
