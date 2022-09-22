@@ -232,8 +232,8 @@ class _ChatViewState extends State<ChatView>
                           child: Stack(
                             children: [
                               // Required for the [Stack] to take [Scaffold]'s size.
-                               // ignore: prefer_const_constructors
-                               IgnorePointer(
+                              // ignore: prefer_const_constructors
+                              IgnorePointer(
                                 // ignore: prefer_const_constructors
                                 child: ContextMenuInterceptor(
                                   child: const SizedBox.expand(),

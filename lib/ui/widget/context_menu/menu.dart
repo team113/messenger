@@ -14,98 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/themes.dart';
 import 'overlay.dart';
 
-/// Styled context menu of [actions].
-class ContextMenu extends StatelessWidget {
-  const ContextMenu({Key? key, required this.actions}) : super(key: key);
-
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
-
-  @override
-  Widget build(BuildContext context) {
-    // Close this context menu if [actions] are empty.
-    if (actions.isEmpty) {
-      scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
-
-      return const SizedBox.shrink();
-    }
-
-    // Border radius is based on the [ContextMenuOverlay]'s alignment.
-    Alignment quadrant = ContextMenuOverlay.of(context).alignment;
-    BorderRadius borderRadius = BorderRadius.only(
-      topLeft: quadrant.x > 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      topRight: quadrant.x < 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomLeft: quadrant.x > 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomRight: quadrant.x < 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-    );
-
-    List<Widget> widgets = [];
-    for (int i = 0; i < actions.length; ++i) {
-      // Adds a button.
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: actions[i],
-        ),
-      );
-
-      // Adds a divider if required.
-      if (i < actions.length - 1) {
-        widgets.add(
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            color: const Color(0x99000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
-      }
-    }
-
-    return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [CustomBoxShadow(blurRadius: 6, color: Color(0x20000000))],
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xAAFFFFFF),
-              borderRadius: borderRadius,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Styled button used in [ContextMenu].
+/// Styled button.
 class ContextMenuButton extends StatefulWidget {
   const ContextMenuButton({
     Key? key,

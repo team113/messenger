@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '../widget/caption.dart';
 import '/domain/model/chat.dart';
@@ -316,7 +317,7 @@ class ElementStyleTabView extends StatelessWidget {
                 title: 'Меню ПКМ над видео в звонке.',
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 200),
-                  child: ContextMenu(
+                  child: ContextMenuRegion(
                     actions: [
                       ContextMenuButton(
                         label: 'Do not cut video',
@@ -327,6 +328,7 @@ class ElementStyleTabView extends StatelessWidget {
                         onPressed: () {},
                       ),
                     ],
+                    child: const SizedBox.expand(),
                   ),
                 ),
               ),

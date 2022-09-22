@@ -23,23 +23,18 @@ import '../menu_interceptor/menu_interceptor.dart';
 import 'menu.dart';
 import 'overlay.dart';
 
-/// Region of a context [menu] over a [child], showed on a secondary mouse click
+/// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
 class ContextMenuRegion extends StatefulWidget {
   const ContextMenuRegion({
     Key? key,
-    this.menu,
     this.enabled = true,
     this.preventContextMenu = true,
-    this.usePointerDown = false,
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions,
     required this.child,
   }) : super(key: key);
-
-  /// Context menu to show.
-  final Widget? menu;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
@@ -48,9 +43,6 @@ class ContextMenuRegion extends StatefulWidget {
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
-
-  /// Whether indicator pointer down.
-  final bool usePointerDown;
 
   /// Whether indicator long tap.
   final bool enableLongTap;
@@ -70,12 +62,6 @@ class ContextMenuRegion extends StatefulWidget {
 
 /// State of [ContextMenuRegion] used to keep track of [_buttons].
 class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  /// Bit field of [PointerDownEvent]'s buttons.
-  ///
-  /// [PointerUpEvent] doesn't contain the button being released, so it's
-  /// required to store the buttons from.
-  int _buttons = 0;
-
   @override
   Widget build(BuildContext context) {
     if (widget.enabled) {
@@ -84,17 +70,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (PointerDownEvent d) {
-            if (widget.usePointerDown) {
-              _buttons = 0;
-              if (d.buttons & kSecondaryButton != 0) {
-                _show(d.position);
-              }
-            } else {
-              _buttons = d.buttons;
-            }
-          },
-          onPointerUp: (PointerUpEvent d) {
-            if (_buttons & kSecondaryButton != 0) {
+            if (d.buttons & kSecondaryButton != 0) {
               _show(d.position);
             }
           },

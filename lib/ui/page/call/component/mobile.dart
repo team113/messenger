@@ -1013,7 +1013,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         height: double.infinity,
                         fit: BoxFit.cover,
                       ),
-                      const ColoredBox(color: Color(0x11FFFFFF),  child: SizedBox.expand(),
+                      const ColoredBox(
+                        color: Color(0x11FFFFFF),
+                        child: SizedBox.expand(),
                       ),
                     ],
                   );

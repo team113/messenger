@@ -1049,91 +1049,88 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       borderRadius: BorderRadius.circular(15),
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        menu: ContextMenu(
-                          actions: [
-                            if (copyable != null)
+                        actions: [
+                          if (copyable != null)
+                            ContextMenuButton(
+                              key: const Key('CopyButton'),
+                              label: 'btn_copy_text'.l10n,
+                              onPressed: () => widget.onCopy?.call(copyable!),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: 'btn_reply'.l10n,
+                              onPressed: () => widget.onReply?.call(),
+                            ),
+                            if (item is ChatMessage || item is ChatForward)
                               ContextMenuButton(
-                                key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy?.call(copyable!),
-                              ),
-                            if (item.status.value == SendingStatus.sent) ...[
-                              ContextMenuButton(
-                                key: const Key('ReplyButton'),
-                                label: 'btn_reply'.l10n,
-                                onPressed: () => widget.onReply?.call(),
-                              ),
-                              if (item is ChatMessage || item is ChatForward)
-                                ContextMenuButton(
-                                  key: const Key('ForwardButton'),
-                                  label: 'btn_forward'.l10n,
-                                  onPressed: () async {
-                                    List<AttachmentId> attachments = [];
-                                    if (item is ChatMessage) {
-                                      attachments = item.attachments
+                                key: const Key('ForwardButton'),
+                                label: 'btn_forward'.l10n,
+                                onPressed: () async {
+                                  List<AttachmentId> attachments = [];
+                                  if (item is ChatMessage) {
+                                    attachments = item.attachments
+                                        .map((a) => a.id)
+                                        .toList();
+                                  } else if (item is ChatForward) {
+                                    ChatItem nested = item.item;
+                                    if (nested is ChatMessage) {
+                                      attachments = nested.attachments
                                           .map((a) => a.id)
                                           .toList();
-                                    } else if (item is ChatForward) {
-                                      ChatItem nested = item.item;
-                                      if (nested is ChatMessage) {
-                                        attachments = nested.attachments
-                                            .map((a) => a.id)
-                                            .toList();
-                                      }
                                     }
+                                  }
 
-                                    await ChatForwardView.show(
-                                      context,
-                                      widget.chat.value!.id,
-                                      [
-                                        ChatItemQuote(
-                                          item: item,
-                                          attachments: attachments,
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              if (item is ChatMessage &&
-                                  fromMe &&
-                                  (item.at
-                                          .add(
-                                              ChatController.editMessageTimeout)
-                                          .isAfter(PreciseDateTime.now()) ||
-                                      !isRead))
-                                ContextMenuButton(
-                                  key: const Key('EditButton'),
-                                  label: 'btn_edit'.l10n,
-                                  onPressed: () => widget.onEdit?.call(),
-                                ),
-                              ContextMenuButton(
-                                key: const Key('HideForMe'),
-                                label: 'btn_hide_for_me'.l10n,
-                                onPressed: () => widget.onHide?.call(),
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [
+                                      ChatItemQuote(
+                                        item: item,
+                                        attachments: attachments,
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
-                              if (item.authorId == widget.me &&
-                                  !widget.chat.value!.isRead(item, widget.me) &&
-                                  (item is ChatMessage || item is ChatForward))
-                                ContextMenuButton(
-                                  key: const Key('DeleteForAll'),
-                                  label: 'btn_delete_for_all'.l10n,
-                                  onPressed: () => widget.onDelete?.call(),
-                                ),
-                            ],
-                            if (item.status.value == SendingStatus.error) ...[
+                            if (item is ChatMessage &&
+                                fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !isRead))
                               ContextMenuButton(
-                                key: const Key('Resend'),
-                                label: 'btn_resend_message'.l10n,
-                                onPressed: () => widget.onResend?.call(),
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                onPressed: () => widget.onEdit?.call(),
                               ),
+                            ContextMenuButton(
+                              key: const Key('HideForMe'),
+                              label: 'btn_hide_for_me'.l10n,
+                              onPressed: () => widget.onHide?.call(),
+                            ),
+                            if (item.authorId == widget.me &&
+                                !widget.chat.value!.isRead(item, widget.me) &&
+                                (item is ChatMessage || item is ChatForward))
                               ContextMenuButton(
-                                key: const Key('Delete'),
-                                label: 'btn_delete_message'.l10n,
+                                key: const Key('DeleteForAll'),
+                                label: 'btn_delete_for_all'.l10n,
                                 onPressed: () => widget.onDelete?.call(),
                               ),
-                            ],
                           ],
-                        ),
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: 'btn_resend_message'.l10n,
+                              onPressed: () => widget.onResend?.call(),
+                            ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete_message'.l10n,
+                              onPressed: () => widget.onDelete?.call(),
+                            ),
+                          ],
+                        ],
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
