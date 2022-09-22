@@ -32,6 +32,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -39,15 +40,16 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/platform_utils.dart';
 import 'chat_split_message_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  setUp(Get.reset);
-
+  PlatformUtils = PlatformUtilsMock();
   Hive.init('./test/.temp_hive/chat_split_message_unit');
 
   const int maxText = ChatMessageText.maxLength;
@@ -55,13 +57,14 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
+  var galleryItemProvider = Get.put(GalleryItemHiveProvider(), permanent: true);
   await galleryItemProvider.init();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
+  var chatHiveProvider = Get.put(ChatHiveProvider(), permanent: true);
   await chatHiveProvider.init();
-  var sessionProvider = Get.put(SessionDataHiveProvider());
+  await chatHiveProvider.clear();
+  var sessionProvider = Get.put(SessionDataHiveProvider(), permanent: true);
   await sessionProvider.init();
-  var userProvider = Get.put(UserHiveProvider());
+  var userProvider = Get.put(UserHiveProvider(), permanent: true);
   await userProvider.init();
   await userProvider.clear();
 
@@ -70,6 +73,7 @@ void main() async {
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
       sessionProvider,
     ),
+    permanent: true,
   );
   await authService.init();
 
@@ -128,7 +132,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -184,7 +187,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -248,7 +250,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -306,8 +307,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
-
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -357,7 +356,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -421,7 +419,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenAnswer((_) => Future.value());
 
-    Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(

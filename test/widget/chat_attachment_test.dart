@@ -159,14 +159,14 @@ void main() async {
               'authorId': 'me',
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
-              'repliesTo': null,
+              'repliesTo': [],
               'text': null,
               'editedAt': null,
               'attachments': [
                 {
                   '__typename': 'FileAttachment',
                   'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-                  'original': 'orig.aaf',
+                  'original': {'relativeRef': 'orig.aaf'},
                   'filename': 'test.txt',
                   'size': 2
                 }
@@ -208,7 +208,7 @@ void main() async {
           'attachment': {
             '__typename': 'FileAttachment',
             'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-            'original': 'orig.aaf',
+            'original': {'relativeRef': 'orig.aaf'},
             'filename': 'test.txt',
             'size': 2
           }
@@ -311,8 +311,6 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
-
     Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
         .addPlatformAttachment(
       PlatformFile(
@@ -327,8 +325,6 @@ void main() async {
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('Send')), findsNothing);
 
     Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
         .addPlatformAttachment(
