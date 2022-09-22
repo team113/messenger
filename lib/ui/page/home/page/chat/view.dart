@@ -234,7 +234,8 @@ class _ChatViewState extends State<ChatView>
                               // Required for the [Stack] to take [Scaffold]'s size.
                               const IgnorePointer(
                                 child: ContextMenuInterceptor(
-                                    child: SizedBox.shrink()),
+                                  child: SizedBox.shrink(),
+                                ),
                               ),
                               SafeArea(
                                 child: FlutterListView(
