@@ -307,35 +307,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+      # - uses: subosito/flutter-action@v2
+      #   with:
+      #     flutter-version: ${{ env.FLUTTER_VER }}
+      #     channel: stable
+      #     cache: true
 
-      - name: Login to private E2E container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.E2E_REGISTRY }}
-          username: ${{ secrets.E2E_USER }}
-          password: ${{ secrets.E2E_PASS }}
+      # - name: Login to private E2E container registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ${{ secrets.E2E_REGISTRY }}
+      #     username: ${{ secrets.E2E_USER }}
+      #     password: ${{ secrets.E2E_PASS }}
 
       # - run: make flutter.pub
 
-      - name: Prepare E2E environment
-        uses: SpicyPizza/create-envfile@v1
-        with:
-          envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
-          envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FRONTEND_IMAGE: nginx
-          envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
-          envkey_COMPOSE_PROJECT_NAME: messenger
-          fail_on_empty: true
+      # - name: Prepare E2E environment
+      #   uses: SpicyPizza/create-envfile@v1
+      #   with:
+      #     envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
+      #     envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
+      #     envkey_COMPOSE_FRONTEND_IMAGE: nginx
+      #     envkey_COMPOSE_FRONTEND_TAG: stable-alpine
+      #     envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
+      #     envkey_COMPOSE_PROJECT_NAME: messenger
+      #     fail_on_empty: true
 
       - run: mkdir build/
 
-      - run: mkdir .cache && mkdir -p .cache/baza/data && mkdir -p .cache/baza/cache
+      - run: mkdir .cache && mkdir -p .cache/baza/data && mkdir -p .cache/baza/cache && chmod 0777 .cache/baza/data && chmod 0777 .cache/baza/cache
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
