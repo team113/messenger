@@ -351,7 +351,6 @@ class GraphQlClient {
 
   /// Creates a new [GraphQLClient].
   GraphQLClient _newClient([bool raw = false]) {
-    print('${Config.url}:${Config.port}${Config.graphql}');
     final httpLink = HttpLink('${Config.url}:${Config.port}${Config.graphql}');
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
     final Link httpAuthLink =
