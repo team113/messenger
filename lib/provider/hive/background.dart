@@ -51,7 +51,7 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 class HiveBackground extends HiveObject {
   HiveBackground(this.bytes);
 
-  /// Persisted background.
+  /// Persisted background itself.
   @HiveField(0)
   final Uint8List bytes;
 }
