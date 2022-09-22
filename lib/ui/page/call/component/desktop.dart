@@ -600,7 +600,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? Container(color: const Color(0x55000000))
+                  ? const ColoredBox(color: Color(0x55000000))
                   : null,
             );
           }),
@@ -1640,7 +1640,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             height: double.infinity,
                             fit: BoxFit.cover,
                           ),
-                          Container(color: const Color(0x11FFFFFF)),
+                          const ColoredBox(color: Color(0x11FFFFFF)),
                         ],
                       ),
                     );

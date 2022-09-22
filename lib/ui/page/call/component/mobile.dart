@@ -269,7 +269,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? Container(color: const Color(0x55000000))
+                ? const ColoredBox(color: Color(0x55000000))
                 : null,
           ),
         );
@@ -1010,7 +1010,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         height: double.infinity,
                         fit: BoxFit.cover,
                       ),
-                      Container(color: const Color(0x11FFFFFF)),
+                      const ColoredBox(color: Color(0x11FFFFFF)),
                     ],
                   );
                 }
@@ -1149,7 +1149,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     duration: 200.milliseconds,
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
-                        ? Container(
+                        ? ColoredBox(
                             color: const Color(0x40000000),
                             child: Center(
                               child: AnimatedDelayedScale(
