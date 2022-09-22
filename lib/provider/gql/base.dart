@@ -219,7 +219,9 @@ class GraphQlClient {
           );
         } on dio.DioError catch (e) {
           if (e.response != null) {
-            if (onException != null && e.response?.data['data'] != null) {
+            if (onException != null &&
+                e.response?.data is Map<String, dynamic> &&
+                e.response?.data['data'] != null) {
               throw onException(e.response!.data['data']);
             }
           }
@@ -349,6 +351,7 @@ class GraphQlClient {
 
   /// Creates a new [GraphQLClient].
   GraphQLClient _newClient([bool raw = false]) {
+    print('${Config.url}:${Config.port}${Config.graphql}');
     final httpLink = HttpLink('${Config.url}:${Config.port}${Config.graphql}');
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
     final Link httpAuthLink =

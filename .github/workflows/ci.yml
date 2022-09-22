@@ -335,7 +335,7 @@ jobs:
 
       - run: mkdir build/
 
-      - run: mkdir .cache && chmod -R 777 .cache
+      - run: mkdir .cache && mkdir .cache/baza/data && mkdir .cache/baza/cache
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
