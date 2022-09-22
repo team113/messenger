@@ -120,7 +120,7 @@ class MediaSettingsView extends StatelessWidget {
                       ?.renderer
                       .value as RtcVideoRenderer?;
                   return row(
-                    Container(),
+                    const SizedBox.shrink(),
                     Center(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),

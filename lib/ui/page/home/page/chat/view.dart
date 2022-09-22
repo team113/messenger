@@ -232,9 +232,9 @@ class _ChatViewState extends State<ChatView>
                           child: Stack(
                             children: [
                               // Required for the [Stack] to take [Scaffold]'s size.
-                              IgnorePointer(
-                                child:
-                                    ContextMenuInterceptor(child: Container()),
+                              const IgnorePointer(
+                                child: ContextMenuInterceptor(
+                                    child: SizedBox.shrink()),
                               ),
                               SafeArea(
                                 child: FlutterListView(
@@ -404,7 +404,7 @@ class _ChatViewState extends State<ChatView>
                                             child: const Icon(
                                                 Icons.arrow_downward),
                                           )
-                                        : Container(),
+                                        : const SizedBox.shrink(),
                           ),
                         ),
                       ),
@@ -491,13 +491,13 @@ class _ChatViewState extends State<ChatView>
                   });
                 }
 
-                return Container();
+                return const SizedBox.shrink();
               },
             );
           }
         }
 
-        return Container();
+        return const SizedBox.shrink();
       },
     );
   }
@@ -1002,7 +1002,7 @@ class _ChatViewState extends State<ChatView>
           ),
         );
       } else {
-        return Container();
+        return const SizedBox.shrink();
       }
     });
   }

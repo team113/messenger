@@ -223,7 +223,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           }),
         );
       } else {
-        return Container();
+        return const SizedBox.shrink();
       }
     }
 

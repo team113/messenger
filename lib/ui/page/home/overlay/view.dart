@@ -43,7 +43,7 @@ class CallOverlayView extends StatelessWidget {
                   .map(
                     (e) => Obx(
                       () => e.call.value.state.value == OngoingCallState.ended
-                          ? Container()
+                          ? const SizedBox.shrink()
                           : Listener(
                               onPointerDown: (_) => c.orderFirst(e),
                               child: CallView(

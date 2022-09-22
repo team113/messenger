@@ -74,7 +74,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Secondary panel itself.
         Obx(() {
           if (c.minimized.value) {
-            return Container();
+            return const SizedBox.shrink();
           }
 
           return Listener(
@@ -208,7 +208,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         ),
                       ),
                     )
-                  : Container(),
+                  : const SizedBox.shrink(),
             ),
           ],
         );
@@ -239,7 +239,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   ),
                 )
-              : Container(),
+              : const SizedBox.shrink(),
         );
       }),
     );
@@ -278,7 +278,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Listen to the taps only if the call is not minimized.
       Obx(() {
         return c.minimized.value
-            ? Container()
+            ? const SizedBox.shrink()
             : Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: (d) {
@@ -851,7 +851,7 @@ Widget _primaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? Container()
+                        ? const SizedBox.shrink()
                         : ParticipantOverlayWidget(
                             participant,
                             key: ObjectKey(participant),
@@ -935,7 +935,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
       if (c.secondary.isEmpty) {
-        return Container();
+        return const SizedBox.shrink();
       }
 
       double? left = c.secondaryLeft.value;
@@ -986,7 +986,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   );
                 }
 
-                return Container();
+                return const SizedBox.shrink();
               }),
             ),
           ),
@@ -1015,7 +1015,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   );
                 }
 
-                return Container();
+                return const SizedBox.shrink();
               }),
             ),
           ),
@@ -1084,7 +1084,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? Container()
+                        ? const SizedBox.shrink()
                         : ParticipantOverlayWidget(
                             participant,
                             key: ObjectKey(participant),
@@ -1100,7 +1100,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               if (c.secondaryAlignment.value == null &&
                   !(c.secondary.length == 1 &&
                       c.draggedRenderer.value != null)) {
-                return Container();
+                return const SizedBox.shrink();
               }
 
               return const ParticipantDecoratorWidget();
@@ -1194,7 +1194,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   c.secondaryEntry = OverlayEntry(builder: (context) {
     return Obx(() {
       if (c.secondary.isNotEmpty) {
-        return Container();
+        return const SizedBox.shrink();
       }
 
       Axis secondaryAxis =

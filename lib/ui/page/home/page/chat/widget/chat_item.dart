@@ -895,7 +895,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           break;
       }
     } else {
-      leading = Container();
+      leading = const SizedBox.shrink();
     }
 
     return Padding(

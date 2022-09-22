@@ -71,7 +71,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           return Obx(() {
             Alignment? alignment = c.possibleSecondaryAlignment.value;
             if (alignment == null) {
-              return Container();
+              return const SizedBox.shrink();
             }
 
             double width = 10;
@@ -233,7 +233,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }
 
-            return Container();
+            return const SizedBox.shrink();
           }),
         );
       }
@@ -497,7 +497,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           a?.c == c && a?.isRemovable == true,
                       builder: builder,
                     )
-                  : Container(),
+                  : const SizedBox.shrink(),
             );
           }),
         );
@@ -549,7 +549,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return Container();
+          return const SizedBox.shrink();
         }),
 
         // Display the more hint, if not dismissed.
@@ -585,7 +585,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ],
                     ),
                   )
-                : Container(),
+                : const SizedBox.shrink(),
           );
         }),
       ];
@@ -648,7 +648,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return Container();
+          return const SizedBox.shrink();
         }),
 
         // Sliding from the top title bar.
@@ -734,7 +734,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         ),
                       ),
                     )
-                  : Container(),
+                  : const SizedBox.shrink(),
             );
           }),
         ],
@@ -771,13 +771,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                     ),
                   )
-                : Container(),
+                : const SizedBox.shrink(),
           );
         }),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
-            return Container();
+            return const SizedBox.shrink();
           }
 
           return Stack(children: footer);
@@ -1257,7 +1257,7 @@ Widget _primaryView(CallController c) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? Container()
+                        ? const SizedBox.shrink()
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
@@ -1392,7 +1392,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
       if (c.secondary.isEmpty) {
-        return Container();
+        return const SizedBox.shrink();
       }
 
       double? left, right;
@@ -1467,7 +1467,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           });
         }
 
-        Widget widget = Container();
+        Widget widget = const SizedBox.shrink();
 
         if (alignment == Alignment.centerLeft) {
           widget = scaler(
@@ -1615,7 +1615,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   );
                 }
 
-                return Container();
+                return const SizedBox.shrink();
               }),
             ),
           ),
@@ -1646,7 +1646,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     );
                   }
 
-                  return Container();
+                  return const SizedBox.shrink();
                 }),
               ),
             ),
@@ -1655,49 +1655,49 @@ Widget _secondaryView(CallController c, BuildContext context) {
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.centerRight)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topCenter)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topLeft)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topRight)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomLeft)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomRight)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           ReorderableFit<_DragData>(
@@ -1740,7 +1740,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return Offset.zero;
             },
             overlayBuilder: (_DragData data) {
-              var participant = data.participant;
+              final Participant participant = data.participant;
 
               return Obx(() {
                 bool muted = participant.member.owner == MediaOwnerKind.local
@@ -1778,7 +1778,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? Container()
+                        ? const SizedBox.shrink()
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
@@ -1960,25 +1960,25 @@ Widget _secondaryView(CallController c, BuildContext context) {
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerRight
                 ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerLeft
                 ? buildDragHandle(Alignment.centerRight)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.topCenter
                 ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.bottomCenter
                 ? buildDragHandle(Alignment.topCenter)
-                : Container(),
+                : const SizedBox.shrink(),
           )),
 
           Positioned(
@@ -2231,7 +2231,7 @@ Widget _secondaryTarget(CallController c) {
                 ),
               ),
             )
-          : Container(),
+          : const SizedBox.shrink(),
     );
   });
 }

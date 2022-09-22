@@ -282,7 +282,7 @@ class ChatsTabView extends StatelessWidget {
                           size: 15,
                           color: Colors.red,
                         )
-                      : Container(),
+                      : const SizedBox.shrink(),
             ),
           ];
         } else if (item is ChatForward) {
@@ -321,7 +321,7 @@ class ChatsTabView extends StatelessWidget {
                             color: Colors.red,
                           ),
                         )
-                      : Container(),
+                      : const SizedBox.shrink(),
             ),
           ];
         } else if (item is ChatMemberInfo) {

@@ -41,7 +41,7 @@ class FitView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     return LayoutBuilder(builder: (context, constraints) {

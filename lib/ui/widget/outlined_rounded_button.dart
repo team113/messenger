@@ -107,8 +107,8 @@ class OutlinedRoundedButton extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: Center(child: leading)),
-                      Expanded(flex: 4, child: Container()),
-                      Expanded(child: Container()),
+                      const Expanded(flex: 4, child: SizedBox.shrink()),
+                      const Expanded(child: SizedBox.shrink()),
                     ],
                   ),
                 DefaultTextStyle.merge(
@@ -128,7 +128,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          title ?? Container(),
+                          title ?? const SizedBox.shrink(),
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
