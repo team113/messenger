@@ -39,7 +39,7 @@ class FloatingContextMenu extends StatefulWidget {
   /// Widget to show context menu on.
   final Widget child;
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  /// List of [ContextMenuButton]s to display in this [FloatingContextMenu].
   final List<ContextMenuButton> actions;
 
   /// [Alignment] of this [FloatingContextMenu].
@@ -128,16 +128,16 @@ class _AnimatedMenu extends StatefulWidget {
   /// [Widget] context menu called on.
   final Widget child;
 
-  /// [GlobalKey] of the child [Widget].
+  /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
 
   /// Callback, called when a close action of this [_AnimatedMenu] is triggered.
   final void Function()? onClosed;
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  /// List of [ContextMenuButton]s to display in this [_AnimatedMenu].
   final List<ContextMenuButton> actions;
 
-  /// [Alignment] of the context menu.
+  /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
 
   /// ID of this [_AnimatedMenu].
@@ -153,7 +153,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   /// [AnimationController] controlling the opening and closing animation.
   late final AnimationController _fading;
 
-  /// [Rect] of [Widget] to animate.
+  /// Global [Rect] of the [widget.child].
   late Rect _bounds;
 
   @override
@@ -296,7 +296,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   padding: EdgeInsets.only(
                     bottom: router.context!.mediaQueryPadding.bottom,
                   ),
-                  child: _menu(),
+                  child: _actions(),
                 ),
               ),
             ),
@@ -306,8 +306,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  /// Returns context menu actions buttons.
-  Widget _menu() {
+  /// Returns [widget.actions] buttons.
+  Widget _actions() {
     List<Widget> widgets = [];
 
     for (int i = 0; i < widget.actions.length; ++i) {

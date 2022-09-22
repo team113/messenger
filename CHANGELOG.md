@@ -45,6 +45,7 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned auth page ([#29]).
     - Chat page:
         - Messages and attachments sending status ([#5], [#3]).
+    - Redesigned context menu ([#147], [#132]);
 
 ### Fixed
 
@@ -111,7 +112,9 @@ All user visible changes to this project will be documented in this file. This p
 [#112]: /../../pull/112
 [#115]: /../../pull/115
 [#117]: /../../pull/117
+[#132]: /../../issues/132
 [#139]: /../../pull/139
+[#147]: /../../pull/147
 
 
 

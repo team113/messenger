@@ -35,7 +35,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.usePointerDown = false,
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
-    this.actions,
+    this.actions = const [],
     this.id,
   }) : super(key: key);
 
@@ -52,7 +52,7 @@ class ContextMenuRegion extends StatefulWidget {
   final Alignment alignment;
 
   /// [ContextMenuButton] to show.
-  final List<ContextMenuButton>? actions;
+  final List<ContextMenuButton> actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
@@ -105,7 +105,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                 FloatingContextMenu(
                   id: widget.id,
                   alignment: widget.alignment,
-                  actions: widget.actions ?? [],
+                  actions: widget.actions,
                   child: widget.child,
                 )
               else
@@ -113,9 +113,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   behavior: HitTestBehavior.translucent,
                   onLongPressStart: widget.enableLongTap
                       ? (d) => ContextMenuOverlay.of(context).show(
-                            ContextMenuActions(
-                              actions: widget.actions ?? [],
-                            ),
+                            _actions(),
                             d.globalPosition,
                           )
                       : null,
@@ -132,7 +130,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows context menu with [widget.actions].
   void _show(Offset position) {
-    if (widget.actions?.isNotEmpty != true) {
+    if (widget.actions.isEmpty) {
       return;
     }
 
@@ -159,9 +157,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       alignment.x > 0 ? 0 : -1,
                       alignment.y > 0 ? 0 : -1,
                     ),
-                    child: ContextMenuActions(
-                      actions: widget.actions ?? [],
-                    ),
+                    child: _actions(),
                   ),
                 )
               ],
@@ -173,34 +169,19 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
     return;
   }
-}
 
-/// Context menu actions buttons.
-class ContextMenuActions extends StatelessWidget {
-  const ContextMenuActions({
-    Key? key,
-    this.actions = const [],
-    this.width = 220,
-  }) : super(key: key);
-
-  /// Width of this [ContextMenuActions].
-  final double width;
-
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Returns [widget.actions] buttons.
+  Widget _actions() {
     List<Widget> widgets = [];
 
-    for (int i = 0; i < actions.length; ++i) {
+    for (int i = 0; i < widget.actions.length; ++i) {
       // Adds a button.
       widgets.add(
-        actions[i],
+        widget.actions[i],
       );
 
       // Adds a divider if required.
-      if (i < actions.length - 1) {
+      if (i < widget.actions.length - 1) {
         widgets.add(
           Container(
             color: const Color(0x11000000),
@@ -212,7 +193,7 @@ class ContextMenuActions extends StatelessWidget {
     }
 
     return Container(
-      width: width,
+      width: 220,
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
         color: const Color(0xFFF2F2F2),
