@@ -320,7 +320,7 @@ jobs:
           username: ${{ secrets.E2E_USER }}
           password: ${{ secrets.E2E_PASS }}
 
-      - run: make flutter.pub
+      # - run: make flutter.pub
 
       - name: Prepare E2E environment
         uses: SpicyPizza/create-envfile@v1
@@ -335,7 +335,7 @@ jobs:
 
       - run: mkdir build/
 
-      - run: mkdir .cache && mkdir .cache/baza/data && mkdir .cache/baza/cache
+      - run: mkdir .cache && mkdir -p .cache/baza/data && mkdir -p .cache/baza/cache
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
