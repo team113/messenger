@@ -314,7 +314,6 @@ class ContextMenuActions extends StatelessWidget {
     this.width = 220,
   }) : super(key: key);
 
-
   /// List of [ContextMenuButton]s to display in this [ContextMenu].
   final List<ContextMenuButton> actions;
 

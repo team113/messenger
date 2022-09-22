@@ -329,7 +329,7 @@ class Style extends ThemeExtension<Style> {
 
   /// [Border] to use in sidebar for chats if chat is not selected.
   final Border cardBorder;
-  
+
   /// [Border] to use in sidebar for chats.
   final Border hoveredBorderUnselected;
 
@@ -358,7 +358,8 @@ class Style extends ThemeExtension<Style> {
       primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
       cardBorder: cardBorder ?? this.cardBorder,
-      hoveredBorderUnselected: hoveredBorderUnselected ?? this.hoveredBorderUnselected,
+      hoveredBorderUnselected:
+          hoveredBorderUnselected ?? this.hoveredBorderUnselected,
       boldBody: boldBody ?? this.boldBody,
       primaryBorder: primaryBorder ?? this.primaryBorder,
     );
@@ -379,7 +380,8 @@ class Style extends ThemeExtension<Style> {
       unselectedHoverColor:
           Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
-      hoveredBorderUnselected: Border.lerp(hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
+      hoveredBorderUnselected: Border.lerp(
+          hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
     );
