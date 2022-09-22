@@ -236,7 +236,7 @@ class _ChatViewState extends State<ChatView>
                                IgnorePointer(
                                 // ignore: prefer_const_constructors
                                 child: ContextMenuInterceptor(
-                                  child: const SizedBox.shrink(),
+                                  child: const SizedBox.expand(),
                                 ),
                               ),
                               SafeArea(

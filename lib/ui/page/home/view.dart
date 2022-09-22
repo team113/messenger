@@ -260,7 +260,7 @@ class _HomeViewState extends State<HomeView> {
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isMobile ? 0 : width),
-                    child: const SizedBox.shrink(),
+                    child: const SizedBox.expand(),
                   );
                 }),
                 Expanded(
