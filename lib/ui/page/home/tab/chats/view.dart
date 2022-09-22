@@ -101,43 +101,34 @@ class ChatsTabView extends StatelessWidget {
               if (c.chats.isEmpty) {
                 return Center(child: Text('label_no_chats'.l10n));
               }
-              MediaQueryData metrics = MediaQuery.of(context);
 
-              return MediaQuery(
-                data: metrics.copyWith(
-                  padding: metrics.padding.copyWith(
-                    top: metrics.padding.top + 60,
-                    bottom: metrics.padding.bottom - 18,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  child: ContextMenuInterceptor(
-                    child: AnimationLimiter(
-                      child: ListView.builder(
-                        controller: ScrollController(),
-                        itemCount: c.chats.length,
-                        itemBuilder: (BuildContext context, int i) {
-                          RxChat e = c.chats[i];
+              return Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: ContextMenuInterceptor(
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                      controller: ScrollController(),
+                      itemCount: c.chats.length,
+                      itemBuilder: (BuildContext context, int i) {
+                        RxChat e = c.chats[i];
 
-                          return AnimationConfiguration.staggeredList(
-                            position: i,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              horizontalOffset: 50,
-                              child: FadeInAnimation(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                  ),
-                                  child: buildChatTile(context, c, e),
+                        return AnimationConfiguration.staggeredList(
+                          position: i,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            horizontalOffset: 50,
+                            child: FadeInAnimation(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
                                 ),
+                                child: buildChatTile(context, c, e),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
