@@ -972,7 +972,8 @@ abstract class ChatGraphQlMixin {
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
   }
 
-  /// Fetches only [Attachment]s of a [Chat] identified by its [id].
+  /// Fetches the [Attachment]s of the [ChatItem]s in a [Chat] identified by its
+  /// [id].
   ///
   /// It is allowed to specify both [first] and [last] at the same time provided
   /// that [after] and [before] are equal. In such cases the returned page will
@@ -980,7 +981,7 @@ abstract class ChatGraphQlMixin {
   /// requested number of [ChatItem]s preceding and following it.
   ///
   /// If it is desired to receive the [Attachment]s of the [ChatItem] under the
-  /// cursor without  querying in both directions one can specify [first] or
+  /// cursor without querying in both directions one can specify [first] or
   /// [last] as 0.
   ///
   /// ### Authentication

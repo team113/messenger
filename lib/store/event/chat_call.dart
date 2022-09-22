@@ -154,7 +154,7 @@ class EventChatCallRoomReady extends ChatCallEvent {
   ChatCallEventKind get kind => ChatCallEventKind.roomReady;
 }
 
-/// Event of a [User] leaving a [ChatCall].
+/// Event of an [User] leaving a [ChatCall].
 class EventChatCallMemberLeft extends ChatCallEvent {
   const EventChatCallMemberLeft(
     ChatItemId callId,
@@ -178,7 +178,7 @@ class EventChatCallMemberLeft extends ChatCallEvent {
   ChatCallEventKind get kind => ChatCallEventKind.memberLeft;
 }
 
-/// Event of a [User] joined a [ChatCall].
+/// Event of an [User] joined a [ChatCall].
 class EventChatCallMemberJoined extends ChatCallEvent {
   const EventChatCallMemberJoined(
     ChatItemId callId,
@@ -202,7 +202,7 @@ class EventChatCallMemberJoined extends ChatCallEvent {
   ChatCallEventKind get kind => ChatCallEventKind.memberJoined;
 }
 
-/// Event of a [User] being redialed in a [ChatCall].
+/// Event of an [User] being redialed in a [ChatCall].
 class EventChatCallMemberRedialed extends ChatCallEvent {
   const EventChatCallMemberRedialed(
     ChatItemId callId,

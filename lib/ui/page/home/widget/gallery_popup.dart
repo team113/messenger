@@ -83,6 +83,7 @@ class GalleryItem {
   /// File name of this [GalleryItem].
   final String name;
 
+  /// Callback, called on the download errors of this [GalleryItem].
   final Future<void> Function()? onDownloadError;
 }
 
@@ -827,7 +828,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     try {
       try {
         await PlatformUtils.download(item.link, item.name);
-      } catch (e) {
+      } catch (_) {
         if (item.onDownloadError != null) {
           await item.onDownloadError?.call();
           await PlatformUtils.download(item.link, item.name);
@@ -849,7 +850,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     try {
       try {
         await PlatformUtils.saveToGallery(item.link, item.name);
-      } catch (e) {
+      } catch (_) {
         if (item.onDownloadError != null) {
           await item.onDownloadError?.call();
           await PlatformUtils.saveToGallery(item.link, item.name);
@@ -871,7 +872,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     try {
       try {
         await PlatformUtils.share(item.link, item.name);
-      } catch (e) {
+      } catch (_) {
         if (item.onDownloadError != null) {
           await item.onDownloadError?.call();
           await PlatformUtils.share(item.link, item.name);
