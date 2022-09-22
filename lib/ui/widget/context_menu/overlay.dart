@@ -181,9 +181,9 @@ class ContextMenuOverlayState extends State<ContextMenuOverlay> {
 
   /// Sets the current menu to [child] at [position].
   void show(Widget child, Offset position) => setState(() {
-      _position = position;
-      menu.value = child;
-    });
+        _position = position;
+        menu.value = child;
+      });
 
   /// Hides the current menu if there is one.
   void hide() => setState(() => menu.value = null);
