@@ -32,7 +32,6 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';

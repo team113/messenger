@@ -341,7 +341,7 @@ jobs:
       - uses: nanasess/setup-chromedriver@v1
       - run: |
           chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+          docker-compose up baza-storage
 
   test-unit:
     name: Unit tests
