@@ -74,6 +74,9 @@ class CallController extends GetxController {
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
 
+  /// Indicator whether call title is shown or not.
+  final RxBool showHeader = RxBool(true);
+
   /// Local [Participant]s in `default` mode.
   final RxList<Participant> locals = RxList([]);
 
@@ -918,12 +921,16 @@ class CallController extends GetxController {
   void keepUi([bool? enabled]) {
     _uiTimer?.cancel();
     showUi.value = isPanelOpen.value || (enabled ?? true);
+    showHeader.value = (enabled ?? true);
     if (state.value == OngoingCallState.active &&
         enabled == null &&
         !isPanelOpen.value) {
       _uiTimer = Timer(
         const Duration(seconds: _uiDuration),
-        () => showUi.value = false,
+        () {
+          showUi.value = false;
+          showHeader.value = false;
+        },
       );
     }
   }
