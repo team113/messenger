@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
@@ -135,8 +136,11 @@ class PreciseDateTime extends NewType<DateTime>
   /// later.
   ///
   /// Be careful when working with dates in local time.
-  PreciseDateTime subtract(Duration duration) =>
-      PreciseDateTime(val.subtract(duration), microsecond: microsecond);
+  PreciseDateTime subtract(Duration duration) => PreciseDateTime(
+        val.subtract(duration),
+        microsecond: microsecond -
+            (duration.inMicroseconds - duration.inMilliseconds * 1000),
+      );
 
   /// Constructs a [PreciseDateTime] instance with current date and time in the
   /// local time zone.

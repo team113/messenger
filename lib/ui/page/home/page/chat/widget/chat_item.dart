@@ -69,6 +69,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onRepliedTap,
     this.onForwardedTap,
     this.onResend,
+    this.onFileTap,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -121,6 +122,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final Function()? onResend;
+
+  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  final Function(FileAttachment)? onFileTap;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -708,9 +712,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 for (var o in attachments) {
                   var link = '${Config.url}/files${o.original}';
                   if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link));
+                    gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link));
+                    gallery.add(GalleryItem.image(link, o.filename));
                   }
                 }
 
@@ -810,11 +814,99 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns visual representation of the provided file-[Attachment].
   Widget _fileAttachment(Attachment e) {
-    bool isLocal = e is LocalAttachment;
+    bool isFile = e is FileAttachment;
+    Widget leading;
+
+    if (isFile) {
+      switch (e.downloadStatus.value) {
+        case DownloadStatus.inProgress:
+          leading = InkWell(
+            onTap: () => widget.onFileTap?.call(e),
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(
+                    key: const Key('Downloading'),
+                    value: e.progress.value,
+                  ),
+                ),
+                const Icon(
+                  Icons.clear,
+                  key: Key('CancelDownloading'),
+                  size: 20,
+                ),
+              ],
+            ),
+          );
+          break;
+
+        case DownloadStatus.isFinished:
+          leading = const Icon(
+            Icons.attach_file,
+            key: Key('Downloaded'),
+            size: 18,
+            color: Colors.blue,
+          );
+          break;
+
+        case DownloadStatus.notStarted:
+          leading = const Icon(
+            Icons.download,
+            key: Key('Download'),
+            size: 18,
+            color: Colors.blue,
+          );
+          break;
+      }
+
+      leading = KeyedSubtree(key: const Key('Sent'), child: leading);
+    } else if (e is LocalAttachment) {
+      switch (e.status.value) {
+        case SendingStatus.sending:
+          leading = SizedBox.square(
+            key: const Key('Sending'),
+            dimension: 18,
+            child: CircularProgressIndicator(
+              value: e.progress.value,
+              backgroundColor: Colors.white,
+              strokeWidth: 5,
+            ),
+          );
+          break;
+
+        case SendingStatus.sent:
+          leading = const Icon(
+            Icons.check_circle,
+            key: Key('Sent'),
+            size: 18,
+            color: Colors.green,
+          );
+          break;
+
+        case SendingStatus.error:
+          leading = const Icon(
+            Icons.error_outline,
+            key: Key('Error'),
+            size: 18,
+            color: Colors.red,
+          );
+          break;
+      }
+    } else {
+      leading = Container();
+    }
+
     return Padding(
+      key: Key('File_${e.id}'),
       padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
       child: InkWell(
-        onTap: () => throw UnimplementedError(),
+        onTap: isFile
+            ? e.isDownloading
+                ? null
+                : () => widget.onFileTap?.call(e)
+            : null,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -822,38 +914,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               key: Key('AttachmentStatus_${e.id}'),
               padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-              child: isLocal
-                  ? ElasticAnimatedSwitcher(
-                      child: e.status.value == SendingStatus.sent
-                          ? const Icon(
-                              Icons.check_circle,
-                              key: Key('Sent'),
-                              size: 18,
-                              color: Colors.green,
-                            )
-                          : e.status.value == SendingStatus.sending
-                              ? SizedBox.square(
-                                  key: const Key('Sending'),
-                                  dimension: 18,
-                                  child: CircularProgressIndicator(
-                                    value: e.progress.value,
-                                    backgroundColor: Colors.white,
-                                    strokeWidth: 5,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.error_outline,
-                                  key: Key('Error'),
-                                  size: 18,
-                                  color: Colors.red,
-                                ),
-                    )
-                  : const Icon(
-                      Icons.attach_file,
-                      key: Key('Sent'),
-                      size: 18,
-                      color: Colors.blue,
-                    ),
+              child: ElasticAnimatedSwitcher(child: leading),
             ),
             Flexible(
               child: Text(
