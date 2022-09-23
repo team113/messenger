@@ -78,6 +78,7 @@ class Routes {
   static const contact = '/contact';
   static const download = '/download';
   static const home = '/';
+  static const finance = '/finance';
   static const me = '/me';
   static const menu = '/menu';
   static const personalization = '/personalization';
@@ -93,7 +94,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { contacts, chats, menu }
+enum HomeTab { finance, contacts, chats, menu }
 
 /// Application's router state.
 ///
@@ -191,6 +192,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.contact ||
             routes.last == Routes.chat ||
             routes.last == Routes.menu ||
+            routes.last == Routes.finance ||
             routes.last == Routes.user) {
           routes.last = Routes.home;
         }
@@ -259,6 +261,9 @@ class AppRouteInformationParser
       case Routes.menu:
         configuration = RouteConfiguration(Routes.home, HomeTab.menu);
         break;
+      case Routes.finance:
+        configuration = RouteConfiguration(Routes.home, HomeTab.finance);
+        break;
       default:
         configuration = RouteConfiguration(routeInformation.location!, null);
         break;
@@ -282,6 +287,9 @@ class AppRouteInformationParser
           break;
         case HomeTab.menu:
           route = Routes.menu;
+          break;
+        case HomeTab.finance:
+          route = Routes.finance;
           break;
       }
     }
@@ -618,6 +626,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         case HomeTab.menu:
           WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
+        case HomeTab.finance:
+          WebUtils.title('$prefix${'label_tab_finance'.l10n}');
+          break;
       }
     } else {
       WebUtils.title('Gapopa');
@@ -644,7 +655,7 @@ extension RouteLinks on RouterState {
   void download() => go(Routes.download);
 
   /// Changes router location to the [Routes.me] page.
-  void me() => go(Routes.me);
+  void me({bool push = false}) => push ? this.push(Routes.me) : go(Routes.me);
 
   /// Changes router location to the [Routes.contact] page.
   ///

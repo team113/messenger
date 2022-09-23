@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
 
 import '/domain/model/my_user.dart';
@@ -46,6 +47,8 @@ class MenuTabController extends GetxController {
 
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  UserId? get me => _auth.userId;
 
   /// Determines whether the [logout] action may be invoked or not.
   ///

@@ -74,6 +74,7 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) {
         Widget tile({
@@ -88,9 +89,7 @@ class ContactsTabView extends StatelessWidget {
               contact: contact,
               user: user,
               darken: 0,
-              onTap: () {
-                onTap?.call();
-              },
+              onTap: onTap,
               selected: selected,
             ),
           );
@@ -161,7 +160,7 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Text('label_contacts'.l10n);
+                child = Text('label_users'.l10n);
               }
 
               return AnimatedSwitcher(
@@ -254,11 +253,7 @@ class ContactsTabView extends StatelessWidget {
           body: Obx(() {
             Widget? center;
 
-            if (c.query.isNotEmpty != true &&
-                c.contacts.isEmpty &&
-                c.allFavorites.isEmpty) {
-              center = Center(child: Text('label_no_contacts'.l10n));
-            } else if (c.query.isNotEmpty == true &&
+            if (c.query.isNotEmpty == true &&
                 c.favorites.isEmpty &&
                 c.contacts.isEmpty &&
                 c.users.isEmpty) {
@@ -359,7 +354,30 @@ class ContactsTabView extends StatelessWidget {
                               const SliverPadding(
                                 padding: EdgeInsets.only(top: 10),
                               ),
-                              if (!isSearching)
+                              if (!isSearching) ...[
+                                SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 8,
+                                    ),
+                                    child: ContactTile(
+                                      darken: 0,
+                                      myUser: c.myUser.value,
+                                      onTap: router.me,
+                                      radius: 26 + 7,
+                                      subtitle: const [
+                                        SizedBox(height: 5),
+                                        Text(
+                                          'В сети',
+                                          style: TextStyle(
+                                            color: Color(0xFF888888),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 SliverReorderableList(
                                   itemBuilder: (context, i) {
                                     RxChatContact contact =
@@ -373,10 +391,15 @@ class ContactsTabView extends StatelessWidget {
                                   itemCount: c.allFavorites.length,
                                   onReorder: (int i, int j) {},
                                 ),
+                              ],
                               SliverList(
                                 delegate: SliverChildListDelegate.fixed(
                                   c.favorites.values.mapIndexed((i, e) {
-                                    return _contact(context, e, c);
+                                    return _contact(
+                                      context,
+                                      e,
+                                      c,
+                                    );
                                   }).toList(),
                                 ),
                               ),
@@ -389,7 +412,11 @@ class ContactsTabView extends StatelessWidget {
                                             ? 10
                                             : 0,
                                       ),
-                                      child: _contact(context, e, c),
+                                      child: _contact(
+                                        context,
+                                        e,
+                                        c,
+                                      ),
                                     );
                                   }).toList(),
                                 ),
@@ -431,14 +458,16 @@ class ContactsTabView extends StatelessWidget {
   Widget _contact(
     BuildContext context,
     RxChatContact contact,
-    ContactsTabController c,
-  ) {
+    ContactsTabController c, {
+    bool enlarge = false,
+  }) {
     bool favorite = c.allFavorites.values.contains(contact);
 
     return Padding(
       key: Key(contact.id.val),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
+        radius: enlarge ? 26 + 7 : 26,
         contact: contact,
         darken: 0,
         folded: favorite,

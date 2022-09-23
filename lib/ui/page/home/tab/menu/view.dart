@@ -17,12 +17,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/tab/menu/more/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.menu` tab.
@@ -31,16 +32,6 @@ class MenuTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> divider = [
-      const SizedBox(height: 10),
-      Container(
-        width: double.infinity,
-        color: const Color(0xFFE0E0E0),
-        height: 0.5,
-      ),
-      const SizedBox(height: 10),
-    ];
-
     return GetBuilder(
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
@@ -102,105 +93,110 @@ class MenuTabView extends StatelessWidget {
           appBar: CustomAppBar.from(
             context: context,
             title: Text(
-              'label_menu'.l10n,
+              'Your profiles'.l10n,
               style: Theme.of(context).textTheme.caption?.copyWith(
                     color: Colors.black,
                     fontWeight: FontWeight.w300,
                     fontSize: 18,
                   ),
             ),
+            leading: const [SizedBox(width: 30)],
+            actions: [
+              WidgetButton(
+                onPressed: () => MoreView.show(context),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 16),
+                  child: Icon(Icons.settings, color: Color(0xFF63B4FF)),
+                ),
+              ),
+            ],
           ),
-          body: Obx(() {
-            return ListView(
-              controller: ScrollController(),
-              children: [
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: ContactTile(
-                    darken: 0,
-                    myUser: c.myUser.value,
-                    onTap: router.me,
-                    subtitle: const [
-                      SizedBox(height: 5),
-                      Text(
-                        'В сети',
-                        style: TextStyle(color: Color(0xFF888888)),
+          body: Column(
+            children: [
+              const SizedBox(height: 10),
+              Expanded(
+                child: Obx(() {
+                  return ListView(
+                    controller: ScrollController(),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ContactTile(
+                          darken: 0,
+                          myUser: c.myUser.value,
+                          onTap: () => router.user(c.me!),
+                          radius: 26 + 7,
+                          subtitle: const [
+                            SizedBox(height: 5),
+                            Text(
+                              'В сети',
+                              style: TextStyle(color: Color(0xFF888888)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      button(
+                        key: const Key('AddAccountButton'),
+                        leading: const Icon(
+                          Icons.manage_accounts,
+                          color: Color(0xFF63B4FF),
+                        ),
+                        title: Text('Add account'.l10n),
+                        onTap: () {},
                       ),
                     ],
-                  ),
+                  );
+                }),
+              ),
+              /*const SizedBox(height: 8),
+              button(
+                leading: const Icon(
+                  Icons.design_services,
+                  color: Color(0xFF63B4FF),
                 ),
-                // Material(
-                //   type: MaterialType.transparency,
-                //   child: InkWell(
-                //     onTap: router.me,
-                //     child: Padding(
-                //       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                //       child: Row(
-                //         children: [
-                //           AvatarWidget.fromMyUser(c.myUser.value, radius: 25),
-                //           const SizedBox(width: 12),
-                //           Expanded(
-                //             child: Text(
-                //               c.myUser.value?.name?.val ??
-                //                   'btn_your_profile'.l10n,
-                //               overflow: TextOverflow.ellipsis,
-                //               maxLines: 1,
-                //               style: Theme.of(context).textTheme.headline5,
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                const SizedBox(height: 18),
-                button(
-                  leading: const Icon(
-                    Icons.design_services,
-                    color: Color(0xFF63B4FF),
-                  ),
-                  title: Text('btn_personalize'.l10n),
-                  onTap: router.personalization,
+                title: Text('btn_personalize'.l10n),
+                onTap: router.personalization,
+              ),
+              const SizedBox(height: 8),
+              button(
+                key: const Key('SettingsButton'),
+                leading: const Icon(
+                  Icons.settings,
+                  color: Color(0xFF63B4FF),
                 ),
-                const SizedBox(height: 8),
-                button(
-                  key: const Key('SettingsButton'),
-                  leading: const Icon(
-                    Icons.settings,
-                    color: Color(0xFF63B4FF),
-                  ),
-                  title: Text('btn_settings'.l10n),
-                  onTap: router.settings,
+                title: Text('btn_settings'.l10n),
+                onTap: router.settings,
+              ),
+              const SizedBox(height: 8),
+              button(
+                key: const Key('DownloadButton'),
+                leading: const Icon(
+                  Icons.download,
+                  color: Color(0xFF63B4FF),
                 ),
-                const SizedBox(height: 8),
-                button(
-                  key: const Key('DownloadButton'),
-                  leading: const Icon(
-                    Icons.download,
-                    color: Color(0xFF63B4FF),
-                  ),
-                  title: Text('Download application'.l10n),
-                  onTap: router.download,
+                title: Text('Download application'.l10n),
+                onTap: router.download,
+              ),
+              const SizedBox(height: 8),
+              button(
+                key: const Key('LogoutButton'),
+                leading: const Icon(
+                  Icons.logout,
+                  color: Color(0xFF63B4FF),
                 ),
-                const SizedBox(height: 8),
-                button(
-                  key: const Key('LogoutButton'),
-                  leading: const Icon(
-                    Icons.logout,
-                    color: Color(0xFF63B4FF),
-                  ),
-                  title: Text('btn_logout'.l10n),
-                  onTap: () async {
-                    if (await c.confirmLogout()) {
-                      router.go(await c.logout());
-                      router.tab = HomeTab.chats;
-                    }
-                  },
-                ),
-              ],
-            );
-          }),
+                title: Text('btn_logout'.l10n),
+                onTap: () async {
+                  if (await c.confirmLogout()) {
+                    router.go(await c.logout());
+                    router.tab = HomeTab.chats;
+                  }
+                },
+              ),
+              const SizedBox(height: 8),*/
+              const SizedBox(height: 10),
+            ],
+          ),
         );
       },
     );

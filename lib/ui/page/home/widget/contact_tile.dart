@@ -43,6 +43,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.subtitle = const [],
     this.preventContextMenu = false,
+    this.radius = 26,
     this.margin = const EdgeInsets.symmetric(vertical: 4),
   }) : super(key: key);
 
@@ -66,6 +67,7 @@ class ContactTile extends StatelessWidget {
   final EdgeInsets margin;
 
   final List<Widget> subtitle;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,6 @@ class ContactTile extends StatelessWidget {
 
     return Container(
       margin: margin,
-      height: 72,
       child: ContextMenuRegion(
         key: contact != null || user != null
             ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
@@ -87,6 +88,9 @@ class ContactTile extends StatelessWidget {
           child: Stack(
             children: [
               Container(
+                // height: 76,
+                constraints:
+                    const BoxConstraints(minHeight: 76, maxHeight: 123),
                 decoration: BoxDecoration(
                   borderRadius: style.cardRadius,
                   border: style.cardBorder,
@@ -110,11 +114,11 @@ class ContactTile extends StatelessWidget {
                         children: [
                           ...leading,
                           if (contact != null)
-                            AvatarWidget.fromRxContact(contact, radius: 26)
+                            AvatarWidget.fromRxContact(contact, radius: radius)
                           else if (user != null)
-                            AvatarWidget.fromRxUser(user, radius: 26)
+                            AvatarWidget.fromRxUser(user, radius: radius)
                           else
-                            AvatarWidget.fromMyUser(myUser, radius: 26),
+                            AvatarWidget.fromMyUser(myUser, radius: radius),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(

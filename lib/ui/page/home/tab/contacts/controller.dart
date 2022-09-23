@@ -19,6 +19,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
@@ -48,7 +50,8 @@ class ContactsTabController extends GetxController {
     this._chatRepository,
     this._contactService,
     this._userService,
-    this._calls,
+    this._callService,
+    this._myUserService,
   );
 
   final RxBool searching = RxBool(false);
@@ -71,7 +74,10 @@ class ContactsTabController extends GetxController {
   final UserService _userService;
 
   /// Call service used to start a [ChatCall].
-  final CallService _calls;
+  final CallService _callService;
+
+  /// Service managing [MyUser].
+  final MyUserService _myUserService;
 
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _userWorkers = {};
@@ -94,6 +100,8 @@ class ContactsTabController extends GetxController {
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get contactsReady => _contactService.isReady;
+
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -223,7 +231,7 @@ class ContactsTabController extends GetxController {
     Chat? dialog = user.dialog;
     dialog ??= (await _chatRepository.createDialogChat(user.id)).chat.value;
     try {
-      await _calls.call(dialog.id, withVideo: withVideo);
+      await _callService.call(dialog.id, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {

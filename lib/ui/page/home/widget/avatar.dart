@@ -81,6 +81,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
   }) {
+    print(radius);
     if (contact == null) {
       return AvatarWidget.fromContact(
         contact?.contact.value,

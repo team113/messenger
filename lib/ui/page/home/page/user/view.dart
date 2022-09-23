@@ -17,7 +17,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/user/my_user/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -43,6 +45,11 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthService auth = Get.find();
+    if (auth.userId == id) {
+      return const MyUserView();
+    }
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,

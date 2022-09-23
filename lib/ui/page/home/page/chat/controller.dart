@@ -278,24 +278,38 @@ class ChatController extends GetxController {
         onKey: (FocusNode node, RawKeyEvent e) {
           if (e.logicalKey == LogicalKeyboardKey.enter &&
               e is RawKeyDownEvent) {
-            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
-              int cursor;
+            bool handled = e.isShiftPressed;
 
-              if (send.controller.selection.isCollapsed) {
-                cursor = send.controller.selection.base.offset;
-                send.text =
-                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
-              } else {
-                cursor = send.controller.selection.start;
-                send.text =
-                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+            if (!PlatformUtils.isWeb) {
+              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
+                handled = e.isAltPressed || e.isControlPressed;
               }
+            }
 
-              send.controller.selection =
-                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
-            } else if (!e.isShiftPressed) {
-              send.submit();
-              return KeyEventResult.handled;
+            if (!handled) {
+              if (e.isAltPressed ||
+                  e.isControlPressed ||
+                  e.isMetaPressed ||
+                  e.isShiftPressed) {
+                int cursor;
+
+                if (send.controller.selection.isCollapsed) {
+                  cursor = send.controller.selection.base.offset;
+                  send.text =
+                      '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+                } else {
+                  cursor = send.controller.selection.start;
+                  send.text =
+                      '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+                }
+
+                send.controller.selection = TextSelection.fromPosition(
+                  TextPosition(offset: cursor + 1),
+                );
+              } else {
+                send.submit();
+                return KeyEventResult.handled;
+              }
             }
           }
 

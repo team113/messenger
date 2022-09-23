@@ -31,6 +31,7 @@ import 'package:get/get.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
+import 'tab/finance/view.dart';
 import 'tab/menu/controller.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -158,6 +159,7 @@ class _HomeViewState extends State<HomeView> {
 
                               /// [KeepAlivePage] used to keep the tabs' states.
                               children: const [
+                                KeepAlivePage(child: FinanceTabView()),
                                 KeepAlivePage(child: ContactsTabView()),
                                 KeepAlivePage(child: ChatsTabView()),
                                 KeepAlivePage(child: MenuTabView()),
@@ -174,6 +176,30 @@ class _HomeViewState extends State<HomeView> {
                                   unselectedColor: const Color(0xFF88c6ff),
                                   size: 30,
                                   items: [
+                                    CustomNavigationBarItem(
+                                      key: const Key('FinanceButton'),
+                                      // icon: FontAwesomeIcons.solidCircleUser,
+                                      // label: 'label_tab_contacts'.l10n,
+                                      leading: Obx(
+                                        () => AnimatedOpacity(
+                                          duration: 150.milliseconds,
+                                          opacity:
+                                              c.page.value == HomeTab.finance
+                                                  ? 1
+                                                  : 0.6,
+                                          child: const Icon(
+                                            Icons.monetization_on,
+                                            color: Color(0xFF63b4ff),
+                                            size: 36,
+                                          ),
+                                          // child: SvgLoader.asset(
+                                          //   'assets/icons/contacts_active.svg',
+                                          //   width: 30,
+                                          //   height: 30,
+                                          // ),
+                                        ),
+                                      ),
+                                    ),
                                     CustomNavigationBarItem(
                                       key: const Key('ContactsButton'),
                                       // icon: FontAwesomeIcons.solidCircleUser,
