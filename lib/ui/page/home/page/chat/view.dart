@@ -247,7 +247,7 @@ class _ChatViewState extends State<ChatView>
                                       ListElement? e =
                                           c.elements.values.elementAt(i);
 
-                                      Widget widget = Container();
+                                      Widget? widget;
 
                                       if (e is UnreadMessagesElement) {
                                         widget = Container(
@@ -266,24 +266,22 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           ),
                                         );
-                                      }
+                                      } else if (e is ChatMessageElement ||
+                                          e is ChatCallElement ||
+                                          e is ChatMemberInfoElement) {
+                                        Rx<ChatItem>? item;
 
-                                      Rx<ChatItem>? item;
+                                        if (e is ChatMessageElement) {
+                                          item = e.item;
+                                        } else if (e is ChatCallElement) {
+                                          item = e.item;
+                                        } else if (e is ChatMemberInfoElement) {
+                                          item = e.item;
+                                        }
 
-                                      if (e is ChatMessageElement) {
-                                        item = e.item;
-                                      } else if (e is ChatCallElement) {
-                                        item = e.item;
-                                      } else if (e is ChatMemberInfoElement) {
-                                        item = e.item;
-                                      }
-
-                                      if (item != null) {
-                                        widget = _chatItem(c, item);
-                                      }
-
-                                      if (e is ChatForwardElement) {
-                                        item = e.forwards.first;
+                                        widget = _chatItem(c, item!);
+                                      } else if (e is ChatForwardElement) {
+                                        // TODO: Redesign `ChatForward`.
                                         widget = Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -293,16 +291,11 @@ class _ChatViewState extends State<ChatView>
                                               _chatItem(c, e.note.value!),
                                           ],
                                         );
-                                      }
-
-                                      if (e is DateTimeElement) {
+                                      } else if (e is DateTimeElement) {
                                         widget = _timeLabel(e.id.at.val);
                                       }
 
-                                      return Padding(
-                                        padding: EdgeInsets.zero,
-                                        child: widget,
-                                      );
+                                      return widget ?? Container();
                                     },
                                     childCount: c.elements.length,
                                     keepPosition: true,
@@ -310,6 +303,8 @@ class _ChatViewState extends State<ChatView>
                                         .elementAt(i)
                                         .id
                                         .toString(),
+                                    onItemSticky: (i) => c.elements.values
+                                        .elementAt(i) is DateTimeElement,
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
@@ -394,12 +389,10 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Returns [ChatItem] visual representation.
+  /// Returns visual representation of the provided [ChatItem].
   Widget _chatItem(ChatController c, Rx<ChatItem> item) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: FutureBuilder<RxUser?>(
         future: c.getUser(item.value.authorId),
         builder: (_, u) => ChatItemWidget(
@@ -419,11 +412,7 @@ class _ChatViewState extends State<ChatView>
             if (chatId == c.id) {
               c.animateTo(id);
             } else {
-              router.chat(
-                chatId,
-                itemId: id,
-                push: true,
-              );
+              router.chat(chatId, itemId: id, push: true);
             }
           },
           animation: _animation,

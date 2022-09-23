@@ -144,14 +144,18 @@ class ChatController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
+  /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
+  static const Duration groupForwardThreshold = Duration(milliseconds: 5);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
-  /// [FlutterListViewItemPosition] ot the bottom visible item in the
+  /// [FlutterListViewItemPosition] of the bottom visible item in the
   /// [FlutterListView].
-  FlutterListViewItemPosition? _bottomVisibleItem;
+  FlutterListViewItemPosition? _lastVisibleItem;
 
-  /// [ChatItem] to return to when the return FAB is pressed.
+  /// [FlutterListViewItemPosition] of the [ChatItem] to return to when the
+  /// return FAB is pressed.
   FlutterListViewItemPosition? _itemToReturnTo;
 
   /// [Duration] considered as a timeout of the ongoing typing.
@@ -168,10 +172,10 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
 
-  /// Auto-sorted [Map] of [ListElement]s.
+  /// [RxSplayTreeMap] of the [ListElement]s to display.
   final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
-  /// Currently displayed [UnreadMessagesElement].
+  /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
@@ -413,27 +417,29 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
         ChatItem item = e.value;
 
+        // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
         PreciseDateTime day = item.at.toDay();
         DateTimeElement element = DateTimeElement(day);
         elements.putIfAbsent(element.id, () => element);
 
         if (item is ChatMessage) {
-          ChatMessageElement element = ChatMessageElement(e, e.value.at);
+          ChatMessageElement element = ChatMessageElement(e);
 
           ListElementId? key = elements.lastKeyBefore(element.id);
           ListElement? previous = elements[key];
 
           bool insert = true;
 
+          // Combine this [ChatMessage] with previous [ChatForward], if it was
+          // posted less than [groupForwardThreshold] delay.
           if (previous is ChatForwardElement) {
             if (previous.authorId == item.authorId &&
-                item.at.val
-                        .difference(previous.forwards.last.value.at.val)
-                        .inMilliseconds <
-                    5 &&
+                item.at.val.difference(previous.forwards.last.value.at.val) <
+                    groupForwardThreshold &&
                 previous.note.value == null) {
               insert = false;
               previous.note.value = e;
@@ -444,11 +450,9 @@ class ChatController extends GetxController {
             elements[element.id] = element;
           }
         } else if (item is ChatCall) {
-          ChatCallElement element = ChatCallElement(e, e.value.at);
-          elements[element.id] = element;
+          elements[element.id] = ChatCallElement(e);
         } else if (item is ChatMemberInfo) {
-          ChatMemberInfoElement element = ChatMemberInfoElement(e, e.value.at);
-          elements[element.id] = element;
+          elements[element.id] = ChatMemberInfoElement(e);
         } else if (item is ChatForward) {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
@@ -462,22 +466,22 @@ class ChatController extends GetxController {
           bool insert = true;
 
           if (previous is ChatForwardElement) {
+            // Combine this [ChatForward] with previous [ChatForward], if it was
+            // posted less than [groupForwardThreshold] delay.
             if (previous.authorId == item.authorId &&
-                item.at.val
-                        .difference(previous.forwards.last.value.at.val)
-                        .inMilliseconds <
-                    5) {
+                item.at.val.difference(previous.forwards.last.value.at.val) <
+                    groupForwardThreshold) {
               previous.forwards.add(e);
               previous.forwards
                   .sort((f1, f2) => f1.value.at.compareTo(f2.value.at));
               insert = false;
             }
           } else if (previous is ChatMessageElement) {
+            // Combine the previous [ChatMessage] with this [ChatForward], if it
+            // was posted less than [groupForwardThreshold] delay.
             if (previous.item.value.authorId == item.authorId &&
-                item.at.val
-                        .difference(previous.item.value.at.val)
-                        .inMilliseconds <
-                    5) {
+                item.at.val.difference(previous.item.value.at.val) <
+                    groupForwardThreshold) {
               element.note.value = previous.item;
               elements.remove(key);
             }
@@ -501,13 +505,18 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             ChatItem item = e.element.value;
+
             ListElementId key = ListElementId(item.at, item.id.val);
             ListElement? element = elements[key];
 
             ListElementId? before = elements.lastKeyBefore(key);
-            ListElementId? after = elements.firstKeyAfter(key);
             ListElement? beforeElement = elements[before];
+
+            ListElementId? after = elements.firstKeyAfter(key);
             ListElement? afterElement = elements[after];
+
+            // Remove the [DateTimeElement] before, if this [ChatItem] is the
+            // last in this [DateTime] period.
             if (beforeElement is DateTimeElement &&
                 (afterElement == null || afterElement is DateTimeElement) &&
                 (element is! ChatForwardElement ||
@@ -540,36 +549,33 @@ class ChatController extends GetxController {
                 elements.remove(key);
               }
             } else if (item is ChatForward) {
-              ChatForwardElement? forwardElement;
+              ChatForwardElement? forward;
 
               if (beforeElement is ChatForwardElement &&
                   beforeElement.forwards.any((e) => e.value.id == item.id)) {
-                forwardElement = beforeElement;
+                forward = beforeElement;
               } else if (afterElement is ChatForwardElement &&
                   afterElement.forwards.any((e) => e.value.id == item.id)) {
-                forwardElement = afterElement;
+                forward = afterElement;
               } else if (element is ChatForwardElement &&
                   element.forwards.any((e) => e.value.id == item.id)) {
-                forwardElement = element;
+                forward = element;
               }
 
-              if (forwardElement != null) {
-                forwardElement.forwards
-                    .removeWhere((e) => e.value.id == item.id);
+              if (forward != null) {
+                forward.forwards.removeWhere((e) => e.value.id == item.id);
 
-                if (forwardElement.forwards.isEmpty) {
-                  if (forwardElement.note.value != null) {
-                    ChatMessageElement message = ChatMessageElement(
-                        forwardElement.note.value!,
-                        forwardElement.note.value!.value.at);
+                if (forward.forwards.isEmpty) {
+                  elements.remove(forward.id);
+
+                  if (forward.note.value != null) {
+                    ChatMessageElement message =
+                        ChatMessageElement(forward.note.value!);
                     elements[message.id] = message;
                   }
-
-                  elements.remove(forwardElement.id);
                 }
               }
             }
-
             break;
 
           case OperationKind.updated:
@@ -609,17 +615,24 @@ class ChatController extends GetxController {
           (height, positions) {
         if (positions.isNotEmpty) {
           _topVisibleItem = positions.first;
-          _bottomVisibleItem = positions.lastWhereOrNull((e) {
+
+          // TODO: This might be called 60 times per scroll, so this algorithm
+          //       should be optimized.
+          _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
-            return element is ChatMessageElement ||
-                element is ChatMemberInfoElement ||
-                element is ChatCallElement ||
-                element is ChatForwardElement;
+            return (element is ChatMessageElement &&
+                    element.item.value.authorId != me) ||
+                (element is ChatMemberInfoElement &&
+                    element.item.value.authorId != me) ||
+                (element is ChatCallElement &&
+                    element.item.value.authorId != me) ||
+                (element is ChatForwardElement &&
+                    element.forwards.first.value.authorId != me);
           });
 
-          if (_bottomVisibleItem != null) {
+          if (_lastVisibleItem != null) {
             ListElement element =
-                elements.values.elementAt(_bottomVisibleItem!.index);
+                elements.values.elementAt(_lastVisibleItem!.index);
             if (element is ChatMessageElement) {
               lastVisibleItem.value = element.item.value;
             } else if (element is ChatMemberInfoElement) {
@@ -634,20 +647,7 @@ class ChatController extends GetxController {
         }
       };
 
-      _readWorker ??= debounce(
-        lastVisibleItem,
-        (ChatItem? item) {
-          if (item != null) {
-            if (item.authorId != me &&
-                !chat!.chat.value.isReadBy(item, me) &&
-                status.value.isSuccess &&
-                !status.value.isLoadingMore) {
-              readChat(item);
-            }
-          }
-        },
-        time: 1.seconds,
-      );
+      _readWorker ??= debounce(lastVisibleItem, readChat, time: 1.seconds);
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
@@ -684,7 +684,7 @@ class ChatController extends GetxController {
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
 
-      var lastRead = lastReadItem.value;
+      Rx<ChatItem>? lastRead = lastReadItem.value;
       _determineLastRead();
 
       // Scroll to the last message if [_lastRead] was updated. Otherwise,
@@ -697,13 +697,7 @@ class ChatController extends GetxController {
       status.value = RxStatus.success();
 
       if (lastVisibleItem.value != null) {
-        ChatItem? item = lastVisibleItem.value;
-        if (item!.authorId != me &&
-            !chat!.chat.value.isReadBy(item, me) &&
-            status.value.isSuccess &&
-            !status.value.isLoadingMore) {
-          readChat(item);
-        }
+        readChat(lastVisibleItem.value);
       }
     }
   }
@@ -713,8 +707,11 @@ class ChatController extends GetxController {
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
-  Future<void> readChat(ChatItem item) async {
-    if (!chat!.chat.value.isReadBy(item, me)) {
+  Future<void> readChat(ChatItem? item) async {
+    if (item != null &&
+        !chat!.chat.value.isReadBy(item, me) &&
+        status.value.isSuccess &&
+        !status.value.isLoadingMore) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
@@ -734,25 +731,18 @@ class ChatController extends GetxController {
     bool offsetBasedOnBottom = false,
     double offset = 0,
   }) async {
-    Rx<ChatItem>? item =
-        chat!.messages.firstWhereOrNull((e) => e.value.id == id);
-    if (item != null) {
-      int index = elements.values
-          .toList()
-          .indexWhere((e) => e.id.id == item.value.id.val);
-
-      if (index != -1) {
-        if (listController.hasClients) {
-          await listController.sliverController.animateToIndex(
-            index,
-            offsetBasedOnBottom: offsetBasedOnBottom,
-            offset: offset,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-        } else {
-          initIndex = index;
-        }
+    int index = elements.values.toList().indexWhere((e) => e.id.id == id.val);
+    if (index != -1) {
+      if (listController.hasClients) {
+        await listController.sliverController.animateToIndex(
+          index,
+          offsetBasedOnBottom: offsetBasedOnBottom,
+          offset: offset,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+      } else {
+        initIndex = index;
       }
     }
   }
@@ -1057,15 +1047,11 @@ class ChatController extends GetxController {
         }
       }
     } else {
-      PreciseDateTime? myRead = chat!.chat.value.lastReads
-          .firstWhereOrNull((e) => e.memberId == me)
-          ?.at;
-
       if (chat?.messages.isEmpty == false) {
         if (chat!.chat.value.unreadCount == 0) {
           index = elements.length - 1;
           offset = 0;
-        } else if (myRead != null && lastReadItem.value != null) {
+        } else if (lastReadItem.value != null) {
           int i = elements.values
               .toList()
               .indexWhere((e) => e.id.id == lastReadItem.value!.value.id.val);
@@ -1124,25 +1110,15 @@ class ChatController extends GetxController {
   }
 }
 
-/// List element ID of an [ListElement] containing its [PreciseDateTime] and
-/// [ChatItemId].
+/// ID of a [ListElement] containing its [PreciseDateTime] and some unique
+/// [String].
 class ListElementId implements Comparable<ListElementId> {
   const ListElementId(this.at, this.id);
-
-  /// Constructs a [ListElementId] from the provided [string].
-  factory ListElementId.fromString(String string) {
-    var split = string.split('.');
-    if (split.length != 2) {
-      throw const FormatException('Must have a DateTime.ID format');
-    }
-
-    return ListElementId(PreciseDateTime.parse(split[0]), split[1]);
-  }
 
   /// [PreciseDateTime] part of this [ListElementId].
   final PreciseDateTime at;
 
-  /// Part of [ListElementId] to make it unique.
+  /// [String] making this [ListElementId] even more unique.
   final String id;
 
   @override
@@ -1160,46 +1136,45 @@ class ListElementId implements Comparable<ListElementId> {
           id == other.id;
 
   @override
-  int compareTo(ListElementId other) {
-    return at.compareTo(other.at);
-  }
+  int compareTo(ListElementId other) => at.compareTo(other.at);
 }
 
-/// Item showed in an [Chat] messages list.
+/// Element to display in a [FlutterListView].
 abstract class ListElement {
-  ListElement(PreciseDateTime at, String id) : id = ListElementId(at, id);
+  const ListElement(this.id);
 
   /// [ListElementId] of this [ListElement].
   final ListElementId id;
 }
 
-/// [ListElement] representing an [ChatMessage].
+/// [ListElement] representing a [ChatMessage].
 class ChatMessageElement extends ListElement {
-  ChatMessageElement(this.item, PreciseDateTime at)
-      : super(at, item.value.id.val);
+  ChatMessageElement(this.item)
+      : super(ListElementId(item.value.at, item.value.id.val));
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
 }
 
-/// [ListElement] representing an [ChatCall].
+/// [ListElement] representing a [ChatCall].
 class ChatCallElement extends ListElement {
-  ChatCallElement(this.item, PreciseDateTime at) : super(at, item.value.id.val);
+  ChatCallElement(this.item)
+      : super(ListElementId(item.value.at, item.value.id.val));
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
 }
 
-/// [ListElement] representing an [ChatMemberInfo].
+/// [ListElement] representing a [ChatMemberInfo].
 class ChatMemberInfoElement extends ListElement {
-  ChatMemberInfoElement(this.item, PreciseDateTime at)
-      : super(at, item.value.id.val);
+  ChatMemberInfoElement(this.item)
+      : super(ListElementId(item.value.at, item.value.id.val));
 
   /// [ChatItem] of this [ChatMemberInfoElement].
   final Rx<ChatItem> item;
 }
 
-/// [ListElement] representing an [ChatMemberInfo].
+/// [ListElement] representing a [ChatForward].
 class ChatForwardElement extends ListElement {
   ChatForwardElement(
     PreciseDateTime at, {
@@ -1208,27 +1183,26 @@ class ChatForwardElement extends ListElement {
   })  : forwards = RxList(forwards),
         note = Rx(note),
         authorId = forwards.first.value.authorId,
-        super(at, forwards.first.value.id.val);
+        super(ListElementId(at, forwards.first.value.id.val));
 
   /// Forwarded [ChatItem]s.
   final RxList<Rx<ChatItem>> forwards;
 
-  /// [ChatItem] attached to this [ChatForwardElement].
+  /// [ChatItem] attached to this [ChatForwardElement] as a note.
   final Rx<Rx<ChatItem>?> note;
 
-  /// Author [UserId] of this [ChatForwardElement].
+  /// [UserId] being an author of the [forwards].
   final UserId authorId;
 }
 
-/// [ListElement] representing an date time label.
+/// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
-  DateTimeElement(PreciseDateTime at) : super(at, 'DateTimeElement');
+  DateTimeElement(PreciseDateTime at) : super(ListElementId(at, 'd'));
 }
 
-/// [ListElement] showing that [ChatItem]s bellow is not read.
+/// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
-  UnreadMessagesElement(PreciseDateTime at)
-      : super(at, 'UnreadMessagesElement');
+  UnreadMessagesElement(PreciseDateTime at) : super(ListElementId(at, 'u'));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
@@ -1367,7 +1341,12 @@ extension IsChatItemEditable on ChatItem {
   }
 }
 
+/// Extension adding conversion from [PreciseDateTime] to date-only
+/// [PreciseDateTime].
 extension _PreciseDateTimeToDayConversion on PreciseDateTime {
+  /// Returns a [PreciseDateTime] containing only the date.
+  ///
+  /// For example, `2022-09-22 16:54:44.100` -> `2022-09-22 00:00:00.000`,
   PreciseDateTime toDay() {
     return PreciseDateTime(DateTime(val.year, val.month, val.day));
   }

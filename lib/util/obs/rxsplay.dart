@@ -21,26 +21,26 @@ import 'package:get/get.dart';
 
 /// `GetX`-reactive [SplayTreeMap].
 ///
-/// Behaves like a wrapper around [Map].
+/// Behaves like a wrapper around [SplayTreeMap].
 class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
     with NotifyManager<SplayTreeMap<K, V>>, RxObjectMixin<SplayTreeMap<K, V>>
     implements RxInterface<SplayTreeMap<K, V>> {
-  /// Creates a new [LinkedHashMap] with the provided [initial] keys and values.
+  /// Creates a new [SplayTreeMap] with the provided [initial] keys and values.
   RxSplayTreeMap([Map<K, V> initial = const {}])
       : _value = SplayTreeMap.from(initial);
 
-  /// Creates a new [LinkedHashMap] with the same keys and values as [other].
+  /// Creates a new [SplayTreeMap] with the same keys and values as [other].
   factory RxSplayTreeMap.from(Map<K, V> other) =>
       RxSplayTreeMap(Map.from(other));
 
-  /// Creates a new [LinkedHashMap] with the same keys and values as [other].
+  /// Creates a new [SplayTreeMap] with the same keys and values as [other].
   factory RxSplayTreeMap.of(Map<K, V> other) => RxSplayTreeMap(Map.of(other));
 
   /// Creates an unmodifiable hash based map containing the entries of [other].
   factory RxSplayTreeMap.unmodifiable(Map<dynamic, dynamic> other) =>
       RxSplayTreeMap(Map.unmodifiable(other));
 
-  /// Creates a new [LinkedHashMap] instance in which the keys and values are
+  /// Creates a new [SplayTreeMap] instance in which the keys and values are
   /// computed from the provided [iterable].
   factory RxSplayTreeMap.fromIterable(
     Iterable iterable, {
@@ -49,12 +49,12 @@ class RxSplayTreeMap<K, V> extends SplayTreeMap<K, V>
   }) =>
       RxSplayTreeMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
 
-  /// Creates a new [LinkedHashMap] associating the given [keys] to the given
+  /// Creates a new [SplayTreeMap] associating the given [keys] to the given
   /// [values].
   factory RxSplayTreeMap.fromIterables(Iterable<K> keys, Iterable<V> values) =>
       RxSplayTreeMap(Map<K, V>.fromIterables(keys, values));
 
-  /// Creates a new [LinkedHashMap] and adds all the provided [entries] to it.
+  /// Creates a new [SplayTreeMap] and adds all the provided [entries] to it.
   factory RxSplayTreeMap.fromEntries(Iterable<MapEntry<K, V>> entries) =>
       RxSplayTreeMap(Map<K, V>.fromEntries(entries));
 
