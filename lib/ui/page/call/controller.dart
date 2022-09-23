@@ -448,6 +448,44 @@ class CallController extends GetxController {
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
+  /// Returns [Map] arguments for call's title.
+  Map<String, String> get callTitleArguments {
+    final Map<String, String> args = {
+      'title': chat.value?.title.value ?? ('dot'.l10n * 3),
+      'state': state.value.name,
+    };
+
+    switch (state.value) {
+      case OngoingCallState.local:
+      case OngoingCallState.pending:
+        bool isOutgoing =
+            (outgoing || state.value == OngoingCallState.local) && !started;
+        if (isOutgoing) {
+          args['type'] = 'outgoing';
+        } else if (withVideo) {
+          args['type'] = 'video';
+        } else {
+          args['type'] = 'audio';
+        }
+        break;
+
+      case OngoingCallState.active:
+        final actualMembers = members.keys.map((k) => k.userId).toSet();
+        args['members'] = '${actualMembers.length}';
+        args['allMembers'] =
+            '${chat.value?.members.length ?? ('dot'.l10n * 3)}';
+        args['duration'] = duration.value.hhMmSs();
+        break;
+
+      case OngoingCallState.joining:
+      case OngoingCallState.ended:
+        // No-op.
+        break;
+    }
+
+    return args;
+  }
+
   @override
   void onInit() {
     super.onInit();

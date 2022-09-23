@@ -672,47 +672,13 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         if (WebUtils.isPopup)
           Obx(() {
-            final Map<String, String> args = {
-              'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
-              'state': c.state.value.name,
-            };
-
-            switch (c.state.value) {
-              case OngoingCallState.local:
-              case OngoingCallState.pending:
-                bool isOutgoing =
-                    (c.outgoing || c.state.value == OngoingCallState.local) &&
-                        !c.started;
-                if (isOutgoing) {
-                  args['type'] = 'outgoing';
-                } else if (c.withVideo) {
-                  args['type'] = 'video';
-                } else {
-                  args['type'] = 'audio';
-                }
-                break;
-
-              case OngoingCallState.active:
-                final actualMembers =
-                    c.members.keys.map((k) => k.userId).toSet();
-                args['members'] = '${actualMembers.length}';
-                args['allMembers'] = '${c.chat.value?.members.length}';
-                args['duration'] = c.duration.value.hhMmSs();
-                break;
-
-              case OngoingCallState.joining:
-              case OngoingCallState.ended:
-                // No-op.
-                break;
-            }
-
             return Align(
               alignment: Alignment.topCenter,
               child: AnimatedSlider(
                 duration: 400.milliseconds,
                 translate: false,
-                beginOffset: const Offset(0.0, -1.0),
-                endOffset: const Offset(0.0, 0.0),
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
                 isOpen: c.showHeader.value && c.fullscreen.value,
                 child: Container(
                   decoration: BoxDecoration(
@@ -743,7 +709,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         horizontal: 10,
                       ),
                       child: Text(
-                        'label_call_title'.l10nfmt(args),
+                        'label_call_title'.l10nfmt(c.callTitleArguments),
                         style: context.textTheme.bodyText1?.copyWith(
                           fontSize: 13,
                           color: const Color(0xFFFFFFFF),
