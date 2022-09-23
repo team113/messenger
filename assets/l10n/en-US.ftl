@@ -124,6 +124,7 @@ btn_call_video_on_desc =
     video on
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
+btn_change_background = Change
 btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text
@@ -154,6 +155,7 @@ btn_ok = Ok
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
+btn_remove_background = Remove
 btn_personalize = Personalization
 btn_save = Save
 btn_saved_messages = Saved messages

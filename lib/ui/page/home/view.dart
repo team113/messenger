@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -124,7 +125,8 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isMobile ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor: const Color(0xFFFFFFFF).withOpacity(0.4),
+                    backgroundColor:
+                        Theme.of(context).extension<Style>()!.sidebarColor,
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {

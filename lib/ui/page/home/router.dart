@@ -59,22 +59,26 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       if (route == Routes.me) {
         pages.add(const _FadeAnimationPage(
           key: ValueKey('MyProfilePage'),
+          name: Routes.me,
           child: MyProfileView(),
         ));
       } else if (route == Routes.personalization) {
         pages.add(const _FadeAnimationPage(
           key: ValueKey('PersonalizationPage'),
+          name: Routes.personalization,
           child: PersonalizationView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const _FadeAnimationPage(
           key: ValueKey('SettingsPage'),
+          name: Routes.settings,
           child: SettingsView(),
         ));
 
         if (route == Routes.settingsMedia) {
           pages.add(const _FadeAnimationPage(
             key: ValueKey('MediaSettingsPage'),
+            name: Routes.settingsMedia,
             child: MediaSettingsView(),
           ));
         }
@@ -84,6 +88,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             .replaceAll(Routes.chatInfo, '');
         pages.add(_FadeAnimationPage(
           key: ValueKey('ChatPage$id'),
+          name: '${Routes.chat}/$id',
           child: ChatView(
             ChatId(id),
             itemId: router.arguments?['itemId'] as ChatItemId?,
@@ -93,6 +98,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         if (route.endsWith(Routes.chatInfo)) {
           pages.add(_FadeAnimationPage(
             key: ValueKey('ChatInfoPage$id'),
+            name: '${Routes.chat}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
           ));
         }
@@ -100,12 +106,14 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         final id = route.replaceFirst('${Routes.contact}/', '');
         pages.add(_FadeAnimationPage(
           key: ValueKey('ContactPage$id'),
+          name: '${Routes.contact}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
         pages.add(_FadeAnimationPage(
           key: ValueKey('UserPage$id'),
+          name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
         ));
       }
@@ -137,7 +145,11 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
 
 /// [Page] custom route page.
 class _FadeAnimationPage extends Page {
-  const _FadeAnimationPage({super.key, required this.child});
+  const _FadeAnimationPage({
+    super.key,
+    super.name,
+    required this.child,
+  });
 
   /// [Widget] page.
   final Widget child;
@@ -151,7 +163,7 @@ class _FadeAnimationPage extends Page {
   }
 }
 
-/// [PageRoute] with opacity and clipped transitiion in [CupertinoPageTransitionsBuilder].
+/// [PageRoute] with opacity and clipped transition in [CupertinoPageTransitionsBuilder].
 ///
 /// [FadeUpwardsPageTransitionsBuilder] on android and other platforms [CupertinoPageTransitionsBuilder].
 class _CustomPageRouteBuilder<T> extends PageRoute<T> {
