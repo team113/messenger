@@ -166,7 +166,7 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
-  // TODO: Use obserable variant of [RxSplayTreeMap] here with a pair of
+  // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
   // [PreciseDateTime] and [ChatItemId] as a key.
   /// Observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages;
