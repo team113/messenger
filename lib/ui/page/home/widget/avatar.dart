@@ -282,10 +282,10 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
-  /// Indicator whether [User] this [AvatarWidget] represent is online.
+  /// Indicator whether the [User] this [AvatarWidget] represent is online.
   final bool isOnline;
 
-  /// Indicator whether [User] this [AvatarWidget] represent is away.
+  /// Indicator whether the [User] this [AvatarWidget] represent is away.
   final bool isAway;
 
   /// Avatar color swatches.
@@ -352,61 +352,59 @@ class AvatarWidget extends StatelessWidget {
         badgeSize = maxWidth / 8;
       }
 
-      return Container(
-        constraints: BoxConstraints(
-          minHeight: minHeight,
-          minWidth: minWidth,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
+      return Badge(
+        showBadge: isOnline,
+        badgeContent: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isAway ? Colors.orange : Colors.green,
+          ),
+          padding: EdgeInsets.all(badgeSize),
         ),
-        child: Badge(
-          showBadge: isOnline,
-          badgeContent: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isAway ? Colors.orange : Colors.green,
+        padding: EdgeInsets.all(badgeSize / 3),
+        badgeColor: Colors.white,
+        animationType: BadgeAnimationType.scale,
+        position: BadgePosition.bottomEnd(
+          bottom: -badgeSize / 5,
+          end: -badgeSize / 5,
+        ),
+        elevation: 0,
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: minHeight,
+            minWidth: minWidth,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
             ),
-            padding: EdgeInsets.all(badgeSize),
-          ),
-          padding: EdgeInsets.all(badgeSize / 3),
-          badgeColor: Colors.white,
-          animationType: BadgeAnimationType.scale,
-          position: BadgePosition.bottomEnd(
-            bottom: -badgeSize / 5,
-            end: -badgeSize / 5,
-          ),
-          elevation: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [gradient.lighten(), gradient],
-              ),
-              image: avatar == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.url}:${Config.port}/files${avatar?.original}',
-                      ),
-                      fit: BoxFit.cover,
-                      isAntiAlias: true,
+            image: avatar == null
+                ? null
+                : DecorationImage(
+                    image: NetworkImage(
+                      '${Config.url}:${Config.port}/files${avatar?.original}',
                     ),
-              shape: BoxShape.circle,
-            ),
-            child: avatar == null
-                ? Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40.0),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  )
-                : null,
+                    fit: BoxFit.cover,
+                    isAntiAlias: true,
+                  ),
+            shape: BoxShape.circle,
           ),
+          child: avatar == null
+              ? Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40.0),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                )
+              : null,
         ),
       );
     });

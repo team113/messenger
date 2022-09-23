@@ -180,9 +180,11 @@ class _ChatViewState extends State<ChatView>
                                     child: InkWell(
                                       customBorder: const CircleBorder(),
                                       onTap: onDetailsTap,
-                                      child: AvatarWidget.fromRxChat(
-                                        c.chat,
-                                        radius: 17,
+                                      child: Center(
+                                        child: AvatarWidget.fromRxChat(
+                                          c.chat,
+                                          radius: 17,
+                                        ),
                                       ),
                                     ),
                                   ),
