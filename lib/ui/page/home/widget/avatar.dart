@@ -138,7 +138,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool useLayoutBuilder = true,
   }) =>
       AvatarWidget(
         key: key,
@@ -159,7 +158,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool useLayoutBuilder = true,
     bool showBadge = true,
   }) {
     if (user == null) {

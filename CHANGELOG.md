@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Message splitting when character limit is exceeded ([#115], [#100]);
         - Send field multiline support ([#139]);
         - Attachments downloading and sharing ([#12], [#11]).
+    - User online badge ([#148], [#130])
 - Deployment:
     - [Helm] chart ([#73], [#85]).
 
@@ -111,7 +112,9 @@ All user visible changes to this project will be documented in this file. This p
 [#112]: /../../pull/112
 [#115]: /../../pull/115
 [#117]: /../../pull/117
+[#130]: /../../issues/130
 [#139]: /../../pull/139
+[#148]: /../../pull/148
 
 
 
