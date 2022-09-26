@@ -129,6 +129,9 @@ class DropdownFieldState<T> extends ReactiveFieldState {
   @override
   final RxBool isEmpty = RxBool(true);
 
+  @override
+  final FocusNode focus = FocusNode();
+
   /// Currently selected value of this [DropdownFieldState].
   T? _value;
 

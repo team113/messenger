@@ -89,6 +89,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
@@ -123,7 +124,6 @@ class _ChatViewState extends State<ChatView>
                 child: Stack(
                   children: [
                     Scaffold(
-                      backgroundColor: const Color(0xFFF6F6F6),
                       resizeToAvoidBottomInset: true,
                       appBar: PreferredSize(
                         preferredSize: const Size(double.infinity, 57),
@@ -309,6 +309,7 @@ class _ChatViewState extends State<ChatView>
                                                 c.resendItem(e.value),
                                             onEdit: () =>
                                                 c.editMessage(e.value),
+                                            onFileTap: c.download,
                                           ),
                                         ),
                                       );
@@ -725,12 +726,8 @@ class _ChatViewState extends State<ChatView>
                   minLines: 1,
                   maxLines: 6,
                   style: const TextStyle(fontSize: 17),
-                  type: PlatformUtils.isDesktop
-                      ? TextInputType.text
-                      : TextInputType.multiline,
-                  textInputAction: PlatformUtils.isDesktop
-                      ? TextInputAction.send
-                      : TextInputAction.newline,
+                  type: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                 ),
               ),
             ),

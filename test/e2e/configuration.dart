@@ -29,12 +29,15 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
+import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/download_file.dart';
 import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
@@ -44,6 +47,7 @@ import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
 import 'steps/sees_as.dart';
+import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_text.dart';
@@ -53,6 +57,7 @@ import 'steps/updates_bio.dart';
 import 'steps/users.dart';
 import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_widget.dart';
@@ -63,7 +68,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
+        cancelFileDownload,
         copyFromField,
+        downloadFile,
         expectNWidget,
         fillField,
         fillFieldN,
@@ -80,6 +87,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         pasteToField,
         restartApp,
         seesAs,
+        sendsAttachmentToMe,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
@@ -91,6 +99,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateBio,
         user,
         waitUntilAttachmentStatus,
+        waitUntilFileStatus,
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
@@ -112,6 +121,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        DownloadStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
@@ -121,6 +131,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
+  PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);
 }

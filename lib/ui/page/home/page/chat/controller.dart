@@ -36,6 +36,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -67,7 +68,8 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.itemId,
   });
 
@@ -179,6 +181,9 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to get the [background] value.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -191,6 +196,9 @@ class ChatController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the [Uint8List] of the background.
+  Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -239,6 +247,34 @@ class ChatController extends GetxController {
           }
         }
       },
+      focus: FocusNode(
+        onKey: (FocusNode node, RawKeyEvent e) {
+          if (e.logicalKey == LogicalKeyboardKey.enter &&
+              e is RawKeyDownEvent) {
+            if (e.isAltPressed || e.isControlPressed || e.isMetaPressed) {
+              int cursor;
+
+              if (send.controller.selection.isCollapsed) {
+                cursor = send.controller.selection.base.offset;
+                send.text =
+                    '${send.text.substring(0, cursor)}\n${send.text.substring(cursor, send.text.length)}';
+              } else {
+                cursor = send.controller.selection.start;
+                send.text =
+                    '${send.text.substring(0, send.controller.selection.start)}\n${send.text.substring(send.controller.selection.end, send.text.length)}';
+              }
+
+              send.controller.selection =
+                  TextSelection.fromPosition(TextPosition(offset: cursor + 1));
+            } else if (!e.isShiftPressed) {
+              send.submit();
+              return KeyEventResult.handled;
+            }
+          }
+
+          return KeyEventResult.ignored;
+        },
+      ),
     );
 
     super.onInit();
@@ -373,7 +409,7 @@ class ChatController extends GetxController {
     } else {
       _messagesWorker ??= ever(
         chat!.messages,
-        (List<Rx<ChatItem>> msgs) {
+        (_) {
           if (atBottom) {
             Future.delayed(
               Duration.zero,
@@ -640,6 +676,18 @@ class ChatController extends GetxController {
       _typingSubscription?.cancel();
       _typingSubscription = null;
     });
+  }
+
+  /// Downloads the provided [FileAttachment], if not downloaded already, or
+  /// otherwise opens it or cancels the download.
+  Future<void> download(FileAttachment attachment) async {
+    if (attachment.isDownloading) {
+      attachment.cancelDownload();
+    } else if (attachment.path != null) {
+      attachment.open();
+    } else {
+      attachment.download();
+    }
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it

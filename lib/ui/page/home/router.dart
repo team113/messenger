@@ -27,6 +27,7 @@ import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
+import 'page/personalization/view.dart';
 import 'page/settings/media/controller.dart';
 import 'page/settings/view.dart';
 import 'page/user/view.dart';
@@ -51,25 +52,31 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
     List<Page<dynamic>> pages = [
-      MaterialPage(child: _NestedHomeView(_state.tab))
+      _CustomPage(child: _NestedHomeView(_state.tab))
     ];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
-        pages.add(const MaterialPage(
+        pages.add(const _CustomPage(
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
         ));
+      } else if (route == Routes.personalization) {
+        pages.add(const _CustomPage(
+          key: ValueKey('PersonalizationPage'),
+          name: Routes.personalization,
+          child: PersonalizationView(),
+        ));
       } else if (route.startsWith(Routes.settings)) {
-        pages.add(const MaterialPage(
+        pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),
           name: Routes.settings,
           child: SettingsView(),
         ));
 
         if (route == Routes.settingsMedia) {
-          pages.add(const MaterialPage(
+          pages.add(const _CustomPage(
             key: ValueKey('MediaSettingsPage'),
             name: Routes.settingsMedia,
             child: MediaSettingsView(),
@@ -79,7 +86,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(MaterialPage(
+        pages.add(_CustomPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chat}/$id',
           child: ChatView(
@@ -89,7 +96,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         ));
 
         if (route.endsWith(Routes.chatInfo)) {
-          pages.add(MaterialPage(
+          pages.add(_CustomPage(
             key: ValueKey('ChatInfoPage$id'),
             name: '${Routes.chat}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
@@ -97,14 +104,14 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
-        pages.add(MaterialPage(
+        pages.add(_CustomPage(
           key: ValueKey('ContactPage$id'),
           name: '${Routes.contact}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(MaterialPage(
+        pages.add(_CustomPage(
           key: ValueKey('UserPage$id'),
           name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
@@ -162,5 +169,78 @@ class _NestedHomeView extends StatelessWidget {
       case HomeTab.menu:
         return Scaffold(body: Center(child: Text('label_temp_plug'.l10n)));
     }
+  }
+}
+
+/// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
+class _CustomPage extends Page {
+  const _CustomPage({super.key, super.name, required this.child});
+
+  /// [Widget] page.
+  final Widget child;
+
+  @override
+  Route createRoute(BuildContext context) {
+    return _FadeCupertinoPageRoute(
+      settings: this,
+      pageBuilder: (_, __, ___) => child,
+    );
+  }
+}
+
+/// [PageRoute] with fading iOS styled page transition animation.
+///
+/// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
+class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
+  _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
+      : matchingBuilder = PlatformUtils.isAndroid
+            ? const FadeUpwardsPageTransitionsBuilder()
+            : const CupertinoPageTransitionsBuilder();
+
+  /// [PageTransitionsBuilder] transition animation.
+  final PageTransitionsBuilder matchingBuilder;
+
+  /// Builder building the [Page] itself.
+  final RoutePageBuilder pageBuilder;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 400);
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) =>
+      pageBuilder(context, animation, secondaryAnimation);
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return ClipRect(
+      child: FadeTransition(
+        opacity: animation,
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
+          child: matchingBuilder.buildTransitions(
+            this,
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ),
+        ),
+      ),
+    );
   }
 }

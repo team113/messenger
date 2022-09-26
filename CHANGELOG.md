@@ -29,7 +29,10 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Message forwarding ([#72], [#8]);
         - Failed messages persistence ([#5], [#3]);
-        - Message splitting when character limit is exceeded ([#115], [#100]).
+        - Message splitting when character limit is exceeded ([#115], [#100]);
+        - Send field multiline support ([#139]);
+        - Attachments downloading and sharing ([#12], [#11]).
+    - Background setting and removing ([#129], [#123]).
 - Deployment:
     - [Helm] chart ([#73], [#85]).
 
@@ -71,6 +74,8 @@ All user visible changes to this project will be documented in this file. This p
 [#8]: /../../issues/8
 [#7]: /../../pull/7
 [#9]: /../../pull/9
+[#11]: /../../issues/11
+[#12]: /../../pull/12
 [#14]: /../../pull/14
 [#15]: /../../pull/15
 [#23]: /../../pull/23
@@ -107,6 +112,9 @@ All user visible changes to this project will be documented in this file. This p
 [#112]: /../../pull/112
 [#115]: /../../pull/115
 [#117]: /../../pull/117
+[#123]: /../../issues/123
+[#129]: /../../pull/129
+[#139]: /../../pull/139
 
 
 
