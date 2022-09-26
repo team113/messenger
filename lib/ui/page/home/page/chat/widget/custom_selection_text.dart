@@ -47,7 +47,7 @@ class CustomSelectionText extends StatelessWidget {
 
   /// Optional animation that controls the selection of the selected text.
   ///
-  /// When [animation.isCompleted], the selected text is added, otherwise not.
+  /// When [animation] is completed, the selected text is added, otherwise not.
   final AnimationController? animation;
 
   /// Indicates whether the cursor is displayed for text selection.
