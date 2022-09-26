@@ -682,7 +682,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 isOpen: c.showHeader.value && c.fullscreen.value,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: const [
                       CustomBoxShadow(
@@ -746,24 +745,19 @@ Widget desktopCall(CallController c, BuildContext context) {
         }),
 
         // Top [MouseRegion] that toggles UI on hover.
-        Obx(() {
-          bool enabled =
-              c.primaryDrags.value == 0 && c.secondaryDrags.value == 0;
-
-          return Align(
-            alignment: Alignment.topCenter,
-            child: SizedBox(
-              height: 100,
-              width: double.infinity,
-              child: MouseRegion(
-                opaque: false,
-                onEnter: enabled ? (_) => c.showHeader.value = true : null,
-                onHover: enabled ? (_) => c.showHeader.value = true : null,
-                onExit: enabled ? (_) => c.showHeader.value = false : null,
-              ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) => c.showHeader.value = true,
+              onHover: (_) => c.showHeader.value = true,
+              onExit: (_) => c.showHeader.value = false,
             ),
-          );
-        }),
+          ),
+        ),
 
         if (c.state.value == OngoingCallState.active) ...[
           // Secondary panel itself.
