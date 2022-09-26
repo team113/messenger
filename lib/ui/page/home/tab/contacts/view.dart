@@ -160,7 +160,7 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = Text('label_users'.l10n);
+                child = Text('label_contacts'.l10n);
               }
 
               return AnimatedSwitcher(
@@ -355,29 +355,29 @@ class ContactsTabView extends StatelessWidget {
                                 padding: EdgeInsets.only(top: 10),
                               ),
                               if (!isSearching) ...[
-                                SliverToBoxAdapter(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 8,
-                                    ),
-                                    child: ContactTile(
-                                      darken: 0,
-                                      myUser: c.myUser.value,
-                                      onTap: router.me,
-                                      radius: 26 + 7,
-                                      subtitle: const [
-                                        SizedBox(height: 5),
-                                        Text(
-                                          'В сети',
-                                          style: TextStyle(
-                                            color: Color(0xFF888888),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                // SliverToBoxAdapter(
+                                //   child: Padding(
+                                //     padding: const EdgeInsets.symmetric(
+                                //       horizontal: 10,
+                                //       vertical: 8,
+                                //     ),
+                                //     child: ContactTile(
+                                //       darken: 0,
+                                //       myUser: c.myUser.value,
+                                //       onTap: router.me,
+                                //       radius: 26 + 7,
+                                //       subtitle: const [
+                                //         SizedBox(height: 5),
+                                //         Text(
+                                //           'В сети',
+                                //           style: TextStyle(
+                                //             color: Color(0xFF888888),
+                                //           ),
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
                                 SliverReorderableList(
                                   itemBuilder: (context, i) {
                                     RxChatContact contact =

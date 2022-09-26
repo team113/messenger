@@ -38,6 +38,7 @@ class DesktopControls extends StatefulWidget {
     this.onClose,
     this.toggleFullscreen,
     this.isFullscreen,
+    this.showInterfaceFor,
   }) : super(key: key);
 
   /// Callback, called when a close video action is fired.
@@ -48,6 +49,8 @@ class DesktopControls extends StatefulWidget {
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
+
+  final Duration? showInterfaceFor;
 
   @override
   State<StatefulWidget> createState() => _DesktopControlsState();
@@ -97,6 +100,20 @@ class _DesktopControlsState extends State<DesktopControls>
 
   /// Indicator whether the video progress bar is being dragged.
   bool _dragging = false;
+
+  Timer? _moveTimer;
+
+  @override
+  void initState() {
+    Future.delayed(
+      Duration.zero,
+      () {
+        _startInterfaceTimer(widget.showInterfaceFor);
+        print(widget.showInterfaceFor);
+      },
+    );
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -205,6 +222,8 @@ class _DesktopControlsState extends State<DesktopControls>
   /// Initializes this [DesktopControls].
   Future<void> _initialize() async {
     _controller.addListener(_updateState);
+
+    _wasPlaying = _controller.value.isPlaying;
     _updateState();
 
     if (_controller.value.isPlaying || _chewieController.autoPlay) {
@@ -231,7 +250,7 @@ class _DesktopControlsState extends State<DesktopControls>
     final iconColor = Theme.of(context).textTheme.button!.color;
     return AnimatedSlider(
       duration: const Duration(milliseconds: 300),
-      isOpen: _showBottomBar,
+      isOpen: _showBottomBar || _showInterface,
       translate: false,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 32, right: 32),
@@ -300,7 +319,8 @@ class _DesktopControlsState extends State<DesktopControls>
         child: _controller.value.isPlaying
             ? Container()
             : AnimatedOpacity(
-                opacity: !_dragging && !_hideStuff ? 1.0 : 0.0,
+                opacity:
+                    (!_dragging && !_hideStuff && _showInterface) ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
                 child: Container(
                   width: 48,
@@ -523,11 +543,24 @@ class _DesktopControlsState extends State<DesktopControls>
     setState(() {});
   }
 
+  bool _showInterface = true;
+
   /// Cancels the [_hideTimer] and starts it again.
   void _cancelAndRestartTimer() {
     _hideTimer?.cancel();
     _startHideTimer();
+    // _startInterfaceTimer();
     setState(() => _hideStuff = false);
+  }
+
+  void _startInterfaceTimer([Duration? duration]) {
+    setState(() => _showInterface = true);
+    _moveTimer?.cancel();
+    _moveTimer = Timer(duration ?? 1.seconds, () {
+      if (mounted) {
+        setState(() => _showInterface = false);
+      }
+    });
   }
 
   /// Starts the [_hideTimer].
@@ -537,9 +570,18 @@ class _DesktopControlsState extends State<DesktopControls>
     });
   }
 
+  late bool _wasPlaying;
+
   /// Invokes [setState] with a new [_latestValue] if [mounted].
   void _updateState() {
     if (!mounted) return;
     setState(() => _latestValue = _controller.value);
+
+    if (_wasPlaying != _controller.value.isPlaying) {
+      if (!_controller.value.isPlaying) {
+        _startInterfaceTimer(3.seconds);
+      }
+      _wasPlaying = _controller.value.isPlaying;
+    }
   }
 }

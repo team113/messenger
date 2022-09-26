@@ -333,10 +333,9 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = AvatarWidget.colors[color! % AvatarWidget.colors.length];
+        gradient = colors[color! % colors.length];
       } else if (title != null) {
-        gradient =
-            AvatarWidget.colors[(title!.hashCode) % AvatarWidget.colors.length];
+        gradient = colors[(title!.hashCode) % colors.length];
       } else {
         gradient = const Color(0xFF555555);
       }

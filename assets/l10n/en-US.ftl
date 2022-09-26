@@ -477,7 +477,6 @@ label_typings = are typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
 label_unread_messages = Unread messages
-label_users = Users
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.

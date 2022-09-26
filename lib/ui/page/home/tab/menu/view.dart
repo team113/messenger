@@ -93,7 +93,7 @@ class MenuTabView extends StatelessWidget {
           appBar: CustomAppBar.from(
             context: context,
             title: Text(
-              'Your profiles'.l10n,
+              'Your accounts'.l10n,
               style: Theme.of(context).textTheme.caption?.copyWith(
                     color: Colors.black,
                     fontWeight: FontWeight.w300,

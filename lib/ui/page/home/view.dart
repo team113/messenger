@@ -113,7 +113,7 @@ class _HomeViewState extends State<HomeView> {
         ///    Navigator is drawn under the side bar (so the page animation is
         ///    correct).
         final sideBar = AnimatedOpacity(
-          duration: 150.milliseconds,
+          duration: 200.milliseconds,
           opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
@@ -342,100 +342,7 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: Obx(() {
-                      if (c.background.value != null) {
-                        return Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: Container(
-                                color: Colors.black.withOpacity(0.05),
-                              ),
-                            ),
-                            if (!context.isNarrow) ...[
-                              Row(
-                                children: [
-                                  ConditionalBackdropFilter(
-                                    filter: ImageFilter.blur(
-                                      sigmaX: 100,
-                                      sigmaY: 100,
-                                    ),
-                                    child: Obx(() {
-                                      double width = c.sideBarWidth.value;
-                                      return ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                            maxWidth:
-                                                context.isNarrow ? 0 : width),
-                                        child: Container(),
-                                      );
-                                    }),
-                                  ),
-                                  Expanded(
-                                    child: IgnorePointer(
-                                      child: Container(
-                                          color: const Color(0x04000000)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ]
-                          ],
-                        );
-                      }
-
-                      return Stack(
-                        children: [
-                          Positioned.fill(
-                            child: SvgLoader.asset(
-                              'assets/images/background_light.svg',
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.05),
-                            ),
-                          ),
-                          if (!context.isNarrow) ...[
-                            Row(
-                              children: [
-                                Obx(() {
-                                  double width = c.sideBarWidth.value;
-                                  return ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                        maxWidth: context.isNarrow ? 0 : width),
-                                    child: Container(),
-                                  );
-                                }),
-                                Expanded(
-                                  child: IgnorePointer(
-                                    child: Container(
-                                      color: const Color(0x04000000),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      );
-
-                      return Image.asset(
-                        'assets/images/bg-gapopa2.jpg',
-                        repeat: ImageRepeat.repeat,
-                      );
-                    }),
-                  ),
-                ),
+                _background(c),
                 if (c.authStatus.value.isSuccess) ...[
                   Container(child: context.isNarrow ? null : navigation),
                   sideBar,
@@ -448,47 +355,81 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   )
                 ],
-                // Align(
-                //   alignment: Alignment.bottomCenter,
-                //   child: Container(
-                //     color: Colors.white,
-                //     child: SafeArea(
-                //       child: Obx(
-                //         () => CustomNavigationBar(
-                //           selectedColor: const Color(0xFF63B4FF),
-                //           unselectedColor: const Color(0xA6818181),
-                //           size: 20,
-                //           items: [
-                //             CustomNavigationBarItem(
-                //               key: const Key('ContactsButton1'),
-                //               icon: FontAwesomeIcons.solidCircleUser,
-                //               label: 'label_tab_contacts'.l10n,
-                //             ),
-                //             CustomNavigationBarItem(
-                //                 key: const Key('ChatsButton1'),
-                //                 icon: FontAwesomeIcons.solidComment,
-                //                 label: 'label_tab_chats'.l10n,
-                //                 badge: c.unreadChatsCount.value == 0
-                //                     ? null
-                //                     : '${c.unreadChatsCount.value}'),
-                //             CustomNavigationBarItem(
-                //               key: const Key('MenuButton1'),
-                //               icon: FontAwesomeIcons.bars,
-                //               label: 'label_tab_menu'.l10n,
-                //             ),
-                //           ],
-                //           currentIndex: router.tab.index,
-                //           onTap: (i) => c.pages.jumpToPage(i),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ],
             );
           }),
         );
       },
+    );
+  }
+
+  /// Builds the [HomeController.background] visual representation.
+  Widget _background(HomeController c) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Obx(() {
+          final Widget image;
+          if (c.background.value != null) {
+            image = Image.memory(
+              c.background.value!,
+              key: Key('Background_${c.background.value?.lengthInBytes}'),
+              fit: BoxFit.cover,
+            );
+          } else {
+            image = const SizedBox();
+          }
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: SvgLoader.asset(
+                  'assets/images/background_light.svg',
+                  key: const Key('DefaultBackground'),
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned.fill(
+                child: AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  layoutBuilder: (child, previous) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [...previous, if (child != null) child]
+                          .map((e) => Positioned.fill(child: e))
+                          .toList(),
+                    );
+                  },
+                  child: image,
+                ),
+              ),
+              const Positioned.fill(
+                child: ColoredBox(color: Color(0x0D000000)),
+              ),
+              if (!context.isNarrow) ...[
+                Row(
+                  children: [
+                    ConditionalBackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                      child: Obx(() {
+                        double width = c.sideBarWidth.value;
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: context.isNarrow ? 0 : width,
+                          ),
+                          child: const SizedBox.expand(),
+                        );
+                      }),
+                    ),
+                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                  ],
+                ),
+              ],
+            ],
+          );
+        }),
+      ),
     );
   }
 }

@@ -88,9 +88,7 @@ class ContactTile extends StatelessWidget {
           child: Stack(
             children: [
               Container(
-                // height: 76,
-                constraints:
-                    const BoxConstraints(minHeight: 76, maxHeight: 123),
+                constraints: const BoxConstraints(minHeight: 76),
                 decoration: BoxDecoration(
                   borderRadius: style.cardRadius,
                   border: style.cardBorder,

@@ -489,7 +489,6 @@ label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = Непрочитанные сообщения
-label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок
 label_you = Вы
