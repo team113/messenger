@@ -101,7 +101,7 @@ class _CustomSelectionContainer extends StatefulWidget {
 
   /// Optional animation that controls the selection of the selected text.
   ///
-  /// When [animation.isCompleted], the selected text is added, otherwise not.
+  /// When [animation.isCompleted], the selected text is added to [selections], otherwise not.
   final AnimationController? animation;
 
   /// Widget in which there will be text to selection.
@@ -214,7 +214,7 @@ class _SelectableRegionContainerDelegate
     super.remove(selectable);
   }
 
-  /// Get updated selection coordinates.
+  /// Gets updated selection coordinates.
   void _updateLastEdgeEventsFromGeometries() {
     if (currentSelectionStartIndex != -1) {
       final Selectable start = selectables[currentSelectionStartIndex];
@@ -240,7 +240,7 @@ class _SelectableRegionContainerDelegate
       _hasReceivedStartEvent.add(selectable);
       _hasReceivedEndEvent.add(selectable);
     }
-    // Synthesize last update event so the edge updates continue to work.
+    // Synthesizes last update event so the edge updates continue to work.
     _updateLastEdgeEventsFromGeometries();
     return result;
   }
