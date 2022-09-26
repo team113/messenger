@@ -1092,7 +1092,7 @@ extension SelectionExtension on Map<int, List<SelectionData>> {
     if (notEmpty == null) return null;
     final List<List<SelectionData>> sorted = _sorted(notEmpty);
 
-    final StringBuffer result = StringBuffer();
+    final result = StringBuffer();
     for (int i = 0; i < sorted.length; i++) {
       List<SelectionData> message = sorted[i];
       if (message.isEmpty) continue;
@@ -1115,8 +1115,8 @@ extension SelectionExtension on Map<int, List<SelectionData>> {
   /// Returns non-empty selections.
   List<List<SelectionData>>? get _notEmpty {
     List<List<SelectionData>> result = [];
-
     List<List<SelectionData>> current = values.toList();
+    
     for (int i = 0; i < current.length; i++) {
       List<SelectionData> message = current[i];
       if (message.isNotEmpty) {
