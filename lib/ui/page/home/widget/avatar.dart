@@ -93,6 +93,10 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
+    if (contact.contact.value.users.length == 1) {
+      showBadge = false;
+    }
+
     return Obx(() {
       return AvatarWidget(
         isOnline: showBadge && contact.user.value?.user.value.online == true,
@@ -280,10 +284,10 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
-  /// Indicator whether the [User] this [AvatarWidget] represent is online.
+  /// Indicator whether the [User] this [AvatarWidget] represents is online.
   final bool isOnline;
 
-  /// Indicator whether the [User] this [AvatarWidget] represent is away.
+  /// Indicator whether the [User] this [AvatarWidget] represents is away.
   final bool isAway;
 
   /// Avatar color swatches.
