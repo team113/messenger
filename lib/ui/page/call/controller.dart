@@ -470,8 +470,7 @@ class CallController extends GetxController {
         break;
 
       case OngoingCallState.active:
-        final Set<UserId> actualMembers =
-            members.keys.map((RemoteMemberId m) => m.userId).toSet();
+        final actualMembers = members.keys.map((k) => k.userId).toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] =
             '${chat.value?.members.length ?? ('dot'.l10n * 3)}';
