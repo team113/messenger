@@ -38,12 +38,9 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Stage of an search modal.
+/// Possible [ParticipantView] flow stage.
 enum SearchFlowStage {
-  /// Search stage.
   search,
-
-  /// Participants stage.
   participants,
 }
 
@@ -196,9 +193,7 @@ class ParticipantController extends GetxController {
         }
       });
 
-      _chatIdWorker = ever(chatId!, (_) {
-        _fetchChat();
-      });
+      _chatIdWorker = ever(chatId!, (_) => _fetchChat());
     }
 
     if (_call != null) {

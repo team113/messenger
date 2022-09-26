@@ -41,7 +41,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned desktop interface ([#26], [#34], [#9]);
         - Redesigned mobile interface ([#31], [#34], [#47], [#53]).
-        - Redesigned `Add participants` interface ([#127], [#122])
+        - Redesigned participants interface ([#127], [#122])
     - Redesigned login interface ([#35], [#83]);
     - Redesigned auth page ([#29]).
     - Chat page:

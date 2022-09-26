@@ -152,10 +152,10 @@ btn_logout = Logout
 btn_media_settings = Media settings
 btn_next = Next
 btn_ok = Ok
-btn_participants = Participants list
+btn_participants = Participants
 btn_participants_desc =
-    Participants
-    list
+    Call
+    participants
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message

@@ -1016,15 +1016,14 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      child: SearchView.call(_currentCall, duration, addMembers),
+      child: ParticipantView.call(_currentCall, duration, addMembers),
     );
   }
 
-  /// Adds the provided [UserId]s to [chat].
+  /// Adds the [User]s identified by the provided [UserId]s to this [chat].
   ///
-  /// If [chat] is [Chat]-dialog then moves an ongoing [ChatCall] in a
-  /// [Chat]-dialog to a newly created [Chat]-group with the current
-  /// [Chat]-dialog members and the provided [UserId]s.
+  /// If this [chat] is a dialog, then transforms this [OngoingCall] into a
+  /// group.
   Future<void> addMembers(List<UserId> ids) async {
     try {
       if (chat.value?.chat.value.isGroup != false) {
@@ -1039,10 +1038,8 @@ class CallController extends GetxController {
       MessagePopup.success('label_participants_added_successfully'.l10n);
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
-      rethrow;
     } on TransformDialogCallIntoGroupCallException catch (e) {
       MessagePopup.error(e);
-      rethrow;
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

@@ -39,18 +39,11 @@ class Themes {
         extensions: [
           Style(
             callDock: const Color(0xFF1E88E5),
-            cardBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
-            ),
-            secondaryBorder: Border.all(
-              color: const Color(0xFFDADADA),
-              width: 0.5,
-            ),
-            primaryBorder: Border.all(
-              color: const Color(0xFFB9D9FA),
-              width: 0.5,
-            ),
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            primaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             cardRadius: BorderRadius.circular(14),
             cardColor: Colors.white.withOpacity(0.95),
             cardBlur: 5,
@@ -263,6 +256,7 @@ class CustomBoxShadow extends BoxShadow {
   }
 }
 
+/// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.callDock,
@@ -286,6 +280,8 @@ class Style extends ThemeExtension<Style> {
   final Border secondaryBorder;
   final double cardBlur;
   final Color cardColor;
+
+  /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
   final double unreadMessageThickness;

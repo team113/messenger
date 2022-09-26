@@ -41,8 +41,8 @@ import 'controller.dart';
 typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
 
 /// View of the search modal.
-class SearchView extends StatelessWidget {
-  const SearchView({
+class ParticipantView extends StatelessWidget {
+  const ParticipantView({
     required this.searchTypes,
     required this.title,
     this.submitLabel,
@@ -55,14 +55,14 @@ class SearchView extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  /// Crates [SearchView] for an [OngoingCall].
-  factory SearchView.call(
+  /// Crates [ParticipantView] for an [OngoingCall].
+  factory ParticipantView.call(
     Rx<OngoingCall> call,
     Rx<Duration> duration,
     SubmitCallback onSubmit, {
     Key? key,
   }) {
-    return SearchView(
+    return ParticipantView(
       key: key,
       ongoingCall: call,
       callDuration: duration,
@@ -493,7 +493,7 @@ class SearchView extends StatelessWidget {
                             child: Row(
                               children: [
                                 Text(
-                                  '${actualMembers.length + 1} of ${chat?.members.length}',
+                                  '${actualMembers.length} of ${chat?.members.length}',
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                                 Container(

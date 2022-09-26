@@ -22,9 +22,9 @@ import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 
-/// [ChatContact] or [User] visual representation.
+/// Person ([ChatContact] or [User]) visual representation.
 ///
-/// If [contact] and [user] exist then [contact]'s data will be displayed.
+/// If both specified, the [contact] will be used.
 class ContactTile extends StatelessWidget {
   const ContactTile({
     Key? key,
@@ -37,10 +37,10 @@ class ContactTile extends StatelessWidget {
     this.darken = 0.05,
   }) : super(key: key);
 
-  /// [RxChatContact] of this [ContactTile].
+  /// [RxChatContact] to display.
   final RxChatContact? contact;
 
-  /// [RxUser] of this [ContactTile].
+  /// [RxUser] to display.
   final RxUser? user;
 
   /// Optional leading [Widget]s.
@@ -52,63 +52,60 @@ class ContactTile extends StatelessWidget {
   /// Callback, called when this [Widget] is tapped.
   final void Function()? onTap;
 
-  /// Indicator whether this [ChatContact] or [User] is selected.
+  /// Indicator whether this [ContactTile] is selected.
   final bool selected;
 
-  /// Indicated how match background of unselected widget is darken then
-  /// default background.
+  /// Amount of darkening to apply to the background of this [ContactTile].
   final double darken;
 
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
 
-    return SizedBox(
-      height: 84,
-      child: Container(
-        decoration: BoxDecoration(
+    return Container(
+      constraints: const BoxConstraints(minHeight: 76),
+      decoration: BoxDecoration(
+        borderRadius: style.cardRadius,
+        border: style.cardBorder,
+        color: Colors.transparent,
+      ),
+      child: Material(
+        type: MaterialType.card,
+        borderRadius: style.cardRadius,
+        color: selected
+            ? const Color(0xFFD7ECFF).withOpacity(0.8)
+            : style.cardColor.darken(darken),
+        child: InkWell(
           borderRadius: style.cardRadius,
-          border: style.cardBorder,
-          color: Colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: selected
-              ? const Color(0xFFD7ECFF).withOpacity(0.8)
-              : style.cardColor.darken(darken),
-          child: InkWell(
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            hoverColor: selected
-                ? const Color(0x00D7ECFF)
-                : const Color(0xFFD7ECFF).withOpacity(0.8),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-              child: Row(
-                children: [
-                  ...leading,
-                  if (contact != null)
-                    AvatarWidget.fromRxContact(contact, radius: 26)
-                  else
-                    AvatarWidget.fromRxUser(user, radius: 26),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      contact?.contact.value.name.val ??
-                          contact?.user.value?.user.value.name?.val ??
-                          contact?.user.value?.user.value.num.val ??
-                          user?.user.value.name?.val ??
-                          user?.user.value.num.val ??
-                          '...',
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
+          onTap: onTap,
+          hoverColor: selected
+              ? const Color(0x00D7ECFF)
+              : const Color(0xFFD7ECFF).withOpacity(0.8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                ...leading,
+                if (contact != null)
+                  AvatarWidget.fromRxContact(contact, radius: 26)
+                else
+                  AvatarWidget.fromRxUser(user, radius: 26),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    contact?.contact.value.name.val ??
+                        contact?.user.value?.user.value.name?.val ??
+                        contact?.user.value?.user.value.num.val ??
+                        user?.user.value.name?.val ??
+                        user?.user.value.num.val ??
+                        '...',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.headline5,
                   ),
-                  ...trailing,
-                ],
-              ),
+                ),
+                ...trailing,
+              ],
             ),
           ),
         ),

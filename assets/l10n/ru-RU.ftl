@@ -152,7 +152,7 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
-btn_participants = Список участников
+btn_participants = Участники
 btn_participants_desc =
     Список
     участников
