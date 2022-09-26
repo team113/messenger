@@ -281,8 +281,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           additional = [
             ...media.mapIndexed((i, e) => _mediaAttachment(i, e, media)),
             if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-            ...files
-                .map((Attachment attachment) => _fileAttachment(attachment)),
+            ...files.map(_fileAttachment),
           ];
         }
       }
@@ -539,7 +538,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   .toList(),
             ),
           if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-          ...files.map((Attachment attachment) => _fileAttachment(attachment)),
+          ...files.map(_fileAttachment),
         ],
       ),
     );
