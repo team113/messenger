@@ -254,7 +254,7 @@ class _ChatViewState extends State<ChatView>
                                                 child: CustomSelectionText(
                                                   selections: c.selections,
                                                   position: i,
-                                                  type: SelectionItem.message,
+                                                  type: CopyableItem.message,
                                                   child: Text(
                                                     'label_unread_messages'
                                                         .l10n,
@@ -586,7 +586,7 @@ class _ChatViewState extends State<ChatView>
                 child: CustomSelectionText(
                   selections: selections,
                   position: position,
-                  type: SelectionItem.date,
+                  type: CopyableItem.date,
                   animation: _animation,
                   child: Text(DateFormat('dd.MM.yy').format(time)),
                 ),
@@ -616,7 +616,7 @@ class _ChatViewState extends State<ChatView>
                   child: CustomSelectionText(
                     selections: selections,
                     position: position,
-                    type: SelectionItem.relativeTime,
+                    type: CopyableItem.relativeTime,
                     child: Text(
                       timeRelative,
                       style: const TextStyle(color: Color(0xFF888888)),

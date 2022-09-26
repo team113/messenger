@@ -43,7 +43,7 @@ class CustomSelectionContainer extends StatefulWidget {
   final int position;
 
   /// Selected text type.
-  final SelectionItem type;
+  final CopyableItem type;
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;

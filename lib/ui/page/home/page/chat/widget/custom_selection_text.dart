@@ -41,8 +41,8 @@ class CustomSelectionText extends StatelessWidget {
 
   /// Selected text type.
   ///
-  /// Sorting is by [SelectionItem.index] for each [position].
-  final SelectionItem? type;
+  /// Sorting is by [CopyableItem.index] for each [position].
+  final CopyableItem? type;
 
   /// Controller for an animation.
   final AnimationController? animation;
@@ -58,7 +58,7 @@ class CustomSelectionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type != null && selections != null && position != null) {
-      final Widget widget = CustomSelectionContainer(
+      final widget = CustomSelectionContainer(
         selections: selections!,
         position: position!,
         type: type!,

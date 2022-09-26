@@ -1044,22 +1044,25 @@ class _ListViewIndexCalculationResult {
 
 /// Type of selected text in chat.
 ///
-/// Identification of selected text to sort by [SelectionItem.index]
-enum SelectionItem {
+/// Identification of selected text to sort by [CopyableItem.index]
+enum CopyableItem {
   /// Relative time (for example, 4 days ago, 14:28).
   relativeTime,
 
-  /// Date opposite label with relative time (for example, 16.09.2022).
+  /// Date (for example, 16.09.2022).
   date,
 
-  /// Time opposite message text (for example, 14:28).
+  /// Time (for example, 14:28).
   time,
 
-  /// Replied or forwarded message author's name (for example, Artur).
-  title,
+  /// Name (for example, Artur).
+  username,
 
-  /// Message of reply (for example, some text).
-  replyMessage,
+  /// Message reply (for example, some text).
+  messageReply,
+
+  /// Message forwarded (for example, some text).
+  messageForward,
 
   /// Main message (for example, some text).
   message,
@@ -1076,7 +1079,7 @@ class SelectionData {
   SelectionData(this.type);
 
   /// Selected text type.
-  final SelectionItem type;
+  final CopyableItem type;
 
   /// Selected text.
   final RxnString data = RxnString(null);
@@ -1116,7 +1119,7 @@ extension SelectionExtension on Map<int, List<SelectionData>> {
   List<List<SelectionData>>? get _notEmpty {
     List<List<SelectionData>> result = [];
     List<List<SelectionData>> current = values.toList();
-    
+
     for (int i = 0; i < current.length; i++) {
       List<SelectionData> message = current[i];
       if (message.isNotEmpty) {
