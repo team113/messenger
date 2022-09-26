@@ -74,7 +74,7 @@ class CallController extends GetxController {
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether call's title is shown or not.
+  /// Indicator whether title is shown or not.
   final RxBool showHeader = RxBool(true);
 
   /// Local [Participant]s in `default` mode.
@@ -433,8 +433,9 @@ class CallController extends GetxController {
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
-  /// Returns [Map] arguments for call's title.
-  Map<String, String> get callTitleArguments {
+  /// Constructs the arguments to pass to [L10nExtension.l10nfmt] to get the
+  /// title of this [OngoingCall].
+  Map<String, String> get titleArguments {
     final Map<String, String> args = {
       'title': chat.value?.title.value ?? ('dot'.l10n * 3),
       'state': state.value.name,
@@ -455,10 +456,10 @@ class CallController extends GetxController {
         break;
 
       case OngoingCallState.active:
-        final actualMembers = members.keys.map((k) => k.userId).toSet();
+        final Set<UserId> actualMembers =
+            members.keys.map((k) => k.userId).toSet();
         args['members'] = '${actualMembers.length}';
-        args['allMembers'] =
-            '${chat.value?.members.length ?? ('dot'.l10n * 3)}';
+        args['allMembers'] = '${chat.value?.members.length ?? 1}';
         args['duration'] = duration.value.hhMmSs();
         break;
 
@@ -540,43 +541,8 @@ class CallController extends GetxController {
 
         if (v != null) {
           void updateTitle() {
-            final Map<String, String> args = {
-              'title': v.title.value,
-              'state': state.value.name,
-            };
-
-            switch (state.value) {
-              case OngoingCallState.local:
-              case OngoingCallState.pending:
-                bool isOutgoing =
-                    (outgoing || state.value == OngoingCallState.local) &&
-                        !started;
-                if (isOutgoing) {
-                  args['type'] = 'outgoing';
-                } else if (withVideo) {
-                  args['type'] = 'video';
-                } else {
-                  args['type'] = 'audio';
-                }
-                break;
-
-              case OngoingCallState.active:
-                var actualMembers = _currentCall.value.members.keys
-                    .map((k) => k.userId)
-                    .toSet();
-                args['members'] = '${actualMembers.length}';
-                args['allMembers'] = '${v.chat.value.members.length}';
-                args['duration'] = duration.value.hhMmSs();
-                break;
-
-              case OngoingCallState.joining:
-              case OngoingCallState.ended:
-                // No-op.
-                break;
-            }
-
             WebUtils.title(
-              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(args)}\u205f​​​ \u205f​​​',
+              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
             );
           }
 
