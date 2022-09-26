@@ -419,7 +419,7 @@ class _ChatViewState extends State<ChatView>
                                       },
                                 onHorizontalDragEnd: c.isTapMessage.value
                                     ? null
-                                    : (DragEndDetails d) {
+                                    : (_) {
                                         if (_animation.value >= 0.5) {
                                           _animation.forward();
                                         } else {
@@ -577,9 +577,7 @@ class _ChatViewState extends State<ChatView>
                   ContextMenuButton(
                     key: const Key('CopyButton'),
                     label: 'btn_copy_text'.l10n,
-                    onPressed: () => onCopy?.call(
-                      onFormatSelection?.call() ?? date,
-                    ),
+                    onPressed: () => onCopy?.call(date),
                   ),
                 ],
               ),
@@ -609,9 +607,7 @@ class _ChatViewState extends State<ChatView>
                     ContextMenuButton(
                       key: const Key('CopyButton'),
                       label: 'btn_copy_text'.l10n,
-                      onPressed: () => onCopy?.call(
-                        onFormatSelection?.call() ?? timeRelative,
-                      ),
+                      onPressed: () => onCopy?.call(timeRelative),
                     ),
                   ],
                 ),
