@@ -183,8 +183,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (oldWidget.item != widget.item) {
       if (widget.item.value is ChatMessage) {
         final msg = widget.item.value as ChatMessage;
-
         bool needsUpdate = true;
+
         if (oldWidget.item is ChatMessage) {
           needsUpdate = msg.attachments.length !=
               (oldWidget.item as ChatMessage).attachments.length;
@@ -250,9 +250,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    ChatForward msg = widget.item.value as ChatForward;
-    ChatItem item = msg.item;
-    Style style = Theme.of(context).extension<Style>()!;
+    final ChatForward msg = widget.item.value as ChatForward;
+    final ChatItem item = msg.item;
+    final Style style = Theme.of(context).extension<Style>()!;
     Widget? content;
     List<Widget> additional = [];
 
@@ -264,14 +264,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
 
       if (item.attachments.isNotEmpty) {
-        List<Attachment> media = item.attachments
+        final List<Attachment> media = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||
                 (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
             .toList();
 
-        List<Attachment> files = item.attachments
+        final List<Attachment> files = item.attachments
             .where((e) =>
                 (e is FileAttachment && !e.isVideo) ||
                 (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
@@ -300,9 +300,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         _copyable[CopyableItem.messageForward.index] = text;
       }
     } else if (item is ChatCall) {
+      final bool fromMe = widget.me == item.authorId;
+      final String textTime;
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -319,7 +320,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
-      final String textTime = ' $time';
+      textTime = ' $time';
       if (time != null) {
         _copyable[CopyableItem.messageForward.index] = '$title$textTime';
       } else {
@@ -411,15 +412,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           key: Key('FutureBuilder_${item.id}'),
           future: widget.getUser?.call(item.authorId),
           builder: (context, snapshot) {
-            Color color = snapshot.data?.user.value.id == widget.me
+            final User? user = snapshot.data?.user.value;
+            final Color color = user?.id == widget.me
                 ? const Color(0xFF63B4FF)
                 : AvatarWidget.colors[
-                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                        AvatarWidget.colors.length];
-            String username = snapshot.data?.user.value.name?.val ??
-                snapshot.data?.user.value.num.val ??
-                '...';
-            if (snapshot.data?.user.value != null) {
+                    (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
+            final String username = user?.name?.val ?? user?.num.val ?? '...';
+
+            if (user != null) {
               _copyable[CopyableItem.username.index] = username;
             }
 
@@ -442,7 +442,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (snapshot.data?.user.value != null)
+                        if (user != null)
                           ListenTap(
                             isTap: widget.isTapMessage,
                             child: CustomSelectionText(
@@ -485,23 +485,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
     final msg = widget.item.value as ChatMessage;
-    String? text = msg.text?.val;
-    if (text != null) {
-      _copyable[CopyableItem.message.index] = text;
-    }
-
-    List<Attachment> media = msg.attachments
+    final String? text = msg.text?.val;
+    final List<Attachment> media = msg.attachments
         .where((e) =>
             e is ImageAttachment ||
             (e is FileAttachment && e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
         .toList();
-
-    List<Attachment> files = msg.attachments
+    final List<Attachment> files = msg.attachments
         .where((e) =>
             (e is FileAttachment && !e.isVideo) ||
             (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
         .toList();
+
+    if (text != null) {
+      _copyable[CopyableItem.message.index] = text;
+    }
 
     return _rounded(
       context,
@@ -547,8 +546,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
     final message = widget.item.value as ChatCall;
-    bool isOngoing =
+    final bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
+    final List<Widget>? subtitle;
+    final bool fromMe = widget.me == message.authorId;
+    final String textTime;
+    bool isMissed = false;
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
 
     if (isOngoing) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
@@ -559,13 +564,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     } else {
       _ongoingCallTimer?.cancel();
     }
-
-    List<Widget>? subtitle;
-    bool fromMe = widget.me == message.authorId;
-    bool isMissed = false;
-
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
 
     if (isOngoing) {
       title = 'label_chat_call_ongoing'.l10n;
@@ -588,7 +586,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    final String textTime = ' $time';
+    textTime = ' $time';
     if (time != null) {
       _copyable[CopyableItem.message.index] = '$title$textTime';
     } else {
@@ -666,7 +664,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     Widget? content;
     List<Widget> additional = [];
 
@@ -679,7 +677,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.attachments.isNotEmpty) {
         additional = item.attachments.map((a) {
-          ImageAttachment? image = a is ImageAttachment ? a : null;
+          final ImageAttachment? image = a is ImageAttachment ? a : null;
+
           return Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
@@ -716,9 +715,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         _copyable[CopyableItem.messageReply.index] = desc.toString();
       }
     } else if (item is ChatCall) {
+      final bool fromMe = widget.me == item.authorId;
+      final String textTime;
       String title = 'label_chat_call_ended'.l10n;
       String? time;
-      bool fromMe = widget.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -735,7 +735,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
-      final String textTime = ' $time';
+      textTime = ' $time';
       if (time != null) {
         _copyable[CopyableItem.messageReply.index] = '$title$textTime';
       } else {
@@ -828,15 +828,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       key: Key('FutureBuilder_${item.id}'),
       future: widget.getUser?.call(item.authorId),
       builder: (context, snapshot) {
-        Color color = snapshot.data?.user.value.id == widget.me
+        final User? user = snapshot.data?.user.value;
+        final Color color = user?.id == widget.me
             ? const Color(0xFF63B4FF)
             : AvatarWidget.colors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
-        String userName = snapshot.data?.user.value.name?.val ??
-            snapshot.data?.user.value.num.val ??
-            '...';
-        _copyable[CopyableItem.username.index] = userName;
+                (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
+        final String username = user?.name?.val ?? user?.num.val ?? '...';
+
+        if (user != null) {
+          _copyable[CopyableItem.username.index] = username;
+        }
 
         return Row(
           key: Key('Row_${item.id}'),
@@ -855,7 +856,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (snapshot.data?.user.value != null)
+                    if (user != null)
                       ListenTap(
                         isTap: widget.isTapMessage,
                         child: CustomSelectionText(
@@ -864,7 +865,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           type: CopyableItem.username,
                           isIgnoreCursor: true,
                           child: Text(
-                            userName,
+                            username,
                             style: style.boldBody.copyWith(color: color),
                           ),
                         ),
@@ -893,9 +894,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns visual representation of the provided media-[Attachment].
   Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
-    bool isLocal = e is LocalAttachment;
+    final bool isLocal = e is LocalAttachment;
+    final bool isVideo;
 
-    bool isVideo;
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
@@ -909,17 +910,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         onTap: isLocal
             ? null
             : () {
-                List<Attachment> attachments =
+                final List<Attachment> attachments =
                     widget.onGallery?.call() ?? media;
-
+                final List<GalleryItem> gallery = [];
                 int initial = attachments.indexOf(e);
+
                 if (initial == -1) {
                   initial = 0;
                 }
 
-                List<GalleryItem> gallery = [];
                 for (final Attachment a in attachments) {
-                  final link = '${Config.url}/files${a.original}';
+                  final String link = '${Config.url}/files${a.original}';
                   if (a is FileAttachment) {
                     gallery.add(GalleryItem.video(link, a.filename));
                   } else if (a is ImageAttachment) {
@@ -1026,8 +1027,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool isFile = e is FileAttachment;
     final String filename = e.filename;
     final String filesize = ' ${e.size ~/ 1024} KB';
-    _copyable[CopyableItem.messageFile.index] = '$filename$filesize';
     Widget leading;
+
+    _copyable[CopyableItem.messageFile.index] = '$filename$filesize';
 
     if (isFile) {
       switch (e.downloadStatus.value) {
@@ -1171,10 +1173,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
-    ChatItem item = widget.item.value;
-    bool fromMe = item.authorId == widget.me;
-
+    final ChatItem item = widget.item.value;
+    final bool fromMe = item.authorId == widget.me;
+    final bool isSent = item.status.value == SendingStatus.sent;
+    final String messageTime = DateFormat.Hm().format(item.at.val.toLocal());
     bool isRead = false;
+
     if (fromMe) {
       isRead = widget.chat.value?.lastReads.firstWhereOrNull(
               (e) => e.memberId != widget.me && !e.at.isBefore(item.at)) !=
@@ -1186,9 +1190,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               .isBefore(item.at) ==
           false;
     }
-
-    bool isSent = item.status.value == SendingStatus.sent;
-    String messageTime = DateFormat.Hm().format(item.at.val.toLocal());
 
     return SwipeableStatus(
       animation: widget.animation,
