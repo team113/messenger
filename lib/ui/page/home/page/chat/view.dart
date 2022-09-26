@@ -412,14 +412,14 @@ class _ChatViewState extends State<ChatView>
                                 behavior: HitTestBehavior.translucent,
                                 onHorizontalDragUpdate: c.isTapMessage.value
                                     ? null
-                                    : (d) {
+                                    : (DragUpdateDetails d) {
                                         double value =
                                             _animation.value - d.delta.dx / 100;
                                         _animation.value = value.clamp(0, 1);
                                       },
                                 onHorizontalDragEnd: c.isTapMessage.value
                                     ? null
-                                    : (d) {
+                                    : (DragEndDetails d) {
                                         if (_animation.value >= 0.5) {
                                           _animation.forward();
                                         } else {
@@ -692,7 +692,7 @@ class _ChatViewState extends State<ChatView>
                 ? [
                     if (c.repliedMessage.value != null)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
