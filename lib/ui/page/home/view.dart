@@ -269,19 +269,40 @@ class _HomeViewState extends State<HomeView> {
         child: Obx(() {
           final Widget image;
           if (c.background.value != null) {
-            image = Image.memory(c.background.value!, fit: BoxFit.cover);
-          } else {
-            image = SvgLoader.asset(
-              'assets/images/background_light.svg',
-              width: double.infinity,
-              height: double.infinity,
+            image = Image.memory(
+              c.background.value!,
+              key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );
+          } else {
+            image = const SizedBox();
           }
 
           return Stack(
             children: [
-              Positioned.fill(child: image),
+              Positioned.fill(
+                child: SvgLoader.asset(
+                  'assets/images/background_light.svg',
+                  key: const Key('DefaultBackground'),
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned.fill(
+                child: AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  layoutBuilder: (child, previous) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [...previous, if (child != null) child]
+                          .map((e) => Positioned.fill(child: e))
+                          .toList(),
+                    );
+                  },
+                  child: image,
+                ),
+              ),
               const Positioned.fill(
                 child: ColoredBox(color: Color(0x0D000000)),
               ),
