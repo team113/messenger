@@ -92,8 +92,8 @@ class ChatController extends GetxController {
   /// Most recent recipient's [ChatItem] that was visible on the screen.
   final Rx<ChatItem?> lastVisibleItem = Rx<ChatItem?>(null);
 
-  /// Last [ChatItem] read by the authenticated [MyUser] in this [Chat].
-  final Rx<Rx<ChatItem>?> lastReadItem = Rx<Rx<ChatItem>?>(null);
+  /// First [ChatItem] unread by the authenticated [MyUser] in this [Chat].
+  final Rx<Rx<ChatItem>?> firstUnreadItem = Rx<Rx<ChatItem>?>(null);
 
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
@@ -423,8 +423,8 @@ class ChatController extends GetxController {
 
         // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
         PreciseDateTime day = item.at.toDay();
-        DateTimeElement element = DateTimeElement(day);
-        elements.putIfAbsent(element.id, () => element);
+        DateTimeElement dateElement = DateTimeElement(day);
+        elements.putIfAbsent(dateElement.id, () => dateElement);
 
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);
@@ -450,8 +450,10 @@ class ChatController extends GetxController {
             elements[element.id] = element;
           }
         } else if (item is ChatCall) {
+          ChatCallElement element = ChatCallElement(e);
           elements[element.id] = ChatCallElement(e);
         } else if (item is ChatMemberInfo) {
+          ChatMemberInfoElement element = ChatMemberInfoElement(e);
           elements[element.id] = ChatMemberInfoElement(e);
         } else if (item is ChatForward) {
           ChatForwardElement element =
@@ -684,13 +686,13 @@ class ChatController extends GetxController {
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
 
-      Rx<ChatItem>? lastRead = lastReadItem.value;
+      Rx<ChatItem>? firstUnread = firstUnreadItem.value;
       _determineLastRead();
 
       // Scroll to the last message if [_lastRead] was updated. Otherwise,
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
-      if (lastRead?.value.id != lastReadItem.value?.value.id) {
+      if (firstUnread?.value.id != firstUnreadItem.value?.value.id) {
         _scrollToLast();
       }
 
@@ -1003,23 +1005,23 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Determines the [lastReadItem] of the authenticated [MyUser] from the
+  /// Determines the [firstUnreadItem] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
   void _determineLastRead() {
     PreciseDateTime? myRead = chat!.chat.value.lastReads
         .firstWhereOrNull((e) => e.memberId == me)
         ?.at;
     if (chat!.chat.value.unreadCount != 0 && myRead != null) {
-      lastReadItem.value = chat!.messages.firstWhereOrNull(
+      firstUnreadItem.value = chat!.messages.firstWhereOrNull(
         (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
       );
 
-      if (lastReadItem.value != null) {
+      if (firstUnreadItem.value != null) {
         if (_unreadElement != null) {
           elements.remove(_unreadElement!.id);
         }
 
-        PreciseDateTime key = lastReadItem.value!.value.at;
+        PreciseDateTime key = firstUnreadItem.value!.value.at;
         key = key.subtract(const Duration(microseconds: 1));
         _unreadElement = UnreadMessagesElement(key);
         elements[_unreadElement!.id] = _unreadElement!;
@@ -1034,27 +1036,21 @@ class ChatController extends GetxController {
     double offset = 0;
 
     if (itemId != null) {
-      Rx<ChatItem>? item =
-          chat!.messages.firstWhereOrNull((e) => e.value.id == itemId);
-
-      if (item != null) {
-        int i = elements.values
-            .toList()
-            .indexWhere((e) => e.id.id == item.value.id.val);
-        if (i != -1) {
-          index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
-        }
+      int i =
+          elements.values.toList().indexWhere((e) => e.id.id == itemId!.val);
+      if (i != -1) {
+        index = i;
+        offset = (MediaQuery.of(router.context!).size.height) / 3;
       }
     } else {
       if (chat?.messages.isEmpty == false) {
         if (chat!.chat.value.unreadCount == 0) {
           index = elements.length - 1;
           offset = 0;
-        } else if (lastReadItem.value != null) {
+        } else if (firstUnreadItem.value != null) {
           int i = elements.values
               .toList()
-              .indexWhere((e) => e.id.id == lastReadItem.value!.value.id.val);
+              .indexWhere((e) => e.id.id == firstUnreadItem.value!.value.id.val);
           if (i != -1) {
             index = i;
             offset = (MediaQuery.of(router.context!).size.height) / 3;
