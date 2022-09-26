@@ -182,7 +182,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
       if (widget.item.value is ChatMessage) {
-        var msg = widget.item.value as ChatMessage;
+        final msg = widget.item.value as ChatMessage;
 
         bool needsUpdate = true;
         if (oldWidget.item is ChatMessage) {
@@ -217,11 +217,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
-    var message = widget.item.value as ChatMemberInfo;
+    final message = widget.item.value as ChatMemberInfo;
     final String text = '${message.action}';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Center(
         child: ContextMenuRegion(
           preventContextMenu: false,
@@ -264,7 +264,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     List<Widget> additional = [];
 
     if (item is ChatMessage) {
-      var desc = StringBuffer();
+      final desc = StringBuffer();
 
       if (item.text != null) {
         desc.write(item.text!.val);
@@ -355,9 +355,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         height: 15,
                       ),
               ),
-              Flexible(
-                child: Text(title),
-              ),
+              Flexible(child: Text(title)),
               if (time != null) ...[
                 const SizedBox(width: 7),
                 Padding(
@@ -499,7 +497,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     const int third = 3;
     int filesOrder = third;
 
-    var msg = widget.item.value as ChatMessage;
+    final msg = widget.item.value as ChatMessage;
     String? text = msg.text?.val;
     if (text != null) {
       _copyable[third] = text;
@@ -567,7 +565,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
     const int first = 1;
-    var message = widget.item.value as ChatCall;
+    final message = widget.item.value as ChatCall;
     bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
 
@@ -693,7 +691,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     List<Widget> additional = [];
 
     if (item is ChatMessage) {
-      var desc = StringBuffer();
+      final desc = StringBuffer();
 
       if (item.text != null) {
         desc.write(item.text!.val);
@@ -790,9 +788,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         height: 15,
                       ),
               ),
-              Flexible(
-                child: Text(title),
-              ),
+              Flexible(child: Text(title)),
               if (time != null) ...[
                 const SizedBox(width: 7),
                 Padding(
@@ -951,12 +947,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 }
 
                 List<GalleryItem> gallery = [];
-                for (var o in attachments) {
-                  var link = '${Config.url}/files${o.original}';
-                  if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, o.filename));
-                  } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                for (final Attachment a in attachments) {
+                  final link = '${Config.url}/files${a.original}';
+                  if (a is FileAttachment) {
+                    gallery.add(GalleryItem.video(link, a.filename));
+                  } else if (a is ImageAttachment) {
+                    gallery.add(GalleryItem.image(link, a.filename));
                   }
                 }
 
@@ -1021,8 +1017,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           fit: BoxFit.cover,
                           height: 300,
                           errorBuilder: (_, __, ___) => const SizedBox(
-                            width: 300.0,
-                            height: 300.0,
+                            width: 300,
+                            height: 300,
                             child: Center(
                               child: Icon(Icons.error, color: Colors.red),
                             ),
@@ -1475,21 +1471,21 @@ extension LocalizedDurationExtension on Duration {
   ///
   /// `HH` part is omitted if this [Duration] is less than an one hour.
   String hhMmSs() {
-    var microseconds = inMicroseconds;
+    int microseconds = inMicroseconds;
 
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    final int hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-    var hoursPadding = hours < 10 ? '0' : '';
+    final String hoursPadding = hours < 10 ? '0' : '';
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    final int minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
-    var minutesPadding = minutes < 10 ? '0' : '';
+    final String minutesPadding = minutes < 10 ? '0' : '';
 
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    final int seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
-    var secondsPadding = seconds < 10 ? '0' : '';
+    final String secondsPadding = seconds < 10 ? '0' : '';
 
     if (hours == 0) {
       return '$minutesPadding$minutes:$secondsPadding$seconds';
@@ -1504,17 +1500,17 @@ extension LocalizedDurationExtension on Duration {
   /// `MM` part is omitted if this [Duration] is less than an one minute.
   /// `HH` part is omitted if this [Duration] is less than an one hour.
   String localizedString() {
-    var microseconds = inMicroseconds;
+    int microseconds = inMicroseconds;
 
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    final int hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    final int minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
 
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    final int seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
     String result = '$seconds ${'label_duration_second_short'.l10n}';
