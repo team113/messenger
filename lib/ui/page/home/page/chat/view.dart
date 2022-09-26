@@ -259,8 +259,7 @@ class _ChatViewState extends State<ChatView>
                                                     'label_unread_messages'
                                                         .l10n,
                                                     style: const TextStyle(
-                                                      color: Colors.white,
-                                                    ),
+                                                        color: Colors.white),
                                                     textAlign: TextAlign.center,
                                                   ),
                                                 ),
