@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+/// [Widget] to listen for tap on it.
 class ListenTap extends StatelessWidget {
   const ListenTap({
     super.key,
