@@ -39,7 +39,6 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
