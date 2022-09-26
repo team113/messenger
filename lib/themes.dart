@@ -43,7 +43,7 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
-            sidebarColor: const Color(0xFFFFFFFF).withOpacity(0.4),
+            sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
         colorScheme: colors,
@@ -245,7 +245,7 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// [Color] to use in the sidebar to make unique one.
+  /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
   @override

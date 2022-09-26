@@ -122,9 +122,9 @@ btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
     video on
+btn_change = Change
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
-btn_change_background = Change
 btn_close = Close
 btn_confirm = Confirm
 btn_copy_text = Copy text
@@ -152,11 +152,11 @@ btn_logout = Logout
 btn_media_settings = Media settings
 btn_next = Next
 btn_ok = Ok
+btn_personalize = Personalization
+btn_remove = Remove
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
-btn_remove_background = Remove
-btn_personalize = Personalization
 btn_save = Save
 btn_saved_messages = Saved messages
 btn_set_password = Set password

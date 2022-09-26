@@ -37,8 +37,8 @@ class PersonalizationView extends StatelessWidget {
           body: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Obx(
-                () => SizedBox(
+              Obx(() {
+                return SizedBox(
                   width: 100,
                   height: 60,
                   child: c.background.value == null
@@ -47,19 +47,19 @@ class PersonalizationView extends StatelessWidget {
                           c.background.value!,
                           fit: BoxFit.cover,
                         ),
-                ),
-              ),
+                );
+              }),
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedRoundedButton(
-                  title: Text('btn_change_background'.l10n),
+                  title: Text('btn_change'.l10n),
                   onPressed: c.pickBackground,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedRoundedButton(
-                  title: Text('btn_remove_background'.l10n),
+                  title: Text('btn_remove'.l10n),
                   onPressed: c.removeBackground,
                 ),
               ),

@@ -122,9 +122,9 @@ btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
     камеру
+btn_change = Сменить
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
-btn_change_background = Сменить
 btn_close = Закрыть
 btn_confirm = Подтвердить
 btn_copy_text = Скопировать текст
@@ -152,11 +152,11 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_personalize = Персонализация
+btn_remove = Удалить
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
-btn_remove_background = Удалить
-btn_personalize = Персонализация
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
 btn_saved_messages = Сохранённые сообщения
