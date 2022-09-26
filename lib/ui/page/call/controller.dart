@@ -74,7 +74,7 @@ class CallController extends GetxController {
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether call title is shown or not.
+  /// Indicator whether call's title is shown or not.
   final RxBool showHeader = RxBool(true);
 
   /// Local [Participant]s in `default` mode.
@@ -470,7 +470,8 @@ class CallController extends GetxController {
         break;
 
       case OngoingCallState.active:
-        final actualMembers = members.keys.map((k) => k.userId).toSet();
+        final Set<UserId> actualMembers =
+            members.keys.map((k) => k.userId).toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] =
             '${chat.value?.members.length ?? ('dot'.l10n * 3)}';
