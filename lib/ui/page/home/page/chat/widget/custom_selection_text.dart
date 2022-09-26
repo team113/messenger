@@ -73,7 +73,7 @@ class CustomSelectionText extends StatelessWidget {
         return container;
       }
     } else {
-      return SelectionContainer.disabled(child: child);
+      return child;
     }
   }
 }
