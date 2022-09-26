@@ -93,7 +93,7 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
-    if (contact.contact.value.users.length == 1) {
+    if (contact.contact.value.users.length != 1) {
       showBadge = false;
     }
 
