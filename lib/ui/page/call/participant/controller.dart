@@ -74,7 +74,7 @@ class ParticipantController extends GetxController {
   /// Reactive state of the [Chat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Pops the [SearchView] this controller is bound to.
+  /// Pops the [ParticipantView] this controller is bound to.
   final Function() pop;
 
   /// [SearchFlowStage] of this addition modal.

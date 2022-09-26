@@ -36,9 +36,6 @@ alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
 btn_add_participant = Добавить участника
-btn_add_participant_desc =
-    Добавить
-    участника
 btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
 btn_allow = Разрешить

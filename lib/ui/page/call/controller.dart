@@ -39,7 +39,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/page/call/participant/view.dart';
-import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
@@ -48,7 +47,6 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'add_dialog_member/view.dart';
 import 'component/common.dart';
 import 'settings/view.dart';
 
@@ -1000,8 +998,7 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
-  /// [AddDialogMemberView].
+  /// Returns a result of the [showDialog] building an [ParticipantView].
   Future<dynamic> openAddMember(BuildContext context) {
     keepUi(false);
     return ModalPopup.show(

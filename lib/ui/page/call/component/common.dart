@@ -211,7 +211,7 @@ class ParticipantsButton extends CallButton {
   const ParticipantsButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_add_participant'.l10n;
+  String get hint => 'btn_participants'.l10n;
 
   @override
   Widget build({bool hinted = true}) {

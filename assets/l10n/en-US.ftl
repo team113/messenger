@@ -36,9 +36,6 @@ alert_popup_permissions_description =
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
 btn_add_participant = Add participant
-btn_add_participant_desc =
-    Add
-    participant
 btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_allow = Allow

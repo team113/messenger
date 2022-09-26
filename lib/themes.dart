@@ -38,29 +38,14 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            callDock: const Color(0xFF1E88E5),
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
-            secondaryBorder:
-                Border.all(color: const Color(0xFFDADADA), width: 0.5),
-            primaryBorder:
-                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             cardRadius: BorderRadius.circular(14),
             cardColor: Colors.white.withOpacity(0.95),
-            cardBlur: 5,
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
-            unreadMessageThickness: 4,
-            systemMessageTextStyle: GoogleFonts.roboto(
-              color: const Color(0xFF888888),
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-            ),
-            systemMessageBorder:
-                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
-            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
           ),
         ],
         colorScheme: colors,
@@ -259,66 +244,36 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.callDock,
     required this.cardRadius,
     required this.cardBorder,
-    required this.primaryBorder,
-    required this.secondaryBorder,
-    required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
-    required this.unreadMessageThickness,
-    required this.systemMessageTextStyle,
-    required this.systemMessageBorder,
-    required this.systemMessageColor,
   });
 
-  final Color callDock;
+  /// [BorderRadius] to use in  card-like [Widget]s.
   final BorderRadius cardRadius;
+
+  /// [Border] to use in card-like [Widget]s.
   final Border cardBorder;
-  final Border primaryBorder;
-  final Border secondaryBorder;
-  final double cardBlur;
+
+  /// Background [Color] to use in card-like [Widget]s.
   final Color cardColor;
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  final double unreadMessageThickness;
-  final TextStyle systemMessageTextStyle;
-  final Border systemMessageBorder;
-  final Color systemMessageColor;
-
   @override
   ThemeExtension<Style> copyWith({
-    Color? callDock,
     BorderRadius? cardRadius,
     Border? cardBorder,
-    Border? primaryBorder,
-    Border? secondaryBorder,
-    double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
-    double? unreadMessageThickness,
-    TextStyle? systemMessageTextStyle,
-    Border? systemMessageBorder,
-    Color? systemMessageColor,
   }) {
     return Style(
-      callDock: callDock ?? this.callDock,
       cardRadius: cardRadius ?? this.cardRadius,
       cardBorder: cardBorder ?? this.cardBorder,
-      primaryBorder: primaryBorder ?? this.primaryBorder,
-      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
-      cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
-      unreadMessageThickness:
-          unreadMessageThickness ?? this.unreadMessageThickness,
-      systemMessageTextStyle:
-          systemMessageTextStyle ?? this.systemMessageTextStyle,
-      systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
-      systemMessageColor: systemMessageColor ?? this.systemMessageColor,
     );
   }
 
@@ -329,25 +284,10 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      callDock: Color.lerp(callDock, other.callDock, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
-      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
-      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
-      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
-      systemMessageTextStyle: TextStyle.lerp(
-        systemMessageTextStyle,
-        other.systemMessageTextStyle,
-        t,
-      )!,
-      unreadMessageThickness:
-          unreadMessageThickness * (1.0 - t) + other.unreadMessageThickness * t,
-      systemMessageBorder:
-          Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
-      systemMessageColor:
-          Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
     );
   }
 }
