@@ -18,39 +18,44 @@ import 'package:flutter/material.dart';
 
 /// Area in which the text will be highlighted.
 ///
-/// Overrides [Action] copy with [_CopySelectionAction].
+/// Overrides the copy action if [onCopy] is passed.
 class CustomSelectionArea extends StatelessWidget {
   const CustomSelectionArea({
     super.key,
-    required this.copyText,
+    this.onCopy,
     required this.child,
   });
 
-  /// Callback that is called on [CopySelectionTextIntent].
-  final void Function() copyText;
+  /// Callback when the [CopySelectionTextIntent] is to be performed.
+  final void Function()? onCopy;
 
   /// [Widget] in which there will be text to selection.
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Actions(
-      actions: <Type, Action<Intent>>{
-        CopySelectionTextIntent: Action.overridable(
-          defaultAction: _CopySelectionAction(copyText),
-          context: context,
-        ),
-      },
-      child: SelectionArea(child: child),
-    );
+    final area = SelectionArea(child: child);
+    if (onCopy == null) {
+      return area;
+    } else {
+      return Actions(
+        actions: <Type, Action<Intent>>{
+          CopySelectionTextIntent: Action.overridable(
+            defaultAction: _CopySelectionAction(onCopy!),
+            context: context,
+          ),
+        },
+        child: area,
+      );
+    }
   }
 }
 
-/// [Action] for copy.
+/// [Action] for an [Intent] that represents a user interaction that attempts to copy or cut the current selection in the field.
 class _CopySelectionAction extends Action<CopySelectionTextIntent> {
   _CopySelectionAction(this.copyText);
 
-  /// Callback that is called on [CopySelectionTextIntent].
+  /// Callback when the [CopySelectionTextIntent] is to be performed.
   final void Function() copyText;
 
   @override

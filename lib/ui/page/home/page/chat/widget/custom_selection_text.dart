@@ -14,12 +14,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:collection';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
-import '../controller.dart';
-import 'custom_selection_container.dart';
+import '/ui/page/home/page/chat/controller.dart';
 
-/// [CustomSelectionText] copies the selected text.
+/// [Widget] for getting selected text.
+///
+/// Must be inside [CustomSelectionArea].
 class CustomSelectionText extends StatelessWidget {
   const CustomSelectionText({
     Key? key,
@@ -27,30 +32,26 @@ class CustomSelectionText extends StatelessWidget {
     required this.position,
     required this.type,
     this.animation,
-    this.isIgnoreCursor,
+    this.isIgnoreSelectionCursor,
     required this.child,
   }) : super(key: key);
 
-  /// Storage [SelectionData].
-  final Map<int, List<SelectionData>>? selections;
+  /// Selected text storage.
+  final SplayTreeMap<int, List<SelectionData>>? selections;
 
-  /// Message position index.
-  ///
-  /// It is sorted.
+  /// Message position index for sorting multiple [CustomSelectionText].
   final int? position;
 
-  /// Selected text type.
-  ///
-  /// Sorting is by [CopyableItem.index] for each [position].
+  /// Type of selected text in chat.
   final CopyableItem? type;
 
-  /// Controller for an animation.
+  /// Optional animation that controls the selection of the selected text.
+  ///
+  /// When [animation.isCompleted], the selected text is added, otherwise not.
   final AnimationController? animation;
 
-  /// Indicates whether [child] can be selected.
-  ///
-  /// Text is not directly selected, only when all text is selected.
-  final bool? isIgnoreCursor;
+  /// Indicates whether the cursor is displayed for text selection.
+  final bool? isIgnoreSelectionCursor;
 
   /// [Widget] in which there will be text to selection.
   final Widget child;
@@ -58,7 +59,7 @@ class CustomSelectionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type != null && selections != null && position != null) {
-      final widget = CustomSelectionContainer(
+      final container = _CustomSelectionContainer(
         selections: selections!,
         position: position!,
         type: type!,
@@ -66,13 +67,296 @@ class CustomSelectionText extends StatelessWidget {
         child: child,
       );
 
-      if (isIgnoreCursor == true) {
-        return IgnorePointer(child: widget);
+      if (isIgnoreSelectionCursor == true) {
+        return IgnorePointer(child: container);
       } else {
-        return widget;
+        return container;
       }
     } else {
       return SelectionContainer.disabled(child: child);
     }
+  }
+}
+
+/// Manages selected text.
+///
+/// Responsible for creating [_SelectableRegionContainerDelegate] and [SelectionData].
+class _CustomSelectionContainer extends StatefulWidget {
+  const _CustomSelectionContainer({
+    required this.selections,
+    required this.position,
+    required this.type,
+    required this.animation,
+    required this.child,
+  });
+
+  /// Storage [SelectionData].
+  final Map<int, List<SelectionData>> selections;
+
+  /// Message position index.
+  final int position;
+
+  /// Type of selected text in chat.
+  final CopyableItem type;
+
+  /// Optional animation that controls the selection of the selected text.
+  ///
+  /// When [animation.isCompleted], the selected text is added, otherwise not.
+  final AnimationController? animation;
+
+  /// Widget in which there will be text to selection.
+  final Widget child;
+
+  @override
+  State<StatefulWidget> createState() => _CustomSelectionContainerState();
+}
+
+/// State of an [_CustomSelectionContainer] controls selected text.
+class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
+  /// Delegate to get selected text.
+  late final _SelectableRegionContainerDelegate delegate;
+
+  /// Text storage for this [_CustomSelectionContainerState].
+  late final SelectionData selectionData;
+
+  /// [GestureRecognizer] recognizes double and triple tap gestures.
+  ///
+  /// Double-tap selects a word, triple-tap selects all text.
+  final Map<Type, GestureRecognizerFactory> _gestureRecognizers =
+      <Type, GestureRecognizerFactory>{};
+
+  @override
+  void initState() {
+    super.initState();
+    delegate = _SelectableRegionContainerDelegate();
+    delegate.addListener(_selectionChange);
+
+    _gestureRecognizers[SerialTapGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
+      () => SerialTapGestureRecognizer(),
+      (SerialTapGestureRecognizer instance) {
+        instance.onSerialTapUp = (SerialTapUpDetails details) {
+          if (details.count == 2) {
+            delegate.handleSelectWord(
+              SelectWordSelectionEvent(globalPosition: details.globalPosition),
+            );
+          }
+          if (details.count == 3) {
+            delegate.handleSelectAll(const SelectAllSelectionEvent());
+          }
+          _selectionChange();
+        };
+      },
+    );
+
+    selectionData = SelectionData(widget.type);
+
+    if (widget.selections[widget.position] == null) {
+      widget.selections[widget.position] = [selectionData];
+    } else {
+      widget.selections[widget.position]?.add(selectionData);
+    }
+  }
+
+  @override
+  void dispose() {
+    selectionData.data.close();
+    widget.selections.remove(widget.position);
+    delegate.removeListener(_selectionChange);
+    delegate.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RawGestureDetector(
+      gestures: _gestureRecognizers,
+      child: SelectionContainer(
+        delegate: delegate,
+        child: widget.child,
+      ),
+    );
+  }
+
+  /// Writes data to [selectionData.data].
+  void _selectionChange() {
+    if (widget.animation == null || widget.animation?.isCompleted == true) {
+      final String? oldText = selectionData.data.value;
+      final String? newText = delegate.getSelectedContent()?.plainText;
+      if (oldText != newText) {
+        selectionData.data.value = newText;
+      }
+    }
+  }
+}
+
+/// Delegate for [SelectionEvent]s.
+///
+/// Manage selected text. Taken from Flutter framework.
+class _SelectableRegionContainerDelegate
+    extends MultiSelectableSelectionContainerDelegate {
+  /// Storage of [Selectable]s on [SelectionEventType.startEdgeUpdate].
+  final Set<Selectable> _hasReceivedStartEvent = <Selectable>{};
+
+  /// Storage of [Selectable]s on [SelectionEventType.endEdgeUpdate].
+  final Set<Selectable> _hasReceivedEndEvent = <Selectable>{};
+
+  /// Global position of start of selection.
+  Offset? _lastStartEdgeUpdateGlobalPosition;
+
+  /// Global position of end of selection.
+  Offset? _lastEndEdgeUpdateGlobalPosition;
+
+  @override
+  void remove(Selectable selectable) {
+    _hasReceivedStartEvent.remove(selectable);
+    _hasReceivedEndEvent.remove(selectable);
+    super.remove(selectable);
+  }
+
+  /// Get updated selection coordinates.
+  void _updateLastEdgeEventsFromGeometries() {
+    if (currentSelectionStartIndex != -1) {
+      final Selectable start = selectables[currentSelectionStartIndex];
+      final Offset localStartEdge =
+          start.value.startSelectionPoint!.localPosition +
+              Offset(0, -start.value.startSelectionPoint!.lineHeight / 2);
+      _lastStartEdgeUpdateGlobalPosition = MatrixUtils.transformPoint(
+          start.getTransformTo(null), localStartEdge);
+    }
+    if (currentSelectionEndIndex != -1) {
+      final Selectable end = selectables[currentSelectionEndIndex];
+      final Offset localEndEdge = end.value.endSelectionPoint!.localPosition +
+          Offset(0, -end.value.endSelectionPoint!.lineHeight / 2);
+      _lastEndEdgeUpdateGlobalPosition =
+          MatrixUtils.transformPoint(end.getTransformTo(null), localEndEdge);
+    }
+  }
+
+  @override
+  SelectionResult handleSelectAll(SelectAllSelectionEvent event) {
+    final SelectionResult result = super.handleSelectAll(event);
+    for (final Selectable selectable in selectables) {
+      _hasReceivedStartEvent.add(selectable);
+      _hasReceivedEndEvent.add(selectable);
+    }
+    // Synthesize last update event so the edge updates continue to work.
+    _updateLastEdgeEventsFromGeometries();
+    return result;
+  }
+
+  /// Selects a word in a selectable at the location
+  /// [SelectWordSelectionEvent.globalPosition].
+  @override
+  SelectionResult handleSelectWord(SelectWordSelectionEvent event) {
+    final SelectionResult result = super.handleSelectWord(event);
+    if (currentSelectionStartIndex != -1) {
+      _hasReceivedStartEvent.add(selectables[currentSelectionStartIndex]);
+    }
+    if (currentSelectionEndIndex != -1) {
+      _hasReceivedEndEvent.add(selectables[currentSelectionEndIndex]);
+    }
+    _updateLastEdgeEventsFromGeometries();
+    return result;
+  }
+
+  @override
+  SelectionResult handleClearSelection(ClearSelectionEvent event) {
+    final SelectionResult result = super.handleClearSelection(event);
+    _hasReceivedStartEvent.clear();
+    _hasReceivedEndEvent.clear();
+    _lastStartEdgeUpdateGlobalPosition = null;
+    _lastEndEdgeUpdateGlobalPosition = null;
+    return result;
+  }
+
+  @override
+  SelectionResult handleSelectionEdgeUpdate(SelectionEdgeUpdateEvent event) {
+    if (event.type == SelectionEventType.endEdgeUpdate) {
+      _lastEndEdgeUpdateGlobalPosition = event.globalPosition;
+    } else {
+      _lastStartEdgeUpdateGlobalPosition = event.globalPosition;
+    }
+    return super.handleSelectionEdgeUpdate(event);
+  }
+
+  @override
+  void dispose() {
+    _hasReceivedStartEvent.clear();
+    _hasReceivedEndEvent.clear();
+    super.dispose();
+  }
+
+  @override
+  SelectionResult dispatchSelectionEventToChild(
+      Selectable selectable, SelectionEvent event) {
+    switch (event.type) {
+      case SelectionEventType.startEdgeUpdate:
+        _hasReceivedStartEvent.add(selectable);
+        ensureChildUpdated(selectable);
+        break;
+      case SelectionEventType.endEdgeUpdate:
+        _hasReceivedEndEvent.add(selectable);
+        ensureChildUpdated(selectable);
+        break;
+      case SelectionEventType.clear:
+        _hasReceivedStartEvent.remove(selectable);
+        _hasReceivedEndEvent.remove(selectable);
+        break;
+      case SelectionEventType.selectAll:
+      case SelectionEventType.selectWord:
+        break;
+    }
+    return super.dispatchSelectionEventToChild(selectable, event);
+  }
+
+  @override
+  void ensureChildUpdated(Selectable selectable) {
+    if (_lastEndEdgeUpdateGlobalPosition != null &&
+        _hasReceivedEndEvent.add(selectable)) {
+      final SelectionEdgeUpdateEvent synthesizedEvent =
+          SelectionEdgeUpdateEvent.forEnd(
+        globalPosition: _lastEndEdgeUpdateGlobalPosition!,
+      );
+      if (currentSelectionEndIndex == -1) {
+        handleSelectionEdgeUpdate(synthesizedEvent);
+      }
+      selectable.dispatchSelectionEvent(synthesizedEvent);
+    }
+    if (_lastStartEdgeUpdateGlobalPosition != null &&
+        _hasReceivedStartEvent.add(selectable)) {
+      final SelectionEdgeUpdateEvent synthesizedEvent =
+          SelectionEdgeUpdateEvent.forStart(
+        globalPosition: _lastStartEdgeUpdateGlobalPosition!,
+      );
+      if (currentSelectionStartIndex == -1) {
+        handleSelectionEdgeUpdate(synthesizedEvent);
+      }
+      selectable.dispatchSelectionEvent(synthesizedEvent);
+    }
+  }
+
+  @override
+  void didChangeSelectables() {
+    if (_lastEndEdgeUpdateGlobalPosition != null) {
+      handleSelectionEdgeUpdate(
+        SelectionEdgeUpdateEvent.forEnd(
+          globalPosition: _lastEndEdgeUpdateGlobalPosition!,
+        ),
+      );
+    }
+    if (_lastStartEdgeUpdateGlobalPosition != null) {
+      handleSelectionEdgeUpdate(
+        SelectionEdgeUpdateEvent.forStart(
+          globalPosition: _lastStartEdgeUpdateGlobalPosition!,
+        ),
+      );
+    }
+    final Set<Selectable> selectableSet = selectables.toSet();
+    _hasReceivedEndEvent.removeWhere(
+        (Selectable selectable) => !selectableSet.contains(selectable));
+    _hasReceivedStartEvent.removeWhere(
+        (Selectable selectable) => !selectableSet.contains(selectable));
+    super.didChangeSelectables();
   }
 }

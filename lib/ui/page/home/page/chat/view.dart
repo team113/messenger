@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
@@ -229,7 +230,7 @@ class _ChatViewState extends State<ChatView>
                             ),
                             SafeArea(
                               child: CustomSelectionArea(
-                                copyText: c.copyText,
+                                onCopy: c.copyText,
                                 child: FlutterListView(
                                   key: const Key('MessagesList'),
                                   controller: c.listController,
@@ -554,7 +555,7 @@ class _ChatViewState extends State<ChatView>
     required DateTime time,
     int? position,
     Rx<bool>? isTapMessage,
-    Map<int, List<SelectionData>>? selections,
+    SplayTreeMap<int, List<SelectionData>>? selections,
     Function(String text)? onCopy,
   }) {
     String date = DateFormat('dd.MM.yy').format(time);

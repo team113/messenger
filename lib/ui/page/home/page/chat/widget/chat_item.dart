@@ -96,7 +96,7 @@ class ChatItemWidget extends StatefulWidget {
   final RxUser? user;
 
   /// Storage [SelectionData].
-  final Map<int, List<SelectionData>>? selections;
+  final SplayTreeMap<int, List<SelectionData>>? selections;
 
   /// Clicking on [SelectionData].
   final Rx<bool>? isTapMessage;
@@ -332,7 +332,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           selections: widget.selections,
           position: widget.position,
           type: CopyableItem.message,
-          isIgnoreCursor: true,
+          isIgnoreSelectionCursor: true,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -449,7 +449,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               selections: widget.selections,
                               position: widget.position,
                               type: CopyableItem.username,
-                              isIgnoreCursor: true,
+                              isIgnoreSelectionCursor: true,
                               child: Text(
                                 username,
                                 style: style.boldBody.copyWith(color: color),
@@ -705,7 +705,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             selections: widget.selections,
             position: widget.position,
             type: CopyableItem.messageReply,
-            isIgnoreCursor: true,
+            isIgnoreSelectionCursor: true,
             child: Text(
               desc.toString(),
               style: style.boldBody,
@@ -748,7 +748,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           selections: widget.selections,
           position: widget.position,
           type: CopyableItem.message,
-          isIgnoreCursor: true,
+          isIgnoreSelectionCursor: true,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -789,7 +789,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           selections: widget.selections,
           position: widget.position,
           type: CopyableItem.message,
-          isIgnoreCursor: true,
+          isIgnoreSelectionCursor: true,
           child: Text(item.action.toString(), style: style.boldBody),
         ),
       );
@@ -803,7 +803,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           selections: widget.selections,
           position: widget.position,
           type: CopyableItem.message,
-          isIgnoreCursor: true,
+          isIgnoreSelectionCursor: true,
           child: Text('label_forwarded_message'.l10n, style: style.boldBody),
         ),
       );
@@ -816,7 +816,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           selections: widget.selections,
           position: widget.position,
           type: CopyableItem.message,
-          isIgnoreCursor: true,
+          isIgnoreSelectionCursor: true,
           child: Text('err_unknown'.l10n, style: style.boldBody),
         ),
       );
@@ -863,7 +863,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           selections: widget.selections,
                           position: widget.position,
                           type: CopyableItem.username,
-                          isIgnoreCursor: true,
+                          isIgnoreSelectionCursor: true,
                           child: Text(
                             username,
                             style: style.boldBody.copyWith(color: color),
@@ -1137,7 +1137,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   selections: widget.selections,
                   position: widget.position,
                   type: CopyableItem.messageFile,
-                  isIgnoreCursor: true,
+                  isIgnoreSelectionCursor: true,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
