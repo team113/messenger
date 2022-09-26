@@ -89,9 +89,6 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
-  /// Most recent recipient's [ChatItem] that was visible on the screen.
-  final Rx<ChatItem?> lastVisibleItem = Rx<ChatItem?>(null);
-
   /// First [ChatItem] unread by the authenticated [MyUser] in this [Chat].
   final Rx<Rx<ChatItem>?> firstUnreadItem = Rx<Rx<ChatItem>?>(null);
 
@@ -157,6 +154,9 @@ class ChatController extends GetxController {
   /// [FlutterListViewItemPosition] of the [ChatItem] to return to when the
   /// return FAB is pressed.
   FlutterListViewItemPosition? _itemToReturnTo;
+
+  /// [ChatItem] with the latest post date that was visible on the screen.
+  final Rx<ChatItem?> _itemReadTo = Rx<ChatItem?>(null);
 
   /// [Duration] considered as a timeout of the ongoing typing.
   static const Duration _typingDuration = Duration(seconds: 3);
@@ -632,24 +632,27 @@ class ChatController extends GetxController {
                     element.forwards.first.value.authorId != me);
           });
 
-          if (_lastVisibleItem != null) {
+          if (_lastVisibleItem != null && status.value.isSuccess) {
             ListElement element =
                 elements.values.elementAt(_lastVisibleItem!.index);
-            if (element is ChatMessageElement) {
-              lastVisibleItem.value = element.item.value;
-            } else if (element is ChatMemberInfoElement) {
-              lastVisibleItem.value = element.item.value;
-            } else if (element is ChatCallElement) {
-              lastVisibleItem.value = element.item.value;
-            } else if (element is ChatForwardElement) {
-              lastVisibleItem.value =
-                  element.note.value?.value ?? element.forwards.last.value;
+            if (_itemReadTo.value == null ||
+                element.id.at.isAfter(_itemReadTo.value!.at)) {
+              if (element is ChatMessageElement) {
+                _itemReadTo.value = element.item.value;
+              } else if (element is ChatMemberInfoElement) {
+                _itemReadTo.value = element.item.value;
+              } else if (element is ChatCallElement) {
+                _itemReadTo.value = element.item.value;
+              } else if (element is ChatForwardElement) {
+                _itemReadTo.value =
+                    element.note.value?.value ?? element.forwards.last.value;
+              }
             }
           }
         }
       };
 
-      _readWorker ??= debounce(lastVisibleItem, readChat, time: 1.seconds);
+      _readWorker ??= debounce(_itemReadTo, readChat, time: 1.seconds);
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
@@ -698,8 +701,8 @@ class ChatController extends GetxController {
 
       status.value = RxStatus.success();
 
-      if (lastVisibleItem.value != null) {
-        readChat(lastVisibleItem.value);
+      if (_itemReadTo.value != null) {
+        readChat(_itemReadTo.value);
       }
     }
   }
@@ -1048,9 +1051,8 @@ class ChatController extends GetxController {
           index = elements.length - 1;
           offset = 0;
         } else if (firstUnreadItem.value != null) {
-          int i = elements.values
-              .toList()
-              .indexWhere((e) => e.id.id == firstUnreadItem.value!.value.id.val);
+          int i = elements.values.toList().indexWhere(
+              (e) => e.id.id == firstUnreadItem.value!.value.id.val);
           if (i != -1) {
             index = i;
             offset = (MediaQuery.of(router.context!).size.height) / 3;
