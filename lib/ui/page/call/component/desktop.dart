@@ -749,7 +749,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Top [MouseRegion] that toggles title on hover.
+        // Top [MouseRegion] that toggles info header on hover.
         Align(
           alignment: Alignment.topCenter,
           child: SizedBox(

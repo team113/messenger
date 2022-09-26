@@ -74,7 +74,7 @@ class CallController extends GetxController {
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether title is shown or not.
+  /// Indicator whether info header is shown or not.
   final RxBool showHeader = RxBool(true);
 
   /// Local [Participant]s in `default` mode.
