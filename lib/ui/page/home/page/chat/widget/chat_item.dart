@@ -1208,9 +1208,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ContextMenuButton(
               key: const Key('CopyButton'),
               label: 'btn_copy_text'.l10n,
-              onPressed: () {
-                widget.onCopy?.call(messageTime);
-              },
+              onPressed: () => widget.onCopy?.call(messageTime),
             ),
           ],
         ),
@@ -1318,12 +1316,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   label: 'btn_forward'.l10n,
                                   onPressed: () async {
                                     List<AttachmentId> attachments = [];
+
                                     if (item is ChatMessage) {
                                       attachments = item.attachments
                                           .map((a) => a.id)
                                           .toList();
                                     } else if (item is ChatForward) {
-                                      ChatItem nested = item.item;
+                                      final ChatItem nested = item.item;
                                       if (nested is ChatMessage) {
                                         attachments = nested.attachments
                                             .map((a) => a.id)
