@@ -51,9 +51,10 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
   }) : super(key: key);
 
-  /// Creates an [AvatarWidget] from the specified [ChatContact].
+  /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
     ChatContact? contact, {
+    Key? key,
     Avatar? avatar,
     double? radius,
     double? maxRadius,
@@ -61,6 +62,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
   }) =>
       AvatarWidget(
+        key: key,
         avatar: avatar,
         title: contact?.name.val,
         color: (contact?.users.isEmpty ?? false)
@@ -72,9 +74,10 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified [RxChatContact].
+  /// Creates an [AvatarWidget] from the specified reactive [contact].
   static Widget fromRxContact(
     RxChatContact? contact, {
+    Key? key,
     Avatar? avatar,
     double? radius,
     double? maxRadius,
@@ -84,6 +87,7 @@ class AvatarWidget extends StatelessWidget {
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
+        key: key,
         contact?.contact.value,
         avatar: avatar,
         radius: radius,
@@ -99,6 +103,7 @@ class AvatarWidget extends StatelessWidget {
 
     return Obx(() {
       return AvatarWidget(
+        key: key,
         isOnline: showBadge && contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
@@ -134,7 +139,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified [User].
+  /// Creates an [AvatarWidget] from the specified [user].
   factory AvatarWidget.fromUser(
     User? user, {
     Key? key,
@@ -154,7 +159,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified [RxUser].
+  /// Creates an [AvatarWidget] from the specified reactive [user].
   static Widget fromRxUser(
     RxUser? user, {
     Key? key,
@@ -336,10 +341,9 @@ class AvatarWidget extends StatelessWidget {
       Color gradient;
 
       if (color != null) {
-        gradient = AvatarWidget.colors[color! % AvatarWidget.colors.length];
+        gradient = colors[color! % colors.length];
       } else if (title != null) {
-        gradient =
-            AvatarWidget.colors[(title!.hashCode) % AvatarWidget.colors.length];
+        gradient = colors[(title!.hashCode) % colors.length];
       } else {
         gradient = const Color(0xFF555555);
       }
