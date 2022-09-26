@@ -78,9 +78,9 @@ class CustomSelectionText extends StatelessWidget {
   }
 }
 
-/// Manages selected text.
+/// [_CustomSelectionContainer] implements getting text.
 ///
-/// Responsible for creating [_SelectableRegionContainerDelegate] and [SelectionData].
+/// Puts a new [SelectionData] in [selections].
 class _CustomSelectionContainer extends StatefulWidget {
   const _CustomSelectionContainer({
     required this.selections,
