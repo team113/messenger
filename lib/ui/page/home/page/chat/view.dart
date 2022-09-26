@@ -293,7 +293,8 @@ class _ChatViewState extends State<ChatView>
                                                 c.deleteMessage(e.value),
                                             onReply: () => c
                                                 .repliedMessage.value = e.value,
-                                            onCopy: (text) => c.copyText(text),
+                                            onCopy: (String text) =>
+                                                c.copyText(text),
                                             onRepliedTap: (id) =>
                                                 c.animateTo(id),
                                             onForwardedTap: (id, chatId) {
@@ -346,7 +347,8 @@ class _ChatViewState extends State<ChatView>
                                           position: i,
                                           isTapMessage: c.isTapMessage,
                                           selections: c.selections,
-                                          onCopy: (text) => c.copyText(text),
+                                          onCopy: (String text) =>
+                                              c.copyText(text),
                                         ));
                                       } else {
                                         Rx<ChatItem>? previous =
@@ -555,7 +557,6 @@ class _ChatViewState extends State<ChatView>
     Rx<bool>? isTapMessage,
     Map<int, List<SelectionData>>? selections,
     Function(String text)? onCopy,
-    String? Function()? onFormatSelection,
   }) {
     String date = DateFormat('dd.MM.yy').format(time);
     String timeRelative = time.toRelative();
