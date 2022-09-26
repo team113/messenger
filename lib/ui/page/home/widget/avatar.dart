@@ -119,7 +119,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
   }) =>
       AvatarWidget(
-        isOnline: true,
+        isOnline: myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.val,
