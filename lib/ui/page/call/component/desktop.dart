@@ -39,7 +39,6 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -674,6 +673,61 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
+        // Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value &&
+                    c.fullscreen.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: const [
+                      CustomBoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                  child: ConditionalBackdropFilter(
+                    borderRadius: BorderRadius.circular(30),
+                    filter: ImageFilter.blur(
+                      sigmaX: 15,
+                      sigmaY: 15,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0x301D6AAE),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
+                      ),
+                      child: Text(
+                        'label_call_title'.l10nfmt(c.titleArguments),
+                        style: context.textTheme.bodyText1?.copyWith(
+                          fontSize: 13,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
           bool enabled = !c.displayMore.value &&
@@ -694,6 +748,21 @@ Widget desktopCall(CallController c, BuildContext context) {
             ),
           );
         }),
+
+        // Top [MouseRegion] that toggles info header on hover.
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) => c.showHeader.value = true,
+              onHover: (_) => c.showHeader.value = true,
+              onExit: (_) => c.showHeader.value = false,
+            ),
+          ),
+        ),
 
         if (c.state.value == OngoingCallState.active) ...[
           // Secondary panel itself.
@@ -1042,39 +1111,6 @@ Widget desktopCall(CallController c, BuildContext context) {
 /// Title bar of the call containing information about the call and control
 /// buttons.
 Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final Map<String, String> args = {
-        'title': c.chat.value?.title.value ?? ('dot'.l10n * 3),
-        'state': c.state.value.name,
-      };
-
-      switch (c.state.value) {
-        case OngoingCallState.local:
-        case OngoingCallState.pending:
-          bool isOutgoing =
-              (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
-          if (isOutgoing) {
-            args['type'] = 'outgoing';
-          } else if (c.withVideo) {
-            args['type'] = 'video';
-          } else {
-            args['type'] = 'audio';
-          }
-          break;
-
-        case OngoingCallState.active:
-          var actualMembers = c.members.keys.map((k) => k.userId).toSet();
-          args['members'] = '${actualMembers.length}';
-          args['allMembers'] = '${c.chat.value?.members.length}';
-          args['duration'] = c.duration.value.hhMmSs();
-          break;
-
-        case OngoingCallState.joining:
-        case OngoingCallState.ended:
-          // No-op.
-          break;
-      }
-
       return Container(
         key: const ValueKey('TitleBar'),
         color: const Color(0xFF162636),
@@ -1093,7 +1129,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
             Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: c.size.width / 2),
+                constraints: BoxConstraints(maxWidth: c.size.width - 60),
                 child: InkWell(
                   onTap: WebUtils.isPopup
                       ? null
@@ -1111,7 +1147,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'label_call_title'.l10nfmt(args),
+                          'label_call_title'.l10nfmt(c.titleArguments),
                           style: context.textTheme.bodyText1?.copyWith(
                             fontSize: 13,
                             color: const Color(0xFFFFFFFF),

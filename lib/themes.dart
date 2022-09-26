@@ -44,10 +44,11 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: colors.background,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
@@ -240,6 +241,7 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.cardRadius,
     required this.boldBody,
+    required this.sidebarColor,
   });
 
   /// [TextStyle] to use in the body to make content readable.
@@ -248,14 +250,19 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius? cardRadius;
 
+  /// [Color] of the [HomeView]'s side bar.
+  final Color sidebarColor;
+
   @override
   ThemeExtension<Style> copyWith({
     BorderRadius? cardRadius,
     TextStyle? boldBody,
+    Color? sidebarColor,
   }) {
     return Style(
       boldBody: boldBody ?? this.boldBody,
       cardRadius: cardRadius ?? this.cardRadius,
+      sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
 
@@ -268,6 +275,7 @@ class Style extends ThemeExtension<Style> {
     return Style(
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }
 }
