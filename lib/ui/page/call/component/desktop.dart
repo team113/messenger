@@ -733,7 +733,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           bool enabled = !c.displayMore.value &&
               c.primaryDrags.value == 0 &&
               c.secondaryDrags.value == 0;
-
           return Align(
             alignment: Alignment.bottomCenter,
             child: SizedBox(
