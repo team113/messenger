@@ -66,25 +66,10 @@ class InkWellWithHover extends StatefulWidget {
   State<InkWellWithHover> createState() => _InkWellWithHoverState();
 }
 
-/// State of an [InkWellWithHover] maintaining the [isHovered] and [isSelected] indicator.
+/// State of an [InkWellWithHover] maintaining the [isHovered] indicator.
 class _InkWellWithHoverState extends State<InkWellWithHover> {
-  /// Indicates whether chat is hovered.
+  /// Indicates whether [widget.child] is hovered.
   bool isHovered = false;
-
-  /// Indicates whether chat is selected.
-  late bool isSelected = widget.isSelected;
-
-  @override
-  void initState() {
-    isSelected = widget.isSelected;
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant InkWellWithHover oldWidget) {
-    isSelected = widget.isSelected;
-    super.didUpdateWidget(oldWidget);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,20 +82,15 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
         type: MaterialType.card,
         borderRadius: widget.borderRadius,
         color: isHovered
-            ? isSelected
+            ? widget.isSelected
                 ? widget.selectedHoverColor
                 : widget.unselectedHoverColor
-            : isSelected
+            : widget.isSelected
                 ? widget.selectedColor
                 : widget.unselectedColor,
         child: InkWell(
           borderRadius: widget.borderRadius,
-          onTap: () {
-            setState(() {
-              isSelected = true;
-            });
-            widget.onTap?.call();
-          },
+          onTap: widget.onTap?.call,
           onHover: (bool isHover) => setState(() => isHovered = isHover),
           child: widget.child,
         ),

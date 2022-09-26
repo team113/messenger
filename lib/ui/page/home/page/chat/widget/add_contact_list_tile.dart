@@ -51,7 +51,7 @@ class AddContactListTile extends StatelessWidget {
               )
             : Obx(
                 () => AvatarWidget.fromContact(
-                  contact: contact.contact.value,
+                  contact.contact.value,
                   avatar: contact.user.value?.user.value.avatar,
                 ),
               ),

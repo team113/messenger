@@ -45,6 +45,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
+import 'create_group/controller.dart';
 import 'widget/hovered_ink.dart';
 
 /// View of the `HomeTab.chats` tab.
@@ -68,9 +69,10 @@ class ChatsTabView extends StatelessWidget {
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () async {
-                    // TODO: Implement search.
-                  },
+                 onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => const CreateGroupView(),
+                  ),
                   icon: SvgLoader.asset(
                     'assets/icons/search.svg',
                     width: 17.77,
@@ -85,9 +87,10 @@ class ChatsTabView extends StatelessWidget {
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  onPressed: () async {
-                    // TODO: Implement creating group.
-                  },
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => const CreateGroupView(),
+                  ),
                   icon: SvgLoader.asset(
                     'assets/icons/group.svg',
                     height: 18.44,
@@ -256,11 +259,17 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
                   future: c.getUser(item.authorId),
-                  builder: (_, AsyncSnapshot<RxUser?> snapshot) =>
-                      AvatarWidget.fromRxUser(
-                    snapshot.data,
-                    radius: 10,
-                  ),
+                  builder: (_, snapshot) => snapshot.data != null
+                      ? Obx(
+                          () => AvatarWidget.fromUser(
+                            snapshot.data!.user.value,
+                            radius: 10,
+                          ),
+                        )
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item!.authorId),
+                          radius: 10,
+                        ),
                 ),
               ),
             Flexible(child: Text(desc.toString(), maxLines: 2)),
@@ -412,7 +421,7 @@ class ChatsTabView extends StatelessWidget {
               unselectedHoverColor: style.unselectedHoverColor,
               selectedHoverColor: style.primaryCardColor,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
                     AvatarWidget.fromRxChat(rxChat, radius: 30),

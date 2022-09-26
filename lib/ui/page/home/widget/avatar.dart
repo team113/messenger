@@ -16,13 +16,8 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/api/backend/schema.dart' show Presence;
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/user.dart';
 
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -47,13 +42,11 @@ class AvatarWidget extends StatelessWidget {
     this.title,
     this.color,
     this.opacity = 1,
-    this.showBadge = false,
-    this.isAway = false,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
-  factory AvatarWidget.fromContact({
-    ChatContact? contact,
+  factory AvatarWidget.fromContact(
+    ChatContact? contact, {
     Avatar? avatar,
     double? radius,
     double? maxRadius,
@@ -72,46 +65,8 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
       );
 
-  /// Creates an [AvatarWidget] from the specified [contact].
-  static Widget fromRxContact(
-    RxChatContact? contact, {
-    Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-  }) {
-    if (contact == null) {
-      return AvatarWidget.fromContact(
-        avatar: avatar,
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(() {
-      final User? user = contact.user.value?.user.value;
-
-      return AvatarWidget(
-        showBadge: user?.online == true,
-        isAway: user?.presence == Presence.away,
-        avatar: user?.avatar,
-        title: '${contact.contact.value.name}',
-        color: (contact.user.value == null)
-            ? contact.contact.value.name.val.sum()
-            : user?.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    });
-  }
-
   /// Creates an [AvatarWidget] from the specified [myUser].
-  static Widget fromMyUser(
+  factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
     double? radius,
     double? maxRadius,
@@ -126,21 +81,17 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        showBadge: true,
-        isAway: myUser?.presence == Presence.away,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
   factory AvatarWidget.fromUser(
     User? user, {
-    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
   }) =>
       AvatarWidget(
-        key: key,
         avatar: user?.avatar,
         title: user?.name?.val ?? user?.num.val,
         color: user?.num.val.sum(),
@@ -149,44 +100,6 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
       );
-
-  /// Creates an [AvatarWidget] from the specified [user].
-  static Widget fromRxUser(
-    RxUser? user, {
-    Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
-    double opacity = 1,
-  }) {
-    if (user == null) {
-      return AvatarWidget(
-        key: key,
-        avatar: user?.user.value.avatar,
-        title: user?.user.value.name?.val ?? user?.user.value.num.val,
-        color: user?.user.value.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(
-      () => AvatarWidget(
-        key: key,
-        avatar: user.user.value.avatar,
-        title: user.user.value.name?.val ?? user.user.value.num.val,
-        color: user.user.value.num.val.sum(),
-        radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
-        opacity: opacity,
-        showBadge: user.user.value.online == true,
-        isAway: user.user.value.presence == Presence.away,
-      ),
-    );
-  }
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
@@ -218,11 +131,8 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
   }) =>
       chat != null
-          ? Obx(() {
-              final RxUser? user = chat.members.values
-                  .firstWhereOrNull((RxUser u) => u.id != chat.me);
-
-              return AvatarWidget(
+          ? Obx(
+              () => AvatarWidget(
                 avatar: chat.avatar.value,
                 title: chat.title.value,
                 color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -230,11 +140,8 @@ class AvatarWidget extends StatelessWidget {
                 maxRadius: maxRadius,
                 minRadius: minRadius,
                 opacity: opacity,
-                showBadge:
-                    chat.chat.value.isDialog && user?.user.value.online == true,
-                isAway: user?.user.value.presence == Presence.away,
-              );
-            })
+              ),
+            )
           : AvatarWidget(
               radius: radius,
               maxRadius: maxRadius,
@@ -277,14 +184,8 @@ class AvatarWidget extends StatelessWidget {
   /// Integer that determining the gradient color of the avatar.
   final int? color;
 
-  /// Opacity of this.
+  /// Opacity of this [AvatarWidget].
   final double opacity;
-
-  /// Indicator whether show online badge.
-  final bool showBadge;
-
-  /// Indicator whether user is offline.
-  final bool isAway;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -327,17 +228,15 @@ class AvatarWidget extends StatelessWidget {
           );
   }
 
-  /// Returns an actual interface of this
+  /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
+    return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
       if (color != null) {
-        gradient = AvatarWidget.colors[color! % AvatarWidget.colors.length];
+        gradient = colors[color! % colors.length];
       } else if (title != null) {
-        gradient =
-            AvatarWidget.colors[(title!.hashCode) % AvatarWidget.colors.length];
+        gradient = colors[(title!.hashCode) % colors.length];
       } else {
         gradient = const Color(0xFF555555);
       }
@@ -347,67 +246,44 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      double badgeSize = max(5, maxWidth / 12);
-      if (maxWidth < 40) {
-        badgeSize = maxWidth / 8;
-      }
-
-      return Badge(
-        showBadge: showBadge,
-        badgeContent: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isAway ? Colors.orange : Colors.green,
-          ),
-          padding: EdgeInsets.all(badgeSize),
+      return Container(
+        constraints: BoxConstraints(
+          minHeight: minHeight,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
         ),
-        padding: EdgeInsets.all(badgeSize / 3),
-        badgeColor: Colors.white,
-        animationType: BadgeAnimationType.scale,
-        position: BadgePosition.bottomEnd(
-          bottom: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
-          end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
-        ),
-        elevation: 0,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [gradient.lighten(), gradient],
           ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
-            ),
-            image: avatar == null
-                ? null
-                : DecorationImage(
-                    image: NetworkImage(
-                      '${Config.url}:${Config.port}/files${avatar?.original}',
-                    ),
-                    fit: BoxFit.cover,
-                    isAntiAlias: true,
+          image: avatar == null
+              ? null
+              : DecorationImage(
+                  image: NetworkImage(
+                    '${Config.url}:${Config.port}/files${avatar?.original}',
                   ),
-            shape: BoxShape.circle,
-          ),
-          child: avatar == null
-              ? LayoutBuilder(builder: (context, constraints) {
-                  return Center(
-                    child: Text(
-                      (title ?? '??').initials(),
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
-                            fontSize: 15 * (maxWidth / 40),
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  );
-                })
-              : null,
+                  fit: BoxFit.cover,
+                  isAntiAlias: true,
+                ),
+          shape: BoxShape.circle,
         ),
+        child: avatar == null
+            ? LayoutBuilder(builder: (context, constraints) {
+                return Center(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                          fontSize: 15 * (maxWidth / 40),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                );
+              })
+            : null,
       );
     });
   }
@@ -441,8 +317,8 @@ extension SumStringExtension on String {
   int sum() => codeUnits.fold(0, (int a, int b) => a + b);
 }
 
-/// Extension adding an ability to lighten or darken a color.
-extension LightenColorExtension on Color {
+/// Extension adding an ability to lighten a color.
+extension _LightenColorExtension on Color {
   /// Returns a lighten variant of this color.
   Color lighten([double amount = 0.2]) {
     assert(amount >= 0 && amount <= 1);
@@ -450,17 +326,6 @@ extension LightenColorExtension on Color {
     final HSLColor hsl = HSLColor.fromColor(this);
     final HSLColor hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0, 1));
-
-    return hslLight.toColor();
-  }
-
-  /// Returns a darken variant of this color.
-  Color darken([double amount = 0.2]) {
-    assert(amount >= 0 && amount <= 1);
-
-    final HSLColor hsl = HSLColor.fromColor(this);
-    final HSLColor hslLight =
-        hsl.withLightness((hsl.lightness - amount).clamp(0, 1));
 
     return hslLight.toColor();
   }

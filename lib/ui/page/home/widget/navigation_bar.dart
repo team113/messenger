@@ -20,8 +20,9 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
