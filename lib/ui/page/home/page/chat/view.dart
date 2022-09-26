@@ -366,7 +366,7 @@ class _ChatViewState extends State<ChatView>
                                               position: i,
                                               isTapMessage: c.isTapMessage,
                                               selections: c.selections,
-                                              onCopy: (text) =>
+                                              onCopy: (String text) =>
                                                   c.copyText(text),
                                             ));
                                           }
@@ -404,11 +404,11 @@ class _ChatViewState extends State<ChatView>
                             if ((c.chat!.status.value.isSuccess ||
                                     c.chat!.status.value.isEmpty) &&
                                 c.chat!.messages.isEmpty)
-                              const Center(
-                                child: Text('No messages'),
-                              ),
+                              const Center(child: Text('No messages')),
+
                             if (c.chat!.status.value.isLoading)
                               const Center(child: CircularProgressIndicator()),
+
                             Obx(
                               () => GestureDetector(
                                 behavior: HitTestBehavior.translucent,

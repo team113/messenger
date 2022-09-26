@@ -142,7 +142,7 @@ class ChatController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
-  /// Indicator whether tap on content.
+  /// Indicator whether tap on [CustomSelectionText].
   final Rx<bool> isTapMessage = Rx(false);
 
   /// Storage [SelectionData].
@@ -1071,17 +1071,14 @@ enum CopyableItem {
   messageFile,
 }
 
-/// Contains selected text.
-///
-/// Passed to [CustomSelectionContainer] which fills
-/// [data] with selected text.
+/// Storage part of the chat text when selected.
 class SelectionData {
   SelectionData(this.type);
 
-  /// Selected text type.
+  /// Text type.
   final CopyableItem type;
 
-  /// Selected text.
+  /// Chat text.
   final RxnString data = RxnString(null);
 
   /// Indicates whether [data] is not empty.

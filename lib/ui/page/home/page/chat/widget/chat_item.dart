@@ -98,7 +98,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Storage [SelectionData].
   final SplayTreeMap<int, List<SelectionData>>? selections;
 
-  /// Clicking on [SelectionData].
+  /// Indicator whether tap on [CustomSelectionText].
   final Rx<bool>? isTapMessage;
 
   /// Message position.
@@ -160,9 +160,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
-  /// [SplayTreeMap] of copied text.
+  /// Text storage when copying via context menu.
   ///
-  /// Key determines the order of the text
+  /// Key determines the order of the text.
   final SplayTreeMap<int, String> _copyable = SplayTreeMap();
 
   @override

@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// Area in which the text will be highlighted.
+/// [Widget] in which the text is selected.
 ///
 /// Overrides the copy action if [onCopy] is passed.
 class CustomSelectionArea extends StatelessWidget {
