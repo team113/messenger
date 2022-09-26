@@ -142,7 +142,7 @@ class ChatController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
-  /// Clicking on [SelectionData].
+  /// Indicator whether tap on content.
   final Rx<bool> isTapMessage = Rx(false);
 
   /// Storage [SelectionData].
