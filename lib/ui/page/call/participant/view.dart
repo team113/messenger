@@ -37,10 +37,11 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'search_controller.dart';
 
 typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
 
-/// View of the search modal.
+/// View of the call participants modal modal.
 class ParticipantView extends StatelessWidget {
   const ParticipantView({
     required this.searchTypes,
@@ -65,6 +66,7 @@ class ParticipantView extends StatelessWidget {
     return ParticipantView(
       key: key,
       ongoingCall: call,
+      chatId: call.value.chatId,
       callDuration: duration,
       searchTypes: const [Search.recent, Search.contacts, Search.users],
       onSubmit: onSubmit,
@@ -83,7 +85,7 @@ class ParticipantView extends StatelessWidget {
   final List<Search> searchTypes;
 
   /// ID of the [Chat] this modal is bound to.
-  final ChatId? chatId;
+  final Rx<ChatId>? chatId;
 
   /// Indicator whether searched items is selectable.
   final bool selectable;
@@ -111,332 +113,346 @@ class ParticipantView extends StatelessWidget {
         Navigator.of(context).pop,
         ongoingCall,
         Get.find(),
-        Get.find(),
-        Get.find(),
         chatId: chatId,
-        searchTypes: searchTypes,
       ),
       builder: (ParticipantController c) {
-        return Obx(() {
-          if (c.chat.value == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        return GetBuilder(
+          init: SearchController(
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            chatId: chatId,
+            searchTypes: searchTypes,
+          ),
+          builder: (SearchController s) {
+            return Obx(() {
+              if (c.chat.value == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          Widget tile({
-            RxUser? user,
-            RxChatContact? contact,
-            void Function()? onTap,
-            bool selected = false,
-          }) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: ContactTile(
-                contact: contact,
-                user: user,
-                onTap: onTap,
-                selected: selected,
-                trailing: [
-                  if (selectable)
-                    SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: selected
-                            ? const CircleAvatar(
-                                backgroundColor: Color(0xFF63B4FF),
-                                radius: 12,
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                              )
-                            : const CircleAvatar(
-                                backgroundColor: Color(0xFFD7D7D7),
-                                radius: 12,
-                              ),
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }
-
-          Widget child;
-
-          switch (c.stage.value) {
-            case SearchFlowStage.search:
-              List<Widget> children = [
-                Center(
-                  child: Text(
-                    title,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Padding(
+              Widget tile({
+                RxUser? user,
+                RxChatContact? contact,
+                void Function()? onTap,
+                bool selected = false,
+              }) {
+                return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Center(
-                    child: ReactiveTextField(
-                      state: c.search,
-                      label: 'label_search'.l10n,
-                      style: thin,
-                      onChanged: () => c.query.value = c.search.text,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                SizedBox(
-                  height: 17,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Builder(builder: (context) {
-                          List<Widget> widgets = [];
-
-                          if (searchTypes.contains(Search.recent)) {
-                            widgets.add(_type(c, Search.recent, thin));
-                          }
-
-                          if (searchTypes.contains(Search.contacts)) {
-                            if (widgets.isNotEmpty) {
-                              widgets.add(const SizedBox(width: 20));
-                            }
-                            widgets.add(_type(c, Search.contacts, thin));
-                          }
-
-                          if (searchTypes.contains(Search.users)) {
-                            if (widgets.isNotEmpty) {
-                              widgets.add(const SizedBox(width: 20));
-                            }
-                            widgets.add(_type(c, Search.users, thin));
-                          }
-
-                          return ListView(
-                            scrollDirection: Axis.horizontal,
-                            shrinkWrap: true,
-                            children: widgets,
-                          );
-                        }),
-                      ),
-                      Obx(() {
-                        return Text(
-                          'label_selected'.l10nfmt({
-                            'count': c.selectedContacts.length +
-                                c.selectedUsers.length
-                          }),
-                          style: thin?.copyWith(fontSize: 15),
-                        );
-                      }),
-                      const SizedBox(width: 10),
+                  child: ContactTile(
+                    contact: contact,
+                    user: user,
+                    onTap: onTap,
+                    selected: selected,
+                    trailing: [
+                      if (selectable)
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: AnimatedSwitcher(
+                            duration: 200.milliseconds,
+                            child: selected
+                                ? const CircleAvatar(
+                                    backgroundColor: Color(0xFF63B4FF),
+                                    radius: 12,
+                                    child: Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  )
+                                : const CircleAvatar(
+                                    backgroundColor: Color(0xFFD7D7D7),
+                                    radius: 12,
+                                  ),
+                          ),
+                        ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: Obx(() {
-                    if (c.recent.isEmpty &&
-                        c.contacts.isEmpty &&
-                        c.users.isEmpty) {
-                      if (c.searchStatus.value.isSuccess) {
-                        return Center(child: Text('label_nothing_found'.l10n));
-                      } else if (c.searchStatus.value.isEmpty) {
-                        return Center(
-                          child: Text('label_use_search'.l10n),
-                        );
-                      }
+                );
+              }
 
-                      return const Center(child: CircularProgressIndicator());
-                    }
+              Widget child;
 
-                    return FlutterListView(
-                      controller: c.controller,
-                      delegate: FlutterListViewDelegate(
-                        (context, i) {
-                          dynamic e = c.getIndex(i);
+              switch (c.stage.value) {
+                case SearchFlowStage.search:
+                  List<Widget> children = [
+                    Center(
+                      child: Text(
+                        title,
+                        style: thin?.copyWith(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Center(
+                        child: ReactiveTextField(
+                          state: s.search,
+                          label: 'label_search'.l10n,
+                          style: thin,
+                          onChanged: () => s.query.value = s.search.text,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    SizedBox(
+                      height: 17,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Builder(builder: (context) {
+                              List<Widget> widgets = [];
 
-                          if (e is RxUser) {
-                            return Column(
-                              children: [
-                                if (i > 0) const SizedBox(height: 7),
-                                Obx(() {
-                                  return tile(
-                                    user: e,
-                                    selected: c.selectedUsers.contains(e),
-                                    onTap: () => selectable
-                                        ? c.selectUser(e)
-                                        : onItemTap?.call(e),
-                                  );
-                                }),
-                              ],
+                              if (searchTypes.contains(Search.recent)) {
+                                widgets.add(_type(s, Search.recent, thin));
+                              }
+
+                              if (searchTypes.contains(Search.contacts)) {
+                                if (widgets.isNotEmpty) {
+                                  widgets.add(const SizedBox(width: 20));
+                                }
+                                widgets.add(_type(s, Search.contacts, thin));
+                              }
+
+                              if (searchTypes.contains(Search.users)) {
+                                if (widgets.isNotEmpty) {
+                                  widgets.add(const SizedBox(width: 20));
+                                }
+                                widgets.add(_type(s, Search.users, thin));
+                              }
+
+                              return ListView(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                children: widgets,
+                              );
+                            }),
+                          ),
+                          Obx(() {
+                            return Text(
+                              'label_selected'.l10nfmt({
+                                'count': s.selectedContacts.length +
+                                    s.selectedUsers.length
+                              }),
+                              style: thin?.copyWith(fontSize: 15),
                             );
-                          } else if (e is RxChatContact) {
-                            return Column(
-                              children: [
-                                if (i > 0) const SizedBox(height: 7),
-                                Obx(() {
-                                  return tile(
-                                    contact: e,
-                                    selected: c.selectedContacts.contains(e),
-                                    onTap: () => selectable
-                                        ? c.selectContact(e)
-                                        : onItemTap?.call(e),
-                                  );
-                                }),
-                              ],
+                          }),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Expanded(
+                      child: Obx(() {
+                        if (s.recent.isEmpty &&
+                            s.contacts.isEmpty &&
+                            s.users.isEmpty) {
+                          if (s.searchStatus.value.isSuccess) {
+                            return Center(
+                                child: Text('label_nothing_found'.l10n));
+                          } else if (s.searchStatus.value.isEmpty) {
+                            return Center(
+                              child: Text('label_use_search'.l10n),
                             );
                           }
 
-                          return Container();
-                        },
-                        childCount: c.contacts.length +
-                            c.users.length +
-                            c.recent.length,
-                      ),
-                    );
-                  }),
-                ),
-                if (onSubmit != null && submitLabel != null) ...[
-                  const SizedBox(height: 18),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      children: [
-                        if (ongoingCall != null) ...[
-                          Expanded(
-                            child: OutlinedRoundedButton(
-                              key: const Key('BackButton'),
-                              maxWidth: null,
-                              title: Text(
-                                'btn_back'.l10n,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              onPressed: () =>
-                                  c.stage.value = SearchFlowStage.participants,
-                              color: const Color(0xFF63B4FF),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                        Expanded(
-                          child: Obx(() {
-                            bool enabled = (c.selectedContacts.isNotEmpty ||
-                                    c.selectedUsers.isNotEmpty) &&
-                                c.status.value.isEmpty;
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
 
-                            return OutlinedRoundedButton(
-                              key: const Key('SearchSubmitButton'),
-                              maxWidth: null,
-                              title: Text(
-                                submitLabel!,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: enabled ? Colors.white : Colors.black,
+                        return FlutterListView(
+                          controller: s.controller,
+                          delegate: FlutterListViewDelegate(
+                            (context, i) {
+                              dynamic e = s.getIndex(i);
+
+                              if (e is RxUser) {
+                                return Column(
+                                  children: [
+                                    if (i > 0) const SizedBox(height: 7),
+                                    Obx(() {
+                                      return tile(
+                                        user: e,
+                                        selected: s.selectedUsers.contains(e),
+                                        onTap: () => selectable
+                                            ? s.selectUser(e)
+                                            : onItemTap?.call(e),
+                                      );
+                                    }),
+                                  ],
+                                );
+                              } else if (e is RxChatContact) {
+                                return Column(
+                                  children: [
+                                    if (i > 0) const SizedBox(height: 7),
+                                    Obx(() {
+                                      return tile(
+                                        contact: e,
+                                        selected:
+                                            s.selectedContacts.contains(e),
+                                        onTap: () => selectable
+                                            ? s.selectContact(e)
+                                            : onItemTap?.call(e),
+                                      );
+                                    }),
+                                  ],
+                                );
+                              }
+
+                              return Container();
+                            },
+                            childCount: s.contacts.length +
+                                s.users.length +
+                                s.recent.length,
+                          ),
+                        );
+                      }),
+                    ),
+                    if (onSubmit != null && submitLabel != null) ...[
+                      const SizedBox(height: 18),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            if (ongoingCall != null) ...[
+                              Expanded(
+                                child: OutlinedRoundedButton(
+                                  key: const Key('BackButton'),
+                                  maxWidth: null,
+                                  title: Text(
+                                    'btn_back'.l10n,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  onPressed: () => c.stage.value =
+                                      SearchFlowStage.participants,
+                                  color: const Color(0xFF63B4FF),
                                 ),
                               ),
-                              onPressed: () =>
-                                  enabled ? c.submit(onSubmit!) : null,
-                              color: enabled
-                                  ? const Color(0xFF63B4FF)
-                                  : const Color(0xFFEEEEEE),
-                            );
-                          }),
+                              const SizedBox(width: 10),
+                            ],
+                            Expanded(
+                              child: Obx(() {
+                                bool enabled = (s.selectedContacts.isNotEmpty ||
+                                        s.selectedUsers.isNotEmpty) &&
+                                    c.status.value.isEmpty;
+
+                                return OutlinedRoundedButton(
+                                  key: const Key('SearchSubmitButton'),
+                                  maxWidth: null,
+                                  title: Text(
+                                    submitLabel!,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color:
+                                          enabled ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: () => enabled
+                                      ? c.submit(onSubmit!, s.selected())
+                                      : null,
+                                  color: enabled
+                                      ? const Color(0xFF63B4FF)
+                                      : const Color(0xFFEEEEEE),
+                                );
+                              }),
+                            ),
+                          ],
                         ),
+                      )
+                    ],
+                  ];
+
+                  child = Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+                    constraints: const BoxConstraints(maxHeight: 650),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const SizedBox(height: 16),
+                        ...children,
+                        const SizedBox(height: 16),
                       ],
                     ),
-                  )
-                ],
-              ];
+                  );
+                  break;
 
-              child = Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-                constraints: const BoxConstraints(maxHeight: 650),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const SizedBox(height: 16),
-                    ...children,
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                case SearchFlowStage.participants:
+                  List<Widget> children = [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: _chat(context, c.chat.value),
+                    ),
+                    const SizedBox(height: 25),
+                    Center(
+                      child: Text(
+                        'label_participants'.l10n,
+                        style: thin?.copyWith(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Expanded(
+                      child: ListView(
+                        physics: const ScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        children: c.chat.value!.members.values.map((e) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: _user(c, e),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: _addParticipant(context, c, s),
+                    ),
+                  ];
+
+                  child = Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+                    constraints: const BoxConstraints(maxHeight: 650),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 16),
+                        ...children,
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  );
+                  break;
+              }
+
+              return AnimatedSizeAndFade(
+                fadeDuration: const Duration(milliseconds: 250),
+                sizeDuration: const Duration(milliseconds: 250),
+                child: child,
               );
-              break;
-
-            case SearchFlowStage.participants:
-              List<Widget> children = [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: _chat(context, c.chat.value),
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: Text(
-                    'label_participants'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: ListView(
-                    physics: const ScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    children: c.chat.value!.members.values.map((e) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: _user(c, e),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: _addParticipant(context, c),
-                ),
-              ];
-
-              child = Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-                constraints: const BoxConstraints(maxHeight: 650),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 16),
-                    ...children,
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              );
-              break;
-          }
-
-          return AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: child,
-          );
-        });
+            });
+          },
+        );
       },
     );
   }
 
   /// Returns button to jump to the provided [Search] type search results.
-  Widget _type(ParticipantController c, Search type, TextStyle? textStyle) {
+  Widget _type(SearchController s, Search type, TextStyle? textStyle) {
     return WidgetButton(
-      onPressed: () => c.jumpTo(type),
+      onPressed: () => s.jumpTo(type),
       child: Obx(() {
         return Text(
           type.name.capitalizeFirst!,
           style: textStyle?.copyWith(
             fontSize: 15,
-            color: c.selected.value == type ? const Color(0xFF63B4FF) : null,
+            color:
+                s.selectedSearch.value == type ? const Color(0xFF63B4FF) : null,
           ),
         );
       }),
@@ -570,7 +586,11 @@ class ParticipantView extends StatelessWidget {
   }
 
   /// Returns button to change stage to [SearchFlowStage.search].
-  Widget _addParticipant(BuildContext context, ParticipantController c) {
+  Widget _addParticipant(
+    BuildContext context,
+    ParticipantController c,
+    SearchController s,
+  ) {
     return OutlinedRoundedButton(
       maxWidth: null,
       title: Text(
@@ -581,13 +601,13 @@ class ParticipantView extends StatelessWidget {
       ),
       onPressed: () {
         c.status.value = RxStatus.empty();
-        c.selectedContacts.clear();
-        c.selectedUsers.clear();
-        c.searchResults.value = null;
-        c.searchStatus.value = RxStatus.empty();
-        c.query.value = null;
-        c.search.clear();
-        c.populate();
+        s.selectedContacts.clear();
+        s.selectedUsers.clear();
+        s.searchResults.value = null;
+        s.searchStatus.value = RxStatus.empty();
+        s.query.value = null;
+        s.search.clear();
+        s.populate();
         c.stage.value = SearchFlowStage.search;
       },
       color: const Color(0xFF63B4FF),
