@@ -122,6 +122,7 @@ btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
     камеру
+btn_change = Сменить
 btn_change_contact_name = Переименовать контакт
 btn_change_password = Сменить пароль
 btn_close = Закрыть
@@ -151,6 +152,8 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_personalize = Персонализация
+btn_remove = Удалить
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
@@ -439,6 +442,7 @@ label_read_by = Прочитано
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
+label_personalization = Персонализация
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено

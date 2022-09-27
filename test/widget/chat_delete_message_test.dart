@@ -37,6 +37,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -262,6 +263,8 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
   var chatItemHiveProvider = ChatItemHiveProvider(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init();
@@ -302,7 +305,12 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
     AbstractCallRepository callRepository =
