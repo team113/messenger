@@ -292,6 +292,9 @@ type Chat {
   """Indicator whether this `Chat` is hidden by the authenticated `MyUser`."""
   isHidden: Boolean!
 
+  """`ChatItem` of this `Chat` by its ID."""
+  item(id: ChatItemId!): ChatItemsEdge
+
   """
   `ChatItem`s of this `Chat` ordered by their posting time.
 
@@ -5990,6 +5993,21 @@ type Query {
     """
     noFavorite: Boolean = false
   ): ChatContactsConnection!
+
+  """
+  Returns a `ChatItem` by its ID.
+
+  The authenticated `MyUser` should be a member of the `Chat` the provided
+  `ChatItem` belongs to, in order to view it.
+
+  ## Authentication
+
+  Mandatory.
+  """
+  chatItem(
+    """ID of the `ChatItem` to be returned."""
+    id: ChatItemId!
+  ): ChatItemsEdge
 
   """
   Indicates whether some `User` can be identified by the given `num`,
