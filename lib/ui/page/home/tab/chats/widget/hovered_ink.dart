@@ -74,6 +74,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
+      position: DecorationPosition.foreground,
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius,
         border: isHovered ? widget.hoveredBorder : widget.unhoveredBorder,
