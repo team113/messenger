@@ -89,7 +89,7 @@ class SearchView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        chat: chat ?? Rx(null),
+        chat: chat,
         searchTypes: searchTypes,
       ),
       builder: (SearchController c) {

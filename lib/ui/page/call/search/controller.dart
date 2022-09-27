@@ -52,11 +52,11 @@ class SearchController extends GetxController {
     this._userService,
     this._contactService, {
     required this.searchTypes,
-    required this.chat,
+    this.chat,
   });
 
   /// ID of the [Chat] this controller is bound to.
-  final Rx<RxChat?> chat;
+  final Rx<RxChat?>? chat;
 
   /// Reactive list of the selected [ChatContact]s.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
@@ -309,7 +309,7 @@ class SearchController extends GetxController {
                     .firstWhereOrNull((u) => u.user.value.id != me);
 
                 if (user != null &&
-                    chat.value?.members.containsKey(user.id) != true) {
+                    chat?.value?.members.containsKey(user.id) != true) {
                   if (query.value != null) {
                     if (user.user.value.name?.val.contains(query.value!) ==
                         true) {
@@ -335,7 +335,7 @@ class SearchController extends GetxController {
           if (e.contact.value.users.length == 1) {
             RxUser? user = e.user.value;
 
-            if (chat.value?.members.containsKey(user?.id) != true &&
+            if (chat?.value?.members.containsKey(user?.id) != true &&
                 !recent.containsKey(user?.id)) {
               if (query.value != null) {
                 if (e.contact.value.name.val.contains(query.value!) == true) {
@@ -376,7 +376,7 @@ class SearchController extends GetxController {
       if (searchResults.value?.isNotEmpty == true) {
         Map<UserId, RxUser> allUsers = {
           for (var u in searchResults.value!.where((e) {
-            if (chat.value?.members.containsKey(e.id) != true &&
+            if (chat?.value?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id)) {
               return true;
@@ -407,7 +407,7 @@ class SearchController extends GetxController {
               RxUser? user = e.members.values
                   .firstWhereOrNull((u) => u.user.value.id != me);
 
-              if (chat.value?.members.containsKey(user?.id) != true &&
+              if (chat?.value?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id)) {
                 if (query.value != null) {
