@@ -237,10 +237,9 @@ class ParticipantsView extends StatelessWidget {
       onTap: () {},
       trailing: [
         Obx(() {
-          bool inCall =
-              ongoingCall.value.members.keys
-                  .where((e) => e.userId == user.id)
-                  .isNotEmpty;
+          bool inCall = ongoingCall.value.members.keys
+              .where((e) => e.userId == user.id)
+              .isNotEmpty;
 
           if (!inCall) {
             return Padding(

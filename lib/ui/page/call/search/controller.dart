@@ -52,7 +52,7 @@ class SearchController extends GetxController {
     this._userService,
     this._contactService, {
     required this.searchTypes,
-        required this.chat,
+    required this.chat,
   });
 
   /// ID of the [Chat] this controller is bound to.
