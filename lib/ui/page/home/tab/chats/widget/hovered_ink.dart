@@ -92,6 +92,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
           borderRadius: widget.borderRadius,
           onTap: widget.onTap?.call,
           onHover: (bool isHover) => setState(() => isHovered = isHover),
+          hoverColor: Colors.transparent,
           child: widget.child,
         ),
       ),
