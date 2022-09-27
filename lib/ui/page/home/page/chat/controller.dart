@@ -91,9 +91,6 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
-  /// First [ChatItem] unread by the authenticated [MyUser] in this [Chat].
-  final Rx<Rx<ChatItem>?> firstUnreadItem = Rx<Rx<ChatItem>?>(null);
-
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -108,6 +105,9 @@ class ChatController extends GetxController {
   /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
   /// - `status.isSuccess`, meaning [chat] is successfully fetched.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// [RxSplayTreeMap] of the [ListElement]s to display.
+  final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
   /// State of a send message field.
   late final TextFieldState send;
@@ -153,12 +153,20 @@ class ChatController extends GetxController {
   /// [FlutterListView].
   FlutterListViewItemPosition? _lastVisibleItem;
 
+  /// First [ChatItem] unread by the authenticated [MyUser] in this [Chat].
+  ///
+  /// Used to scroll to it when [Chat] messages are fetched and to properly
+  /// place the unread messages badge in the [elements] list.
+  Rx<ChatItem>? _firstUnreadItem;
+
   /// [FlutterListViewItemPosition] of the [ChatItem] to return to when the
   /// return FAB is pressed.
   FlutterListViewItemPosition? _itemToReturnTo;
 
-  /// [ChatItem] with the latest post date that was visible on the screen.
-  final Rx<ChatItem?> _itemReadTo = Rx<ChatItem?>(null);
+  /// [ChatItem] with the latest [ChatItem.at] visible on the screen.
+  ///
+  /// Used to [readChat] up to this message.
+  final Rx<ChatItem?> _lastSeenItem = Rx<ChatItem?>(null);
 
   /// [Duration] considered as a timeout of the ongoing typing.
   static const Duration _typingDuration = Duration(seconds: 3);
@@ -173,9 +181,6 @@ class ChatController extends GetxController {
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
-
-  /// [RxSplayTreeMap] of the [ListElement]s to display.
-  final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
 
   /// Currently displayed [UnreadMessagesElement] in the [elements] list.
   UnreadMessagesElement? _unreadElement;
@@ -443,7 +448,7 @@ class ChatController extends GetxController {
           bool insert = true;
 
           // Combine this [ChatMessage] with previous [ChatForward], if it was
-          // posted less than [groupForwardThreshold] delay.
+          // posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement) {
             if (previous.authorId == item.authorId &&
                 item.at.val.difference(previous.forwards.last.value.at.val) <
@@ -459,10 +464,10 @@ class ChatController extends GetxController {
           }
         } else if (item is ChatCall) {
           ChatCallElement element = ChatCallElement(e);
-          elements[element.id] = ChatCallElement(e);
+          elements[element.id] = element;
         } else if (item is ChatMemberInfo) {
           ChatMemberInfoElement element = ChatMemberInfoElement(e);
-          elements[element.id] = ChatMemberInfoElement(e);
+          elements[element.id] = element;
         } else if (item is ChatForward) {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
@@ -477,18 +482,18 @@ class ChatController extends GetxController {
 
           if (previous is ChatForwardElement) {
             // Combine this [ChatForward] with previous [ChatForward], if it was
-            // posted less than [groupForwardThreshold] delay.
+            // posted less than [groupForwardThreshold] ago.
             if (previous.authorId == item.authorId &&
                 item.at.val.difference(previous.forwards.last.value.at.val) <
                     groupForwardThreshold) {
               previous.forwards.add(e);
               previous.forwards
-                  .sort((f1, f2) => f1.value.at.compareTo(f2.value.at));
+                  .sort((a, b) => a.value.at.compareTo(b.value.at));
               insert = false;
             }
           } else if (previous is ChatMessageElement) {
             // Combine the previous [ChatMessage] with this [ChatForward], if it
-            // was posted less than [groupForwardThreshold] delay.
+            // was posted less than [groupForwardThreshold] ago.
             if (previous.item.value.authorId == item.authorId &&
                 item.at.val.difference(previous.item.value.at.val) <
                     groupForwardThreshold) {
@@ -626,8 +631,6 @@ class ChatController extends GetxController {
         if (positions.isNotEmpty) {
           _topVisibleItem = positions.first;
 
-          // TODO: This might be called 60 times per scroll, so this algorithm
-          //       should be optimized.
           _lastVisibleItem = positions.lastWhereOrNull((e) {
             ListElement element = elements.values.elementAt(e.index);
             return (element is ChatMessageElement &&
@@ -643,16 +646,19 @@ class ChatController extends GetxController {
           if (_lastVisibleItem != null && status.value.isSuccess) {
             ListElement element =
                 elements.values.elementAt(_lastVisibleItem!.index);
-            if (_itemReadTo.value == null ||
-                element.id.at.isAfter(_itemReadTo.value!.at)) {
+
+            // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
+            // then set the [_lastSeenItem] to this item.
+            if (_lastSeenItem.value == null ||
+                element.id.at.isAfter(_lastSeenItem.value!.at)) {
               if (element is ChatMessageElement) {
-                _itemReadTo.value = element.item.value;
+                _lastSeenItem.value = element.item.value;
               } else if (element is ChatMemberInfoElement) {
-                _itemReadTo.value = element.item.value;
+                _lastSeenItem.value = element.item.value;
               } else if (element is ChatCallElement) {
-                _itemReadTo.value = element.item.value;
+                _lastSeenItem.value = element.item.value;
               } else if (element is ChatForwardElement) {
-                _itemReadTo.value =
+                _lastSeenItem.value =
                     element.note.value?.value ?? element.forwards.last.value;
               }
             }
@@ -660,7 +666,7 @@ class ChatController extends GetxController {
         }
       };
 
-      _readWorker ??= debounce(_itemReadTo, readChat, time: 1.seconds);
+      _readWorker ??= debounce(_lastSeenItem, readChat, time: 1.seconds);
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
@@ -697,20 +703,20 @@ class ChatController extends GetxController {
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
 
-      Rx<ChatItem>? firstUnread = firstUnreadItem.value;
+      Rx<ChatItem>? firstUnread = _firstUnreadItem;
       _determineLastRead();
 
       // Scroll to the last message if [_lastRead] was updated. Otherwise,
       // [FlutterListViewDelegate.keepPosition] handles this as the last read
       // item is already in the list.
-      if (firstUnread?.value.id != firstUnreadItem.value?.value.id) {
+      if (firstUnread?.value.id != _firstUnreadItem?.value.id) {
         _scrollToLast();
       }
 
       status.value = RxStatus.success();
 
-      if (_itemReadTo.value != null) {
-        readChat(_itemReadTo.value);
+      if (_lastSeenItem.value != null) {
+        readChat(_lastSeenItem.value);
       }
     }
   }
@@ -1016,23 +1022,23 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Determines the [firstUnreadItem] of the authenticated [MyUser] from the
+  /// Determines the [_firstUnreadItem] of the authenticated [MyUser] from the
   /// [RxChat.messages] list.
   void _determineLastRead() {
     PreciseDateTime? myRead = chat!.chat.value.lastReads
         .firstWhereOrNull((e) => e.memberId == me)
         ?.at;
     if (chat!.chat.value.unreadCount != 0 && myRead != null) {
-      firstUnreadItem.value = chat!.messages.firstWhereOrNull(
+      _firstUnreadItem = chat!.messages.firstWhereOrNull(
         (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
       );
 
-      if (firstUnreadItem.value != null) {
+      if (_firstUnreadItem != null) {
         if (_unreadElement != null) {
           elements.remove(_unreadElement!.id);
         }
 
-        PreciseDateTime key = firstUnreadItem.value!.value.at;
+        PreciseDateTime key = _firstUnreadItem!.value.at;
         key = key.subtract(const Duration(microseconds: 1));
         _unreadElement = UnreadMessagesElement(key);
         elements[_unreadElement!.id] = _unreadElement!;
@@ -1058,9 +1064,10 @@ class ChatController extends GetxController {
         if (chat!.chat.value.unreadCount == 0) {
           index = elements.length - 1;
           offset = 0;
-        } else if (firstUnreadItem.value != null) {
-          int i = elements.values.toList().indexWhere(
-              (e) => e.id.id == firstUnreadItem.value!.value.id.val);
+        } else if (_firstUnreadItem != null) {
+          int i = elements.values
+              .toList()
+              .indexWhere((e) => e.id.id == _firstUnreadItem!.value.id.val);
           if (i != -1) {
             index = i;
             offset = (MediaQuery.of(router.context!).size.height) / 3;
@@ -1125,6 +1132,8 @@ class ListElementId implements Comparable<ListElementId> {
   final PreciseDateTime at;
 
   /// [String] making this [ListElementId] even more unique.
+  ///
+  /// Intended to be a [ChatItemId] value.
   final String id;
 
   @override

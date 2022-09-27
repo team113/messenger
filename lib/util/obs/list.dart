@@ -73,7 +73,8 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
       ObsList(List<E>.unmodifiable(elements));
 
   /// [StreamController] of changes of this list.
-  final _changes = StreamController<ListChangeNotification<E>>.broadcast();
+  final _changes =
+      StreamController<ListChangeNotification<E>>.broadcast(sync: true);
 
   /// Returns stream of changes of this list.
   Stream<ListChangeNotification<E>> get changes => _changes.stream;

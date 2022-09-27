@@ -167,7 +167,7 @@ abstract class RxChat {
   Rx<Chat> get chat;
 
   // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
-  // [PreciseDateTime] and [ChatItemId] as a key.
+  //       [PreciseDateTime] and [ChatItemId] as a key.
   /// Observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages;
 
