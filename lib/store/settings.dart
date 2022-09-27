@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -23,12 +24,17 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
+import '/provider/hive/background.dart';
 import '/provider/hive/media_settings.dart';
 
 /// Application settings repository.
 class SettingsRepository extends DisposableInterface
     implements AbstractSettingsRepository {
-  SettingsRepository(this._mediaLocal, this._settingsLocal);
+  SettingsRepository(
+    this._mediaLocal,
+    this._settingsLocal,
+    this._backgroundLocal,
+  );
 
   @override
   final Rx<MediaSettings?> mediaSettings = Rx(null);
@@ -36,11 +42,17 @@ class SettingsRepository extends DisposableInterface
   @override
   final Rx<ApplicationSettings?> applicationSettings = Rx(null);
 
+  @override
+  final Rx<Uint8List?> background = Rx(null);
+
   /// [MediaSettings] local [Hive] storage.
   final MediaSettingsHiveProvider _mediaLocal;
 
   /// [ApplicationSettings] local [Hive] storage.
   final ApplicationSettingsHiveProvider _settingsLocal;
+
+  /// [HiveBackground] local [Hive] storage.
+  final BackgroundHiveProvider _backgroundLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
@@ -48,12 +60,18 @@ class SettingsRepository extends DisposableInterface
   /// [ApplicationSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _settingsSubscription;
 
+  /// [BackgroundHiveProvider.boxEvents] subscription.
+  StreamIterator? _backgroundSubscription;
+
   @override
   void onInit() {
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
+    background.value = _backgroundLocal.bytes;
     _initMediaSubscription();
     _initSettingsSubscription();
+    _initBackgroundSubscription();
+
     super.onInit();
   }
 
@@ -61,6 +79,7 @@ class SettingsRepository extends DisposableInterface
   void onClose() {
     _mediaSubscription?.cancel();
     _settingsSubscription?.cancel();
+    _backgroundSubscription?.cancel();
     super.onClose();
   }
 
@@ -91,6 +110,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setSideBarWidth(double width) =>
       _settingsLocal.setSideBarWidth(width);
 
+  @override
+  Future<void> setBackground(Uint8List? bytes) =>
+      bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);
@@ -115,6 +138,20 @@ class SettingsRepository extends DisposableInterface
       } else {
         applicationSettings.value = event.value;
         applicationSettings.refresh();
+      }
+    }
+  }
+
+  /// Initializes [BackgroundHiveProvider.boxEvents] subscription.
+  Future<void> _initBackgroundSubscription() async {
+    _backgroundSubscription = StreamIterator(_backgroundLocal.boxEvents);
+    while (await _backgroundSubscription!.moveNext()) {
+      BoxEvent event = _backgroundSubscription!.current;
+      if (event.deleted) {
+        background.value = null;
+      } else {
+        background.value = event.value.bytes;
+        background.refresh();
       }
     }
   }

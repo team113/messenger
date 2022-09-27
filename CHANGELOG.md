@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
         - Message splitting when character limit is exceeded ([#115], [#100]);
         - Send field multiline support ([#139]);
         - Attachments downloading and sharing ([#12], [#11]).
+    - Background setting and removing ([#129], [#123]).
 - Deployment:
     - [Helm] chart ([#73], [#85]).
 
@@ -113,7 +114,9 @@ All user visible changes to this project will be documented in this file. This p
 [#115]: /../../pull/115
 [#117]: /../../pull/117
 [#122]: /../../issues/122
+[#123]: /../../issues/123
 [#127]: /../../pull/127
+[#129]: /../../pull/129
 [#139]: /../../pull/139
 
 
