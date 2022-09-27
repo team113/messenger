@@ -324,7 +324,7 @@ class SearchController extends GetxController {
               if (e.chat.value.isDialog) {
                 RxUser? user = e.members.values
                     .firstWhereOrNull((u) => u.user.value.id != me);
-                
+
                 if (user != null &&
                     chat.value?.members.containsKey(user.id) != true) {
                   if (query.value != null) {
