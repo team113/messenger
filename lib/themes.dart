@@ -38,14 +38,14 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
-            cardRadius: BorderRadius.circular(14),
-            cardColor: Colors.white.withOpacity(0.95),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
+            cardColor: Colors.white.withOpacity(0.95),
+            cardRadius: BorderRadius.circular(14),
             sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
@@ -245,15 +245,15 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.cardRadius,
+    required this.boldBody,
     required this.cardBorder,
     required this.cardColor,
-    required this.boldBody,
+    required this.cardRadius,
     required this.sidebarColor,
   });
 
-  /// [BorderRadius] to use in  card-like [Widget]s.
-  final BorderRadius cardRadius;
+  /// [TextStyle] to use in the body to make content readable.
+  final TextStyle boldBody;
 
   /// [Border] to use in card-like [Widget]s.
   final Border cardBorder;
@@ -261,25 +261,25 @@ class Style extends ThemeExtension<Style> {
   /// Background [Color] to use in card-like [Widget]s.
   final Color cardColor;
 
-  /// [TextStyle] to use in the body to make content readable.
-  final TextStyle boldBody;
+  /// [BorderRadius] to use in card-like [Widget]s.
+  final BorderRadius cardRadius;
 
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
   @override
   ThemeExtension<Style> copyWith({
-    BorderRadius? cardRadius,
+    TextStyle? boldBody,
     Border? cardBorder,
     Color? cardColor,
-    TextStyle? boldBody,
+    BorderRadius? cardRadius,
     Color? sidebarColor,
   }) {
     return Style(
-      cardRadius: cardRadius ?? this.cardRadius,
+      boldBody: boldBody ?? this.boldBody,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
-      boldBody: boldBody ?? this.boldBody,
+      cardRadius: cardRadius ?? this.cardRadius,
       sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
@@ -291,10 +291,10 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
-      cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
-      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }

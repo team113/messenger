@@ -1009,7 +1009,7 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [ParticipantView].
+  /// Returns a result of the [showDialog] building an [ParticipantsView].
   Future<dynamic> openAddMember(BuildContext context) {
     keepUi(false);
     return ModalPopup.show(
@@ -1024,7 +1024,7 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantView.call(_currentCall, duration, addMembers),
+      child: ParticipantsView(ongoingCall: _currentCall, callDuration: duration, onSubmit: addMembers,),
     );
   }
 

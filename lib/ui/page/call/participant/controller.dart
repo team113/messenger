@@ -30,32 +30,28 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Possible [ParticipantView] flow stage.
-enum SearchFlowStage {
+typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
+
+/// Possible [ParticipantsView] flow stage.
+enum ParticipantsFlowStage {
   search,
   participants,
 }
 
 /// Controller of the call participants modal.
 class ParticipantController extends GetxController {
-  ParticipantController(
-    this.pop,
-    this._call,
-    this._chatService, {
-    Rx<ChatId>? chatId,
-  })  : stage = _call != null
-            ? Rx(SearchFlowStage.participants)
-            : Rx(SearchFlowStage.search),
-        _chatId = chatId ?? _call?.value.chatId;
+  ParticipantController(this.pop, this._call, this._chatService)
+      : _chatId = _call.value.chatId;
 
   /// Reactive state of the [Chat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Pops the [ParticipantView] this controller is bound to.
+  /// Pops the [ParticipantsView] this controller is bound to.
   final Function() pop;
 
-  /// [SearchFlowStage] of this addition modal.
-  final Rx<SearchFlowStage> stage;
+  /// [ParticipantsFlowStage] of this addition modal.
+  final Rx<ParticipantsFlowStage> stage =
+      Rx(ParticipantsFlowStage.participants);
 
   /// Status of an [submit] completion.
   ///
@@ -71,7 +67,7 @@ class ParticipantController extends GetxController {
   Worker? _chatIdWorker;
 
   /// The [OngoingCall] that this modal is bound to.
-  final Rx<OngoingCall>? _call;
+  final Rx<OngoingCall> _call;
 
   /// ID of the [Chat] this modal is bound to.
   final Rx<ChatId>? _chatId;
@@ -81,9 +77,6 @@ class ParticipantController extends GetxController {
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
-
-  /// Returns [MyUser]'s [UserId].
-  UserId? get me => _chatService.me;
 
   /// ID of the [Chat] this modal is bound to.
   Rx<ChatId>? get chatId => _chatId;
@@ -112,13 +105,11 @@ class ParticipantController extends GetxController {
       _chatIdWorker = ever(chatId!, (_) => _fetchChat());
     }
 
-    if (_call != null) {
-      _stateWorker = ever(_call!.value.state, (state) {
-        if (state == OngoingCallState.ended) {
-          pop();
-        }
-      });
-    }
+    _stateWorker = ever(_call.value.state, (state) {
+      if (state == OngoingCallState.ended) {
+        pop();
+      }
+    });
 
     super.onInit();
   }
@@ -138,18 +129,14 @@ class ParticipantController extends GetxController {
   }
 
   /// Calls the provided [callback] and closes this modal or changes stage to
-  /// [SearchFlowStage.participants] if bound to an [OngoingCall].
+  /// [ParticipantsFlowStage.participants] if bound to an [OngoingCall].
   Future<void> submit(SubmitCallback callback, List<UserId> ids) async {
     status.value = RxStatus.loading();
 
     try {
       await callback(ids);
 
-      if (_call != null) {
-        stage.value = SearchFlowStage.participants;
-      } else {
-        pop();
-      }
+      stage.value = ParticipantsFlowStage.participants;
     } finally {
       status.value = RxStatus.empty();
     }

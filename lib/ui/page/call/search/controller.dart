@@ -31,6 +31,8 @@ import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
 
+export 'view.dart';
+
 /// Type of searching.
 enum Search {
   /// Recent users.
@@ -50,14 +52,11 @@ class SearchController extends GetxController {
     this._userService,
     this._contactService, {
     required this.searchTypes,
-    this.chatId,
+        required this.chat,
   });
 
-  /// Reactive state of the [Chat] this controller is bound to.
-  Rx<RxChat?> chat = Rx(null);
-
   /// ID of the [Chat] this controller is bound to.
-  final Rx<ChatId>? chatId;
+  final Rx<RxChat?> chat;
 
   /// Reactive list of the selected [ChatContact]s.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
@@ -131,9 +130,7 @@ class SearchController extends GetxController {
   void onInit() {
     assert(searchTypes.isNotEmpty);
 
-    if (chatId != null) {
-      _chatIdWorker = ever(chatId!, (_) => _fetchChat());
-    }
+    populate();
 
     _searchDebounce = debounce(
       query,
@@ -178,12 +175,6 @@ class SearchController extends GetxController {
   }
 
   @override
-  void onReady() {
-    _fetchChat();
-    super.onReady();
-  }
-
-  @override
   void onClose() {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
@@ -217,14 +208,6 @@ class SearchController extends GetxController {
       selectedUsers.remove(user);
     } else {
       selectedUsers.add(user);
-    }
-  }
-
-  /// Fetches the [chat].
-  void _fetchChat() async {
-    if (chatId != null) {
-      chat.value = null;
-      chat.value = (await _chatService.get(chatId!.value));
     }
   }
 
