@@ -239,8 +239,8 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
-    required this.cardRadius,
     required this.boldBody,
+    required this.cardRadius,
     required this.sidebarColor,
   });
 

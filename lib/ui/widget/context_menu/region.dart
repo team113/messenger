@@ -18,7 +18,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
-import '/util/platform_utils.dart';
 import '/themes.dart';
 import 'menu.dart';
 import 'mobile.dart';
@@ -26,13 +25,12 @@ import 'overlay.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
-class ContextMenuRegion extends StatefulWidget {
+class ContextMenuRegion extends StatelessWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
     this.enabled = true,
     this.preventContextMenu = true,
-    this.usePointerDown = false,
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
@@ -59,65 +57,40 @@ class ContextMenuRegion extends StatefulWidget {
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  /// Indicator whether context menu should be displayed on pointer down.
-  final bool usePointerDown;
-
   /// Indicator whether context menu should be displayed on long tap.
   final bool enableLongTap;
 
   @override
-  State<ContextMenuRegion> createState() => _ContextMenuRegionState();
-}
-
-/// State of [ContextMenuRegion] used to keep track of [_buttons].
-class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  /// Bit field of [PointerDownEvent]'s buttons.
-  ///
-  /// [PointerUpEvent] doesn't contain the button being released, so it's
-  /// required to store the buttons from.
-  int _buttons = 0;
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.enabled) {
+    if (enabled) {
       return ContextMenuInterceptor(
-        enabled: widget.preventContextMenu,
+        enabled: preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
-            if (widget.usePointerDown) {
-              _buttons = 0;
-              if (d.buttons & kSecondaryButton != 0) {
-                _show(d.position);
-              }
-            } else {
-              _buttons = d.buttons;
-            }
-          },
-          onPointerUp: (d) {
-            if (_buttons & kSecondaryButton != 0) {
-              _show(d.position);
+            if (d.buttons & kSecondaryButton != 0) {
+              _show(context, d.position);
             }
           },
           child: Stack(
             children: [
-              if (PlatformUtils.isMobile)
+              if (true)
                 FloatingContextMenu(
-                  id: widget.id,
-                  alignment: widget.alignment,
-                  actions: widget.actions,
-                  child: widget.child,
+                  id: id,
+                  alignment: alignment,
+                  actions: actions,
+                  child: child,
                 )
               else
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
+                  onLongPressStart: enableLongTap
                       ? (d) => ContextMenuOverlay.of(context).show(
                             _actions(),
                             d.globalPosition,
                           )
                       : null,
-                  child: widget.child,
+                  child: child,
                 ),
             ],
           ),
@@ -125,12 +98,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       );
     }
 
-    return widget.child;
+    return child;
   }
 
-  /// Shows context menu with [widget.actions].
-  void _show(Offset position) {
-    if (widget.actions.isEmpty) {
+  /// Shows context menu with [actions].
+  void _show(BuildContext context, Offset position) {
+    if (actions.isEmpty) {
       return;
     }
 
@@ -170,18 +143,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     return;
   }
 
-  /// Returns [widget.actions] buttons.
+  /// Returns the [actions] buttons.
   Widget _actions() {
     List<Widget> widgets = [];
 
-    for (int i = 0; i < widget.actions.length; ++i) {
+    for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(
-        widget.actions[i],
+        actions[i],
       );
 
       // Adds a divider if required.
-      if (i < widget.actions.length - 1) {
+      if (i < actions.length - 1) {
         widgets.add(
           Container(
             color: const Color(0x11000000),

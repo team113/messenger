@@ -182,7 +182,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       )
       ..forward();
 
-    _bounds = _calculatePosition() ?? Rect.zero;
+    _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
     super.initState();
   }
 
@@ -351,11 +351,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         Duration.zero, () => ContextMenuOverlay.of(context).id.value = null);
 
     HapticFeedback.selectionClick();
-    _bounds = _calculatePosition() ?? _bounds;
+    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
     _fading.reverse();
   }
-
-  /// Returns a [Rect] of an [Object] identified by the provided initial
-  /// [GlobalKey].
-  Rect? _calculatePosition() => widget.globalKey.globalPaintBounds;
 }
