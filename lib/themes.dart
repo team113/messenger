@@ -60,6 +60,7 @@ class Themes {
               color: const Color(0xFFB9D9FA),
               width: 0.5,
             ),
+            subtitleColor: const Color(0xFF666666),
           ),
         ],
         colorScheme: colors,
@@ -271,7 +272,7 @@ class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
     Color color = const Color(0xFF000000),
     Offset offset = Offset.zero,
-    double blurRadius = 0.0,
+    double blurRadius = 0,
     BlurStyle blurStyle = BlurStyle.normal,
   })  : _blurStyle = blurStyle,
         super(
@@ -310,6 +311,7 @@ class Style extends ThemeExtension<Style> {
     required this.hoveredBorderUnselected,
     required this.boldBody,
     required this.primaryBorder,
+    required this.subtitleColor,
   });
 
   /// [BorderRadius] to use .
@@ -339,6 +341,8 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
+  final Color subtitleColor;
+
   @override
   ThemeExtension<Style> copyWith({
     BorderRadius? cardRadius,
@@ -350,6 +354,7 @@ class Style extends ThemeExtension<Style> {
     Border? hoveredBorderUnselected,
     TextStyle? boldBody,
     Border? primaryBorder,
+    Color? subtitleColor,
   }) {
     return Style(
       cardRadius: cardRadius ?? this.cardRadius,
@@ -362,6 +367,7 @@ class Style extends ThemeExtension<Style> {
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
       boldBody: boldBody ?? this.boldBody,
       primaryBorder: primaryBorder ?? this.primaryBorder,
+      subtitleColor: subtitleColor ?? this.subtitleColor,
     );
   }
 
@@ -373,7 +379,7 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
-      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
+      cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
@@ -384,6 +390,7 @@ class Style extends ThemeExtension<Style> {
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
     );
   }
 }

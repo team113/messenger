@@ -159,12 +159,13 @@ class ChatsTabView extends StatelessWidget {
       }
       item ??= chat.lastItem;
 
-      const Color subtitleColor = Color(0xFF666666);
       List<Widget>? subtitle;
 
-      Iterable<String> typings = rxChat.typingUsers
+      final Iterable<String> typings = rxChat.typingUsers
           .where((e) => e.id != c.me)
           .map((e) => e.name?.val ?? e.num.val);
+
+      final Style style = Theme.of(context).extension<Style>()!;
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -214,24 +215,22 @@ class ChatsTabView extends StatelessWidget {
         }
       } else if (item != null) {
         if (item is ChatCall) {
-          String description = 'label_chat_call_ended'.l10n;
+          final Widget widget = Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(Icons.call, size: 16, color: style.subtitleColor),
+          );
+
           if (item.finishedAt == null && item.finishReason == null) {
             subtitle = [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-                child: Icon(Icons.call, size: 16, color: subtitleColor),
-              ),
+              widget,
               Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
             ];
           } else {
-            description =
+            final String description =
                 item.finishReason?.localizedString(item.authorId == c.me) ??
-                    description;
+                    'label_chat_call_ended'.l10n;
             subtitle = [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-                child: Icon(Icons.call, size: 16, color: subtitleColor),
-              ),
+              widget,
               Flexible(child: Text(description, maxLines: 2)),
             ];
           }
@@ -348,7 +347,7 @@ class ChatsTabView extends StatelessWidget {
           subtitle = [Flexible(child: content)];
         } else {
           subtitle = [
-            const Flexible(child: Text('Пустое сообщение', maxLines: 2))
+            Flexible(child: Text('label_empty_message'.l10n, maxLines: 2))
           ];
         }
       }
@@ -375,12 +374,48 @@ class ChatsTabView extends StatelessWidget {
         );
       }
 
-      Style style = Theme.of(context).extension<Style>()!;
-
       final bool selected = router.routes
               .lastWhereOrNull((String route) => route.startsWith(Routes.chat))
               ?.startsWith('${Routes.chat}/${chat.id}') ==
           true;
+
+      final Widget leading = AvatarWidget.fromRxChat(rxChat, radius: 30);
+
+      List<Widget> trailing = [];
+
+      if (chat.currentCall != null) {
+        trailing = [
+          Column(
+            children: [
+              const SizedBox(width: 10),
+              AnimatedSwitcher(
+                key: const Key('ActiveCallButton'),
+                duration: 300.milliseconds,
+                child: c.isInCall(chat.id)
+                    ? circleButton(
+                        key: const Key('Drop'),
+                        onPressed: () => c.leaveChat(chat.id),
+                        color: Colors.red,
+                        child: SvgLoader.asset(
+                          'assets/icons/call_end.svg',
+                          width: 38,
+                          height: 38,
+                        ),
+                      )
+                    : circleButton(
+                        key: const Key('Join'),
+                        onPressed: () => c.joinCall(chat.id),
+                        child: SvgLoader.asset(
+                          'assets/icons/audio_call_start.svg',
+                          width: 18,
+                          height: 18,
+                        ),
+                      ),
+              ),
+            ],
+          )
+        ];
+      }
 
       return ContextMenuRegion(
         key: Key('ContextMenuRegion_${chat.id}'),
@@ -400,130 +435,135 @@ class ChatsTabView extends StatelessWidget {
               ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-          child: ConditionalBackdropFilter(
-            condition: false,
-            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-            borderRadius:
-                context.isMobile ? BorderRadius.zero : style.cardRadius,
-            child: InkWellWithHover(
-              selectedColor: style.primaryCardColor,
-              unselectedColor: style.cardColor,
-              isSelected: selected,
-              hoveredBorder: selected
-                  ? style.primaryBorder
-                  : style.hoveredBorderUnselected,
-              unhoveredBorder:
-                  selected ? style.primaryBorder : style.cardBorder,
-              borderRadius: style.cardRadius,
-              onTap: () => router.chat(chat.id),
-              unselectedHoverColor: style.unselectedHoverColor,
-              selectedHoverColor: style.primaryCardColor,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(rxChat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  rxChat.title.value,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.headline5,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              if (chat.currentCall == null)
-                                Text(
-                                  chat.currentCall == null ? '10:10' : '32:02',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.copyWith(
-                                        color: chat.currentCall == null
-                                            ? null
-                                            : const Color(0xFF63B4FF),
-                                      ),
-                                ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const SizedBox(height: 3),
-                              Expanded(
-                                child: DefaultTextStyle(
-                                  style: Theme.of(context).textTheme.subtitle2!,
-                                  overflow: TextOverflow.ellipsis,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 3),
-                                    child: Row(children: subtitle ?? []),
-                                  ),
-                                ),
-                              ),
-                              if (chat.unreadCount != 0) ...[
-                                const SizedBox(width: 10),
-                                Badge(
-                                  toAnimate: false,
-                                  elevation: 0,
-                                  badgeContent: Padding(
-                                    padding: const EdgeInsets.all(2),
-                                    child: Text(
-                                      '${chat.unreadCount}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (chat.currentCall != null) ...[
-                      const SizedBox(width: 10),
-                      AnimatedSwitcher(
-                        key: const Key('ActiveCallButton'),
-                        duration: 300.milliseconds,
-                        child: c.isInCall(chat.id)
-                            ? circleButton(
-                                key: const Key('Drop'),
-                                onPressed: () => c.leaveChat(chat.id),
-                                color: Colors.red,
-                                child: SvgLoader.asset(
-                                  'assets/icons/call_end.svg',
-                                  width: 38,
-                                  height: 38,
-                                ),
-                              )
-                            : circleButton(
-                                key: const Key('Join'),
-                                onPressed: () => c.joinCall(chat.id),
-                                child: SvgLoader.asset(
-                                  'assets/icons/audio_call_start.svg',
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
+        child: ChatTile(
+          trailing: trailing,
+          title: rxChat.title.value,
+          leading: leading,
+          style: style,
+          selected: selected,
+          chat: chat,
+          subtitle: subtitle,
         ),
       );
     });
+  }
+}
+
+class ChatTile extends StatelessWidget {
+  const ChatTile({
+    Key? key,
+    required this.style,
+    required this.selected,
+    required this.chat,
+    required this.subtitle,
+    required this.leading,
+    required this.title,
+    required this.trailing,
+  }) : super(key: key);
+
+  final Style style;
+  final bool selected;
+  final Chat chat;
+  final List<Widget>? subtitle;
+  final Widget leading;
+  final List<Widget> trailing;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+      child: ConditionalBackdropFilter(
+        condition: false,
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        borderRadius: context.isMobile ? BorderRadius.zero : style.cardRadius,
+        child: InkWellWithHover(
+          selectedColor: style.primaryCardColor,
+          unselectedColor: style.cardColor,
+          isSelected: selected,
+          hoveredBorder:
+              selected ? style.primaryBorder : style.hoveredBorderUnselected,
+          unhoveredBorder: selected ? style.primaryBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: () => router.chat(chat.id),
+          unselectedHoverColor: style.unselectedHoverColor,
+          selectedHoverColor: style.primaryCardColor,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                leading,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headline5,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          if (chat.currentCall == null)
+                            Text(
+                              chat.currentCall == null ? '10:10' : '32:02',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  ?.copyWith(
+                                    color: chat.currentCall == null
+                                        ? null
+                                        : const Color(0xFF63B4FF),
+                                  ),
+                            ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const SizedBox(height: 3),
+                          Expanded(
+                            child: DefaultTextStyle(
+                              style: Theme.of(context).textTheme.subtitle2!,
+                              overflow: TextOverflow.ellipsis,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: Row(children: subtitle ?? []),
+                              ),
+                            ),
+                          ),
+                          if (chat.unreadCount != 0) ...[
+                            const SizedBox(width: 10),
+                            Badge(
+                              toAnimate: false,
+                              elevation: 0,
+                              badgeContent: Padding(
+                                padding: const EdgeInsets.all(2),
+                                child: Text(
+                                  '${chat.unreadCount}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                ...trailing,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -356,6 +356,7 @@ label_edit_message_hint = No text
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
+label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
