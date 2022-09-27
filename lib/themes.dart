@@ -22,7 +22,7 @@ import 'package:google_fonts/google_fonts.dart';
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
-    ColorScheme colors = ThemeData.light().colorScheme.copyWith(
+    final ColorScheme colors = ThemeData.light().colorScheme.copyWith(
           primary: const Color(0xFF888888),
           onPrimary: Colors.white,
           secondary: const Color(0xFF63B4FF),

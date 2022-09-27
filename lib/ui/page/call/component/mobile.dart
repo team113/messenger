@@ -174,7 +174,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
-                            String state =
+                            final String state =
                                 c.state.value == OngoingCallState.active
                                     ? c.duration.value
                                         .toString()
@@ -595,7 +595,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     ];
 
     // Combines all the stackable content into [Scaffold].
-    Widget scaffold = Scaffold(
+    final Widget scaffold = Scaffold(
       backgroundColor: const Color(0xFF444444),
       body: Stack(
         children: [
@@ -696,7 +696,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         bool isOutgoing =
             (c.outgoing || c.state.value == OngoingCallState.local) &&
                 !c.started;
-        String state = c.state.value == OngoingCallState.active
+        final String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
                 ? 'label_call_joining'.l10n

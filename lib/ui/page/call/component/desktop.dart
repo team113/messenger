@@ -55,7 +55,7 @@ Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
-      List<Widget> content = [
+      final List<Widget> content = [
         SvgLoader.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -249,7 +249,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
                     !c.started;
 
-            List<Widget> buttons = isOutgoing
+            final List<Widget> buttons = isOutgoing
                 ? [
                     if (PlatformUtils.isMobile)
                       padding(
@@ -504,7 +504,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       }
 
       // Footer part of the call with buttons.
-      List<Widget> footer = [
+      final List<Widget> footer = [
         // Animated bottom buttons.
         Align(
           alignment: Alignment.bottomCenter,
@@ -590,7 +590,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         }),
       ];
 
-      List<Widget> ui = [
+      final List<Widget> ui = [
         IgnorePointer(
           child: Obx(() {
             bool preferTitle = c.state.value != OngoingCallState.active;
@@ -788,7 +788,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: Colors.black,
         body: Column(
           mainAxisSize: MainAxisSize.min,

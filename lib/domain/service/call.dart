@@ -77,7 +77,8 @@ class CallService extends DisposableService {
 
     for (Rx<OngoingCall> call
         in List.from(_callsRepo.calls.values, growable: false)) {
-      Rx<OngoingCall>? removed = _callsRepo.remove(call.value.chatId.value);
+      final Rx<OngoingCall>? removed =
+          _callsRepo.remove(call.value.chatId.value);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
@@ -99,7 +100,7 @@ class CallService extends DisposableService {
     }
 
     try {
-      Rx<OngoingCall> call = Rx<OngoingCall>(
+      final Rx<OngoingCall> call = Rx<OngoingCall>(
         OngoingCall(
           chatId,
           me,
@@ -134,7 +135,7 @@ class CallService extends DisposableService {
       throw CallIsInPopupException();
     }
 
-    Rx<OngoingCall>? stored = _callsRepo[chatId];
+    final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
     try {
       if (stored == null ||
@@ -145,7 +146,7 @@ class CallService extends DisposableService {
           removed?.value.dispose();
         }
 
-        Rx<OngoingCall> call = Rx<OngoingCall>(
+        final Rx<OngoingCall> call = Rx<OngoingCall>(
           OngoingCall(
             chatId,
             me,
@@ -182,7 +183,7 @@ class CallService extends DisposableService {
 
   /// Leaves an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
@@ -193,7 +194,7 @@ class CallService extends DisposableService {
 
   /// Declines an [OngoingCall] identified by the given [chatId].
   Future<void> decline(ChatId chatId) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
       // required to await the decline.
@@ -246,7 +247,7 @@ class CallService extends DisposableService {
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       final Rx<OngoingCall>? removed = _callsRepo.remove(chatId);
       removed?.value.state.value = OngoingCallState.ended;
@@ -257,7 +258,7 @@ class CallService extends DisposableService {
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
   Future<void> toggleHand(ChatId chatId, bool raised) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.toggleHand(chatId, raised);
     }
@@ -270,7 +271,7 @@ class CallService extends DisposableService {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(
         chatId,
@@ -294,7 +295,7 @@ class CallService extends DisposableService {
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
   void moveCall(ChatId chatId, ChatId newChatId) {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
       if (WebUtils.isPopup) {
@@ -317,7 +318,7 @@ class CallService extends DisposableService {
             e as IncomingChatCallsTop;
             for (ChatCall c in e.list) {
               if (!_callsRepo.calls.containsKey(c.chatId)) {
-                Rx<OngoingCall> call = Rx<OngoingCall>(
+                final Rx<OngoingCall> call = Rx<OngoingCall>(
                   OngoingCall(
                     c.chatId,
                     me,
@@ -343,10 +344,10 @@ class CallService extends DisposableService {
               return;
             }
 
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
+            final Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
 
             if (call == null) {
-              Rx<OngoingCall> call = Rx<OngoingCall>(
+              final Rx<OngoingCall> call = Rx<OngoingCall>(
                 OngoingCall(
                   e.call.chatId,
                   me,
@@ -366,7 +367,7 @@ class CallService extends DisposableService {
 
           case IncomingChatCallsTopEventKind.removed:
             e as EventIncomingChatCallsTopChatCallRemoved;
-            Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
+            final Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
             // If call is not yet connected to the remote updates, then it's
             // still just a notification and it should be removed.
             if (call?.value.connected == false &&

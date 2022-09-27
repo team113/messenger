@@ -160,7 +160,7 @@ class RouterState extends ChangeNotifier {
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
     arguments = null;
-    int pageIndex = routes.indexWhere((e) => e == to);
+    final int pageIndex = routes.indexWhere((String route) => route == to);
     if (pageIndex != -1) {
       while (routes.length - 1 > pageIndex) {
         pop();
@@ -179,7 +179,7 @@ class RouterState extends ChangeNotifier {
   void pop() {
     if (routes.isNotEmpty) {
       if (routes.length == 1) {
-        String last = routes.last.split('/').last;
+        final String last = routes.last.split('/').last;
         routes.last = routes.last.replaceFirst('/$last', '');
         if (routes.last == '' ||
             routes.last == Routes.contact ||
@@ -353,7 +353,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         ),
       ];
     } else if (_state.route.startsWith(Routes.chatDirectLink)) {
-      String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+      final String slug =
+          _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+
       return [
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),
@@ -448,7 +450,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     }
 
     /// [Routes.home] or [Routes.auth] page is always included.
-    List<Page<dynamic>> pages = [];
+    final List<Page<dynamic>> pages = [];
 
     if (_state._auth.status.value.isSuccess) {
       pages.add(MaterialPage(
@@ -471,10 +473,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(
-                Get.find(),
-                Get.find(),
-              ),
+              SettingsRepository(Get.find(), Get.find()),
             );
 
             // Should be initialized before any [L10n]-dependant entities as

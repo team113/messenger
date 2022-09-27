@@ -69,7 +69,7 @@ class ChatsTabView extends StatelessWidget {
                   splashColor: Colors.transparent,
                   hoverColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                 onPressed: () => showDialog(
+                  onPressed: () => showDialog(
                     context: context,
                     builder: (_) => const CreateGroupView(),
                   ),
@@ -152,7 +152,7 @@ class ChatsTabView extends StatelessWidget {
     RxChat rxChat,
   ) {
     return Obx(() {
-      Chat chat = rxChat.chat.value;
+      final Chat chat = rxChat.chat.value;
       ChatItem? item;
       if (rxChat.messages.isNotEmpty) {
         item = rxChat.messages.last.value;
@@ -377,8 +377,8 @@ class ChatsTabView extends StatelessWidget {
 
       Style style = Theme.of(context).extension<Style>()!;
 
-      bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
+      final bool selected = router.routes
+              .lastWhereOrNull((String route) => route.startsWith(Routes.chat))
               ?.startsWith('${Routes.chat}/${chat.id}') ==
           true;
 
@@ -401,7 +401,7 @@ class ChatsTabView extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
           child: ConditionalBackdropFilter(
             condition: false,
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
