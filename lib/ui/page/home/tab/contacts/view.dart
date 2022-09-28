@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -147,27 +146,7 @@ class ContactsTabView extends StatelessWidget {
               )
             : ListTile(
                 key: Key(contact.contact.value.id.val),
-                leading: Obx(
-                  () => Badge(
-                    showBadge: contact.user.value?.user.value.online == true,
-                    badgeContent: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.green,
-                      ),
-                      padding: const EdgeInsets.all(5),
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    badgeColor: Colors.white,
-                    animationType: BadgeAnimationType.scale,
-                    position: BadgePosition.bottomEnd(bottom: 0, end: 0),
-                    elevation: 0,
-                    child: AvatarWidget.fromContact(
-                      contact.contact.value,
-                      avatar: contact.user.value?.user.value.avatar,
-                    ),
-                  ),
-                ),
+                leading: AvatarWidget.fromRxContact(contact),
                 title: Text(contact.contact.value.name.val),
                 trailing: contact.contact.value.users.isNotEmpty
                     ? Row(

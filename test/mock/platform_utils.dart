@@ -14,28 +14,23 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'attachment.dart';
-import 'chat_item.dart';
+import 'dart:async';
+import 'dart:io';
 
-/// Quote of a [ChatItem] to be forwarded.
-class ChatItemQuote {
-  ChatItemQuote({
-    required this.item,
-    this.withText = true,
-    this.attachments,
-  });
+import 'package:dio/dio.dart';
+import 'package:messenger/util/platform_utils.dart';
 
-  /// [ChatItem] to be forwarded.
-  final ChatItem item;
+/// Mocked [PlatformUtilsImpl] to use in the tests.
+class PlatformUtilsMock extends PlatformUtilsImpl {
+  @override
+  FutureOr<File?> download(
+    String url,
+    String filename, {
+    Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
+  }) =>
+      File('test/path');
 
-  /// Indicator whether a forward should contain the full [ChatMessageText] of
-  /// the original [ChatItem] (if it contains any).
-  final bool withText;
-
-  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
-  ///
-  /// - `null` means all the [ChatItem]'s [Attachment]s will be forwarded, if
-  ///   any.
-  /// - [] (empty list) means no [Attachment]s, only the text will be forwarded.
-  final List<AttachmentId>? attachments;
+  @override
+  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
 }

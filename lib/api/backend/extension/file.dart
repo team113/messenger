@@ -14,28 +14,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'attachment.dart';
-import 'chat_item.dart';
+import '../schema.dart';
+import '/domain/model/file.dart';
 
-/// Quote of a [ChatItem] to be forwarded.
-class ChatItemQuote {
-  ChatItemQuote({
-    required this.item,
-    this.withText = true,
-    this.attachments,
-  });
-
-  /// [ChatItem] to be forwarded.
-  final ChatItem item;
-
-  /// Indicator whether a forward should contain the full [ChatMessageText] of
-  /// the original [ChatItem] (if it contains any).
-  final bool withText;
-
-  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
-  ///
-  /// - `null` means all the [ChatItem]'s [Attachment]s will be forwarded, if
-  ///   any.
-  /// - [] (empty list) means no [Attachment]s, only the text will be forwarded.
-  final List<AttachmentId>? attachments;
+/// Extension adding models construction from a [FileMixin].
+extension FileConversion on FileMixin {
+  /// Constructs a new [StorageFile] from this [FileMixin].
+  StorageFile toModel() => StorageFile(
+        relativeRef: relativeRef,
+        checksum: checksum,
+        size: size,
+      );
 }

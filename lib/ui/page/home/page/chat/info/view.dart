@@ -220,7 +220,7 @@ class ChatInfoView extends StatelessWidget {
             ...c.chat!.members.values.map(
               (u) => ListTile(
                 title: Text(u.user.value.name?.val ?? u.user.value.num.val),
-                leading: AvatarWidget.fromUser(u.user.value),
+                leading: AvatarWidget.fromRxUser(u),
                 trailing: IconButton(
                   key: const Key('DeleteChatMember'),
                   icon: Icon(u.id == c.me ? Icons.exit_to_app : Icons.delete),

@@ -23,6 +23,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
+import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
@@ -80,9 +81,9 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
-    Hive.maybeRegisterAdapter(OriginalAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 

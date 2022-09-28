@@ -136,7 +136,7 @@ class UserView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AvatarWidget.fromUser(c.user?.user.value, radius: 29),
+            AvatarWidget.fromRxUser(c.user, radius: 29, showBadge: false),
             const SizedBox(width: 20),
             Expanded(
               child: Column(

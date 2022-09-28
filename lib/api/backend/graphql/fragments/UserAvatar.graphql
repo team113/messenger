@@ -27,9 +27,24 @@ fragment UserAvatar on UserAvatar {
         }
         angle
     }
-    full
-    big
-    medium
-    small
-    original
+    full {
+        __typename
+        ...File
+    }
+    big {
+        __typename
+        ...File
+    }
+    medium {
+        __typename
+        ...File
+    }
+    small {
+        __typename
+        ...File
+    }
+    original {
+        __typename
+        ...File
+    }
 }

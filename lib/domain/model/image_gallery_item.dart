@@ -16,8 +16,8 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
-import '/util/new_type.dart';
+import '../model_type_id.dart';
+import 'file.dart';
 import 'gallery_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 
@@ -35,15 +35,13 @@ class ImageGalleryItem extends HiveObject {
   @HiveField(1)
   PreciseDateTime addedAt;
 
-  /// Path on a files storage to the original file representing this
-  /// [ImageGalleryItem].
+  /// Original [StorageFile] representing this [ImageGalleryItem].
   @HiveField(2)
-  Original original;
+  StorageFile original;
 
-  /// Path on a files storage to a square [ImageGalleryItem]'s view of
-  /// 85px`x`85px size.
+  /// Square [ImageGalleryItem]'s view [StorageFile] of `85px`x`85px` size.
   @HiveField(3)
-  Square square;
+  StorageFile square;
 
   ImageGalleryItem({
     required this.id,
@@ -51,18 +49,4 @@ class ImageGalleryItem extends HiveObject {
     required this.original,
     required this.square,
   });
-}
-
-/// Path on a files storage to the original file representing an
-/// [ImageGalleryItem].
-@HiveType(typeId: ModelTypeId.original)
-class Original extends NewType<String> {
-  const Original(String val) : super(val);
-}
-
-/// Path on a files storage to the file representing an
-/// [ImageGalleryItem.square] view.
-@HiveType(typeId: ModelTypeId.square)
-class Square extends NewType<String> {
-  const Square(String val) : super(val);
 }

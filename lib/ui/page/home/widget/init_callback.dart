@@ -14,28 +14,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'attachment.dart';
-import 'chat_item.dart';
+import 'package:flutter/widgets.dart';
 
-/// Quote of a [ChatItem] to be forwarded.
-class ChatItemQuote {
-  ChatItemQuote({
-    required this.item,
-    this.withText = true,
-    this.attachments,
-  });
+/// [Widget] invoking the provided [callback] in its [State.initState].
+class InitCallback extends StatefulWidget {
+  const InitCallback({Key? key, this.callback, this.child}) : super(key: key);
 
-  /// [ChatItem] to be forwarded.
-  final ChatItem item;
+  /// Callback, called in the [State.initState] of this [Widget].
+  final void Function()? callback;
 
-  /// Indicator whether a forward should contain the full [ChatMessageText] of
-  /// the original [ChatItem] (if it contains any).
-  final bool withText;
+  /// Optional [Widget] to build as a child of this [Widget].
+  final Widget? child;
 
-  /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
-  ///
-  /// - `null` means all the [ChatItem]'s [Attachment]s will be forwarded, if
-  ///   any.
-  /// - [] (empty list) means no [Attachment]s, only the text will be forwarded.
-  final List<AttachmentId>? attachments;
+  @override
+  State<InitCallback> createState() => _InitCallbackState();
+}
+
+/// State of an [InitCallback].
+class _InitCallbackState extends State<InitCallback> {
+  @override
+  void initState() {
+    widget.callback?.call();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child ?? Container();
+  }
 }

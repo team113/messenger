@@ -93,8 +93,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   children: (widget.items ?? [])
                       .map(
                         (e) => GalleryItem.image(
-                          '${Config.url}/files${e.original}',
-                          'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.original.val.split('.').last}',
+                          '${Config.files}${e.original.relativeRef}',
+                          'IMG_${e.addedAt.microsecondsSinceEpoch}.${e.id}',
                         ),
                       )
                       .toList(),
@@ -117,7 +117,8 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: NetworkImage(
-                              '${Config.url}:${Config.port}/files${widget.items![widget.index].original}'),
+                            '${Config.files}${widget.items![widget.index].original.relativeRef}',
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -150,7 +151,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                   : widget.items!
                       .map(
                         (e) => Image.network(
-                          '${Config.url}:${Config.port}/files${e.original}',
+                          '${Config.files}${e.original.relativeRef}',
                           fit: BoxFit.fitHeight,
                         ),
                       )

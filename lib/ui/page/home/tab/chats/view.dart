@@ -383,7 +383,7 @@ class ChatsTabView extends StatelessWidget {
 
       List<Widget> trailing = [];
 
-      if (chat.currentCall != null) {
+      if (chat.ongoingCall != null) {
         trailing = [
           Column(
             children: [
@@ -509,14 +509,14 @@ class ChatTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          if (chat.currentCall == null)
+                          if (chat.ongoingCall == null)
                             Text(
-                              chat.currentCall == null ? '10:10' : '32:02',
+                              chat.ongoingCall == null ? '10:10' : '32:02',
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
                                   ?.copyWith(
-                                    color: chat.currentCall == null
+                                    color: chat.ongoingCall == null
                                         ? null
                                         : const Color(0xFF63B4FF),
                                   ),

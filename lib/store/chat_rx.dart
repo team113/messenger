@@ -219,12 +219,12 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  Future<void> fetchMessages(ChatId chatItemId) async {
+  Future<void> fetchMessages() async {
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
 
-    List<HiveChatItem> items = await _chatRepository.messages(chatItemId);
+    List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
 
     return _guard.protect(() async {
       for (HiveChatItem item in _local.messages) {
@@ -248,6 +248,53 @@ class HiveRxChat implements RxChat {
     });
   }
 
+  @override
+  Future<void> updateAttachments(ChatItem item) async {
+    HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
+    if (stored != null) {
+      List<Attachment> response = await _chatRepository.attachments(stored);
+
+      void replace(Attachment a) {
+        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
+        if (fetched != null) {
+          a.original = fetched.original;
+          if (a is ImageAttachment && fetched is ImageAttachment) {
+            a.big = fetched.big;
+            a.medium = fetched.medium;
+            a.small = fetched.small;
+          }
+        }
+      }
+
+      final List<Attachment> all = [];
+
+      if (item is ChatMessage) {
+        all.addAll(item.attachments);
+        for (ChatItem replied in item.repliesTo) {
+          if (replied is ChatMessage) {
+            all.addAll(replied.attachments);
+          }
+        }
+      } else if (item is ChatForward) {
+        ChatItem nested = item.item;
+        if (nested is ChatMessage) {
+          all.addAll(nested.attachments);
+          for (ChatItem replied in nested.repliesTo) {
+            if (replied is ChatMessage) {
+              all.addAll(replied.attachments);
+            }
+          }
+        }
+      }
+
+      for (Attachment a in all) {
+        replace(a);
+      }
+
+      put(stored, ignoreVersion: true);
+    }
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -261,16 +308,17 @@ class HiveRxChat implements RxChat {
     PreciseDateTime? existingDateTime,
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   }) async {
     // Copy the [attachments] list since we're going to manipulate it here.
     List<Attachment> uploaded = List.from(attachments ?? []);
+    List<ChatItem> replies = List.from(repliesTo, growable: false);
 
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
       text: text,
-      repliesTo: repliesTo,
+      repliesTo: replies,
       attachments: uploaded,
       existingId: existingId,
       existingDateTime: existingDateTime,
@@ -336,7 +384,7 @@ class HiveRxChat implements RxChat {
         text: text,
         attachments:
             uploaded.isNotEmpty ? uploaded.map((e) => e.id).toList() : null,
-        repliesTo: repliesTo?.id,
+        repliesTo: replies.map((e) => e.id).toList(),
       );
 
       var event = response?.events
@@ -655,6 +703,10 @@ class HiveRxChat implements RxChat {
               chatEntity.value.name = event.chatName;
               break;
 
+            case ChatEventKind.redialed:
+              // TODO: Implement EventChatCallMemberRedialed.
+              break;
+
             case ChatEventKind.cleared:
               await _guard.protect(_local.clear);
               break;
@@ -718,7 +770,7 @@ class HiveRxChat implements RxChat {
 
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
-              chatEntity.value.currentCall = event.call;
+              chatEntity.value.ongoingCall = event.call;
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -733,7 +785,7 @@ class HiveRxChat implements RxChat {
 
             case ChatEventKind.callFinished:
               event as EventChatCallFinished;
-              chatEntity.value.currentCall = null;
+              chatEntity.value.ongoingCall = null;
               if (chatEntity.value.lastItem?.id == event.call.id) {
                 chatEntity.value.lastItem = event.call;
               }
