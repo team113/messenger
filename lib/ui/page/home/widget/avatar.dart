@@ -97,18 +97,15 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
-    if (contact.contact.value.users.length != 1) {
-      showBadge = false;
-    }
-
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: showBadge && contact.user.value?.user.value.online == true,
+        isOnline: contact.contact.value.users.length == 1 &&
+            contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
-        color: (contact.user.value == null)
+        color: contact.user.value == null
             ? contact.contact.value.name.val.sum()
             : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
@@ -224,32 +221,32 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-  }) =>
-      chat != null
-          ? Obx(
-              () {
-                RxUser? user = chat.members.values
-                    .firstWhereOrNull((e) => e.id != chat.me);
-                return AvatarWidget(
-                  isOnline: chat.chat.value.isDialog &&
-                      user?.user.value.online == true,
-                  isAway: user?.user.value.presence == Presence.away,
-                  avatar: chat.avatar.value,
-                  title: chat.title.value,
-                  color: chat.chat.value.colorDiscriminant(chat.me).sum(),
-                  radius: radius,
-                  maxRadius: maxRadius,
-                  minRadius: minRadius,
-                  opacity: opacity,
-                );
-              },
-            )
-          : AvatarWidget(
-              radius: radius,
-              maxRadius: maxRadius,
-              minRadius: minRadius,
-              opacity: opacity,
-            );
+  }) {
+    if (chat == null) {
+      return AvatarWidget(
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(() {
+      RxUser? user =
+          chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
+      return AvatarWidget(
+        isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
+        isAway: user?.user.value.presence == Presence.away,
+        avatar: chat.avatar.value,
+        title: chat.title.value,
+        color: chat.chat.value.colorDiscriminant(chat.me).sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
+    });
+  }
 
   /// [Avatar] to display.
   final Avatar? avatar;
@@ -289,10 +286,14 @@ class AvatarWidget extends StatelessWidget {
   /// Opacity of this [AvatarWidget].
   final double opacity;
 
-  /// Indicator whether the [User] this [AvatarWidget] represents is online.
+  /// Indicator whether to display an online [Badge] in the bottom-right corner
+  /// of this [AvatarWidget].
   final bool isOnline;
 
-  /// Indicator whether the [User] this [AvatarWidget] represents is away.
+  /// Indicator whether to display an away [Badge] in the bottom-right corner
+  /// of this [AvatarWidget].
+  ///
+  /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
   /// Avatar color swatches.
