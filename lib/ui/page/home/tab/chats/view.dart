@@ -14,39 +14,38 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
-import 'package:badges/badges.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+
 import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
-import '/ui/page/home/widget/custom_app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/custom_app_bar.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/chat_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/custom_timer_widget.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
-import 'widget/hovered_ink.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -106,14 +105,14 @@ class ChatsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: ContextMenuInterceptor(
                   child: AnimationLimiter(
                     child: ListView.builder(
                       controller: ScrollController(),
                       itemCount: c.chats.length,
-                      itemBuilder: (BuildContext context, int i) {
-                        RxChat e = c.chats[i];
+                      itemBuilder: (_, int i) {
+                        final RxChat rxChat = c.chats[i];
 
                         return AnimationConfiguration.staggeredList(
                           position: i,
@@ -122,11 +121,12 @@ class ChatsTabView extends StatelessWidget {
                             horizontalOffset: 50,
                             child: FadeInAnimation(
                               child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: _ChatTileConfiguration(
+                                  rxChat: rxChat,
+                                  controller: c,
                                 ),
-                                child: buildChatTile(context, c, e),
                               ),
                             ),
                           ),
@@ -144,39 +144,165 @@ class ChatsTabView extends StatelessWidget {
       },
     );
   }
+}
 
-  /// Reactive [ListTile] with [RxChat]'s information.
-  Widget buildChatTile(
+/// Reactive [ChatTile] with [RxChat]'s information.
+class _ChatTileConfiguration extends StatelessWidget {
+  const _ChatTileConfiguration({
+    required this.rxChat,
+    required this.controller,
+  });
+
+  /// Unified reactive [Chat] entity with its [ChatItem]s.
+  final RxChat rxChat;
+
+  /// Controller of the [HomeTab.chats] tab.
+  final ChatsTabController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final Chat chat = rxChat.chat.value;
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return ContextMenuRegion(
+      key: Key('ContextMenuRegion_${chat.id}'),
+      preventContextMenu: false,
+      menu: ContextMenu(
+        actions: [
+          ContextMenuButton(
+            key: const Key('ButtonHideChat'),
+            label: 'btn_hide_chat'.l10n,
+            onPressed: () => controller.hideChat(chat.id),
+          ),
+          if (chat.isGroup)
+            ContextMenuButton(
+              key: const Key('ButtonLeaveChat'),
+              label: 'btn_leave_chat'.l10n,
+              onPressed: () => controller.leaveChat(chat.id),
+            ),
+        ],
+      ),
+      child: Obx(
+        () {
+          return ChatTile(
+            leading: AvatarWidget.fromRxChat(rxChat, radius: 30),
+            trailing: _trailing(controller, chat),
+            title: _title(context, controller, rxChat, style.subtitle2Color),
+            subtitle: _extendedSubtitle(
+                context, controller, rxChat, style.subtitleColor),
+            style: style,
+            selected: router.routeStartsWith(
+              Routes.chat,
+              '${Routes.chat}/${chat.id}',
+            ),
+            onTap: () => router.chat(chat.id),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Creates [_subtitle] with a count of unread [ChatItem].
+  Widget _extendedSubtitle(
     BuildContext context,
     ChatsTabController c,
     RxChat rxChat,
+    Color subtitleColor,
   ) {
-    return Obx(() {
-      final Chat chat = rxChat.chat.value;
-      ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      }
-      item ??= chat.lastItem;
+    final Chat chat = rxChat.chat.value;
 
-      List<Widget>? subtitle;
+    return Padding(
+      padding: const EdgeInsets.only(top: 7),
+      child: Row(
+        children: [
+          const SizedBox(height: 3),
+          Expanded(
+            child: DefaultTextStyle(
+              style: Theme.of(context).textTheme.subtitle2!,
+              overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: _subtitle(context, c, rxChat, subtitleColor) ?? [],
+              ),
+            ),
+          ),
+          if (chat.unreadCount != 0) ...[
+            const SizedBox(width: 10),
+            Container(
+              height: 20,
+              width: 20,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.red,
+              ),
+              padding: const EdgeInsets.all(2),
+              alignment: Alignment.center,
+              child: Text(
+                '${chat.unreadCount}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
-      final Iterable<String> typings = rxChat.typingUsers
-          .where((e) => e.id != c.me)
-          .map((e) => e.name?.val ?? e.num.val);
+  /// Creates additional content displayed below the title.
+  List<Widget>? _subtitle(
+    BuildContext context,
+    ChatsTabController c,
+    RxChat rxChat,
+    Color subtitleColor,
+  ) {
+    final Chat chat = rxChat.chat.value;
+    final Iterable<String> typings = rxChat.typingUsers
+        .where((User user) => user.id != c.me)
+        .map((User user) => user.name?.val ?? user.num.val);
+    List<Widget>? subtitle;
+    ChatItem? item;
+    if (rxChat.messages.isNotEmpty) {
+      item = rxChat.messages.last.value;
+    }
 
-      final Style style = Theme.of(context).extension<Style>()!;
+    item ??= chat.lastItem;
 
-      if (typings.isNotEmpty) {
-        if (!rxChat.chat.value.isGroup) {
-          subtitle = [
-            Row(
+    if (typings.isNotEmpty) {
+      if (!rxChat.chat.value.isGroup) {
+        subtitle = [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'label_typing'.l10n,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+              const SizedBox(width: 3),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: AnimatedTyping(),
+              ),
+            ],
+          ),
+        ];
+      } else {
+        subtitle = [
+          Expanded(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  'label_typing'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
+                Flexible(
+                  child: Text(
+                    typings.join(', '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 3),
@@ -186,384 +312,257 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ],
             ),
-          ];
-        } else {
-          subtitle = [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      typings.join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: AnimatedTyping(),
-                  ),
-                ],
-              ),
-            )
-          ];
-        }
-      } else if (item != null) {
-        if (item is ChatCall) {
-          final Widget widget = Padding(
-            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(Icons.call, size: 16, color: style.subtitleColor),
-          );
-
-          if (item.finishedAt == null && item.finishReason == null) {
-            subtitle = [
-              widget,
-              Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
-            ];
-          } else {
-            final String description =
-                item.finishReason?.localizedString(item.authorId == c.me) ??
-                    'label_chat_call_ended'.l10n;
-            subtitle = [
-              widget,
-              Flexible(child: Text(description, maxLines: 2)),
-            ];
-          }
-        } else if (item is ChatMessage) {
-          final desc = StringBuffer();
-
-          if (!chat.isGroup && item.authorId == c.me) {
-            desc.write('${'label_you'.l10n}: ');
-          }
-
-          if (item.text != null) {
-            desc.write(item.text!.val);
-            if (item.attachments.isNotEmpty) {
-              desc.write(
-                  ' [${item.attachments.length} ${'label_attachments'.l10n}]');
-            }
-          } else if (item.attachments.isNotEmpty) {
-            desc.write(
-                '[${item.attachments.length} ${'label_attachments'.l10n}]');
-          }
-
-          subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? Obx(
-                          () => AvatarWidget.fromUser(
-                            snapshot.data!.user.value,
-                            radius: 10,
-                          ),
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
-                          radius: 10,
-                        ),
-                ),
-              ),
-            Flexible(child: Text(desc.toString(), maxLines: 2)),
-            ElasticAnimatedSwitcher(
-              child: item.status.value == SendingStatus.sending
-                  ? const Icon(Icons.access_alarm, size: 15)
-                  : item.status.value == SendingStatus.error
-                      ? const Icon(
-                          Icons.error_outline,
-                          size: 15,
-                          color: Colors.red,
-                        )
-                      : const SizedBox.shrink(),
-            ),
-          ];
-        } else if (item is ChatForward) {
-          subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? Obx(
-                          () => AvatarWidget.fromUser(
-                            snapshot.data!.user.value,
-                            radius: 10,
-                          ),
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
-                          radius: 10,
-                        ),
-                ),
-              ),
-            Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
-            ElasticAnimatedSwitcher(
-              child: item.status.value == SendingStatus.sending
-                  ? const Padding(
-                      padding: EdgeInsets.only(left: 4),
-                      child: Icon(Icons.access_alarm, size: 15),
-                    )
-                  : item.status.value == SendingStatus.error
-                      ? const Padding(
-                          padding: EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.error_outline,
-                            size: 15,
-                            color: Colors.red,
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-            ),
-          ];
-        } else if (item is ChatMemberInfo) {
-          Widget content = Text('${item.action}');
-
-          switch (item.action) {
-            case ChatMemberInfoAction.created:
-              content = const Text('Chat created');
-              break;
-
-            case ChatMemberInfoAction.added:
-              content = Text('${item.user.name ?? item.user.num} was added');
-              break;
-
-            case ChatMemberInfoAction.removed:
-              content = Text('${item.user.name ?? item.user.num} was removed');
-              break;
-
-            case ChatMemberInfoAction.artemisUnknown:
-              // No-op.
-              break;
-          }
-
-          subtitle = [Flexible(child: content)];
-        } else {
-          subtitle = [
-            Flexible(child: Text('label_empty_message'.l10n, maxLines: 2))
-          ];
-        }
-      }
-
-      Widget circleButton({
-        Key? key,
-        void Function()? onPressed,
-        Color? color,
-        required Widget child,
-      }) {
-        return WidgetButton(
-          key: key,
-          onPressed: onPressed,
-          child: Container(
-            key: key,
-            height: 38,
-            width: 38,
-            decoration: BoxDecoration(
-              color: color ?? const Color(0xFF63B4FF),
-              shape: BoxShape.circle,
-            ),
-            child: Center(child: child),
-          ),
-        );
-      }
-
-      final bool selected = router.routes
-              .lastWhereOrNull((String route) => route.startsWith(Routes.chat))
-              ?.startsWith('${Routes.chat}/${chat.id}') ==
-          true;
-
-      final Widget leading = AvatarWidget.fromRxChat(rxChat, radius: 30);
-
-      List<Widget> trailing = [];
-
-      if (chat.currentCall != null) {
-        trailing = [
-          Column(
-            children: [
-              const SizedBox(width: 10),
-              AnimatedSwitcher(
-                key: const Key('ActiveCallButton'),
-                duration: 300.milliseconds,
-                child: c.isInCall(chat.id)
-                    ? circleButton(
-                        key: const Key('Drop'),
-                        onPressed: () => c.leaveChat(chat.id),
-                        color: Colors.red,
-                        child: SvgLoader.asset(
-                          'assets/icons/call_end.svg',
-                          width: 38,
-                          height: 38,
-                        ),
-                      )
-                    : circleButton(
-                        key: const Key('Join'),
-                        onPressed: () => c.joinCall(chat.id),
-                        child: SvgLoader.asset(
-                          'assets/icons/audio_call_start.svg',
-                          width: 18,
-                          height: 18,
-                        ),
-                      ),
-              ),
-            ],
           )
         ];
       }
+    } else if (item != null) {
+      if (item is ChatCall) {
+        final Widget widget = Padding(
+          padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+          child: Icon(Icons.call, size: 16, color: subtitleColor),
+        );
 
-      return ContextMenuRegion(
-        key: Key('ContextMenuRegion_${chat.id}'),
-        preventContextMenu: false,
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              key: const Key('ButtonHideChat'),
-              label: 'btn_hide_chat'.l10n,
-              onPressed: () => c.hideChat(chat.id),
-            ),
-            if (chat.isGroup)
-              ContextMenuButton(
-                key: const Key('ButtonLeaveChat'),
-                label: 'btn_leave_chat'.l10n,
-                onPressed: () => c.leaveChat(chat.id),
+        if (item.finishedAt == null && item.finishReason == null) {
+          subtitle = [
+            widget,
+            Flexible(child: Text('label_call_active'.l10n, maxLines: 2)),
+          ];
+        } else {
+          final String description =
+              item.finishReason?.localizedString(item.authorId == c.me) ??
+                  'label_chat_call_ended'.l10n;
+          subtitle = [
+            widget,
+            Flexible(child: Text(description, maxLines: 2)),
+          ];
+        }
+      } else if (item is ChatMessage) {
+        final desc = StringBuffer();
+
+        if (!chat.isGroup && item.authorId == c.me) {
+          desc.write('${'label_you'.l10n}: ');
+        }
+
+        if (item.text != null) {
+          desc.write(item.text!.val);
+          if (item.attachments.isNotEmpty) {
+            desc.write(
+                ' [${item.attachments.length} ${'label_attachments'.l10n}]');
+          }
+        } else if (item.attachments.isNotEmpty) {
+          desc.write(
+              '[${item.attachments.length} ${'label_attachments'.l10n}]');
+        }
+
+        subtitle = [
+          if (chat.isGroup)
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: FutureBuilder<RxUser?>(
+                future: c.getUser(item.authorId),
+                builder: (_, snapshot) => snapshot.data != null
+                    ? Obx(
+                        () => AvatarWidget.fromUser(
+                          snapshot.data!.user.value,
+                          radius: 10,
+                        ),
+                      )
+                    : AvatarWidget.fromUser(
+                        chat.getUser(item!.authorId),
+                        radius: 10,
+                      ),
               ),
-          ],
-        ),
-        child: ChatTile(
-          trailing: trailing,
-          title: rxChat.title.value,
-          leading: leading,
-          style: style,
-          selected: selected,
-          chat: chat,
-          subtitle: subtitle,
-        ),
-      );
-    });
+            ),
+          Flexible(child: Text(desc.toString(), maxLines: 2)),
+          ElasticAnimatedSwitcher(
+            child: item.status.value == SendingStatus.sending
+                ? const Icon(Icons.access_alarm, size: 15)
+                : item.status.value == SendingStatus.error
+                    ? const Icon(
+                        Icons.error_outline,
+                        size: 15,
+                        color: Colors.red,
+                      )
+                    : const SizedBox.shrink(),
+          ),
+        ];
+      } else if (item is ChatForward) {
+        subtitle = [
+          if (chat.isGroup)
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: FutureBuilder<RxUser?>(
+                future: c.getUser(item.authorId),
+                builder: (_, snapshot) => snapshot.data != null
+                    ? Obx(
+                        () => AvatarWidget.fromUser(
+                          snapshot.data!.user.value,
+                          radius: 10,
+                        ),
+                      )
+                    : AvatarWidget.fromUser(
+                        chat.getUser(item!.authorId),
+                        radius: 10,
+                      ),
+              ),
+            ),
+          Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
+          ElasticAnimatedSwitcher(
+            child: item.status.value == SendingStatus.sending
+                ? const Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Icon(Icons.access_alarm, size: 15),
+                  )
+                : item.status.value == SendingStatus.error
+                    ? const Padding(
+                        padding: EdgeInsets.only(left: 4),
+                        child: Icon(
+                          Icons.error_outline,
+                          size: 15,
+                          color: Colors.red,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+          ),
+        ];
+      } else if (item is ChatMemberInfo) {
+        Widget content = Text('${item.action}');
+
+        switch (item.action) {
+          case ChatMemberInfoAction.created:
+            content = const Text('Chat created');
+            break;
+
+          case ChatMemberInfoAction.added:
+            content = Text('${item.user.name ?? item.user.num} was added');
+            break;
+
+          case ChatMemberInfoAction.removed:
+            content = Text('${item.user.name ?? item.user.num} was removed');
+            break;
+
+          case ChatMemberInfoAction.artemisUnknown:
+            // No-op.
+            break;
+        }
+
+        subtitle = [Flexible(child: content)];
+      } else {
+        subtitle = [
+          Flexible(child: Text('label_empty_message'.l10n, maxLines: 2))
+        ];
+      }
+    }
+
+    return subtitle;
   }
-}
 
-class ChatTile extends StatelessWidget {
-  const ChatTile({
-    Key? key,
-    required this.style,
-    required this.selected,
-    required this.chat,
-    required this.subtitle,
-    required this.leading,
-    required this.title,
-    required this.trailing,
-  }) : super(key: key);
-
-  final Style style;
-  final bool selected;
-  final Chat chat;
-  final List<Widget>? subtitle;
-  final Widget leading;
-  final List<Widget> trailing;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-      child: ConditionalBackdropFilter(
-        condition: false,
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-        borderRadius: context.isMobile ? BorderRadius.zero : style.cardRadius,
-        child: InkWellWithHover(
-          selectedColor: style.primaryCardColor,
-          unselectedColor: style.cardColor,
-          isSelected: selected,
-          hoveredBorder:
-              selected ? style.primaryBorder : style.hoveredBorderUnselected,
-          unhoveredBorder: selected ? style.primaryBorder : style.cardBorder,
-          borderRadius: style.cardRadius,
-          onTap: () => router.chat(chat.id),
-          unselectedHoverColor: style.unselectedHoverColor,
-          selectedHoverColor: style.primaryCardColor,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                leading,
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.headline5,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          if (chat.currentCall == null)
-                            Text(
-                              chat.currentCall == null ? '10:10' : '32:02',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .subtitle2
-                                  ?.copyWith(
-                                    color: chat.currentCall == null
-                                        ? null
-                                        : const Color(0xFF63B4FF),
-                                  ),
-                            ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const SizedBox(height: 3),
-                          Expanded(
-                            child: DefaultTextStyle(
-                              style: Theme.of(context).textTheme.subtitle2!,
-                              overflow: TextOverflow.ellipsis,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 3),
-                                child: Row(children: subtitle ?? []),
-                              ),
-                            ),
-                          ),
-                          if (chat.unreadCount != 0) ...[
-                            const SizedBox(width: 10),
-                            Badge(
-                              toAnimate: false,
-                              elevation: 0,
-                              badgeContent: Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: Text(
-                                  '${chat.unreadCount}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                ...trailing,
-              ],
+  /// Creates a widget to display after the title.
+  Widget? _trailing(ChatsTabController c, Chat chat) {
+    if (chat.currentCall != null) {
+      final Widget dropButton = WidgetButton(
+        key: const Key('Drop'),
+        onPressed: () => c.dropCall(chat.id),
+        child: Container(
+          key: const Key('Drop'),
+          height: 32,
+          width: 32,
+          decoration: const BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: SvgLoader.asset(
+              'assets/icons/call_end.svg',
+              width: 32,
+              height: 32,
             ),
           ),
         ),
-      ),
+      );
+      final Widget joinButton = WidgetButton(
+        key: const Key('Join'),
+        onPressed: () => c.joinCall(chat.id),
+        child: Container(
+          key: const Key('Join'),
+          height: 32,
+          width: 32,
+          decoration: const BoxDecoration(
+            color: Color(0xFF63B4FF),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: SvgLoader.asset(
+              'assets/icons/audio_call_start.svg',
+              width: 15,
+              height: 15,
+            ),
+          ),
+        ),
+      );
+
+      return Column(
+        children: [
+          const SizedBox(width: 10),
+          AnimatedSwitcher(
+            key: const Key('ActiveCallButton'),
+            duration: 300.milliseconds,
+            child: c.isInCall(chat.id) ? dropButton : joinButton,
+          ),
+        ],
+      );
+    } else {
+      return null;
+    }
+  }
+
+  /// Creates the primary content of the chat tile.
+  Widget _title(
+    BuildContext context,
+    ChatsTabController c,
+    RxChat rxChat,
+    Color subtitle2Color,
+  ) {
+    final Chat chat = rxChat.chat.value;
+    final int? microsecondsSinceEpoch =
+        c.getCallStart(chat.id)?.microsecondsSinceEpoch;
+    final TextStyle? textStyle = Theme.of(context)
+        .textTheme
+        .subtitle2
+        ?.copyWith(color: chat.currentCall == null ? null : subtitle2Color);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            rxChat.title.value,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: Theme.of(context).textTheme.headline5,
+          ),
+        ),
+        const SizedBox(height: 10),
+        if (chat.currentCall == null &&
+            chat.lastDelivery.microsecondsSinceEpoch != 0)
+          Text(
+            chat.lastDelivery.toDate(),
+            style: textStyle,
+          ),
+        if (chat.currentCall != null && microsecondsSinceEpoch != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: CustomTimerWidget(
+              duration: const Duration(seconds: 1),
+              getWidget: () => Text(
+                Duration(
+                  microseconds: DateTime.now().microsecondsSinceEpoch -
+                      microsecondsSinceEpoch,
+                ).hhMmSs(),
+                style: textStyle,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -15,10 +15,25 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 export 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
+import 'package:intl/intl.dart';
+
 import 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
 
 /// Extension adding [DateTime] to [PreciseDateTime] conversion method.
 extension DateTimeToPreciseDateTime on DateTime {
   /// Constructs a [PreciseDateTime] from this [DateTime].
   PreciseDateTime toPrecise() => PreciseDateTime(this);
+}
+
+/// Extension adding conversion to date from a [PreciseDateTime].
+extension AdditionalFormatting on PreciseDateTime {
+  /// Converts [PreciseDateTime] to date string.
+  String toDate([bool lastWeekInDayName = true]) {
+    final DateTime pastWeek = DateTime.now().subtract(const Duration(days: 7));
+    if (lastWeekInDayName && val.isBefore(pastWeek)) {
+      return DateFormat.E().format(val);
+    } else {
+      return DateFormat.yMd().format(val);
+    }
+  }
 }

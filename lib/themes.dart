@@ -61,6 +61,7 @@ class Themes {
               width: 0.5,
             ),
             subtitleColor: const Color(0xFF666666),
+            subtitle2Color: const Color(0xFF63B4FF),
           ),
         ],
         colorScheme: colors,
@@ -312,6 +313,7 @@ class Style extends ThemeExtension<Style> {
     required this.boldBody,
     required this.primaryBorder,
     required this.subtitleColor,
+    required this.subtitle2Color,
   });
 
   /// [BorderRadius] to use .
@@ -341,7 +343,11 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
+  /// Color used for the primary text in lists.
   final Color subtitleColor;
+
+  /// Color used for medium emphasis text in lists.
+  final Color subtitle2Color;
 
   @override
   ThemeExtension<Style> copyWith({
@@ -355,6 +361,7 @@ class Style extends ThemeExtension<Style> {
     TextStyle? boldBody,
     Border? primaryBorder,
     Color? subtitleColor,
+    Color? subtitle2Color,
   }) {
     return Style(
       cardRadius: cardRadius ?? this.cardRadius,
@@ -368,6 +375,7 @@ class Style extends ThemeExtension<Style> {
       boldBody: boldBody ?? this.boldBody,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       subtitleColor: subtitleColor ?? this.subtitleColor,
+      subtitle2Color: subtitle2Color ?? this.subtitle2Color,
     );
   }
 
@@ -391,6 +399,7 @@ class Style extends ThemeExtension<Style> {
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
+      subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
     );
   }
 }
