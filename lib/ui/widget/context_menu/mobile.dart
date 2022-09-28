@@ -24,7 +24,6 @@ import '/routes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/overlay.dart';
 
 /// Region to show context menu with animation below the [child] on a long tap.
 class FloatingContextMenu extends StatefulWidget {
@@ -33,7 +32,6 @@ class FloatingContextMenu extends StatefulWidget {
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
-    this.id,
   }) : super(key: key);
 
   /// Widget to show context menu on.
@@ -44,9 +42,6 @@ class FloatingContextMenu extends StatefulWidget {
 
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
-
-  /// ID of this [FloatingContextMenu].
-  final String? id;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -97,7 +92,6 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
         globalKey: _key,
         alignment: widget.alignment,
         actions: widget.actions,
-        id: widget.id,
         onClosed: () {
           _entry?.remove();
           _entry = null;
@@ -120,7 +114,6 @@ class _AnimatedMenu extends StatefulWidget {
     required this.globalKey,
     required this.actions,
     required this.alignment,
-    this.id,
     this.onClosed,
     Key? key,
   }) : super(key: key);
@@ -140,9 +133,6 @@ class _AnimatedMenu extends StatefulWidget {
   /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
 
-  /// ID of this [_AnimatedMenu].
-  final String? id;
-
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
@@ -158,9 +148,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   @override
   void initState() {
-    Future.delayed(Duration.zero,
-        () => ContextMenuOverlay.of(context).id.value = widget.id);
-
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -229,16 +216,18 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SafeArea(
-                            bottom: false,
-                            left: false,
-                            right: false,
-                            child: Padding(
-                              padding: EdgeInsets.only(left: _bounds.left),
-                              child: SizedBox(
-                                width: _bounds.width,
-                                height: _bounds.height,
-                                child: widget.child,
+                          IgnorePointer(
+                            child: SafeArea(
+                              bottom: false,
+                              left: false,
+                              right: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: _bounds.left),
+                                child: SizedBox(
+                                  width: _bounds.width,
+                                  height: _bounds.height,
+                                  child: widget.child,
+                                ),
                               ),
                             ),
                           ),
@@ -250,21 +239,21 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       ),
                     )
                   else ...[
-                    _contextMenu(fade),
                     Positioned(
                       left: _bounds.left,
                       width: _bounds.width,
                       height: _bounds.height,
                       bottom: (1 - _fading.value) *
-                              (constraints.maxHeight -
-                                  _bounds.top -
-                                  _bounds.height) +
+                          (constraints.maxHeight -
+                              _bounds.top -
+                              _bounds.height) +
                           (10 +
-                                  router.context!.mediaQueryPadding.bottom +
-                                  widget.actions.length * 50) *
+                              router.context!.mediaQueryPadding.bottom +
+                              widget.actions.length * 50) *
                               _fading.value,
-                      child: widget.child,
+                      child: IgnorePointer(child: widget.child),
                     ),
+                    _contextMenu(fade),
                   ]
                 ],
               );
@@ -347,9 +336,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Starts a dismiss animation.
   void _dismiss() {
-    Future.delayed(
-        Duration.zero, () => ContextMenuOverlay.of(context).id.value = null);
-
     HapticFeedback.selectionClick();
     _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
     _fading.reverse();

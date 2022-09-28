@@ -1054,6 +1054,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       borderRadius: BorderRadius.circular(15),
                       child: ContextMenuRegion(
                         preventContextMenu: false,
+                        alignment: fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
                         actions: [
                           if (copyable != null)
                             ContextMenuButton(

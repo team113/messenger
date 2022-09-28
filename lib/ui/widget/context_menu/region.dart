@@ -18,10 +18,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
-import '/themes.dart';
+import '/util/platform_utils.dart';
 import 'menu.dart';
 import 'mobile.dart';
-import 'overlay.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
@@ -34,14 +33,10 @@ class ContextMenuRegion extends StatelessWidget {
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
-    this.id,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
   final Widget child;
-
-  /// ID of this [ContextMenuRegion].
-  final String? id;
 
   /// Indicator whether this region should be enabled.
   final bool enabled;
@@ -72,28 +67,13 @@ class ContextMenuRegion extends StatelessWidget {
               _show(context, d.position);
             }
           },
-          child: Stack(
-            children: [
-              if (true)
-                FloatingContextMenu(
-                  id: id,
+          child: PlatformUtils.isMobile
+              ? FloatingContextMenu(
                   alignment: alignment,
                   actions: actions,
                   child: child,
                 )
-              else
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: enableLongTap
-                      ? (d) => ContextMenuOverlay.of(context).show(
-                            _actions(),
-                            d.globalPosition,
-                          )
-                      : null,
-                  child: child,
-                ),
-            ],
-          ),
+              : child,
         ),
       );
     }
@@ -130,7 +110,7 @@ class ContextMenuRegion extends StatelessWidget {
                       alignment.x > 0 ? 0 : -1,
                       alignment.y > 0 ? 0 : -1,
                     ),
-                    child: _actions(),
+                    child: ContextMenu(actions: actions),
                   ),
                 )
               ],
@@ -141,52 +121,5 @@ class ContextMenuRegion extends StatelessWidget {
     );
 
     return;
-  }
-
-  /// Returns the [actions] buttons.
-  Widget _actions() {
-    List<Widget> widgets = [];
-
-    for (int i = 0; i < actions.length; ++i) {
-      // Adds a button.
-      widgets.add(
-        actions[i],
-      );
-
-      // Adds a divider if required.
-      if (i < actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
-      }
-    }
-
-    return Container(
-      width: 220,
-      margin: const EdgeInsets.only(left: 1, top: 1),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: Color(0x33000000),
-            blurStyle: BlurStyle.outer,
-          )
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: widgets,
-        ),
-      ),
-    );
   }
 }

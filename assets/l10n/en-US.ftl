@@ -158,6 +158,7 @@ btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
+btn_save_to_gallery = Save to gallery
 btn_saved_messages = Saved messages
 btn_set_password = Set password
 btn_settings = Settings

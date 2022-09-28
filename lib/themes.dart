@@ -38,12 +38,15 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            cardRadius: BorderRadius.circular(14),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardRadius: BorderRadius.circular(14),
+            contextBackgroundColor: const Color(0xFFF2F2F2),
+            contextHoveredColor: const Color.fromARGB(255, 229, 231, 233),
+            modalBarrierColor: const Color(0xBB000000),
             sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
@@ -241,6 +244,9 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.boldBody,
     required this.cardRadius,
+    required this.contextBackgroundColor,
+    required this.contextHoveredColor,
+    required this.modalBarrierColor,
     required this.sidebarColor,
   });
 
@@ -248,20 +254,36 @@ class Style extends ThemeExtension<Style> {
   final TextStyle boldBody;
 
   /// [BorderRadius] to use in card-like [Widget]s.
-  final BorderRadius? cardRadius;
+  final BorderRadius cardRadius;
+
+  /// [Color] of the context menu background.
+  final Color contextBackgroundColor;
+
+  /// [Color] of the hovered [ContextMenuButton].
+  final Color contextHoveredColor;
+
+  /// [Color] of the modal barrier color.
+  final Color modalBarrierColor;
 
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
   @override
   ThemeExtension<Style> copyWith({
-    BorderRadius? cardRadius,
     TextStyle? boldBody,
+    BorderRadius? cardRadius,
+    Color? contextBackgroundColor,
+    Color? contextHoveredColor,
+    Color? modalBarrierColor,
     Color? sidebarColor,
   }) {
     return Style(
       boldBody: boldBody ?? this.boldBody,
       cardRadius: cardRadius ?? this.cardRadius,
+      contextBackgroundColor:
+          contextBackgroundColor ?? this.contextBackgroundColor,
+      contextHoveredColor: contextHoveredColor ?? this.contextHoveredColor,
+      modalBarrierColor: modalBarrierColor ?? this.modalBarrierColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
@@ -275,6 +297,12 @@ class Style extends ThemeExtension<Style> {
     return Style(
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      contextBackgroundColor:
+          Color.lerp(contextBackgroundColor, other.contextBackgroundColor, t)!,
+      contextHoveredColor:
+          Color.lerp(contextHoveredColor, other.contextHoveredColor, t)!,
+      modalBarrierColor:
+          Color.lerp(modalBarrierColor, other.modalBarrierColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }

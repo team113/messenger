@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
@@ -36,7 +37,7 @@ abstract class ModalPopup {
     if (context.isMobile && PlatformUtils.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: const Color(0xBB000000),
+        barrierColor: Theme.of(context).extension<Style>()!.modalBarrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
         isDismissible: isDismissible,
@@ -84,7 +85,7 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: const Color(0xBB000000),
+        barrierColor: Theme.of(context).extension<Style>()!.modalBarrierColor,
         barrierDismissible: isDismissible,
         builder: (context) {
           return Center(

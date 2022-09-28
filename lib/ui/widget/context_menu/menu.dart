@@ -14,14 +14,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import 'overlay.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
@@ -32,45 +28,19 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Close this context menu if [actions] are empty.
-    if (actions.isEmpty) {
-      scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
-      return Container();
-    }
-
-    // Border radius is based on the [ContextMenuOverlay]'s alignment.
-    Alignment quadrant = ContextMenuOverlay.of(context).alignment;
-    BorderRadius borderRadius = BorderRadius.only(
-      topLeft: quadrant.x > 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      topRight: quadrant.x < 0 && quadrant.y > 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomLeft: quadrant.x > 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-      bottomRight: quadrant.x < 0 && quadrant.y < 0
-          ? Radius.zero
-          : const Radius.circular(10),
-    );
-
     List<Widget> widgets = [];
+
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
       widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: actions[i],
-        ),
+        actions[i],
       );
 
       // Adds a divider if required.
       if (i < actions.length - 1) {
         widgets.add(
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-            color: const Color(0x99000000),
+            color: const Color(0x11000000),
             height: 1,
             width: double.infinity,
           ),
@@ -79,25 +49,25 @@ class ContextMenu extends StatelessWidget {
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [CustomBoxShadow(blurRadius: 6, color: Color(0x20000000))],
+      width: 220,
+      margin: const EdgeInsets.only(left: 1, top: 1),
+      decoration: BoxDecoration(
+        color: Theme.of(context).extension<Style>()!.contextBackgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: Color(0x33000000),
+            blurStyle: BlurStyle.outer,
+          )
+        ],
       ),
       child: ClipRRect(
-        borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xAAFFFFFF),
-              borderRadius: borderRadius,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widgets,
-            ),
-          ),
+        borderRadius: BorderRadius.circular(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: widgets,
         ),
       ),
     );
@@ -138,7 +108,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
       onTapUp: (_) {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
-        ContextMenuOverlay.of(context).hide();
       },
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
@@ -149,7 +118,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           height: 50,
           decoration: BoxDecoration(
             color: isMouseOver
-                ? const Color.fromARGB(255, 229, 231, 233)
+                ? Theme.of(context).extension<Style>()!.contextHoveredColor
                 : Colors.transparent,
           ),
           child: Row(
