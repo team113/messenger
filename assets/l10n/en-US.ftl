@@ -122,6 +122,7 @@ btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
     video on
+btn_change = Change
 btn_change_contact_name = Rename contact
 btn_change_password = Change password
 btn_close = Close
@@ -151,6 +152,8 @@ btn_logout = Logout
 btn_media_settings = Media settings
 btn_next = Next
 btn_ok = Ok
+btn_personalize = Personalization
+btn_remove = Remove
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
@@ -426,6 +429,7 @@ label_read_by = Read by
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
+label_personalization = Personalization
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found

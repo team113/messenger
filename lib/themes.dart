@@ -62,10 +62,11 @@ class Themes {
             ),
             subtitleColor: const Color(0xFF666666),
             subtitle2Color: const Color(0xFF63B4FF),
+            sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: colors.background,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
@@ -314,6 +315,7 @@ class Style extends ThemeExtension<Style> {
     required this.primaryBorder,
     required this.subtitleColor,
     required this.subtitle2Color,
+    required this.sidebarColor,
   });
 
   /// [BorderRadius] to use .
@@ -348,6 +350,8 @@ class Style extends ThemeExtension<Style> {
 
   /// Color used for medium emphasis text in lists.
   final Color subtitle2Color;
+  /// [Color] of the [HomeView]'s side bar.
+  final Color sidebarColor;
 
   @override
   ThemeExtension<Style> copyWith({
@@ -362,6 +366,7 @@ class Style extends ThemeExtension<Style> {
     Border? primaryBorder,
     Color? subtitleColor,
     Color? subtitle2Color,
+    Color? sidebarColor,
   }) {
     return Style(
       cardRadius: cardRadius ?? this.cardRadius,
@@ -376,6 +381,7 @@ class Style extends ThemeExtension<Style> {
       primaryBorder: primaryBorder ?? this.primaryBorder,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       subtitle2Color: subtitle2Color ?? this.subtitle2Color,
+      sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
 
@@ -400,6 +406,7 @@ class Style extends ThemeExtension<Style> {
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
+      sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }
 }

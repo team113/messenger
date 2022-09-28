@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -80,6 +81,9 @@ class HomeController extends GetxController {
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
       _settings.applicationSettings.value?.sideBarWidth ?? 350;
+
+  /// Returns the background's [Uint8List].
+  Rx<Uint8List?> get background => _settings.background;
 
   @override
   void onInit() {
