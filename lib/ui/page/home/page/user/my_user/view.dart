@@ -39,7 +39,7 @@ class MyUserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: MyUserController(Get.find(), Get.find(), Get.find()),
+      init: MyUserController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (MyUserController c) {
         return Scaffold(
           appBar: CustomAppBar.from(
@@ -112,11 +112,13 @@ class MyUserView extends StatelessWidget {
             return ContextMenuInterceptor(
               child: Obx(() {
                 return ListView(
-                  children: c.chat!.messages.reversed.map((e) {
+                  children: c.chat!.messages.map((e) {
                     return PostWidget(
-                      // chat: c.chat!.chat,
                       item: e,
-                      // me: c.me!,
+                      me: c.me,
+                      getUser: c.getUser,
+                      onGallery: c.calculateGallery,
+                      onDelete: () => c.deleteMessage(e.value),
                     );
                   }).toList(),
                 );

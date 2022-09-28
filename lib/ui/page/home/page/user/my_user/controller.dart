@@ -15,9 +15,11 @@ import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
@@ -26,7 +28,12 @@ import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 class MyUserController extends GetxController {
-  MyUserController(this._authService, this._myUserService, this._chatService);
+  MyUserController(
+    this._authService,
+    this._myUserService,
+    this._chatService,
+    this._userService,
+  );
 
   RxChat? chat;
 
@@ -40,6 +47,9 @@ class MyUserController extends GetxController {
   final AuthService _authService;
   final MyUserService _myUserService;
   final ChatService _chatService;
+
+  /// [User]s service fetching the [User]s in [getUser] method.
+  final UserService _userService;
 
   /// [AudioPlayer] playing a sent message sound.
   AudioPlayer? _audioPlayer;
@@ -133,6 +143,20 @@ class MyUserController extends GetxController {
         .forEach(AudioCache.instance.clear);
   }
 
+  /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
+  Future<void> deleteMessage(ChatItem item) async {
+    try {
+      await _chatService.deleteChatItem(item);
+    } on DeleteChatMessageException catch (e) {
+      MessagePopup.error(e);
+    } on DeleteChatForwardException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
   Future<void> pickMedia() =>
@@ -164,6 +188,35 @@ class MyUserController extends GetxController {
     if (video != null) {
       _addXFileAttachment(video);
     }
+  }
+
+  /// Returns an [User] from [UserService] by the provided [id].
+  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Returns a [List] of [Attachment]s representing a collection of all the
+  /// media files of this [chat].
+  List<Attachment> calculateGallery() {
+    final List<Attachment> attachments = [];
+
+    for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
+      if (m.value is ChatMessage) {
+        final ChatMessage msg = m.value as ChatMessage;
+        attachments.addAll(msg.attachments.where(
+          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+        ));
+      } else if (m.value is ChatForward) {
+        final ChatForward msg = m.value as ChatForward;
+        final ChatItem item = msg.item;
+
+        if (item is ChatMessage) {
+          attachments.addAll(item.attachments.where(
+            (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          ));
+        }
+      }
+    }
+
+    return attachments;
   }
 
   /// Opens a file choose popup and adds the selected files to the

@@ -613,17 +613,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             : isRead
                 ? const Color.fromRGBO(249, 249, 249, 1)
                 : const Color.fromRGBO(255, 255, 255, 1),
-
-        // borderRadius: BorderRadius.only(
-        //   topLeft: const Radius.circular(15),
-        //   topRight: const Radius.circular(15),
-        //   bottomLeft: !fromMe && widget.chat.value?.isGroup == true
-        //       ? Radius.zero
-        //       : const Radius.circular(15),
-        //   bottomRight: !fromMe && widget.chat.value?.isGroup == true
-        //       ? Radius.zero
-        //       : const Radius.circular(15),
-        // ),
       ),
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 500),

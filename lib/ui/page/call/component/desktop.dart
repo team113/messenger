@@ -1355,13 +1355,11 @@ Widget _primaryView(CallController c) {
                                   ),
                                 ContextMenuButton(
                                   label: 'btn_call_center_video'.l10n,
-                                  leading: SvgLoader.asset(
-                                    'assets/icons/center_video.svg',
-                                    width: 22,
-                                    height: 22,
-                                  ),
                                   onPressed: () => c.center(participant),
                                 ),
+                              ],
+                              if (participant.member.id != c.me.id) ...[
+                                // TODO.
                               ],
                               if (participant.video.value?.direction.value
                                       .isEmitting ??

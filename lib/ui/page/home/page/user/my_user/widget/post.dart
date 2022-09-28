@@ -10,6 +10,8 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
+import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
@@ -39,6 +41,8 @@ class PostWidget extends StatefulWidget {
     this.onReply,
     this.onCopy,
     this.onEdit,
+    this.getUser,
+    this.me,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -67,6 +71,12 @@ class PostWidget extends StatefulWidget {
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final Function()? onResend;
 
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final Future<RxUser?> Function(UserId userId)? getUser;
+
+  final UserId? me;
+
   @override
   State<PostWidget> createState() => _PostWidgetState();
 }
@@ -90,6 +100,8 @@ class _PostWidgetState extends State<PostWidget> {
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
+        } else if (widget.item.value is ChatForward) {
+          return _renderAsChatForward(context);
         } else {
           return Container();
         }
@@ -199,14 +211,240 @@ class _PostWidgetState extends State<PostWidget> {
     );
   }
 
+  Widget _renderAsChatForward(BuildContext context) {
+    ChatForward msg = widget.item.value as ChatForward;
+    ChatItem item = msg.item;
+
+    Style style = Theme.of(context).extension<Style>()!;
+
+    return DefaultTextStyle(
+      style: style.boldBody,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Flexible(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(),
+              child: Padding(
+                padding: EdgeInsets.zero,
+                child: Material(
+                  borderRadius: BorderRadius.circular(15),
+                  type: MaterialType.transparency,
+                  child: ContextMenuRegion(
+                    preventContextMenu: false,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    menu: Container(),
+                    alignment: Alignment.bottomLeft,
+                    actions: [
+                      ContextMenuButton(
+                        key: const Key('ReplyButton'),
+                        label: 'Reply'.l10n,
+                        leading: SvgLoader.asset(
+                          'assets/icons/reply.svg',
+                          width: 18.8,
+                          height: 16,
+                        ),
+                        onPressed: () => widget.onReply?.call(),
+                      ),
+                      ContextMenuButton(
+                        key: const Key('ForwardButton'),
+                        label: 'Forward'.l10n,
+                        leading: SvgLoader.asset(
+                          'assets/icons/forward.svg',
+                          width: 18.8,
+                          height: 16,
+                        ),
+                        onPressed: () async {},
+                      ),
+                      ContextMenuButton(
+                        label: 'Delete'.l10n,
+                        leading: SvgLoader.asset(
+                          'assets/icons/delete_small.svg',
+                          width: 17.75,
+                          height: 17,
+                        ),
+                        onPressed: () async {},
+                      ),
+                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+                      child: ClipRRect(
+                        clipBehavior: Clip.none,
+                        borderRadius: BorderRadius.circular(15),
+                        child: IntrinsicWidth(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                              border: style.secondaryBorder,
+                            ),
+                            child: _forwardedMessage(item),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _forwardedMessage(ChatItem item) {
+    Style style = Theme.of(context).extension<Style>()!;
+
+    Widget? content;
+    List<Widget> additional = [];
+
+    if (item is ChatMessage) {
+      var desc = StringBuffer();
+
+      if (item.text != null) {
+        desc.write(item.text!.val);
+      }
+
+      if (item.attachments.isNotEmpty) {
+        List<Attachment> media = item.attachments
+            .where((e) =>
+                e is ImageAttachment ||
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+            .toList();
+
+        List<Attachment> files = item.attachments
+            .where((e) =>
+                (e is FileAttachment && !e.isVideo) ||
+                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
+            .toList();
+
+        if (media.isNotEmpty || files.isNotEmpty) {
+          additional = [
+            if (files.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                child: Column(
+                  children: files.map(_fileAttachment).toList(),
+                ),
+              ),
+            if (media.isNotEmpty)
+              ClipRRect(
+                child: media.length == 1
+                    ? _mediaAttachment(
+                        0,
+                        media.first,
+                        media,
+                        filled: false,
+                      )
+                    : SizedBox(
+                        width: media.length * 120,
+                        height: max(media.length * 60, 300),
+                        child: FitView(
+                          dividerColor: Colors.transparent,
+                          children: media
+                              .mapIndexed(
+                                  (i, e) => _mediaAttachment(i, e, media))
+                              .toList(),
+                        ),
+                      ),
+              ),
+          ];
+        }
+      }
+
+      if (desc.isNotEmpty) {
+        content = Text(
+          desc.toString(),
+          style: style.boldBody,
+        );
+      }
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Color.fromRGBO(255, 255, 255, 1),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: WidgetButton(
+        child: FutureBuilder<RxUser?>(
+          key: Key('FutureBuilder_${item.id}'),
+          future: widget.getUser?.call(item.authorId),
+          builder: (context, snapshot) {
+            Color color = snapshot.data?.user.value.id == widget.me
+                ? const Color(0xFF63B4FF)
+                : AvatarWidget.colors[
+                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                        AvatarWidget.colors.length];
+
+            return Row(
+              key: Key('Row_${item.id}'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(width: 2, color: color),
+                      ),
+                    ),
+                    margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // const SizedBox(width: 6),
+                            Transform.scale(
+                              scaleX: -1,
+                              child: Icon(Icons.reply, size: 17, color: color),
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                snapshot.data?.user.value.name?.val ??
+                                    snapshot.data?.user.value.num.val ??
+                                    '...',
+                                style: style.boldBody.copyWith(color: color),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (content != null) ...[
+                          const SizedBox(height: 2),
+                          content,
+                        ],
+                        if (additional.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: additional,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   /// Returns rounded rectangle of a [child] representing a message box.
-  Widget _rounded(
-    BuildContext context,
-    Widget child, {
-    EdgeInsets padding = const EdgeInsets.all(8),
-    bool ignoreFirstRmb = false,
-    double avatarOffset = 0,
-  }) {
+  Widget _rounded(BuildContext context, Widget child) {
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -256,9 +494,9 @@ class _PostWidgetState extends State<PostWidget> {
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: min(550, constraints.maxWidth * 0.84 + -10),
-                ),
+                constraints: const BoxConstraints(
+                    // maxWidth: min(550, constraints.maxWidth * 0.84 + -10),
+                    ),
                 child: Padding(
                   padding: EdgeInsets.zero,
                   child: Material(
@@ -266,7 +504,6 @@ class _PostWidgetState extends State<PostWidget> {
                     type: MaterialType.transparency,
                     child: ContextMenuRegion(
                       preventContextMenu: false,
-                      usePointerDown: ignoreFirstRmb,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -378,6 +615,7 @@ class _PostWidgetState extends State<PostWidget> {
                               height: 17,
                             ),
                             onPressed: () async {
+                              widget.onDelete?.call();
                               // await ModalPopup.show(
                               //   context: context,
                               //   child: _buildDelete2(item),

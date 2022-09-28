@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
@@ -273,6 +274,7 @@ class ChatForwardView extends StatelessWidget {
                             chat: e,
                             selected: c.selectedChats.contains(e),
                             onTap: () => c.selectChat(e),
+                            me: c.me,
                           );
                         });
                       }
@@ -377,6 +379,7 @@ class ChatForwardView extends StatelessWidget {
     required RxChat chat,
     void Function()? onTap,
     bool selected = false,
+    UserId? me,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 
@@ -412,7 +415,9 @@ class ChatForwardView extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          chat.title.value,
+                          chat.title.value == 'Wall_$me'
+                              ? 'Your wall'
+                              : chat.title.value,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: Theme.of(context).textTheme.headline5,

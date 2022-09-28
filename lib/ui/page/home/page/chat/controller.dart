@@ -297,7 +297,7 @@ class ChatController extends GetxController {
 
             if (!PlatformUtils.isWeb) {
               if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = e.isAltPressed || e.isControlPressed;
+                handled = handled || e.isAltPressed || e.isControlPressed;
               }
             }
 
