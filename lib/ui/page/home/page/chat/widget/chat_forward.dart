@@ -40,7 +40,6 @@ import 'video_thumbnail/video_thumbnail.dart';
 class ChatForwardWidget extends StatefulWidget {
   const ChatForwardWidget({
     Key? key,
-    required this.id,
     required this.chat,
     required this.forwards,
     required this.note,
@@ -62,7 +61,6 @@ class ChatForwardWidget extends StatefulWidget {
   final RxList<Rx<ChatItem>> forwards;
   final Rx<Rx<ChatItem>?> note;
 
-  final String id;
   final UserId authorId;
   final UserId me;
 
@@ -220,7 +218,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Padding(
                         padding: EdgeInsets.zero,
                         child: Material(
-                          key: Key('Message_${widget.id}'),
                           type: MaterialType.transparency,
                           child: ContextMenuRegion(
                             preventContextMenu: false,
@@ -231,7 +228,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             alignment: fromMe
                                 ? Alignment.bottomRight
                                 : Alignment.bottomLeft,
-                            id: widget.id,
                             actions: [
                               ContextMenuButton(
                                 key: const Key('ReplyButton'),
@@ -667,27 +663,25 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (snapshot.data?.user.value != null)
-                            Row(
-                              children: [
-                                // const SizedBox(width: 6),
-                                Transform.scale(
-                                  scaleX: -1,
-                                  child:
-                                      Icon(Icons.reply, size: 17, color: color),
+                          Row(
+                            children: [
+                              // const SizedBox(width: 6),
+                              Transform.scale(
+                                scaleX: -1,
+                                child:
+                                    Icon(Icons.reply, size: 17, color: color),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  snapshot.data?.user.value.name?.val ??
+                                      snapshot.data?.user.value.num.val ??
+                                      '...',
+                                  style: style.boldBody.copyWith(color: color),
                                 ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    snapshot.data?.user.value.name?.val ??
-                                        snapshot.data?.user.value.num.val ??
-                                        '...',
-                                    style:
-                                        style.boldBody.copyWith(color: color),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
                           if (content != null) ...[
                             const SizedBox(height: 2),
                             content,

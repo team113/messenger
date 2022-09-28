@@ -1266,7 +1266,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _buildFileAttachment(Attachment e) {
     bool isRead = _isRead();
     bool fromMe = widget.item.value.authorId == widget.me;
-    Style style = Theme.of(context).extension<Style>()!;
 
     Widget leading = Container();
     if (e is FileAttachment) {
@@ -1277,17 +1276,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             child: Stack(
               alignment: Alignment.center,
               children: [
+                SvgLoader.asset(
+                  'assets/icons/download_cancel.svg',
+                  width: 28,
+                  height: 28,
+                ),
                 SizedBox.square(
-                  dimension: 28,
+                  dimension: 26.3,
                   child: CircularProgressIndicator(
+                    strokeWidth: 2.3,
                     key: const Key('Downloading'),
                     value: e.progress.value,
+                    color: Colors.white.withOpacity(0.7),
                   ),
-                ),
-                const Icon(
-                  Icons.clear,
-                  key: Key('CancelDownloading'),
-                  size: 28,
                 ),
               ],
             ),
@@ -1295,34 +1296,31 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           break;
 
         case DownloadStatus.downloaded:
-          leading = Icon(
+          leading = const Icon(
             Icons.file_copy,
-            key: const Key('Downloaded'),
-            color: fromMe
-                ? isRead
-                    ? Colors.white
-                    : const Color(0xFFDDDDDD)
-                : const Color(0xFFDDDDDD),
+            key: Key('Downloaded'),
+            color: Color(0xFF63B4FF),
             size: 28,
           );
           break;
 
         case DownloadStatus.notDownloaded:
-          leading = Icon(
-            Icons.download,
-            key: const Key('Download'),
-            size: 28,
-            color: fromMe
-                ? isRead
-                    ? Colors.white
-                    : const Color(0xFFDDDDDD)
-                : const Color(0xFFDDDDDD),
+          leading = SvgLoader.asset(
+            'assets/icons/download.svg',
+            width: 28,
+            height: 28,
           );
           break;
       }
     }
 
-    leading = KeyedSubtree(key: const Key('Sent'), child: leading);
+    leading = KeyedSubtree(
+      key: const Key('Sent'),
+      child: AnimatedSwitcher(
+        duration: 250.milliseconds,
+        child: leading,
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
@@ -1343,14 +1341,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           padding: const EdgeInsets.all(4),
           child: Row(
             children: [
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               leading,
-              // Icon(
-              //   Icons.file_copy,
-              //   color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
-              //   size: 28,
-              // ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 11),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1376,7 +1369,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
             ],
           ),
         ),

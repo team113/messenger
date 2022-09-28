@@ -787,10 +787,10 @@ class _GalleryPopupState extends State<GalleryPopup>
                     color: const Color(0x794E5A78),
                     onPressed: _toggleFullscreen,
                     withBlur: true,
-                    assetWidth: 20,
+                    assetWidth: 22,
                     asset: _isFullscreen.value
-                        ? 'fullscreen_exit'
-                        : 'fullscreen_enter',
+                        ? 'fullscreen_exit2'
+                        : 'fullscreen_enter2',
                   ),
                 ),
               ),

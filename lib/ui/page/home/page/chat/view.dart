@@ -378,7 +378,10 @@ class _ChatViewState extends State<ChatView>
                                   (context, i) => _listElement(context, c, i),
                                   childCount: c.elements.length,
                                   keepPosition: true,
-                                  onItemKey: (i) => c.elements[i]?.id ?? '$i',
+                                  onItemKey: (i) => c.elements.values
+                                      .elementAt(i)
+                                      .id
+                                      .toString(),
                                   onItemSticky: (i) => c.elements.values
                                       .elementAt(i) is DateTimeElement,
                                   initIndex: c.initIndex,
@@ -563,7 +566,6 @@ class _ChatViewState extends State<ChatView>
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.authorId),
           builder: (_, u) => ChatItemWidget(
-            key: Key('ChatItemWidget_${e.value.id}'),
             chat: c.chat!.chat,
             item: e,
             me: c.me!,
@@ -598,7 +600,6 @@ class _ChatViewState extends State<ChatView>
           future: c.getUser(element.authorId),
           builder: (_, u) => ChatForwardWidget(
             key: Key('ChatForwardWidget_${element.id}'),
-            id: element.id,
             chat: c.chat!.chat,
             forwards: element.forwards,
             note: element.note,
@@ -632,7 +633,7 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is DateTimeElement) {
-      return _timeLabel(element.at.val);
+      return _timeLabel(element.id.at.val);
     } else if (element is UnreadMessagesElement) {
       Style style = Theme.of(context).extension<Style>()!;
       return Container(
@@ -668,230 +669,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return Container();
-  }
-
-  Widget _chatItemBuilder(ChatController c, BuildContext context, int i) {
-    // if (j == 0) {
-    //   return const SizedBox(height: 65);
-    // }
-
-    // if (j == (c.chat?.messages.length ?? 0) + 1) {
-    //   return Obx(() {
-    //     print('height is ${10 + (c.bottomBarRect.value?.height ?? 55)}');
-    //     return Container(
-    //       color: Colors.red,
-    //       height: 10 + (c.bottomBarRect.value?.height ?? 55),
-    //     );
-    //   });
-    // }
-
-    // int i = j - 1;
-
-    Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    List<Widget> widgets = [];
-    Rx<ChatItem> e = c.chat!.messages[i];
-
-    if (c.lastReadItem.value == e) {
-      widgets.add(
-        // Container(
-        //   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        //   decoration: BoxDecoration(
-        //     borderRadius: BorderRadius.circular(15),
-        //     border: style.cardBorder,
-        //     color: const Color(0xFFF8F8F8),
-        //   ),
-        //   child: Text(
-        //     '${c.unreadMessages} unread messages',
-        //     style: const TextStyle(
-        //       fontSize: 13,
-        //       color: Color(0xFF888888),
-        //     ),
-        //   ),
-        // ),
-
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(vertical: 16 * 1.5),
-        //   child: ConditionalBackdropFilter(
-        //     child: Container(
-        //       width: double.infinity,
-        //       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        //       decoration: BoxDecoration(
-        //         // border: style.cardBorder,
-        //         color: const Color(0xFFF8F8F8).withOpacity(0.4),
-        //       ),
-        //       child: DefaultTextStyle.merge(
-        //         style: thin?.copyWith(
-        //           fontSize: 13,
-        //           color: Color.fromARGB(255, 60, 60, 60),
-        //         ),
-        //         child:
-        //             Center(child: Text('${c.unreadMessages} unread messages')),
-        //       ),
-        //     ),
-        //   ),
-        // ),
-
-        // Container(
-        //   width: double.infinity,
-        //   margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
-        //   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        //   decoration: BoxDecoration(
-        //     border: style.cardBorder,
-        //     color: const Color(0xFFF8F8F8),
-        //   ),
-        //   child: DefaultTextStyle.merge(
-        //     style: thin?.copyWith(
-        //       fontSize: 13,
-        //       color: const Color(0xFF888888),
-        //     ),
-        //     child: Center(child: Text('${c.unreadMessages} unread messages')),
-        //   ),
-        // ),
-
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 16 * 1.5),
-          child: Row(
-            children: [
-              const SizedBox(width: 8),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: style.systemMessageBorder,
-                    color: style.systemMessageColor,
-                    // color: const Color(0xFFF8F8F8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${c.unreadMessages} unread messages',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF888888),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-        ),
-
-        // Container(
-        //   color: const Color(0x33000000),
-        //   padding: const EdgeInsets.all(4),
-        //   margin: const EdgeInsets.symmetric(vertical: 4),
-        //   child: Center(
-        //     child: Text(
-        //       'label_unread_messages'.l10n,
-        //       style: const TextStyle(color: Colors.white),
-        //       textAlign: TextAlign.center,
-        //     ),
-        //   ),
-        // ),
-      );
-    }
-
-    Widget widget = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: FutureBuilder<RxUser?>(
-        future: c.getUser(e.value.authorId),
-        builder: (_, u) => ChatItemWidget(
-          key: Key(e.value.id.val),
-          chat: c.chat!.chat,
-          item: e,
-          me: c.me!,
-          user: u.data,
-          getUser: c.getUser,
-          onJoinCall: c.joinCall,
-          onHide: () => c.hideChatItem(e.value),
-          onDelete: () => c.deleteMessage(e.value),
-          onReply: () {
-            if (c.repliedMessages.contains(e.value)) {
-              c.repliedMessages.remove(e.value);
-            } else {
-              c.repliedMessages.insert(0, e.value);
-            }
-          },
-          onCopy: c.copyText,
-          onForwardedTap: (id, chatId) {
-            if (chatId == c.id) {
-              c.animateTo(id);
-            } else {
-              router.chat(
-                chatId,
-                itemId: id,
-                push: true,
-              );
-            }
-          },
-          onRepliedTap: (id) => c.animateTo(id),
-          animation: _animation,
-          onGallery: c.calculateGallery,
-          onResend: () => c.resendItem(e.value),
-          onEdit: () => c.editMessage(e.value),
-          onDrag: (d) => c.isItemDragged.value = d,
-        ),
-      ),
-    );
-
-    if (e.value.authorId != c.me &&
-        !c.chat!.chat.value.isReadBy(e.value, c.me) &&
-        c.status.value.isSuccess &&
-        !c.status.value.isLoadingMore) {
-      widget = VisibilityDetector(
-        key: Key('Detector_${e.value.id.val}'),
-        onVisibilityChanged: (info) {
-          if (info.visibleFraction > 0) {
-            if (c.lastVisibleItem.value?.at.isBefore(e.value.at) != false) {
-              c.lastVisibleItem.value = e.value;
-            }
-          }
-        },
-        child: widget,
-      );
-    }
-
-    if (i == 0) {
-      // Display a time over the first message.
-      widgets.add(_timeLabel(e.value.at.val));
-    } else {
-      Rx<ChatItem>? previous = c.chat?.messages[i - 1];
-
-      // Display a time if difference between
-      // messages is more than 30 minutes.
-      if (previous != null) {
-        if (previous.value.at.val.day != e.value.at.val.day) {
-          widgets.add(_timeLabel(e.value.at.val));
-        }
-
-        // if (previous.value.at.val.difference(e.value.at.val).inMinutes < -30) {
-        //   widgets.add(_timeLabel(e.value.at.val));
-        // }
-        else if (previous.value.at.val.difference(e.value.at.val).inMinutes <
-            -2) {
-          widgets.add(Container(height: 8, color: Colors.transparent));
-        }
-      }
-    }
-
-    widgets.add(widget);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        top: i == 0 ? 10 : 0,
-        bottom: i == c.chat!.messages.length - 1 ? 10 : 0,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: widgets,
-      ),
-    );
   }
 
   /// Returns a header subtitle of the [Chat].

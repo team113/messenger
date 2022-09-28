@@ -128,7 +128,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           child: Stack(
             children: [
               // if (widget.actions != null)
-              if (PlatformUtils.isMobile)
+              if (true)
                 FloatingContextMenu(
                   id: widget.id,
                   alignment: widget.alignment,

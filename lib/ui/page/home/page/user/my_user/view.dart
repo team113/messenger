@@ -31,6 +31,7 @@ import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
+import 'widget/post.dart';
 
 class MyUserView extends StatelessWidget {
   const MyUserView({Key? key}) : super(key: key);
@@ -111,12 +112,11 @@ class MyUserView extends StatelessWidget {
             return ContextMenuInterceptor(
               child: Obx(() {
                 return ListView(
-                  reverse: true,
-                  children: c.chat!.messages.map((e) {
-                    return ChatItemWidget(
-                      chat: c.chat!.chat,
+                  children: c.chat!.messages.reversed.map((e) {
+                    return PostWidget(
+                      // chat: c.chat!.chat,
                       item: e,
-                      me: c.me!,
+                      // me: c.me!,
                     );
                   }).toList(),
                 );
