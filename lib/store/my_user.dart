@@ -643,7 +643,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserUnmuted(node.userId);
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
-      return EventUserCameOffline(node.userId);
+      return EventUserCameOnline(node.userId);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

@@ -1047,11 +1047,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
-                child: AvatarWidget.fromUser(
-                  widget.user?.user.value ??
-                      widget.chat.value!.getUser(item.authorId),
-                  radius: 15,
-                ),
+                child: widget.user != null
+                    ? AvatarWidget.fromRxUser(
+                        widget.user,
+                        radius: 15,
+                      )
+                    : AvatarWidget.fromUser(
+                        widget.chat.value!.getUser(item.authorId),
+                        radius: 15,
+                      ),
               ),
             ),
           Flexible(

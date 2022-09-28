@@ -116,9 +116,10 @@ class ParticipantWidget extends StatelessWidget {
                               ]
                             : null,
                       ),
-                      child: AvatarWidget.fromUser(
-                        participant.user.value?.user.value,
+                      child: AvatarWidget.fromRxUser(
+                        participant.user.value,
                         radius: expanded ? 90 : 60,
+                        showBadge: false,
                       ),
                     ),
                   ),
