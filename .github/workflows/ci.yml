@@ -505,8 +505,8 @@ jobs:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
       - name: Verify Git tag version matches `pubspec.yaml` version
-        run: >
-          test "${{ steps.semver.outputs.group1 }}"
+        run: |
+          test "${{ steps.semver.outputs.group1 }}" \
             == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
 
       - name: Parse CHANGELOG link
