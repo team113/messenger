@@ -379,6 +379,28 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 ),
               ),
             ),
+            Positioned.fill(
+              child: Obx(() {
+                final Widget child;
+
+                if (participant.member.isConnected.value) {
+                  child = Container();
+                } else {
+                  child = Container(
+                    key: Key('ParticipantConnecting_${participant.member.id}'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.black.withOpacity(0.2),
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: child,
+                );
+              }),
+            ),
           ],
         ),
       );
