@@ -186,7 +186,7 @@ class EventChatRenamed extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.renamed;
 }
 
-/// Event of an [User] being redialed in a [ChatCall].
+/// Event of a [User] being redialed in a [ChatCall].
 class EventChatCallMemberRedialed extends ChatEvent {
   const EventChatCallMemberRedialed(
     ChatId chatId,
@@ -396,7 +396,7 @@ class EventChatCallFinished extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.callFinished;
 }
 
-/// Event of an [User] leaving a [ChatCall].
+/// Event of a [User] leaving a [ChatCall].
 class EventChatCallMemberLeft extends ChatEvent {
   const EventChatCallMemberLeft(ChatId chatId, this.user, this.at)
       : super(chatId);
@@ -411,7 +411,7 @@ class EventChatCallMemberLeft extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.callMemberLeft;
 }
 
-/// Event of an [User] joined a [ChatCall].
+/// Event of a [User] joined a [ChatCall].
 class EventChatCallMemberJoined extends ChatEvent {
   const EventChatCallMemberJoined(ChatId chatId, this.user, this.at)
       : super(chatId);
