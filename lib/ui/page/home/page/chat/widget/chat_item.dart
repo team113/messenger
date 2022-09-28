@@ -587,9 +587,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.finishedAt!.val
+              .difference(item.conversationStartedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == widget.me
             ? 'label_outgoing_call'.l10n

@@ -1064,9 +1064,12 @@ class _ChatViewState extends State<ChatView>
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
