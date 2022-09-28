@@ -320,7 +320,8 @@ class _ChatViewState extends State<ChatView>
                                             onFileTap: (a) =>
                                                 c.download(e.value, a),
                                             onAttachmentError: () async {
-                                              await c.chat?.fetch(e.value);
+                                              await c.chat
+                                                  ?.updateAttachments(e.value);
                                               await Future.delayed(
                                                 Duration.zero,
                                               );
@@ -740,13 +741,10 @@ class _ChatViewState extends State<ChatView>
             ),
             const SizedBox(width: 8),
             _button(
-              icon: const AnimatedSwitcher(
-                duration: Duration(milliseconds: 150),
-                child: Padding(
-                  key: Key('Send'),
-                  padding: EdgeInsets.only(left: 2, top: 1),
-                  child: Icon(Icons.send, size: 24),
-                ),
+              icon: const Padding(
+                key: Key('Send'),
+                padding: EdgeInsets.only(left: 2, top: 1),
+                child: Icon(Icons.send, size: 24),
               ),
               onTap: (c.send.isEmpty.value &&
                       c.attachments.isEmpty &&

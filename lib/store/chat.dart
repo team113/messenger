@@ -576,15 +576,8 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Fetches the [Attachment]s of the provided [item].
   Future<List<Attachment>> attachments(HiveChatItem item) async {
-    var response = await _graphQlProvider.attachments(
-      item.value.chatId,
-      before: item.cursor,
-      after: item.cursor,
-      first: 1,
-      last: 0,
-    );
-
-    return response.chat?.items.toModel() ?? [];
+    var response = await _graphQlProvider.attachments(item.value.id);
+    return response.chatItem?.toModel() ?? [];
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].

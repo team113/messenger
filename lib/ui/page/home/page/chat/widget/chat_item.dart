@@ -128,7 +128,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(FileAttachment)? onFileTap;
 
-  /// Callback, called on the [Attachment] fetch errors.
+  /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
   @override
@@ -720,7 +720,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  var link = '${Config.files}${o.original.relativeRef}';
+                  String link = '${Config.files}${o.original.relativeRef}';
                   if (o is FileAttachment) {
                     gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
@@ -729,7 +729,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     item = GalleryItem.image(
                       link,
                       o.filename,
-                      onDownloadError: () async {
+                      onError: () async {
                         await widget.onAttachmentError?.call();
                         item?.link = '${Config.files}${o.original.relativeRef}';
                       },
@@ -763,9 +763,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   bytes: e.file.bytes!,
                                   height: 300,
                                 )
-                          : VideoThumbnail.path(
+                          : VideoThumbnail.url(
                               key: _galleryKeys[i],
-                              path: '${Config.files}${e.original.relativeRef}',
+                              url: '${Config.files}${e.original.relativeRef}',
                               height: 300,
                               onError: widget.onAttachmentError,
                             ),

@@ -99,7 +99,11 @@ class ChatService extends DisposableService {
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {
-      text ??= const ChatMessageText(' ');
+      return _chatRepository.forwardChatItems(
+        chatId,
+        chatId,
+        repliesTo.map((e) => ChatItemQuote(item: e)).toList(),
+      );
     }
 
     if (text != null && text.val.length > ChatMessageText.maxLength) {

@@ -972,36 +972,16 @@ abstract class ChatGraphQlMixin {
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
   }
 
-  /// Fetches the [Attachment]s of the [ChatItem]s in a [Chat] identified by its
-  /// [id].
+  /// Returns the [Attachment]s of a [ChatItem] identified by the provided [id].
   ///
-  /// It is allowed to specify both [first] and [last] at the same time provided
-  /// that [after] and [before] are equal. In such cases the returned page will
-  /// include the [Attachment]s of the [ChatItem] pointed by the cursor and the
-  /// requested number of [ChatItem]s preceding and following it.
-  ///
-  /// If it is desired to receive the [Attachment]s of the [ChatItem] under the
-  /// cursor without querying in both directions one can specify [first] or
-  /// [last] as 0.
+  /// The authenticated [MyUser] should be a member of the [Chat] the provided
+  /// [ChatItem] belongs to, in order to view it.
   ///
   /// ### Authentication
   ///
   /// Mandatory.
-  Future<GetAttachments$Query> attachments(
-    ChatId id, {
-    int? first,
-    ChatItemsCursor? after,
-    int? last,
-    ChatItemsCursor? before,
-  }) async {
-    final variables = GetAttachmentsArguments(
-      id: id,
-      first: first,
-      after: after,
-      last: last,
-      before: before,
-      onlyAttachments: true,
-    );
+  Future<GetAttachments$Query> attachments(ChatItemId id) async {
+    final variables = GetAttachmentsArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetAttachments',

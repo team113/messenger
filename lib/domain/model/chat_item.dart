@@ -102,7 +102,7 @@ class ChatMessage extends ChatItem {
     SendingStatus? status,
   }) : super(id, chatId, authorId, at, status: status);
 
-  /// Quote of the [ChatItem] this [ChatMessage] replies to.
+  /// [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
   final List<ChatItem> repliesTo;
 

@@ -202,8 +202,10 @@ abstract class RxChat {
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
 
-  /// Fetches the specified [item] to be up-to-date.
-  Future<void> fetch(ChatItem item);
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId id);

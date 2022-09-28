@@ -409,9 +409,7 @@ class OngoingCall {
 
                   final CallMemberId id =
                       CallMemberId(node.user.id, node.deviceId);
-                  CallMember? member = members[id];
-
-                  if (member?.isConnected.value == false) {
+                  if (members[id]?.isConnected.value == false) {
                     members.remove(id);
                   }
                   break;
@@ -425,7 +423,10 @@ class OngoingCall {
                     members[id] = CallMember(
                       id,
                       null,
-                      isHandRaised: false,
+                      isHandRaised: call.value?.members
+                              .firstWhereOrNull((e) => e.user.id == id.userId)
+                              ?.handRaised ??
+                          false,
                       isConnected: false,
                     );
                   }
@@ -434,17 +435,28 @@ class OngoingCall {
 
                 case ChatCallEventKind.handLowered:
                   var node = event as EventChatCallHandLowered;
-                  for (var m in members.entries
+
+                  for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = false;
+                  }
+
+                  for (ChatCallMember m in (call.value?.members ?? [])
+                      .where((e) => e.user.id == node.user.id)) {
+                    m.handRaised = false;
                   }
                   break;
 
                 case ChatCallEventKind.handRaised:
                   var node = event as EventChatCallHandRaised;
-                  for (var m in members.entries
+                  for (MapEntry<CallMemberId, CallMember> m in members.entries
                       .where((e) => e.key.userId == node.user.id)) {
                     m.value.isHandRaised.value = true;
+                  }
+
+                  for (ChatCallMember m in (call.value?.members ?? [])
+                      .where((e) => e.user.id == node.user.id)) {
+                    m.handRaised = true;
                   }
                   break;
 
@@ -897,6 +909,7 @@ class OngoingCall {
     _room!.onNewConnection((conn) {
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMember? member = members[id];
+
       if (member != null) {
         member.isConnected.value = true;
       } else {
@@ -1155,7 +1168,6 @@ class OngoingCall {
     me.isConnected.value = false;
 
     Log.print('Joining the room...', 'CALL');
-
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
       Log.print('Closing the previous one and connecting to the new', 'CALL');
       _closeRoom();

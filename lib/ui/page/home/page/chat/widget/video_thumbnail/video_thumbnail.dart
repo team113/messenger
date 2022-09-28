@@ -27,24 +27,24 @@ import 'src/interface.dart'
 class VideoThumbnail extends StatefulWidget {
   const VideoThumbnail._({
     Key? key,
-    this.path,
+    this.url,
     this.bytes,
     this.height,
     this.onError,
   })  : assert(
-            (path != null && bytes == null) || (path == null && bytes != null)),
+            (url != null && bytes == null) || (url == null && bytes != null)),
         super(key: key);
 
-  /// Constructs a [VideoThumbnail] from the provided [path].
-  factory VideoThumbnail.path({
+  /// Constructs a [VideoThumbnail] from the provided [url].
+  factory VideoThumbnail.url({
     Key? key,
-    required String path,
+    required String url,
     double? height,
     Future<void> Function()? onError,
   }) =>
       VideoThumbnail._(
         key: key,
-        path: path,
+        url: url,
         height: height,
         onError: onError,
       );
@@ -64,7 +64,7 @@ class VideoThumbnail extends StatefulWidget {
       );
 
   /// URL of the video to display.
-  final String? path;
+  final String? url;
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
@@ -98,6 +98,15 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(VideoThumbnail oldWidget) {
+    if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
+      _initVideo();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -146,7 +155,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       if (widget.bytes != null) {
         _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
       } else {
-        _controller = VideoPlayerController.network(widget.path!);
+        _controller = VideoPlayerController.network(widget.url!);
       }
 
       await _controller.initialize();
@@ -154,15 +163,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
         if (widget.onError != null) {
           await widget.onError?.call();
-          if (widget.bytes != null) {
-            _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
-          } else {
-            _controller = VideoPlayerController.network(widget.path!);
-          }
-
-          if (mounted) {
-            setState(() {});
-          }
         } else {
           _hasError = true;
         }

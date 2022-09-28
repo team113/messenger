@@ -354,37 +354,32 @@ extension FileAttachmentConversion on FileAttachmentMixin {
       );
 }
 
-/// Extension adding models construction from a
-/// [GetAttachments$Query$Chat$Items].
-extension GetAttachmentsConversion on GetAttachments$Query$Chat$Items {
+/// Extension adding models construction from a [GetAttachments$Query$ChatItem].
+extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
   /// Constructs a new list of [Attachment]s from this
-  /// [GetAttachments$Query$Chat$Items].
+  /// [GetAttachments$Query$ChatItem].
   List<Attachment> toModel() {
     final List<Attachment> attachments = [];
 
-    for (var e in edges) {
-      if (e.node.$$typename == 'ChatMessage') {
-        var message =
-            e.node as GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage;
-        attachments.addAll(message.attachments.map((e) => e.toModel()));
+    if (node.$$typename == 'ChatMessage') {
+      var message = node as GetAttachments$Query$ChatItem$Node$ChatMessage;
+      attachments.addAll(message.attachments.map((e) => e.toModel()));
 
-        if (message.repliesTo.isNotEmpty) {
-          for (var r in message.repliesTo) {
-            if (r.node.$$typename == 'ChatMessage') {
-              var replied = r.node
-                  as GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$RepliesTo$Node$ChatMessage;
-              attachments.addAll(replied.attachments.map((e) => e.toModel()));
-            }
+      if (message.repliesTo.isNotEmpty) {
+        for (var r in message.repliesTo) {
+          if (r.node.$$typename == 'ChatMessage') {
+            var replied = r.node
+                as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage;
+            attachments.addAll(replied.attachments.map((e) => e.toModel()));
           }
         }
-      } else if (e.node.$$typename == 'ChatForward') {
-        var message =
-            e.node as GetAttachments$Query$Chat$Items$Edges$Node$ChatForward;
-        if (message.item.node.$$typename == 'ChatMessage') {
-          var node = message.item.node
-              as GetAttachments$Query$Chat$Items$Edges$Node$ChatForward$Item$Node$ChatMessage;
-          attachments.addAll(node.attachments.map((e) => e.toModel()));
-        }
+      }
+    } else if (node.$$typename == 'ChatForward') {
+      var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
+      if (message.item.node.$$typename == 'ChatMessage') {
+        var node = message.item.node
+            as GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage;
+        attachments.addAll(node.attachments.map((e) => e.toModel()));
       }
     }
 
@@ -393,29 +388,29 @@ extension GetAttachmentsConversion on GetAttachments$Query$Chat$Items {
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments].
 extension GetAttachmentsChatMessageAttachmentConversion
-    on GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$Chat$Items$Edges$Node$ChatForward$Item$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments].
 extension GetAttachmentsChatForwardAttachmentConversion
-    on GetAttachments$Query$Chat$Items$Edges$Node$ChatForward$Item$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$Chat$Items$Edges$Node$ChatForward$Item$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Item$Node$ChatMessage$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
 extension GetAttachmentsChatMessageRepliesToAttachmentConversion
-    on GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$Chat$Items$Edges$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Node$ChatMessage$Attachments].
   Attachment toModel() => _attachment(this);
 }
 

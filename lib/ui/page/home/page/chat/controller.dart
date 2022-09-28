@@ -689,7 +689,7 @@ class ChatController extends GetxController {
       try {
         await attachment.download();
       } catch (_) {
-        await chat?.fetch(item);
+        await chat?.updateAttachments(item);
         await Future.delayed(Duration.zero);
         await attachment.download();
       }

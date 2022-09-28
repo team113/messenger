@@ -14,9 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/domain/model/file.dart';
-
 import '../schema.dart';
+import '/domain/model/file.dart';
 
 /// Extension adding models construction from a [FileMixin].
 extension FileConversion on FileMixin {

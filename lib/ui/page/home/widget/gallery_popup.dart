@@ -30,6 +30,7 @@ import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/util/message_popup.dart';
@@ -45,33 +46,33 @@ class GalleryItem {
     required this.link,
     required this.name,
     this.isVideo = false,
-    this.onDownloadError,
+    this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
   factory GalleryItem.image(
     String link,
     String name, {
-    Future<void> Function()? onDownloadError,
+    Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         isVideo: false,
-        onDownloadError: onDownloadError,
+        onError: onError,
       );
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
     String link,
     String name, {
-    Future<void> Function()? onDownloadError,
+    Future<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         isVideo: true,
-        onDownloadError: onDownloadError,
+        onError: onError,
       );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
@@ -83,8 +84,8 @@ class GalleryItem {
   /// File name of this [GalleryItem].
   final String name;
 
-  /// Callback, called on the download errors of this [GalleryItem].
-  final Future<void> Function()? onDownloadError;
+  /// Callback, called on the fetch errors of this [GalleryItem].
+  final Future<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -391,6 +392,20 @@ class _GalleryPopupState extends State<GalleryPopup>
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                },
               );
             }
 
@@ -412,6 +427,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                             _videoControllers.remove(index);
                           } else {
                             _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
                           }
                         },
                       )
@@ -476,6 +497,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                           _videoControllers[index] = c;
                         }
                       },
+                      onError: () async {
+                        await e.onError?.call();
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
                     )
                   : ContextMenuRegion(
                       enabled: !PlatformUtils.isWeb,
@@ -499,7 +526,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                         },
                         child: PlatformUtils.isWeb
                             ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
+                            : Image.network(
+                                e.link,
+                                errorBuilder: (_, __, ___) {
+                                  return InitCallback(
+                                    callback: () async {
+                                      await e.onError?.call();
+                                      if (mounted) {
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: const SizedBox(
+                                      height: 300,
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                     ),
             ],
@@ -829,8 +874,8 @@ class _GalleryPopupState extends State<GalleryPopup>
       try {
         await PlatformUtils.download(item.link, item.name);
       } catch (_) {
-        if (item.onDownloadError != null) {
-          await item.onDownloadError?.call();
+        if (item.onError != null) {
+          await item.onError?.call();
           await PlatformUtils.download(item.link, item.name);
         } else {
           rethrow;
@@ -851,8 +896,8 @@ class _GalleryPopupState extends State<GalleryPopup>
       try {
         await PlatformUtils.saveToGallery(item.link, item.name);
       } catch (_) {
-        if (item.onDownloadError != null) {
-          await item.onDownloadError?.call();
+        if (item.onError != null) {
+          await item.onError?.call();
           await PlatformUtils.saveToGallery(item.link, item.name);
         } else {
           rethrow;
@@ -873,8 +918,8 @@ class _GalleryPopupState extends State<GalleryPopup>
       try {
         await PlatformUtils.share(item.link, item.name);
       } catch (_) {
-        if (item.onDownloadError != null) {
-          await item.onDownloadError?.call();
+        if (item.onError != null) {
+          await item.onError?.call();
           await PlatformUtils.share(item.link, item.name);
         } else {
           rethrow;
