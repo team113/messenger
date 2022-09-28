@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.6] · 2022-??-??
+## [0.1.0-alpha.6] · 2022-09-28
 [0.1.0-alpha.6]: /../../tree/v0.1.0-alpha.6
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
@@ -72,8 +72,8 @@ All user visible changes to this project will be documented in this file. This p
 [#4]: /../../issues/4
 [#5]: /../../pull/5
 [#6]: /../../issues/6
-[#8]: /../../issues/8
 [#7]: /../../pull/7
+[#8]: /../../issues/8
 [#9]: /../../pull/9
 [#11]: /../../issues/11
 [#12]: /../../pull/12

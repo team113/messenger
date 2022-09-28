@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0] · 2022-??-??
+## [0.1.0] · 2022-09-28
 [0.1.0]: https://github.com/team113/messenger/tree/helm/messenger/0.1.0
 
 ### Added
