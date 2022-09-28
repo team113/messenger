@@ -65,6 +65,12 @@ class MenuTabView extends StatelessWidget {
               ),
               ...divider,
               ListTile(
+                key: const Key('PersonalizationButton'),
+                title: Text('btn_personalize'.l10n),
+                leading: const Icon(Icons.design_services),
+                onTap: router.personalization,
+              ),
+              ListTile(
                 key: const Key('SettingsButton'),
                 title: Text('btn_settings'.l10n),
                 leading: const Icon(Icons.settings),

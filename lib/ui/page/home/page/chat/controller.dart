@@ -36,6 +36,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -67,7 +68,8 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.itemId,
   });
 
@@ -179,6 +181,9 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to get the [background] value.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -191,6 +196,9 @@ class ChatController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the [Uint8List] of the background.
+  Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
