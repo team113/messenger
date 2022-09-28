@@ -63,14 +63,6 @@ void main() async {
         {
           'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'name': 'null',
-          'avatar': {
-            'galleryItemId': 'galleryItemId',
-            'full': 'galleryItemId',
-            'big': 'galleryItemId',
-            'medium': 'galleryItemId',
-            'small': 'galleryItemId',
-            'original': 'galleryItemId',
-          },
           'members': {'nodes': []},
           'kind': 'GROUP',
           'isHidden': false,
@@ -85,7 +77,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]

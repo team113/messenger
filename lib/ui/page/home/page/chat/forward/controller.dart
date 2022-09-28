@@ -175,14 +175,14 @@ class ChatForwardController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.currentCall != null &&
-          b.chat.value.currentCall == null) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
         return -1;
-      } else if (a.chat.value.currentCall == null &&
-          b.chat.value.currentCall != null) {
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
         return 1;
       }
 

@@ -16,14 +16,15 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/model_type_id.dart';
+import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 import 'base.dart';
@@ -45,9 +46,8 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
     Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveUserAdapter());
     Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
-    Hive.maybeRegisterAdapter(OriginalAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(SquareAdapter());
+    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserBioAdapter());

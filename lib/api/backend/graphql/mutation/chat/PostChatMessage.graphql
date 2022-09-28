@@ -18,7 +18,7 @@ mutation PostChatMessage(
     $chatId: ChatId!
     $text: ChatMessageText
     $attachments: [AttachmentId!]
-    $repliesTo: ChatItemId
+    $repliesTo: [ChatItemId!]!
 ) {
     postChatMessage(
         chatId: $chatId
