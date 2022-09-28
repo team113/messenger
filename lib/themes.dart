@@ -345,7 +345,6 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// Color used for the primary text in lists.
   final Color subtitleColor;
 
   /// Color used for medium emphasis text in lists.

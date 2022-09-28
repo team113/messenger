@@ -20,7 +20,6 @@ import 'dart:collection';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -129,16 +128,7 @@ class ChatsTabController extends GetxController {
       _callService.calls[id] != null || WebUtils.containsCall(id);
 
   /// Drops the call in the [Chat] identified by the provided [id].
-  Future<void> dropCall(ChatId chatId) {
-    final ChatCallDeviceId? deviceId =
-        _callService.calls[chatId]?.value.deviceId;
-    if (deviceId != null) {
-      WebUtils.removeCall(chatId);
-      return _callService.leave(chatId, deviceId);
-    } else {
-      return Future<void>.value();
-    }
-  }
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.
@@ -186,10 +176,6 @@ class ChatsTabController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
-
-  /// Gets the start time of the [Chat] call with the specified [id].
-  PreciseDateTime? getCallStart(ChatId id) =>
-      _callService.calls[id]?.value.call.value?.at;
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
   void _sortChats() {
