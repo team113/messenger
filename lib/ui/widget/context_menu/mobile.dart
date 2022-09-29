@@ -17,6 +17,7 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -32,6 +33,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
+    this.onOpen,
   }) : super(key: key);
 
   /// Widget to show context menu on.
@@ -42,6 +44,9 @@ class FloatingContextMenu extends StatefulWidget {
 
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
+
+  /// Callback, called when this [FloatingContextMenu] opens a context menu.
+  final VoidCallback? onOpen;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -84,26 +89,31 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   }
 
   /// Shows context menu with [widget.actions].
-  void _populateEntry(BuildContext context) {
-    _rect = _key.globalPaintBounds;
-    HapticFeedback.selectionClick();
-    _entry = OverlayEntry(builder: (context) {
-      return _AnimatedMenu(
-        globalKey: _key,
-        alignment: widget.alignment,
-        actions: widget.actions,
-        onClosed: () {
-          _entry?.remove();
-          _entry = null;
-          setState(() {});
-        },
-        child: widget.child,
-      );
-    });
-
+  Future<void> _populateEntry(BuildContext context) async {
+    widget.onOpen?.call();
     setState(() {});
 
-    Overlay.of(context, rootOverlay: true)?.insert(_entry!);
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _rect = _key.globalPaintBounds;
+      HapticFeedback.selectionClick();
+      _entry = OverlayEntry(builder: (context) {
+        return _AnimatedMenu(
+          globalKey: _key,
+          alignment: widget.alignment,
+          actions: widget.actions,
+          onClosed: () {
+            _entry?.remove();
+            _entry = null;
+            setState(() {});
+          },
+          child: widget.child,
+        );
+      });
+
+      setState(() {});
+
+      Overlay.of(context, rootOverlay: true)?.insert(_entry!);
+    });
   }
 }
 
@@ -182,6 +192,14 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
           curve: const Interval(0, 0.3, curve: Curves.ease),
         ));
 
+        Animation<Offset> slide = Tween<Offset>(
+          begin: const Offset(0, 1),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: _fading,
+          curve: Curves.ease,
+        ));
+
         return GestureDetector(
           behavior: HitTestBehavior.deferToChild,
           onTap: _dismiss,
@@ -218,9 +236,10 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         children: [
                           IgnorePointer(
                             child: SafeArea(
-                              bottom: false,
-                              left: false,
                               right: false,
+                              top: true,
+                              left: false,
+                              bottom: false,
                               child: Padding(
                                 padding: EdgeInsets.only(left: _bounds.left),
                                 child: SizedBox(
@@ -234,7 +253,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                           const SizedBox(
                             height: 10,
                           ),
-                          _contextMenu(fade),
+                          _contextMenu(fade, slide),
                         ],
                       ),
                     )
@@ -244,16 +263,16 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       width: _bounds.width,
                       height: _bounds.height,
                       bottom: (1 - _fading.value) *
-                          (constraints.maxHeight -
-                              _bounds.top -
-                              _bounds.height) +
+                              (constraints.maxHeight -
+                                  _bounds.top -
+                                  _bounds.height) +
                           (10 +
-                              router.context!.mediaQueryPadding.bottom +
-                              widget.actions.length * 50) *
+                                  router.context!.mediaQueryPadding.bottom +
+                                  widget.actions.length * 50) *
                               _fading.value,
                       child: IgnorePointer(child: widget.child),
                     ),
-                    _contextMenu(fade),
+                    _contextMenu(fade, slide),
                   ]
                 ],
               );
@@ -265,7 +284,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   }
 
   /// Returns context menu visual representation.
-  Widget _contextMenu(Animation<double> fade) {
+  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
     return Align(
       alignment: widget.alignment,
       child: Padding(
@@ -275,18 +294,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 220),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-            child: SizeTransition(
-              sizeFactor: _fading,
-              child: FadeTransition(
-                opacity: fade,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: router.context!.mediaQueryPadding.bottom,
-                  ),
-                  child: _actions(),
+          child: SlideTransition(
+            position: slide,
+            child: FadeTransition(
+              opacity: fade,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: router.context!.mediaQueryPadding.bottom,
                 ),
+                child: _actions(), //ContextMenu(actions: widget.actions,),
               ),
             ),
           ),

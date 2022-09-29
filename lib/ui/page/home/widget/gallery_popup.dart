@@ -232,10 +232,6 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     });
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      _enterFullscreen();
-    }
-
     node.requestFocus();
 
     super.initState();
@@ -340,83 +336,83 @@ class _GalleryPopupState extends State<GalleryPopup>
   Widget _pageView() {
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      return ContextMenuRegion(
-        actions: [
-          ContextMenuButton(
-            label: 'btn_save_to_gallery'.l10n,
-            onPressed: () => _saveToGallery(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_share'.l10n,
-            onPressed: () => _share(widget.children[_page]),
-          ),
-          ContextMenuButton(
-            label: 'btn_info'.l10n,
-            onPressed: () {},
-          ),
-        ],
-        child: PhotoViewGallery.builder(
-          scrollPhysics: const BouncingScrollPhysics(),
-          wantKeepAlive: false,
-          builder: (BuildContext context, int index) {
-            GalleryItem e = widget.children[index];
+      return PhotoViewGallery.builder(
+        scrollPhysics: const BouncingScrollPhysics(),
+        wantKeepAlive: false,
+        builder: (BuildContext context, int index) {
+          GalleryItem e = widget.children[index];
 
-            if (!e.isVideo) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.link),
-                initialScale: PhotoViewComputedScale.contained * 0.99,
-                minScale: PhotoViewComputedScale.contained * 0.99,
-                maxScale: PhotoViewComputedScale.contained * 3,
-              );
-            }
+          PhotoViewController controller = PhotoViewController();
 
-            return PhotoViewGalleryPageOptions.customChild(
-              disableGestures: e.isVideo,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: e.isVideo
-                    ? Video(
-                        e.link,
-                        onClose: _dismiss,
-                        isFullscreen: _isFullscreen,
-                        toggleFullscreen: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        onController: (c) {
-                          if (c == null) {
-                            _videoControllers.remove(index);
-                          } else {
-                            _videoControllers[index] = c;
-                          }
-                        },
-                      )
-                    : Image.network(e.link),
-              ),
-              minScale: PhotoViewComputedScale.contained,
-              maxScale: PhotoViewComputedScale.contained * 3,
-            );
-          },
-          itemCount: widget.children.length,
-          loadingBuilder: (context, event) => Center(
-            child: SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: CircularProgressIndicator(
-                value: event == null
-                    ? 0
-                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+          return PhotoViewGalleryPageOptions.customChild(
+            disableGestures: e.isVideo,
+            controller: controller,
+            child: Center(
+              child: ContextMenuRegion(
+                onOpen: controller.reset,
+                actions: [
+                  ContextMenuButton(
+                    label: 'btn_save_to_gallery'.l10n,
+                    onPressed: () => _saveToGallery(widget.children[_page]),
+                  ),
+                  ContextMenuButton(
+                    label: 'btn_share'.l10n,
+                    onPressed: () => _share(widget.children[_page]),
+                  ),
+                  ContextMenuButton(
+                    label: 'btn_info'.l10n,
+                    onPressed: () {},
+                  ),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 1),
+                  child: e.isVideo
+                      ? Video(
+                          e.link,
+                          key: GlobalKey(),
+                          onClose: _dismiss,
+                          isFullscreen: _isFullscreen,
+                          toggleFullscreen: () {
+                            node.requestFocus();
+                            _toggleFullscreen();
+                          },
+                          onController: (c) {
+                            if (c == null) {
+                              _videoControllers.remove(index);
+                            } else {
+                              _videoControllers[index] = c;
+                            }
+                          },
+                        )
+                      : Image.network(
+                          e.link,
+                        ),
+                ),
               ),
             ),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.contained * 3,
+          );
+        },
+        itemCount: widget.children.length,
+        loadingBuilder: (context, event) => Center(
+          child: SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+            ),
           ),
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-          pageController: _pageController,
-          onPageChanged: (i) {
-            setState(() => _page = i);
-            _bounds = _calculatePosition() ?? _bounds;
-            widget.onPageChanged?.call(i);
-          },
         ),
+        backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+        pageController: _pageController,
+        onPageChanged: (i) {
+          setState(() => _page = i);
+          _bounds = _calculatePosition() ?? _bounds;
+          widget.onPageChanged?.call(i);
+        },
       );
     }
 

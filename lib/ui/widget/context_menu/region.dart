@@ -33,6 +33,7 @@ class ContextMenuRegion extends StatelessWidget {
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
+    this.onOpen,
   }) : super(key: key);
 
   /// Widget to wrap this region over.
@@ -55,6 +56,9 @@ class ContextMenuRegion extends StatelessWidget {
   /// Indicator whether context menu should be displayed on long tap.
   final bool enableLongTap;
 
+  /// Callback, called when this [ContextMenuRegion] opens a context menu.
+  final VoidCallback? onOpen;
+
   @override
   Widget build(BuildContext context) {
     if (enabled) {
@@ -71,9 +75,16 @@ class ContextMenuRegion extends StatelessWidget {
               ? FloatingContextMenu(
                   alignment: alignment,
                   actions: actions,
+                  onOpen: onOpen,
                   child: child,
                 )
-              : child,
+              : GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onLongPressStart: enableLongTap
+                      ? (d) => _show(context, d.globalPosition)
+                      : null,
+                  child: child,
+                ),
         ),
       );
     }
@@ -86,6 +97,8 @@ class ContextMenuRegion extends StatelessWidget {
     if (actions.isEmpty) {
       return;
     }
+
+    onOpen?.call();
 
     showDialog(
       barrierColor: Colors.transparent,

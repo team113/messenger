@@ -40,13 +40,13 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
@@ -141,9 +141,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
-
-  /// [DeleteOption] of [ChatItem] this [ChatItemWidget] represents.
-  DeleteOption? _deleteOption = DeleteOption.me;
 
   @override
   void initState() {
@@ -1231,141 +1228,53 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
 
+    bool isError = widget.item.value.status.value == SendingStatus.error;
+
     bool deletable = widget.item.value.authorId == widget.me &&
         !widget.chat.value!.isRead(widget.item.value, widget.me) &&
         (widget.item.value is ChatMessage || widget.item.value is ChatForward);
 
-    return StatefulBuilder(builder: (context, setState) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Text(
-              'label_delete_message'.l10n,
-              style: thin?.copyWith(fontSize: 18),
-            ),
-          ),
-          const SizedBox(height: 25),
-          if (deletable) ...[
-            _button(
-              key: const Key('HideForMe'),
-              context,
-              text: 'label_delete_for_me'.l10n,
-              deleteOption: DeleteOption.me,
-              setState: setState,
-            ),
-            const SizedBox(height: 10),
-            _button(
-              key: const Key('DeleteForAll'),
-              context,
-              text: 'label_delete_for_everyone'.l10n,
-              deleteOption: DeleteOption.everyone,
-              setState: setState,
-            ),
-          ] else
-            Center(
-              child: Text(
-                'label_message_will_deleted_for_you'.l10n,
-                style: thin?.copyWith(fontSize: 18),
-              ),
-            ),
-          const SizedBox(height: 25),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: null,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    switch (_deleteOption) {
-                      case DeleteOption.me:
-                        widget.onHide?.call();
-                        break;
-
-                      case DeleteOption.everyone:
-                        widget.onDelete?.call();
-                        break;
-
-                      default:
-                        break;
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                  color: const Color(0xFF63B4FF),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedRoundedButton(
-                  maxWidth: null,
-                  title: Text('btn_cancel'.l10n, style: thin),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  color: const Color(0xFFEEEEEE),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 25),
-        ],
-      );
-    });
-  }
-
-  /// Returns radio button represented the provided [DeleteOption].
-  Widget _button(
-    BuildContext context, {
-    Key? key,
-    required String text,
-    DeleteOption deleteOption = DeleteOption.everyone,
-    required StateSetter setState,
-  }) {
-    ThemeData theme = Theme.of(context);
-    Style style = theme.extension<Style>()!;
-    final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    return Material(
-      key: key,
-      type: MaterialType.card,
-      borderRadius: style.cardRadius,
-      child: InkWell(
-        onTap: () => setState(() => _deleteOption = deleteOption),
-        borderRadius: style.cardRadius,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(text, style: thin?.copyWith(fontSize: 18)),
-              ),
-              IgnorePointer(
-                child: Radio<DeleteOption>(
-                  value: deleteOption,
-                  groupValue: _deleteOption,
-                  onChanged: (DeleteOption? value) {},
-                ),
-              ),
-            ],
-          ),
-        ),
+    ConfirmDialogVariant hide = ConfirmDialogVariant(
+      onProceed: () {
+        widget.onHide?.call();
+        Navigator.of(context).pop();
+      },
+      label: Text(
+        'label_delete_for_me'.l10n,
+        key: const Key('HideForMe'),
+        style: thin?.copyWith(fontSize: 18),
       ),
     );
+
+    ConfirmDialogVariant delete = ConfirmDialogVariant(
+      onProceed: () {
+        widget.onHide?.call();
+        Navigator.of(context).pop();
+      },
+      label: Text(
+        'label_delete_for_me'.l10n,
+        key: const Key('HideForMe'),
+        style: thin?.copyWith(fontSize: 18),
+      ),
+    );
+
+    List<ConfirmDialogVariant> variants;
+
+    if (isError) {
+      variants = [delete];
+    } else if (deletable) {
+      variants = [hide, delete];
+    } else {
+      variants = [hide];
+    }
+
+    return ConfirmDialog(
+      variants: variants,
+      title: 'label_delete_message'.l10n,
+      noVariantLabel:
+          deletable ? null : 'label_message_will_deleted_for_you'.l10n,
+    );
   }
-}
-
-/// Delete option of an [ChatItem] deletion.
-enum DeleteOption {
-  /// Delete only for me.
-  me,
-
-  /// Delete for all chat-members.
-  everyone,
 }
 
 /// Extension adding a string representation of a [Duration] in
