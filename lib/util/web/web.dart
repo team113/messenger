@@ -24,6 +24,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js';
+import 'dart:js_util';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -310,7 +311,13 @@ class WebUtils {
   }
 
   /// Clears the browser's `IndexedDB`.
-  static Future<void> cleanIndexedDb() => cleanIndexedDB();
+  static Future<void> cleanIndexedDb() async {
+    try {
+      await promiseToFuture(cleanIndexedDB());
+    } catch (e) {
+      consoleError(e);
+    }
+  }
 
   /// Clears the browser's storage.
   static void cleanStorage() => html.window.localStorage.clear();
