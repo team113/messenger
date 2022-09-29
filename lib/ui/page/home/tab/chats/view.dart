@@ -18,15 +18,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/widget/animated_typing.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
-
+import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -35,15 +31,17 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
+import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/custom_app_bar.dart';
-import '/ui/widget/animations.dart';
 import '/ui/widget/chat_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/custom_timer_widget.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
 
