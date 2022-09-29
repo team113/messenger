@@ -500,7 +500,8 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
         _initialPage = null;
         setState(() => _page = i);
@@ -511,23 +512,23 @@ class _GalleryPopupState extends State<GalleryPopup>
       children: widget.children.mapIndexed((index, e) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: ContextMenuRegion(
-            enabled: !PlatformUtils.isWeb,
-            actions: [
-              ContextMenuButton(
-                label: 'btn_download'.l10n,
-                onPressed: () => _download(widget.children[_page]),
-              ),
-              ContextMenuButton(
-                label: 'btn_info'.l10n,
-                onPressed: () {},
-              ),
-            ],
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                e.isVideo
-                    ? Video(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              e.isVideo
+                  ? ContextMenuRegion(
+                      enabled: !PlatformUtils.isWeb,
+                      actions: [
+                        ContextMenuButton(
+                          label: 'btn_download'.l10n,
+                          onPressed: () => _download(widget.children[_page]),
+                        ),
+                        ContextMenuButton(
+                          label: 'btn_info'.l10n,
+                          onPressed: () {},
+                        ),
+                      ],
+                      child: Video(
                         e.link,
                         showInterfaceFor:
                             _initialPage == index ? 3.seconds : null,
@@ -550,8 +551,21 @@ class _GalleryPopupState extends State<GalleryPopup>
                             setState(() {});
                           }
                         },
-                      )
-                    : GestureDetector(
+                      ),
+                    )
+                  : ContextMenuRegion(
+                      enabled: !PlatformUtils.isWeb,
+                      actions: [
+                        ContextMenuButton(
+                          label: 'btn_download'.l10n,
+                          onPressed: () => _download(widget.children[_page]),
+                        ),
+                        ContextMenuButton(
+                          label: 'btn_info'.l10n,
+                          onPressed: () {},
+                        ),
+                      ],
+                      child: GestureDetector(
                         onTap: () {
                           if (_pageController.page == _page) {
                             _dismiss();
@@ -583,8 +597,8 @@ class _GalleryPopupState extends State<GalleryPopup>
                                 },
                               ),
                       ),
-              ],
-            ),
+                    ),
+            ],
           ),
         );
       }).toList(),
