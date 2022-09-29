@@ -23,12 +23,12 @@ class Themes {
   /// Returns a light theme.
   static ThemeData light() {
     final ColorScheme colors = ThemeData.light().colorScheme.copyWith(
-          primary: const Color(0xFF888888),
-          onPrimary: Colors.white,
-          secondary: const Color(0xFF63B4FF),
-          onSecondary: Colors.white,
           background: const Color(0xFFF5F8FA),
+          primary: const Color(0xFF888888),
+          secondary: const Color(0xFF63B4FF),
           onBackground: Colors.black,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
         );
 
     SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
@@ -38,26 +38,25 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
-            cardRadius: BorderRadius.circular(14),
-            cardColor: Colors.white.withOpacity(0.95),
-            primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
-            unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
-            cardBlur: 5,
-            cardBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
-            ),
-            hoveredBorderUnselected: Border.all(
-              color: const Color(0xFFDAEDFF),
-              width: 0.5,
-            ),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardRadius: BorderRadius.circular(14),
+            cardColor: Colors.white.withOpacity(0.95),
+            cardBlur: 5,
+            cardBorder: Border.all(
+              color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
             primaryBorder: Border.all(
               color: const Color(0xFFB9D9FA),
+              width: 0.5,
+            ),
+            hoveredBorderUnselected: Border.all(
+              color: const Color(0xFFDAEDFF),
               width: 0.5,
             ),
             subtitleColor: const Color(0xFF666666),
@@ -66,6 +65,7 @@ class Themes {
             statusMessageRead: const Color(0xFF63B4FF),
             statusMessageNotRead: const Color(0xFF888888),
             statusMessageError: Colors.red,
+            unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
           ),
         ],
         colorScheme: colors,
@@ -307,22 +307,25 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.boldBody,
     required this.cardRadius,
     required this.cardBlur,
     required this.cardColor,
-    required this.primaryCardColor,
-    required this.unselectedHoverColor,
     required this.cardBorder,
-    required this.hoveredBorderUnselected,
-    required this.boldBody,
+    required this.primaryCardColor,
     required this.primaryBorder,
+    required this.hoveredBorderUnselected,
     required this.subtitleColor,
     required this.subtitle2Color,
     required this.sidebarColor,
     required this.statusMessageRead,
     required this.statusMessageNotRead,
     required this.statusMessageError,
+    required this.unselectedHoverColor,
   });
+
+  /// [TextStyle] to use in the body to make content readable.
+  final TextStyle boldBody;
 
   /// [BorderRadius] to use .
   final BorderRadius cardRadius;
@@ -333,23 +336,17 @@ class Style extends ThemeExtension<Style> {
   /// [Color] to use in sidebar for chats if chat is not selected.
   final Color cardColor;
 
-  /// [Color] to use in sidebar for chats if chat is selected.
-  final Color primaryCardColor;
-
-  /// [Color] to use in sidebar for chats when hovering.
-  final Color unselectedHoverColor;
-
   /// [Border] to use in sidebar for chats if chat is not selected.
   final Border cardBorder;
 
-  /// [Border] to use in sidebar for chats.
-  final Border hoveredBorderUnselected;
+  /// [Color] to use in sidebar for chats if chat is selected.
+  final Color primaryCardColor;
 
   /// [Border] to use in sidebar for chats if chat is selected.
   final Border primaryBorder;
 
-  /// [TextStyle] to use in the body to make content readable.
-  final TextStyle boldBody;
+  /// [Border] to use in sidebar for chats.
+  final Border hoveredBorderUnselected;
 
   /// [Color] used for the primary text in lists.
   final Color subtitleColor;
@@ -369,41 +366,44 @@ class Style extends ThemeExtension<Style> {
   /// Icon [Color] when an error occurred while sending a message.
   final Color statusMessageError;
 
+  /// [Color] to use in sidebar for chats when hovering.
+  final Color unselectedHoverColor;
+
   @override
   ThemeExtension<Style> copyWith({
+    TextStyle? boldBody,
     BorderRadius? cardRadius,
     double? cardBlur,
     Color? cardColor,
-    Color? primaryCardColor,
-    Color? unselectedHoverColor,
     Border? cardBorder,
-    Border? hoveredBorderUnselected,
-    TextStyle? boldBody,
+    Color? primaryCardColor,
     Border? primaryBorder,
+    Border? hoveredBorderUnselected,
     Color? subtitleColor,
     Color? subtitle2Color,
     Color? sidebarColor,
     Color? statusMessageRead,
     Color? statusMessageNotRead,
     Color? statusMessageError,
+    Color? unselectedHoverColor,
   }) {
     return Style(
+      boldBody: boldBody ?? this.boldBody,
       cardRadius: cardRadius ?? this.cardRadius,
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
-      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
-      unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
       cardBorder: cardBorder ?? this.cardBorder,
+      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
       hoveredBorderUnselected:
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
-      boldBody: boldBody ?? this.boldBody,
-      primaryBorder: primaryBorder ?? this.primaryBorder,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       subtitle2Color: subtitle2Color ?? this.subtitle2Color,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       statusMessageRead: statusMessageRead ?? this.statusMessageRead,
       statusMessageNotRead: statusMessageNotRead ?? this.statusMessageNotRead,
       statusMessageError: statusMessageError ?? this.statusMessageError,
+      unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
     );
   }
 
@@ -414,18 +414,16 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
-      unselectedHoverColor:
-          Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
-      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       hoveredBorderUnselected: Border.lerp(
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
-      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
-      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
@@ -435,6 +433,8 @@ class Style extends ThemeExtension<Style> {
           Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
       statusMessageError:
           Color.lerp(statusMessageError, other.statusMessageError, t)!,
+      unselectedHoverColor:
+          Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
     );
   }
 }
