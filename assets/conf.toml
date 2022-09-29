@@ -39,6 +39,12 @@
 # Default:
 #   port = 80
 
+[files]
+# URL address of file storage server.
+#
+# Default:
+#   url = "http://localhost/files"
+
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
@@ -48,7 +54,7 @@
 [downloads]
 # Directory to download files to.
 #
-# Unused for web, as browser picks the directory itself.
+# Unused for Web, as browser picks the directory itself.
 #
 # Default:
 #   directory = ""

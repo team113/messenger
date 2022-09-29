@@ -27,17 +27,18 @@ import '/util/platform_utils.dart';
 /// Video player with controls.
 class Video extends StatefulWidget {
   const Video(
-    this.path, {
+    this.url, {
     Key? key,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
     this.isFullscreen,
+    this.onError,
     this.showInterfaceFor,
   }) : super(key: key);
 
   /// URL of the video to display.
-  final String path;
+  final String url;
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -50,6 +51,9 @@ class Video extends StatefulWidget {
 
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
+
+  /// Callback, called on the [VideoPlayerController] initialization errors.
+  final Future<void> Function()? onError;
 
   final Duration? showInterfaceFor;
 
@@ -81,6 +85,15 @@ class _VideoState extends State<Video> {
     _controller.dispose();
     _chewie?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(Video oldWidget) {
+    if (oldWidget.url != widget.url) {
+      _initVideo();
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -127,7 +140,7 @@ class _VideoState extends State<Video> {
   /// Initializes the [_controller] and [_chewie].
   Future<void> _initVideo() async {
     try {
-      _controller = VideoPlayerController.network(widget.path);
+      _controller = VideoPlayerController.network(widget.url);
       widget.onController?.call(_controller);
       await _controller.initialize();
 
@@ -171,9 +184,17 @@ class _VideoState extends State<Video> {
           );
         },
       );
-    } on PlatformException catch (_) {
-      // Plugin is not supported on the current platform.
-      _hasError = true;
+    } on PlatformException catch (e) {
+      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
+        if (widget.onError != null) {
+          await widget.onError?.call();
+        } else {
+          _hasError = true;
+        }
+      } else {
+        // Plugin is not supported on the current platform.
+        _hasError = true;
+      }
     }
 
     setState(() {});

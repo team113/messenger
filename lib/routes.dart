@@ -18,7 +18,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/hive/background.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -38,6 +37,7 @@ import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
+import 'provider/hive/background.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/gallery_item.dart';
@@ -448,8 +448,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              MyUserService myUserService =
-                  deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               deps.put(
@@ -650,6 +649,7 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
 
+  /// Changes router location to the [Routes.personalization] page.
   void personalization() => go(Routes.personalization);
 
   void download() => go(Routes.download);

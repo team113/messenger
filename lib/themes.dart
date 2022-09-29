@@ -74,6 +74,7 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            sidebarColor: Colors.white.withOpacity(0.4),
             unreadMessageThickness: 4,
             systemMessageTextStyle: GoogleFonts.roboto(
               color: const Color(0xFF888888),
@@ -86,7 +87,7 @@ class Themes {
           ),
         ],
         colorScheme: colors,
-        scaffoldBackgroundColor: Colors.transparent, //colors.background,
+        scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: ThemeData.light().appBarTheme.copyWith(
               backgroundColor: colors.background,
               foregroundColor: colors.primary,
@@ -231,7 +232,7 @@ class Themes {
             .copyWith(color: colors.secondary),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             textStyle: GoogleFonts.roboto(
               color: colors.primary,
               fontSize: 17,
@@ -241,7 +242,7 @@ class Themes {
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.transparent,
-            primary: colors.primary,
+            foregroundColor: colors.primary,
             minimumSize: const Size(100, 60),
             maximumSize: const Size(250, 60),
             shape:
@@ -255,7 +256,7 @@ class Themes {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: colors.secondary,
+            backgroundColor: colors.secondary,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             padding: const EdgeInsets.all(12),
@@ -330,6 +331,7 @@ class CustomBoxShadow extends BoxShadow {
   }
 }
 
+/// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.callDock,
@@ -340,6 +342,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
+    required this.sidebarColor,
     required this.unreadMessageThickness,
     required this.systemMessageTextStyle,
     required this.systemMessageBorder,
@@ -353,7 +356,12 @@ class Style extends ThemeExtension<Style> {
   final Border secondaryBorder;
   final double cardBlur;
   final Color cardColor;
+
+  /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// [Color] of the [HomeView]'s side bar.
+  final Color sidebarColor;
 
   final double unreadMessageThickness;
   final TextStyle systemMessageTextStyle;
@@ -370,6 +378,7 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Color? cardColor,
     TextStyle? boldBody,
+    Color? sidebarColor,
     double? unreadMessageThickness,
     TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
@@ -384,6 +393,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       boldBody: boldBody ?? this.boldBody,
+      sidebarColor: sidebarColor ?? this.sidebarColor,
       unreadMessageThickness:
           unreadMessageThickness ?? this.unreadMessageThickness,
       systemMessageTextStyle:
@@ -408,6 +418,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
       systemMessageTextStyle: TextStyle.lerp(
         systemMessageTextStyle,
         other.systemMessageTextStyle,

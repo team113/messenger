@@ -90,7 +90,7 @@ class ChatWorker extends DisposableService {
     String? avatarUrl;
     Avatar? avatar = c.avatar.value;
     if (avatar != null) {
-      avatarUrl = '${Config.url}:${Config.port}/files${avatar.original}';
+      avatarUrl = '${Config.files}${avatar.original.relativeRef}';
     }
 
     // Display a new group chat notification.
@@ -116,10 +116,10 @@ class ChatWorker extends DisposableService {
       if (newChat) {
         _notificationService.show(
           c.title.value,
-          tag: c.chat.value.id.val,
           body: 'label_you_were_added_to_group'.l10n,
           payload: '${Routes.chat}/${c.chat.value.id}',
           icon: avatarUrl,
+          tag: c.chat.value.id.val,
         );
       }
     }
@@ -129,9 +129,9 @@ class ChatWorker extends DisposableService {
       onNotification: (body, tag) => _notificationService.show(
         c.title.value,
         body: body,
-        tag: tag,
         payload: '${Routes.chat}/${c.chat.value.id}',
         icon: avatarUrl,
+        tag: tag,
       ),
       me: () => _chatService.me,
     );

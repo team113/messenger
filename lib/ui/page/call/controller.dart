@@ -17,23 +17,22 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/model/application_settings.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '/domain/repository/settings.dart';
-import '/ui/widget/modal_popup.dart';
-import 'participant/controller.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -44,11 +43,13 @@ import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/overlay.dart';
+import '/ui/widget/modal_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'add_dialog_member/view.dart';
 import 'component/common.dart';
+import 'participant/controller.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -77,6 +78,8 @@ class CallController extends GetxController {
 
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
+
+  /// Indicator whether info header is shown or not.
   final RxBool showHeader = RxBool(true);
 
   /// Local [Participant]s in `default` mode.
@@ -321,12 +324,12 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// Timer for updating [duration] of the call.
+  /// [Timer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
   Timer? _durationTimer;
 
-  /// Timer to toggle [showUi] value.
+  /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
 
   Worker? _buttonsWorker;
@@ -495,6 +498,10 @@ class CallController extends GetxController {
       secondaryHeight = RxDouble(200);
     }
 
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile);
     isMobile = router.context!.isMobile;
@@ -565,6 +572,7 @@ class CallController extends GetxController {
       members.forEach((_, value) => _putMember(value));
       _insureCorrectGrouping();
     });
+
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) => _chatService.get(id).then(onChat),
@@ -577,7 +585,7 @@ class CallController extends GetxController {
         DateTime begunAt = DateTime.now();
         _durationTimer = Timer.periodic(
           const Duration(seconds: 1),
-          (timer) {
+          (_) {
             duration.value = DateTime.now().difference(begunAt);
             if (hoveredRendererTimeout > 0) {
               --hoveredRendererTimeout;
@@ -701,15 +709,15 @@ class CallController extends GetxController {
           .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
     });
 
-    List<String>? _previousCallButtons =
+    List<String>? previous =
         _settingsRepository.applicationSettings.value?.callButtons;
     _settingsWorker = ever(_settingsRepository.applicationSettings,
         (ApplicationSettings? settings) {
-      if (settings?.callButtons != _previousCallButtons) {
+      if (settings?.callButtons != previous) {
         if (settings != null) {
           buttons.value = toButtons(settings.callButtons);
         }
-        _previousCallButtons = settings?.callButtons;
+        previous = settings?.callButtons;
       }
     });
 
@@ -798,6 +806,10 @@ class CallController extends GetxController {
 
     if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
+    }
+
+    if (PlatformUtils.isAndroid) {
+      BackButtonInterceptor.remove(_onBack);
     }
 
     Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
@@ -1109,21 +1121,6 @@ class CallController extends GetxController {
       mobilePadding: const EdgeInsets.all(0),
       child: ParticipantView(_currentCall, duration),
     );
-
-    // if (isGroup) {
-    //   return showDialog(
-    //     context: context,
-    //     builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
-    //   );
-    // } else if (isDialog) {
-    //   return showDialog(
-    //     context: context,
-    //     builder: (_) =>
-    //         AddDialogMemberView(chat.value!.chat.value.id, _currentCall),
-    //   );
-    // }
-
-    return Future.value();
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
@@ -1662,6 +1659,20 @@ class CallController extends GetxController {
       return 0;
     }
     return top;
+  }
+
+  /// Invokes [minimize], if not [minimized] already.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (minimized.isFalse) {
+      minimize();
+      return true;
+    }
+
+    return false;
   }
 
   /// Puts [participant] from its `default` group to [list].

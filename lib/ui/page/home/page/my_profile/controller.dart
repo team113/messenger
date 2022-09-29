@@ -594,6 +594,7 @@ class MyProfileController extends GetxController {
       oldPassword.focus.unfocus();
       oldPassword.submit();
     }
+
     newPassword.focus.unfocus();
     newPassword.submit();
     repeatPassword.focus.unfocus();
@@ -872,9 +873,10 @@ class MyProfileController extends GetxController {
       if (files.isNotEmpty) {
         _addGalleryTimer?.cancel();
         addGalleryStatus.value = RxStatus.loading();
-        var futures = files
+        List<Future> futures = files
             .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e));
+            .map((e) => _myUserService.uploadGalleryItem(e))
+            .toList();
         await Future.wait(futures);
         addGalleryStatus.value = RxStatus.success();
       }

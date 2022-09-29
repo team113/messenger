@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
@@ -53,37 +54,37 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
     List<Page<dynamic>> pages = [
-      _FadeAnimationPage(child: _NestedHomeView(_state.tab))
+      _CustomPage(child: _NestedHomeView(_state.tab))
     ];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
-        pages.add(const _FadeAnimationPage(
+        pages.add(const _CustomPage(
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
         ));
       } else if (route == Routes.personalization) {
-        pages.add(const _FadeAnimationPage(
+        pages.add(const _CustomPage(
           key: ValueKey('PersonalizationPage'),
           name: Routes.personalization,
           child: PersonalizationView(),
         ));
       } else if (route == Routes.download) {
-        pages.add(const _FadeAnimationPage(
+        pages.add(const _CustomPage(
           key: ValueKey('DownloadPage'),
           name: Routes.download,
           child: DownloadView(false),
         ));
       } else if (route.startsWith(Routes.settings)) {
-        pages.add(const _FadeAnimationPage(
+        pages.add(const _CustomPage(
           key: ValueKey('SettingsPage'),
           name: Routes.settings,
           child: SettingsView(),
         ));
 
         if (route == Routes.settingsMedia) {
-          pages.add(const _FadeAnimationPage(
+          pages.add(const _CustomPage(
             key: ValueKey('MediaSettingsPage'),
             name: Routes.settingsMedia,
             child: MediaSettingsView(),
@@ -93,14 +94,17 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chat}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(_FadeAnimationPage(
+        pages.add(_CustomPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chat}/$id',
-          child: ChatView(ChatId(id)),
+          child: ChatView(
+            ChatId(id),
+            itemId: router.arguments?['itemId'] as ChatItemId?,
+          ),
         ));
 
         if (route.endsWith(Routes.chatInfo)) {
-          pages.add(_FadeAnimationPage(
+          pages.add(_CustomPage(
             key: ValueKey('ChatInfoPage$id'),
             name: '${Routes.chat}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
@@ -108,14 +112,14 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         }
       } else if (route.startsWith('${Routes.contact}/')) {
         final id = route.replaceFirst('${Routes.contact}/', '');
-        pages.add(_FadeAnimationPage(
+        pages.add(_CustomPage(
           key: ValueKey('ContactPage$id'),
           name: '${Routes.contact}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(_FadeAnimationPage(
+        pages.add(_CustomPage(
           key: ValueKey('UserPage$id'),
           name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
@@ -161,6 +165,8 @@ class _NestedHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const Scaffold(backgroundColor: Colors.transparent);
+
     if (context.isMobile) {
       return const Scaffold(backgroundColor: Colors.transparent);
     }
@@ -177,7 +183,7 @@ class _NestedHomeView extends StatelessWidget {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [],
+              children: const [],
             ),
           ),
         ),
@@ -186,37 +192,35 @@ class _NestedHomeView extends StatelessWidget {
   }
 }
 
-/// [Page] custom route page.
-class _FadeAnimationPage extends Page {
-  const _FadeAnimationPage({super.key, super.name, required this.child});
+/// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
+class _CustomPage extends Page {
+  const _CustomPage({super.key, super.name, required this.child});
 
   /// [Widget] page.
   final Widget child;
 
   @override
   Route createRoute(BuildContext context) {
-    return _CustomPageRouteBuilder(
+    return _FadeCupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
     );
   }
 }
 
-/// [PageRoute] with opacity and clipped transitiion in [CupertinoPageTransitionsBuilder].
+/// [PageRoute] with fading iOS styled page transition animation.
 ///
-/// [FadeUpwardsPageTransitionsBuilder] on android and other platforms [CupertinoPageTransitionsBuilder].
-class _CustomPageRouteBuilder<T> extends PageRoute<T> {
-  _CustomPageRouteBuilder({
-    super.settings,
-    required this.pageBuilder,
-  }) : matchingBuilder = PlatformUtils.isAndroid
+/// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
+class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
+  _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
+      : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
             : const CupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
 
-  /// Route's primary contents.
+  /// Builder building the [Page] itself.
   final RoutePageBuilder pageBuilder;
 
   @override
@@ -237,8 +241,12 @@ class _CustomPageRouteBuilder<T> extends PageRoute<T> {
       pageBuilder(context, animation, secondaryAnimation);
 
   @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
     return ClipRect(
       child: FadeTransition(
         opacity: animation,

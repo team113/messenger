@@ -20,6 +20,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -213,7 +214,7 @@ class _ChatViewState extends State<ChatView>
                       padding: const EdgeInsets.only(left: 4, right: 20),
                       leading: const [StyledBackButton()],
                       actions: [
-                        if (chat.currentCall == null) ...[
+                        if (chat.ongoingCall == null) ...[
                           WidgetButton(
                             onPressed: () => c.call(true),
                             child: SvgLoader.asset(
@@ -588,7 +589,13 @@ class _ChatViewState extends State<ChatView>
             onResend: () => c.resendItem(e.value),
             onEdit: () => c.editMessage(e.value),
             onDrag: (d) => c.isItemDragged.value = d,
-            onFileTap: c.download,
+            onFileTap: (a) => c.download(e.value, a),
+            onAttachmentError: () async {
+              await c.chat?.updateAttachments(e.value);
+              await Future.delayed(
+                Duration.zero,
+              );
+            },
           ),
         ),
       );
@@ -628,6 +635,18 @@ class _ChatViewState extends State<ChatView>
                   push: true,
                 );
               }
+            },
+            onAttachmentError: () async {
+              for (ChatItem item in [
+                element.note.value?.value,
+                ...element.forwards.map((e) => e.value),
+              ].whereNotNull()) {
+                await c.chat?.updateAttachments(item);
+              }
+
+              await Future.delayed(
+                Duration.zero,
+              );
             },
           ),
         ),
@@ -678,7 +697,7 @@ class _ChatViewState extends State<ChatView>
     return Obx(() {
       Rx<Chat> chat = c.chat!.chat;
 
-      if (chat.value.currentCall != null) {
+      if (chat.value.ongoingCall != null) {
         if (context.isMobile) {
           return Text('1 of 10 | 10:04', style: style);
         }
@@ -986,7 +1005,7 @@ class _ChatViewState extends State<ChatView>
                                               )!;
 
                                               return InitCallback(
-                                                initState: HapticFeedback
+                                                callback: HapticFeedback
                                                     .selectionClick,
                                                 child: Container(
                                                   decoration: BoxDecoration(
@@ -1685,7 +1704,7 @@ class _ChatViewState extends State<ChatView>
             }
           } else {
             child = Image.network(
-              '${Config.url}/files${e.original}',
+              '${Config.files}${e.original.relativeRef}',
               fit: BoxFit.cover,
               width: size,
               height: size,
@@ -1705,8 +1724,9 @@ class _ChatViewState extends State<ChatView>
               child = VideoThumbnail.bytes(bytes: e.file.bytes!);
             }
           } else {
-            child =
-                VideoThumbnail.path(path: '${Config.url}/files${e.original}');
+            child = VideoThumbnail.url(
+              url: '${Config.files}${e.original.relativeRef}',
+            );
           }
         }
 
@@ -1731,7 +1751,7 @@ class _ChatViewState extends State<ChatView>
                     c.attachments.removeWhere((o) => o == a);
                   },
                   children: attachments.map((o) {
-                    var link = '${Config.url}/files${o.original}';
+                    var link = '${Config.files}${o.original.relativeRef}';
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
                       return GalleryItem.image(link, o.filename);
@@ -1791,7 +1811,9 @@ class _ChatViewState extends State<ChatView>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
-                '${e.size ~/ 1024} KB',
+                e.original.size == null
+                    ? '... KB'
+                    : '${e.original.size! ~/ 1024} KB',
                 style: const TextStyle(
                   fontSize: 13,
                   color: Color(0xFF888888),
@@ -1974,7 +1996,9 @@ class _ChatViewState extends State<ChatView>
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.small}'),
+                      image: NetworkImage(
+                        '${Config.files}${image.small.relativeRef}',
+                      ),
                     ),
             ),
             width: 30,
@@ -2010,9 +2034,12 @@ class _ChatViewState extends State<ChatView>
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
@@ -2221,8 +2248,9 @@ class _ChatViewState extends State<ChatView>
                 image: image == null
                     ? null
                     : DecorationImage(
-                        image:
-                            NetworkImage('${Config.url}/files${image.small}'),
+                        image: NetworkImage(
+                          '${Config.files}${image.small.relativeRef}',
+                        ),
                       ),
               ),
               width: 30,

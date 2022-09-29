@@ -34,10 +34,10 @@ import '/domain/repository/call.dart'
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show CreateGroupChatException, HideChatException, RemoveChatMemberException;
@@ -52,7 +52,7 @@ class ChatsTabController extends GetxController {
   ChatsTabController(
     this._chatService,
     this._callService,
-    this._myUserService,
+    this._authService,
     this._userService,
     this._contactService,
   );
@@ -85,8 +85,8 @@ class ChatsTabController extends GetxController {
   /// Calls service used to join the ongoing call in the [Chat].
   final CallService _callService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
@@ -106,7 +106,7 @@ class ChatsTabController extends GetxController {
       HashMap<ChatId, _ChatSortingData>();
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
@@ -365,12 +365,23 @@ class ChatsTabController extends GetxController {
           ...selectedContacts
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...selectedUsers.map((e) => e.id),
-        }.toList(),
+        }.where((e) => e != me).toList(),
         name: chatName,
       ));
 
-      // TODO: Do not pop async.
       router.chat(chat.chat.value.id);
+
+      search.clear();
+      query.value = null;
+      searchResults.value = null;
+      searchStatus.value = RxStatus.empty();
+      searching.value = false;
+      groupCreating.value = false;
+      router.navigation.value = null;
+      selectedChats.clear();
+      selectedUsers.clear();
+      selectedContacts.clear();
+      populate();
     } on CreateGroupChatException catch (e) {
       MessagePopup.error(e);
     } on FormatException catch (e) {
@@ -386,14 +397,14 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     sortedChats.sort((a, b) {
-      if (a.chat.value.currentCall != null &&
-          b.chat.value.currentCall == null) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
         return -1;
-      } else if (a.chat.value.currentCall == null &&
-          b.chat.value.currentCall != null) {
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
         return 1;
       }
 
@@ -581,15 +592,15 @@ class ChatsTabController extends GetxController {
 /// Container of data used to sort a [Chat].
 class _ChatSortingData {
   /// Returns a [_ChatSortingData] capturing the provided [chat] changes to
-  /// invoke a [sort] on [Chat.updatedAt] or [Chat.currentCall] updates.
+  /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
   _ChatSortingData(Rx<Chat> chat, [void Function()? sort]) {
     updatedAt = chat.value.updatedAt;
-    hasCall = chat.value.currentCall != null;
+    hasCall = chat.value.ongoingCall != null;
 
     worker = ever(
       chat,
       (Chat chat) {
-        bool hasCall = chat.currentCall != null;
+        bool hasCall = chat.ongoingCall != null;
         if (chat.updatedAt != updatedAt || hasCall != hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;

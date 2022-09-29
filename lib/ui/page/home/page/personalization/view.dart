@@ -14,7 +14,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -33,43 +32,38 @@ class PersonalizationView extends StatelessWidget {
     return GetBuilder(
       init: PersonalizationController(Get.find()),
       builder: (PersonalizationController c) {
-        return DropTarget(
-          onDragDone: (details) {},
-          onDragEntered: (_) {},
-          onDragExited: (_) {},
-          child: Obx(
-            () => Scaffold(
-              appBar: AppBar(title: Text('label_personalization'.l10n)),
-              body: ListView(
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        height: 60,
-                        child: c.background.value == null
-                            ? Container(color: Colors.grey)
-                            : Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedRoundedButton(
-                        title: Text('Change'),
-                        onPressed: c.pickBackground,
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedRoundedButton(
-                        title: Text('Remove'),
-                        onPressed: c.removeBackground,
-                      ),
-                    ],
-                  )
-                ],
+        return Scaffold(
+          appBar: AppBar(title: Text('label_personalization'.l10n)),
+          body: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                return SizedBox(
+                  width: 100,
+                  height: 60,
+                  child: c.background.value == null
+                      ? Container(color: Colors.grey)
+                      : Image.memory(
+                          c.background.value!,
+                          fit: BoxFit.cover,
+                        ),
+                );
+              }),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedRoundedButton(
+                  title: Text('btn_change'.l10n),
+                  onPressed: c.pickBackground,
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedRoundedButton(
+                  title: Text('btn_remove'.l10n),
+                  onPressed: c.removeBackground,
+                ),
+              ),
+            ],
           ),
         );
       },

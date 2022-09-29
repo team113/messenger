@@ -40,9 +40,9 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -67,7 +67,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Active call.
       if (c.state.value == OngoingCallState.active) {
         // Secondary view possible alignment.
-        Widget _possibleContainer() {
+        Widget possibleContainer() {
           return Obx(() {
             Alignment? alignment = c.possibleSecondaryAlignment.value;
             if (alignment == null) {
@@ -155,7 +155,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             ],
           ),
 
-          _possibleContainer(),
+          possibleContainer(),
 
           // Makes UI appear on click.
           Listener(
@@ -238,13 +238,13 @@ Widget desktopCall(CallController c, BuildContext context) {
         );
       }
 
-      _padding(Widget child) => Padding(
+      Widget padding(Widget child) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
             child: Center(child: child),
           );
 
       /// Builds the [Row] of non-active buttons.
-      Widget _pendingButtons() => Obx(() {
+      Widget pendingButtons() => Obx(() {
             bool isOutgoing =
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
                     !c.started;
@@ -252,19 +252,19 @@ Widget desktopCall(CallController c, BuildContext context) {
             List<Widget> buttons = isOutgoing
                 ? [
                     if (PlatformUtils.isMobile)
-                      _padding(
+                      padding(
                         c.videoState.value.isEnabled
                             ? SwitchButton(c).build(blur: true)
                             : SpeakerButton(c).build(blur: true),
                       ),
-                    _padding(VideoButton(c).build(blur: true)),
-                    _padding(CancelButton(c).build(blur: true)),
-                    _padding(AudioButton(c).build(blur: true)),
+                    padding(VideoButton(c).build(blur: true)),
+                    padding(CancelButton(c).build(blur: true)),
+                    padding(AudioButton(c).build(blur: true)),
                   ]
                 : [
-                    _padding(AcceptAudioButton(c).build(expanded: true)),
-                    _padding(AcceptVideoButton(c).build(expanded: true)),
-                    _padding(DeclineButton(c).build(expanded: true)),
+                    padding(AcceptAudioButton(c).build(expanded: true)),
+                    padding(AcceptVideoButton(c).build(expanded: true)),
+                    padding(DeclineButton(c).build(expanded: true)),
                   ];
 
             return ConstrainedBox(
@@ -372,7 +372,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     )
                   : Padding(
                       padding: const EdgeInsets.only(left: 13, right: 13),
-                      child: _pendingButtons(),
+                      child: pendingButtons(),
                     ),
             ),
           );
@@ -535,6 +535,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           ),
         ),
 
+        // More panel [MouseRegion] toggling UI on hover loss.
         Obx(() {
           bool enabled = c.displayMore.value &&
               c.primaryDrags.value == 0 &&
@@ -922,7 +923,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         c.applyConstraints(context);
 
         // Returns a [Scaler] scaling the minimized view.
-        Widget _scaler({
+        Widget scaler({
           Key? key,
           MouseCursor cursor = MouseCursor.defer,
           required Function(double, double) onDrag,
@@ -966,7 +967,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeUpDown,
                   width: c.width.value - Scaler.size,
                   onDrag: (dx, dy) => c.resize(
@@ -982,7 +983,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   height: c.height.value - Scaler.size,
                   onDrag: (dx, dy) => c.resize(
@@ -998,7 +999,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
                 left: c.left.value + c.width.value - Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   height: c.height.value - Scaler.size,
                   onDrag: (dx, dy) => c.resize(
@@ -1014,7 +1015,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - Scaler.size / 2,
                 left: c.left.value + Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeUpDown,
                   width: c.width.value - Scaler.size,
                   onDrag: (dx, dy) => c.resize(
@@ -1031,7 +1032,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   // TODO: https://github.com/flutter/flutter/issues/89351
                   cursor: PlatformUtils.isMacOS
                       ? SystemMouseCursors.resizeRow
@@ -1053,7 +1054,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
@@ -1072,7 +1073,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: SystemMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
@@ -1091,7 +1092,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
-                child: _scaler(
+                child: scaler(
                   cursor: PlatformUtils.isMacOS
                       ? SystemMouseCursors.resizeRow
                       : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1224,7 +1225,7 @@ Widget _titleBar(BuildContext context, CallController c) => Obx(() {
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
   return Obx(() {
-    void _onDragEnded(_DragData d) {
+    void onDragEnded(_DragData d) {
       c.primaryDrags.value = 0;
       c.draggedRenderer.value = null;
       c.doughDraggedRenderer.value = null;
@@ -1269,9 +1270,9 @@ Widget _primaryView(CallController c) {
             return Offset.zero;
           },
           onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-          onDragEnd: _onDragEnded,
-          onDragCompleted: _onDragEnded,
-          onDraggableCanceled: _onDragEnded,
+          onDragEnd: onDragEnded,
+          onDragCompleted: onDragEnded,
+          onDraggableCanceled: onDragEnded,
           overlayBuilder: (_DragData data) {
             var participant = data.participant;
 
@@ -1526,9 +1527,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         height = c.secondaryHeight.value;
       }
 
-      Widget _buildDragHandle(Alignment alignment) {
+      Widget buildDragHandle(Alignment alignment) {
         // Returns a [Scaler] scaling the secondary view.
-        Widget _scaler({
+        Widget scaler({
           Key? key,
           MouseCursor cursor = MouseCursor.defer,
           Function(double, double)? onDrag,
@@ -1560,7 +1561,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         Widget widget = Container();
 
         if (alignment == Alignment.centerLeft) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeLeftRight,
             height: height - Scaler.size,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1570,7 +1571,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.centerRight) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeLeftRight,
             height: height - Scaler.size,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1580,7 +1581,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.bottomCenter) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeUpDown,
             width: width - Scaler.size,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1590,7 +1591,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.topCenter) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeUpDown,
             width: width - Scaler.size,
             onDrag: (dx, dy) => c.resizeSecondary(
@@ -1600,7 +1601,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.topLeft) {
-          widget = _scaler(
+          widget = scaler(
             cursor: PlatformUtils.isMacOS
                 ? SystemMouseCursors.resizeRow
                 : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1615,7 +1616,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.topRight) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
@@ -1628,7 +1629,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.bottomLeft) {
-          widget = _scaler(
+          widget = scaler(
             cursor: SystemMouseCursors.resizeUpRightDownLeft,
             width: Scaler.size * 2,
             height: Scaler.size * 2,
@@ -1641,7 +1642,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           );
         } else if (alignment == Alignment.bottomRight) {
-          widget = _scaler(
+          widget = scaler(
             cursor: PlatformUtils.isMacOS
                 ? SystemMouseCursors.resizeRow
                 : SystemMouseCursors.resizeUpLeftDownRight,
@@ -1660,7 +1661,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         return Align(alignment: alignment, child: widget);
       }
 
-      Widget _positionedBoilerplate(Widget child) {
+      Widget positionedBoilerplate(Widget child) {
         return Positioned(
           left: left == null ? null : (left - Scaler.size / 2),
           right: right == null ? null : (right - Scaler.size / 2),
@@ -1674,7 +1675,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
         );
       }
 
-      void _onDragEnded(_DragData d) {
+      void onDragEnded(_DragData d) {
         c.secondaryDrags.value = 0;
         c.draggedRenderer.value = null;
         c.doughDraggedRenderer.value = null;
@@ -1746,51 +1747,51 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.centerLeft)
+                ? buildDragHandle(Alignment.centerLeft)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.centerRight)
+                ? buildDragHandle(Alignment.centerRight)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.bottomCenter)
+                ? buildDragHandle(Alignment.bottomCenter)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.topCenter)
+                ? buildDragHandle(Alignment.topCenter)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.topLeft)
+                ? buildDragHandle(Alignment.topLeft)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.topRight)
+                ? buildDragHandle(Alignment.topRight)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.bottomLeft)
+                ? buildDragHandle(Alignment.bottomLeft)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
-                ? _buildDragHandle(Alignment.bottomRight)
+                ? buildDragHandle(Alignment.bottomRight)
                 : Container(),
           )),
 
@@ -1814,9 +1815,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
               c.keepUi(false);
             },
             onDoughBreak: (r) => c.doughDraggedRenderer.value = r.participant,
-            onDragEnd: _onDragEnded,
-            onDragCompleted: _onDragEnded,
-            onDraggableCanceled: _onDragEnded,
+            onDragEnd: onDragEnded,
+            onDragCompleted: onDragEnded,
+            onDraggableCanceled: onDragEnded,
             axis: axis,
             width: width,
             height: height,
@@ -2053,27 +2054,27 @@ Widget _secondaryView(CallController c, BuildContext context) {
             }),
           ),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerRight
-                ? _buildDragHandle(Alignment.centerLeft)
+                ? buildDragHandle(Alignment.centerLeft)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerLeft
-                ? _buildDragHandle(Alignment.centerRight)
+                ? buildDragHandle(Alignment.centerRight)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.topCenter
-                ? _buildDragHandle(Alignment.bottomCenter)
+                ? buildDragHandle(Alignment.bottomCenter)
                 : Container(),
           )),
 
-          _positionedBoilerplate(Obx(
+          positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.bottomCenter
-                ? _buildDragHandle(Alignment.topCenter)
+                ? buildDragHandle(Alignment.topCenter)
                 : Container(),
           )),
 
@@ -2293,12 +2294,8 @@ Widget _secondaryTarget(CallController c) {
                                     child: AnimatedContainer(
                                       duration: 300.milliseconds,
                                       color: candidate.isNotEmpty
-                                          ? const Color(
-                                              0x10FFFFFF,
-                                            )
-                                          : const Color(
-                                              0x00FFFFFF,
-                                            ),
+                                          ? const Color(0x10FFFFFF)
+                                          : const Color(0x00FFFFFF),
                                       child: Center(
                                         child: SizedBox(
                                           width:

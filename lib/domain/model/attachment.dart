@@ -28,7 +28,7 @@ import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
-import 'image_gallery_item.dart';
+import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
 
@@ -40,25 +40,19 @@ abstract class Attachment extends HiveObject {
     this.id,
     this.original,
     this.filename,
-    this.size,
   );
 
   /// Unique ID of this [Attachment].
   @HiveField(0)
   AttachmentId id;
 
-  /// Path on a files storage to the original file representing this
-  /// [Attachment].
+  /// Original [StorageFile] representing this [Attachment].
   @HiveField(1)
-  Original original;
+  StorageFile original;
 
   /// Uploaded file's name.
   @HiveField(2)
   String filename;
-
-  /// Uploaded file's size in bytes.
-  @HiveField(3)
-  int size;
 }
 
 /// Image [Attachment].
@@ -66,28 +60,25 @@ abstract class Attachment extends HiveObject {
 class ImageAttachment extends Attachment {
   ImageAttachment({
     required AttachmentId id,
-    required Original original,
+    required StorageFile original,
     required String filename,
-    required int size,
     required this.big,
     required this.medium,
     required this.small,
-  }) : super(id, original, filename, size);
+  }) : super(id, original, filename);
 
-  /// Path on a files storage to a `big` [ImageAttachment]'s view of
-  /// `400px`x`400px` size.
+  /// Big [ImageAttachment]'s view image [StorageFile] of `400px`x`400px` size.
+  @HiveField(3)
+  StorageFile big;
+
+  /// Medium [ImageAttachment]'s view image [StorageFile] of `200px`x`200px`
+  /// size.
   @HiveField(4)
-  String big;
+  StorageFile medium;
 
-  /// Path on a files storage to a `medium` [ImageAttachment]'s view of
-  /// `200px`x`200px` size.
+  /// Small [ImageAttachment]'s view image [StorageFile] of `30px`x`30px` size.
   @HiveField(5)
-  String medium;
-
-  /// Path on a files storage to a `small` [ImageAttachment]'s view of
-  /// `30px`x`30px` size.
-  @HiveField(6)
-  String small;
+  StorageFile small;
 }
 
 /// Plain file [Attachment].
@@ -95,17 +86,16 @@ class ImageAttachment extends Attachment {
 class FileAttachment extends Attachment {
   FileAttachment({
     required AttachmentId id,
-    required Original original,
+    required StorageFile original,
     required String filename,
-    required int size,
-  }) : super(id, original, filename, size);
+  }) : super(id, original, filename);
 
   /// Path to the downloaded [FileAttachment] in the local filesystem.
-  @HiveField(4)
+  @HiveField(3)
   String? path;
 
   /// [DownloadStatus] of this [FileAttachment].
-  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notDownloaded);
+  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notStarted);
 
   /// Download progress of this [FileAttachment].
   RxDouble progress = RxDouble(0);
@@ -113,16 +103,25 @@ class FileAttachment extends Attachment {
   /// [CancelToken] canceling the download of this [FileAttachment], if any.
   CancelToken? _token;
 
+  /// Indicator whether this [FileAttachment] has already been [init]ialized.
+  bool _initialized = false;
+
   /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloadStatus.value == DownloadStatus.downloading;
+  bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
 
   // TODO: Compare hashes.
   /// Initializes the [downloadStatus].
   Future<void> init() async {
+    if (_initialized) {
+      return;
+    }
+
+    _initialized = true;
+
     if (path != null) {
       File file = File(path!);
-      if (await file.exists() && await file.length() == size) {
-        downloadStatus.value = DownloadStatus.downloaded;
+      if (await file.exists() && await file.length() == original.size) {
+        downloadStatus.value = DownloadStatus.isFinished;
         return;
       }
     }
@@ -132,15 +131,17 @@ class FileAttachment extends Attachment {
     String ext = p.extension(filename);
     File file = File('$downloads/$filename');
 
-    for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+    for (int i = 1;
+        await file.exists() && await file.length() != original.size;
+        ++i) {
       file = File('$downloads/$name ($i)$ext');
     }
 
     if (await file.exists()) {
-      downloadStatus.value = DownloadStatus.downloaded;
+      downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
-      downloadStatus.value = DownloadStatus.notDownloaded;
+      downloadStatus.value = DownloadStatus.notStarted;
       path = null;
     }
   }
@@ -148,28 +149,30 @@ class FileAttachment extends Attachment {
   /// Downloads this [FileAttachment].
   Future<void> download() async {
     try {
-      downloadStatus.value = DownloadStatus.downloading;
+      downloadStatus.value = DownloadStatus.inProgress;
       progress.value = 0;
 
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        '${Config.url}/files${original.val}',
+        '${Config.files}${original.relativeRef}',
         filename,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );
 
       if (_token?.isCancelled == true || file == null) {
-        downloadStatus.value = DownloadStatus.notDownloaded;
+        downloadStatus.value = DownloadStatus.notStarted;
         path = null;
       } else {
-        downloadStatus.value = DownloadStatus.downloaded;
+        downloadStatus.value = DownloadStatus.isFinished;
         path = file.path;
       }
     } catch (_) {
-      downloadStatus.value = DownloadStatus.notDownloaded;
+      downloadStatus.value = DownloadStatus.notStarted;
       path = null;
+
+      rethrow;
     }
   }
 
@@ -178,7 +181,7 @@ class FileAttachment extends Attachment {
     if (path != null) {
       File file = File(path!);
 
-      if (await file.exists() && await file.length() == size) {
+      if (await file.exists() && await file.length() == original.size) {
         await OpenFile.open(path!);
         return;
       }
@@ -207,13 +210,12 @@ class LocalAttachment extends Attachment {
       : status = Rx(status),
         super(
           AttachmentId.local(),
-          const Original(''),
+          StorageFile(relativeRef: '', size: file.size),
           file.name,
-          file.size,
         );
 
   /// [NativeFile] representing this [LocalAttachment].
-  @HiveField(4)
+  @HiveField(3)
   NativeFile file;
 
   /// [SendingStatus] of this [LocalAttachment].
@@ -232,11 +234,11 @@ class LocalAttachment extends Attachment {
 /// Download status of a [FileAttachment].
 enum DownloadStatus {
   /// Download has not yet started.
-  notDownloaded,
+  notStarted,
 
   /// Download is in progress.
-  downloading,
+  inProgress,
 
   /// Downloaded successfully.
-  downloaded,
+  isFinished,
 }

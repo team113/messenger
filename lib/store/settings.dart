@@ -19,12 +19,12 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/provider/hive/background.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/settings.dart';
 import '/provider/hive/application_settings.dart';
+import '/provider/hive/background.dart';
 import '/provider/hive/media_settings.dart';
 
 /// Application settings repository.
@@ -51,7 +51,7 @@ class SettingsRepository extends DisposableInterface
   /// [ApplicationSettings] local [Hive] storage.
   final ApplicationSettingsHiveProvider _settingsLocal;
 
-  /// Background's [Uint8List] local [Hive] storage.
+  /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
@@ -67,10 +67,11 @@ class SettingsRepository extends DisposableInterface
   void onInit() {
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
-    background.value = _backgroundLocal.get;
+    background.value = _backgroundLocal.bytes;
     _initMediaSubscription();
     _initSettingsSubscription();
     _initBackgroundSubscription();
+
     super.onInit();
   }
 
@@ -110,13 +111,8 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setSideBarWidth(width);
 
   @override
-  Future<void> setBackground(Uint8List? bytes) {
-    if (bytes == null) {
-      return _backgroundLocal.delete();
-    } else {
-      return _backgroundLocal.set(bytes);
-    }
-  }
+  Future<void> setBackground(Uint8List? bytes) =>
+      bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
 
   @override
   Future<void> setCallButtons(List<String> buttons) =>

@@ -492,7 +492,9 @@ class ChatForwardView extends StatelessWidget {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.small}'),
+                      image: NetworkImage(
+                        '${Config.files}${image.small.relativeRef}',
+                      ),
                     ),
             ),
             width: 30,
@@ -760,7 +762,7 @@ class ChatForwardView extends StatelessWidget {
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.url}/files${e.original}',
+                      '${Config.files}${e.original.relativeRef}',
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -924,7 +926,7 @@ class ChatForwardView extends StatelessWidget {
                                             )!;
 
                                             return InitCallback(
-                                              initState:
+                                              callback:
                                                   HapticFeedback.selectionClick,
                                               child: Container(
                                                 decoration: BoxDecoration(

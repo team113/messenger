@@ -126,6 +126,7 @@ btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
     камеру
+btn_change = Сменить
 btn_change_contact_name = Переименовать
 btn_change_password = Сменить пароль
 btn_close = Закрыть
@@ -134,15 +135,20 @@ btn_copy_text = Скопировать текст
 btn_create_group = Создать группу
 btn_delete_account = Удалить аккаунт
 btn_delete_direct_chat_link = Удалить
+btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
+btn_delete_message = Удалить
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
 btn_forgot_password = Забыли пароль?
+btn_forward = Переслать
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hide_chat = Скрыть чат
+btn_hide_for_me = Удалить для меня
+btn_info = Информация
 btn_join_call = Присоединиться
 btn_leave_chat = Выйти из чата
 btn_login = Войти
@@ -150,13 +156,18 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_personalize = Персонализация
+btn_remove = Удалить
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
+btn_resend_message = Повторить отправку
 btn_save = Сохранить
+btn_save_to_gallery = Сохранить в галерею
 btn_set_password = Задать пароль
 btn_saved_messages = Сохранённые сообщения
 btn_set_password = Задать пароль
 btn_settings = Настройки
+btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
 btn_video_call = Видеозвонок
@@ -183,6 +194,7 @@ err_contact_not_group = Чат с указанным ID не является г
 err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
 err_contact_unknown_user = Пользователь с указанным ID не существует
+err_could_not_download = При загрузке произошла ошибка
 err_current_password_empty = Текущий пароль не должен быть пустым
 err_data_transfer =
     Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.
@@ -238,6 +250,7 @@ err_unsupported_format = Неподдерживаемый формат
 err_unsupported_forwarded_item = Неподдерживаемое пересылаемое сообщение
 err_uploaded_file_malformed = Файл повреждён
 err_wrong_items_count = Неправильное количество сообщений
+err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный текущий пароль
 err_wrong_recovery_code = Неверный код
 err_you_already_add_this_email = Email уже добавлен
@@ -419,9 +432,11 @@ label_hint_drag_n_drop_video =
 
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
+label_image_downloaded = Изображение загружено.
+label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 
@@ -447,10 +462,10 @@ label_no_registration = без регистрации
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
-label_outgoing_call = Исходящий звонок
 label_or_register = или регистрация
-label_password_not_set = Пароль не задан
+label_outgoing_call = Исходящий звонок
 label_password = Пароль
+label_password_not_set = Пароль не задан
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
 label_phone_confirmation_code_was_send =
@@ -465,6 +480,7 @@ label_read_by = Прочитано
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
+label_personalization = Персонализация
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
@@ -491,6 +507,8 @@ label_unknown_page = Страница не найдена
 label_unread_messages = Непрочитанные сообщения
 label_video = Видео
 label_video_call = Видеозвонок
+label_video_downloaded = Видео загружено.
+label_video_saved_to_gallery = Видео сохранено в галерею.
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 btn_personalize = Персонализация

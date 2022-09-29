@@ -130,7 +130,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     ///
     /// The [Flexible]s are animated, thus creating the expanding/shrinking
     /// effects.
-    Widget _builder(
+    Widget builder(
       BuildContext context,
       List<T?> candidates,
       List<dynamic> rejected,
@@ -288,7 +288,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       },
       onWillAccept: (e) =>
           (widget.onWillAccept?.call(e) ?? true) && _entry == null,
-      builder: _builder,
+      builder: builder,
     );
   }
 

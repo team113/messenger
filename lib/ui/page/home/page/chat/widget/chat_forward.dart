@@ -1,3 +1,19 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -34,6 +50,7 @@ import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'animated_transform.dart';
+import 'init_callback.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -53,6 +70,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onRepliedTap,
     this.onDrag,
     this.onForwardedTap,
+    this.onAttachmentError,
   }) : super(key: key);
 
   /// Reactive value of a [Chat] this [item] is posted in.
@@ -89,6 +107,9 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a forwarded message of this [ChatItem] is tapped.
   final Function(ChatItemId, ChatId)? onForwardedTap;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onAttachmentError;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -725,42 +746,43 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               AvatarWidget.colors.length];
 
       return [
-        if (item.repliesTo != null)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            decoration: BoxDecoration(
-              color: (item.repliesTo!.authorId == widget.me)
-                  ? isRead
-                      ? const Color.fromRGBO(219, 234, 253, 1)
-                      : const Color.fromRGBO(230, 241, 254, 1)
-                  : isRead
-                      ? const Color.fromRGBO(249, 249, 249, 1)
-                      : const Color.fromRGBO(255, 255, 255, 1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
-              ),
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 500),
-                opacity: isRead
-                    ? 1
-                    : fromMe
-                        ? 0.55
-                        : 1,
-                child: WidgetButton(
-                  onPressed: () =>
-                      widget.onRepliedTap?.call(item.repliesTo!.id),
-                  child: _repliedMessage(item.repliesTo!),
+        if (item.repliesTo.isNotEmpty)
+          ...item.repliesTo.map((e) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: (e.authorId == widget.me)
+                    ? isRead
+                        ? const Color.fromRGBO(219, 234, 253, 1)
+                        : const Color.fromRGBO(230, 241, 254, 1)
+                    : isRead
+                        ? const Color.fromRGBO(249, 249, 249, 1)
+                        : const Color.fromRGBO(255, 255, 255, 1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
                 ),
               ),
-            ),
-          ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: isRead
+                      ? 1
+                      : fromMe
+                          ? 0.55
+                          : 1,
+                  child: WidgetButton(
+                    onPressed: () => widget.onRepliedTap?.call(e.id),
+                    child: _repliedMessage(e),
+                  ),
+                ),
+              ),
+            );
+          }),
         if (!fromMe && widget.chat.value?.isGroup == true)
           Transform.translate(
             offset: const Offset(-36, 0),
@@ -935,7 +957,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${e.size ~/ 1024} KB',
+                      e.original.size == null
+                          ? '... KB'
+                          : '${e.original.size! ~/ 1024} KB',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -982,10 +1006,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           key: key,
                           height: 300,
                         )
-                  : VideoThumbnail.path(
-                      path: '${Config.url}/files${e.original}',
+                  : VideoThumbnail.url(
+                      url: '${Config.files}${e.original.relativeRef}',
                       key: key,
                       height: 300,
+                      onError: widget.onAttachmentError,
                     ),
               Container(
                 width: 60,
@@ -1012,10 +1037,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     height: 300,
                   )
             : Image.network(
-                '${Config.url}/files${(e as ImageAttachment).big}',
+                '${Config.files}${(e as ImageAttachment).big.relativeRef}',
                 key: key,
                 fit: BoxFit.cover,
                 height: 300,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () => widget.onAttachmentError?.call(),
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  );
+                },
               );
 
     return Padding(
@@ -1035,11 +1071,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  var link = '${Config.url}/files${o.original}';
+                  final String link =
+                      '${Config.files}${o.original.relativeRef}';
                   if (o is FileAttachment) {
                     gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await widget.onAttachmentError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
                   }
                 }
 
@@ -1124,7 +1172,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       ? null
                       : DecorationImage(
                           image: NetworkImage(
-                              '${Config.url}/files${image.medium}'),
+                            '${Config.files}${image.medium.relativeRef}',
+                          ),
                           fit: BoxFit.cover,
                         ),
                 ),

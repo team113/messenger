@@ -26,16 +26,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/util/obs/obs.dart';
-import 'package:messenger/util/obs/rxsplay.dart';
-import 'package:messenger/util/web/web_utils.dart';
-import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -43,6 +39,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
@@ -62,7 +59,10 @@ import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
+import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -78,7 +78,7 @@ class ChatController extends GetxController {
     this.id,
     this._chatService,
     this._callService,
-    this._myUserService,
+    this._authService,
     this._userService,
     this._settingsRepository, {
     this.itemId,
@@ -219,12 +219,13 @@ class ChatController extends GetxController {
   /// [Chat]s service used to get [chat] value.
   final ChatService _chatService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
   /// Worker capturing any [RxChat.messages] changes.
@@ -238,8 +239,9 @@ class ChatController extends GetxController {
   Worker? _messageInitializedWorker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
+  UserId? get me => _authService.userId;
 
+  /// Returns the [Uint8List] of the background.
   Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a
@@ -257,7 +259,7 @@ class ChatController extends GetxController {
   void onInit() {
     send = TextFieldState(
       onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
+      onSubmitted: (s) {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
             repliedMessages.isNotEmpty) {
@@ -265,7 +267,7 @@ class ChatController extends GetxController {
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessages.firstOrNull,
+                repliesTo: repliedMessages,
                 attachments: attachments,
               )
               .then((_) => _playMessageSent())
@@ -641,7 +643,7 @@ class ChatController extends GetxController {
 
       _messagesWorker ??= ever(
         chat!.messages,
-        (List<Rx<ChatItem>> msgs) {
+        (_) {
           if (atBottom) {
             Future.delayed(
               Duration.zero,
@@ -736,7 +738,7 @@ class ChatController extends GetxController {
       }
 
       unreadMessages = chat?.chat.value.unreadCount ?? 0;
-      await chat!.fetchMessages(id);
+      await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
@@ -951,13 +953,19 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> download(FileAttachment attachment) async {
+  Future<void> download(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (attachment.path != null) {
-      attachment.open();
+      await attachment.open();
     } else {
-      attachment.download();
+      try {
+        await attachment.download();
+      } catch (_) {
+        await chat?.updateAttachments(item);
+        await Future.delayed(Duration.zero);
+        await attachment.download();
+      }
     }
   }
 
@@ -1265,7 +1273,7 @@ class UnreadMessagesElement extends ListElement {
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
   String getTitle(Iterable<User> users, UserId? me) {
-    String title = '.'.l10n * 3;
+    String title = 'dot'.l10n * 3;
 
     switch (kind) {
       case ChatKind.monolog:
@@ -1285,9 +1293,9 @@ extension ChatViewExt on Chat {
           title = users
               .take(3)
               .map((u) => u.name?.val ?? u.num.val)
-              .join(', '.l10n);
+              .join('comma_space'.l10n);
           if (members.length > 3) {
-            title += ', '.l10n + ('.'.l10n * 3);
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }
         } else {
           title = name!.val;

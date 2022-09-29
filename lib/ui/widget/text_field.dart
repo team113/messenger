@@ -82,6 +82,7 @@ class ReactiveTextField extends StatelessWidget {
 
   final EdgeInsets? padding;
 
+  /// Optional trailing [Widget].
   final Widget? trailing;
 
   /// Optional label of this [ReactiveTextField].

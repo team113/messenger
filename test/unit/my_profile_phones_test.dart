@@ -196,17 +196,17 @@ void main() async {
     when(
       graphQlProvider.addUserPhone(UserPhone('+380999999999')),
     ).thenThrow(
-      AddUserPhoneException(AddUserPhoneErrorCode.tooMany),
+      const AddUserPhoneException(AddUserPhoneErrorCode.tooMany),
     );
 
     when(
       graphQlProvider.resendPhone(),
-    ).thenThrow(ResendUserPhoneConfirmationException(
+    ).thenThrow(const ResendUserPhoneConfirmationException(
       ResendUserPhoneConfirmationErrorCode.codeLimitExceeded,
     ));
 
     when(graphQlProvider.confirmPhoneCode(ConfirmationCode('1234'))).thenThrow(
-        ConfirmUserPhoneException(ConfirmUserPhoneErrorCode.wrongCode));
+        const ConfirmUserPhoneException(ConfirmUserPhoneErrorCode.wrongCode));
 
     AuthService authService = Get.put(
       AuthService(

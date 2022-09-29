@@ -108,8 +108,8 @@ void main() async {
               'galleryItem': {
                 '__typename': 'ImageGalleryItem',
                 'id': 'testId',
-                'square': 'ug.square.jpg',
-                'original': 'orig.png',
+                'square': {'relativeRef': 'ug.square.jpg'},
+                'original': {'relativeRef': 'orig.jpg'},
                 'addedAt': DateTime.now().toString()
               },
               'at': DateTime.now().toString()
@@ -155,10 +155,10 @@ void main() async {
                 '__typename': 'UserAvatar',
                 'galleryItemId': 'testId',
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'cc.full.jpg'},
+                'vertical': {'relativeRef': 'cc.vertical.jpg'},
+                'square': {'relativeRef': 'cc.square.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -184,10 +184,10 @@ void main() async {
                 '__typename': 'UserCallCover',
                 'galleryItemId': 'testId',
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'cc.full.jpg'},
+                'vertical': {'relativeRef': 'cc.vertical.jpg'},
+                'square': {'relativeRef': 'cc.square.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -285,15 +285,15 @@ void main() async {
     );
 
     when(graphQlProvider.uploadUserGalleryItem(any)).thenThrow(
-        UploadUserGalleryItemException(
+        const UploadUserGalleryItemException(
             UploadUserGalleryItemErrorCode.tooBigSize));
 
     when(graphQlProvider.updateUserAvatar(any, any)).thenThrow(
-        UpdateUserAvatarException(
+        const UpdateUserAvatarException(
             UpdateUserAvatarErrorCode.unknownGalleryItem));
 
     when(graphQlProvider.updateUserCallCover(any, any)).thenThrow(
-        UpdateUserCallCoverException(
+        const UpdateUserCallCoverException(
             UpdateUserCallCoverErrorCode.unknownGalleryItem));
 
     AuthService authService = Get.put(
@@ -307,28 +307,43 @@ void main() async {
     await myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    expect(
-      () async => await myUserService.uploadGalleryItem(
+    Object? exception;
+
+    try {
+      await myUserService.uploadGalleryItem(
         NativeFile(
           bytes: Uint8List.fromList([1, 1]),
           size: 2,
           name: 'test',
         ),
-      ),
-      throwsA(isA<UploadUserGalleryItemException>()),
-    );
+      );
+    } catch (e) {
+      exception = e;
+    }
 
-    expect(
-      () async =>
-          await myUserService.updateAvatar(const GalleryItemId('testId')),
-      throwsA(isA<UpdateUserAvatarException>()),
-    );
+    if (exception is! UploadUserGalleryItemException) {
+      fail('UploadUserGalleryItemException not thrown');
+    }
 
-    expect(
-      () async =>
-          await myUserService.updateCallCover(const GalleryItemId('testId')),
-      throwsA(isA<UpdateUserCallCoverException>()),
-    );
+    try {
+      await myUserService.updateAvatar(const GalleryItemId('testId'));
+    } catch (e) {
+      exception = e;
+    }
+
+    if (exception is! UpdateUserAvatarException) {
+      fail('UpdateUserAvatarException not thrown');
+    }
+
+    try {
+      await myUserService.updateCallCover(const GalleryItemId('testId'));
+    } catch (e) {
+      exception = e;
+    }
+
+    if (exception is! UpdateUserCallCoverException) {
+      fail('UpdateUserCallCoverException not thrown');
+    }
 
     verifyInOrder([
       graphQlProvider.uploadUserGalleryItem(any),

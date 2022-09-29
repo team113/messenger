@@ -37,19 +37,21 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
   }
 
   /// Returns the stored [Uint8List] from [Hive].
-  Uint8List? get get => getSafe(0)?.bytes;
+  Uint8List? get bytes => getSafe(0)?.bytes;
 
-  /// Saves the provided [Uint8List] in [Hive].
+  /// Saves the provided [Uint8List] to [Hive].
   Future<void> set(Uint8List bytes) => putSafe(0, HiveBackground(bytes));
 
   /// Deletes the stored [Uint8List].
   Future<void> delete() => deleteSafe(0);
 }
 
+/// Persisted in [Hive] storage background's [Uint8List] value.
 @HiveType(typeId: ModelTypeId.hiveBackground)
 class HiveBackground extends HiveObject {
   HiveBackground(this.bytes);
 
+  /// Persisted background itself.
   @HiveField(0)
   final Uint8List bytes;
 }

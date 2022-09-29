@@ -1109,15 +1109,15 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              if (chat.currentCall == null)
+                              if (chat.ongoingCall == null)
                                 Text(
-                                  chat.currentCall == null ? '10:10' : '32:02',
+                                  chat.ongoingCall == null ? '10:10' : '32:02',
                                   // : '${chat.currentCall?.conversationStartedAt?.val.minute}:${chat.currentCall?.conversationStartedAt?.val.second}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .subtitle2
                                       ?.copyWith(
-                                        color: chat.currentCall == null
+                                        color: chat.ongoingCall == null
                                             ? null
                                             : const Color(0xFF63B4FF),
                                       ),
@@ -1160,7 +1160,7 @@ class ChatsTabView extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (chat.currentCall != null) ...[
+                    if (chat.ongoingCall != null) ...[
                       const SizedBox(width: 10),
                       AnimatedSwitcher(
                         key: const Key('ActiveCallButton'),

@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/svg/svg.dart';
@@ -108,8 +109,7 @@ class _HomeViewState extends State<HomeView> {
         ///    Navigator is drawn above the side bar in this case.
         ///
         /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    stated by `Config` variables (`maxSideBarExpandWidth` and
-        ///    `sideBarWidthPercentage`).
+        ///    determined by the `sideBarWidth` value.
         ///    Navigator is drawn under the side bar (so the page animation is
         ///    correct).
         final sideBar = AnimatedOpacity(
@@ -126,166 +126,158 @@ class _HomeViewState extends State<HomeView> {
                   child: ConditionalBackdropFilter(
                     condition: context.isNarrow,
                     filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    child: Container(
-                      color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                      child: Scaffold(
-                        resizeToAvoidBottomInset: false,
-                        // backgroundColor: Colors.transparent,
-                        body: Listener(
-                          onPointerSignal: (s) {
-                            if (s is PointerScrollEvent) {
-                              if (s.scrollDelta.dx.abs() < 3 &&
-                                  (s.scrollDelta.dy.abs() > 3 ||
-                                      c.verticalScrollTimer.value != null)) {
-                                c.verticalScrollTimer.value?.cancel();
-                                c.verticalScrollTimer.value =
-                                    Timer(150.milliseconds, () {
-                                  c.verticalScrollTimer.value = null;
-                                });
-                              }
+                    child: Scaffold(
+                      backgroundColor:
+                          Theme.of(context).extension<Style>()!.sidebarColor,
+                      body: Listener(
+                        onPointerSignal: (s) {
+                          if (s is PointerScrollEvent) {
+                            if (s.scrollDelta.dx.abs() < 3 &&
+                                (s.scrollDelta.dy.abs() > 3 ||
+                                    c.verticalScrollTimer.value != null)) {
+                              c.verticalScrollTimer.value?.cancel();
+                              c.verticalScrollTimer.value =
+                                  Timer(150.milliseconds, () {
+                                c.verticalScrollTimer.value = null;
+                              });
                             }
-                          },
-                          child: Obx(
-                            () => PageView(
-                              physics: (c.verticalScrollTimer.value == null &&
-                                      router.navigation.value == null)
-                                  ? null
-                                  : const NeverScrollableScrollPhysics(),
-                              controller: c.pages,
-                              onPageChanged: (i) {
-                                router.tab = HomeTab.values[i];
-                                c.page.value = router.tab;
-                              },
+                          }
+                        },
+                        child: Obx(() {
+                          return PageView(
+                            physics: (c.verticalScrollTimer.value == null &&
+                                    router.navigation.value == null)
+                                ? null
+                                : const NeverScrollableScrollPhysics(),
+                            controller: c.pages,
+                            onPageChanged: (i) {
+                              router.tab = HomeTab.values[i];
+                              c.page.value = router.tab;
+                            },
 
-                              /// [KeepAlivePage] used to keep the tabs' states.
-                              children: const [
-                                KeepAlivePage(child: FinanceTabView()),
-                                KeepAlivePage(child: ContactsTabView()),
-                                KeepAlivePage(child: ChatsTabView()),
-                                KeepAlivePage(child: MenuTabView()),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // extendBody: true,
-                        bottomNavigationBar: SafeArea(
-                          child: Obx(() {
-                            Widget child = router.navigation.value ??
-                                CustomNavigationBar(
-                                  selectedColor: const Color(0xFF63B4FF),
-                                  unselectedColor: const Color(0xFF88c6ff),
-                                  size: 30,
-                                  items: [
-                                    CustomNavigationBarItem(
-                                      key: const Key('FinanceButton'),
-                                      // icon: FontAwesomeIcons.solidCircleUser,
-                                      // label: 'label_tab_contacts'.l10n,
-                                      leading: Obx(
-                                        () => AnimatedOpacity(
-                                          duration: 150.milliseconds,
-                                          opacity:
-                                              c.page.value == HomeTab.finance
-                                                  ? 1
-                                                  : 0.6,
-                                          child: const Icon(
-                                            Icons.monetization_on,
-                                            color: Color(0xFF63b4ff),
-                                            size: 36,
-                                          ),
-                                          // child: SvgLoader.asset(
-                                          //   'assets/icons/contacts_active.svg',
-                                          //   width: 30,
-                                          //   height: 30,
-                                          // ),
+                            // [KeepAlivePage] used to keep the tabs' states.
+                            children: const [
+                              KeepAlivePage(child: FinanceTabView()),
+                              KeepAlivePage(child: ContactsTabView()),
+                              KeepAlivePage(child: ChatsTabView()),
+                              KeepAlivePage(child: MenuTabView()),
+                            ],
+                          );
+                        }),
+                      ),
+                      // extendBody: true,
+                      bottomNavigationBar: SafeArea(
+                        child: Obx(() {
+                          Widget child = router.navigation.value ??
+                              CustomNavigationBar(
+                                selectedColor: const Color(0xFF63B4FF),
+                                unselectedColor: const Color(0xFF88c6ff),
+                                size: 30,
+                                items: [
+                                  CustomNavigationBarItem(
+                                    key: const Key('FinanceButton'),
+                                    // icon: FontAwesomeIcons.solidCircleUser,
+                                    // label: 'label_tab_contacts'.l10n,
+                                    leading: Obx(
+                                      () => AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity: c.page.value == HomeTab.finance
+                                            ? 1
+                                            : 0.6,
+                                        child: const Icon(
+                                          Icons.monetization_on,
+                                          color: Color(0xFF63b4ff),
+                                          size: 36,
+                                        ),
+                                        // child: SvgLoader.asset(
+                                        //   'assets/icons/contacts_active.svg',
+                                        //   width: 30,
+                                        //   height: 30,
+                                        // ),
+                                      ),
+                                    ),
+                                  ),
+                                  CustomNavigationBarItem(
+                                    key: const Key('ContactsButton'),
+                                    // icon: FontAwesomeIcons.solidCircleUser,
+                                    // label: 'label_tab_contacts'.l10n,
+                                    leading: Obx(
+                                      () => AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity:
+                                            c.page.value == HomeTab.contacts
+                                                ? 1
+                                                : 0.6,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/contacts_active.svg',
+                                          width: 30,
+                                          height: 30,
                                         ),
                                       ),
                                     ),
-                                    CustomNavigationBarItem(
-                                      key: const Key('ContactsButton'),
-                                      // icon: FontAwesomeIcons.solidCircleUser,
-                                      // label: 'label_tab_contacts'.l10n,
-                                      leading: Obx(
-                                        () => AnimatedOpacity(
+                                  ),
+                                  CustomNavigationBarItem(
+                                    key: const Key('ChatsButton'),
+                                    // icon: FontAwesomeIcons.solidComment,
+                                    // label: 'label_tab_chats'.l10n,
+                                    badge: c.unreadChatsCount.value == 0
+                                        ? null
+                                        : '${c.unreadChatsCount.value}',
+                                    leading: Obx(
+                                      () => Padding(
+                                        padding: const EdgeInsets.only(top: 0),
+                                        child: AnimatedOpacity(
                                           duration: 150.milliseconds,
-                                          opacity:
-                                              c.page.value == HomeTab.contacts
-                                                  ? 1
-                                                  : 0.6,
+                                          opacity: c.page.value == HomeTab.chats
+                                              ? 1
+                                              : 0.6,
                                           child: SvgLoader.asset(
-                                            'assets/icons/contacts_active.svg',
-                                            width: 30,
+                                            'assets/icons/chats_active.svg',
+                                            width: 36.06,
                                             height: 30,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    CustomNavigationBarItem(
-                                      key: const Key('ChatsButton'),
-                                      // icon: FontAwesomeIcons.solidComment,
-                                      // label: 'label_tab_chats'.l10n,
-                                      badge: c.unreadChatsCount.value == 0
-                                          ? null
-                                          : '${c.unreadChatsCount.value}',
-                                      leading: Obx(
-                                        () => Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 0),
-                                          child: AnimatedOpacity(
-                                            duration: 150.milliseconds,
-                                            opacity:
-                                                c.page.value == HomeTab.chats
-                                                    ? 1
-                                                    : 0.6,
-                                            child: SvgLoader.asset(
-                                              'assets/icons/chats_active.svg',
-                                              width: 36.06,
-                                              height: 30,
-                                            ),
+                                  ),
+                                  CustomNavigationBarItem(
+                                    key: const Key('MenuButton'),
+                                    // icon: FontAwesomeIcons.bars,
+                                    leading: Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: Obx(
+                                        () => AnimatedOpacity(
+                                          duration: 150.milliseconds,
+                                          opacity: c.page.value == HomeTab.menu
+                                              ? 1
+                                              : 0.6,
+                                          child: AvatarWidget.fromMyUser(
+                                            c.myUser.value,
+                                            radius: 15,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    CustomNavigationBarItem(
-                                      key: const Key('MenuButton'),
-                                      // icon: FontAwesomeIcons.bars,
-                                      leading: Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 2),
-                                        child: Obx(
-                                          () => AnimatedOpacity(
-                                            duration: 150.milliseconds,
-                                            opacity:
-                                                c.page.value == HomeTab.menu
-                                                    ? 1
-                                                    : 0.6,
-                                            child: AvatarWidget.fromMyUser(
-                                              c.myUser.value,
-                                              radius: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      // label: 'label_tab_menu'.l10n,
-                                    ),
-                                  ],
-                                  currentIndex: router.tab.index,
-                                  onTap: (i) {
-                                    c.pages.jumpToPage(i);
-                                  },
-                                );
+                                    // label: 'label_tab_menu'.l10n,
+                                  ),
+                                ],
+                                currentIndex: router.tab.index,
+                                onTap: (i) {
+                                  c.pages.jumpToPage(i);
+                                },
+                              );
 
-                            return AnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            );
-                          }),
-                        ),
+                          return AnimatedSwitcher(
+                            duration: 250.milliseconds,
+                            child: child,
+                          );
+                        }),
                       ),
                     ),
                   ),
                 );
               }),
-              if (!context.isNarrow) ...[
+              if (!context.isNarrow)
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
@@ -297,8 +289,7 @@ class _HomeViewState extends State<HomeView> {
                     width: 7,
                     height: context.height,
                   ),
-                )
-              ],
+                ),
             ],
           ),
         );
@@ -308,8 +299,8 @@ class _HomeViewState extends State<HomeView> {
         Widget navigation = IgnorePointer(
           key: const Key('Navigation'),
           ignoring: router.route == Routes.home && context.isNarrow,
-          child: LayoutBuilder(
-            builder: (context, constraints) => Row(
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Row(
               children: [
                 Obx(() {
                   double width = c.sideBarWidth.value;
@@ -324,11 +315,10 @@ class _HomeViewState extends State<HomeView> {
                     routerDelegate: _routerDelegate,
                     backButtonDispatcher: _backButtonDispatcher,
                   ),
-                  // TODO(design): because of _CupertinoEdgeShadowDecoration.
                 ),
               ],
-            ),
-          ),
+            );
+          }),
         );
 
         /// Navigator should be drawn under or above the [sideBar] for the
@@ -349,10 +339,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(child: context.isNarrow ? navigation : null),
                 ] else ...[
                   const Scaffold(
-                    backgroundColor: Colors.transparent,
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    body: Center(child: CircularProgressIndicator()),
                   )
                 ],
               ],

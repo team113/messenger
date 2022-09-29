@@ -23,18 +23,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -44,28 +45,50 @@ import '/util/web/web_utils.dart';
 /// [GalleryItem] is treated as a video if [isVideo] is `true`, or as an image
 /// otherwise.
 class GalleryItem {
-  const GalleryItem({
+  GalleryItem({
     required this.link,
     required this.name,
     this.isVideo = false,
+    this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: false);
+  factory GalleryItem.image(
+    String link,
+    String name, {
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: false,
+        onError: onError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, String name) =>
-      GalleryItem(link: link, name: name, isVideo: true);
+  factory GalleryItem.video(
+    String link,
+    String name, {
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: true,
+        onError: onError,
+      );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  final String link;
+  String link;
 
-  /// File name of this this [GalleryItem].
+  /// File name of this [GalleryItem].
   final String name;
+
+  /// Callback, called on the fetch errors of this [GalleryItem].
+  final Future<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -264,7 +287,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, () {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        print(_firstFrame);
         _firstFrame = false;
       });
       _displayControls();
@@ -284,93 +306,87 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      opaque: false,
-      // onEnter: (_) => _displayControls(),
-      // onHover: (_) => _displayControls(),
-      // onExit: (_) => _displayControls(),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (!_firstLayout) {
-            _bounds = _calculatePosition() ?? _bounds;
-          } else {
-            _pop = Navigator.of(context).pop;
-            _firstLayout = false;
-          }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!_firstLayout) {
+          _bounds = _calculatePosition() ?? _bounds;
+        } else {
+          _pop = Navigator.of(context).pop;
+          _firstLayout = false;
+        }
 
-          var fade = Tween(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(
-              parent: _fading,
-              curve: const Interval(0, 0.5, curve: Curves.ease),
-            ),
-          );
+        var fade = Tween(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: _fading,
+            curve: const Interval(0, 0.5, curve: Curves.ease),
+          ),
+        );
 
-          RelativeRectTween tween() => RelativeRectTween(
-                begin: RelativeRect.fromSize(_bounds, constraints.biggest),
-                end: RelativeRect.fromLTRB(
-                  Tween<double>(begin: 0, end: _rect.left).evaluate(_curve),
-                  Tween<double>(begin: 0, end: _rect.top).evaluate(_curve),
-                  Tween<double>(begin: 0, end: _rect.right).evaluate(_curve),
-                  Tween<double>(begin: 0, end: _rect.bottom).evaluate(_curve),
-                ),
-              );
-
-          return Stack(
-            children: [
-              AnimatedBuilder(
-                animation: _fading,
-                builder: (context, child) => Container(
-                  color: Colors.black.withOpacity(0.9 * _fading.value),
-                ),
+        RelativeRectTween tween() => RelativeRectTween(
+              begin: RelativeRect.fromSize(_bounds, constraints.biggest),
+              end: RelativeRect.fromLTRB(
+                Tween<double>(begin: 0, end: _rect.left).evaluate(_curve),
+                Tween<double>(begin: 0, end: _rect.top).evaluate(_curve),
+                Tween<double>(begin: 0, end: _rect.right).evaluate(_curve),
+                Tween<double>(begin: 0, end: _rect.bottom).evaluate(_curve),
               ),
-              AnimatedBuilder(
-                animation: _fading,
-                builder: (context, child) {
-                  return AnimatedBuilder(
-                      animation: _sliding!,
-                      builder: (context, child) {
-                        return PositionedTransition(
-                          rect: tween().animate(
-                            CurvedAnimation(
-                              parent: _fading,
-                              curve: Curves.easeOutQuint,
-                              reverseCurve: _curveOut,
-                            ),
+            );
+
+        return Stack(
+          children: [
+            AnimatedBuilder(
+              animation: _fading,
+              builder: (context, child) => Container(
+                color: Colors.black.withOpacity(0.9 * _fading.value),
+              ),
+            ),
+            AnimatedBuilder(
+              animation: _fading,
+              builder: (context, child) {
+                return AnimatedBuilder(
+                    animation: _sliding!,
+                    builder: (context, child) {
+                      return PositionedTransition(
+                        rect: tween().animate(
+                          CurvedAnimation(
+                            parent: _fading,
+                            curve: Curves.easeOutQuint,
+                            reverseCurve: _curveOut,
                           ),
-                          child: FadeTransition(
-                            opacity: fade,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.deferToChild,
-                              onTap: PlatformUtils.isMobile
-                                  ? null
-                                  : () {
-                                      if (_pageController.page == _page) {
-                                        _dismiss();
-                                      }
-                                    },
-                              onVerticalDragStart: _onVerticalDragStart,
-                              onVerticalDragUpdate: _onVerticalDragUpdate,
-                              onVerticalDragEnd: _onVerticalDragEnd,
-                              child: KeyboardListener(
-                                autofocus: true,
-                                focusNode: node,
-                                onKeyEvent: _onKeyEvent,
-                                child: Listener(
-                                  onPointerSignal: _onPointerSignal,
-                                  child: _pageView(),
-                                ),
+                        ),
+                        child: FadeTransition(
+                          opacity: fade,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.deferToChild,
+                            onTap: PlatformUtils.isMobile
+                                ? null
+                                : () {
+                                    if (_pageController.page == _page) {
+                                      _dismiss();
+                                    }
+                                  },
+                            onVerticalDragStart: _onVerticalDragStart,
+                            onVerticalDragUpdate: _onVerticalDragUpdate,
+                            onVerticalDragEnd: _onVerticalDragEnd,
+                            child: KeyboardListener(
+                              autofocus: true,
+                              focusNode: node,
+                              onKeyEvent: _onKeyEvent,
+                              child: Listener(
+                                onPointerSignal: _onPointerSignal,
+                                child: _pageView(),
                               ),
                             ),
                           ),
-                        );
-                      });
-                },
-              ),
-              ..._buildInterface(),
-            ],
-          );
-        },
-      ),
+                        ),
+                      );
+                    });
+              },
+            ),
+            ..._buildInterface(),
+          ],
+        );
+      },
     );
   }
 
@@ -405,6 +421,20 @@ class _GalleryPopupState extends State<GalleryPopup>
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                },
               );
             }
 
@@ -428,6 +458,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                             _videoControllers.remove(index);
                           } else {
                             _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
                           }
                         },
                       )
@@ -464,8 +500,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics:
-          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
         _initialPage = null;
         setState(() => _page = i);
@@ -476,23 +511,23 @@ class _GalleryPopupState extends State<GalleryPopup>
       children: widget.children.mapIndexed((index, e) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              e.isVideo
-                  ? ContextMenuRegion(
-                      enabled: !PlatformUtils.isWeb,
-                      actions: [
-                        ContextMenuButton(
-                          label: 'btn_download'.l10n,
-                          onPressed: () => _download(widget.children[_page]),
-                        ),
-                        ContextMenuButton(
-                          label: 'btn_info'.l10n,
-                          onPressed: () {},
-                        ),
-                      ],
-                      child: Video(
+          child: ContextMenuRegion(
+            enabled: !PlatformUtils.isWeb,
+            actions: [
+              ContextMenuButton(
+                label: 'btn_download'.l10n,
+                onPressed: () => _download(widget.children[_page]),
+              ),
+              ContextMenuButton(
+                label: 'btn_info'.l10n,
+                onPressed: () {},
+              ),
+            ],
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                e.isVideo
+                    ? Video(
                         e.link,
                         showInterfaceFor:
                             _initialPage == index ? 3.seconds : null,
@@ -509,21 +544,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                             _videoControllers[index] = c;
                           }
                         },
-                      ),
-                    )
-                  : ContextMenuRegion(
-                      enabled: !PlatformUtils.isWeb,
-                      actions: [
-                        ContextMenuButton(
-                          label: 'btn_download'.l10n,
-                          onPressed: () => _download(widget.children[_page]),
-                        ),
-                        ContextMenuButton(
-                          label: 'btn_info'.l10n,
-                          onPressed: () {},
-                        ),
-                      ],
-                      child: GestureDetector(
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      )
+                    : GestureDetector(
                         onTap: () {
                           if (_pageController.page == _page) {
                             _dismiss();
@@ -535,10 +563,28 @@ class _GalleryPopupState extends State<GalleryPopup>
                         },
                         child: PlatformUtils.isWeb
                             ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
+                            : Image.network(
+                                e.link,
+                                errorBuilder: (_, __, ___) {
+                                  return InitCallback(
+                                    callback: () async {
+                                      await e.onError?.call();
+                                      if (mounted) {
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: const SizedBox(
+                                      height: 300,
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
-                    ),
-            ],
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -991,7 +1037,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      await PlatformUtils.download(item.link, item.name);
+      try {
+        await PlatformUtils.download(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.download(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_downloaded'.l10n
           : 'label_image_downloaded'.l10n);
@@ -1003,7 +1059,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      await PlatformUtils.saveToGallery(item.link, item.name);
+      try {
+        await PlatformUtils.saveToGallery(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.saveToGallery(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_saved_to_gallery'.l10n
           : 'label_image_saved_to_gallery'.l10n);
@@ -1015,7 +1081,16 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
-      await PlatformUtils.share(item.link, item.name);
+      try {
+        await PlatformUtils.share(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.share(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }

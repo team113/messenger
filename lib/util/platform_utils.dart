@@ -149,7 +149,7 @@ class PlatformUtilsImpl {
     CancelToken? cancelToken,
   }) async {
     if (PlatformUtils.isWeb) {
-      WebUtils.downloadFile(url, filename);
+      await WebUtils.downloadFile(url, filename);
       return null;
     } else {
       final String name = p.basenameWithoutExtension(filename);
@@ -227,26 +227,4 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowLeaveFullScreen() => onLeaveFullscreen();
-}
-
-/// Mocked [PlatformUtilsImpl] to use in the tests.
-class PlatformUtilsMock extends PlatformUtilsImpl {
-  @override
-  FutureOr<File?> download(
-    String url,
-    String filename, {
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-  }) async {
-    int total = 100;
-    for (int count = 0; count <= total; count++) {
-      if (cancelToken?.isCancelled == true) {
-        break;
-      }
-      await Future.delayed(20.milliseconds);
-      onReceiveProgress?.call(count, total);
-    }
-
-    return File('test/path');
-  }
 }

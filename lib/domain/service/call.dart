@@ -75,8 +75,9 @@ class CallService extends DisposableService {
   void onClose() {
     super.onClose();
 
-    for (var call in List.from(_callsRepo.calls.values, growable: false)) {
-      var removed = _callsRepo.remove(call.value.chatId);
+    for (Rx<OngoingCall> call
+        in List.from(_callsRepo.calls.values, growable: false)) {
+      Rx<OngoingCall>? removed = _callsRepo.remove(call.value.chatId.value);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
@@ -286,7 +287,7 @@ class CallService extends DisposableService {
         groupName,
       );
     } else {
-      throw TransformDialogCallIntoGroupCallException(
+      throw const TransformDialogCallIntoGroupCallException(
         TransformDialogCallIntoGroupCallErrorCode.noCall,
       );
     }

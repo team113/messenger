@@ -1,3 +1,19 @@
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -21,6 +37,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
+import 'package:messenger/ui/page/home/widget/init_callback.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/animations.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
@@ -43,6 +60,7 @@ class PostWidget extends StatefulWidget {
     this.onEdit,
     this.getUser,
     this.me,
+    this.onAttachmentError,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -76,6 +94,9 @@ class PostWidget extends StatefulWidget {
   final Future<RxUser?> Function(UserId userId)? getUser;
 
   final UserId? me;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onAttachmentError;
 
   @override
   State<PostWidget> createState() => _PostWidgetState();
@@ -368,7 +389,7 @@ class _PostWidgetState extends State<PostWidget> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromRGBO(255, 255, 255, 1),
+        color: const Color.fromRGBO(255, 255, 255, 1),
         borderRadius: BorderRadius.circular(15),
       ),
       child: WidgetButton(
@@ -668,7 +689,7 @@ class _PostWidgetState extends State<PostWidget> {
     Widget leading = Container();
     if (e is FileAttachment) {
       switch (e.downloadStatus.value) {
-        case DownloadStatus.downloading:
+        case DownloadStatus.inProgress:
           leading = InkWell(
             onTap: () => widget.onFileTap?.call(e),
             child: Stack(
@@ -693,7 +714,7 @@ class _PostWidgetState extends State<PostWidget> {
           );
           break;
 
-        case DownloadStatus.downloaded:
+        case DownloadStatus.isFinished:
           leading = const Icon(
             Icons.file_copy,
             key: Key('Downloaded'),
@@ -702,7 +723,7 @@ class _PostWidgetState extends State<PostWidget> {
           );
           break;
 
-        case DownloadStatus.notDownloaded:
+        case DownloadStatus.notStarted:
           leading = SvgLoader.asset(
             'assets/icons/download.svg',
             width: 28,
@@ -748,7 +769,9 @@ class _PostWidgetState extends State<PostWidget> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${e.size ~/ 1024} KB',
+                      e.original.size == null
+                          ? '... KB'
+                          : '${e.original.size! ~/ 1024} KB',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -794,10 +817,11 @@ class _PostWidgetState extends State<PostWidget> {
                           key: _galleryKeys[i],
                           height: 300,
                         )
-                  : VideoThumbnail.path(
-                      path: '${Config.url}/files${e.original}',
+                  : VideoThumbnail.url(
+                      url: '${Config.files}${e.original.relativeRef}',
                       key: _galleryKeys[i],
                       height: 300,
+                      onError: widget.onAttachmentError,
                     ),
               Container(
                 width: 60,
@@ -824,10 +848,21 @@ class _PostWidgetState extends State<PostWidget> {
                     height: 300,
                   )
             : Image.network(
-                '${Config.url}/files${(e as ImageAttachment).big}',
+                '${Config.files}${(e as ImageAttachment).big.relativeRef}',
                 key: _galleryKeys[i],
                 fit: BoxFit.cover,
                 height: 300,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () => widget.onAttachmentError?.call(),
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  );
+                },
               );
 
     return Padding(
@@ -847,11 +882,22 @@ class _PostWidgetState extends State<PostWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  var link = '${Config.url}/files${o.original}';
+                  var link = '${Config.files}${o.original.relativeRef}';
                   if (o is FileAttachment) {
                     gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await widget.onAttachmentError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
                   }
                 }
 

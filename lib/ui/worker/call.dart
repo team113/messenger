@@ -183,8 +183,7 @@ class CallWorker extends DisposableService {
                   String? avatarUrl;
                   Avatar? avatar = chat?.avatar.value;
                   if (avatar != null) {
-                    avatarUrl =
-                        '${Config.url}:${Config.port}/files${avatar.original}';
+                    avatarUrl = '${Config.files}${avatar.original.relativeRef}';
                   }
 
                   _notificationService.show(
