@@ -63,6 +63,9 @@ class Themes {
             subtitleColor: const Color(0xFF666666),
             subtitle2Color: const Color(0xFF63B4FF),
             sidebarColor: Colors.white.withOpacity(0.4),
+            statusMessageRead: const Color(0xFF63B4FF),
+            statusMessageNotRead: const Color(0xFF888888),
+            statusMessageError: Colors.red,
           ),
         ],
         colorScheme: colors,
@@ -316,6 +319,9 @@ class Style extends ThemeExtension<Style> {
     required this.subtitleColor,
     required this.subtitle2Color,
     required this.sidebarColor,
+    required this.statusMessageRead,
+    required this.statusMessageNotRead,
+    required this.statusMessageError,
   });
 
   /// [BorderRadius] to use .
@@ -345,12 +351,23 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
+  /// [Color] used for the primary text in lists.
   final Color subtitleColor;
 
-  /// Color used for medium emphasis text in lists.
+  /// [Color] used for medium emphasis text in lists.
   final Color subtitle2Color;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
+
+  /// Icon [Color] when a message has been read.
+  final Color statusMessageRead;
+
+  /// Icon [Color] when a message has not been read.
+  final Color statusMessageNotRead;
+
+  /// Icon [Color] when an error occurred while sending a message.
+  final Color statusMessageError;
 
   @override
   ThemeExtension<Style> copyWith({
@@ -366,6 +383,9 @@ class Style extends ThemeExtension<Style> {
     Color? subtitleColor,
     Color? subtitle2Color,
     Color? sidebarColor,
+    Color? statusMessageRead,
+    Color? statusMessageNotRead,
+    Color? statusMessageError,
   }) {
     return Style(
       cardRadius: cardRadius ?? this.cardRadius,
@@ -381,6 +401,9 @@ class Style extends ThemeExtension<Style> {
       subtitleColor: subtitleColor ?? this.subtitleColor,
       subtitle2Color: subtitle2Color ?? this.subtitle2Color,
       sidebarColor: sidebarColor ?? this.sidebarColor,
+      statusMessageRead: statusMessageRead ?? this.statusMessageRead,
+      statusMessageNotRead: statusMessageNotRead ?? this.statusMessageNotRead,
+      statusMessageError: statusMessageError ?? this.statusMessageError,
     );
   }
 
@@ -406,6 +429,9 @@ class Style extends ThemeExtension<Style> {
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
+      statusMessageRead: Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
+      statusMessageNotRead: Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
+      statusMessageError: Color.lerp(statusMessageError, other.statusMessageError, t)!,
     );
   }
 }

@@ -201,6 +201,13 @@ class RouterState extends ChangeNotifier {
     }
   }
 
+  /// Indicator whether specific [routeName] starts with [path].
+  bool routeStartsWith(String routeName, String path) =>
+      routes
+          .lastWhereOrNull((String route) => route.startsWith(routeName))
+          ?.startsWith(path) ==
+      true;
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.
