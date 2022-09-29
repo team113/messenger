@@ -126,6 +126,11 @@ class Config {
       }
     }
 
+    if (document['files']?['url'] == null &&
+        !const bool.hasEnvironment('SOCAPP_FILES_URL')) {
+      files = '$url/files';
+    }
+
     bool confRemote = const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
         ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
         : (document['conf']?['remote'] ?? true);
