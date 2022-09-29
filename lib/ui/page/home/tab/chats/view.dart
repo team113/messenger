@@ -561,7 +561,7 @@ class _ChatTileConfiguration extends StatelessWidget {
         if (chat.ongoingCall == null &&
             chat.lastDelivery.microsecondsSinceEpoch != 0)
           Text(
-            chat.lastDelivery.toDate(),
+            chat.lastDelivery.toDateAndWeekday(),
             style: textStyle,
           ),
         if (chat.ongoingCall != null && microsecondsSinceEpoch != null)

@@ -27,7 +27,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';

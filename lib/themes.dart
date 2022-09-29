@@ -429,9 +429,12 @@ class Style extends ThemeExtension<Style> {
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      statusMessageRead: Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
-      statusMessageNotRead: Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
-      statusMessageError: Color.lerp(statusMessageError, other.statusMessageError, t)!,
+      statusMessageRead:
+          Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
+      statusMessageNotRead:
+          Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
+      statusMessageError:
+          Color.lerp(statusMessageError, other.statusMessageError, t)!,
     );
   }
 }
