@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// Widget creates styles on hover.
+/// [Widget] creates styles on hover.
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
     Key? key,

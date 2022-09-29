@@ -29,7 +29,7 @@ class AnimatedTyping extends StatefulWidget {
   /// [Duration] over which the count of dots is changed.
   final Duration duration;
 
-  /// Color of the dots.
+  /// [Color] of the dots.
   final Color color;
 
   @override
@@ -45,7 +45,6 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(vsync: this)
       ..repeat(period: const Duration(seconds: 1));
   }
@@ -60,18 +59,17 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (BuildContext context, Widget? child) {
+      builder: (BuildContext context, _) {
         final Color begin = Theme.of(context).colorScheme.secondary;
         const Color end = Color(0xFFB6DCFF);
         const double size = 4;
         const double spacing = 1.6;
-
         final Color? color1 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
+            sin(pi * const Interval(0, 0.3).transform(_controller.value)));
         final Color? color2 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
         final Color? color3 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0.6, 1.0).transform(_controller.value)));
+            sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
           children: [

@@ -95,24 +95,24 @@ class CustomNavigationBar extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: items
                         .mapIndexed(
-                          (i, e) => Expanded(
-                            key: e.key,
+                          (int i, CustomNavigationBarItem b) => Expanded(
+                            key: b.key,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                if (e.icon != null || e.child != null)
+                                if (b.icon != null || b.child != null)
                                   Badge(
-                                    badgeContent: e.badge == null
+                                    badgeContent: b.badge == null
                                         ? null
                                         : Text(
-                                            e.badge!,
+                                            b.badge!,
                                             textAlign: TextAlign.center,
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 11,
                                             ),
                                           ),
-                                    showBadge: e.badge != null,
+                                    showBadge: b.badge != null,
                                     child: InkResponse(
                                       hoverColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
@@ -125,19 +125,19 @@ class CustomNavigationBar extends StatelessWidget {
                                               : unselectedColor,
                                           fontSize: 11,
                                         ),
-                                        child: e.child ??
+                                        child: b.child ??
                                             FaIcon(
-                                              e.icon,
-                                              color: e.color ??
+                                              b.icon,
+                                              color: b.color ??
                                                   (currentIndex == i
                                                       ? selectedColor
                                                       : unselectedColor),
-                                              size: e.size ?? size,
+                                              size: b.size ?? size,
                                             ),
                                       ),
                                     ),
                                   ),
-                                if (e.label != null) Text(e.label!),
+                                if (b.label != null) Text(b.label!),
                               ],
                             ),
                           ),

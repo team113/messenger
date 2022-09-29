@@ -29,8 +29,8 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color = Colors.white,
-    this.maxWidth = 250 * 0.7,
-    this.height = 60 * 0.7,
+    this.maxWidth = 175,
+    this.height = 42,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -85,21 +85,21 @@ class OutlinedRoundedButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: onPressed == null ? const Color(0xFFBBBBBB) : color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: BorderRadius.circular(10.5),
       ),
       child: Material(
         color: Colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: BorderRadius.circular(10.5),
         child: InkWell(
-          borderRadius: BorderRadius.circular(15 * 0.7),
+          borderRadius: BorderRadius.circular(10.5),
           onTap: onPressed,
           onLongPress: onLongPress,
           hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 16 * 0.7,
-              vertical: 6 * 0.7,
+              horizontal: 11,
+              vertical: 4,
             ),
             child: Stack(
               children: [
@@ -117,22 +117,22 @@ class OutlinedRoundedButton extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.caption?.copyWith(
                         color: Colors.black,
-                        fontSize: 24 * 0.7,
+                        fontSize: 17,
                       ),
                   child: Center(
                     child: Padding(
                       padding: leading == null
                           ? EdgeInsets.zero
-                          : const EdgeInsets.only(left: 10 * 0.7),
+                          : const EdgeInsets.only(left: 7),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           title ?? const SizedBox.shrink(),
-                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
+                          if (subtitle != null) const SizedBox(height: 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 13 * 0.7),
+                              style: const TextStyle(fontSize: 9),
                               child: subtitle!,
                             ),
                         ],
