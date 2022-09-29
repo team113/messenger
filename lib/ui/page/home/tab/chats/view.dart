@@ -184,7 +184,7 @@ class _ChatTileConfiguration extends StatelessWidget {
         () {
           return ChatTile(
             leading: AvatarWidget.fromRxChat(rxChat, radius: 30),
-            trailing: _trailing(controller, chat),
+            trailing: _trailing(controller, chat, style),
             title: _title(context, controller, rxChat, style.subtitle2Color),
             subtitle: _extendedSubtitle(context, controller, rxChat, style),
             style: style,
@@ -310,7 +310,6 @@ class _ChatTileConfiguration extends StatelessWidget {
     if (rxChat.messages.isNotEmpty) {
       item = rxChat.messages.last.value;
     }
-
     item ??= chat.lastItem;
 
     if (typings.isNotEmpty) {
@@ -474,7 +473,7 @@ class _ChatTileConfiguration extends StatelessWidget {
   }
 
   /// Creates a widget to display after the title.
-  Widget? _trailing(ChatsTabController c, Chat chat) {
+  Widget? _trailing(ChatsTabController c, Chat chat, Style style) {
     if (chat.ongoingCall != null) {
       final Widget dropButton = WidgetButton(
         key: const Key('Drop'),
@@ -483,8 +482,8 @@ class _ChatTileConfiguration extends StatelessWidget {
           key: const Key('Drop'),
           height: 32,
           width: 32,
-          decoration: const BoxDecoration(
-            color: Colors.red,
+          decoration: BoxDecoration(
+            color: style.dropButtonColor,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -503,8 +502,8 @@ class _ChatTileConfiguration extends StatelessWidget {
           key: const Key('Join'),
           height: 32,
           width: 32,
-          decoration: const BoxDecoration(
-            color: Color(0xFF63B4FF),
+          decoration: BoxDecoration(
+            color: style.joinButtonColor,
             shape: BoxShape.circle,
           ),
           child: Center(

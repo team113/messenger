@@ -50,6 +50,8 @@ class Themes {
               color: const Color(0xFFEBEBEB),
               width: 0.5,
             ),
+            dropButtonColor: Colors.red,
+            joinButtonColor: const Color(0xFF63B4FF),
             primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
             primaryBorder: Border.all(
               color: const Color(0xFFB9D9FA),
@@ -312,6 +314,8 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardColor,
     required this.cardBorder,
+    required this.dropButtonColor,
+    required this.joinButtonColor,
     required this.primaryCardColor,
     required this.primaryBorder,
     required this.hoveredBorderUnselected,
@@ -326,6 +330,12 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// .
+  final Color dropButtonColor;
+
+  /// .
+  final Color joinButtonColor;
 
   /// [BorderRadius] to use .
   final BorderRadius cardRadius;
@@ -376,6 +386,8 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Color? cardColor,
     Border? cardBorder,
+    Color? dropButtonColor,
+    Color? joinButtonColor,
     Color? primaryCardColor,
     Border? primaryBorder,
     Border? hoveredBorderUnselected,
@@ -393,6 +405,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
       cardBorder: cardBorder ?? this.cardBorder,
+      dropButtonColor: dropButtonColor ?? this.dropButtonColor,
+      joinButtonColor: joinButtonColor ?? this.joinButtonColor,
       primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       hoveredBorderUnselected:
@@ -419,6 +433,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
+      joinButtonColor: Color.lerp(joinButtonColor, other.joinButtonColor, t)!,
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
