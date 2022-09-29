@@ -420,17 +420,6 @@ class _ChatTileConfiguration extends StatelessWidget {
               ),
             ),
           Flexible(child: Text(desc.toString(), maxLines: 2)),
-          ElasticAnimatedSwitcher(
-            child: item.status.value == SendingStatus.sending
-                ? const Icon(Icons.access_alarm, size: 15)
-                : item.status.value == SendingStatus.error
-                    ? const Icon(
-                        Icons.error_outline,
-                        size: 15,
-                        color: Colors.red,
-                      )
-                    : const SizedBox.shrink(),
-          ),
         ];
       } else if (item is ChatForward) {
         subtitle = [
@@ -453,23 +442,6 @@ class _ChatTileConfiguration extends StatelessWidget {
               ),
             ),
           Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
-          ElasticAnimatedSwitcher(
-            child: item.status.value == SendingStatus.sending
-                ? const Padding(
-                    padding: EdgeInsets.only(left: 4),
-                    child: Icon(Icons.access_alarm, size: 15),
-                  )
-                : item.status.value == SendingStatus.error
-                    ? const Padding(
-                        padding: EdgeInsets.only(left: 4),
-                        child: Icon(
-                          Icons.error_outline,
-                          size: 15,
-                          color: Colors.red,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-          ),
         ];
       } else if (item is ChatMemberInfo) {
         Widget content = Text('${item.action}');
