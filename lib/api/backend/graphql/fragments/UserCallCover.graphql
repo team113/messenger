@@ -27,8 +27,20 @@ fragment UserCallCover on UserCallCover {
         }
         angle
     }
-    original
-    full
-    vertical
-    square
+    original {
+        __typename
+        ...File
+    }
+    full {
+        __typename
+        ...File
+    }
+    vertical {
+        __typename
+        ...File
+    }
+    square {
+        __typename
+        ...File
+    }
 }

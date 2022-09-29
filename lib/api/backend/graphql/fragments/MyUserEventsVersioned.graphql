@@ -99,11 +99,8 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             galleryItem {
                 __typename
-                id
                 ... on ImageGalleryItem {
-                    square
-                    original
-                    addedAt
+                    ...ImageGalleryItem
                 }
             }
             at

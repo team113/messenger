@@ -96,9 +96,11 @@ class WebStoredCall {
                           UserNum(e['user']['num']),
                         ),
                         handRaised: e['handRaised'],
+                        joinedAt: PreciseDateTime.parse(e['joinedAt']),
                       ))
                   .toList(),
               withVideo: data['call']['withVideo'],
+              answered: data['call']['answered'],
             ),
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
       deviceId:
@@ -133,9 +135,11 @@ class WebStoredCall {
                           'num': e.user.num.val,
                         },
                         'handRaised': e.handRaised,
+                        'joinedAt': e.joinedAt.toString(),
                       })
                   .toList(),
               'withVideo': call!.withVideo,
+              'answered': call!.answered,
             },
       'creds': creds?.val,
       'deviceId': deviceId?.val,

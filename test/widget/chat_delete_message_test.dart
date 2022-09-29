@@ -85,7 +85,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -136,7 +136,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-21T11:42:40.553339+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'to hide message',
                   'editedAt': null,
                   'attachments': []
@@ -151,7 +151,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-21T11:42:35.284555+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'text message',
                   'editedAt': null,
                   'attachments': []

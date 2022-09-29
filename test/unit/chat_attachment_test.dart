@@ -79,7 +79,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -129,12 +129,11 @@ void main() async {
           'attachment': {
             '__typename': 'ImageAttachment',
             'id': 'e8d111f0-4a27-405d-8a4a-0a66d20e9098',
-            'original': 'original',
             'filename': 'filename',
-            'size': 0,
-            'big': 'big',
-            'medium': 'medium',
-            'small': 'small',
+            'original': {'relativeRef': 'orig.jpg'},
+            'big': {'relativeRef': 'orig.jpg'},
+            'medium': {'relativeRef': 'orig.jpg'},
+            'small': {'relativeRef': 'orig.jpg'},
           }
         }),
       ),

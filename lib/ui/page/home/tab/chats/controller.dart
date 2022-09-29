@@ -169,14 +169,14 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.currentCall] values.
+  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
-      if (a.chat.value.currentCall != null &&
-          b.chat.value.currentCall == null) {
+      if (a.chat.value.ongoingCall != null &&
+          b.chat.value.ongoingCall == null) {
         return -1;
-      } else if (a.chat.value.currentCall == null &&
-          b.chat.value.currentCall != null) {
+      } else if (a.chat.value.ongoingCall == null &&
+          b.chat.value.ongoingCall != null) {
         return 1;
       }
 
@@ -188,15 +188,15 @@ class ChatsTabController extends GetxController {
 /// Container of data used to sort a [Chat].
 class _ChatSortingData {
   /// Returns a [_ChatSortingData] capturing the provided [chat] changes to
-  /// invoke a [sort] on [Chat.updatedAt] or [Chat.currentCall] updates.
+  /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
   _ChatSortingData(Rx<Chat> chat, [void Function()? sort]) {
     updatedAt = chat.value.updatedAt;
-    hasCall = chat.value.currentCall != null;
+    hasCall = chat.value.ongoingCall != null;
 
     worker = ever(
       chat,
       (Chat chat) {
-        bool hasCall = chat.currentCall != null;
+        bool hasCall = chat.ongoingCall != null;
         if (chat.updatedAt != updatedAt || hasCall != hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
@@ -213,7 +213,7 @@ class _ChatSortingData {
   /// Previously captured [Chat.updatedAt] value.
   late PreciseDateTime updatedAt;
 
-  /// Previously captured indicator of [Chat.currentCall] being non-`null`.
+  /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool hasCall;
 
   /// Disposes this [_ChatSortingData].

@@ -151,7 +151,7 @@ class PlatformUtilsImpl {
     CancelToken? cancelToken,
   }) async {
     if (PlatformUtils.isWeb) {
-      WebUtils.downloadFile(url, filename);
+      await WebUtils.downloadFile(url, filename);
       return null;
     } else {
       final String name = p.basenameWithoutExtension(filename);

@@ -85,7 +85,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -118,32 +118,31 @@ void main() async {
       .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
   when(graphQlProvider.chatItems(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          first: 120))
-      .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-            'chat': {
-              'items': {
-                'edges': [
-                  {
-                    'node': {
-                      '__typename': 'ChatMessage',
-                      'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
-                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                      'authorId': 'me',
-                      'at': DateTime.now().toIso8601String(),
-                      'ver': '0',
-                      'repliesTo': null,
-                      'text': 'edit message',
-                      'editedAt': null,
-                      'attachments': []
-                    },
-                    'cursor':
-                        'IjkxZTZlNTk3LWU2Y2EtNGIxZi1hZDcwLTgzZGQ2MjFlNGNiNCI='
-                  },
-                ]
-              }
-            }
-          })));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    first: 120,
+  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+        'chat': {
+          'items': {
+            'edges': [
+              {
+                'node': {
+                  '__typename': 'ChatMessage',
+                  'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
+                  'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                  'authorId': 'me',
+                  'at': DateTime.now().toIso8601String(),
+                  'ver': '0',
+                  'repliesTo': [],
+                  'text': 'edit message',
+                  'editedAt': null,
+                  'attachments': []
+                },
+                'cursor': 'IjkxZTZlNTk3LWU2Y2EtNGIxZi1hZDcwLTgzZGQ2MjFlNGNiNCI='
+              },
+            ]
+          }
+        }
+      })));
 
   when(graphQlProvider.recentChats(
     first: 120,
