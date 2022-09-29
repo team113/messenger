@@ -142,7 +142,7 @@ class Themes {
           button: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w300,
-            fontSize: 24 * 0.7,
+            fontSize: 17,
           ),
           overline: const TextStyle(
             color: Colors.black,
@@ -275,7 +275,7 @@ class Themes {
 /// Shadow cast by a box that allows to customize its [blurStyle].
 class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
-    Color color = const Color(0xFF000000),
+    Color color = Colors.black,
     Offset offset = Offset.zero,
     double blurRadius = 0,
     BlurStyle blurStyle = BlurStyle.normal,
