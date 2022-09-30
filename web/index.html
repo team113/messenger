@@ -279,7 +279,7 @@
   <script>
     async function cleanIndexedDB() {
       var databases = await window.indexedDB.databases();
-      for (var d in databases) {
+      for (var d of databases) {
         window.indexedDB.deleteDatabase(d.name);
       }
     }
