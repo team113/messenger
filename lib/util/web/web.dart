@@ -27,7 +27,6 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;

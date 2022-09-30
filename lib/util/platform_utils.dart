@@ -283,9 +283,9 @@ class _WindowListener extends WindowListener {
 
 /// Calls the provided [callback] with backoff.
 Future<T?> withBackoff<T>(
-    Future<T> Function() callback,
-    CancelToken? cancelToken,
-    ) async {
+  Future<T> Function() callback,
+  CancelToken? cancelToken,
+) async {
   Duration backoff = 125.milliseconds;
   T? result;
 
