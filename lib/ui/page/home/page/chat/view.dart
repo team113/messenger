@@ -26,7 +26,6 @@ import 'package:intl/intl.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -891,7 +890,7 @@ class _ChatViewState extends State<ChatView>
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.files}${e.original.relativeRef}',
+                      e.original.fullUrl,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,

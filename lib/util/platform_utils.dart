@@ -143,8 +143,12 @@ class PlatformUtilsImpl {
 
   /// Returns [File] if an file with the provided [filename] and [size] exist in
   /// the [downloadsDirectory].
-  Future<File?> fileExist(String filename, int size) async {
+  Future<File?> fileExist(String filename, int? size, String url) async {
     if (!PlatformUtils.isWeb) {
+      size = size ??
+          int.parse(((await Dio().head(url)).headers['content-length']
+              as List<String>)[0]);
+
       String downloads = await PlatformUtils.downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
@@ -175,11 +179,22 @@ class PlatformUtilsImpl {
       await WebUtils.downloadFile(url, filename);
       return null;
     } else {
-      size = size ??
-          int.parse(((await Dio().head(url)).headers['content-length']
-              as List<String>)[0]);
+      File? file = await withBackoff<File?>(
+        () async {
+          try {
+            return await fileExist(filename, size, url);
+          } on DioError catch (e) {
+            if (e.response?.statusCode == 404) {
+              rethrow;
+            }
+          } catch (_) {
+            // No-op.
+          }
 
-      File? file = await fileExist(filename, size);
+          return null;
+        },
+        cancelToken,
+      );
 
       if (file == null) {
         final String name = p.basenameWithoutExtension(filename);
@@ -191,11 +206,24 @@ class PlatformUtilsImpl {
           file = File('$path/$name ($i)$extension');
         }
 
-        await Dio().download(
-          url,
-          file.path,
-          onReceiveProgress: onReceiveProgress,
-          cancelToken: cancelToken,
+        await withBackoff(
+          () async {
+            try {
+              await Dio().download(
+                url,
+                file!.path,
+                onReceiveProgress: onReceiveProgress,
+                cancelToken: cancelToken,
+              );
+            } on DioError catch (e) {
+              if (e.response?.statusCode == 404) {
+                rethrow;
+              }
+            } catch (_) {
+              // No-op.
+            }
+          },
+          cancelToken,
         );
       }
 
@@ -251,4 +279,44 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowLeaveFullScreen() => onLeaveFullscreen();
+}
+
+/// Calls the provided [callback] with backoff.
+Future<T?> withBackoff<T>(
+    Future<T> Function() callback,
+    CancelToken? cancelToken,
+    ) async {
+  Duration backoff = 125.milliseconds;
+  T? result;
+
+  try {
+    result = await callback();
+    return result;
+  } catch (_) {
+    // No-op.
+  }
+
+  if (cancelToken?.isCancelled == true) {
+    return null;
+  }
+
+  while (result == null) {
+    try {
+      for (int i = 0; i < backoff.inMilliseconds / 125; i++) {
+        await Future.delayed(125.milliseconds);
+        if (cancelToken?.isCancelled == true) {
+          return null;
+        }
+      }
+
+      result = await callback();
+      return result;
+    } catch (_) {
+      if (backoff < 2.seconds) {
+        backoff *= 2;
+      }
+    }
+  }
+
+  return result;
 }

@@ -25,7 +25,8 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
   FutureOr<File?> download(
     String url,
-    String filename, {
+    String filename,
+    int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) =>

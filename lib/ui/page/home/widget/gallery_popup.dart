@@ -54,7 +54,7 @@ class GalleryItem {
   factory GalleryItem.image(
     String link,
     String name, {
-      int? size,
+    int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(
@@ -69,7 +69,7 @@ class GalleryItem {
   factory GalleryItem.video(
     String link,
     String name, {
-      int? size,
+    int? size,
     Future<void> Function()? onError,
   }) =>
       GalleryItem(

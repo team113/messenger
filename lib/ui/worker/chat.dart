@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
-import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -90,7 +89,7 @@ class ChatWorker extends DisposableService {
     String? avatarUrl;
     Avatar? avatar = c.avatar.value;
     if (avatar != null) {
-      avatarUrl = '${Config.files}${avatar.original.relativeRef}';
+      avatarUrl = avatar.original.fullUrl;
     }
 
     // Display a new group chat notification.

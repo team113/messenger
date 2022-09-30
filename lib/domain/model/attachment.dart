@@ -24,7 +24,6 @@ import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/config.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import 'file.dart';
@@ -125,9 +124,13 @@ class FileAttachment extends Attachment {
       }
     }
 
-    File? file = await PlatformUtils.fileExist(filename, size);
+    File? file = await PlatformUtils.fileExist(
+      filename,
+      original.size,
+      original.fullUrl,
+    );
 
-    if (await file.exists()) {
+    if (file != null && await file.exists()) {
       downloadStatus.value = DownloadStatus.isFinished;
       path = file.path;
     } else {
@@ -145,9 +148,9 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        '${Config.files}${original.relativeRef}',
+        original.fullUrl,
         filename,
-        size,
+        original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );

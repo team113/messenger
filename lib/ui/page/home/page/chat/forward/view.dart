@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -212,9 +211,7 @@ class ChatForwardView extends StatelessWidget {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.files}${image.small.relativeRef}',
-                      ),
+                      image: NetworkImage(image.original.fullUrl),
                     ),
             ),
             width: 50,
@@ -428,7 +425,7 @@ class ChatForwardView extends StatelessWidget {
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.files}${e.original.relativeRef}',
+                      e.original.fullUrl,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,

@@ -17,6 +17,7 @@
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
+import '/config.dart';
 
 part 'file.g.dart';
 
@@ -65,4 +66,7 @@ class StorageFile extends HiveObject {
   /// successfully downloaded from a file storage.
   @HiveField(2)
   final int? size;
+
+  /// Returns url this [StorageFile] placed.
+  String get fullUrl => '${Config.files}$relativeRef';
 }
