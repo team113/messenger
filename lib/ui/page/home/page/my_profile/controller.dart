@@ -779,12 +779,6 @@ class MyProfileController extends GetxController {
     avatarUpload.value = RxStatus.loading();
 
     try {
-      List<Future> futures = [];
-
-      for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
-        futures.add(_myUserService.deleteGalleryItem(item.id));
-      }
-
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
@@ -792,6 +786,12 @@ class MyProfileController extends GetxController {
       );
 
       if (result != null) {
+        List<Future> deletes = [];
+
+        for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
+          deletes.add(_myUserService.deleteGalleryItem(item.id));
+        }
+
         List<Future<ImageGalleryItem?>> futures = result.files
             .map((e) => NativeFile.fromPlatformFile(e))
             .map((e) => _myUserService.uploadGalleryItem(e))

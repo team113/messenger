@@ -644,13 +644,15 @@ extension RouteLinks on RouterState {
   void home() => go(Routes.home);
 
   /// Changes router location to the [Routes.settings] page.
-  void settings() => go(Routes.settings);
+  void settings({bool push = false}) =>
+      push ? this.push(Routes.settings) : go(Routes.settings);
 
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
 
   /// Changes router location to the [Routes.personalization] page.
-  void personalization() => go(Routes.personalization);
+  void personalization({bool push = false}) =>
+      push ? this.push(Routes.personalization) : go(Routes.personalization);
 
   void download() => go(Routes.download);
 

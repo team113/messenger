@@ -34,6 +34,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
+import 'package:messenger/ui/page/home/page/my_profile/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
@@ -69,7 +70,8 @@ class MyUserView extends StatelessWidget {
                   color: Colors.white,
                   child: InkWell(
                     customBorder: const CircleBorder(),
-                    onTap: () => router.me(push: true),
+                    // onTap: () => router.me(push: true),
+                    onTap: () => MyProfileView.show(context),
                     child: Center(
                       child: AvatarWidget.fromMyUser(
                         c.myUser.value,
@@ -84,7 +86,8 @@ class MyUserView extends StatelessWidget {
                     splashFactory: NoSplash.splashFactory,
                     hoverColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    onTap: () => router.me(push: true),
+                    // onTap: () => router.me(push: true),
+                    onTap: () => MyProfileView.show(context),
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -114,7 +117,8 @@ class MyUserView extends StatelessWidget {
             automaticallyImplyLeading: false,
             actions: [
               IconButton(
-                onPressed: () => router.me(push: true),
+                // onPressed: () => router.me(push: true),
+                onPressed: () => MyProfileView.show(context),
                 icon: const Icon(Icons.settings),
               ),
             ],
