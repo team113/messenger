@@ -167,7 +167,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       _graphQlProvider.deleteUserDirectLink();
 
   @override
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
@@ -200,10 +200,18 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     }
 
-    await _graphQlProvider.uploadUserGalleryItem(
+    MyUserEventsVersionedMixin? events =
+        await _graphQlProvider.uploadUserGalleryItem(
       upload,
       onSendProgress: onSendProgress,
     );
+
+    for (var event in events?.events ?? []) {
+      MyUserEvent e = _myUserEvent(event);
+      if (e is EventUserGalleryItemAdded) {
+        return e.galleryItem;
+      }
+    }
   }
 
   @override

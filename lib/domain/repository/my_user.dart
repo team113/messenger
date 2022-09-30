@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/image_gallery_item.dart';
 
 import '../model/my_user.dart';
 import '../model/user.dart';
@@ -120,7 +121,7 @@ abstract class AbstractMyUserRepository {
   Future<void> deleteChatDirectLink();
 
   /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile galleryItem, {
     void Function(int count, int total)? onSendProgress,
   });

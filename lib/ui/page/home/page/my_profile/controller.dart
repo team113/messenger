@@ -17,10 +17,16 @@
 import 'dart:async';
 
 import 'package:carousel_slider/carousel_controller.dart';
+import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/image_gallery_item.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/call.dart';
+import 'package:messenger/ui/page/home/tab/menu/confirm/view.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode, Presence;
 import '/config.dart';
@@ -40,7 +46,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService);
+  MyProfileController(
+    this._myUserService,
+    this._callService,
+    this._authService,
+  );
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -123,6 +133,9 @@ class MyProfileController extends GetxController {
 
   /// State of a repeated new [myUser]'s password field.
   late final TextFieldState repeatPassword;
+
+  final AuthService _authService;
+  final CallService _callService;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -587,6 +600,30 @@ class MyProfileController extends GetxController {
     super.onClose();
   }
 
+  /// Determines whether the [logout] action may be invoked or not.
+  ///
+  /// Shows a confirmation popup if there's any ongoing calls.
+  Future<bool> confirmLogout() async {
+    if (_callService.calls.isNotEmpty || WebUtils.containsCalls()) {
+      if (await MessagePopup.alert('alert_are_you_sure_want_to_log_out'.l10n) !=
+          true) {
+        return false;
+      }
+    }
+
+    // TODO: [MyUserService.myUser] might still be `null` here.
+    if (_myUserService.myUser.value?.hasPassword != true) {
+      if (await ConfirmLogoutView.show(router.context!) != true) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Logs out the current session and go to the [Routes.auth] page.
+  Future<String> logout() => _authService.logout();
+
   /// Validates and updates current [myUser]'s password with the one specified
   /// in the [newPassword] and [repeatPassword] fields.
   Future<void> changePassword() async {
@@ -736,6 +773,39 @@ class MyProfileController extends GetxController {
   /// Deletes the [MyUser.avatar] and [MyUser.callCover].
   Future<void> deleteAvatar() => _updateAvatar(null);
 
+  final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
+
+  Future<void> uploadAvatar() async {
+    avatarUpload.value = RxStatus.loading();
+
+    try {
+      List<Future> futures = [];
+
+      for (ImageGalleryItem item in myUser.value?.gallery ?? []) {
+        futures.add(_myUserService.deleteGalleryItem(item.id));
+      }
+
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+        withReadStream: true,
+      );
+
+      if (result != null) {
+        List<Future<ImageGalleryItem?>> futures = result.files
+            .map((e) => NativeFile.fromPlatformFile(e))
+            .map((e) => _myUserService.uploadGalleryItem(e))
+            .toList();
+        ImageGalleryItem? item = (await Future.wait(futures)).firstOrNull;
+        if (item != null) {
+          _updateAvatar(item.id);
+        }
+      }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
+  }
+
   /// Opens a file choose popup and uploads the selected images to the
   /// [MyUser.gallery]
   Future<void> pickGalleryItem() async {
@@ -765,12 +835,12 @@ class MyProfileController extends GetxController {
   }
 
   /// Deletes [ImageGalleryItem] at the [galleryIndex] from [MyUser.gallery].
-  Future<void> deleteGalleryItem() async {
+  Future<void> deleteGalleryItem([ImageGalleryItem? galleryItem]) async {
     try {
       if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
         _deleteGalleryTimer?.cancel();
         deleteGalleryStatus.value = RxStatus.loading();
-        var galleryItem =
+        galleryItem ??
             _myUserService.myUser.value?.gallery?[galleryIndex.value];
         if (galleryItem != null) {
           await _myUserService.deleteGalleryItem(galleryItem.id);

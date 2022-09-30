@@ -69,7 +69,7 @@ class MyUserView extends StatelessWidget {
                   color: Colors.white,
                   child: InkWell(
                     customBorder: const CircleBorder(),
-                    onTap: () {},
+                    onTap: () => router.me(push: true),
                     child: Center(
                       child: AvatarWidget.fromMyUser(
                         c.myUser.value,
@@ -84,7 +84,7 @@ class MyUserView extends StatelessWidget {
                     splashFactory: NoSplash.splashFactory,
                     hoverColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    onTap: () {},
+                    onTap: () => router.me(push: true),
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -98,7 +98,10 @@ class MyUserView extends StatelessWidget {
                                 '...',
                             style: const TextStyle(color: Colors.black),
                           ),
-                          const Text('В сети'),
+                          Text(
+                            'В сети',
+                            style: Theme.of(context).textTheme.caption,
+                          ),
                         ],
                       ),
                     ),

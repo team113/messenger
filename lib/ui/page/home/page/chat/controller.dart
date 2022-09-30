@@ -293,7 +293,8 @@ class ChatController extends GetxController {
       },
       focus: FocusNode(
         onKey: (FocusNode node, RawKeyEvent e) {
-          if (e.logicalKey == LogicalKeyboardKey.enter &&
+          if ((e.logicalKey == LogicalKeyboardKey.enter ||
+                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
               e is RawKeyDownEvent) {
             bool handled = e.isShiftPressed;
 

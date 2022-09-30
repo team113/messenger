@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/image_gallery_item.dart';
 import 'package:mutex/mutex.dart';
 
 import '../model/my_user.dart';
@@ -162,7 +163,7 @@ class MyUserService extends DisposableService {
   Future<void> deleteChatDirectLink() => _userRepo.deleteChatDirectLink();
 
   /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
+  Future<ImageGalleryItem?> uploadGalleryItem(
     NativeFile galleryItem, {
     void Function(int count, int total)? onSendProgress,
   }) =>

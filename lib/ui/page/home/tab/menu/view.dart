@@ -100,16 +100,16 @@ class MenuTabView extends StatelessWidget {
                     fontSize: 18,
                   ),
             ),
-            leading: const [SizedBox(width: 30)],
-            actions: [
-              WidgetButton(
-                onPressed: () => MoreView.show(context),
-                child: const Padding(
-                  padding: EdgeInsets.only(right: 16),
-                  child: Icon(Icons.settings, color: Color(0xFF63B4FF)),
-                ),
-              ),
-            ],
+            // leading: const [SizedBox(width: 30)],
+            // actions: [
+            //   WidgetButton(
+            //     onPressed: () => MoreView.show(context),
+            //     child: const Padding(
+            //       padding: EdgeInsets.only(right: 16),
+            //       child: Icon(Icons.settings, color: Color(0xFF63B4FF)),
+            //     ),
+            //   ),
+            // ],
           ),
           body: Column(
             children: [
@@ -133,6 +133,24 @@ class MenuTabView extends StatelessWidget {
                               style: TextStyle(color: Color(0xFF888888)),
                             ),
                           ],
+                          // trailing: [
+                          //   Padding(
+                          //     padding: const EdgeInsets.only(right: 8),
+                          //     child: WidgetButton(
+                          //       onPressed: () async {
+                          //         if (await c.confirmLogout()) {
+                          //           router.go(await c.logout());
+                          //           router.tab = HomeTab.chats;
+                          //         }
+                          //       },
+                          //       child: const Icon(
+                          //         Icons.logout,
+                          //         color: Color(0xFF63B4FF),
+                          //         size: 28,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ],
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -145,55 +163,20 @@ class MenuTabView extends StatelessWidget {
                         title: Text('Add account'.l10n),
                         onTap: () {},
                       ),
+                      const SizedBox(height: 8),
+                      button(
+                        key: const Key('DownloadButton'),
+                        leading: const Icon(
+                          Icons.download,
+                          color: Color(0xFF63B4FF),
+                        ),
+                        title: Text('Download application'.l10n),
+                        onTap: router.download,
+                      ),
                     ],
                   );
                 }),
               ),
-              /*const SizedBox(height: 8),
-              button(
-                leading: const Icon(
-                  Icons.design_services,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('btn_personalize'.l10n),
-                onTap: router.personalization,
-              ),
-              const SizedBox(height: 8),
-              button(
-                key: const Key('SettingsButton'),
-                leading: const Icon(
-                  Icons.settings,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('btn_settings'.l10n),
-                onTap: router.settings,
-              ),
-              const SizedBox(height: 8),
-              button(
-                key: const Key('DownloadButton'),
-                leading: const Icon(
-                  Icons.download,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('Download application'.l10n),
-                onTap: router.download,
-              ),
-              const SizedBox(height: 8),
-              button(
-                key: const Key('LogoutButton'),
-                leading: const Icon(
-                  Icons.logout,
-                  color: Color(0xFF63B4FF),
-                ),
-                title: Text('btn_logout'.l10n),
-                onTap: () async {
-                  if (await c.confirmLogout()) {
-                    router.go(await c.logout());
-                    router.tab = HomeTab.chats;
-                  }
-                },
-              ),
-              const SizedBox(height: 8),*/
               const SizedBox(height: 10),
             ],
           ),
