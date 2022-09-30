@@ -47,7 +47,6 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
@@ -1122,29 +1121,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   height: 16,
                                 ),
                                 onPressed: () async {
-                                  List<AttachmentId> attachments = [];
-                                  if (item is ChatMessage) {
-                                    attachments = item.attachments
-                                        .map((a) => a.id)
-                                        .toList();
-                                  } else if (item is ChatForward) {
-                                    ChatItem nested = item.item;
-                                    if (nested is ChatMessage) {
-                                      attachments = nested.attachments
-                                          .map((a) => a.id)
-                                          .toList();
-                                    }
-                                  }
-
                                   await ChatForwardView.show(
                                     context,
                                     widget.chat.value!.id,
-                                    [
-                                      ChatItemQuote(
-                                        item: item,
-                                        attachments: attachments,
-                                      ),
-                                    ],
+                                    [ChatItemQuote(item: item)],
                                   );
                                 },
                               ),
@@ -1173,10 +1153,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 17,
                               ),
                               onPressed: () async {
-                                await ModalPopup.show(
-                                  context: context,
-                                  child: _buildDelete(item),
-                                );
+                                await _showDeleteConfirmation(item);
                               },
                             ),
                           ],
@@ -1200,10 +1177,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 17,
                               ),
                               onPressed: () async {
-                                await ModalPopup.show(
-                                  context: context,
-                                  child: _buildDelete(item),
-                                );
+                                await _showDeleteConfirmation(item);
                               },
                             ),
                           ],
@@ -1257,8 +1231,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
-  /// Returns deletion confirmation modal.
-  Widget _buildDelete(ChatItem item) {
+  /// Shows deletion confirmation modal for the provided [item].
+  Future<ConfirmDialog?> _showDeleteConfirmation(ChatItem item) {
     ThemeData theme = Theme.of(context);
     final TextStyle? thin =
         theme.textTheme.bodyText1?.copyWith(color: Colors.black);
@@ -1272,7 +1246,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     ConfirmDialogVariant hide = ConfirmDialogVariant(
       onProceed: () {
         widget.onHide?.call();
-        Navigator.of(context).pop();
       },
       label: Text(
         'label_delete_for_me'.l10n,
@@ -1283,12 +1256,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     ConfirmDialogVariant delete = ConfirmDialogVariant(
       onProceed: () {
-        widget.onHide?.call();
-        Navigator.of(context).pop();
+        widget.onDelete?.call();
       },
       label: Text(
-        'label_delete_for_me'.l10n,
-        key: const Key('HideForMe'),
+        'label_delete_for_everyone'.l10n,
+        key: const Key('DeleteForAll'),
         style: thin?.copyWith(fontSize: 18),
       ),
     );
@@ -1303,7 +1275,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       variants = [hide];
     }
 
-    return ConfirmDialog(
+    return ConfirmDialog.show(
+      context,
       variants: variants,
       title: 'label_delete_message'.l10n,
       noVariantLabel:

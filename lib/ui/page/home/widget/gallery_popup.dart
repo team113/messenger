@@ -406,28 +406,32 @@ class _GalleryPopupState extends State<GalleryPopup>
 
             return PhotoViewGalleryPageOptions.customChild(
               disableGestures: e.isVideo,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1),
-                  child: e.isVideo
-                      ? Video(
-                          e.link,
-                          onClose: _dismiss,
-                          isFullscreen: _isFullscreen,
-                          toggleFullscreen: () {
-                            node.requestFocus();
-                            _toggleFullscreen();
-                          },
-                          onController: (c) {
-                            if (c == null) {
-                              _videoControllers.remove(index);
-                            } else {
-                              _videoControllers[index] = c;
-                            }
-                          },
-                        )
-                      : Image.network(e.link),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? Video(
+                        e.link,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      )
+                    : Image.network(e.link),
               ),
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
