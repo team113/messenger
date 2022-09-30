@@ -17,7 +17,6 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -33,7 +32,7 @@ class FloatingContextMenu extends StatefulWidget {
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
-    this.onOpen,
+    required this.showAbove,
   }) : super(key: key);
 
   /// Widget to show context menu on.
@@ -45,8 +44,9 @@ class FloatingContextMenu extends StatefulWidget {
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
 
-  /// Callback, called when this [FloatingContextMenu] opens a context menu.
-  final VoidCallback? onOpen;
+  /// Indicator whether this [FloatingContextMenu] should be showed above the
+  /// [child].
+  final bool showAbove;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
@@ -78,7 +78,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
       },
       child: KeyedSubtree(
         key: _key,
-        child: _entry == null
+        child: _entry == null || widget.showAbove
             ? widget.child
             : SizedBox(
                 width: _rect?.width ?? 1,
@@ -90,30 +90,26 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
   /// Shows context menu with [widget.actions].
   Future<void> _populateEntry(BuildContext context) async {
-    widget.onOpen?.call();
+    _rect = _key.globalPaintBounds;
+    HapticFeedback.selectionClick();
+    _entry = OverlayEntry(builder: (context) {
+      return _AnimatedMenu(
+        globalKey: _key,
+        alignment: widget.alignment,
+        actions: widget.actions,
+        showAbove: widget.showAbove,
+        onClosed: () {
+          _entry?.remove();
+          _entry = null;
+          setState(() {});
+        },
+        child: widget.child,
+      );
+    });
+
     setState(() {});
 
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _rect = _key.globalPaintBounds;
-      HapticFeedback.selectionClick();
-      _entry = OverlayEntry(builder: (context) {
-        return _AnimatedMenu(
-          globalKey: _key,
-          alignment: widget.alignment,
-          actions: widget.actions,
-          onClosed: () {
-            _entry?.remove();
-            _entry = null;
-            setState(() {});
-          },
-          child: widget.child,
-        );
-      });
-
-      setState(() {});
-
-      Overlay.of(context, rootOverlay: true)?.insert(_entry!);
-    });
+    Overlay.of(context, rootOverlay: true)?.insert(_entry!);
   }
 }
 
@@ -124,6 +120,7 @@ class _AnimatedMenu extends StatefulWidget {
     required this.globalKey,
     required this.actions,
     required this.alignment,
+    required this.showAbove,
     this.onClosed,
     Key? key,
   }) : super(key: key);
@@ -142,6 +139,9 @@ class _AnimatedMenu extends StatefulWidget {
 
   /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
+
+  /// Indicator whether this [_AnimatedMenu] should be showed above the [child].
+  final bool showAbove;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
@@ -212,21 +212,24 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: _dismiss,
-                    child: ConditionalBackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 0.01 + 10 * _fading.value,
-                        sigmaY: 0.01 + 10 * _fading.value,
-                      ),
-                      child: Container(
-                        color: Color.fromARGB(
-                          (kCupertinoModalBarrierColor.alpha * _fading.value)
-                              .toInt(),
-                          kCupertinoModalBarrierColor.red,
-                          kCupertinoModalBarrierColor.green,
-                          kCupertinoModalBarrierColor.blue,
-                        ),
-                      ),
-                    ),
+                    child: widget.showAbove
+                        ? Container()
+                        : ConditionalBackdropFilter(
+                            filter: ImageFilter.blur(
+                              sigmaX: 0.01 + 10 * _fading.value,
+                              sigmaY: 0.01 + 10 * _fading.value,
+                            ),
+                            child: Container(
+                              color: Color.fromARGB(
+                                (kCupertinoModalBarrierColor.alpha *
+                                        _fading.value)
+                                    .toInt(),
+                                kCupertinoModalBarrierColor.red,
+                                kCupertinoModalBarrierColor.green,
+                                kCupertinoModalBarrierColor.blue,
+                              ),
+                            ),
+                          ),
                   ),
                   if (_fading.value == 1)
                     SingleChildScrollView(
@@ -234,22 +237,23 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IgnorePointer(
-                            child: SafeArea(
-                              right: false,
-                              top: true,
-                              left: false,
-                              bottom: false,
-                              child: Padding(
-                                padding: EdgeInsets.only(left: _bounds.left),
-                                child: SizedBox(
-                                  width: _bounds.width,
-                                  height: _bounds.height,
-                                  child: widget.child,
+                          if (!widget.showAbove)
+                            IgnorePointer(
+                              child: SafeArea(
+                                right: false,
+                                top: true,
+                                left: false,
+                                bottom: false,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: _bounds.left),
+                                  child: SizedBox(
+                                    width: _bounds.width,
+                                    height: _bounds.height,
+                                    child: widget.child,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           const SizedBox(
                             height: 10,
                           ),
@@ -258,20 +262,21 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       ),
                     )
                   else ...[
-                    Positioned(
-                      left: _bounds.left,
-                      width: _bounds.width,
-                      height: _bounds.height,
-                      bottom: (1 - _fading.value) *
-                              (constraints.maxHeight -
-                                  _bounds.top -
-                                  _bounds.height) +
-                          (10 +
-                                  router.context!.mediaQueryPadding.bottom +
-                                  widget.actions.length * 50) *
-                              _fading.value,
-                      child: IgnorePointer(child: widget.child),
-                    ),
+                    if (!widget.showAbove)
+                      Positioned(
+                        left: _bounds.left,
+                        width: _bounds.width,
+                        height: _bounds.height,
+                        bottom: (1 - _fading.value) *
+                                (constraints.maxHeight -
+                                    _bounds.top -
+                                    _bounds.height) +
+                            (10 +
+                                    router.context!.mediaQueryPadding.bottom +
+                                    widget.actions.length * 50) *
+                                _fading.value,
+                        child: IgnorePointer(child: widget.child),
+                      ),
                     _contextMenu(fade, slide),
                   ]
                 ],
@@ -335,15 +340,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       onPointerUp: (d) => _dismiss(),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xAAFFFFFF),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
+        child: ConditionalBackdropFilter(
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xAAFFFFFF),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            ),
           ),
         ),
       ),

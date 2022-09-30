@@ -359,13 +359,29 @@ class _GalleryPopupState extends State<GalleryPopup>
   Widget _pageView() {
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      return PhotoViewGallery.builder(
-        scrollPhysics: const BouncingScrollPhysics(),
-        wantKeepAlive: false,
-        builder: (BuildContext context, int index) {
-          GalleryItem e = widget.children[index];
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => _saveToGallery(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => _share(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
+        showAbove: true,
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          wantKeepAlive: false,
+          builder: (BuildContext context, int index) {
+            GalleryItem e = widget.children[index];
 
-          if (!e.isVideo) {
+            if (!e.isVideo) {
               return PhotoViewGalleryPageOptions(
                 imageProvider: NetworkImage(e.link),
                 initialScale: PhotoViewComputedScale.contained * 0.99,
@@ -388,34 +404,14 @@ class _GalleryPopupState extends State<GalleryPopup>
               );
             }
 
-          PhotoViewController controller = PhotoViewController();
-
-          return PhotoViewGalleryPageOptions.customChild(
-            disableGestures: e.isVideo,
-            controller: controller,
-            child: Center(
-              child: ContextMenuRegion(
-                onOpen: controller.reset,
-                actions: [
-                  ContextMenuButton(
-                    label: 'btn_save_to_gallery'.l10n,
-                    onPressed: () => _saveToGallery(widget.children[_page]),
-                  ),
-                  ContextMenuButton(
-                    label: 'btn_share'.l10n,
-                    onPressed: () => _share(widget.children[_page]),
-                  ),
-                  ContextMenuButton(
-                    label: 'btn_info'.l10n,
-                    onPressed: () {},
-                  ),
-                ],
+            return PhotoViewGalleryPageOptions.customChild(
+              disableGestures: e.isVideo,
+              child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 1),
                   child: e.isVideo
                       ? Video(
                           e.link,
-                          key: GlobalKey(),
                           onClose: _dismiss,
                           isFullscreen: _isFullscreen,
                           toggleFullscreen: () {
@@ -430,35 +426,33 @@ class _GalleryPopupState extends State<GalleryPopup>
                             }
                           },
                         )
-                      : Image.network(
-                          e.link
-                        ),
+                      : Image.network(e.link),
                 ),
               ),
-            ),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: PhotoViewComputedScale.contained * 3,
-          );
-        },
-        itemCount: widget.children.length,
-        loadingBuilder: (context, event) => Center(
-          child: SizedBox(
-            width: 20.0,
-            height: 20.0,
-            child: CircularProgressIndicator(
-              value: event == null
-                  ? 0
-                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.contained * 3,
+            );
+          },
+          itemCount: widget.children.length,
+          loadingBuilder: (context, event) => Center(
+            child: SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
             ),
           ),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          pageController: _pageController,
+          onPageChanged: (i) {
+            setState(() => _page = i);
+            _bounds = _calculatePosition() ?? _bounds;
+            widget.onPageChanged?.call(i);
+          },
         ),
-        backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-        pageController: _pageController,
-        onPageChanged: (i) {
-          setState(() => _page = i);
-          _bounds = _calculatePosition() ?? _bounds;
-          widget.onPageChanged?.call(i);
-        },
       );
     }
 
@@ -504,11 +498,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                       }
                     },
                     onError: () async {
-                        await e.onError?.call();
-                        if (mounted) {
-                          setState(() {});
-                        }
-                      },
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
                   )
                 : GestureDetector(
                     onTap: () {},
@@ -519,24 +513,24 @@ class _GalleryPopupState extends State<GalleryPopup>
                     child: PlatformUtils.isWeb
                         ? IgnorePointer(child: WebImage(e.link))
                         : Image.network(
-                                e.link,
-                                errorBuilder: (_, __, ___) {
-                                  return InitCallback(
-                                    callback: () async {
-                                      await e.onError?.call();
-                                      if (mounted) {
-                                        setState(() {});
-                                      }
-                                    },
-                                    child: const SizedBox(
-                                      height: 300,
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    ),
-                                  );
+                            e.link,
+                            errorBuilder: (_, __, ___) {
+                              return InitCallback(
+                                callback: () async {
+                                  await e.onError?.call();
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
                                 },
-                              ),
+                                child: const SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                   ),
           ),
         );

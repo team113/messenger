@@ -5,6 +5,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.7] · 2022-??-??
+[0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
+
+[Diff](/../../compare/2cb15bb162308d871699dab9817f3d4ef9c1ed48...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
+
+### Changed
+
+- UI:
+    - Redesigned context menu. ([#147], [#132])
+
+
+
 
 ## [0.1.0-alpha.6] · 2022-09-28
 [0.1.0-alpha.6]: /../../tree/v0.1.0-alpha.6
@@ -47,7 +59,6 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned auth page. ([#29])
     - Chat page:
         - Messages and attachments sending status. ([#5], [#3])
-    - Redesigned context menu. ([#147], [#132])
 
 ### Fixed
 
