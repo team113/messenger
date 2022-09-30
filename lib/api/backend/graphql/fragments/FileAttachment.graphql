@@ -16,7 +16,9 @@
 
 fragment FileAttachment on FileAttachment {
     id
-    original
+    original {
+        __typename
+        ...File
+    }
     filename
-    size
 }

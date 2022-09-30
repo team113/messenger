@@ -40,6 +40,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -88,7 +89,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -142,7 +143,7 @@ void main() async {
       attachments: [
         const AttachmentId('0d72d245-8425-467a-9ebd-082d4f47850ca'),
       ],
-      repliesTo: null,
+      repliesTo: [],
     ),
   ).thenAnswer((_) {
     var event = {
@@ -159,14 +160,14 @@ void main() async {
               'authorId': 'me',
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
-              'repliesTo': null,
+              'repliesTo': [],
               'text': null,
               'editedAt': null,
               'attachments': [
                 {
                   '__typename': 'FileAttachment',
                   'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-                  'original': 'orig.aaf',
+                  'original': {'relativeRef': 'orig.aaf'},
                   'filename': 'test.txt',
                   'size': 2
                 }
@@ -208,7 +209,7 @@ void main() async {
           'attachment': {
             '__typename': 'FileAttachment',
             'id': '0d72d245-8425-467a-9ebd-082d4f47850ca',
-            'original': 'orig.aaf',
+            'original': {'relativeRef': 'orig.aaf'},
             'filename': 'test.txt',
             'size': 2
           }
@@ -255,6 +256,8 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -290,7 +293,12 @@ void main() async {
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
@@ -311,8 +319,6 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.byKey(const Key('Send')), findsNothing);
-
     Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
         .addPlatformAttachment(
       PlatformFile(
@@ -327,8 +333,6 @@ void main() async {
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    expect(find.byKey(const Key('Send')), findsNothing);
 
     Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
         .addPlatformAttachment(

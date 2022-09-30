@@ -16,7 +16,13 @@
 
 fragment ImageGalleryItem on ImageGalleryItem {
     id
-    original
+    original {
+        __typename
+        ...File
+    }
     addedAt
-    square
+    square {
+        __typename
+        ...File
+    }
 }

@@ -48,6 +48,7 @@ enum ChatEventKind {
   lastItemUpdated,
   muted,
   read,
+  redialed,
   renamed,
   totalItemsCountUpdated,
   typingStarted,
@@ -183,6 +184,37 @@ class EventChatRenamed extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.renamed;
+}
+
+/// Event of a [User] being redialed in a [ChatCall].
+class EventChatCallMemberRedialed extends ChatEvent {
+  const EventChatCallMemberRedialed(
+    ChatId chatId,
+    this.at,
+    this.callId,
+    this.call,
+    this.user,
+    this.byUser,
+  ) : super(chatId);
+
+  /// ID of the [ChatCall] the [User] is redialed in.
+  final ChatItemId callId;
+
+  /// [DateTime] when the [ChatMember] was redialed in the [ChatCall].
+  final PreciseDateTime at;
+
+  /// [ChatCall] the [User] is redialed in.
+  final ChatCall call;
+
+  /// [User] representing the [ChatMember] who was redialed in the [ChatCall].
+  final User user;
+
+  /// [User] representing the [ChatMember] who redialed the [User] in the
+  /// [ChatCall].
+  final User byUser;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.redialed;
 }
 
 /// Event of a [Chat] being cleared by the authenticated [MyUser].

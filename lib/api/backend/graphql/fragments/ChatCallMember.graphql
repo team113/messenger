@@ -20,4 +20,5 @@ fragment ChatCallMember on ChatCallMember {
         ...User
     }
     handRaised
+    joinedAt
 }

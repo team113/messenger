@@ -36,6 +36,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -67,7 +68,8 @@ class ChatController extends GetxController {
     this._chatService,
     this._callService,
     this._authService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.itemId,
   });
 
@@ -111,7 +113,7 @@ class ChatController extends GetxController {
   late final TextFieldState send;
 
   /// [ChatItem] being quoted to reply onto.
-  final Rx<ChatItem?> repliedMessage = Rx<ChatItem?>(null);
+  final RxList<ChatItem> repliedMessages = RxList();
 
   /// State of an edit message field.
   TextFieldState? edit;
@@ -179,6 +181,9 @@ class ChatController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to get the [background] value.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
@@ -191,6 +196,9 @@ class ChatController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the [Uint8List] of the background.
+  Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Indicates whether the [listController] is at the bottom of a
   /// [FlutterListView].
@@ -210,12 +218,12 @@ class ChatController extends GetxController {
       onSubmitted: (s) {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
-            repliedMessage.value != null) {
+            repliedMessages.isNotEmpty) {
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessage.value,
+                repliesTo: repliedMessages,
                 attachments: attachments,
               )
               .then((_) => _playMessageSent())
@@ -225,7 +233,7 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          repliedMessage.value = null;
+          repliedMessages.clear();
           attachments.clear();
           s.clear();
           s.unsubmit();
@@ -473,7 +481,7 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      await chat!.fetchMessages(id);
+      await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
@@ -672,13 +680,19 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> download(FileAttachment attachment) async {
+  Future<void> download(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (attachment.path != null) {
-      attachment.open();
+      await attachment.open();
     } else {
-      attachment.download();
+      try {
+        await attachment.download();
+      } catch (_) {
+        await chat?.updateAttachments(item);
+        await Future.delayed(Duration.zero);
+        await attachment.download();
+      }
     }
   }
 

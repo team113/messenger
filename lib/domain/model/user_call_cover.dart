@@ -16,8 +16,9 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
+import '../model_type_id.dart';
 import 'crop_area.dart';
+import 'file.dart';
 import 'gallery_item.dart';
 
 part 'user_call_cover.g.dart';
@@ -41,21 +42,24 @@ class UserCallCover extends HiveObject {
   @HiveField(0)
   final GalleryItemId galleryItemId;
 
-  /// Path to the [original] file representing this call cover image.
+  /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(1)
-  final String original;
+  final StorageFile original;
 
-  /// Path to the [full]-sized avatar image keeping the original sizes.
+  /// Full-sized [UserCallCover]'s image [StorageFile], keeping the original
+  /// sizes.
   @HiveField(2)
-  final String full;
+  final StorageFile full;
 
-  /// Path to the [vertical] call cover image preview of `675px`x`900px` size.
+  /// Vertical [UserCallCover]'s view image [StorageFile] of `675px`x`900px`
+  /// size.
   @HiveField(3)
-  final String vertical;
+  final StorageFile vertical;
 
-  /// Path to the [square] call cover image preview of `300px`x`300px` size.
+  /// Square [[UserCallCover]]'s view image [StorageFile] of `300px`x`300px`
+  /// size.
   @HiveField(4)
-  final String square;
+  final StorageFile square;
 
   /// [CropArea] applied to the [ImageGalleryItem] to create this
   /// [UserCallCover].

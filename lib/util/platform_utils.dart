@@ -172,7 +172,7 @@ class PlatformUtilsImpl {
     CancelToken? cancelToken,
   }) async {
     if (PlatformUtils.isWeb) {
-      WebUtils.downloadFile(url, filename);
+      await WebUtils.downloadFile(url, filename);
       return null;
     } else {
       size = size ??

@@ -30,6 +30,7 @@ import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/util/message_popup.dart';
@@ -41,32 +42,58 @@ import '/util/web/web_utils.dart';
 /// [GalleryItem] is treated as a video if [isVideo] is `true`, or as an image
 /// otherwise.
 class GalleryItem {
-  const GalleryItem({
+  GalleryItem({
     required this.link,
     required this.name,
     required this.size,
     this.isVideo = false,
+    this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link, String name, {int? size}) =>
-      GalleryItem(link: link, name: name, size: size, isVideo: false);
+  factory GalleryItem.image(
+    String link,
+    String name, {
+      int? size,
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        size: size,
+        isVideo: false,
+        onError: onError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link, String name, {int? size}) =>
-      GalleryItem(link: link, name: name, size: size, isVideo: true);
+  factory GalleryItem.video(
+    String link,
+    String name, {
+      int? size,
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        size: size,
+        isVideo: true,
+        onError: onError,
+      );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  final String link;
+  String link;
 
   /// Name of the file this [GalleryItem] represents.
   final String name;
 
   /// Size in bytes of the file this [GalleryItem] represents.
   final int? size;
+
+  /// Callback, called on the fetch errors of this [GalleryItem].
+  final Future<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -373,6 +400,20 @@ class _GalleryPopupState extends State<GalleryPopup>
                 initialScale: PhotoViewComputedScale.contained * 0.99,
                 minScale: PhotoViewComputedScale.contained * 0.99,
                 maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                },
               );
             }
 
@@ -394,6 +435,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                             _videoControllers.remove(index);
                           } else {
                             _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
                           }
                         },
                       )
@@ -458,6 +505,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                           _videoControllers[index] = c;
                         }
                       },
+                      onError: () async {
+                        await e.onError?.call();
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
                     )
                   : ContextMenuRegion(
                       enabled: !PlatformUtils.isWeb,
@@ -481,7 +534,25 @@ class _GalleryPopupState extends State<GalleryPopup>
                         },
                         child: PlatformUtils.isWeb
                             ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
+                            : Image.network(
+                                e.link,
+                                errorBuilder: (_, __, ___) {
+                                  return InitCallback(
+                                    callback: () async {
+                                      await e.onError?.call();
+                                      if (mounted) {
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: const SizedBox(
+                                      height: 300,
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                     ),
             ],
@@ -808,7 +879,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem].
   Future<void> _download(GalleryItem item) async {
     try {
-      await PlatformUtils.download(item.link, item.name, item.size);
+      try {
+        await PlatformUtils.download(item.link, item.name, item.size);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.download(item.link, item.name, item.size);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_downloaded'.l10n
           : 'label_image_downloaded'.l10n);
@@ -820,7 +901,17 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
     try {
-      await PlatformUtils.saveToGallery(item.link, item.name);
+      try {
+        await PlatformUtils.saveToGallery(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.saveToGallery(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
       MessagePopup.success(item.isVideo
           ? 'label_video_saved_to_gallery'.l10n
           : 'label_image_saved_to_gallery'.l10n);
@@ -832,7 +923,16 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] and opens a share dialog with it.
   Future<void> _share(GalleryItem item) async {
     try {
-      await PlatformUtils.share(item.link, item.name);
+      try {
+        await PlatformUtils.share(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.share(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
