@@ -27,6 +27,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
@@ -457,6 +458,11 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
+    Response response = await Dio().head(url);
+    if (response.statusCode != 200) {
+      throw Exception('Cannot download file');
+    }
+
     final html.AnchorElement anchorElement = html.AnchorElement(href: url);
     anchorElement.download = name;
     anchorElement.click();
