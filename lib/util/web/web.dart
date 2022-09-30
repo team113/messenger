@@ -457,7 +457,6 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-
     final html.AnchorElement anchorElement = html.AnchorElement(href: url);
     anchorElement.download = name;
     anchorElement.click();
