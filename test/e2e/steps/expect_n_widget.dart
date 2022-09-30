@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
@@ -25,16 +26,16 @@ import '../parameters/keys.dart';
 ///
 /// Examples:
 /// - Then I expect to see 1 `ChatMessage`
-final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
+final StepDefinitionGeneric<FlutterWorld> expectNWidget =
+    then2<int, WidgetKey, FlutterWorld>(
   RegExp(r'I expect to see {int} {key}'),
-  (quantity, key, context) async {
+  (int quantity, _, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
-
-    final finder = find.byKey(Key(key.name), skipOffstage: false);
-    await context.world.appDriver.scrollIntoView(finder.last);
-    await context.world.appDriver.waitForAppToSettle();
-
-    final finder2 = find.byKey(Key(key.name), skipOffstage: false);
-    context.expectMatch(finder2.evaluate().length, quantity);
+    final FlutterListView listMessages = find
+        .byType(FlutterListView)
+        .evaluate()
+        .single
+        .widget as FlutterListView;
+    context.expectMatch(listMessages.delegate.estimatedChildCount, quantity);
   },
 );
