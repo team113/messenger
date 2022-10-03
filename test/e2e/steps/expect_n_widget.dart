@@ -32,32 +32,32 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
+    const int maxText = ChatMessageText.maxLength;
     final Set<String> quantityMessages = {};
 
-    try {
-      await context.world.appDriver.scrollUntilVisible(
-        find.byWidgetPredicate(
-          (Widget widget) {
-            if (widget is ChatItemWidget) {
-              final ChatItem chatItem = widget.item.value;
-              if (chatItem is ChatMessage) {
-                quantityMessages.add(chatItem.id.val);
+    await context.world.appDriver.scrollUntilVisible(
+      find.byWidgetPredicate(
+        (Widget widget) {
+          if (widget is ChatItemWidget) {
+            final ChatItem chatItem = widget.item.value;
+            if (chatItem is ChatMessage) {
+              quantityMessages.add(chatItem.id.val);
+              final int? lengthMessage = chatItem.text?.val.length;
+              if (lengthMessage != null && lengthMessage < maxText) {
+                return true;
               }
             }
-            return false;
-          },
-          skipOffstage: false,
-        ),
-        scrollable: find.descendant(
-          of: find.byType(FlutterListView),
-          matching: find.byType(Scrollable),
-        ),
-        dy: -delta,
-      );
-    } catch (_) {
-      // No-op.
-    }
-
+          }
+          return false;
+        },
+        skipOffstage: false,
+      ),
+      scrollable: find.descendant(
+        of: find.byType(FlutterListView),
+        matching: find.byType(Scrollable),
+      ),
+      dy: -delta,
+    );
     await context.world.appDriver.waitForAppToSettle();
     expect(quantityMessages.length, quantity);
   },
