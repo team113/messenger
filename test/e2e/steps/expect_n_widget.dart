@@ -38,32 +38,35 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
     final Set<String> quantityMessages = {};
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final String? lastItemId = chat?.chat.value.lastItem?.id.val;
+    final RxChat chat = Get.find<ChatService>().chats.values.last;
+    final String lastItemId = chat.messages.last.value.id.val;
 
-    await context.world.appDriver.scrollUntilVisible(
-      find.byWidgetPredicate(
-        (Widget widget) {
-          if (widget is ChatItemWidget) {
-            final ChatItem chatItem = widget.item.value;
-            if (chatItem is ChatMessage) {
-              quantityMessages.add(chatItem.id.val);
-              if ((widget.key as ValueKey<String>).value == lastItemId) {
-                return true;
+    try {
+      await context.world.appDriver.scrollUntilVisible(
+        find.byWidgetPredicate(
+          (Widget widget) {
+            if (widget is ChatItemWidget) {
+              final ChatItem chatItem = widget.item.value;
+              if (chatItem is ChatMessage) {
+                quantityMessages.add(chatItem.id.val);
+                if (chatItem.id.val == lastItemId) {
+                  return true;
+                }
               }
             }
-          }
-          return false;
-        },
-        skipOffstage: false,
-      ),
-      scrollable: find.descendant(
-        of: find.byType(FlutterListView),
-        matching: find.byType(Scrollable),
-      ),
-      dy: -delta,
-    );
+            return false;
+          },
+          skipOffstage: false,
+        ),
+        scrollable: find.descendant(
+          of: find.byType(FlutterListView),
+          matching: find.byType(Scrollable),
+        ),
+        dy: -delta,
+      );
+    } catch (_) {
+      // No-op.
+    }
     await context.world.appDriver.waitForAppToSettle();
     expect(quantityMessages.length, quantity);
   },
