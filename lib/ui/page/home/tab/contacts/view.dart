@@ -106,7 +106,7 @@ class ContactsTabView extends StatelessWidget {
         preventContextMenu: false,
         actions: [
           ContextMenuButton(
-            label: 'btn_change_contact_name'.l10n,
+            label: 'btn_rename'.l10n,
             onPressed: () {
               c.contactToChangeNameOf.value = contact.contact.value.id;
               c.contactName.clear();

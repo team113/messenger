@@ -123,7 +123,6 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
-btn_change_contact_name = Rename contact
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
@@ -154,6 +153,7 @@ btn_ok = Ok
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
+btn_rename = Rename
 btn_reply = Reply
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
