@@ -242,10 +242,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           type: MaterialType.transparency,
                           child: ContextMenuRegion(
                             preventContextMenu: false,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            menu: Container(),
                             alignment: fromMe
                                 ? Alignment.bottomRight
                                 : Alignment.bottomLeft,

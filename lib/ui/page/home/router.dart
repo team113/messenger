@@ -53,9 +53,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [
-      _CustomPage(child: _NestedHomeView(_state.tab))
-    ];
+    List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
@@ -148,47 +146,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     // This is not required for inner router delegate because it doesn't parse
     // routes.
     assert(false, 'unexpected setNewRoutePath() call');
-  }
-}
-
-/// View of the [Routes.home] page of the nested navigation.
-///
-/// Returns different content based on the [tab] value.
-/// - `Choose a contact` label on [HomeTab.contacts].
-/// - `Choose a chat` label on [HomeTab.chats].
-/// - [MyProfileView] on [HomeTab.menu].
-class _NestedHomeView extends StatelessWidget {
-  const _NestedHomeView(this.tab, {Key? key}) : super(key: key);
-
-  /// Selected [HomeTab] value.
-  final HomeTab tab;
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.transparent);
-
-    if (context.isMobile) {
-      return const Scaffold(backgroundColor: Colors.transparent);
-    }
-
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: ConditionalBackdropFilter(
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.4),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

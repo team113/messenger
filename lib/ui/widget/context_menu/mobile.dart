@@ -19,37 +19,51 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/home/widget/gallery_popup.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
+import 'package:get/get.dart';
 
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/context_menu/menu.dart';
+
+/// Animated context menu optimized and decorated for mobile screens.
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
     Key? key,
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
-    this.id,
+    this.moveDownwards = true,
   }) : super(key: key);
 
+  /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
   final List<ContextMenuButton> actions;
 
+  /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
-  final String? id;
+
+  /// Indicator whether this [FloatingContextMenu] should animate the [child]
+  /// moving downwards.
+  final bool moveDownwards;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
 }
 
+/// State of a [FloatingContextMenu] maintaining the [OverlayEntry] with
+/// [_AnimatedMenu].
 class _FloatingContextMenuState extends State<FloatingContextMenu> {
+  /// [OverlayEntry] to maintain.
   OverlayEntry? _entry;
 
+  /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
   final GlobalKey _key = GlobalKey();
+
+  /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
   Rect? _rect;
 
   @override
@@ -62,12 +76,10 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: () {
-        _populateEntry(context);
-      },
+      onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
         key: _key,
-        child: _entry == null
+        child: _entry == null || !widget.moveDownwards
             ? widget.child
             : SizedBox(
                 width: _rect?.width ?? 1,
@@ -77,19 +89,24 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     );
   }
 
-  void _populateEntry(BuildContext context) {
-    _rect = _key.globalPaintBounds;
+  /// Populates the [_entry] with [_AnimatedMenu].
+  Future<void> _populateEntry(BuildContext context) async {
     HapticFeedback.selectionClick();
+
+    _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
         globalKey: _key,
         alignment: widget.alignment,
         actions: widget.actions,
-        id: widget.id,
+        showAbove: !widget.moveDownwards,
         onClosed: () {
           _entry?.remove();
           _entry = null;
-          setState(() {});
+
+          if (mounted) {
+            setState(() {});
+          }
         },
         child: widget.child,
       );
@@ -101,48 +118,52 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   }
 }
 
+/// Animated floating context menu.
 class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
     required this.globalKey,
     required this.actions,
     required this.alignment,
-    this.id,
+    required this.showAbove,
     this.onClosed,
     Key? key,
   }) : super(key: key);
 
+  /// [Widget] this [_AnimatedMenu] is bound to.
   final Widget child;
+
+  /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
+
+  /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
 
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
+  /// [ContextMenuButton]s to display in this [_AnimatedMenu].
   final List<ContextMenuButton> actions;
 
+  /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
 
-  final String? id;
+  /// Indicator whether this [_AnimatedMenu] should be displayed above the
+  /// [child] or otherwise animate the [child] moving downwards.
+  final bool showAbove;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
 
+/// State of an [_AnimatedMenu] maintaining the animation.
 class _AnimatedMenuState extends State<_AnimatedMenu>
     with SingleTickerProviderStateMixin {
-  /// [AnimationController] controlling the opening and closing animation.
+  /// [AnimationController] controlling the animation.
   late final AnimationController _fading;
 
-  /// [Rect] of an [Object] to animate this [NekoView] from/to.
+  /// [Rect] of the [_AnimatedMenu.child].
   late Rect _bounds;
-
-  /// Discard the first [LayoutBuilder] frame since no widget is drawn yet.
-  bool _firstLayout = true;
 
   @override
   void initState() {
-    Future.delayed(Duration.zero,
-        () => ContextMenuOverlay.of(context).id.value = widget.id);
-
     _fading = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -164,7 +185,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       )
       ..forward();
 
-    _bounds = _calculatePosition() ?? Rect.zero;
+    _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
     super.initState();
   }
 
@@ -172,25 +193,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (_firstLayout) {
-          _firstLayout = false;
-        }
-
-        var curved = CurvedAnimation(
-          parent: _fading,
-          curve: Curves.ease,
-          reverseCurve: Curves.ease,
+        Animation<double> fade = Tween(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: _fading,
+            curve: const Interval(0, 0.3, curve: Curves.ease),
+          ),
         );
 
-        var fade = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-          parent: _fading,
-          curve: const Interval(0, 0.3, curve: Curves.ease),
-        ));
-
-        RelativeRectTween tween() => RelativeRectTween(
-              begin: RelativeRect.fromSize(_bounds, constraints.biggest),
-              end: RelativeRect.fill,
-            );
+        Animation<Offset> slide = Tween<Offset>(
+          begin: const Offset(0, 1),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: _fading, curve: Curves.ease));
 
         return GestureDetector(
           behavior: HitTestBehavior.deferToChild,
@@ -204,170 +217,69 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: _dismiss,
-                    child: AnimatedBuilder(
-                      animation: _fading,
-                      builder: (context, child) => ConditionalBackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: 0.01 + 10 * _fading.value,
-                          sigmaY: 0.01 + 10 * _fading.value,
-                        ),
-                        child: Container(
-                          color: Color.fromARGB(
-                            (kCupertinoModalBarrierColor.alpha * _fading.value)
-                                .toInt(),
-                            kCupertinoModalBarrierColor.red,
-                            kCupertinoModalBarrierColor.green,
-                            kCupertinoModalBarrierColor.blue,
-                          ),
+                    child: ConditionalBackdropFilter(
+                      condition: !widget.showAbove,
+                      filter: ImageFilter.blur(
+                        sigmaX: 0.01 + 10 * _fading.value,
+                        sigmaY: 0.01 + 10 * _fading.value,
+                      ),
+                      child: Container(
+                        color: Color.fromARGB(
+                          (kCupertinoModalBarrierColor.alpha * _fading.value)
+                              .toInt(),
+                          kCupertinoModalBarrierColor.red,
+                          kCupertinoModalBarrierColor.green,
+                          kCupertinoModalBarrierColor.blue,
                         ),
                       ),
                     ),
                   ),
-                  if (false)
-                    Positioned(
-                      left: widget.alignment == Alignment.bottomLeft ? 0 : null,
-                      right:
-                          widget.alignment == Alignment.bottomRight ? 0 : null,
-                      bottom: (1 - _fading.value) *
-                          (constraints.maxHeight -
-                              _bounds.top -
-                              _bounds.height),
-                      child: ConstrainedBox(
-                        constraints: constraints,
-                        child: SingleChildScrollView(
-                          reverse: true,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: widget.alignment == Alignment.bottomLeft
-                                  ? _bounds.left
-                                  : 0,
-                              right: widget.alignment == Alignment.bottomRight
-                                  ? 10
-                                  : 0,
-                            ),
-                            child: Column(
-                              crossAxisAlignment:
-                                  widget.alignment == Alignment.bottomLeft
-                                      ? CrossAxisAlignment.start
-                                      : CrossAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: _bounds.width,
-                                  height: _bounds.height,
-                                  child: widget.child,
-                                ),
-                                Align(
-                                  alignment: widget.alignment,
-                                  child: ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 220),
-                                    child: SizeTransition(
-                                      sizeFactor: _fading,
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            4, 0, 4, 4),
-                                        child: FadeTransition(
-                                          opacity: fade,
-                                          child: _menu(),
-                                        ),
-                                      ),
-                                    ),
+                  if (_fading.value == 1)
+                    SingleChildScrollView(
+                      reverse: true,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!widget.showAbove)
+                            IgnorePointer(
+                              child: SafeArea(
+                                right: false,
+                                top: true,
+                                left: false,
+                                bottom: false,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: _bounds.left),
+                                  child: SizedBox(
+                                    width: _bounds.width,
+                                    height: _bounds.height,
+                                    child: widget.child,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (true)
-                    Positioned(
-                      left: _bounds.left,
-                      width: _bounds.width,
-                      height: _bounds.height,
-                      bottom: (1 - _fading.value) *
-                              (constraints.maxHeight -
-                                  _bounds.top -
-                                  _bounds.height) +
-                          (10 + widget.actions.length * 50) * _fading.value,
-                      child: widget.child,
-                    ),
-                  if (true)
-                    Align(
-                      alignment: widget.alignment,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: widget.alignment == Alignment.bottomLeft
-                              ? _bounds.left
-                              : 0,
-                          right: widget.alignment == Alignment.bottomRight
-                              ? 10
-                              : 0,
-                        ),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 220),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-                            child: SizeTransition(
-                              sizeFactor: _fading,
-                              child: FadeTransition(
-                                opacity: fade,
-                                child: _menu(),
                               ),
                             ),
-                          ),
-                        ),
+                          const SizedBox(height: 10),
+                          _contextMenu(fade, slide),
+                        ],
                       ),
-                    ),
-                  if (false)
-                    AnimatedBuilder(
-                      animation: _fading,
-                      builder: (context, child) {
-                        return PositionedTransition(
-                          rect: tween().animate(curved),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.deferToChild,
-                            onTap: _dismiss,
-                            child: Center(
-                              child: SingleChildScrollView(
-                                reverse: true,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizeTransition(
-                                      sizeFactor: _fading,
-                                      child: const SizedBox(height: 16),
-                                    ),
-                                    SizedBox(
-                                      width: _bounds.width,
-                                      height: _bounds.height,
-                                      child: widget.child,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
-                                      child: SizeTransition(
-                                        sizeFactor: _fading,
-                                        child: FadeTransition(
-                                          opacity: fade,
-                                          child: _menu(),
-                                        ),
-                                      ),
-                                    ),
-                                    SizeTransition(
-                                      sizeFactor: _fading,
-                                      child: const SizedBox(height: 16),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                    )
+                  else ...[
+                    if (!widget.showAbove)
+                      Positioned(
+                        left: _bounds.left,
+                        width: _bounds.width,
+                        height: _bounds.height,
+                        bottom: (1 - _fading.value) *
+                                (constraints.maxHeight -
+                                    _bounds.top -
+                                    _bounds.height) +
+                            (10 +
+                                    router.context!.mediaQueryPadding.bottom +
+                                    widget.actions.length * 50) *
+                                _fading.value,
+                        child: IgnorePointer(child: widget.child),
+                      ),
+                    _contextMenu(fade, slide),
+                  ]
                 ],
               );
             },
@@ -377,45 +289,42 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  Widget _menu() {
-    List<Widget> widgets = [];
-
-    /*widgets.add(
-      Container(
-        height: 30,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.only(left: 8),
-                  //   child: Text('Информация'),
-                  // ),
-                ],
+  /// Returns a visual representation of the context menu itself.
+  Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
+    return Align(
+      alignment: widget.alignment,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: widget.alignment == Alignment.bottomLeft ? _bounds.left : 0,
+          right: widget.alignment == Alignment.bottomRight ? 10 : 0,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 220),
+          child: SlideTransition(
+            position: slide,
+            child: FadeTransition(
+              opacity: fade,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: 10 + router.context!.mediaQueryPadding.bottom,
+                ),
+                child: _actions(),
               ),
             ),
-            TextButton(onPressed: _dismiss, child: Text('Done')),
-          ],
+          ),
         ),
       ),
     );
+  }
 
-    widgets.add(
-      Container(
-        color: const Color(0x22000000),
-        height: 1,
-        width: double.infinity,
-      ),
-    );*/
+  /// Builds the [_AnimatedMenu.actions].
+  Widget _actions() {
+    List<Widget> widgets = [];
 
     for (int i = 0; i < widget.actions.length; ++i) {
-      // Adds a button.
       widgets.add(widget.actions[i]);
 
-      // Adds a divider if required.
+      // Add a divider, if required.
       if (i < widget.actions.length - 1) {
         widgets.add(
           Container(
@@ -427,36 +336,24 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     }
 
-    // for (int i = 0; i < widget.actions.length; ++i) {
-    //   // Adds a button.
-    //   widgets.add(widget.actions[i]);
-
-    //   // Adds a divider if required.
-    //   if (i < widget.actions.length - 1) {
-    //     widgets.add(
-    //       Container(
-    //         color: const Color(0x22000000),
-    //         height: 1,
-    //         width: double.infinity,
-    //       ),
-    //     );
-    //   }
-    // }
+    Style style = Theme.of(context).extension<Style>()!;
 
     return Listener(
       onPointerUp: (d) => _dismiss(),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          decoration: BoxDecoration(
-            color: const Color(0xAAFFFFFF),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
+        borderRadius: style.contextMenuRadius,
+        child: ConditionalBackdropFilter(
+          condition: widget.showAbove,
+          child: Container(
+            decoration: BoxDecoration(
+              color: style.contextMenuBackgroundColor.withAlpha(0xAA),
+              borderRadius: style.contextMenuRadius,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widgets,
+            ),
           ),
         ),
       ),
@@ -465,91 +362,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   /// Starts a dismiss animation.
   void _dismiss() {
-    Future.delayed(
-        Duration.zero, () => ContextMenuOverlay.of(context).id.value = null);
-
     HapticFeedback.selectionClick();
-    _bounds = _calculatePosition() ?? _bounds;
+    _bounds = widget.globalKey.globalPaintBounds ?? _bounds;
     _fading.reverse();
-  }
-
-  /// Returns a [Rect] of an [Object] identified by the provided initial
-  /// [GlobalKey].
-  Rect? _calculatePosition() => widget.globalKey.globalPaintBounds;
-}
-
-class ContextMenuActions extends StatelessWidget {
-  const ContextMenuActions({
-    Key? key,
-    this.actions = const [],
-    this.onDismissed,
-    this.backdrop = false,
-    this.width = 220,
-  }) : super(key: key);
-
-  final double width;
-
-  /// List of [ContextMenuButton]s to display in this [ContextMenu].
-  final List<ContextMenuButton> actions;
-
-  final void Function()? onDismissed;
-
-  final bool backdrop;
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> widgets = [];
-
-    for (int i = 0; i < actions.length; ++i) {
-      // Adds a button.
-      widgets.add(
-        Listener(
-          // onPointerUp: (d) {
-          //   if (actions[i].close) {
-          //     onDismissed?.call();
-          //   }
-          // },
-          child: actions[i],
-        ),
-      );
-
-      // Adds a divider if required.
-      if (i < actions.length - 1) {
-        widgets.add(
-          Container(
-            color: const Color(0x11000000),
-            height: 1,
-            width: double.infinity,
-          ),
-        );
-      }
-    }
-
-    return Listener(
-      // onPointerUp: (d) => onDismissed?.call(),
-      child: Container(
-        width: width,
-        margin: const EdgeInsets.only(left: 1, top: 1),
-        decoration: BoxDecoration(
-          color: backdrop ? const Color(0xFFF2F2F2) : const Color(0xAAFFFFFF),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: Color(0x33000000),
-              blurStyle: BlurStyle.outer,
-            )
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: widgets,
-          ),
-        ),
-      ),
-    );
   }
 }

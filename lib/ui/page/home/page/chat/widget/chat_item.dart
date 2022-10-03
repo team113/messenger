@@ -30,9 +30,9 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/animated_transform.dart';
+import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';
 import 'package:messenger/ui/widget/animated_delayed_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/mobile.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -457,8 +457,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             PlatformUtils.isDesktop ? (d) {} : null,
                         child: Obx(() {
                           return IgnorePointer(
-                            ignoring: ContextMenuOverlay.of(context).id.value !=
-                                widget.item.value.id.val,
+                            ignoring: true,
                             child: SelectableText(
                               text!,
                               style: style.boldBody,
@@ -1096,15 +1095,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         type: MaterialType.transparency,
                         child: ContextMenuRegion(
                           preventContextMenu: false,
-                          usePointerDown: ignoreFirstRmb,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          menu: Container(),
                           alignment: fromMe
                               ? Alignment.bottomRight
                               : Alignment.bottomLeft,
-                          id: widget.item.value.id.val,
                           actions: [
                             if (widget.item.value is ChatMessage &&
                                 (widget.item.value as ChatMessage)
@@ -1132,31 +1125,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             if (copyable != null)
                               ContextMenuButton(
                                 key: const Key('CopyButton'),
-                                label: 'Copy'.l10n,
+                                label: 'btn_copy'.l10n,
                                 leading: SvgLoader.asset(
                                   'assets/icons/copy_small.svg',
                                   width: 14.82,
                                   height: 17,
                                 ),
-                                onPressed: () {
-                                  widget.onCopy?.call(copyable!);
-                                },
+                                onPressed: () => widget.onCopy?.call(copyable!),
                               ),
                             if (item.status.value == SendingStatus.sent) ...[
                               ContextMenuButton(
                                 key: const Key('ReplyButton'),
-                                label: 'Reply'.l10n,
+                                label: 'btn_reply'.l10n,
                                 leading: SvgLoader.asset(
                                   'assets/icons/reply.svg',
                                   width: 18.8,
                                   height: 16,
                                 ),
-                                onPressed: () => widget.onReply?.call(),
+                                onPressed: widget.onReply,
                               ),
                               if (item is ChatMessage || item is ChatForward)
                                 ContextMenuButton(
                                   key: const Key('ForwardButton'),
-                                  label: 'Forward'.l10n,
+                                  label: 'btn_forward'.l10n,
                                   leading: SvgLoader.asset(
                                     'assets/icons/forward.svg',
                                     width: 18.8,
@@ -1179,27 +1170,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       !isRead))
                                 ContextMenuButton(
                                   key: const Key('EditButton'),
-                                  label: 'Edit'.l10n,
+                                  label: 'btn_edit'.l10n,
                                   leading: SvgLoader.asset(
                                     'assets/icons/edit.svg',
                                     width: 17,
                                     height: 17,
                                   ),
-                                  onPressed: () => widget.onEdit?.call(),
+                                  onPressed: widget.onEdit,
                                 ),
                               ContextMenuButton(
-                                // key: const Key('HideForMe'),
-                                key: _deleteKey,
-                                label: 'Delete'.l10n,
+                                key: const Key('Delete'),
+                                label: 'btn_delete'.l10n,
                                 leading: SvgLoader.asset(
                                   'assets/icons/delete_small.svg',
                                   width: 17.75,
                                   height: 17,
                                 ),
                                 onPressed: () async {
-                                  await ModalPopup.show(
-                                    context: context,
-                                    child: _buildDelete2(item),
+                                  bool deletable =
+                                      widget.item.value.authorId == widget.me &&
+                                          !widget.chat.value!.isRead(
+                                              widget.item.value, widget.me) &&
+                                          (widget.item.value is ChatMessage ||
+                                              widget.item.value is ChatForward);
+
+                                  await ConfirmDialog.show(
+                                    context,
+                                    title: 'label_delete_message'.l10n,
+                                    description: deletable
+                                        ? null
+                                        : 'label_message_will_deleted_for_you'
+                                            .l10n,
+                                    variants: [
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onHide,
+                                        child: Text(
+                                          'label_delete_for_me'.l10n,
+                                          key: const Key('HideForMe'),
+                                        ),
+                                      ),
+                                      if (deletable)
+                                        ConfirmDialogVariant(
+                                          onProceed: widget.onDelete,
+                                          child: Text(
+                                            'label_delete_for_everyone'.l10n,
+                                            key: const Key('DeleteForAll'),
+                                          ),
+                                        )
+                                    ],
                                   );
                                 },
                               ),
@@ -1207,27 +1225,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             if (item.status.value == SendingStatus.error) ...[
                               ContextMenuButton(
                                 key: const Key('Resend'),
-                                label: 'Resend'.l10n,
-                                // leading: const Icon(Icons.send),
+                                label: 'btn_resend_message'.l10n,
                                 leading: SvgLoader.asset(
                                   'assets/icons/send_small.svg',
                                   width: 18.37,
                                   height: 16,
                                 ),
-                                onPressed: () => widget.onResend?.call(),
+                                onPressed: widget.onResend,
                               ),
                               ContextMenuButton(
                                 key: const Key('Delete'),
-                                label: 'Delete'.l10n,
+                                label: 'btn_delete'.l10n,
                                 leading: SvgLoader.asset(
                                   'assets/icons/delete_small.svg',
                                   width: 17.75,
                                   height: 17,
                                 ),
                                 onPressed: () async {
-                                  await ModalPopup.show(
-                                    context: context,
-                                    child: _buildDelete2(item),
+                                  await ConfirmDialog.show(
+                                    context,
+                                    title: 'label_delete_message'.l10n,
+                                    variants: [
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
+                                        ),
+                                      )
+                                    ],
                                   );
                                 },
                               ),
@@ -1597,138 +1623,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     }
   }
-
-  DeleteOptions? _deleteOptions = DeleteOptions.me;
-
-  Widget _buildDelete2(ChatItem item) {
-    ThemeData theme = Theme.of(context);
-    final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    bool deletable = widget.item.value.authorId == widget.me &&
-        !widget.chat.value!.isRead(widget.item.value, widget.me) &&
-        (widget.item.value is ChatMessage || widget.item.value is ChatForward);
-
-    return StatefulBuilder(builder: (context, setState) {
-      return ListView(
-        shrinkWrap: true,
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Text(
-              'Delete the message?'.l10n,
-              style: thin?.copyWith(fontSize: 18),
-            ),
-          ),
-          const SizedBox(height: 25),
-          if (deletable) ...[
-            _button(
-              context,
-              text: 'Delete for me',
-              deleteOptions: DeleteOptions.me,
-              setState: setState,
-            ),
-            const SizedBox(height: 10),
-            _button(
-              context,
-              text: 'Delete for everyone',
-              deleteOptions: DeleteOptions.everyone,
-              setState: setState,
-            ),
-          ] else ...[
-            Center(
-              child: Text(
-                'The message will be deleted only for you.',
-                style: thin?.copyWith(fontSize: 18),
-              ),
-            ),
-          ],
-          const SizedBox(height: 25),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedRoundedButton(
-                  maxWidth: null,
-                  title: Text(
-                    'Proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    switch (_deleteOptions) {
-                      case DeleteOptions.me:
-                        widget.onHide?.call();
-                        break;
-
-                      case DeleteOptions.everyone:
-                        widget.onHide?.call();
-                        break;
-
-                      default:
-                        break;
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                  color: const Color(0xFF63B4FF),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedRoundedButton(
-                  maxWidth: null,
-                  title: Text('Cancel'.l10n, style: thin),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  color: const Color(0xFFEEEEEE),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 25),
-        ],
-      );
-    });
-  }
-
-  Widget _button(
-    BuildContext context, {
-    required String text,
-    DeleteOptions deleteOptions = DeleteOptions.everyone,
-    required StateSetter setState,
-  }) {
-    ThemeData theme = Theme.of(context);
-    Style style = theme.extension<Style>()!;
-    final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    return Material(
-      type: MaterialType.card,
-      borderRadius: style.cardRadius,
-      child: InkWell(
-        onTap: () => setState(() => _deleteOptions = deleteOptions),
-        borderRadius: style.cardRadius,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(text, style: thin?.copyWith(fontSize: 18)),
-              ),
-              IgnorePointer(
-                child: Radio<DeleteOptions>(
-                  value: deleteOptions,
-                  groupValue: _deleteOptions,
-                  onChanged: (DeleteOptions? value) {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
-
-enum DeleteOptions { me, everyone }
 
 /// Extension adding a string representation of a [Duration] in
 /// `HH h, MM m, SS s` format.

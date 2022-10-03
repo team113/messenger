@@ -16,168 +16,90 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
-import 'mobile.dart';
 import '../menu_interceptor/menu_interceptor.dart';
+import '/util/platform_utils.dart';
 import 'menu.dart';
-import 'overlay.dart';
+import 'mobile.dart';
 
-/// Region of a context [menu] over a [child], showed on a secondary mouse click
+/// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
-class ContextMenuRegion extends StatefulWidget {
+///
+/// Depending on the current platform it displays:
+/// - [ContextMenu] on desktop;
+/// - [FloatingContextMenu] on mobile.
+class ContextMenuRegion extends StatelessWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
-    this.menu,
     this.enabled = true,
+    this.moveDownwards = true,
     this.preventContextMenu = true,
-    this.usePointerDown = false,
     this.enableLongTap = true,
-    this.decoration,
     this.alignment = Alignment.bottomCenter,
-    this.actions,
-    this.id,
+    this.actions = const [],
   }) : super(key: key);
 
   /// Widget to wrap this region over.
   final Widget child;
 
-  /// Context menu to show.
-  final Widget? menu;
-
-  final String? id;
-
   /// Indicator whether this region should be enabled.
   final bool enabled;
 
+  /// Indicator whether a [FloatingContextMenu] this region displays should
+  /// animate the [child] moving downwards.
+  final bool moveDownwards;
+
+  /// [Alignment] of a [FloatingContextMenu] this region displays.
   final Alignment alignment;
 
-  final List<ContextMenuButton>? actions;
+  /// [ContextMenuButton]s representing the actions of the context menu.
+  final List<ContextMenuButton> actions;
 
   /// Indicator whether a default context menu should be prevented or not.
   ///
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  final bool usePointerDown;
+  /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
-  final BoxDecoration? decoration;
-
-  @override
-  State<ContextMenuRegion> createState() => _ContextMenuRegionState();
-}
-
-/// State of [ContextMenuRegion] used to keep track of [_buttons].
-class _ContextMenuRegionState extends State<ContextMenuRegion> {
-  /// Bit field of [PointerDownEvent]'s buttons.
-  ///
-  /// [PointerUpEvent] doesn't contain the button being released, so it's
-  /// required to store the buttons from.
-  int _buttons = 0;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.enabled) {
-      // if (PlatformUtils.isMobile || widget.actions != null) {
-      //   return ContextMenuInterceptor(
-      //     enabled: widget.preventContextMenu,
-      //     child: FloatingContextMenu(
-      //       alignment: widget.alignment,
-      //       actions: widget.actions!,
-      //       child: widget.child,
-      //     ),
-      //   );
-      // }
-
+    if (enabled) {
       return ContextMenuInterceptor(
-        enabled: widget.preventContextMenu,
+        enabled: preventContextMenu,
         child: Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (d) {
-            if (widget.usePointerDown) {
-              _buttons = 0;
-              if (d.buttons & kSecondaryButton != 0) {
-                _show(d.position);
-                // ContextMenuOverlay.of(context).show(
-                //   ContextMenuActions(
-                //     actions: widget.actions ?? [],
-                //     backdrop: true,
-                //   ),
-                //   d.position,
-                // );
-              }
-            } else {
-              _buttons = d.buttons;
+            if (d.buttons & kSecondaryButton != 0) {
+              _show(context, d.position);
             }
           },
-          onPointerUp: (d) {
-            if (_buttons & kSecondaryButton != 0) {
-              _show(d.position);
-              // ContextMenuOverlay.of(context).show(
-              //   ContextMenuActions(
-              //     actions: widget.actions ?? [],
-              //     backdrop: true,
-              //   ),
-              //   d.position,
-              // );
-            }
-          },
-          child: Stack(
-            children: [
-              // if (widget.actions != null)
-              if (true)
-                FloatingContextMenu(
-                  id: widget.id,
-                  alignment: widget.alignment,
-                  actions: widget.actions ?? [],
-                  child: widget.child,
+          child: PlatformUtils.isMobile
+              ? FloatingContextMenu(
+                  alignment: alignment,
+                  moveDownwards: moveDownwards,
+                  actions: actions,
+                  child: child,
                 )
-              else
-                GestureDetector(
+              : GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onLongPressStart: widget.enableLongTap
-                      ? (d) => ContextMenuOverlay.of(context).show(
-                            ContextMenuActions(
-                              actions: widget.actions ?? [],
-                              backdrop: true,
-                            ),
-                            d.globalPosition,
-                          )
+                  onLongPressStart: enableLongTap
+                      ? (d) => _show(context, d.globalPosition)
                       : null,
-                  child: widget.child,
+                  child: child,
                 ),
-              // if (context.isMobile)
-              //   Positioned.fill(
-              //     child: Obx(() {
-              //       if (ContextMenuOverlay.of(context).menu.value ==
-              //           widget.menu) {
-              //         return Container(
-              //           width: double.infinity,
-              //           height: double.infinity,
-              //           decoration: widget.decoration?.copyWith(
-              //                 color: const Color(0x11000000),
-              //               ) ??
-              //               const BoxDecoration(color: Color(0x22000000)),
-              //         );
-              //       }
-
-              //       return Container();
-              //     }),
-              //   ),
-            ],
-          ),
         ),
       );
     }
 
-    return widget.child;
+    return child;
   }
 
-  void _show(Offset position) {
-    if (widget.actions?.isNotEmpty != true) {
+  /// Shows the [ContextMenu] wrapping the [actions].
+  void _show(BuildContext context, Offset position) {
+    if (actions.isEmpty) {
       return;
     }
 
@@ -204,10 +126,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                       alignment.x > 0 ? 0 : -1,
                       alignment.y > 0 ? 0 : -1,
                     ),
-                    child: ContextMenuActions(
-                      actions: widget.actions ?? [],
-                      backdrop: true,
-                    ),
+                    child: ContextMenu(actions: actions),
                   ),
                 )
               ],
@@ -218,24 +137,5 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     );
 
     return;
-
-    OverlayEntry? entry;
-
-    entry = OverlayEntry(builder: (context) {
-      return Listener(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-              left: position.dx,
-              top: position.dy,
-              child: widget.child,
-            )
-          ],
-        ),
-      );
-    });
-
-    Overlay.of(context, rootOverlay: true)!.insert(entry);
   }
 }

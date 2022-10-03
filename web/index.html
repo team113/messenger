@@ -275,5 +275,14 @@
       saveAs(url, name);
     }
   </script>
+  <!-- Clean the whole IndexedDB. -->
+  <script>
+    async function cleanIndexedDB() {
+      var databases = await window.indexedDB.databases();
+      for (var d of databases) {
+        window.indexedDB.deleteDatabase(d.name);
+      }
+    }
+  </script>
 </body>
 </html>

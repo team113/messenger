@@ -1,4 +1,4 @@
-// Copyright © 2022 NIKITA ISAENKO, <https://github.com/SleepySquash>
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,9 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/cupertino.dart' show kCupertinoModalBarrierColor;
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
@@ -31,15 +31,15 @@ abstract class ModalPopup {
     BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
     BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
-    EdgeInsets desktopPadding =
-        const EdgeInsets.all(10),
+    EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
   }) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     if (context.isMobile && PlatformUtils.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: const Color(0xBB000000),
-        // barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: style.barrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
         isDismissible: isDismissible,
@@ -87,8 +87,7 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: const Color(0xBB000000),
-        // barrierColor: kCupertinoModalBarrierColor,
+        barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
         builder: (context) {
           return Center(

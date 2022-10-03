@@ -254,10 +254,6 @@ class _PostWidgetState extends State<PostWidget> {
                   type: MaterialType.transparency,
                   child: ContextMenuRegion(
                     preventContextMenu: false,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    menu: Container(),
                     alignment: Alignment.bottomLeft,
                     actions: [
                       ContextMenuButton(
@@ -525,12 +521,7 @@ class _PostWidgetState extends State<PostWidget> {
                     type: MaterialType.transparency,
                     child: ContextMenuRegion(
                       preventContextMenu: false,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      menu: Container(),
                       alignment: Alignment.bottomLeft,
-                      id: widget.item.value.id.val,
                       actions: [
                         if (widget.item.value is ChatMessage &&
                             (widget.item.value as ChatMessage)

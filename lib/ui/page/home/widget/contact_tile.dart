@@ -80,7 +80,7 @@ class ContactTile extends StatelessWidget {
             ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
             : null,
         preventContextMenu: preventContextMenu,
-        actions: actions,
+        actions: actions ?? [],
         child: ClipPath(
           clipper: folded
               ? _FoldedClipper(radius: style.cardRadius.topLeft.x)

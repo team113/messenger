@@ -117,8 +117,10 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       await WindowManager.instance.setFullScreen(true);
     } else if (isMobile) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: []);
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [],
+      );
     }
   }
 

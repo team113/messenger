@@ -53,6 +53,7 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            barrierColor: const Color(0xBB000000),
             callDock: const Color(0xFF1E88E5),
             cardBorder: Border.all(
               color: const Color(0xFFEBEBEB),
@@ -66,7 +67,6 @@ class Themes {
               color: const Color(0xFFB9D9FA),
               width: 0.5,
             ),
-            cardRadius: BorderRadius.circular(14),
             cardColor: Colors.white.withOpacity(0.95),
             cardBlur: 5,
             boldBody: GoogleFonts.roboto(
@@ -74,6 +74,10 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardRadius: BorderRadius.circular(14),
+            contextMenuBackgroundColor: const Color(0xFFF2F2F2),
+            contextMenuHoveredColor: const Color(0xFFE5E7E9),
+            contextMenuRadius: BorderRadius.circular(10),
             sidebarColor: Colors.white.withOpacity(0.4),
             unreadMessageThickness: 4,
             systemMessageTextStyle: GoogleFonts.roboto(
@@ -280,6 +284,15 @@ class Themes {
               thickness: MaterialStateProperty.all(6),
               // radius: Radius.zero,
             ),
+        radioTheme: ThemeData.light().radioTheme.copyWith(
+          fillColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const Color(0xFF63B4FF);
+            }
+
+            return const Color(0xFF888888);
+          }),
+        ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
@@ -334,14 +347,18 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.barrierColor,
     required this.callDock,
-    required this.cardRadius,
     required this.cardBorder,
     required this.primaryBorder,
     required this.secondaryBorder,
     required this.cardBlur,
     required this.cardColor,
     required this.boldBody,
+    required this.cardRadius,
+    required this.contextMenuBackgroundColor,
+    required this.contextMenuHoveredColor,
+    required this.contextMenuRadius,
     required this.sidebarColor,
     required this.unreadMessageThickness,
     required this.systemMessageTextStyle,
@@ -349,8 +366,10 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageColor,
   });
 
+  /// [Color] of the modal background barrier color.
+  final Color barrierColor;
+
   final Color callDock;
-  final BorderRadius cardRadius;
   final Border cardBorder;
   final Border primaryBorder;
   final Border secondaryBorder;
@@ -359,6 +378,18 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// [BorderRadius] to use in card-like [Widget]s.
+  final BorderRadius cardRadius;
+
+  /// Background [Color] of the [ContextMenu].
+  final Color contextMenuBackgroundColor;
+
+  /// [Color] of the hovered [ContextMenuButton].
+  final Color contextMenuHoveredColor;
+
+  /// [BorderRadius] of the [ContextMenu].
+  final BorderRadius contextMenuRadius;
 
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
@@ -370,14 +401,18 @@ class Style extends ThemeExtension<Style> {
 
   @override
   ThemeExtension<Style> copyWith({
+    Color? barrierColor,
+    TextStyle? boldBody,
     Color? callDock,
     BorderRadius? cardRadius,
+    Color? contextMenuBackgroundColor,
+    Color? contextMenuHoveredColor,
+    BorderRadius? contextMenuRadius,
     Border? cardBorder,
     Border? primaryBorder,
     Border? secondaryBorder,
     double? cardBlur,
     Color? cardColor,
-    TextStyle? boldBody,
     Color? sidebarColor,
     double? unreadMessageThickness,
     TextStyle? systemMessageTextStyle,
@@ -385,14 +420,20 @@ class Style extends ThemeExtension<Style> {
     Color? systemMessageColor,
   }) {
     return Style(
+      barrierColor: barrierColor ?? this.barrierColor,
+      boldBody: boldBody ?? this.boldBody,
       callDock: callDock ?? this.callDock,
       cardRadius: cardRadius ?? this.cardRadius,
+      contextMenuBackgroundColor:
+          contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
+      contextMenuHoveredColor:
+          contextMenuHoveredColor ?? this.contextMenuHoveredColor,
+      contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
       cardBorder: cardBorder ?? this.cardBorder,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       cardBlur: cardBlur ?? this.cardBlur,
       cardColor: cardColor ?? this.cardColor,
-      boldBody: boldBody ?? this.boldBody,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       unreadMessageThickness:
           unreadMessageThickness ?? this.unreadMessageThickness,
@@ -410,14 +451,27 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
+      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       callDock: Color.lerp(callDock, other.callDock, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      contextMenuBackgroundColor: Color.lerp(
+        contextMenuBackgroundColor,
+        other.contextMenuBackgroundColor,
+        t,
+      )!,
+      contextMenuHoveredColor: Color.lerp(
+        contextMenuHoveredColor,
+        other.contextMenuHoveredColor,
+        t,
+      )!,
+      contextMenuRadius:
+          BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
-      boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
       systemMessageTextStyle: TextStyle.lerp(
         systemMessageTextStyle,
