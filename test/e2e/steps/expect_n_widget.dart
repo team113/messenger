@@ -36,7 +36,7 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     final Duration timeout =
         context.configuration.timeout ?? const Duration(seconds: 20);
     final Set<String> counter = {};
-    
+
     await context.world.appDriver.scrollUntilVisible(
       find.byWidgetPredicate(
         (Widget widget) {
@@ -57,7 +57,7 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
         of: find.byType(FlutterListView),
         matching: find.byType(Scrollable),
       ),
-      dy: delta,
+      dy: -delta,
       timeout: timeout,
     );
     await context.world.appDriver.waitForAppToSettle();
