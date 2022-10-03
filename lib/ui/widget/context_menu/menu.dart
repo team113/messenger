@@ -46,12 +46,14 @@ class ContextMenu extends StatelessWidget {
       }
     }
 
+    Style style = Theme.of(context).extension<Style>()!;
+
     return Container(
       width: 220,
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
-        color: Theme.of(context).extension<Style>()!.contextMenuBackgroundColor,
-        borderRadius: BorderRadius.circular(10),
+        color: style.contextMenuBackgroundColor,
+        borderRadius: style.contextMenuRadius,
         boxShadow: const [
           CustomBoxShadow(
             blurRadius: 8,
@@ -61,7 +63,7 @@ class ContextMenu extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: style.contextMenuRadius,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

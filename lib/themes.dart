@@ -47,6 +47,7 @@ class Themes {
             cardRadius: BorderRadius.circular(14),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
+            contextMenuRadius: BorderRadius.circular(10),
             sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
@@ -256,6 +257,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardRadius,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
+    required this.contextMenuRadius,
     required this.sidebarColor,
   });
 
@@ -274,6 +276,9 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the hovered [ContextMenuButton].
   final Color contextMenuHoveredColor;
 
+  /// [BorderRadius] of the [ContextMenu].
+  final BorderRadius contextMenuRadius;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
@@ -284,6 +289,7 @@ class Style extends ThemeExtension<Style> {
     BorderRadius? cardRadius,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
+    BorderRadius? contextMenuRadius,
     Color? sidebarColor,
   }) {
     return Style(
@@ -294,6 +300,7 @@ class Style extends ThemeExtension<Style> {
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
+      contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
       sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
@@ -318,6 +325,8 @@ class Style extends ThemeExtension<Style> {
         other.contextMenuHoveredColor,
         t,
       )!,
+      contextMenuRadius:
+          BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }

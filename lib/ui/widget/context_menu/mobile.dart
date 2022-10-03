@@ -336,19 +336,18 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       }
     }
 
+    Style style = Theme.of(context).extension<Style>()!;
+
     return Listener(
       onPointerUp: (d) => _dismiss(),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: style.contextMenuRadius,
         child: ConditionalBackdropFilter(
           condition: widget.showAbove,
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .extension<Style>()!
-                  .contextMenuBackgroundColor
-                  .withAlpha(0xAA),
-              borderRadius: BorderRadius.circular(10),
+              color: style.contextMenuBackgroundColor.withAlpha(0xAA),
+              borderRadius: style.contextMenuRadius,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
