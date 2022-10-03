@@ -277,58 +277,71 @@ class _ChatViewState extends State<ChatView>
                                         ),
                                         child: FutureBuilder<RxUser?>(
                                           future: c.getUser(e.value.authorId),
-                                          builder: (_, u) => ChatItemWidget(
-                                            key: Key(e.value.id.val),
-                                            chat: c.chat!.chat,
-                                            item: e,
-                                            me: c.me!,
-                                            user: u.data,
-                                            getUser: c.getUser,
-                                            onJoinCall: c.joinCall,
-                                            onHide: () =>
-                                                c.hideChatItem(e.value),
-                                            onDelete: () =>
-                                                c.deleteMessage(e.value),
-                                            onReply: () {
-                                              if (c.repliedMessages
-                                                  .contains(e.value)) {
-                                                c.repliedMessages
-                                                    .remove(e.value);
-                                              } else {
-                                                c.repliedMessages
-                                                    .insert(0, e.value);
-                                              }
-                                            },
-                                            onCopy: (text) => c.copyText(text),
-                                            onRepliedTap: (id) =>
-                                                c.animateTo(id),
-                                            onForwardedTap: (id, chatId) {
-                                              if (chatId == c.id) {
-                                                c.animateTo(id);
-                                              } else {
-                                                router.chat(
-                                                  chatId,
-                                                  itemId: id,
-                                                  push: true,
+                                          builder: (_, u) {
+                                            final String valueKey;
+                                            if (c.chat != null &&
+                                                c.chat!.messages.length - 1 ==
+                                                    i) {
+                                              valueKey =
+                                                  '${e.value.id.val}_last_message';
+                                            } else {
+                                              valueKey = e.value.id.val;
+                                            }
+
+                                            return ChatItemWidget(
+                                              key: Key(valueKey),
+                                              chat: c.chat!.chat,
+                                              item: e,
+                                              me: c.me!,
+                                              user: u.data,
+                                              getUser: c.getUser,
+                                              onJoinCall: c.joinCall,
+                                              onHide: () =>
+                                                  c.hideChatItem(e.value),
+                                              onDelete: () =>
+                                                  c.deleteMessage(e.value),
+                                              onReply: () {
+                                                if (c.repliedMessages
+                                                    .contains(e.value)) {
+                                                  c.repliedMessages
+                                                      .remove(e.value);
+                                                } else {
+                                                  c.repliedMessages
+                                                      .insert(0, e.value);
+                                                }
+                                              },
+                                              onCopy: (text) =>
+                                                  c.copyText(text),
+                                              onRepliedTap: (id) =>
+                                                  c.animateTo(id),
+                                              onForwardedTap: (id, chatId) {
+                                                if (chatId == c.id) {
+                                                  c.animateTo(id);
+                                                } else {
+                                                  router.chat(
+                                                    chatId,
+                                                    itemId: id,
+                                                    push: true,
+                                                  );
+                                                }
+                                              },
+                                              animation: _animation,
+                                              onGallery: c.calculateGallery,
+                                              onResend: () =>
+                                                  c.resendItem(e.value),
+                                              onEdit: () =>
+                                                  c.editMessage(e.value),
+                                              onFileTap: (a) =>
+                                                  c.download(e.value, a),
+                                              onAttachmentError: () async {
+                                                await c.chat?.updateAttachments(
+                                                    e.value);
+                                                await Future.delayed(
+                                                  Duration.zero,
                                                 );
-                                              }
-                                            },
-                                            animation: _animation,
-                                            onGallery: c.calculateGallery,
-                                            onResend: () =>
-                                                c.resendItem(e.value),
-                                            onEdit: () =>
-                                                c.editMessage(e.value),
-                                            onFileTap: (a) =>
-                                                c.download(e.value, a),
-                                            onAttachmentError: () async {
-                                              await c.chat
-                                                  ?.updateAttachments(e.value);
-                                              await Future.delayed(
-                                                Duration.zero,
-                                              );
-                                            },
-                                          ),
+                                              },
+                                            );
+                                          },
                                         ),
                                       );
 

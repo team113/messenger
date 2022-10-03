@@ -7,7 +7,7 @@ Feature: Chat messages and attachments are splitted
     And I am in chat with Bob
 
   Scenario: User sends 1 message
-    When I fill `MessageField` field with 8191 "A" symbols
+    When I fill `MessageField` field with 8192 "A" symbols
     And I tap `Send` button
     Then I expect to see 1 message
 
