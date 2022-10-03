@@ -104,24 +104,22 @@ class ContactsTabView extends StatelessWidget {
   Widget _contact(RxChatContact contact, ContactsTabController c) =>
       ContextMenuRegion(
         preventContextMenu: false,
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              label: 'btn_change_contact_name'.l10n,
-              onPressed: () {
-                c.contactToChangeNameOf.value = contact.contact.value.id;
-                c.contactName.clear();
-                c.contactName.unchecked = contact.contact.value.name.val;
-                SchedulerBinding.instance.addPostFrameCallback(
-                    (_) => c.contactName.focus.requestFocus());
-              },
-            ),
-            ContextMenuButton(
-              label: 'btn_delete_from_contacts'.l10n,
-              onPressed: () => c.deleteFromContacts(contact.contact.value),
-            ),
-          ],
-        ),
+        actions: [
+          ContextMenuButton(
+            label: 'btn_rename'.l10n,
+            onPressed: () {
+              c.contactToChangeNameOf.value = contact.contact.value.id;
+              c.contactName.clear();
+              c.contactName.unchecked = contact.contact.value.name.val;
+              SchedulerBinding.instance.addPostFrameCallback(
+                  (_) => c.contactName.focus.requestFocus());
+            },
+          ),
+          ContextMenuButton(
+            label: 'btn_delete_from_contacts'.l10n,
+            onPressed: () => c.deleteFromContacts(contact.contact.value),
+          ),
+        ],
         child: c.contactToChangeNameOf.value == contact.contact.value.id
             ? Container(
                 key: Key(contact.contact.value.id.val),
