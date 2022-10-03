@@ -31,36 +31,36 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
   RegExp(r'I expect to see {int} message(s)'),
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
-    const int maxText = ChatMessageText.maxLength;
     const double delta = 100;
-    final Duration timeout =
-        context.configuration.timeout ?? const Duration(seconds: 20);
-    final Set<String> counter = {};
+    final Duration timeout = Duration(seconds: quantity * 30);
+    final Set<String> quantityMessages = {};
 
-    await context.world.appDriver.scrollUntilVisible(
-      find.byWidgetPredicate(
-        (Widget widget) {
-          if (widget is ChatItemWidget) {
-            final ChatItem chatItem = widget.item.value;
-            if (chatItem is ChatMessage) {
-              counter.add(chatItem.id.val);
-              if (chatItem.text?.val.length != maxText) {
-                return true;
+    try {
+      await context.world.appDriver.scrollUntilVisible(
+        find.byWidgetPredicate(
+          (Widget widget) {
+            if (widget is ChatItemWidget) {
+              final ChatItem chatItem = widget.item.value;
+              if (chatItem is ChatMessage) {
+                quantityMessages.add(chatItem.id.val);
               }
             }
-          }
-          return false;
-        },
-        skipOffstage: false,
-      ),
-      scrollable: find.descendant(
-        of: find.byType(FlutterListView),
-        matching: find.byType(Scrollable),
-      ),
-      dy: -delta,
-      timeout: timeout,
-    );
+            return false;
+          },
+          skipOffstage: false,
+        ),
+        scrollable: find.descendant(
+          of: find.byType(FlutterListView),
+          matching: find.byType(Scrollable),
+        ),
+        dy: -delta,
+        timeout: timeout,
+      );
+    } catch (_) {
+      // No-op.
+    }
+
     await context.world.appDriver.waitForAppToSettle();
-    expect(counter.length, quantity);
+    expect(quantityMessages.length, quantity);
   },
 );
