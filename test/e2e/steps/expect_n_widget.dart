@@ -32,6 +32,7 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
+    const int maxText = ChatMessageText.maxLength;
     final Set<String> quantityMessages = {};
 
     await context.world.appDriver.scrollUntilVisible(
@@ -41,9 +42,8 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
             final ChatItem chatItem = widget.item.value;
             if (chatItem is ChatMessage) {
               quantityMessages.add(chatItem.id.val);
-              if ((widget.key as ValueKey<String>)
-                  .value
-                  .contains('last_message')) {
+              final int? lengthMessage = chatItem.text?.val.length;
+              if (lengthMessage != null && lengthMessage < maxText) {
                 return true;
               }
             }

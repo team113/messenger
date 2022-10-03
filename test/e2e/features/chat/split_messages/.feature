@@ -16,6 +16,11 @@ Feature: Chat messages and attachments are splitted
     And I tap `Send` button
     Then I expect to see 2 messages
 
+  Scenario: User sends 2 messages
+    When I fill `MessageField` field with 16384 "A" symbols
+    And I tap `Send` button
+    Then I expect to see 2 messages
+
   Scenario: User sends 3 messages
     When I fill `MessageField` field with 16385 "A" symbols
     And I tap `Send` button
