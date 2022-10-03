@@ -113,7 +113,7 @@ class ChatController extends GetxController {
   late final TextFieldState send;
 
   /// [ChatItem] being quoted to reply onto.
-  final Rx<ChatItem?> repliedMessage = Rx<ChatItem?>(null);
+  final RxList<ChatItem> repliedMessages = RxList();
 
   /// State of an edit message field.
   TextFieldState? edit;
@@ -240,12 +240,12 @@ class ChatController extends GetxController {
       onSubmitted: (s) {
         if (s.text.isNotEmpty ||
             attachments.isNotEmpty ||
-            repliedMessage.value != null) {
+            repliedMessages.isNotEmpty) {
           _chatService
               .sendChatMessage(
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
-                repliesTo: repliedMessage.value,
+                repliesTo: repliedMessages,
                 attachments: attachments,
               )
               .then((_) => _playMessageSent())
@@ -255,7 +255,7 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          repliedMessage.value = null;
+          repliedMessages.clear();
           attachments.clear();
           s.clear();
           s.unsubmit();
@@ -698,7 +698,7 @@ class ChatController extends GetxController {
         status.value = RxStatus.loadingMore();
       }
 
-      await chat!.fetchMessages(id);
+      await chat!.fetchMessages();
 
       // Required in order for [Hive.boxEvents] to add the messages.
       await Future.delayed(Duration.zero);
@@ -910,13 +910,19 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> download(FileAttachment attachment) async {
+  Future<void> download(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (attachment.path != null) {
-      attachment.open();
+      await attachment.open();
     } else {
-      attachment.download();
+      try {
+        await attachment.download();
+      } catch (_) {
+        await chat?.updateAttachments(item);
+        await Future.delayed(Duration.zero);
+        await attachment.download();
+      }
     }
   }
 

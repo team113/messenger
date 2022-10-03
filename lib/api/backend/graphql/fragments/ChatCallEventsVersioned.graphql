@@ -20,6 +20,20 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
         callId
         chatId
         at
+        ... on EventChatCallMemberRedialed {
+            call {
+                __typename
+                ...ChatCall
+            }
+            user {
+                __typename
+                ...User
+            }
+            byUser {
+                __typename
+                ...User
+            }
+        }
         ... on EventChatCallFinished {
             call {
                 __typename
@@ -43,6 +57,7 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 __typename
                 ...User
             }
+            deviceId
         }
         ... on EventChatCallMemberJoined {
             call {
@@ -53,6 +68,7 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 __typename
                 ...User
             }
+            deviceId
         }
         ... on EventChatCallHandLowered {
             call {

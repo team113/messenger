@@ -41,6 +41,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -70,6 +71,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onResend,
     this.onFileTap,
+    this.onAttachmentError,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -89,22 +91,22 @@ class ChatItemWidget extends StatefulWidget {
   final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
-  final Function()? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a delete action of this [ChatItem] is triggered.
-  final Function()? onDelete;
+  final void Function()? onDelete;
 
   /// Callback, called when join call button is pressed.
-  final Function()? onJoinCall;
+  final void Function()? onJoinCall;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
-  final Function()? onReply;
+  final void Function()? onReply;
 
   /// Callback, called when an edit action of this [ChatItem] is triggered.
-  final Function()? onEdit;
+  final void Function()? onEdit;
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
-  final Function(String text)? onCopy;
+  final void Function(String text)? onCopy;
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
@@ -115,16 +117,19 @@ class ChatItemWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
-  final Function(ChatItemId)? onRepliedTap;
+  final void Function(ChatItemId)? onRepliedTap;
 
   /// Callback, called when a forwarded message of this [ChatItem] is tapped.
-  final Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemId, ChatId)? onForwardedTap;
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
-  final Function()? onResend;
+  final void Function()? onResend;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
-  final Function(FileAttachment)? onFileTap;
+  final void Function(FileAttachment)? onFileTap;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onAttachmentError;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -393,11 +398,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: const Key('ChatMessage'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (msg.repliesTo != null) ...[
-            InkWell(
-              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: _repliedMessage(msg.repliesTo!),
-            ),
+          if (msg.repliesTo.isNotEmpty) ...[
+            ...msg.repliesTo.map((e) {
+              return InkWell(
+                onTap: () => widget.onRepliedTap?.call(e.id),
+                child: _repliedMessage(e),
+              );
+            }),
             if (msg.text != null) const SizedBox(height: 5),
           ],
           if (msg.text != null) Text(msg.text!.val),
@@ -547,7 +554,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.medium}'),
+                      image: NetworkImage(
+                        '${Config.files}${image.medium.relativeRef}',
+                      ),
+                      onError: (_, __) => widget.onAttachmentError?.call(),
                       fit: BoxFit.cover,
                     ),
             ),
@@ -576,9 +586,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.finishedAt!.val
+              .difference(item.conversationStartedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == widget.me
             ? 'label_outgoing_call'.l10n
@@ -708,11 +721,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  var link = '${Config.url}/files${o.original}';
+                  String link = '${Config.files}${o.original.relativeRef}';
                   if (o is FileAttachment) {
                     gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await widget.onAttachmentError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
                   }
                 }
 
@@ -740,10 +764,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   bytes: e.file.bytes!,
                                   height: 300,
                                 )
-                          : VideoThumbnail.path(
+                          : VideoThumbnail.url(
                               key: _galleryKeys[i],
-                              path: '${Config.url}/files${e.original}',
+                              url: '${Config.files}${e.original.relativeRef}',
                               height: 300,
+                              onError: widget.onAttachmentError,
                             ),
                       Container(
                         width: 60,
@@ -772,17 +797,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Container(
                         key: const Key('SentImage'),
                         child: Image.network(
-                          '${Config.url}/files${e.original}',
+                          '${Config.files}${e.original.relativeRef}',
                           key: _galleryKeys[i],
                           fit: BoxFit.cover,
                           height: 300,
-                          errorBuilder: (_, __, ___) => const SizedBox(
-                            width: 300.0,
-                            height: 300.0,
-                            child: Center(
-                              child: Icon(Icons.error, color: Colors.red),
-                            ),
-                          ),
+                          errorBuilder: (_, __, ___) {
+                            return InitCallback(
+                              callback: () => widget.onAttachmentError?.call(),
+                              child: const SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
             ElasticAnimatedSwitcher(
@@ -925,7 +954,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
               child: Text(
-                '${e.size ~/ 1024} KB',
+                e.original.size == null
+                    ? '... KB'
+                    : '${e.original.size! ~/ 1024} KB',
                 style: const TextStyle(
                   color: Color(0xFF888888),
                   fontSize: 13,
@@ -1014,11 +1045,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
-                child: AvatarWidget.fromUser(
-                  widget.user?.user.value ??
-                      widget.chat.value!.getUser(item.authorId),
-                  radius: 15,
-                ),
+                child: widget.user != null
+                    ? AvatarWidget.fromRxUser(
+                        widget.user,
+                        radius: 15,
+                      )
+                    : AvatarWidget.fromUser(
+                        widget.chat.value!.getUser(item.authorId),
+                        radius: 15,
+                      ),
               ),
             ),
           Flexible(
@@ -1066,29 +1101,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   key: const Key('ForwardButton'),
                                   label: 'btn_forward'.l10n,
                                   onPressed: () async {
-                                    List<AttachmentId> attachments = [];
-                                    if (item is ChatMessage) {
-                                      attachments = item.attachments
-                                          .map((a) => a.id)
-                                          .toList();
-                                    } else if (item is ChatForward) {
-                                      ChatItem nested = item.item;
-                                      if (nested is ChatMessage) {
-                                        attachments = nested.attachments
-                                            .map((a) => a.id)
-                                            .toList();
-                                      }
-                                    }
-
                                     await ChatForwardView.show(
                                       context,
                                       widget.chat.value!.id,
-                                      [
-                                        ChatItemQuote(
-                                          item: item,
-                                          attachments: attachments,
-                                        ),
-                                      ],
+                                      [ChatItemQuote(item: item)],
                                     );
                                   },
                                 ),

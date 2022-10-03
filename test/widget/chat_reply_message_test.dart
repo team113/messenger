@@ -86,7 +86,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -144,7 +144,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-05T15:40:57.010950+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'text message',
                   'editedAt': null,
                   'attachments': []
@@ -167,7 +167,7 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     text: const ChatMessageText('reply message'),
     attachments: anyNamed('attachments'),
-    repliesTo: null,
+    repliesTo: [],
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',
@@ -183,21 +183,24 @@ void main() async {
               'authorId': 'me',
               'at': '2022-01-27T11:34:37.191440+00:00',
               'ver': '1',
-              'repliesTo': {
-                'node': {
-                  '__typename': 'ChatMessage',
-                  'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
-                  'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                  'authorId': 'me',
-                  'at': '2022-01-05T15:40:57.010950+00:00',
-                  'ver': '1',
-                  'repliesTo': null,
-                  'text': 'text message',
-                  'editedAt': null,
-                  'attachments': []
+              'repliesTo': [
+                {
+                  'node': {
+                    '__typename': 'ChatMessage',
+                    'id': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb4',
+                    'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                    'authorId': 'me',
+                    'at': '2022-01-05T15:40:57.010950+00:00',
+                    'ver': '1',
+                    'repliesTo': [],
+                    'text': 'text message',
+                    'editedAt': null,
+                    'attachments': []
+                  },
+                  'cursor':
+                      'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
                 },
-                'cursor': 'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-              },
+              ],
               'text': 'reply message',
               'editedAt': null,
               'attachments': []
@@ -336,7 +339,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('ReplyButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('CancelReplyButton')));
+    await tester.tap(find.byKey(const Key('CancelReplyButton_0')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.longPress(message);

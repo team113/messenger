@@ -1,12 +1,17 @@
 [mode]
 debug = true
 
+[media_server.medea.server.client.http]
+bind_port = 8090
+[media_server.medea.ice.embedded]
+min_relay_port = 49160
+max_relay_port = 49200
+
 [smtp]
 port = 1025
 user = "robot"
 pass = "test"
 [smtp.tls]
-verify_host = false
 verify_cert = false
 
 [background.event_handler.create_call_heartbeat]
@@ -21,31 +26,25 @@ period = "500ms"
 period = "300ms"
 [background.event_handler.invalidate_chat_counts]
 period = "500ms"
-[background.event_handler.process_image_view]
-timeout = "10m"
-batch_size = 16
 [background.event_handler.synchronize_call_room]
 period = "300ms"
+[background.event_handler.transcode_image_set]
+timeout = "10m"
+batch_size = 16
 [background.event_handler.update_chat_last_item]
 period = "500ms"
 [background.event_handler.update_chat_ongoing_call]
 period = "300ms"
 
-[background.poll.call_events]
-period = "300ms"
-timeout = "300ms"
 [background.poll.chat_events]
 period = "500ms"
 timeout = "500ms"
 [background.poll.chat_typings]
 period = "300ms"
 timeout = "300ms"
-[background.poll.chat_view_events]
+[background.poll.incoming_calls_events]
 period = "500ms"
 timeout = "500ms"
-[background.poll.incoming_calls_events]
-period = "300ms"
-timeout = "300ms"
 
 [background.watchdog.chat_typings]
 period = "500ms"

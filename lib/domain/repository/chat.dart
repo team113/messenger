@@ -84,7 +84,7 @@ abstract class AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   });
 
   /// Resends the specified [item].
@@ -202,7 +202,12 @@ abstract class RxChat {
   UserCallCover? get callCover;
 
   /// Fetches the [messages] from the service.
-  Future<void> fetchMessages(ChatId chatId);
+  Future<void> fetchMessages();
+
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId id);

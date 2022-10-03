@@ -179,9 +179,11 @@ class _ChatViewState extends State<ChatView>
                                     child: InkWell(
                                       customBorder: const CircleBorder(),
                                       onTap: onDetailsTap,
-                                      child: AvatarWidget.fromRxChat(
-                                        c.chat,
-                                        radius: 17,
+                                      child: Center(
+                                        child: AvatarWidget.fromRxChat(
+                                          c.chat,
+                                          radius: 17,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -418,6 +420,13 @@ class _ChatViewState extends State<ChatView>
           onResend: () => c.resendItem(item.value),
           onEdit: () => c.editMessage(item.value),
           onFileTap: c.download,
+          onAttachmentError: () async {
+                                              await c.chat
+                                                  ?.updateAttachments(e.value);
+                                              await Future.delayed(
+                                                Duration.zero,
+                                              );
+                                            },
         ),
       ),
     );
@@ -559,21 +568,13 @@ class _ChatViewState extends State<ChatView>
             mainAxisSize: MainAxisSize.min,
             children: c.editedMessage.value == null
                 ? [
-                    if (c.repliedMessage.value != null)
+                    if (c.repliedMessages.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(height: 18, width: 2, color: Colors.blue),
-                            const SizedBox(width: 4),
-                            Flexible(child: _repliedMessage(c)),
-                            IconButton(
-                              key: const Key('CancelReplyButton'),
-                              onPressed: () => c.repliedMessage.value = null,
-                              icon: const Icon(Icons.clear, size: 18),
-                            )
-                          ],
+                        child: Column(
+                          children: c.repliedMessages
+                              .map((e) => _repliedMessage(c, e))
+                              .toList(),
                         ),
                       ),
                     Container(
@@ -703,25 +704,14 @@ class _ChatViewState extends State<ChatView>
             ),
             const SizedBox(width: 8),
             _button(
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                child: (c.send.isEmpty.value &&
-                        c.attachments.isEmpty &&
-                        c.repliedMessage.value == null)
-                    ? const Padding(
-                        key: Key('Mic'),
-                        padding: EdgeInsets.only(top: 2),
-                        child: Icon(Icons.mic),
-                      )
-                    : const Padding(
-                        key: Key('Send'),
-                        padding: EdgeInsets.only(left: 2, top: 1),
-                        child: Icon(Icons.send, size: 24),
-                      ),
+              icon: const Padding(
+                key: Key('Send'),
+                padding: EdgeInsets.only(left: 2, top: 1),
+                child: Icon(Icons.send, size: 24),
               ),
               onTap: (c.send.isEmpty.value &&
                       c.attachments.isEmpty &&
-                      c.repliedMessage.value == null)
+                      c.repliedMessages.isEmpty)
                   ? () {}
                   : c.send.submit,
             ),
@@ -862,7 +852,7 @@ class _ChatViewState extends State<ChatView>
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.url}/files${e.original}',
+                      '${Config.files}${e.original.relativeRef}',
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -1004,8 +994,8 @@ class _ChatViewState extends State<ChatView>
       );
 
   /// Builds a visual representation of a [ChatController.repliedMessage].
-  Widget _repliedMessage(ChatController c) {
-    var item = c.repliedMessage.value;
+  Widget _repliedMessage(ChatController c, ChatItem item) {
+    Widget content;
 
     if (item is ChatMessage) {
       var desc = StringBuffer();
@@ -1020,7 +1010,7 @@ class _ChatViewState extends State<ChatView>
         desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
       }
 
-      return Text(
+      content = Text(
         desc.toString(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -1037,16 +1027,19 @@ class _ChatViewState extends State<ChatView>
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
 
-      return Row(
+      content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -1078,13 +1071,27 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      return const Text('Forwarded message');
+      content = const Text('Forwarded message');
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      return Text(item.action.toString());
+      content = Text(item.action.toString());
     } else {
-      return Text('err_unknown'.l10n);
+      content = Text('err_unknown'.l10n);
     }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(height: 18, width: 2, color: Colors.blue),
+        const SizedBox(width: 4),
+        Flexible(child: content),
+        IconButton(
+          key: Key('CancelReplyButton_${c.repliedMessages.indexOf(item)}'),
+          onPressed: () => c.repliedMessages.remove(item),
+          icon: const Icon(Icons.clear, size: 18),
+        )
+      ],
+    );
   }
 
   /// Builds a visual representation of a [ChatController.editedMessage].

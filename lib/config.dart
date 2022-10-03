@@ -36,6 +36,9 @@ class Config {
   /// Backend's WebSocket URL.
   static late String ws;
 
+  /// File storage HTTP URL.
+  static late String files;
+
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
@@ -84,6 +87,10 @@ class Config {
     int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
         ? const int.fromEnvironment('SOCAPP_WS_PORT')
         : (document['server']?['ws']?['port'] ?? 80);
+
+    files = const bool.hasEnvironment('SOCAPP_FILES_URL')
+        ? const String.fromEnvironment('SOCAPP_FILES_URL')
+        : (document['files']?['url'] ?? 'http://localhost/files');
 
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
@@ -140,6 +147,7 @@ class Config {
             url = remote['server']?['http']?['url'] ?? url;
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
+            files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
             origin = url;
