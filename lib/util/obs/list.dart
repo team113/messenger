@@ -74,7 +74,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   /// [StreamController] of changes of this list.
   final _changes =
-      StreamController<ListChangeNotification<E>>.broadcast(sync: true);
+      StreamController<ListChangeNotification<E>>.broadcast();
 
   /// Returns stream of changes of this list.
   Stream<ListChangeNotification<E>> get changes => _changes.stream;

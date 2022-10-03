@@ -676,9 +676,10 @@ class ChatController extends GetxController {
       // [_messageInitializedWorker] to determine the initial messages list
       // index and offset.
       if (!chat!.status.value.isSuccess) {
-        _messageInitializedWorker = ever(chat!.status, (RxStatus status) {
+        _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
           if (_messageInitializedWorker != null) {
             if (status.isSuccess) {
+              await Future.delayed(Duration.zero);
               _messageInitializedWorker?.dispose();
               _messageInitializedWorker = null;
 
@@ -694,6 +695,7 @@ class ChatController extends GetxController {
           }
         });
       } else {
+        await Future.delayed(Duration.zero);
         _determineLastRead();
         var result = _calculateListViewIndex();
         initIndex = result.index;
@@ -710,11 +712,12 @@ class ChatController extends GetxController {
       Rx<ChatItem>? firstUnread = _firstUnreadItem;
       _determineLastRead();
 
-      // Scroll to the last message if [_lastRead] was updated. Otherwise,
-      // [FlutterListViewDelegate.keepPosition] handles this as the last read
-      // item is already in the list.
-      if (firstUnread?.value.id != _firstUnreadItem?.value.id) {
-        _scrollToLast();
+      // Scroll to the last message if [_firstUnreadItem] was updated.
+      // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+      // last read item is already in the list.
+      if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
+          chat!.chat.value.unreadCount == 0) {
+        _scrollToLastRead();
       }
 
       status.value = RxStatus.success();
@@ -1107,7 +1110,7 @@ class ChatController extends GetxController {
   }
 
   /// Scrolls to the last read message.
-  void _scrollToLast() {
+  void _scrollToLastRead() {
     Future.delayed(Duration.zero, () {
       if (listController.hasClients) {
         if (chat?.messages.isEmpty == false) {
@@ -1131,7 +1134,7 @@ class ChatController extends GetxController {
           });
         }
       } else {
-        _scrollToLast();
+        _scrollToLastRead();
       }
     });
   }
