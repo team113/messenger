@@ -54,7 +54,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -235,7 +234,7 @@ void main() async {
         home: Builder(
           builder: (BuildContext context) {
             router.context = context;
-            return Scaffold(body: ContextMenuOverlay(child: child));
+            return Scaffold(body: child);
           },
         ));
   }

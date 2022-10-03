@@ -1297,51 +1297,48 @@ Widget _primaryView(CallController c) {
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
-                            menu: ContextMenu(
-                              key: ObjectKey(participant),
-                              actions: [
-                                if (participant.video.value?.renderer.value !=
-                                    null) ...[
-                                  if (participant.source ==
-                                      MediaSourceKind.Device)
-                                    ContextMenuButton(
-                                      label: fit == null || fit == BoxFit.cover
-                                          ? 'btn_call_do_not_cut_video'.l10n
-                                          : 'btn_call_cut_video'.l10n,
-                                      onPressed: () {
-                                        c.rendererBoxFit[participant
-                                            .video.value!.renderer.value!.track
-                                            .id()] = fit == null ||
-                                                fit == BoxFit.cover
-                                            ? BoxFit.contain
-                                            : BoxFit.cover;
-                                        if (c.focused.isNotEmpty) {
-                                          c.focused.refresh();
-                                        } else {
-                                          c.remotes.refresh();
-                                          c.locals.refresh();
-                                        }
-                                      },
-                                    ),
+                            actions: [
+                              if (participant.video.value?.renderer.value !=
+                                  null) ...[
+                                if (participant.source ==
+                                    MediaSourceKind.Device)
                                   ContextMenuButton(
-                                    label: 'btn_call_center_video'.l10n,
-                                    onPressed: () => c.center(participant),
+                                    label: fit == null || fit == BoxFit.cover
+                                        ? 'btn_call_do_not_cut_video'.l10n
+                                        : 'btn_call_cut_video'.l10n,
+                                    onPressed: () {
+                                      c.rendererBoxFit[participant
+                                          .video.value!.renderer.value!.track
+                                          .id()] = fit == null ||
+                                              fit == BoxFit.cover
+                                          ? BoxFit.contain
+                                          : BoxFit.cover;
+                                      if (c.focused.isNotEmpty) {
+                                        c.focused.refresh();
+                                      } else {
+                                        c.remotes.refresh();
+                                        c.locals.refresh();
+                                      }
+                                    },
                                   ),
-                                ],
-                                if (participant.video.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: (participant
-                                                .video.value?.renderer.value !=
-                                            null)
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () =>
-                                        c.toggleVideoEnabled(participant),
-                                  ),
+                                ContextMenuButton(
+                                  label: 'btn_call_center_video'.l10n,
+                                  onPressed: () => c.center(participant),
+                                ),
                               ],
-                            ),
+                              if (participant.video.value?.direction.value
+                                      .isEmitting ??
+                                  false)
+                                ContextMenuButton(
+                                  label: (participant
+                                              .video.value?.renderer.value !=
+                                          null)
+                                      ? 'btn_call_disable_video'.l10n
+                                      : 'btn_call_enable_video'.l10n,
+                                  onPressed: () =>
+                                      c.toggleVideoEnabled(participant),
+                                ),
+                            ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
                                 participant,
@@ -1818,32 +1815,30 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
-                            menu: ContextMenu(
-                              actions: [
-                                if ((participant.member.owner !=
-                                            MediaOwnerKind.local ||
-                                        participant.source !=
-                                            MediaSourceKind.Display) &&
-                                    participant.video.value?.renderer.value !=
-                                        null)
-                                  ContextMenuButton(
-                                    label: 'btn_call_center_video'.l10n,
-                                    onPressed: () => c.center(participant),
-                                  ),
-                                if (participant.video.value?.direction.value
-                                        .isEmitting ??
-                                    false)
-                                  ContextMenuButton(
-                                    label: (participant
-                                                .video.value?.renderer.value !=
-                                            null)
-                                        ? 'btn_call_disable_video'.l10n
-                                        : 'btn_call_enable_video'.l10n,
-                                    onPressed: () =>
-                                        c.toggleVideoEnabled(participant),
-                                  )
-                              ],
-                            ),
+                            actions: [
+                              if ((participant.member.owner !=
+                                          MediaOwnerKind.local ||
+                                      participant.source !=
+                                          MediaSourceKind.Display) &&
+                                  participant.video.value?.renderer.value !=
+                                      null)
+                                ContextMenuButton(
+                                  label: 'btn_call_center_video'.l10n,
+                                  onPressed: () => c.center(participant),
+                                ),
+                              if (participant.video.value?.direction.value
+                                      .isEmitting ??
+                                  false)
+                                ContextMenuButton(
+                                  label: (participant
+                                              .video.value?.renderer.value !=
+                                          null)
+                                      ? 'btn_call_disable_video'.l10n
+                                      : 'btn_call_enable_video'.l10n,
+                                  onPressed: () =>
+                                      c.toggleVideoEnabled(participant),
+                                )
+                            ],
                             child: IgnorePointer(
                               child: ParticipantOverlayWidget(
                                 participant,
