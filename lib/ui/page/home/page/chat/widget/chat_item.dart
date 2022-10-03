@@ -455,15 +455,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             PlatformUtils.isDesktop ? (d) {} : null,
                         onHorizontalDragEnd:
                             PlatformUtils.isDesktop ? (d) {} : null,
-                        child: Obx(() {
-                          return IgnorePointer(
-                            ignoring: true,
-                            child: SelectableText(
-                              text!,
-                              style: style.boldBody,
-                            ),
-                          );
-                        }),
+                        child: IgnorePointer(
+                          ignoring: true,
+                          child: SelectableText(
+                            text,
+                            style: style.boldBody,
+                          ),
+                        ),
                       ),
                     ),
                   ),
