@@ -40,19 +40,17 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     final Set<String> quantityMessages = {};
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final String? lastItemId = chat?.messages.last.value.id.val;
+    final String? lastChatItemId = chat?.messages.last.value.id.val;
 
     try {
       await context.world.appDriver.scrollUntilVisible(
         find.byWidgetPredicate(
           (Widget widget) {
-            if (widget is ChatItemWidget) {
-              final ChatItem chatItem = widget.item.value;
-              if (chatItem is ChatMessage) {
-                quantityMessages.add(chatItem.id.val);
-                if (chatItem.id.val == lastItemId) {
-                  return true;
-                }
+            String? currentKey = (widget.key as ValueKey<String>?)?.value;
+            if (currentKey != null && currentKey.contains('Message_') == true) {
+              quantityMessages.add(currentKey);
+              if (currentKey == 'Message_$lastChatItemId') {
+                return true;
               }
             }
             return false;
