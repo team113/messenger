@@ -356,7 +356,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
       String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
       return [
         MaterialPage(
