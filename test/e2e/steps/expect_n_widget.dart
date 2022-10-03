@@ -18,9 +18,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/routes.dart';
 
 /// Indicates whether the provided number of specific [Widget]s are visible.
 ///
@@ -28,13 +33,14 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 /// - Then I expect to see 1 `ChatMessage`
 final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     then1<int, FlutterWorld>(
-  RegExp(r'I expect to see {int} message(s)'),
+  RegExp(r'I expect to see {int} message(s) in chat'),
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
-    const int maxText = ChatMessageText.maxLength;
     final Set<String> quantityMessages = {};
-    final Duration timeout = Duration(minutes: quantity);
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    final String? lastItemId = chat?.chat.value.lastItem?.id.val;
 
     await context.world.appDriver.scrollUntilVisible(
       find.byWidgetPredicate(
@@ -43,8 +49,7 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
             final ChatItem chatItem = widget.item.value;
             if (chatItem is ChatMessage) {
               quantityMessages.add(chatItem.id.val);
-              final int? lengthMessage = chatItem.text?.val.length;
-              if (lengthMessage != null && lengthMessage < maxText) {
+              if ((widget.key as ValueKey<String>).value == lastItemId) {
                 return true;
               }
             }
@@ -57,7 +62,6 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
         of: find.byType(FlutterListView),
         matching: find.byType(Scrollable),
       ),
-      timeout: timeout,
       dy: -delta,
     );
     await context.world.appDriver.waitForAppToSettle();
