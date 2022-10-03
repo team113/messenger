@@ -602,7 +602,9 @@ class ChatController extends GetxController {
       _messagesWorker ??= ever(
         chat!.messages,
         (_) {
-          if (atBottom) {
+          if (atBottom &&
+              status.value.isSuccess &&
+              !status.value.isLoadingMore) {
             Future.delayed(
               Duration.zero,
               () => SchedulerBinding.instance.addPostFrameCallback(
@@ -643,7 +645,9 @@ class ChatController extends GetxController {
                     element.forwards.first.value.authorId != me);
           });
 
-          if (_lastVisibleItem != null && status.value.isSuccess) {
+          if (_lastVisibleItem != null &&
+              status.value.isSuccess &&
+              !status.value.isLoadingMore) {
             ListElement element =
                 elements.values.elementAt(_lastVisibleItem!.index);
 
@@ -1034,10 +1038,14 @@ class ChatController extends GetxController {
     PreciseDateTime? myRead = chat!.chat.value.lastReads
         .firstWhereOrNull((e) => e.memberId == me)
         ?.at;
-    if (chat!.chat.value.unreadCount != 0 && myRead != null) {
-      _firstUnreadItem = chat!.messages.firstWhereOrNull(
-        (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
-      );
+    if (chat!.chat.value.unreadCount != 0) {
+      if (myRead != null) {
+        _firstUnreadItem = chat!.messages.firstWhereOrNull(
+          (e) => myRead.isBefore(e.value.at) && e.value.authorId != me,
+        );
+      } else {
+        _firstUnreadItem = chat!.messages.firstOrNull;
+      }
 
       if (_firstUnreadItem != null) {
         if (_unreadElement != null) {
