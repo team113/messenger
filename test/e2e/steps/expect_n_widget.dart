@@ -38,8 +38,9 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
     final Set<String> quantityMessages = {};
-    final RxChat chat = Get.find<ChatService>().chats.values.last;
-    final String lastItemId = chat.messages.last.value.id.val;
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+    final String? lastItemId = chat?.messages.last.value.id.val;
 
     try {
       await context.world.appDriver.scrollUntilVisible(
