@@ -46,11 +46,13 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
       await context.world.appDriver.scrollUntilVisible(
         find.byWidgetPredicate(
           (Widget widget) {
-            String? currentKey = (widget.key as ValueKey<String>?)?.value;
-            if (currentKey != null && currentKey.contains('Message_') == true) {
-              quantityMessages.add(currentKey);
-              if (currentKey == 'Message_$lastChatItemId') {
-                return true;
+            if (widget is ChatItemWidget) {
+              final ChatItem chatItem = widget.item.value;
+              if (chatItem is ChatMessage) {
+                quantityMessages.add(chatItem.id.val);
+                if (chatItem.id.val == lastChatItemId) {
+                  return true;
+                }
               }
             }
             return false;
