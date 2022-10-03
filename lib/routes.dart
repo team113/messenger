@@ -55,7 +55,6 @@ import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
-import 'ui/widget/context_menu/overlay.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
@@ -357,7 +356,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
       String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
       return [
         MaterialPage(
@@ -581,8 +580,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) => LifecycleObserver(
         didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
-        child: ContextMenuOverlay(
-          child: Navigator(
+        child: Scaffold(
+          body: Navigator(
             key: navigatorKey,
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
