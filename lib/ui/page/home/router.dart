@@ -20,7 +20,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
