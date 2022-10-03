@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.6.1] · 2022-??-??
+## [0.1.0-alpha.6.1] · 2022-10-03
 [0.1.0-alpha.6.1]: /../../tree/v0.1.0-alpha.6.1
 
 [Diff](/../../compare/v0.1.0-alpha.6...v0.1.0-alpha.6.1) | [Milestone](/../../milestone/3)
