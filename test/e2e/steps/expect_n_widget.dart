@@ -34,7 +34,7 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
     const double delta = 100;
     const int maxText = ChatMessageText.maxLength;
     final Set<String> quantityMessages = {};
-    final Duration timeout = Duration(seconds: quantity * 20);
+    final Duration timeout = Duration(minutes: quantity);
 
     await context.world.appDriver.scrollUntilVisible(
       find.byWidgetPredicate(
