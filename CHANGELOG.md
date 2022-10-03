@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.6.1] · 2022-??-??
+[0.1.0-alpha.6.1]: /../../tree/v0.1.0-alpha.6.1
+
+[Diff](/../../compare/v0.1.0-alpha.6...v0.1.0-alpha.6.1) | [Milestone](/../../milestone/3)
+
+### Fixed
+
+- Web:
+    - Application not loading due to IndexedDB error. ([#154])
+
+[#154]: /../../pull/154
+
+
+
+
 ## [0.1.0-alpha.6] · 2022-09-28
 [0.1.0-alpha.6]: /../../tree/v0.1.0-alpha.6
 

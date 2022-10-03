@@ -101,11 +101,8 @@ external dynamic webkitFullscreenElement;
 @JS('document.msFullscreenElement')
 external dynamic msFullscreenElement;
 
-@JS('indexedDB.databases')
-external databases();
-
-@JS('indexedDB.deleteDatabase')
-external deleteDatabase(String name);
+@JS('cleanIndexedDB')
+external cleanIndexedDB();
 
 @JS('window.isPopup')
 external bool _isPopup;
@@ -315,9 +312,10 @@ class WebUtils {
 
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
-    var qs = await promiseToFuture(databases());
-    for (int i = 0; i < qs.length; i++) {
-      deleteDatabase(qs[i].name);
+    try {
+      await promiseToFuture(cleanIndexedDB());
+    } catch (e) {
+      consoleError(e);
     }
   }
 
