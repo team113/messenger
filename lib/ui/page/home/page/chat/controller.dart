@@ -695,7 +695,6 @@ class ChatController extends GetxController {
           }
         });
       } else {
-        await Future.delayed(Duration.zero);
         _determineLastRead();
         var result = _calculateListViewIndex();
         initIndex = result.index;
@@ -712,8 +711,9 @@ class ChatController extends GetxController {
       Rx<ChatItem>? firstUnread = _firstUnreadItem;
       _determineLastRead();
 
-      // Scroll to the last message if [_firstUnreadItem] was updated.
-      // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+      // Scroll to the last read message if [_firstUnreadItem] was updated or
+      // there are no unread messages in [chat]. Otherwise,
+      // [FlutterListViewDelegate.keepPosition] handles this as the
       // last read item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
           chat!.chat.value.unreadCount == 0) {
