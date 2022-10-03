@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - Web:
-    - Application not loading. ([#154])
+    - Application not loading due to IndexedDB error. ([#154])
 
 [#154]: /../../pull/154
 
