@@ -405,7 +405,13 @@ class _ChatViewState extends State<ChatView>
           onJoinCall: c.joinCall,
           onHide: () => c.hideChatItem(item.value),
           onDelete: () => c.deleteMessage(item.value),
-          onReply: () => c.repliedMessage.value = item.value,
+          onReply: () {
+            if (c.repliedMessages.contains(item.value)) {
+              c.repliedMessages.remove(item.value);
+            } else {
+              c.repliedMessages.insert(0, item.value);
+            }
+          },
           onCopy: (text) => c.copyText(text),
           onRepliedTap: (id) => c.animateTo(id),
           onForwardedTap: (id, chatId) {
@@ -419,14 +425,13 @@ class _ChatViewState extends State<ChatView>
           onGallery: c.calculateGallery,
           onResend: () => c.resendItem(item.value),
           onEdit: () => c.editMessage(item.value),
-          onFileTap: c.download,
+          onFileTap: (a) => c.download(item.value, a),
           onAttachmentError: () async {
-                                              await c.chat
-                                                  ?.updateAttachments(e.value);
-                                              await Future.delayed(
-                                                Duration.zero,
-                                              );
-                                            },
+            await c.chat?.updateAttachments(item.value);
+            await Future.delayed(
+              Duration.zero,
+            );
+          },
         ),
       ),
     );
