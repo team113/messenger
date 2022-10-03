@@ -32,7 +32,6 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
     const double delta = 100;
-    final Duration timeout = Duration(seconds: quantity * 30);
     final Set<String> quantityMessages = {};
 
     try {
@@ -54,7 +53,6 @@ final StepDefinitionGeneric<FlutterWorld> expectNWidget =
           matching: find.byType(Scrollable),
         ),
         dy: -delta,
-        timeout: timeout,
       );
     } catch (_) {
       // No-op.
