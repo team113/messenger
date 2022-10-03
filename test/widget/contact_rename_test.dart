@@ -241,7 +241,7 @@ void main() async {
     await tester.longPress(find.byType(ContextMenuRegion));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.text('btn_change_contact_name'.l10n));
+    await tester.tap(find.text('btn_rename'.l10n));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(

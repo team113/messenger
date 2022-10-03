@@ -279,10 +279,6 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     });
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      _enterFullscreen();
-    }
-
     node.requestFocus();
 
     Future.delayed(Duration.zero, () {
