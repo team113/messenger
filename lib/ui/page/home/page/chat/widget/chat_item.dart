@@ -1109,7 +1109,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 width: 18.8,
                                 height: 16,
                               ),
-                              onPressed: () => widget.onReply?.call(),
+                              onPressed: widget.onReply,
                             ),
                             if (item is ChatMessage || item is ChatForward)
                               ContextMenuButton(
@@ -1142,7 +1142,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   width: 17,
                                   height: 17,
                                 ),
-                                onPressed: () => widget.onEdit?.call(),
+                                onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
                               key: const Key('Delete'),
@@ -1197,7 +1197,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 width: 18.37,
                                 height: 16,
                               ),
-                              onPressed: () => widget.onResend?.call(),
+                              onPressed: widget.onResend,
                             ),
                             ContextMenuButton(
                               key: const Key('Delete'),

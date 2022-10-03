@@ -89,7 +89,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
     );
   }
 
-  /// Shows context menu with [widget.actions].
+  /// Populates the [_entry] with [_AnimatedMenu].
   Future<void> _populateEntry(BuildContext context) async {
     HapticFeedback.selectionClick();
 
@@ -118,7 +118,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   }
 }
 
-/// Animated context menu itself.
+/// Animated floating context menu.
 class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
@@ -153,7 +153,7 @@ class _AnimatedMenu extends StatefulWidget {
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
 
-/// State of [_AnimatedMenu] maintaining the animation.
+/// State of an [_AnimatedMenu] maintaining the animation.
 class _AnimatedMenuState extends State<_AnimatedMenu>
     with SingleTickerProviderStateMixin {
   /// [AnimationController] controlling the animation.

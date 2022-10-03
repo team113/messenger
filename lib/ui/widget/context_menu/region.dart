@@ -61,7 +61,7 @@ class ContextMenuRegion extends StatelessWidget {
   /// Only effective under the web, since only web has a default context menu.
   final bool preventContextMenu;
 
-  /// Indicator whether context menu should be displayed on long tap.
+  /// Indicator whether context menu should be displayed on a long tap.
   final bool enableLongTap;
 
   @override
@@ -97,7 +97,7 @@ class ContextMenuRegion extends StatelessWidget {
     return child;
   }
 
-  /// Shows the [ContextMenu] with [actions].
+  /// Shows the [ContextMenu] wrapping the [actions].
   void _show(BuildContext context, Offset position) {
     if (actions.isEmpty) {
       return;
