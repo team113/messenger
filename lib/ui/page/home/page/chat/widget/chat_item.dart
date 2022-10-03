@@ -1153,7 +1153,38 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 17,
                               ),
                               onPressed: () async {
-                                await _showDeleteConfirmation(item);
+                                bool deletable = widget.item.value.authorId ==
+                                        widget.me &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage ||
+                                        widget.item.value is ChatForward);
+
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onHide,
+                                      child: Text(
+                                        'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
+                                      ),
+                                    ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
+                                        ),
+                                      )
+                                  ],
+                                );
                               },
                             ),
                           ],
@@ -1177,7 +1208,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 height: 17,
                               ),
                               onPressed: () async {
-                                await _showDeleteConfirmation(item);
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onDelete,
+                                      child: Text(
+                                        'label_delete_for_everyone'.l10n,
+                                        key: const Key('DeleteForAll'),
+                                      ),
+                                    )
+                                  ],
+                                );
                               },
                             ),
                           ],
@@ -1229,59 +1272,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .toList();
       }
     }
-  }
-
-  /// Shows deletion confirmation modal for the provided [item].
-  Future<ConfirmDialog?> _showDeleteConfirmation(ChatItem item) {
-    ThemeData theme = Theme.of(context);
-    final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-
-    bool isError = widget.item.value.status.value == SendingStatus.error;
-
-    bool deletable = widget.item.value.authorId == widget.me &&
-        !widget.chat.value!.isRead(widget.item.value, widget.me) &&
-        (widget.item.value is ChatMessage || widget.item.value is ChatForward);
-
-    ConfirmDialogVariant hide = ConfirmDialogVariant(
-      onProceed: () {
-        widget.onHide?.call();
-      },
-      label: Text(
-        'label_delete_for_me'.l10n,
-        key: const Key('HideForMe'),
-        style: thin?.copyWith(fontSize: 18),
-      ),
-    );
-
-    ConfirmDialogVariant delete = ConfirmDialogVariant(
-      onProceed: () {
-        widget.onDelete?.call();
-      },
-      label: Text(
-        'label_delete_for_everyone'.l10n,
-        key: const Key('DeleteForAll'),
-        style: thin?.copyWith(fontSize: 18),
-      ),
-    );
-
-    List<ConfirmDialogVariant> variants;
-
-    if (isError) {
-      variants = [delete];
-    } else if (deletable) {
-      variants = [hide, delete];
-    } else {
-      variants = [hide];
-    }
-
-    return ConfirmDialog.show(
-      context,
-      variants: variants,
-      title: 'label_delete_message'.l10n,
-      noVariantLabel:
-          deletable ? null : 'label_message_will_deleted_for_you'.l10n,
-    );
   }
 }
 

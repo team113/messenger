@@ -8,7 +8,7 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.0-alpha.7] · 2022-??-??
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
-[Diff](/../../compare/2cb15bb162308d871699dab9817f3d4ef9c1ed48...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
+[Diff](/../../compare/v0.1.0-alpha.6...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
 
 ### Changed
 

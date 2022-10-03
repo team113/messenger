@@ -20,49 +20,50 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 
-/// Region to show context menu with animation below the [child] on a long tap.
+/// Animated context menu optimized and decorated for mobile screens.
 class FloatingContextMenu extends StatefulWidget {
   const FloatingContextMenu({
     Key? key,
     this.alignment = Alignment.bottomCenter,
     required this.actions,
     required this.child,
-    required this.showAbove,
+    this.moveDownwards = true,
   }) : super(key: key);
 
-  /// Widget to show context menu on.
+  /// [Widget] this [FloatingContextMenu] is about.
   final Widget child;
 
-  /// List of [ContextMenuButton]s to display in this [FloatingContextMenu].
+  /// [ContextMenuButton]s representing actions of this [FloatingContextMenu].
   final List<ContextMenuButton> actions;
 
   /// [Alignment] of this [FloatingContextMenu].
   final Alignment alignment;
 
-  /// Indicator whether this [FloatingContextMenu] should be showed above the
-  /// [child].
-  final bool showAbove;
+  /// Indicator whether this [FloatingContextMenu] should animate the [child]
+  /// moving downwards.
+  final bool moveDownwards;
 
   @override
   State<FloatingContextMenu> createState() => _FloatingContextMenuState();
 }
 
-/// State of [FloatingContextMenu] used to show context menu.
+/// State of a [FloatingContextMenu] maintaining the [OverlayEntry] with
+/// [_AnimatedMenu].
 class _FloatingContextMenuState extends State<FloatingContextMenu> {
-  /// [OverlayEntry] of this [FloatingContextMenu].
+  /// [OverlayEntry] to maintain.
   OverlayEntry? _entry;
 
-  /// [GlobalKey] of this [FloatingContextMenu].
+  /// [GlobalKey] of the [FloatingContextMenu.child] to get its position.
   final GlobalKey _key = GlobalKey();
 
-  /// Global [Rect] of the child [Widget].
+  /// [Rect] of the [FloatingContextMenu.child] to animate the [_entry] to.
   Rect? _rect;
 
   @override
@@ -75,12 +76,10 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onLongPress: () {
-        _populateEntry(context);
-      },
+      onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
         key: _key,
-        child: _entry == null || widget.showAbove
+        child: _entry == null || !widget.moveDownwards
             ? widget.child
             : SizedBox(
                 width: _rect?.width ?? 1,
@@ -92,18 +91,22 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
 
   /// Shows context menu with [widget.actions].
   Future<void> _populateEntry(BuildContext context) async {
-    _rect = _key.globalPaintBounds;
     HapticFeedback.selectionClick();
+
+    _rect = _key.globalPaintBounds;
     _entry = OverlayEntry(builder: (context) {
       return _AnimatedMenu(
         globalKey: _key,
         alignment: widget.alignment,
         actions: widget.actions,
-        showAbove: widget.showAbove,
+        showAbove: !widget.moveDownwards,
         onClosed: () {
           _entry?.remove();
           _entry = null;
-          setState(() {});
+
+          if (mounted) {
+            setState(() {});
+          }
         },
         child: widget.child,
       );
@@ -115,7 +118,7 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
   }
 }
 
-/// Animated context menu.
+/// Animated context menu itself.
 class _AnimatedMenu extends StatefulWidget {
   const _AnimatedMenu({
     required this.child,
@@ -127,35 +130,36 @@ class _AnimatedMenu extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  /// [Widget] context menu called on.
+  /// [Widget] this [_AnimatedMenu] is bound to.
   final Widget child;
 
   /// [GlobalKey] of the [child].
   final GlobalKey globalKey;
 
-  /// Callback, called when a close action of this [_AnimatedMenu] is triggered.
+  /// Callback, called when this [_AnimatedMenu] is closed.
   final void Function()? onClosed;
 
-  /// List of [ContextMenuButton]s to display in this [_AnimatedMenu].
+  /// [ContextMenuButton]s to display in this [_AnimatedMenu].
   final List<ContextMenuButton> actions;
 
   /// [Alignment] of this [_AnimatedMenu].
   final Alignment alignment;
 
-  /// Indicator whether this [_AnimatedMenu] should be showed above the [child].
+  /// Indicator whether this [_AnimatedMenu] should be displayed above the
+  /// [child] or otherwise animate the [child] moving downwards.
   final bool showAbove;
 
   @override
   State<_AnimatedMenu> createState() => _AnimatedMenuState();
 }
 
-/// State of [_AnimatedMenu] used to play animation.
+/// State of [_AnimatedMenu] maintaining the animation.
 class _AnimatedMenuState extends State<_AnimatedMenu>
     with SingleTickerProviderStateMixin {
-  /// [AnimationController] controlling the opening and closing animation.
+  /// [AnimationController] controlling the animation.
   late final AnimationController _fading;
 
-  /// Global [Rect] of the [widget.child].
+  /// [Rect] of the [_AnimatedMenu.child].
   late Rect _bounds;
 
   @override
@@ -199,10 +203,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         Animation<Offset> slide = Tween<Offset>(
           begin: const Offset(0, 1),
           end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: _fading,
-          curve: Curves.ease,
-        ));
+        ).animate(CurvedAnimation(parent: _fading, curve: Curves.ease));
 
         return GestureDetector(
           behavior: HitTestBehavior.deferToChild,
@@ -256,9 +257,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                 ),
                               ),
                             ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10),
                           _contextMenu(fade, slide),
                         ],
                       ),
@@ -290,7 +289,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  /// Returns context menu visual representation.
+  /// Returns a visual representation of the context menu itself.
   Widget _contextMenu(Animation<double> fade, Animation<Offset> slide) {
     return Align(
       alignment: widget.alignment,
@@ -307,7 +306,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
               opacity: fade,
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: router.context!.mediaQueryPadding.bottom,
+                  bottom: 10 + router.context!.mediaQueryPadding.bottom,
                 ),
                 child: _actions(),
               ),
@@ -318,15 +317,14 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
     );
   }
 
-  /// Returns [widget.actions] buttons.
+  /// Builds the [_AnimatedMenu.actions].
   Widget _actions() {
     List<Widget> widgets = [];
 
     for (int i = 0; i < widget.actions.length; ++i) {
-      // Adds a button.
       widgets.add(widget.actions[i]);
 
-      // Adds a divider if required.
+      // Add a divider, if required.
       if (i < widget.actions.length - 1) {
         widgets.add(
           Container(
@@ -348,7 +346,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
             decoration: BoxDecoration(
               color: Theme.of(context)
                   .extension<Style>()!
-                  .contextBackgroundColor
+                  .contextMenuBackgroundColor
                   .withAlpha(0xAA),
               borderRadius: BorderRadius.circular(10),
             ),

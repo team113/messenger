@@ -34,10 +34,12 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
   }) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     if (context.isMobile && PlatformUtils.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: Theme.of(context).extension<Style>()!.modalBarrierColor,
+        barrierColor: style.barrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
         isDismissible: isDismissible,
@@ -85,7 +87,7 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: Theme.of(context).extension<Style>()!.modalBarrierColor,
+        barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
         builder: (context) {
           return Center(

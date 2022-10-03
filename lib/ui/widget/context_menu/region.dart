@@ -24,12 +24,16 @@ import 'mobile.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
 /// or a long tap.
+///
+/// Depending on the current platform it displays:
+/// - [ContextMenu] on desktop;
+/// - [FloatingContextMenu] on mobile.
 class ContextMenuRegion extends StatelessWidget {
   const ContextMenuRegion({
     Key? key,
     required this.child,
     this.enabled = true,
-    this.showAbove = false,
+    this.moveDownwards = true,
     this.preventContextMenu = true,
     this.enableLongTap = true,
     this.alignment = Alignment.bottomCenter,
@@ -42,13 +46,14 @@ class ContextMenuRegion extends StatelessWidget {
   /// Indicator whether this region should be enabled.
   final bool enabled;
 
-  /// Indicator whether this region should shows context menu above the [child].
-  final bool showAbove;
+  /// Indicator whether a [FloatingContextMenu] this region displays should
+  /// animate the [child] moving downwards.
+  final bool moveDownwards;
 
-  /// [Alignment] of context menu on mobile.
+  /// [Alignment] of a [FloatingContextMenu] this region displays.
   final Alignment alignment;
 
-  /// [ContextMenuButton] to show.
+  /// [ContextMenuButton]s representing the actions of the context menu.
   final List<ContextMenuButton> actions;
 
   /// Indicator whether a default context menu should be prevented or not.
@@ -74,7 +79,7 @@ class ContextMenuRegion extends StatelessWidget {
           child: PlatformUtils.isMobile
               ? FloatingContextMenu(
                   alignment: alignment,
-                  showAbove: showAbove,
+                  moveDownwards: moveDownwards,
                   actions: actions,
                   child: child,
                 )
@@ -92,7 +97,7 @@ class ContextMenuRegion extends StatelessWidget {
     return child;
   }
 
-  /// Shows context menu with [actions].
+  /// Shows the [ContextMenu] with [actions].
   void _show(BuildContext context, Offset position) {
     if (actions.isEmpty) {
       return;

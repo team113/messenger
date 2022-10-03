@@ -374,7 +374,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             onPressed: () {},
           ),
         ],
-        showAbove: true,
+        moveDownwards: false,
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
           wantKeepAlive: false,

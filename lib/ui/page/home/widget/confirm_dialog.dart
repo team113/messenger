@@ -16,56 +16,57 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/modal_popup.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Variant of a [ConfirmDialog].
 class ConfirmDialogVariant {
-  ConfirmDialogVariant({required this.label, required this.onProceed});
+  const ConfirmDialogVariant({required this.child, this.onProceed});
 
-  /// Callback, of this [ConfirmDialogVariant].
-  void Function() onProceed;
+  /// Callback, called when this [ConfirmDialogVariant] is submitted.
+  final void Function()? onProceed;
 
-  /// Label of this [ConfirmDialogVariant].
-  Widget label;
+  /// [Widget] representing this [ConfirmDialogVariant].
+  final Widget child;
 }
 
-/// Confirmation dialog.
+/// Dialog confirming a specific action from the provided [variants].
+///
+/// Intended to be displayed with the [show] method.
 class ConfirmDialog extends StatefulWidget {
-  const ConfirmDialog({
-    required this.variants,
-    required this.title,
-    this.noVariantLabel,
+  ConfirmDialog({
     Key? key,
-  }) : super(key: key);
+    this.description,
+    required this.title,
+    required this.variants,
+  })  : assert(variants.isNotEmpty),
+        super(key: key);
 
-  /// List of possible [ConfirmDialogVariant]s of this [ConfirmDialog].
+  /// [ConfirmDialogVariant]s of this [ConfirmDialog].
   final List<ConfirmDialogVariant> variants;
 
   /// Title of this [ConfirmDialog].
   final String title;
 
-  /// Label showed when only one [ConfirmDialogVariant] is available.
-  final String? noVariantLabel;
+  /// Optional description to display above the [variants].
+  final String? description;
 
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
   static Future<ConfirmDialog?> show(
     BuildContext context, {
-    required List<ConfirmDialogVariant> variants,
+    String? description,
     required String title,
-    String? noVariantLabel,
+    required List<ConfirmDialogVariant> variants,
   }) {
     return ModalPopup.show<ConfirmDialog?>(
       context: context,
-      desktopConstraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
-      modalConstraints: const BoxConstraints(maxWidth: 500),
       child: ConfirmDialog(
-        variants: variants,
+        description: description,
         title: title,
-        noVariantLabel: noVariantLabel,
+        variants: variants,
       ),
     );
   }
@@ -74,49 +75,78 @@ class ConfirmDialog extends StatefulWidget {
   State<ConfirmDialog> createState() => _ConfirmDialogState();
 }
 
+/// State of a [ConfirmDialog] keeping the selected [ConfirmDialogVariant].
 class _ConfirmDialogState extends State<ConfirmDialog> {
-  late ConfirmDialogVariant _selectedVariant;
+  /// Currently selected [ConfirmDialogVariant].
+  late ConfirmDialogVariant _variant;
 
   @override
   void initState() {
-    assert(widget.variants.isNotEmpty);
-
-    _selectedVariant = widget.variants.first;
+    _variant = widget.variants.first;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
+    // Builds a button representing the provided [ConfirmDialogVariant].
+    Widget button(ConfirmDialogVariant variant) {
+      Style style = Theme.of(context).extension<Style>()!;
+      return Material(
+        type: MaterialType.card,
+        borderRadius: style.cardRadius,
+        child: InkWell(
+          onTap: () => setState(() => _variant = variant),
+          borderRadius: style.cardRadius,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Colors.black, fontSize: 18),
+                    child: variant.child,
+                  ),
+                ),
+                IgnorePointer(
+                  child: Radio<ConfirmDialogVariant>(
+                    value: variant,
+                    groupValue: _variant,
+                    onChanged: null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: 12),
-        Center(
-          child: Text(
-            widget.title,
-            style: thin?.copyWith(fontSize: 18),
-          ),
-        ),
+        Center(child: Text(widget.title, style: thin?.copyWith(fontSize: 18))),
         const SizedBox(height: 25),
+        if (widget.description != null)
+          Center(
+            child: Text(
+              widget.description!,
+              style: thin?.copyWith(fontSize: 18),
+            ),
+          ),
+        if (widget.variants.length > 1 && widget.description != null)
+          const SizedBox(height: 15),
         if (widget.variants.length > 1)
-          ...widget.variants
-              .map((e) => _button(context, variant: e, setState: setState))
-              .expandIndexed(
-                  (i, e) => i > 0 ? [const SizedBox(height: 10), e] : [e])
-        else
-          widget.noVariantLabel != null
-              ? Center(
-                  child: Text(
-                    widget.noVariantLabel!,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                )
-              : Container(),
-        if (widget.variants.length > 1 || widget.noVariantLabel != null)
+          ...widget.variants.map(button).expandIndexed(
+                (i, e) => i > 0 ? [const SizedBox(height: 10), e] : [e],
+              ),
+        if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
         Row(
           children: [
@@ -129,7 +159,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                   style: thin?.copyWith(color: Colors.white),
                 ),
                 onPressed: () {
-                  _selectedVariant.onProceed();
+                  _variant.onProceed?.call();
                   Navigator.of(context).pop();
                 },
                 color: const Color(0xFF63B4FF),
@@ -140,7 +170,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
               child: OutlinedRoundedButton(
                 maxWidth: null,
                 title: Text('btn_cancel'.l10n, style: thin),
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: Navigator.of(context).pop,
                 color: const Color(0xFFEEEEEE),
               ),
             )
@@ -148,42 +178,6 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         ),
         const SizedBox(height: 25),
       ],
-    );
-  }
-
-  /// Returns radio button represented the provided [ConfirmDialogVariant].
-  Widget _button(
-    BuildContext context, {
-    required ConfirmDialogVariant variant,
-    required StateSetter setState,
-  }) {
-    ThemeData theme = Theme.of(context);
-    Style style = theme.extension<Style>()!;
-
-    return Material(
-      type: MaterialType.card,
-      borderRadius: style.cardRadius,
-      child: InkWell(
-        onTap: () => setState(() => _selectedVariant = variant),
-        borderRadius: style.cardRadius,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: variant.label,
-              ),
-              IgnorePointer(
-                child: Radio<ConfirmDialogVariant>(
-                  value: variant,
-                  groupValue: _selectedVariant,
-                  onChanged: (ConfirmDialogVariant? value) {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

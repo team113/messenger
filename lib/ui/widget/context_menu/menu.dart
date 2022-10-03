@@ -32,9 +32,7 @@ class ContextMenu extends StatelessWidget {
 
     for (int i = 0; i < actions.length; ++i) {
       // Adds a button.
-      widgets.add(
-        actions[i],
-      );
+      widgets.add(actions[i]);
 
       // Adds a divider if required.
       if (i < actions.length - 1) {
@@ -52,7 +50,7 @@ class ContextMenu extends StatelessWidget {
       width: 220,
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
-        color: Theme.of(context).extension<Style>()!.contextBackgroundColor,
+        color: Theme.of(context).extension<Style>()!.contextMenuBackgroundColor,
         borderRadius: BorderRadius.circular(10),
         boxShadow: const [
           CustomBoxShadow(
@@ -118,7 +116,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           height: 50,
           decoration: BoxDecoration(
             color: isMouseOver
-                ? Theme.of(context).extension<Style>()!.contextHoveredColor
+                ? Theme.of(context).extension<Style>()!.contextMenuHoveredColor
                 : Colors.transparent,
           ),
           child: Row(
