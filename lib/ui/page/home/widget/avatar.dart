@@ -20,6 +20,7 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -50,6 +51,7 @@ class AvatarWidget extends StatelessWidget {
     this.isOnline = false,
     this.isAway = false,
     this.useLayoutBuilder = true,
+    this.onBadgeTap,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -61,6 +63,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
+    void Function()? onBadgeTap,
   }) =>
       AvatarWidget(
         key: key,
@@ -73,6 +76,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onBadgeTap: onBadgeTap,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -85,6 +89,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
+    void Function()? onBadgeTap,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -95,6 +100,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onBadgeTap: onBadgeTap,
       );
     }
 
@@ -113,6 +119,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onBadgeTap: onBadgeTap,
       );
     });
   }
@@ -125,6 +132,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
+    void Function()? onBadgeTap,
   }) =>
       AvatarWidget(
         isOnline: showBadge && myUser?.online == true,
@@ -136,6 +144,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onBadgeTap: onBadgeTap,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -147,6 +156,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool useLayoutBuilder = true,
+    void Function()? onBadgeTap,
   }) =>
       AvatarWidget(
         key: key,
@@ -158,6 +168,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
+        onBadgeTap: onBadgeTap,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -170,6 +181,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool showBadge = true,
     bool useLayoutBuilder = true,
+    void Function()? onBadgeTap,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -180,6 +192,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
+        onBadgeTap: onBadgeTap,
       );
     }
 
@@ -196,6 +209,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
+        onBadgeTap: onBadgeTap,
       ),
     );
   }
@@ -305,6 +319,8 @@ class AvatarWidget extends StatelessWidget {
 
   final bool useLayoutBuilder;
 
+  final void Function()? onBadgeTap;
+
   /// Avatar color swatches.
   static const List<Color> colors = [
     Colors.purple,
@@ -382,12 +398,15 @@ class AvatarWidget extends StatelessWidget {
 
       return Badge(
         showBadge: isOnline,
-        badgeContent: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isAway ? Colors.orange : Colors.green,
+        badgeContent: WidgetButton(
+          onPressed: onBadgeTap,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isAway ? Colors.orange : Colors.green,
+            ),
+            padding: EdgeInsets.all(badgeSize),
           ),
-          padding: EdgeInsets.all(badgeSize),
         ),
         padding: EdgeInsets.all(badgeSize / 3),
         badgeColor: Colors.white,

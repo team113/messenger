@@ -197,7 +197,7 @@ class MyProfileView extends StatelessWidget {
                           leading: const Icon(Icons.workspaces),
                           title: Text('Personalization'.l10n),
                           onTap: () => router.personalization(push: true),
-                        )
+                        ),
                       ],
                     ),
                   ),

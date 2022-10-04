@@ -113,7 +113,9 @@ class MyUserView extends StatelessWidget {
                 const SizedBox(width: 10),
               ],
             ),
-            leading: const [StyledBackButton()],
+            leading: context.isNarrow
+                ? const [StyledBackButton()]
+                : const [SizedBox(width: 30)],
             automaticallyImplyLeading: false,
             actions: [
               Padding(
@@ -160,10 +162,32 @@ class MyUserView extends StatelessWidget {
               }),
             );
           }),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-            child: _sendField(context, c),
-          ),
+          floatingActionButton: context.isNarrow
+              ? FloatingActionButton(
+                  onPressed: () {
+                    if (router.navigation.value == null) {
+                      router.navigation.value = Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        child: _sendField(context, c),
+                      );
+                    } else {
+                      router.navigation.value = null;
+                    }
+                  },
+                  backgroundColor: const Color(0xFF63B4FF),
+                  child: Obx(() {
+                    return router.navigation.value == null
+                        ? const Icon(Icons.add_rounded, color: Colors.white)
+                        : const Icon(Icons.close_rounded, color: Colors.white);
+                  }),
+                )
+              : null,
+          bottomNavigationBar: context.isNarrow
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  child: _sendField(context, c),
+                ),
         );
       },
     );

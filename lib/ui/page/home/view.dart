@@ -17,6 +17,10 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
+
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -243,17 +247,27 @@ class _HomeViewState extends State<HomeView> {
                                   CustomNavigationBarItem(
                                     key: const Key('MenuButton'),
                                     // icon: FontAwesomeIcons.bars,
-                                    leading: Padding(
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: Obx(
-                                        () => AnimatedOpacity(
-                                          duration: 150.milliseconds,
-                                          opacity: c.page.value == HomeTab.menu
-                                              ? 1
-                                              : 0.6,
-                                          child: AvatarWidget.fromMyUser(
-                                            c.myUser.value,
-                                            radius: 15,
+                                    leading: ContextMenuRegion(
+                                      actions: [
+                                        ContextMenuButton(
+                                          label: 'Status',
+                                          onPressed: () {},
+                                        ),
+                                      ],
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 2),
+                                        child: Obx(
+                                          () => AnimatedOpacity(
+                                            duration: 150.milliseconds,
+                                            opacity:
+                                                c.page.value == HomeTab.menu
+                                                    ? 1
+                                                    : 0.6,
+                                            child: AvatarWidget.fromMyUser(
+                                              c.myUser.value,
+                                              radius: 15,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -263,12 +277,25 @@ class _HomeViewState extends State<HomeView> {
                                 ],
                                 currentIndex: router.tab.index,
                                 onTap: (i) {
+                                  // if (i == 3) {
+                                  //   showModalBottomSheet(
+                                  //     context: context,
+                                  //     isScrollControlled: true,
+                                  //     enableDrag: false,
+                                  //     isDismissible: false,
+                                  //     builder: (context) {
+                                  //       return const MenuTabView();
+                                  //     },
+                                  //   );
+                                  // } else {
                                   c.pages.jumpToPage(i);
+                                  // }
                                 },
                               );
 
-                          return AnimatedSwitcher(
-                            duration: 250.milliseconds,
+                          return AnimatedSizeAndFade(
+                            fadeDuration: 250.milliseconds,
+                            sizeDuration: 250.milliseconds,
                             child: child,
                           );
                         }),

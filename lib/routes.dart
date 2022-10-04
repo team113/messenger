@@ -658,6 +658,9 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.me] page.
   void me({bool push = false}) => push ? this.push(Routes.me) : go(Routes.me);
 
+  void menu({bool push = false}) =>
+      push ? this.push(Routes.menu) : go(Routes.menu);
+
   /// Changes router location to the [Routes.contact] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.

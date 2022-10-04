@@ -41,6 +41,7 @@ class StyledBackButton extends StatelessWidget {
         // ),
       );
     } else {
+      return const SizedBox(width: 30);
       return Container();
     }
   }

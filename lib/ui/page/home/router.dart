@@ -15,6 +15,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:messenger/domain/service/auth.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -53,7 +55,11 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
+    List<Page<dynamic>> pages = [
+      MaterialPage(
+        child: _NestedHomeView(Get.find<AuthService>().userId!, _state.tab),
+      )
+    ];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
@@ -219,5 +225,22 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
         ),
       ),
     );
+  }
+}
+
+class _NestedHomeView extends StatelessWidget {
+  const _NestedHomeView(this.me, this.tab, {Key? key}) : super(key: key);
+
+  final UserId me;
+  final HomeTab tab;
+
+  @override
+  Widget build(BuildContext context) {
+    print('tab is $tab');
+    if (!context.isNarrow && tab == HomeTab.menu) {
+      return UserView(me);
+    }
+
+    return Container();
   }
 }
