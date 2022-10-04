@@ -2,7 +2,7 @@ apiVersion: v2
 name: messenger
 description: Open-source front-end part of messenger by team113.
 version: 0.1.0
-appVersion: 0.1.0-alpha.6
+appVersion: 0.1.0-alpha.6.1
 type: application
 sources:
   - https://github.com/team113/messenger

@@ -20,7 +20,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
@@ -51,9 +50,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [
-      _CustomPage(child: _NestedHomeView(_state.tab))
-    ];
+    List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
       if (route == Routes.me) {
@@ -140,35 +137,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     // This is not required for inner router delegate because it doesn't parse
     // routes.
     assert(false, 'unexpected setNewRoutePath() call');
-  }
-}
-
-/// View of the [Routes.home] page of the nested navigation.
-///
-/// Returns different content based on the [tab] value.
-/// - `Choose a contact` label on [HomeTab.contacts].
-/// - `Choose a chat` label on [HomeTab.chats].
-/// - [MyProfileView] on [HomeTab.menu].
-class _NestedHomeView extends StatelessWidget {
-  const _NestedHomeView(this.tab, {Key? key}) : super(key: key);
-
-  /// Selected [HomeTab] value.
-  final HomeTab tab;
-
-  @override
-  Widget build(BuildContext context) {
-    if (context.isMobile) {
-      return const Scaffold(backgroundColor: Colors.transparent);
-    }
-
-    switch (tab) {
-      case HomeTab.chats:
-        return Scaffold(body: Center(child: Text('label_choose_chat'.l10n)));
-      case HomeTab.contacts:
-        return Scaffold(body: Center(child: Text('label_choose_contact'.l10n)));
-      case HomeTab.menu:
-        return Scaffold(body: Center(child: Text('label_temp_plug'.l10n)));
-    }
   }
 }
 
