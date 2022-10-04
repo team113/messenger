@@ -716,8 +716,7 @@ class ChatController extends GetxController {
       // [FlutterListViewDelegate.keepPosition] handles this as the
       // last read item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
-          (chat!.chat.value.unreadCount == 0 &&
-              initIndex != chat!.messages.length - 1)) {
+          chat!.chat.value.unreadCount == 0) {
         _scrollToLastRead();
       }
 
@@ -1112,7 +1111,7 @@ class ChatController extends GetxController {
 
   /// Scrolls to the last read message.
   void _scrollToLastRead() {
-    Future.delayed(Duration.zero, () {
+    Future.delayed(1.milliseconds, () {
       if (listController.hasClients) {
         if (chat?.messages.isEmpty == false) {
           var result = _calculateListViewIndex(false);
