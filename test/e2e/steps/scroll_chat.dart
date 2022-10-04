@@ -14,61 +14,61 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
-/// Indicates whether the provided number of specific [Widget]s are visible.
+/// Scrolls the currently opened [Chat] and ensures the provided number of
+/// [ChatMessage]s are visible.
 ///
 /// Examples:
-/// - Then I expect to see 1 `ChatMessage`
-final StepDefinitionGeneric<FlutterWorld> expectNWidget =
+/// - Then I scroll and see 1 message in chat
+/// - Then I scroll and see 2 messages in chat
+final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
     then1<int, FlutterWorld>(
-  RegExp(r'I expect to see {int} message(s) in chat'),
+  RegExp(r'I scroll and see {int} message(s) in chat'),
   (int quantity, StepContext<FlutterWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
-    const double delta = 100;
-    final Set<String> quantityMessages = {};
+
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final String? lastChatItemId = chat?.messages.last.value.id.val;
+    final Set<ChatItemId> ids = {};
 
-    try {
-      await context.world.appDriver.scrollUntilVisible(
-        find.byWidgetPredicate(
-          (Widget widget) {
-            if (widget is ChatItemWidget) {
-              final ChatItem chatItem = widget.item.value;
-              if (chatItem is ChatMessage) {
-                quantityMessages.add(chatItem.id.val);
-                if (chatItem.id.val == lastChatItemId) {
-                  return true;
-                }
+    await context.world.appDriver.scrollUntilVisible(
+      find.byWidgetPredicate(
+        (Widget widget) {
+          if (widget is ChatItemWidget) {
+            final ChatItem item = widget.item.value;
+            if (item is ChatMessage) {
+              ids.add(item.id);
+              if (item.id == chat?.messages.lastOrNull?.value.id) {
+                return true;
               }
             }
-            return false;
-          },
-          skipOffstage: false,
-        ),
-        scrollable: find.descendant(
-          of: find.byType(FlutterListView),
-          matching: find.byType(Scrollable),
-        ),
-        dy: -delta,
-      );
-    } catch (_) {
-      // No-op.
-    }
+          }
+          return false;
+        },
+        skipOffstage: false,
+      ),
+      scrollable: find.descendant(
+        of: find.byType(FlutterListView),
+        matching: find.byType(Scrollable),
+      ),
+      dy: 100,
+    );
+
     await context.world.appDriver.waitForAppToSettle();
-    expect(quantityMessages.length, quantity);
+
+    expect(ids.length, quantity);
   },
 );
