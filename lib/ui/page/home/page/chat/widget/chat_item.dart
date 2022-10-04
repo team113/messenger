@@ -344,13 +344,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (snapshot.data?.user.value != null)
-                          Text(
-                            snapshot.data?.user.value.name?.val ??
-                                snapshot.data?.user.value.num.val ??
-                                '...',
-                            style: style.boldBody.copyWith(color: color),
-                          ),
+                        Text(
+                          snapshot.data?.user.value.name?.val ??
+                              snapshot.data?.user.value.num.val ??
+                              '...',
+                          style: style.boldBody.copyWith(color: color),
+                        ),
                         if (content != null) ...[
                           const SizedBox(height: 2),
                           content,
@@ -667,13 +666,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (snapshot.data?.user.value != null)
-                      Text(
-                        snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
-                            '...',
-                        style: style.boldBody.copyWith(color: color),
-                      ),
+                    Text(
+                      snapshot.data?.user.value.name?.val ??
+                          snapshot.data?.user.value.num.val ??
+                          '...',
+                      style: style.boldBody.copyWith(color: color),
+                    ),
                     if (content != null) ...[
                       const SizedBox(height: 2),
                       DefaultTextStyle.merge(
