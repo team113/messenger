@@ -422,7 +422,7 @@ class _ChatViewState extends State<ChatView>
                                             child: const Icon(
                                                 Icons.arrow_downward),
                                           )
-                                        : const SizedBox.shrink(),
+                                        : Container(),
                           ),
                         ),
                       ),
@@ -509,13 +509,13 @@ class _ChatViewState extends State<ChatView>
                   });
                 }
 
-                return const SizedBox.shrink();
+                return Container();
               },
             );
           }
         }
 
-        return const SizedBox.shrink();
+        return Container();
       },
     );
   }
@@ -1001,7 +1001,7 @@ class _ChatViewState extends State<ChatView>
           ),
         );
       } else {
-        return const SizedBox.shrink();
+        return Container();
       }
     });
   }

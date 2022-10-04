@@ -42,7 +42,7 @@ class StyledBackButton extends StatelessWidget {
         ),
       );
     } else {
-      return const SizedBox.shrink();
+      return Container();
     }
   }
 }

@@ -164,7 +164,7 @@ class UserView extends StatelessWidget {
         style: const TextStyle(color: Color(0xFF888888)),
       );
     }
-    return const SizedBox.shrink();
+    return Container();
   }
 
   /// Returns a [User.bio] text.

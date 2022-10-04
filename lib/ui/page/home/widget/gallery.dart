@@ -125,10 +125,7 @@ class _CarouselGalleryState extends State<CarouselGallery> {
                     ),
                   ),
                 )
-              : const ColoredBox(
-                  color: Colors.white,
-                  child: SizedBox.expand(),
-                ),
+              : Container(color: Colors.white),
           ScrollConfiguration(
             behavior: _MyCustomScrollBehavior(),
             child: CarouselSlider(

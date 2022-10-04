@@ -22,13 +22,13 @@ import 'package:google_fonts/google_fonts.dart';
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
-    final ColorScheme colors = ThemeData.light().colorScheme.copyWith(
-          background: const Color(0xFFF5F8FA),
+    ColorScheme colors = ThemeData.light().colorScheme.copyWith(
           primary: const Color(0xFF888888),
-          secondary: const Color(0xFF63B4FF),
-          onBackground: Colors.black,
           onPrimary: Colors.white,
+          secondary: const Color(0xFF63B4FF),
           onSecondary: Colors.white,
+          background: const Color(0xFFF5F8FA),
+          onBackground: Colors.black,
         );
 
     SystemChrome.setSystemUIOverlayStyle(colors.brightness == Brightness.light
@@ -277,9 +277,9 @@ class Themes {
 /// Shadow cast by a box that allows to customize its [blurStyle].
 class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
-    Color color = Colors.black,
+    Color color = const Color(0xFF000000),
     Offset offset = Offset.zero,
-    double blurRadius = 0,
+    double blurRadius = 0.0,
     BlurStyle blurStyle = BlurStyle.normal,
   })  : _blurStyle = blurStyle,
         super(

@@ -136,7 +136,7 @@ class ChatInfoView extends StatelessWidget {
             leading: const Icon(Icons.link),
             title: Text('label_direct_chat_link'.l10n),
           ),
-          collapsed: const SizedBox.shrink(),
+          collapsed: Container(),
           expanded: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(

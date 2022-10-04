@@ -38,7 +38,7 @@ extension AdditionalFormatting on PreciseDateTime {
       final String month = val.month.toString().padLeft(2, '0');
       return '${val.year}-$month-$day';
     } else {
-      return 'label_abbreviation_weekday_${val.weekday}'.l10n;
+      return 'label_short_weekday'.l10nfmt({'weekday': val.weekday});
     }
   }
 }

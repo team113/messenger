@@ -136,7 +136,7 @@ class ParticipantWidget extends StatelessWidget {
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
             child: !hasVideo
-                ? const SizedBox.shrink()
+                ? Container()
                 : Center(
                     child: RtcVideoView(
                       participant.video.value!.renderer.value
@@ -178,7 +178,7 @@ class ParticipantWidget extends StatelessWidget {
                 width: 90,
               ),
             )
-          : const SizedBox.shrink(),
+          : Container(),
     );
   }
 }

@@ -252,13 +252,6 @@ err_you_already_has_unconfirmed_phone = You already has unconfirmed Phone
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
 label_a_of_b = {$a} of {$b}
-label_abbreviation_weekday_1 = Mon
-label_abbreviation_weekday_2 = Tue
-label_abbreviation_weekday_3 = Wed
-label_abbreviation_weekday_4 = Thu
-label_abbreviation_weekday_5 = Fri
-label_abbreviation_weekday_6 = Sat
-label_abbreviation_weekday_7 = Sun
 label_add_chat_member = Add member
 label_add_email = Add an email
 label_add_email_hint = Write your email address
@@ -323,9 +316,12 @@ label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
+label_chat_created = Chat created
 label_chat_members = Members
 label_chat_monolog = Saved messages
 label_chats = Messages
+label_chat_was_added = was added
+label_chat_was_removed = was removed
 label_choose_chat = Choose a chat
 label_choose_contact = Choose a contact
 label_contact = Contact
@@ -450,6 +446,17 @@ label_set_new_password = Set a new password to log into your account
 label_settings = Settings
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, Login, Email or Phone
+label_short_weekday =
+    {$weekday ->
+        [1] Mon
+        [2] Tue
+        [3] Wed
+        [4] Thu
+        [5] Fri
+        [6] Sat
+        [7] Sun
+        *[other] ...
+    }
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts

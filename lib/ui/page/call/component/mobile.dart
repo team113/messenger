@@ -74,7 +74,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Secondary panel itself.
         Obx(() {
           if (c.minimized.value) {
-            return const SizedBox.shrink();
+            return Container();
           }
 
           return Listener(
@@ -174,7 +174,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     OngoingCallState.active &&
                                 (c.state.value == OngoingCallState.joining ||
                                     isOutgoing);
-                            final String state =
+                            String state =
                                 c.state.value == OngoingCallState.active
                                     ? c.duration.value
                                         .toString()
@@ -208,7 +208,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                         ),
                       ),
                     )
-                  : const SizedBox.shrink(),
+                  : Container(),
             ),
           ],
         );
@@ -239,7 +239,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   ),
                 )
-              : const SizedBox.shrink(),
+              : Container(),
         );
       }),
     );
@@ -269,10 +269,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                             (e) => e.video.value?.renderer.value != null) !=
                         null) &&
                     !c.minimized.value)
-                ? const ColoredBox(
-                    color: Color(0x55000000),
-                    child: SizedBox.expand(),
-                  )
+                ? Container(color: const Color(0x55000000))
                 : null,
           ),
         );
@@ -281,7 +278,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Listen to the taps only if the call is not minimized.
       Obx(() {
         return c.minimized.value
-            ? const SizedBox.shrink()
+            ? Container()
             : Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: (d) {
@@ -595,7 +592,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     ];
 
     // Combines all the stackable content into [Scaffold].
-    final Widget scaffold = Scaffold(
+    Widget scaffold = Scaffold(
       backgroundColor: const Color(0xFF444444),
       body: Stack(
         children: [
@@ -696,7 +693,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         bool isOutgoing =
             (c.outgoing || c.state.value == OngoingCallState.local) &&
                 !c.started;
-        final String state = c.state.value == OngoingCallState.active
+        String state = c.state.value == OngoingCallState.active
             ? c.duration.value.localizedString()
             : c.state.value == OngoingCallState.joining
                 ? 'label_call_joining'.l10n
@@ -854,7 +851,7 @@ Widget _primaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? const SizedBox.shrink()
+                        ? Container()
                         : ParticipantOverlayWidget(
                             participant,
                             key: ObjectKey(participant),
@@ -938,7 +935,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
       if (c.secondary.isEmpty) {
-        return const SizedBox.shrink();
+        return Container();
       }
 
       double? left = c.secondaryLeft.value;
@@ -989,7 +986,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   );
                 }
 
-                return const SizedBox.shrink();
+                return Container();
               }),
             ),
           ),
@@ -1013,15 +1010,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         height: double.infinity,
                         fit: BoxFit.cover,
                       ),
-                      const ColoredBox(
-                        color: Color(0x11FFFFFF),
-                        child: SizedBox.expand(),
-                      ),
+                      Container(color: const Color(0x11FFFFFF)),
                     ],
                   );
                 }
 
-                return const SizedBox.shrink();
+                return Container();
               }),
             ),
           ),
@@ -1090,7 +1084,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? const SizedBox.shrink()
+                        ? Container()
                         : ParticipantOverlayWidget(
                             participant,
                             key: ObjectKey(participant),
@@ -1106,7 +1100,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               if (c.secondaryAlignment.value == null &&
                   !(c.secondary.length == 1 &&
                       c.draggedRenderer.value != null)) {
-                return const SizedBox.shrink();
+                return Container();
               }
 
               return const ParticipantDecoratorWidget();
@@ -1155,7 +1149,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     duration: 200.milliseconds,
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
-                        ? ColoredBox(
+                        ? Container(
                             color: const Color(0x40000000),
                             child: Center(
                               child: AnimatedDelayedScale(
@@ -1200,7 +1194,7 @@ void populateSecondaryEntry(BuildContext context, CallController c) {
   c.secondaryEntry = OverlayEntry(builder: (context) {
     return Obx(() {
       if (c.secondary.isNotEmpty) {
-        return const SizedBox.shrink();
+        return Container();
       }
 
       Axis secondaryAxis =

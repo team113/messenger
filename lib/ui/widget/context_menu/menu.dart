@@ -34,7 +34,7 @@ class ContextMenu extends StatelessWidget {
     // Close this context menu if [actions] are empty.
     if (actions.isEmpty) {
       scheduleMicrotask(() => ContextMenuOverlay.of(context).hide());
-      return const SizedBox.shrink();
+      return Container();
     }
 
     // Border radius is based on the [ContextMenuOverlay]'s alignment.

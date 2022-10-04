@@ -298,7 +298,7 @@ class _DesktopControlsState extends State<DesktopControls>
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: _controller.value.isPlaying
-            ? const SizedBox.shrink()
+            ? Container()
             : AnimatedOpacity(
                 opacity: !_dragging && !_hideStuff ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),

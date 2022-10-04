@@ -54,7 +54,7 @@ Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
-      final List<Widget> content = [
+      List<Widget> content = [
         SvgLoader.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -70,7 +70,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           return Obx(() {
             Alignment? alignment = c.possibleSecondaryAlignment.value;
             if (alignment == null) {
-              return const SizedBox.shrink();
+              return Container();
             }
 
             double width = 10;
@@ -232,7 +232,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }
 
-            return const SizedBox.shrink();
+            return Container();
           }),
         );
       }
@@ -248,7 +248,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 (c.outgoing || c.state.value == OngoingCallState.local) &&
                     !c.started;
 
-            final List<Widget> buttons = isOutgoing
+            List<Widget> buttons = isOutgoing
                 ? [
                     if (PlatformUtils.isMobile)
                       padding(
@@ -496,14 +496,14 @@ Widget desktopCall(CallController c, BuildContext context) {
                           a?.c == c && a?.isRemovable == true,
                       builder: builder,
                     )
-                  : const SizedBox.shrink(),
+                  : Container(),
             );
           }),
         );
       }
 
       // Footer part of the call with buttons.
-      final List<Widget> footer = [
+      List<Widget> footer = [
         // Animated bottom buttons.
         Align(
           alignment: Alignment.bottomCenter,
@@ -548,7 +548,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return const SizedBox.shrink();
+          return Container();
         }),
 
         // Display the more hint, if not dismissed.
@@ -584,12 +584,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ],
                     ),
                   )
-                : const SizedBox.shrink(),
+                : Container(),
           );
         }),
       ];
 
-      final List<Widget> ui = [
+      List<Widget> ui = [
         IgnorePointer(
           child: Obx(() {
             bool preferTitle = c.state.value != OngoingCallState.active;
@@ -599,10 +599,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       c.primary
                           .where((e) => e.video.value?.renderer.value != null)
                           .isNotEmpty
-                  ? const ColoredBox(
-                      color: Color(0x55000000),
-                      child: SizedBox.expand(),
-                    )
+                  ? Container(color: const Color(0x55000000))
                   : null,
             );
           }),
@@ -650,7 +647,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return const SizedBox.shrink();
+          return Container();
         }),
 
         // Sliding from the top title bar.
@@ -806,7 +803,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         ),
                       ),
                     )
-                  : const SizedBox.shrink(),
+                  : Container(),
             );
           }),
         ],
@@ -843,13 +840,13 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                     ),
                   )
-                : const SizedBox.shrink(),
+                : Container(),
           );
         }),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
-            return const SizedBox.shrink();
+            return Container();
           }
 
           return Stack(children: footer);
@@ -857,7 +854,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      final Widget scaffold = Scaffold(
+      Widget scaffold = Scaffold(
         backgroundColor: Colors.black,
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1296,7 +1293,7 @@ Widget _primaryView(CallController c) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? const SizedBox.shrink()
+                        ? Container()
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
@@ -1431,7 +1428,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
     data: MediaQuery.of(context).copyWith(size: c.size),
     child: Obx(() {
       if (c.secondary.isEmpty) {
-        return const SizedBox.shrink();
+        return Container();
       }
 
       double? left, right;
@@ -1506,7 +1503,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
           });
         }
 
-        Widget widget = const SizedBox.shrink();
+        Widget widget = Container();
 
         if (alignment == Alignment.centerLeft) {
           widget = scaler(
@@ -1654,7 +1651,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   );
                 }
 
-                return const SizedBox.shrink();
+                return Container();
               }),
             ),
           ),
@@ -1679,16 +1676,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                             height: double.infinity,
                             fit: BoxFit.cover,
                           ),
-                          const ColoredBox(
-                            color: Color(0x11FFFFFF),
-                            child: SizedBox.expand(),
-                          ),
+                          Container(color: const Color(0x11FFFFFF)),
                         ],
                       ),
                     );
                   }
 
-                  return const SizedBox.shrink();
+                  return Container();
                 }),
               ),
             ),
@@ -1697,49 +1691,49 @@ Widget _secondaryView(CallController c, BuildContext context) {
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.centerLeft)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.centerRight)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomCenter)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topCenter)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topLeft)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.topRight)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomLeft)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == null
                 ? buildDragHandle(Alignment.bottomRight)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           ReorderableFit<_DragData>(
@@ -1782,7 +1776,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return Offset.zero;
             },
             overlayBuilder: (_DragData data) {
-              final Participant participant = data.participant;
+              var participant = data.participant;
 
               return Obx(() {
                 bool muted = participant.member.owner == MediaOwnerKind.local
@@ -1820,7 +1814,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                   child: AnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
-                        ? const SizedBox.shrink()
+                        ? Container()
                         : ContextMenuRegion(
                             key: ObjectKey(participant),
                             preventContextMenu: true,
@@ -2002,25 +1996,25 @@ Widget _secondaryView(CallController c, BuildContext context) {
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerRight
                 ? buildDragHandle(Alignment.centerLeft)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.centerLeft
                 ? buildDragHandle(Alignment.centerRight)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.topCenter
                 ? buildDragHandle(Alignment.bottomCenter)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           positionedBoilerplate(Obx(
             () => c.secondaryAlignment.value == Alignment.bottomCenter
                 ? buildDragHandle(Alignment.topCenter)
-                : const SizedBox.shrink(),
+                : Container(),
           )),
 
           Positioned(
@@ -2273,7 +2267,7 @@ Widget _secondaryTarget(CallController c) {
                 ),
               ),
             )
-          : const SizedBox.shrink(),
+          : Container(),
     );
   });
 }

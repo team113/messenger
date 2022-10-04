@@ -445,15 +445,16 @@ class _ChatTileConfiguration extends StatelessWidget {
 
         switch (item.action) {
           case ChatMemberInfoAction.created:
-            content = const Text('Chat created');
+            content = Text('label_chat_created'.l10n);
             break;
 
           case ChatMemberInfoAction.added:
-            content = Text('${item.user.name ?? item.user.num} was added');
+            content = Text(
+                '${item.user.name ?? item.user.num} ${'label_chat_was_added'.l10n}');
             break;
 
           case ChatMemberInfoAction.removed:
-            content = Text('${item.user.name ?? item.user.num} was removed');
+            content = Text('${item.user.name ?? item.user.num} ${'label_chat_was_removed'.l10n}');
             break;
 
           case ChatMemberInfoAction.artemisUnknown:

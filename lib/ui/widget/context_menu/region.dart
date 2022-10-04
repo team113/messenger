@@ -101,7 +101,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                         );
                       }
 
-                      return const SizedBox.shrink();
+                      return Container();
                     }),
                   ),
               ],

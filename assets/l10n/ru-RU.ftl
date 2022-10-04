@@ -257,13 +257,6 @@ err_you_already_has_unconfirmed_phone =
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 label_a_of_b = {$a} из {$b}
-label_abbreviation_weekday_1 = пн
-label_abbreviation_weekday_2 = вт
-label_abbreviation_weekday_3 = ср
-label_abbreviation_weekday_4 = чт
-label_abbreviation_weekday_5 = пт
-label_abbreviation_weekday_6 = сб
-label_abbreviation_weekday_7 = вс
 label_add_chat_member = Добавление участника
 label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
@@ -335,9 +328,12 @@ label_chat_call_missed = Пропущенный звонок
 label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
+label_chat_created = Чат создан
 label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
+label_chat_was_added = был добавлен
+label_chat_was_removed = был удален
 label_choose_chat = Пожалуйста, выберите чат
 label_choose_contact = Выберите пользователя
 label_contact = Контакт
@@ -464,6 +460,17 @@ label_set_new_password = Задайте новый пароль для вход�
 label_settings = Настройки
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
+label_short_weekday =
+    {$weekday ->
+        [1] пн
+        [2] вт
+        [3] ср
+        [4] чт
+        [5] пт
+        [6] сб
+        [7] вс
+        *[other] ...
+    }
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты

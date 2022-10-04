@@ -29,8 +29,8 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.gradient,
     this.elevation = 0,
     this.color = Colors.white,
-    this.maxWidth = 175,
-    this.height = 42,
+    this.maxWidth = 250 * 0.7,
+    this.height = 60 * 0.7,
   }) : super(key: key);
 
   /// Primary content of this button.
@@ -85,21 +85,21 @@ class OutlinedRoundedButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: onPressed == null ? const Color(0xFFBBBBBB) : color,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(10.5),
+        borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
         color: Colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(10.5),
+        borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10.5),
+          borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
           hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 11,
-              vertical: 4,
+              horizontal: 16 * 0.7,
+              vertical: 6 * 0.7,
             ),
             child: Stack(
               children: [
@@ -107,8 +107,8 @@ class OutlinedRoundedButton extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(child: Center(child: leading)),
-                      const Expanded(flex: 4, child: SizedBox.shrink()),
-                      const Expanded(child: SizedBox.shrink()),
+                      Expanded(flex: 4, child: Container()),
+                      Expanded(child: Container()),
                     ],
                   ),
                 DefaultTextStyle.merge(
@@ -117,22 +117,22 @@ class OutlinedRoundedButton extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.caption?.copyWith(
                         color: Colors.black,
-                        fontSize: 17,
+                        fontSize: 24 * 0.7,
                       ),
                   child: Center(
                     child: Padding(
                       padding: leading == null
                           ? EdgeInsets.zero
-                          : const EdgeInsets.only(left: 7),
+                          : const EdgeInsets.only(left: 10 * 0.7),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          title ?? const SizedBox.shrink(),
-                          if (subtitle != null) const SizedBox(height: 0.7),
+                          title ?? Container(),
+                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 9),
+                              style: const TextStyle(fontSize: 13 * 0.7),
                               child: subtitle!,
                             ),
                         ],

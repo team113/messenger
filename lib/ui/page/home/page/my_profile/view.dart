@@ -330,7 +330,7 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
           leading: const Icon(Icons.link),
           title: Text('label_direct_chat_link'.l10n),
         ),
-        collapsed: const SizedBox.shrink(),
+        collapsed: Container(),
         expanded: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
@@ -415,7 +415,7 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
         leading: const Icon(Icons.phone),
         title: Text('label_phones'.l10n),
       ),
-      collapsed: const SizedBox.shrink(),
+      collapsed: Container(),
       expanded: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Obx(
@@ -525,7 +525,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
         leading: const Icon(Icons.email),
         title: Text('label_emails'.l10n),
       ),
-      collapsed: const SizedBox.shrink(),
+      collapsed: Container(),
       expanded: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Obx(
@@ -639,7 +639,7 @@ Widget _password(BuildContext context, MyProfileController c) => Obx(
           leading: const Icon(Icons.password),
           title: Text('label_password'.l10n),
         ),
-        collapsed: const SizedBox.shrink(),
+        collapsed: Container(),
         expanded: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(

@@ -140,8 +140,8 @@ class _HomeViewState extends State<HomeView> {
                           }
                         }
                       },
-                      child: Obx(
-                        () => PageView(
+                      child: Obx(() {
+                        return PageView(
                           physics: c.verticalScrollTimer.value == null
                               ? null
                               : const NeverScrollableScrollPhysics(),
@@ -156,45 +156,45 @@ class _HomeViewState extends State<HomeView> {
                             KeepAlivePage(child: ChatsTabView()),
                             KeepAlivePage(child: MenuTabView()),
                           ],
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(
-                        () => CustomNavigationBar(
-                          selectedColor: const Color(0xFF63B4FF),
-                          unselectedColor: const Color(0xFF88c6ff),
-                          size: 30,
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              child: Obx(
-                                () => AnimatedOpacity(
-                                  duration: 150.milliseconds,
-                                  opacity: c.page.value == HomeTab.contacts
-                                      ? 1
-                                      : 0.6,
-                                  child: SvgLoader.asset(
-                                    'assets/icons/contacts_active.svg',
-                                    width: 30,
-                                    height: 30,
+                        () {
+                          return CustomNavigationBar(
+                            selectedColor: const Color(0xFF63B4FF),
+                            unselectedColor: const Color(0xFF88c6ff),
+                            size: 30,
+                            items: [
+                              CustomNavigationBarItem(
+                                key: const Key('ContactsButton'),
+                                child: Obx(
+                                  () => AnimatedOpacity(
+                                    duration: 150.milliseconds,
+                                    opacity: c.page.value == HomeTab.contacts
+                                        ? 1
+                                        : 0.6,
+                                    child: SvgLoader.asset(
+                                      'assets/icons/contacts_active.svg',
+                                      width: 30,
+                                      height: 30,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('ChatsButton'),
-                              badge: c.unreadChatsCount.value == 0
-                                  ? null
-                                  : '${c.unreadChatsCount.value}',
-                              child: Obx(
-                                () => Padding(
-                                  padding: const EdgeInsets.only(top: 0),
-                                  child: AnimatedOpacity(
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                child: Obx(
+                                  () => AnimatedOpacity(
                                     duration: 150.milliseconds,
-                                    opacity:
-                                        c.page.value == HomeTab.chats ? 1 : 0.6,
+                                    opacity: c.page.value == HomeTab.chats
+                                        ? 1
+                                        : 0.6,
                                     child: SvgLoader.asset(
                                       'assets/icons/chats_active.svg',
                                       width: 36.06,
@@ -203,28 +203,29 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 2),
-                                child: Obx(
-                                  () => AnimatedOpacity(
-                                    duration: 150.milliseconds,
-                                    opacity:
-                                        c.page.value == HomeTab.menu ? 1 : 0.6,
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2),
+                                  child: Obx(
+                                    () => AnimatedOpacity(
+                                      duration: 150.milliseconds,
+                                      opacity: c.page.value == HomeTab.menu
+                                          ? 1
+                                          : 0.6,
+                                      child: AvatarWidget.fromMyUser(
+                                        c.myUser.value,
+                                        radius: 15,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
-                        ),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: (int i) => c.pages.jumpToPage(i),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -259,7 +260,7 @@ class _HomeViewState extends State<HomeView> {
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isMobile ? 0 : width),
-                    child: const SizedBox.expand(),
+                    child: Container(),
                   );
                 }),
                 Expanded(

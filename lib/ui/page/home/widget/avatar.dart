@@ -315,7 +315,7 @@ class AvatarWidget extends StatelessWidget {
     if (radius == null && minRadius == null && maxRadius == null) {
       return 40;
     }
-    return 2 * (radius ?? minRadius ?? 20);
+    return 2.0 * (radius ?? minRadius ?? 20);
   }
 
   /// Returns maximum diameter of the avatar.
@@ -323,7 +323,7 @@ class AvatarWidget extends StatelessWidget {
     if (radius == null && minRadius == null && maxRadius == null) {
       return 40;
     }
-    return 2 * (radius ?? maxRadius ?? 40);
+    return 2.0 * (radius ?? maxRadius ?? 40);
   }
 
   @override
@@ -405,7 +405,7 @@ class AvatarWidget extends StatelessWidget {
                   child: Text(
                     (title ?? '??').initials(),
                     style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40),
+                          fontSize: 15 * (maxWidth / 40.0),
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -441,18 +441,18 @@ extension _InitialsExtension on String {
 /// Extension adding an ability to get a sum of [String] code units.
 extension SumStringExtension on String {
   /// Returns a sum of [codeUnits].
-  int sum() => codeUnits.fold(0, (int a, int b) => a + b);
+  int sum() => codeUnits.fold(0, (a, b) => a + b);
 }
 
 /// Extension adding an ability to lighten a color.
 extension _LightenColorExtension on Color {
   /// Returns a lighten variant of this color.
-  Color lighten([double amount = 0.2]) {
+  Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
 
-    final HSLColor hsl = HSLColor.fromColor(this);
-    final HSLColor hslLight =
-        hsl.withLightness((hsl.lightness + amount).clamp(0, 1));
+    final hsl = HSLColor.fromColor(this);
+    final hslLight =
+        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
   }

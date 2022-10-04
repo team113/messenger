@@ -243,7 +243,7 @@ class _CallSettingsViewState extends State<CallSettingsView> {
                                   ?.renderer
                                   .value as RtcVideoRenderer?;
                               return row(
-                                const SizedBox.shrink(),
+                                Container(),
                                 Center(
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
