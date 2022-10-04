@@ -165,21 +165,19 @@ class _ChatTileConfiguration extends StatelessWidget {
     return ContextMenuRegion(
       key: Key('ContextMenuRegion_${chat.id}'),
       preventContextMenu: false,
-      menu: ContextMenu(
-        actions: [
+      actions: [
+        ContextMenuButton(
+          key: const Key('ButtonHideChat'),
+          label: 'btn_hide_chat'.l10n,
+          onPressed: () => controller.hideChat(chat.id),
+        ),
+        if (chat.isGroup)
           ContextMenuButton(
-            key: const Key('ButtonHideChat'),
-            label: 'btn_hide_chat'.l10n,
-            onPressed: () => controller.hideChat(chat.id),
+            key: const Key('ButtonLeaveChat'),
+            label: 'btn_leave_chat'.l10n,
+            onPressed: () => controller.leaveChat(chat.id),
           ),
-          if (chat.isGroup)
-            ContextMenuButton(
-              key: const Key('ButtonLeaveChat'),
-              label: 'btn_leave_chat'.l10n,
-              onPressed: () => controller.leaveChat(chat.id),
-            ),
-        ],
-      ),
+      ],
       child: Obx(
         () {
           return ChatTile(
