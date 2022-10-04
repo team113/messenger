@@ -61,7 +61,7 @@ final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
         skipOffstage: false,
       ),
       scrollable: find.descendant(
-        of: find.byType(FlutterListView),
+        of: find.byKey(const Key('MessagesList')),
         matching: find.byType(Scrollable),
       ),
       dy: 100,
