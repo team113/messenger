@@ -249,10 +249,8 @@ class _ChatViewState extends State<ChatView>
                                       ListElement? e =
                                           c.elements.values.elementAt(i);
 
-                                      Widget? widget;
-
                                       if (e is UnreadMessagesElement) {
-                                        widget = Container(
+                                        return Container(
                                           color: const Color(0x33000000),
                                           padding: const EdgeInsets.all(4),
                                           margin: const EdgeInsets.symmetric(
@@ -281,10 +279,10 @@ class _ChatViewState extends State<ChatView>
                                           item = e.item;
                                         }
 
-                                        widget = _chatItem(c, item!);
+                                        return _chatItem(c, item!);
                                       } else if (e is ChatForwardElement) {
                                         // TODO: Redesign `ChatForward`.
-                                        widget = Column(
+                                        return Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             ...e.forwards
@@ -294,10 +292,10 @@ class _ChatViewState extends State<ChatView>
                                           ],
                                         );
                                       } else if (e is DateTimeElement) {
-                                        widget = _timeLabel(e.id.at.val);
+                                        return _timeLabel(e.id.at.val);
                                       }
 
-                                      return widget ?? Container();
+                                      return Text('Unknown element: $e');
                                     },
                                     childCount: c.elements.length,
                                     keepPosition: true,

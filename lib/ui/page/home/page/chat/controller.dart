@@ -521,7 +521,7 @@ class ChatController extends GetxController {
           case OperationKind.removed:
             ChatItem item = e.element.value;
 
-            ListElementId key = ListElementId(item.at, item.id.val);
+            ListElementId key = ListElementId(item.at, item.id);
             ListElement? element = elements[key];
 
             ListElementId? before = elements.lastKeyBefore(key);
@@ -540,6 +540,9 @@ class ChatController extends GetxController {
               elements.remove(before);
             }
 
+            // When removing [ChatMessage] or [ChatForward], the [before] and
+            // [after] elements must be considered as well, since they may be
+            // grouped in the same [ChatForwardElement].
             if (item is ChatMessage) {
               if (element is ChatMessageElement &&
                   item.id == element.item.value.id) {
@@ -662,8 +665,7 @@ class ChatController extends GetxController {
               } else if (element is ChatCallElement) {
                 _lastSeenItem.value = element.item.value;
               } else if (element is ChatForwardElement) {
-                _lastSeenItem.value =
-                    element.note.value?.value ?? element.forwards.last.value;
+                _lastSeenItem.value = element.forwards.last.value;
               }
             }
           }
@@ -679,9 +681,10 @@ class ChatController extends GetxController {
         _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
           if (_messageInitializedWorker != null) {
             if (status.isSuccess) {
-              await Future.delayed(Duration.zero);
               _messageInitializedWorker?.dispose();
               _messageInitializedWorker = null;
+
+              await Future.delayed(Duration.zero);
 
               if (!this.status.value.isSuccess) {
                 this.status.value = RxStatus.loadingMore();
@@ -713,8 +716,8 @@ class ChatController extends GetxController {
 
       // Scroll to the last read message if [_firstUnreadItem] was updated or
       // there are no unread messages in [chat]. Otherwise,
-      // [FlutterListViewDelegate.keepPosition] handles this as the
-      // last read item is already in the list.
+      // [FlutterListViewDelegate.keepPosition] handles this as the last read
+      // item is already in the list.
       if (firstUnread?.value.id != _firstUnreadItem?.value.id ||
           chat!.chat.value.unreadCount == 0) {
         _scrollToLastRead();
@@ -757,7 +760,7 @@ class ChatController extends GetxController {
     bool offsetBasedOnBottom = false,
     double offset = 0,
   }) async {
-    int index = elements.values.toList().indexWhere((e) => e.id.id == id.val);
+    int index = elements.values.toList().indexWhere((e) => e.id.id == id);
     if (index != -1) {
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
@@ -1055,9 +1058,9 @@ class ChatController extends GetxController {
           elements.remove(_unreadElement!.id);
         }
 
-        PreciseDateTime key = _firstUnreadItem!.value.at;
-        key = key.subtract(const Duration(microseconds: 1));
-        _unreadElement = UnreadMessagesElement(key);
+        PreciseDateTime at = _firstUnreadItem!.value.at;
+        at = at.subtract(const Duration(microseconds: 1));
+        _unreadElement = UnreadMessagesElement(at);
         elements[_unreadElement!.id] = _unreadElement!;
       }
     }
@@ -1070,8 +1073,7 @@ class ChatController extends GetxController {
     double offset = 0;
 
     if (itemId != null) {
-      int i =
-          elements.values.toList().indexWhere((e) => e.id.id == itemId!.val);
+      int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
@@ -1082,9 +1084,19 @@ class ChatController extends GetxController {
           index = elements.length - 1;
           offset = 0;
         } else if (_firstUnreadItem != null) {
-          int i = elements.values
-              .toList()
-              .indexWhere((e) => e.id.id == _firstUnreadItem!.value.id.val);
+          int i = elements.values.toList().indexWhere((e) {
+            if (e is ChatForwardElement) {
+              if (e.note.value?.value.id == _firstUnreadItem!.value.id) {
+                return true;
+              }
+
+              return e.forwards.firstWhereOrNull(
+                      (f) => f.value.id == _firstUnreadItem!.value.id) !=
+                  null;
+            }
+
+            return e.id.id == _firstUnreadItem!.value.id;
+          });
           if (i != -1) {
             index = i;
             offset = (MediaQuery.of(router.context!).size.height) / 3;
@@ -1140,18 +1152,15 @@ class ChatController extends GetxController {
   }
 }
 
-/// ID of a [ListElement] containing its [PreciseDateTime] and some unique
-/// [String].
+/// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
 class ListElementId implements Comparable<ListElementId> {
   const ListElementId(this.at, this.id);
 
   /// [PreciseDateTime] part of this [ListElementId].
   final PreciseDateTime at;
 
-  /// [String] making this [ListElementId] even more unique.
-  ///
-  /// Intended to be a [ChatItemId] value.
-  final String id;
+  /// [ChatItemId] part of this [ListElementId].
+  final ChatItemId id;
 
   @override
   int get hashCode => toString().hashCode;
@@ -1168,7 +1177,13 @@ class ListElementId implements Comparable<ListElementId> {
           id == other.id;
 
   @override
-  int compareTo(ListElementId other) => at.compareTo(other.at);
+  int compareTo(ListElementId other) {
+    int result = at.compareTo(other.at);
+    if (result == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+    return result;
+  }
 }
 
 /// Element to display in a [FlutterListView].
@@ -1182,7 +1197,7 @@ abstract class ListElement {
 /// [ListElement] representing a [ChatMessage].
 class ChatMessageElement extends ListElement {
   ChatMessageElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id.val));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
@@ -1191,7 +1206,7 @@ class ChatMessageElement extends ListElement {
 /// [ListElement] representing a [ChatCall].
 class ChatCallElement extends ListElement {
   ChatCallElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id.val));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
@@ -1200,7 +1215,7 @@ class ChatCallElement extends ListElement {
 /// [ListElement] representing a [ChatMemberInfo].
 class ChatMemberInfoElement extends ListElement {
   ChatMemberInfoElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id.val));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatMemberInfoElement].
   final Rx<ChatItem> item;
@@ -1215,7 +1230,7 @@ class ChatForwardElement extends ListElement {
   })  : forwards = RxList(forwards),
         note = Rx(note),
         authorId = forwards.first.value.authorId,
-        super(ListElementId(at, forwards.first.value.id.val));
+        super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
   final RxList<Rx<ChatItem>> forwards;
@@ -1229,12 +1244,14 @@ class ChatForwardElement extends ListElement {
 
 /// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
-  DateTimeElement(PreciseDateTime at) : super(ListElementId(at, 'd'));
+  DateTimeElement(PreciseDateTime at)
+      : super(ListElementId(at, const ChatItemId('0')));
 }
 
 /// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
-  UnreadMessagesElement(PreciseDateTime at) : super(ListElementId(at, 'u'));
+  UnreadMessagesElement(PreciseDateTime at)
+      : super(ListElementId(at, const ChatItemId('1')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
