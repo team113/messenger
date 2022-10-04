@@ -771,13 +771,18 @@ class MyProfileController extends GetxController {
   }
 
   /// Deletes the [MyUser.avatar] and [MyUser.callCover].
-  Future<void> deleteAvatar() => _updateAvatar(null);
+  Future<void> deleteAvatar() async {
+    avatarUpload.value = RxStatus.loading();
+    try {
+      await _updateAvatar(null);
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
+  }
 
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
   Future<void> uploadAvatar() async {
-    avatarUpload.value = RxStatus.loading();
-
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
@@ -786,6 +791,8 @@ class MyProfileController extends GetxController {
       );
 
       if (result != null) {
+        avatarUpload.value = RxStatus.loading();
+
         List<Future> deletes = [];
 
         for (ImageGalleryItem item in myUser.value?.gallery ?? []) {

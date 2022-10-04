@@ -50,6 +50,8 @@ abstract class ModalPopup {
             topRight: Radius.circular(8),
           ),
         ),
+        constraints:
+            BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
         builder: (context) {
           return SafeArea(
             child: Column(

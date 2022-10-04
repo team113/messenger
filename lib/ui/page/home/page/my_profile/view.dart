@@ -59,16 +59,13 @@ class MyProfileView extends StatelessWidget {
       mobilePadding: const EdgeInsets.all(0),
       child: const MyProfileView(),
     );
-    // return ModalPopup.show(
-    //   context: context,
-    //   mobilePadding: EdgeInsets.zero,
-    //   desktopPadding: EdgeInsets.zero,
-    //   child: const MyProfileView(),
-    // );
   }
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle? thin =
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
@@ -143,20 +140,50 @@ class MyProfileView extends StatelessWidget {
                                 );
                               }
                             },
-                            child: AvatarWidget.fromMyUser(
-                              c.myUser.value,
-                              radius: 56,
-                              showBadge: false,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                AvatarWidget.fromMyUser(
+                                  c.myUser.value,
+                                  radius: 30,
+                                  showBadge: false,
+                                ),
+                                Positioned.fill(
+                                  child: Obx(() {
+                                    return AnimatedSwitcher(
+                                      duration: 200.milliseconds,
+                                      child: c.avatarUpload.value.isLoading
+                                          ? Container(
+                                              width: 60,
+                                              height: 60,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0x22000000),
+                                              ),
+                                              child: const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                    );
+                                  }),
+                                ),
+                              ],
                             ),
                           );
                         }),
                         const SizedBox(height: 20),
                         _name(c),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 10),
                         _num(c),
+                        const SizedBox(height: 10),
                         _presence(c),
+                        const SizedBox(height: 10),
                         _link(context, c),
+                        const SizedBox(height: 15),
                         _login(c),
+                        const SizedBox(height: 10),
                         _phones(c, context),
                         _emails(c, context),
                         _password(context, c),
@@ -174,16 +201,39 @@ class MyProfileView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  OutlinedRoundedButton(
-                    title: Text('btn_logout'.l10n),
-                    maxWidth: null,
-                    color: const Color(0xFFF1F1F1),
-                    onPressed: () async {
-                      if (await c.confirmLogout()) {
-                        router.go(await c.logout());
-                        router.tab = HomeTab.chats;
-                      }
-                    },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            maxWidth: null,
+                            title: Text(
+                              'btn_logout'.l10n,
+                              style: thin, //?.copyWith(color: Colors.white),
+                            ),
+                            onPressed: () async {
+                              if (await c.confirmLogout()) {
+                                router.go(await c.logout());
+                                router.tab = HomeTab.chats;
+                              }
+                            },
+                            color: const Color(0xFFEEEEEE),
+                            // color: const Color(0xFF63B4FF),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            key: const Key('CloseButton'),
+                            maxWidth: null,
+                            title: Text('btn_close'.l10n, style: thin),
+                            onPressed: Navigator.of(context).pop,
+                            color: const Color(0xFFEEEEEE),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -193,345 +243,6 @@ class MyProfileView extends StatelessWidget {
       },
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return GetBuilder(
-  //     key: const Key('MyProfileView'),
-  //     init: MyProfileController(Get.find(), Get.find(), Get.find()),
-  //     builder: (MyProfileController c) {
-  //       return Obx(() {
-  //         Color gradient;
-
-  //         int? hash = c.myUser.value?.num.val.sum();
-  //         if (hash != null) {
-  //           gradient = AvatarWidget.colors[hash % AvatarWidget.colors.length];
-  //         } else {
-  //           gradient = const Color(0xFF555555);
-  //         }
-
-  //         if (c.myUser.value == null) {
-  //           return Scaffold(
-  //             appBar: AppBar(),
-  //             body: const Center(child: CircularProgressIndicator()),
-  //           );
-  //         }
-
-  //         return GestureDetector(
-  //           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-  //           child: Scaffold(
-  //               appBar: CustomAppBar.from(
-  //                 context: context,
-  //                 title: Row(
-  //                   children: [
-  //                     Material(
-  //                       elevation: 6,
-  //                       type: MaterialType.circle,
-  //                       shadowColor: const Color(0x55000000),
-  //                       color: Colors.white,
-  //                       child: InkWell(
-  //                         customBorder: const CircleBorder(),
-  //                         child: Center(
-  //                           child: AvatarWidget.fromMyUser(
-  //                             c.myUser.value,
-  //                             radius: 17,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 10),
-  //                     Flexible(
-  //                       child: InkWell(
-  //                         splashFactory: NoSplash.splashFactory,
-  //                         hoverColor: Colors.transparent,
-  //                         highlightColor: Colors.transparent,
-  //                         child: DefaultTextStyle.merge(
-  //                           maxLines: 1,
-  //                           overflow: TextOverflow.ellipsis,
-  //                           child: Column(
-  //                             mainAxisAlignment: MainAxisAlignment.center,
-  //                             crossAxisAlignment: CrossAxisAlignment.start,
-  //                             children: [
-  //                               Text(
-  //                                 c.myUser.value?.name?.val ??
-  //                                     c.myUser.value?.num.val ??
-  //                                     '...',
-  //                                 style: const TextStyle(color: Colors.black),
-  //                               ),
-  //                               Text(
-  //                                 'В сети',
-  //                                 style: Theme.of(context).textTheme.caption,
-  //                               ),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(width: 10),
-  //                   ],
-  //                 ),
-  //                 leading: const [StyledBackButton()],
-  //                 automaticallyImplyLeading: false,
-  //                 // actions: [
-  //                 //   IconButton(
-  //                 //     onPressed: () => router.me(push: true),
-  //                 //     icon: const Icon(Icons.settings),
-  //                 //   ),
-  //                 // ],
-  //               ),
-  //               body: Padding(
-  //                 padding: const EdgeInsets.only(left: 8, right: 8),
-  //                 child: Column(
-  //                   children: [
-  //                     Expanded(
-  //                       child: ListView(
-  //                         shrinkWrap: true,
-  //                         children: [
-  //                           const SizedBox(height: 20),
-  //                           LayoutBuilder(builder: (context, constraints) {
-  //                             return AspectRatio(
-  //                               aspectRatio: 1,
-  //                               child: WidgetButton(
-  //                                 onPressed: () async {
-  //                                   if (c.myUser.value?.avatar == null) {
-  //                                     await c.uploadAvatar();
-  //                                   } else {
-  //                                     await ModalPopup.show(
-  //                                       context: context,
-  //                                       child: Builder(builder: (context) {
-  //                                         return ListView(
-  //                                           shrinkWrap: true,
-  //                                           children: [
-  //                                             OutlinedRoundedButton(
-  //                                               title: const Text(
-  //                                                 'Change',
-  //                                                 style: TextStyle(
-  //                                                   color: Colors.white,
-  //                                                 ),
-  //                                               ),
-  //                                               color: const Color(0xFF63B4FF),
-  //                                               onPressed: () {
-  //                                                 c.uploadAvatar();
-  //                                                 Navigator.of(context).pop();
-  //                                               },
-  //                                             ),
-  //                                             const SizedBox(height: 10),
-  //                                             OutlinedRoundedButton(
-  //                                               color: const Color(0xFF63B4FF),
-  //                                               title: const Text(
-  //                                                 'Delete',
-  //                                                 style: TextStyle(
-  //                                                   color: Colors.white,
-  //                                                 ),
-  //                                               ),
-  //                                               onPressed: () {
-  //                                                 c.deleteAvatar();
-  //                                                 Navigator.of(context).pop();
-  //                                               },
-  //                                             ),
-  //                                           ],
-  //                                         );
-  //                                       }),
-  //                                     );
-  //                                   }
-  //                                 },
-  //                                 child: Stack(
-  //                                   alignment: Alignment.bottomRight,
-  //                                   children: [
-  //                                     Container(
-  //                                       decoration: BoxDecoration(
-  //                                         borderRadius:
-  //                                             BorderRadius.circular(15),
-  //                                         gradient: LinearGradient(
-  //                                           begin: Alignment.topCenter,
-  //                                           end: Alignment.bottomCenter,
-  //                                           colors: [
-  //                                             gradient.lighten(),
-  //                                             gradient
-  //                                           ],
-  //                                         ),
-  //                                         image: c.myUser.value?.avatar == null
-  //                                             ? null
-  //                                             : DecorationImage(
-  //                                                 image: NetworkImage(
-  //                                                   '${Config.files}${c.myUser.value?.avatar?.original.relativeRef}',
-  //                                                 ),
-  //                                                 fit: BoxFit.cover,
-  //                                                 isAntiAlias: true,
-  //                                               ),
-  //                                       ),
-  //                                       width: 450,
-  //                                       height: 450,
-  //                                     ),
-  //                                     if (c.myUser.value?.avatar == null)
-  //                                       Padding(
-  //                                         padding: const EdgeInsets.only(
-  //                                           bottom: 8,
-  //                                           right: 8,
-  //                                         ),
-  //                                         child: SvgLoader.asset(
-  //                                           'assets/icons/edit_avatar.svg', // edit_avatar.
-  //                                           width: 33,
-  //                                           height: 33,
-  //                                         ),
-  //                                         // child: Text(
-  //                                         //   'Change',
-  //                                         //   style: TextStyle(
-  //                                         //       color: Color(0xFFEEEEEE)),
-  //                                         // ),
-  //                                       ),
-  //                                     if (c.myUser.value?.avatar == null)
-  //                                       Positioned.fill(
-  //                                         child: Center(
-  //                                           child: Text(
-  //                                             (c.myUser.value?.name?.val ??
-  //                                                     c.myUser.value?.num.val ??
-  //                                                     '??')
-  //                                                 .initials(),
-  //                                             style: const TextStyle(
-  //                                               color: Colors.white,
-  //                                               fontWeight: FontWeight.bold,
-  //                                               fontSize: 36,
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     if (c.avatarUpload.value.isLoading)
-  //                                       const Positioned.fill(
-  //                                         child: Center(
-  //                                           child: CircularProgressIndicator(),
-  //                                         ),
-  //                                       ),
-  //                                   ],
-  //                                 ),
-  //                               ),
-  //                             );
-  //                           }),
-  //                           const SizedBox(height: 20),
-  //                           _name(c),
-  //                           const SizedBox(height: 600),
-  //                           _num(c),
-  //                           _presence(c),
-  //                           _link(context, c),
-  //                           _login(c),
-  //                           _phones(c, context),
-  //                           _emails(c, context),
-  //                           _password(context, c),
-  //                           _deleteAccount(c),
-  //                           ListTile(
-  //                             leading: const Icon(Icons.settings),
-  //                             title: Text('Settings'.l10n),
-  //                             onTap: () => router.settings(push: true),
-  //                           ),
-  //                           ListTile(
-  //                             leading: const Icon(Icons.workspaces),
-  //                             title: Text('Personalization'.l10n),
-  //                             onTap: () => router.personalization(push: true),
-  //                           )
-  //                         ].map((e) {
-  //                           return Center(
-  //                             child: ConstrainedBox(
-  //                               constraints:
-  //                                   const BoxConstraints(maxWidth: 450),
-  //                               child: e,
-  //                             ),
-  //                           );
-  //                         }).toList(),
-  //                       ),
-  //                     ),
-  //                     ConstrainedBox(
-  //                       constraints: const BoxConstraints(maxWidth: 450),
-  //                       child: Center(
-  //                           child: OutlinedRoundedButton(
-  //                         title: Text('btn_logout'.l10n),
-  //                         maxWidth: null,
-  //                         onPressed: () async {
-  //                           if (await c.confirmLogout()) {
-  //                             router.go(await c.logout());
-  //                             router.tab = HomeTab.chats;
-  //                           }
-  //                         },
-  //                       )),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               )
-  //               // body: CustomScrollView(
-  //               //   key: const Key('MyProfileScrollable'),
-  //               //   physics: const BouncingScrollPhysics(),
-  //               //   slivers: [
-  //               //     /// App bar with gallery.
-  //               //     // SliverAppBar(
-  //               //     //   elevation: 0,
-  //               //     //   pinned: true,
-  //               //     //   stretch: true,
-  //               //     //   backgroundColor:
-  //               //     //       context.theme.scaffoldBackgroundColor,
-  //               //     //   leading: IconButton(
-  //               //     //     onPressed: router.pop,
-  //               //     //     icon: const Icon(Icons.arrow_back),
-  //               //     //   ),
-  //               //     //   expandedHeight:
-  //               //     //       MediaQuery.of(context).size.height * 0.6,
-  //               //     //   flexibleSpace:
-  //               //     //       FlexibleSpaceBar(background: _gallery(c)),
-  //               //     // ),
-
-  //               //     /// Main content of this page.
-  //               //     SliverList(
-  //               //       delegate: SliverChildListDelegate.fixed(
-  //               //         [
-  //               //           Align(
-  //               //             alignment: Alignment.center,
-  //               //             child: ConstrainedBox(
-  //               //               constraints:
-  //               //                   const BoxConstraints(maxWidth: 450),
-  //               //               child: Column(
-  //               //                 children: [
-  //               //                   const SizedBox(height: 10),
-  //               //                   const SizedBox(height: 10),
-  //               //                   _name(c),
-  //               //                   const Divider(thickness: 2),
-  //               //                   _presence(c),
-  //               //                   _num(c),
-  //               //                   _link(context, c),
-  //               //                   const Divider(thickness: 2),
-  //               //                   _login(c),
-  //               // _phones(c, context),
-  //               // _emails(c, context),
-  //               // _password(context, c),
-  //               //                   const Divider(thickness: 2),
-  //               //                   _monolog(c),
-  //               //                   const Divider(thickness: 2),
-  //               // ListTile(
-  //               //   key: const Key('LogoutButton'),
-  //               //   leading: const Icon(Icons.logout),
-  //               //   title: Text('btn_logout'.l10n),
-  //               //   onTap: () async {
-  //               //     if (await c.confirmLogout()) {
-  //               //       router.go(await c.logout());
-  //               //       router.tab = HomeTab.chats;
-  //               //     }
-  //               //   },
-  //               // ),
-  //               //                   const Divider(thickness: 2),
-  //               //                   _deleteAccount(c),
-  //               //                   const SizedBox(height: 20),
-  //               //                 ],
-  //               //               ),
-  //               //             ),
-  //               //           ),
-  //               //         ],
-  //               //       ),
-  //               //     ),
-  //               //   ],
-  //               // ),
-  //               ),
-  //         );
-  //       });
-  //     },
-  //   );
-  // }
 }
 
 /// Stylized wrapper around [TextButton].
@@ -688,35 +399,14 @@ Widget _gallery(MyProfileController c) {
 
 /// Returns [MyUser.name] editable field.
 Widget _name(MyProfileController c) {
-  return ReactiveTextField(
-    key: const Key('NameField'),
-    state: c.name,
-    style: const TextStyle(fontSize: 20),
-    suffix: Icons.edit,
-    label: 'label_name'.l10n,
-    hint: 'label_name_hint'.l10n,
-  );
-
-  Obx(
-    () => _padding(
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AvatarWidget.fromMyUser(c.myUser.value, radius: 29),
-          const SizedBox(width: 10),
-          Expanded(
-            child: ReactiveTextField(
-              key: const Key('NameField'),
-              state: c.name,
-              style: const TextStyle(fontSize: 20),
-              suffix: Icons.edit,
-              label: 'label_name'.l10n,
-              hint: 'label_name_hint'.l10n,
-            ),
-          )
-        ],
-      ),
+  return _padding(
+    ReactiveTextField(
+      key: const Key('NameField'),
+      state: c.name,
+      // style: const TextStyle(fontSize: 20),
+      suffix: Icons.edit,
+      label: 'label_name'.l10n,
+      hint: 'label_name_hint'.l10n,
     ),
   );
 }
@@ -736,7 +426,6 @@ Widget _bio(MyProfileController c) => _padding(
 Widget _presence(MyProfileController c) => _padding(
       ReactiveDropdown<Presence>(
         key: const Key('PresenceDropdown'),
-        icon: Icons.info,
         state: c.presence,
         label: 'label_presence'.l10n,
       ),
@@ -747,73 +436,146 @@ Widget _num(MyProfileController c) => _padding(
       CopyableTextField(
         key: const Key('NumCopyable'),
         state: c.num,
-        icon: Icons.person,
         label: 'label_num'.l10n,
         copy: c.myUser.value?.num.val,
       ),
     );
 
 /// Returns [MyUser.chatDirectLink] editable field.
-Widget _link(BuildContext context, MyProfileController c) => Obx(
-      () => ExpandablePanel(
-        key: const Key('ChatDirectLinkExpandable'),
-        header: ListTile(
-          leading: const Icon(Icons.link),
-          title: Text('label_direct_chat_link'.l10n),
+Widget _link(BuildContext context, MyProfileController c) {
+  final TextStyle? thin =
+      Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
+  return _expanded(
+    context,
+    title: 'label_direct_chat_link'.l10n,
+    child: WidgetButton(
+      onPressed: c.myUser.value?.chatDirectLink == null ? null : c.copyLink,
+      child: IgnorePointer(
+        child: ReactiveTextField(
+          key: const Key('DirectChatLinkTextField'),
+          state: c.link,
+          label: 'label_direct_chat_link'.l10n,
+          suffix: Icons.expand_more,
+          suffixColor: const Color(0xFF888888),
         ),
-        collapsed: Container(),
-        expanded: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+    ),
+    expanded: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 10),
+          Text('label_direct_chat_link_description'.l10n),
+          const SizedBox(height: 10),
+          Row(
             children: [
-              Text('label_direct_chat_link_description'.l10n),
-              const SizedBox(height: 10),
-              _padding(
-                ReactiveTextField(
-                  key: const Key('DirectChatLinkTextField'),
-                  state: c.link,
-                  prefixText: '${Config.origin}${Routes.chatDirectLink}/',
-                  label: 'label_direct_chat_link'.l10n,
-                  suffix: Icons.copy,
-                  onSuffixPressed: c.myUser.value?.chatDirectLink == null
-                      ? null
-                      : c.copyLink,
+              Expanded(
+                child: OutlinedRoundedButton(
+                  maxWidth: null,
+                  title: Text('btn_delete_direct_chat_link'.l10n, style: thin),
+                  onPressed: c.link.editable.value ? c.deleteLink : null,
+                  color: const Color(0xFFEEEEEE),
+                  // color: const Color(0xFF63B4FF),
                 ),
               ),
-              Row(
-                children: [
-                  Text(
-                    '${'label_transition_count'.l10n}: ${c.myUser.value?.chatDirectLink?.usageCount ?? 0}',
-                    textAlign: TextAlign.start,
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedRoundedButton(
+                  key: const Key('CloseButton'),
+                  maxWidth: null,
+                  onPressed: c.link.editable.value
+                      ? c.link.isEmpty.value
+                          ? c.generateLink
+                          : c.link.submit
+                      : null,
+                  title: Text(
+                    c.link.isEmpty.value
+                        ? 'btn_generate_direct_chat_link'.l10n
+                        : 'btn_submit'.l10n,
+                    style: thin,
                   ),
-                  Expanded(
+                  color: const Color(0xFFEEEEEE),
+                ),
+              )
+            ],
+          ),
+          // Row(
+          //   children: [
+          //     Text(
+          //       '${'label_transition_count'.l10n}: ${c.myUser.value?.chatDirectLink?.usageCount ?? 0}',
+          //       textAlign: TextAlign.start,
+          //     ),
+          //     Expanded(
+          //       child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.end,
+          //         children: [
+          //           if (c.myUser.value?.chatDirectLink != null &&
+          //               !c.link.isEmpty.value)
+          //             Flexible(
+          //               child: _textButton(
+          //                 context,
+          //                 key: const Key('RemoveChatDirectLink'),
+          //                 onPressed:
+          //                     c.link.editable.value ? c.deleteLink : null,
+          //                 label: 'btn_delete_direct_chat_link'.l10n,
+          //               ),
+          //             ),
+          //           Flexible(
+          //             child: _textButton(
+          //               context,
+          //               key: const Key('GenerateChatDirectLink'),
+          //               onPressed: c.link.editable.value
+          //                   ? c.link.isEmpty.value
+          //                       ? c.generateLink
+          //                       : c.link.submit
+          //                   : null,
+          //               label: c.link.isEmpty.value
+          //                   ? 'btn_generate_direct_chat_link'.l10n
+          //                   : 'btn_submit'.l10n,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _expanded(
+  BuildContext context, {
+  Key? key,
+  Widget? child,
+  required Widget expanded,
+  required String title,
+}) {
+  final TextStyle? thin =
+      Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+
+  return _padding(
+    ExpandableNotifier(
+      child: Builder(
+        builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Stack(
+                children: [
+                  child ?? Container(),
+                  Positioned.fill(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        if (c.myUser.value?.chatDirectLink != null &&
-                            !c.link.isEmpty.value)
-                          Flexible(
-                            child: _textButton(
-                              context,
-                              key: const Key('RemoveChatDirectLink'),
-                              onPressed:
-                                  c.link.editable.value ? c.deleteLink : null,
-                              label: 'btn_delete_direct_chat_link'.l10n,
-                            ),
-                          ),
-                        Flexible(
-                          child: _textButton(
-                            context,
-                            key: const Key('GenerateChatDirectLink'),
-                            onPressed: c.link.editable.value
-                                ? c.link.isEmpty.value
-                                    ? c.generateLink
-                                    : c.link.submit
-                                : null,
-                            label: c.link.isEmpty.value
-                                ? 'btn_generate_direct_chat_link'.l10n
-                                : 'btn_submit'.l10n,
+                        const Expanded(flex: 4, child: SizedBox.shrink()),
+                        Expanded(
+                          flex: 1,
+                          child: WidgetButton(
+                            onPressed: ExpandableController.of(context)?.toggle,
+                            child: const SizedBox.expand(),
                           ),
                         ),
                       ],
@@ -821,17 +583,50 @@ Widget _link(BuildContext context, MyProfileController c) => Obx(
                   ),
                 ],
               ),
+
+              // child ??
+              //     Padding(
+              //       padding: const EdgeInsets.symmetric(horizontal: 5),
+              //       child: OutlinedRoundedButton(
+              //         key: key,
+              //         maxWidth: null,
+              //         height: 50,
+              //         title: Row(
+              //           children: [
+              //             const SizedBox(width: 10),
+              //             Text(title, style: thin),
+              //             const Spacer(),
+              //             const Icon(
+              //               Icons.expand_more,
+              //               color: Color(0xFF888888),
+              //             ),
+              //             const SizedBox(width: 10),
+              //           ],
+              //         ),
+              //         color: const Color(0xFFFFFFFF),
+              //         onPressed: ExpandableController.of(context)?.toggle,
+              //         border: Border.all(color: const Color(0xFF888888)),
+              //         borderRadius: BorderRadius.circular(50),
+              //       ),
+              //     ),
+              Expandable(
+                controller:
+                    ExpandableController.of(context, rebuildOnChange: false),
+                collapsed: Container(),
+                expanded: expanded,
+              ),
             ],
-          ),
-        ),
+          );
+        },
       ),
-    );
+    ),
+  );
+}
 
 /// Returns [MyUser.login] editable field.
 Widget _login(MyProfileController c) => _padding(
       ReactiveTextField(
         key: const Key('LoginField'),
-        icon: Icons.person,
         state: c.login,
         suffix: Icons.edit,
         label: 'label_login'.l10n,
@@ -885,7 +680,6 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                 c.myUser.value?.phones.unconfirmed == null
                     ? ReactiveTextField(
                         key: const Key('PhoneInput'),
-                        icon: Icons.add,
                         state: c.phone,
                         type: TextInputType.phone,
                         dense: true,
@@ -894,7 +688,6 @@ Widget _phones(MyProfileController c, BuildContext context) => ExpandablePanel(
                       )
                     : ReactiveTextField(
                         key: const Key('PhoneCodeInput'),
-                        icon: Icons.add,
                         state: c.phoneCode,
                         type: TextInputType.number,
                         dense: true,
@@ -970,10 +763,7 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                     onPressed: (!c.emailsOnDeletion.contains(e))
                         ? () => c.deleteUserEmail(e)
                         : null,
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                    ),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                   ),
                   title: Text(e.val),
                   dense: true,
@@ -998,7 +788,6 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                 c.myUser.value?.emails.unconfirmed == null
                     ? ReactiveTextField(
                         key: const Key('EmailInput'),
-                        icon: Icons.add,
                         state: c.email,
                         type: TextInputType.emailAddress,
                         dense: true,
@@ -1007,7 +796,6 @@ Widget _emails(MyProfileController c, BuildContext context) => ExpandablePanel(
                       )
                     : ReactiveTextField(
                         key: const Key('EmailCodeInput'),
-                        icon: Icons.add,
                         state: c.emailCode,
                         type: TextInputType.number,
                         dense: true,

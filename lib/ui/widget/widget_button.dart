@@ -29,7 +29,7 @@ class WidgetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
         child: Container(

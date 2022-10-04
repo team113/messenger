@@ -114,11 +114,7 @@ class _HomeViewState extends State<HomeView> {
         ///    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
-          opacity: context.isNarrow &&
-                  router.route != Routes.home &&
-                  !PlatformUtils.isAndroid
-              ? 0
-              : 1,
+          opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
           child: Row(
             children: [
               Obx(() {

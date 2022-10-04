@@ -116,10 +116,16 @@ class MyUserView extends StatelessWidget {
             leading: const [StyledBackButton()],
             automaticallyImplyLeading: false,
             actions: [
-              IconButton(
-                // onPressed: () => router.me(push: true),
-                onPressed: () => MyProfileView.show(context),
-                icon: const Icon(Icons.settings),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: WidgetButton(
+                  onPressed: () => MyProfileView.show(context),
+                  child: SvgLoader.asset(
+                    'assets/icons/chat_settings.svg',
+                    width: 22,
+                    height: 22,
+                  ),
+                ),
               ),
             ],
           ),

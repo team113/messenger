@@ -88,6 +88,16 @@ class ChatsTabView extends StatelessWidget {
               onTap: () {
                 onTap?.call();
               },
+              subtitle: [
+                const SizedBox(height: 5),
+                Text(
+                  'Gapopa ID: ${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
+                    RegExp(r'.{4}'),
+                    (match) => '${match.group(0)} ',
+                  )}',
+                  style: const TextStyle(color: Color(0xFF888888)),
+                ),
+              ],
               selected: selected,
             ),
           );
