@@ -454,7 +454,8 @@ class _ChatTileConfiguration extends StatelessWidget {
             break;
 
           case ChatMemberInfoAction.removed:
-            content = Text('${item.user.name ?? item.user.num} ${'label_chat_was_removed'.l10n}');
+            content = Text(
+                '${item.user.name ?? item.user.num} ${'label_chat_was_removed'.l10n}');
             break;
 
           case ChatMemberInfoAction.artemisUnknown:

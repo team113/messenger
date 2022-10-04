@@ -192,9 +192,8 @@ class _HomeViewState extends State<HomeView> {
                                 child: Obx(
                                   () => AnimatedOpacity(
                                     duration: 150.milliseconds,
-                                    opacity: c.page.value == HomeTab.chats
-                                        ? 1
-                                        : 0.6,
+                                    opacity:
+                                        c.page.value == HomeTab.chats ? 1 : 0.6,
                                     child: SvgLoader.asset(
                                       'assets/icons/chats_active.svg',
                                       width: 36.06,
