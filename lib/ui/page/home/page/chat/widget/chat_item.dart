@@ -24,7 +24,8 @@ import 'package:intl/intl.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
-import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/api/backend/schema.dart'
+    show ChatCallFinishReason, ChatMemberInfoAction;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -146,6 +147,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
+  bool get _isRead {
+    final bool isRead;
+    if (_fromMe) {
+      isRead = widget.chat.value?.lastReads.firstWhereOrNull((LastChatRead l) =>
+              l.memberId != widget.me &&
+              !l.at.isBefore(widget.item.value.at)) !=
+          null;
+    } else {
+      isRead = widget.chat.value?.lastReads
+              .firstWhereOrNull((LastChatRead l) => l.memberId == widget.me)
+              ?.at
+              .isBefore(widget.item.value.at) ==
+          false;
+    }
+
+    return isRead;
+  }
+
+  bool get _fromMe => widget.item.value.authorId == widget.me;
+
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
@@ -198,10 +219,71 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
-    var message = widget.item.value as ChatMemberInfo;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Center(child: Text('${message.action}')),
+    final Style? style = Theme.of(context).extension<Style>();
+    final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
+    Widget content = Text('${message.action}');
+
+    switch (message.action) {
+      case ChatMemberInfoAction.created:
+        if (widget.chat.value?.isGroup == true) {
+          content = Text('label_group_created'.l10n);
+        } else {
+          content = Text(
+            'label_dialog_created'.l10n,
+            style: const TextStyle(color: Color(0xFF888888)),
+          );
+        }
+        break;
+
+      case ChatMemberInfoAction.added:
+        content = Text(
+            '${message.user.name ?? message.user.num} ${'label_was_added'.l10n}');
+        break;
+
+      case ChatMemberInfoAction.removed:
+        content = Text(
+            '${message.user.name ?? message.user.num} ${'label_was_removed'.l10n}');
+        break;
+
+      case ChatMemberInfoAction.artemisUnknown:
+        // No-op.
+        break;
+    }
+    final bool isSent = widget.item.value.status.value == SendingStatus.sent;
+
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        SwipeableStatus(
+          animation: widget.animation,
+          asStack: true,
+          isSent: isSent && _fromMe,
+          isDelivered: isSent &&
+              _fromMe &&
+              widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
+                  false,
+          isRead: isSent && (!_fromMe || _isRead),
+          isError: message.status.value == SendingStatus.error,
+          isSending: message.status.value == SendingStatus.sending,
+          swipeable:
+              Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style?.systemMessageBorder,
+                color: style?.systemMessageColor,
+              ),
+              child: DefaultTextStyle.merge(
+                style: style?.systemMessageTextStyle,
+                child: content,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
     );
   }
 

@@ -16,6 +16,8 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
@@ -31,11 +33,11 @@ class SwipeableStatus extends StatelessWidget {
     this.isSending = false,
     this.isError = false,
     this.crossAxisAlignment = CrossAxisAlignment.end,
-    this.padding = const EdgeInsets.only(bottom: 18),
+    this.padding = const EdgeInsets.only(bottom: 13),
   }) : super(key: key);
 
   /// Expanded width of the [swipeable].
-  static const double width = 55;
+  static const double width = 65;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -87,7 +89,8 @@ class SwipeableStatus extends StatelessWidget {
           _animatedBuilder(
             Padding(
               padding: padding,
-              child: SizedBox(width: width, child: _swipeableWithStatus()),
+              child:
+                  SizedBox(width: width, child: _swipeableWithStatus(context)),
             ),
           ),
         ],
@@ -102,7 +105,7 @@ class SwipeableStatus extends StatelessWidget {
           Expanded(child: child),
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus()),
+            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
           ),
         ],
       ),
@@ -110,40 +113,49 @@ class SwipeableStatus extends StatelessWidget {
   }
 
   /// Returns a [Row] of [swipeable] and a status.
-  Widget _swipeableWithStatus() => DefaultTextStyle.merge(
-        textAlign: TextAlign.end,
-        maxLines: 1,
-        overflow: TextOverflow.visible,
-        style: const TextStyle(fontSize: 10, color: Color(0xFF888888)),
-        child: Padding(
-          padding: const EdgeInsets.only(right: 3.5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSent || isDelivered || isRead || isSending || isError) ...[
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? const Color(0xFF63B4FF)
-                      : isError
-                          ? Colors.red
-                          : const Color(0xFF888888),
-                  size: 12,
-                ),
-                const SizedBox(width: 3),
-              ],
-              swipeable,
-            ],
-          ),
+  Widget _swipeableWithStatus(BuildContext context) {
+    final Style? style = Theme.of(context).extension<Style>();
+
+    return DefaultTextStyle.merge(
+      textAlign: TextAlign.end,
+      maxLines: 1,
+      overflow: TextOverflow.visible,
+      style: style?.systemMessageTextStyle.copyWith(fontSize: 11),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        margin: const EdgeInsets.only(right: 2, left: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: style?.systemMessageBorder,
+          color: style?.systemMessageColor,
         ),
-      );
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSent || isDelivered || isRead || isSending || isError)
+              Icon(
+                (isRead || isDelivered)
+                    ? Icons.done_all
+                    : isSending
+                        ? Icons.access_alarm
+                        : isError
+                            ? Icons.error_outline
+                            : Icons.done,
+                color: isRead
+                    ? const Color(0xFF63B4FF)
+                    : isError
+                        ? Colors.red
+                        : const Color(0xFF888888),
+                size: 12,
+              ),
+            const SizedBox(width: 3),
+            swipeable,
+          ],
+        ),
+      ),
+    );
+  }
 
   /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
   Widget _animatedBuilder(Widget child) => AnimatedBuilder(

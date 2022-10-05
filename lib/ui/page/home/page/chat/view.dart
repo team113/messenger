@@ -35,6 +35,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
@@ -250,20 +251,50 @@ class _ChatViewState extends State<ChatView>
                                           c.elements.values.elementAt(i);
 
                                       if (e is UnreadMessagesElement) {
-                                        return Container(
-                                          color: const Color(0x33000000),
-                                          padding: const EdgeInsets.all(4),
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 4,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'label_unread_messages'.l10n,
-                                              style: const TextStyle(
-                                                color: Colors.white,
+                                        final Style? style = Theme.of(context)
+                                            .extension<Style>();
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 24),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Container(
+                                                  width: double.infinity,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                    border: style
+                                                        ?.systemMessageBorder,
+                                                    color: style
+                                                        ?.systemMessageColor,
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      'label_unread_messages'
+                                                          .l10nfmt({
+                                                        'quantity':
+                                                            c.unreadMessages
+                                                      }),
+                                                      style: const TextStyle(
+                                                        fontSize: 13,
+                                                        color:
+                                                            Color(0xFF888888),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                              textAlign: TextAlign.center,
-                                            ),
+                                              const SizedBox(width: 8),
+                                            ],
                                           ),
                                         );
                                       } else if (e is ChatMessageElement ||
@@ -486,24 +517,27 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time) {
+    final Style? style = Theme.of(context).extension<Style>();
+
     return Column(
       children: [
-        const SizedBox(height: 7),
+        const SizedBox(height: 24),
         SwipeableStatus(
           animation: _animation,
           asStack: true,
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.only(right: 8),
           crossAxisAlignment: CrossAxisAlignment.center,
           swipeable: Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 4),
             child: Text(DateFormat('dd.MM.yy').format(time)),
           ),
           child: Center(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: style?.systemMessageBorder,
+                color: style?.systemMessageColor,
               ),
               child: Text(
                 time.toRelative(),
@@ -512,7 +546,7 @@ class _ChatViewState extends State<ChatView>
             ),
           ),
         ),
-        const SizedBox(height: 7),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -1204,10 +1238,6 @@ extension DateTimeToRelative on DateTime {
     DateTime relative = now ?? DateTime.now();
     int days = relative.julianDayNumber() - local.julianDayNumber();
 
-    String time =
-        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-    String date = '';
-
     int months = 0;
     if (days >= 28) {
       months =
@@ -1217,16 +1247,12 @@ extension DateTimeToRelative on DateTime {
       }
     }
 
-    if (days > 0) {
-      date = 'label_ago'.l10nfmt({
-        'years': months ~/ 12,
-        'months': months,
-        'weeks': days ~/ 7,
-        'days': days,
-      });
-    }
-
-    return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
   }
 
   /// Returns a Julian day number of this [DateTime].

@@ -264,6 +264,28 @@ label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
 label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -363,6 +385,7 @@ label_direct_chat_link_in_chat_description =
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,
     - совершать звонки
+label_dialog_created = Диалог создан
 label_drop_here =
     Перетащите сюда,
     чтобы прикрепить
@@ -374,6 +397,7 @@ label_edit_message_hint = Без текста
 label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
+label_empty_message = Пустое сообщение
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -383,6 +407,7 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
+label_group_created = Группа создана
 label_hidden = Статус скрыт
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
@@ -467,10 +492,15 @@ label_typing = печатает
 label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = Непрочитанные сообщения
+label_unread_messages = { $quantity ->
+    [1] {$quantity} непрочитанное сообщение
+    *[other] {$quantity} непрочитанных сообщения
+}
 label_video = Видео
 label_video_call = Видеозвонок
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+label_was_added = был добавлен
+label_was_removed = был удален

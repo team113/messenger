@@ -146,6 +146,9 @@ class ChatController extends GetxController {
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
 
+  /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
+  int unreadMessages = 0;
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -427,6 +430,7 @@ class ChatController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
     chat = await _chatService.get(id);
+    unreadMessages = chat?.chat.value.unreadCount ?? 0;
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {

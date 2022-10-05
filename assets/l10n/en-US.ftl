@@ -260,6 +260,23 @@ label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_account_access_will_be_lost = Account access will be lost
 label_account_created = Account is created
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Today
+                            [1] Yesterday
+                            *[other] {$days} days ago
+                        }
+                    [1] A week ago
+                    *[other] {$weeks} weeks ago
+                }
+            [1] A month ago
+            *[other] {$months} months ago
+        }
+    [1] An year ago
+    *[other] {$years} years ago
+}
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -350,6 +367,7 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
+label_dialog_created = Dialog created
 label_drop_here =
     Drop here
     to upload
@@ -361,6 +379,7 @@ label_edit_message_hint = No text
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
+label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -370,6 +389,7 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
+label_group_created = Group created
 label_hidden = Status is hidden
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
@@ -454,10 +474,15 @@ label_typing = is typing
 label_typings = are typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
-label_unread_messages = Unread messages
+label_unread_messages = { $quantity ->
+    [1] {$quantity} unread message
+    *[other] {$quantity} unread messages
+}
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_you = You
 label_you_were_added_to_group = You were added to the group
+label_was_added = was added
+label_was_removed = was removed
