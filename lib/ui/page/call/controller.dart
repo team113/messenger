@@ -1024,38 +1024,8 @@ class CallController extends GetxController {
         maxHeight: double.infinity,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantsView(
-        ongoingCall: _currentCall,
-        callDuration: duration,
-        onSubmit: addMembers,
-      ),
+      child: ParticipantsView(call: _currentCall, duration: duration),
     );
-  }
-
-  /// Adds the [User]s identified by the provided [UserId]s to this [chat].
-  ///
-  /// If this [chat] is a dialog, then transforms this [OngoingCall] into a
-  /// group.
-  Future<void> addMembers(List<UserId> ids) async {
-    try {
-      if (chat.value?.chat.value.isGroup != false) {
-        List<Future> futures =
-            ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
-
-        await Future.wait(futures);
-      } else {
-        await _calls.transformDialogCallIntoGroupCall(chatId, ids, null);
-      }
-
-      MessagePopup.success('label_participants_added_successfully'.l10n);
-    } on AddChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } on TransformDialogCallIntoGroupCallException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].

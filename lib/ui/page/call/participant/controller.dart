@@ -22,15 +22,16 @@ import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart'
+    show AddChatMemberException, TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import 'view.dart';
 
 export 'view.dart';
-
-typedef SubmitCallback = FutureOr<void> Function(List<UserId>);
 
 /// Possible [ParticipantsView] flow stage.
 enum ParticipantsFlowStage {
@@ -38,76 +39,79 @@ enum ParticipantsFlowStage {
   participants,
 }
 
-/// Controller of the call participants modal.
+/// Controller of the [OngoingCall.members] modal.
 class ParticipantController extends GetxController {
-  ParticipantController(this.pop, this._call, this._chatService)
-      : _chatId = _call.value.chatId;
+  ParticipantController(
+    this._call,
+    this._chatService,
+    this._callService, {
+    this.pop,
+  });
 
-  /// Reactive state of the [Chat] this modal is about.
+  /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Pops the [ParticipantsView] this controller is bound to.
-  final Function() pop;
+  /// Callback, called when the [ParticipantsView] this controller is bound to
+  /// should be popped from the [Navigator].
+  final void Function()? pop;
 
-  /// [ParticipantsFlowStage] of this addition modal.
+  /// [ParticipantsFlowStage] currently being displayed.
   final Rx<ParticipantsFlowStage> stage =
       Rx(ParticipantsFlowStage.participants);
 
-  /// Status of an [submit] completion.
+  /// Status of a [submit] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [submit] is executing.
   /// - `status.isLoading`, meaning [submit] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Worker for catching the [OngoingCallState.ended] state of the call to pop.
+  /// Worker for catching the [OngoingCallState.ended] state of the call to
+  /// [pop] the view.
   Worker? _stateWorker;
 
-  /// Worker performing a [_fetchChat] on [chatId] changes.
-  Worker? _chatIdWorker;
+  /// Worker performing a [_fetchChat] on the [chatId] changes.
+  Worker? _chatWorker;
 
-  /// The [OngoingCall] that this modal is bound to.
+  /// [OngoingCall] that this modal is bound to.
   final Rx<OngoingCall> _call;
-
-  /// ID of the [Chat] this modal is bound to.
-  final Rx<ChatId>? _chatId;
 
   /// [Chat]s service used to add members to a [Chat].
   final ChatService _chatService;
+
+  /// [CallService] transforming the [_call] into a group-call.
+  final CallService _callService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
   /// ID of the [Chat] this modal is bound to.
-  Rx<ChatId>? get chatId => _chatId;
+  Rx<ChatId> get chatId => _call.value.chatId;
 
   @override
   void onInit() {
-    if (chatId != null) {
-      _chatsSubscription = _chatService.chats.changes.listen((e) {
-        switch (e.op) {
-          case OperationKind.added:
-            // No-op.
-            break;
+    _chatsSubscription = _chatService.chats.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          // No-op.
+          break;
 
-          case OperationKind.removed:
-            if (e.key == chatId!.value) {
-              pop();
-            }
-            break;
+        case OperationKind.removed:
+          if (e.key == chatId.value) {
+            pop?.call();
+          }
+          break;
 
-          case OperationKind.updated:
-            // No-op.
-            break;
-        }
-      });
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
 
-      _chatIdWorker = ever(chatId!, (_) => _fetchChat());
-    }
-
+    _chatWorker = ever(chatId, (_) => _fetchChat());
     _stateWorker = ever(_call.value.state, (state) {
       if (state == OngoingCallState.ended) {
-        pop();
+        pop?.call();
       }
     });
 
@@ -124,19 +128,37 @@ class ParticipantController extends GetxController {
   void onClose() {
     _chatsSubscription?.cancel();
     _stateWorker?.dispose();
-    _chatIdWorker?.dispose();
+    _chatWorker?.dispose();
     super.onClose();
   }
 
-  /// Calls the provided [callback] and closes this modal or changes stage to
-  /// [ParticipantsFlowStage.participants] if bound to an [OngoingCall].
-  Future<void> submit(SubmitCallback callback, List<UserId> ids) async {
+  /// Adds the [User]s identified by the provided [UserId]s to this [chat].
+  ///
+  /// If this [chat] is a dialog, then transforms the [Chat.currentCall] into a
+  /// [Chat]-group call.
+  Future<void> submit(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
     try {
-      await callback(ids);
+      if (chat.value?.chat.value.isGroup != false) {
+        List<Future> futures = ids
+            .map((e) => _chatService.addChatMember(chatId.value, e))
+            .toList();
+
+        await Future.wait(futures);
+      } else {
+        await _callService.transformDialogCallIntoGroupCall(chatId.value, ids);
+      }
 
       stage.value = ParticipantsFlowStage.participants;
+      MessagePopup.success('label_participants_added_successfully'.l10n);
+    } on AddChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } on TransformDialogCallIntoGroupCallException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     } finally {
       status.value = RxStatus.empty();
     }
@@ -144,13 +166,11 @@ class ParticipantController extends GetxController {
 
   /// Fetches the [chat].
   void _fetchChat() async {
-    if (chatId != null) {
-      chat.value = null;
-      chat.value = (await _chatService.get(chatId!.value));
-      if (chat.value == null) {
-        MessagePopup.error('err_unknown_chat'.l10n);
-        pop();
-      }
+    chat.value = null;
+    chat.value = (await _chatService.get(chatId.value));
+    if (chat.value == null) {
+      MessagePopup.error('err_unknown_chat'.l10n);
+      pop?.call();
     }
   }
 }

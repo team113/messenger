@@ -67,13 +67,13 @@ class SearchController extends GetxController {
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
-  /// Status of an [_search] completion.
+  /// Status of a [_search] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [_search] is executing.
   /// - `status.isLoading`, meaning [_search] is executing.
   /// - `status.isLoadingMore`, meaning some [searchResults] is exist and
-  /// [_search] is executing.
+  ///   [_search] is executing.
   /// - `status.isSuccess`, meaning the [_search] was successfully executed.
   /// - `status.isError`, meaning the [_search] got an error.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
@@ -107,9 +107,6 @@ class SearchController extends GetxController {
 
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
-
-  /// Worker performing a [_fetchChat] on [chatId] changes.
-  Worker? _chatIdWorker;
 
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
@@ -178,7 +175,6 @@ class SearchController extends GetxController {
   void onClose() {
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
-    _chatIdWorker?.dispose();
     _searchStatusWorker?.dispose();
     _searchStatusWorker = null;
     super.onClose();
@@ -187,10 +183,10 @@ class SearchController extends GetxController {
   /// Returns combined array of [UserId]s from [selectedUsers] and
   /// [selectedContacts].
   List<UserId> selected() {
-    return [
+    return {
       ...selectedContacts.expand((e) => e.contact.value.users.map((u) => u.id)),
       ...selectedUsers.map((u) => u.id),
-    ].toList();
+    }.toList();
   }
 
   /// Selects or unselects the specified [contact].

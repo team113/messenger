@@ -34,20 +34,16 @@ import 'controller.dart';
 /// View of the call participants modal.
 class ParticipantsView extends StatelessWidget {
   const ParticipantsView({
-    required this.ongoingCall,
-    this.callDuration,
-    this.onSubmit,
+    required this.call,
+    required this.duration,
     Key? key,
   }) : super(key: key);
 
-  /// The [OngoingCall] that this modal is bound to.
-  final Rx<OngoingCall> ongoingCall;
+  /// [OngoingCall] this modal is bound to.
+  final Rx<OngoingCall> call;
 
-  /// Duration of the [ongoingCall].
-  final Rx<Duration>? callDuration;
-
-  /// Callback, called when the submit button tapped.
-  final SubmitCallback? onSubmit;
+  /// Duration of the [call].
+  final Rx<Duration> duration;
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +53,10 @@ class ParticipantsView extends StatelessWidget {
 
     return GetBuilder(
       init: ParticipantController(
-        Navigator.of(context).pop,
-        ongoingCall,
+        call,
         Get.find(),
+        Get.find(),
+        pop: Navigator.of(context).pop,
       ),
       builder: (ParticipantController c) {
         return Obx(() {
@@ -81,7 +78,7 @@ class ParticipantsView extends StatelessWidget {
                 submitLabel: 'btn_add'.l10n,
                 onBack: () =>
                     c.stage.value = ParticipantsFlowStage.participants,
-                onSubmit: (ids) => c.submit(onSubmit!, ids),
+                onSubmit: c.submit,
                 enabled: c.status.value.isEmpty,
                 chat: c.chat,
               );
@@ -150,10 +147,6 @@ class ParticipantsView extends StatelessWidget {
   Widget _chat(BuildContext context, RxChat? chat) {
     return Obx(() {
       Style style = Theme.of(context).extension<Style>()!;
-
-      var actualMembers =
-          ongoingCall.value.members.keys.map((k) => k.userId).toSet();
-
       return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: Container(
@@ -196,7 +189,11 @@ class ParticipantsView extends StatelessWidget {
                             child: Row(
                               children: [
                                 Text(
-                                  '${actualMembers.length} of ${chat?.members.length}',
+                                  'label_a_of_b'.l10nfmt({
+                                    'a':
+                                        '${call.value.members.keys.map((k) => k.userId).toSet().length}',
+                                    'b': '${chat?.members.length}',
+                                  }),
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                                 Container(
@@ -211,7 +208,7 @@ class ParticipantsView extends StatelessWidget {
                                       ?.color,
                                 ),
                                 Text(
-                                  callDuration!.value.hhMmSs(),
+                                  duration.value.hhMmSs(),
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                               ],
@@ -237,7 +234,7 @@ class ParticipantsView extends StatelessWidget {
       onTap: () {},
       trailing: [
         Obx(() {
-          bool inCall = ongoingCall.value.members.keys
+          bool inCall = call.value.members.keys
               .where((e) => e.userId == user.id)
               .isNotEmpty;
 

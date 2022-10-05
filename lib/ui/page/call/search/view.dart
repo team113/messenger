@@ -23,7 +23,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -65,13 +64,13 @@ class SearchView extends StatelessWidget {
   /// If not set then submit button will not be displayed
   final String? submitLabel;
 
-  /// Callback, called when an searched item is tapped.
+  /// Callback, called when a searched item is tapped.
   final void Function(dynamic)? onItemTap;
 
   /// Callback, called when the submit button tapped.
   ///
   /// If not set then submit button will not be displayed.
-  final SubmitCallback? onSubmit;
+  final void Function(List<UserId> ids)? onSubmit;
 
   /// Callback, called when the back button tapped.
   ///
@@ -166,33 +165,13 @@ class SearchView extends StatelessWidget {
                   children: [
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Builder(builder: (context) {
-                        List<Widget> widgets = [];
-
-                        if (searchTypes.contains(Search.recent)) {
-                          widgets.add(_type(c, Search.recent, thin));
-                        }
-
-                        if (searchTypes.contains(Search.contacts)) {
-                          if (widgets.isNotEmpty) {
-                            widgets.add(const SizedBox(width: 20));
-                          }
-                          widgets.add(_type(c, Search.contacts, thin));
-                        }
-
-                        if (searchTypes.contains(Search.users)) {
-                          if (widgets.isNotEmpty) {
-                            widgets.add(const SizedBox(width: 20));
-                          }
-                          widgets.add(_type(c, Search.users, thin));
-                        }
-
-                        return ListView(
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          children: widgets,
-                        );
-                      }),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        children: searchTypes
+                            .map((e) => _type(c, Search.recent, thin))
+                            .toList(),
+                      ),
                     ),
                     Obx(() {
                       return Text(
@@ -229,40 +208,34 @@ class SearchView extends StatelessWidget {
                     delegate: FlutterListViewDelegate(
                       (context, i) {
                         dynamic e = c.getIndex(i);
+                        Widget child = Container();
 
                         if (e is RxUser) {
-                          return Column(
-                            children: [
-                              if (i > 0) const SizedBox(height: 7),
-                              Obx(() {
-                                return tile(
-                                  user: e,
-                                  selected: c.selectedUsers.contains(e),
-                                  onTap: () => selectable
-                                      ? c.selectUser(e)
-                                      : onItemTap?.call(e),
-                                );
-                              }),
-                            ],
-                          );
+                          child = Obx(() {
+                            return tile(
+                              user: e,
+                              selected: c.selectedUsers.contains(e),
+                              onTap: () => selectable
+                                  ? c.selectUser(e)
+                                  : onItemTap?.call(e),
+                            );
+                          });
                         } else if (e is RxChatContact) {
-                          return Column(
-                            children: [
-                              if (i > 0) const SizedBox(height: 7),
-                              Obx(() {
-                                return tile(
-                                  contact: e,
-                                  selected: c.selectedContacts.contains(e),
-                                  onTap: () => selectable
-                                      ? c.selectContact(e)
-                                      : onItemTap?.call(e),
-                                );
-                              }),
-                            ],
-                          );
+                          child = Obx(() {
+                            return tile(
+                              contact: e,
+                              selected: c.selectedContacts.contains(e),
+                              onTap: () => selectable
+                                  ? c.selectContact(e)
+                                  : onItemTap?.call(e),
+                            );
+                          });
                         }
 
-                        return Container();
+                        return Padding(
+                          padding: EdgeInsets.only(top: i > 0 ? 7 : 0),
+                          child: child,
+                        );
                       },
                       childCount:
                           c.contacts.length + c.users.length + c.recent.length,
@@ -270,7 +243,7 @@ class SearchView extends StatelessWidget {
                   );
                 }),
               ),
-              if (onSubmit != null && submitLabel != null) ...[
+              if (submitLabel != null) ...[
                 const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -311,10 +284,8 @@ class SearchView extends StatelessWidget {
                               ),
                             ),
                             onPressed: () =>
-                                enabled ? onSubmit!(c.selected()) : null,
-                            color: enabled
-                                ? const Color(0xFF63B4FF)
-                                : const Color(0xFFEEEEEE),
+                                enabled ? onSubmit?.call(c.selected()) : null,
+                            color: const Color(0xFF63B4FF),
                           );
                         }),
                       ),
