@@ -44,33 +44,25 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardBlur: 5,
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
+            cardColor: Colors.white.withOpacity(0.95),
             cardRadius: BorderRadius.circular(14),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
-            cardColor: Colors.white.withOpacity(0.95),
-            cardBlur: 5,
-            cardBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
-            ),
             dropButtonColor: Colors.red,
+            hoveredBorderUnselected:
+                Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
             joinButtonColor: const Color(0xFF63B4FF),
+            primaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
-            primaryBorder: Border.all(
-              color: const Color(0xFFB9D9FA),
-              width: 0.5,
-            ),
-            hoveredBorderUnselected: Border.all(
-              color: const Color(0xFFDAEDFF),
-              width: 0.5,
-            ),
-            subtitleColor: const Color(0xFF666666),
-            subtitle2Color: const Color(0xFF63B4FF),
             sidebarColor: Colors.white.withOpacity(0.4),
-            statusMessageRead: const Color(0xFF63B4FF),
-            statusMessageNotRead: const Color(0xFF888888),
             statusMessageError: Colors.red,
+            statusMessageNotRead: const Color(0xFF888888),
+            statusMessageRead: const Color(0xFF63B4FF),
+            subtitleColor: const Color(0xFF666666),
             unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
           ),
         ],
@@ -324,24 +316,23 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.barrierColor,
     required this.boldBody,
+    required this.cardBlur,
+    required this.cardBorder,
+    required this.cardColor,
     required this.cardRadius,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
-    required this.cardBlur,
-    required this.cardColor,
-    required this.cardBorder,
     required this.dropButtonColor,
-    required this.joinButtonColor,
-    required this.primaryCardColor,
-    required this.primaryBorder,
     required this.hoveredBorderUnselected,
-    required this.subtitleColor,
-    required this.subtitle2Color,
+    required this.joinButtonColor,
+    required this.primaryBorder,
+    required this.primaryCardColor,
     required this.sidebarColor,
-    required this.statusMessageRead,
-    required this.statusMessageNotRead,
     required this.statusMessageError,
+    required this.statusMessageNotRead,
+    required this.statusMessageRead,
+    required this.subtitleColor,
     required this.unselectedHoverColor,
   });
 
@@ -350,6 +341,15 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// Blur to use in sidebar for chats.
+  final double cardBlur;
+
+  /// [Color] to use in sidebar for chats if chat is not selected.
+  final Color cardColor;
+
+  /// [Border] to use in sidebar for chats if chat is not selected.
+  final Border cardBorder;
 
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
@@ -366,96 +366,83 @@ class Style extends ThemeExtension<Style> {
   /// [Color] reset button.
   final Color dropButtonColor;
 
+  /// [Border] to use in sidebar for chats.
+  final Border hoveredBorderUnselected;
+
   /// [Color] join button.
   final Color joinButtonColor;
-
-  /// Blur to use in sidebar for chats.
-  final double cardBlur;
-
-  /// [Color] to use in sidebar for chats if chat is not selected.
-  final Color cardColor;
-
-  /// [Border] to use in sidebar for chats if chat is not selected.
-  final Border cardBorder;
-
-  /// [Color] to use in sidebar for chats if chat is selected.
-  final Color primaryCardColor;
 
   /// [Border] to use in sidebar for chats if chat is selected.
   final Border primaryBorder;
 
-  /// [Border] to use in sidebar for chats.
-  final Border hoveredBorderUnselected;
-
-  /// [Color] used for the primary text in lists.
-  final Color subtitleColor;
-
-  /// [Color] used for medium emphasis text in lists.
-  final Color subtitle2Color;
+  /// [Color] to use in sidebar for chats if chat is selected.
+  final Color primaryCardColor;
 
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// Icon [Color] when a message has been read.
-  final Color statusMessageRead;
+  /// Icon [Color] when an error occurred while sending a message.
+  final Color statusMessageError;
 
   /// Icon [Color] when a message has not been read.
   final Color statusMessageNotRead;
 
-  /// Icon [Color] when an error occurred while sending a message.
-  final Color statusMessageError;
+  /// Icon [Color] when a message has been read.
+  final Color statusMessageRead;
+
+  /// [Color] used for the primary text in lists.
+  final Color subtitleColor;
 
   /// [Color] to use in sidebar for chats when hovering.
   final Color unselectedHoverColor;
 
   @override
   ThemeExtension<Style> copyWith({
-    Color? barrierColor,
-    TextStyle? boldBody,
+    Border? cardBorder,
+    Border? hoveredBorderUnselected,
+    Border? primaryBorder,
     BorderRadius? cardRadius,
+    BorderRadius? contextMenuRadius,
+    Color? barrierColor,
+    Color? cardColor,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
-    BorderRadius? contextMenuRadius,
-    double? cardBlur,
-    Color? cardColor,
-    Border? cardBorder,
     Color? dropButtonColor,
     Color? joinButtonColor,
     Color? primaryCardColor,
-    Border? primaryBorder,
-    Border? hoveredBorderUnselected,
-    Color? subtitleColor,
-    Color? subtitle2Color,
     Color? sidebarColor,
-    Color? statusMessageRead,
-    Color? statusMessageNotRead,
     Color? statusMessageError,
+    Color? statusMessageNotRead,
+    Color? statusMessageRead,
+    Color? subtitle2Color,
+    Color? subtitleColor,
     Color? unselectedHoverColor,
+    double? cardBlur,
+    TextStyle? boldBody,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
+      cardBlur: cardBlur ?? this.cardBlur,
+      cardBorder: cardBorder ?? this.cardBorder,
+      cardColor: cardColor ?? this.cardColor,
       cardRadius: cardRadius ?? this.cardRadius,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
-      cardBlur: cardBlur ?? this.cardBlur,
-      cardColor: cardColor ?? this.cardColor,
-      cardBorder: cardBorder ?? this.cardBorder,
       dropButtonColor: dropButtonColor ?? this.dropButtonColor,
-      joinButtonColor: joinButtonColor ?? this.joinButtonColor,
-      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
-      primaryBorder: primaryBorder ?? this.primaryBorder,
       hoveredBorderUnselected:
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
-      subtitleColor: subtitleColor ?? this.subtitleColor,
-      subtitle2Color: subtitle2Color ?? this.subtitle2Color,
+      joinButtonColor: joinButtonColor ?? this.joinButtonColor,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
-      statusMessageRead: statusMessageRead ?? this.statusMessageRead,
-      statusMessageNotRead: statusMessageNotRead ?? this.statusMessageNotRead,
       statusMessageError: statusMessageError ?? this.statusMessageError,
+      statusMessageNotRead: statusMessageNotRead ?? this.statusMessageNotRead,
+      statusMessageRead: statusMessageRead ?? this.statusMessageRead,
+      subtitleColor: subtitleColor ?? this.subtitleColor,
       unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
     );
   }
@@ -469,6 +456,9 @@ class Style extends ThemeExtension<Style> {
     return Style(
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
+      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,
@@ -482,25 +472,21 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
-      cardBlur: cardBlur * (1 - t) + other.cardBlur * t,
-      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
-      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
-      joinButtonColor: Color.lerp(joinButtonColor, other.joinButtonColor, t)!,
-      primaryCardColor:
-          Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
-      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       hoveredBorderUnselected: Border.lerp(
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
-      subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
-      subtitle2Color: Color.lerp(subtitle2Color, other.subtitle2Color, t)!,
+      joinButtonColor: Color.lerp(joinButtonColor, other.joinButtonColor, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      primaryCardColor:
+          Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      statusMessageRead:
-          Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
-      statusMessageNotRead:
-          Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
       statusMessageError:
           Color.lerp(statusMessageError, other.statusMessageError, t)!,
+      statusMessageNotRead:
+          Color.lerp(statusMessageNotRead, other.statusMessageNotRead, t)!,
+      statusMessageRead:
+          Color.lerp(statusMessageRead, other.statusMessageRead, t)!,
+      subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       unselectedHoverColor:
           Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
     );

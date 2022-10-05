@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-/// [Widget] creates styles on hover.
+/// [InkWell] button decorated depending on the [selected] indicator.
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
     Key? key,
@@ -25,7 +25,7 @@ class InkWellWithHover extends StatefulWidget {
     this.unselectedHoverColor,
     this.hoveredBorder,
     this.unhoveredBorder,
-    this.isSelected = false,
+    this.selected = false,
     this.onTap,
     this.selectedColor,
     this.unselectedColor,
@@ -35,41 +35,41 @@ class InkWellWithHover extends StatefulWidget {
   /// [BorderRadius] to paint behind the [child].
   final BorderRadius? borderRadius;
 
-  /// [Color] on selected hover.
-  final Color? selectedHoverColor;
-
-  /// [Color] on unselected hover.
-  final Color? unselectedHoverColor;
-
-  /// [Border] on hovered.
+  /// Hovered [Border] of this [InkWellWithHover].
   final Border? hoveredBorder;
 
-  /// [Border] on unhovered.
+  /// [Border] of this [InkWellWithHover].
   final Border? unhoveredBorder;
 
-  /// Indicator whether select on [child].
-  final bool isSelected;
+  /// Indicator whether this [InkWellWithHover] is selected.
+  final bool selected;
 
-  /// Callback on tap.
+  /// Callback, called when this [InkWellWithHover] is pressed.
   final void Function()? onTap;
 
-  /// Initial [Color] for selected chat.
+  /// [Color] of this [InkWellWithHover] when [selected] is `true`.
   final Color? selectedColor;
 
-  /// Initial [Color] for unselected chat.
+  /// Hovered [Color] of this [InkWellWithHover] when [selected] is `true`.
+  final Color? selectedHoverColor;
+
+  /// [Color] of this [InkWellWithHover] when [selected] is `false`.
   final Color? unselectedColor;
 
-  /// [Widget] for hovering.
+  /// Hovered [Color] of this [InkWellWithHover] when [selected] is `false`.
+  final Color? unselectedHoverColor;
+
+  /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
 
   @override
   State<InkWellWithHover> createState() => _InkWellWithHoverState();
 }
 
-/// State of an [InkWellWithHover] maintaining the [isHovered] indicator.
+/// State of an [InkWellWithHover] maintaining the [hovered] indicator.
 class _InkWellWithHoverState extends State<InkWellWithHover> {
-  /// Indicates whether [widget.child] is hovered.
-  bool isHovered = false;
+  /// Indicator whether [InkWellWithHover.child] is hovered.
+  bool hovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -77,22 +77,22 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
       position: DecorationPosition.foreground,
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius,
-        border: isHovered ? widget.hoveredBorder : widget.unhoveredBorder,
+        border: hovered ? widget.hoveredBorder : widget.unhoveredBorder,
       ),
       child: Material(
         type: MaterialType.card,
         borderRadius: widget.borderRadius,
-        color: isHovered
-            ? widget.isSelected
+        color: hovered
+            ? widget.selected
                 ? widget.selectedHoverColor
                 : widget.unselectedHoverColor
-            : widget.isSelected
+            : widget.selected
                 ? widget.selectedColor
                 : widget.unselectedColor,
         child: InkWell(
           borderRadius: widget.borderRadius,
           onTap: widget.onTap?.call,
-          onHover: (bool isHover) => setState(() => isHovered = isHover),
+          onHover: (v) => setState(() => hovered = v),
           hoverColor: Colors.transparent,
           child: widget.child,
         ),

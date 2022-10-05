@@ -15,35 +15,48 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
+import '/domain/repository/chat.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 
-/// Fixed-height chat tile.
+/// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
   const ChatTile({
     Key? key,
-    this.leading,
-    this.title,
-    this.subtitle,
-    this.trailing,
+    this.chat,
+    this.title = const [],
+    this.subtitle = const [],
+    this.leading = const [],
+    this.trailing = const [],
+    this.actions = const [],
     this.style,
     this.selected = false,
     this.onTap,
     this.height = 94,
   }) : super(key: key);
 
-  /// Widget to display before the title.
-  final Widget? leading;
+  /// [Chat] this [ChatTile] represents.
+  final RxChat? chat;
 
-  /// Primary content of the chat tile.
-  final Widget? title;
+  /// Optional [Widget]s to display after the [chat]'s title.
+  final List<Widget> title;
+
+  /// Optional leading [Widget]s.
+  final List<Widget> leading;
+
+  /// Optional trailing [Widget]s.
+  final List<Widget> trailing;
 
   /// Additional content displayed below the title.
-  final Widget? subtitle;
+  final List<Widget> subtitle;
 
-  /// Widget to display after the title.
-  final Widget? trailing;
+  /// [ContextMenuRegion.actions] of this [ChatTile].
+  final List<ContextMenuButton> actions;
 
   /// Chat tile styles.
   final Style? style;
@@ -59,38 +72,58 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: InkWellWithHover(
-          selectedColor: style?.primaryCardColor,
-          unselectedColor: style?.cardColor,
-          isSelected: selected,
-          hoveredBorder:
-              selected ? style?.primaryBorder : style?.hoveredBorderUnselected,
-          unhoveredBorder: selected ? style?.primaryBorder : style?.cardBorder,
-          borderRadius: style?.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor: style?.unselectedHoverColor,
-          selectedHoverColor: style?.primaryCardColor,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                leading ?? const SizedBox.shrink(),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      title ?? const SizedBox.shrink(),
-                      subtitle ?? const SizedBox.shrink(),
-                    ],
+    return ContextMenuRegion(
+      key: Key('ContextMenuRegion_${chat?.chat.value.id}'),
+      preventContextMenu: false,
+      actions: actions,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: InkWellWithHover(
+            selectedColor: style?.primaryCardColor,
+            unselectedColor: style?.cardColor,
+            selected: selected,
+            hoveredBorder: selected
+                ? style?.primaryBorder
+                : style?.hoveredBorderUnselected,
+            unhoveredBorder:
+                selected ? style?.primaryBorder : style?.cardBorder,
+            borderRadius: style?.cardRadius,
+            onTap: onTap,
+            unselectedHoverColor: style?.unselectedHoverColor,
+            selectedHoverColor: style?.primaryCardColor,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  const SizedBox(width: 12),
+                  ...leading,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                chat?.title.value ?? 'dot'.l10n * 3,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                            ),
+                            ...title,
+                          ],
+                        ),
+                        ...subtitle,
+                      ],
+                    ),
                   ),
-                ),
-                trailing ?? const SizedBox.shrink(),
-              ],
+                  ...trailing,
+                ],
+              ),
             ),
           ),
         ),

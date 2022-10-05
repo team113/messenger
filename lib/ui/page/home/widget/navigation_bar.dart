@@ -93,56 +93,45 @@ class CustomNavigationBar extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 9),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: items
-                        .mapIndexed(
-                          (int i, CustomNavigationBarItem b) => Expanded(
-                            key: b.key,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (b.icon != null || b.child != null)
-                                  Badge(
-                                    badgeContent: b.badge == null
-                                        ? null
-                                        : Text(
-                                            b.badge!,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                    showBadge: b.badge != null,
-                                    child: InkResponse(
-                                      hoverColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      splashColor: Colors.transparent,
-                                      onTap: () => onTap?.call(i),
-                                      child: DefaultTextStyle(
-                                        style: TextStyle(
-                                          color: currentIndex == i
-                                              ? selectedColor
-                                              : unselectedColor,
+                    children: items.mapIndexed((i, b) {
+                      return Expanded(
+                        key: b.key,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (b.child != null)
+                              Badge(
+                                badgeContent: b.badge == null
+                                    ? null
+                                    : Text(
+                                        b.badge!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
                                           fontSize: 11,
                                         ),
-                                        child: b.child ??
-                                            FaIcon(
-                                              b.icon,
-                                              color: b.color ??
-                                                  (currentIndex == i
-                                                      ? selectedColor
-                                                      : unselectedColor),
-                                              size: b.size ?? size,
-                                            ),
                                       ),
-                                    ),
-                                  ),
-                                if (b.label != null) Text(b.label!),
-                              ],
-                            ),
-                          ),
-                        )
-                        .toList(),
+                                showBadge: b.badge != null,
+                                child: InkResponse(
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  onTap: () => onTap?.call(i),
+                                  child: DefaultTextStyle(
+                                      style: TextStyle(
+                                        color: currentIndex == i
+                                            ? selectedColor
+                                            : unselectedColor,
+                                        fontSize: 11,
+                                      ),
+                                      child: b.child!),
+                                ),
+                              ),
+                            if (b.label != null) Text(b.label!),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -159,9 +148,6 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.label,
-    this.icon,
-    this.size,
-    this.color,
     this.badge,
     this.child,
   });
@@ -171,17 +157,6 @@ class CustomNavigationBarItem {
 
   /// Label of this item.
   final String? label;
-
-  /// Icon of this item.
-  final IconData? icon;
-
-  /// Size of an [icon].
-  ///
-  /// Overrides the [CustomNavigationBar.size] for this item.
-  final double? size;
-
-  /// Color of an [icon].
-  final Color? color;
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;

@@ -323,8 +323,6 @@ label_chat_monolog = Saved messages
 label_chats = Messages
 label_chat_was_added = was added
 label_chat_was_removed = was removed
-label_choose_chat = Choose a chat
-label_choose_contact = Choose a contact
 label_contact = Contact
 label_contacts = Contacts
 label_copied_to_clipboard = Copied to the clipboard
@@ -459,8 +457,7 @@ label_short_weekday =
         [4] Thu
         [5] Fri
         [6] Sat
-        [7] Sun
-        *[other] ...
+        *[other] Sun
     }
 label_subtitle_participants = participants
 label_tab_chats = Chats

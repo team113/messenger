@@ -18,41 +18,37 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// [Widget] that displays [getWidget] return value with a frequency of [duration].
-class CustomTimerWidget extends StatefulWidget {
-  const CustomTimerWidget({
+/// [Widget] invoking the [builder] over the provided [period].
+class PeriodicBuilder extends StatefulWidget {
+  const PeriodicBuilder({
     super.key,
-    required this.duration,
-    required this.getWidget,
+    required this.period,
+    required this.builder,
   });
 
-  /// [getWidget] call frequency.
-  final Duration duration;
+  /// Period, over which to invoke the [builder].
+  final Duration period;
 
-  /// Builder building content for display.
-  final Widget Function() getWidget;
+  /// Builder building the [Widget] to periodically rebuild.
+  final Widget Function(BuildContext context) builder;
 
   @override
-  State<CustomTimerWidget> createState() => _CustomTimerWidgetState();
+  State<PeriodicBuilder> createState() => _PeriodicBuilderState();
 }
 
-/// State of an [CustomTimerWidget] used to store [Timer].
-class _CustomTimerWidgetState extends State<CustomTimerWidget> {
-  /// Countdown timer.
+/// State of a [PeriodicBuilder] maintaining the [timer].
+class _PeriodicBuilderState extends State<PeriodicBuilder> {
+  /// [Timer] rebuilding this [Widget].
   late final Timer timer;
-
-  /// [Widget] to display.
-  Widget child = const SizedBox.shrink();
 
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(
-      widget.duration,
-      (_) => setState(() {
-        child = widget.getWidget();
-      }),
-    );
+    timer = Timer.periodic(widget.period, (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -62,5 +58,5 @@ class _CustomTimerWidgetState extends State<CustomTimerWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => child;
+  Widget build(BuildContext context) => widget.builder(context);
 }

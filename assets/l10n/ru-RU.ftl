@@ -334,8 +334,6 @@ label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
 label_chat_was_added = был добавлен
 label_chat_was_removed = был удален
-label_choose_chat = Пожалуйста, выберите чат
-label_choose_contact = Выберите пользователя
 label_contact = Контакт
 label_contacts = Контакты
 label_copied_to_clipboard = Скопировано в буфер обмена
@@ -472,8 +470,7 @@ label_short_weekday =
         [4] чт
         [5] пт
         [6] сб
-        [7] вс
-        *[other] ...
+        *[other] вс
     }
 label_subtitle_participants = участников
 label_tab_chats = Чаты

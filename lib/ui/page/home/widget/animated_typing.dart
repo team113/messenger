@@ -18,35 +18,31 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/// [Text] represented three dots that change their count over [duration].
+/// Animated over the provided [period] circles representing an ongoing typing.
 class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
     Key? key,
-    this.duration = const Duration(milliseconds: 250),
-    this.color = Colors.white,
+    this.period = const Duration(seconds: 1),
   }) : super(key: key);
 
-  /// [Duration] over which the count of dots is changed.
-  final Duration duration;
-
-  /// [Color] of the dots.
-  final Color color;
+  /// [Duration] over which the circles are animated.
+  final Duration period;
 
   @override
   State<AnimatedTyping> createState() => _AnimatedTypingState();
 }
 
-/// State of an [AnimatedTyping] used to animate the dots.
+/// State of an [AnimatedTyping] maintaining the [_controller].
 class _AnimatedTypingState extends State<AnimatedTyping>
     with SingleTickerProviderStateMixin {
-  /// [AnimationController] of this view.
+  /// [AnimationController] animating the circles.
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this)
-      ..repeat(period: const Duration(seconds: 1));
+      ..repeat(period: widget.period);
   }
 
   @override
@@ -62,8 +58,10 @@ class _AnimatedTypingState extends State<AnimatedTyping>
       builder: (BuildContext context, _) {
         final Color begin = Theme.of(context).colorScheme.secondary;
         const Color end = Color(0xFFB6DCFF);
+
         const double size = 4;
         const double spacing = 1.6;
+
         final Color? color1 = ColorTween(begin: begin, end: end).lerp(
             sin(pi * const Interval(0, 0.3).transform(_controller.value)));
         final Color? color2 = ColorTween(begin: begin, end: end).lerp(
@@ -76,28 +74,19 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             Container(
               width: size,
               height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color1,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color1),
             ),
             const SizedBox(width: spacing),
             Container(
               width: size,
               height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color2,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color2),
             ),
             const SizedBox(width: spacing),
             Container(
               width: size,
               height: size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color3,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color3),
             ),
             const SizedBox(width: spacing),
           ],

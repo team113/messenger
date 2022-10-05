@@ -14,11 +14,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -38,12 +39,12 @@ import '/ui/page/home/widget/custom_app_bar.dart';
 import '/ui/widget/chat_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/custom_timer_widget.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'create_group/controller.dart';
+import 'widget/periodic_builder.dart';
 
 /// View of the `HomeTab.chats` tab.
 class ChatsTabView extends StatelessWidget {
@@ -121,10 +122,7 @@ class ChatsTabView extends StatelessWidget {
                               child: Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 10),
-                                child: _ChatTileConfiguration(
-                                  rxChat: rxChat,
-                                  controller: c,
-                                ),
+                                child: _ChatTile(c, rxChat),
                               ),
                             ),
                           ),
@@ -145,127 +143,195 @@ class ChatsTabView extends StatelessWidget {
 }
 
 /// Reactive [ChatTile] with [RxChat]'s information.
-class _ChatTileConfiguration extends StatelessWidget {
-  const _ChatTileConfiguration({
-    required this.rxChat,
-    required this.controller,
-  });
+class _ChatTile extends StatelessWidget {
+  const _ChatTile(this.c, this.rxChat);
 
   /// Unified reactive [Chat] entity with its [ChatItem]s.
   final RxChat rxChat;
 
   /// Controller of the [HomeTab.chats] tab.
-  final ChatsTabController controller;
+  final ChatsTabController c;
 
   @override
   Widget build(BuildContext context) {
-    final Chat chat = rxChat.chat.value;
     final Style style = Theme.of(context).extension<Style>()!;
 
-    return ContextMenuRegion(
-      key: Key('ContextMenuRegion_${chat.id}'),
-      preventContextMenu: false,
-      actions: [
-        ContextMenuButton(
-          key: const Key('ButtonHideChat'),
-          label: 'btn_hide_chat'.l10n,
-          onPressed: () => controller.hideChat(chat.id),
-        ),
-        if (chat.isGroup)
-          ContextMenuButton(
-            key: const Key('ButtonLeaveChat'),
-            label: 'btn_leave_chat'.l10n,
-            onPressed: () => controller.leaveChat(chat.id),
-          ),
-      ],
-      child: Obx(
-        () {
-          return ChatTile(
-            leading: AvatarWidget.fromRxChat(rxChat, radius: 30),
-            trailing: _trailing(controller, chat, style),
-            title: _title(context, controller, rxChat, style.subtitle2Color),
-            subtitle: _extendedSubtitle(context, controller, rxChat, style),
-            style: style,
-            selected: router.routeStartsWith(
-              Routes.chat,
-              '${Routes.chat}/${chat.id}',
+    return Obx(() {
+      final Chat chat = rxChat.chat.value;
+
+      final int? microsecondsSinceEpoch =
+          c.getCallStart(chat.id)?.microsecondsSinceEpoch;
+
+      final TextStyle? textStyle = Theme.of(context)
+          .textTheme
+          .subtitle2
+          ?.copyWith(
+              color: chat.ongoingCall == null
+                  ? null
+                  : Theme.of(context).colorScheme.secondary);
+
+      bool selected = router.routes
+              .lastWhereOrNull((e) => e.startsWith(Routes.chat))
+              ?.startsWith('${Routes.chat}/${chat.id}') ==
+          true;
+
+      final Widget trailing;
+
+      if (chat.ongoingCall != null) {
+        if (c.isInCall(chat.id)) {
+          trailing = WidgetButton(
+            key: const Key('DropCallButton'),
+            onPressed: () => c.dropCall(chat.id),
+            child: Container(
+              height: 32,
+              width: 32,
+              decoration: BoxDecoration(
+                color: style.dropButtonColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SvgLoader.asset(
+                  'assets/icons/call_end.svg',
+                  width: 32,
+                  height: 32,
+                ),
+              ),
             ),
-            onTap: () => router.chat(chat.id),
           );
-        },
-      ),
-    );
-  }
-
-  /// Creates [_subtitle] with a count of unread [ChatItem].
-  Widget _extendedSubtitle(
-    BuildContext context,
-    ChatsTabController c,
-    RxChat rxChat,
-    Style style,
-  ) {
-    final Chat chat = rxChat.chat.value;
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 7),
-      child: SizedBox(
-        height: 23,
-        child: Row(
-          children: [
-            const SizedBox(height: 3),
-            Expanded(
-              child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.subtitle2!,
-                overflow: TextOverflow.ellipsis,
-                child: Row(
-                  children:
-                      _subtitle(context, c, rxChat, style.subtitleColor) ?? [],
+        } else {
+          trailing = WidgetButton(
+            key: const Key('JoinCallButton'),
+            onPressed: () => c.joinCall(chat.id),
+            child: Container(
+              height: 32,
+              width: 32,
+              decoration: BoxDecoration(
+                color: style.joinButtonColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: SvgLoader.asset(
+                  'assets/icons/audio_call_start.svg',
+                  width: 15,
+                  height: 15,
                 ),
               ),
             ),
-            ..._messsageStatus(c, chat, style),
-            if (chat.unreadCount != 0) ...[
-              const SizedBox(width: 10),
-              Container(
-                width: 23,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  '${chat.unreadCount > 99 ? '99+' : chat.unreadCount}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  textAlign: TextAlign.center,
-                ),
+          );
+          ;
+        }
+      } else {
+        trailing = const SizedBox.shrink(key: Key('NoCall'));
+      }
+
+      return ChatTile(
+        chat: rxChat,
+        title: [
+          const SizedBox(height: 10),
+          if (chat.ongoingCall == null &&
+              chat.lastDelivery.microsecondsSinceEpoch != 0)
+            Text(
+              chat.lastDelivery.toDateAndWeekday(),
+              style: textStyle,
+            ),
+          if (chat.ongoingCall != null && microsecondsSinceEpoch != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: PeriodicBuilder(
+                period: const Duration(seconds: 1),
+                builder: (_) {
+                  return Text(
+                    Duration(
+                      microseconds: DateTime.now().microsecondsSinceEpoch -
+                          microsecondsSinceEpoch,
+                    ).hhMmSs(),
+                    style: textStyle,
+                  );
+                },
               ),
-            ],
-          ],
-        ),
-      ),
-    );
+            ),
+        ],
+        subtitle: [
+          const SizedBox(height: 7),
+          SizedBox(
+            height: 23,
+            child: Row(
+              children: [
+                const SizedBox(height: 3),
+                Expanded(
+                  child: DefaultTextStyle(
+                    style: Theme.of(context).textTheme.subtitle2!,
+                    overflow: TextOverflow.ellipsis,
+                    child: _subtitle(context, c, rxChat, style.subtitleColor),
+                  ),
+                ),
+                ..._messsageStatus(c, chat, style),
+                if (chat.unreadCount != 0) ...[
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 23,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${chat.unreadCount > 99 ? '99+' : chat.unreadCount}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+        trailing: [
+          AnimatedSwitcher(duration: 300.milliseconds, child: trailing)
+        ],
+        actions: [
+          ContextMenuButton(
+            key: const Key('ButtonHideChat'),
+            label: 'btn_hide_chat'.l10n,
+            onPressed: () => c.hideChat(chat.id),
+          ),
+          if (chat.isGroup)
+            ContextMenuButton(
+              key: const Key('ButtonLeaveChat'),
+              label: 'btn_leave_chat'.l10n,
+              onPressed: () => c.leaveChat(chat.id),
+            ),
+        ],
+        style: style,
+        selected: selected,
+        onTap: () => router.chat(chat.id),
+      );
+    });
   }
 
   /// Gets message status widget.
   List<Widget> _messsageStatus(ChatsTabController c, Chat chat, Style style) {
-    if (chat.lastItem?.authorId == controller.me) {
-      final bool isSent = chat.lastItem?.status.value == SendingStatus.sent;
+    ChatItem? item = chat.lastItem;
+
+    if (item?.authorId == c.me) {
+      final bool isSent = item?.status.value == SendingStatus.sent;
+
       final bool isRead = chat.lastReads.firstWhereOrNull((LastChatRead l) =>
-                  l.memberId != controller.me &&
-                  !l.at.isBefore(chat.lastItem!.at)) !=
+                  l.memberId != c.me && !l.at.isBefore(item!.at)) !=
               null &&
           isSent;
-      final bool isDelivered =
-          isSent && !chat.lastDelivery.isBefore(chat.lastItem!.at);
-      final bool isError = chat.lastItem?.status.value == SendingStatus.error;
-      final bool isSending =
-          chat.lastItem?.status.value == SendingStatus.sending;
+
+      final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item!.at);
+
+      final bool isError = item?.status.value == SendingStatus.error;
+
+      final bool isSending = item?.status.value == SendingStatus.sending;
 
       if (isSent || isDelivered || isRead || isSending || isError) {
         return [
@@ -293,7 +359,7 @@ class _ChatTileConfiguration extends StatelessWidget {
   }
 
   /// Creates additional content displayed below the title.
-  List<Widget>? _subtitle(
+  Widget _subtitle(
     BuildContext context,
     ChatsTabController c,
     RxChat rxChat,
@@ -303,7 +369,7 @@ class _ChatTileConfiguration extends StatelessWidget {
     final Iterable<String> typings = rxChat.typingUsers
         .where((User user) => user.id != c.me)
         .map((User user) => user.name?.val ?? user.num.val);
-    List<Widget>? subtitle;
+    List<Widget> subtitle = [];
     ChatItem? item;
     if (rxChat.messages.isNotEmpty) {
       item = rxChat.messages.last.value;
@@ -469,115 +535,23 @@ class _ChatTileConfiguration extends StatelessWidget {
       }
     }
 
-    return subtitle;
+    return Row(children: subtitle);
   }
+}
 
-  /// Creates a widget to display after the title.
-  Widget? _trailing(ChatsTabController c, Chat chat, Style style) {
-    if (chat.ongoingCall != null) {
-      final Widget dropButton = WidgetButton(
-        key: const Key('Drop'),
-        onPressed: () => c.dropCall(chat.id),
-        child: Container(
-          key: const Key('Drop'),
-          height: 32,
-          width: 32,
-          decoration: BoxDecoration(
-            color: style.dropButtonColor,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: SvgLoader.asset(
-              'assets/icons/call_end.svg',
-              width: 32,
-              height: 32,
-            ),
-          ),
-        ),
-      );
-      final Widget joinButton = WidgetButton(
-        key: const Key('Join'),
-        onPressed: () => c.joinCall(chat.id),
-        child: Container(
-          key: const Key('Join'),
-          height: 32,
-          width: 32,
-          decoration: BoxDecoration(
-            color: style.joinButtonColor,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: SvgLoader.asset(
-              'assets/icons/audio_call_start.svg',
-              width: 15,
-              height: 15,
-            ),
-          ),
-        ),
-      );
-
-      return Column(
-        children: [
-          const SizedBox(width: 10),
-          AnimatedSwitcher(
-            key: const Key('ActiveCallButton'),
-            duration: 300.milliseconds,
-            child: c.isInCall(chat.id) ? dropButton : joinButton,
-          ),
-        ],
-      );
+/// Extension adding conversion to date from a [PreciseDateTime].
+extension _AdditionalFormatting on PreciseDateTime {
+  /// Converts [PreciseDateTime] to a date string or day of the week.
+  ///
+  /// If the date is less than a week, then output the day of the week, otherwise the date in the format yyyy-mm-dd.
+  String toDateAndWeekday() {
+    final DateTime pastWeek = DateTime.now().subtract(const Duration(days: 7));
+    if (val.isBefore(pastWeek)) {
+      final String day = val.day.toString().padLeft(2, '0');
+      final String month = val.month.toString().padLeft(2, '0');
+      return '${val.year}-$month-$day';
     } else {
-      return null;
+      return 'label_short_weekday'.l10nfmt({'weekday': val.weekday});
     }
-  }
-
-  /// Creates the primary content of the chat tile.
-  Widget _title(
-    BuildContext context,
-    ChatsTabController c,
-    RxChat rxChat,
-    Color subtitle2Color,
-  ) {
-    final Chat chat = rxChat.chat.value;
-    final int? microsecondsSinceEpoch =
-        c.getCallStart(chat.id)?.microsecondsSinceEpoch;
-    final TextStyle? textStyle = Theme.of(context)
-        .textTheme
-        .subtitle2
-        ?.copyWith(color: chat.ongoingCall == null ? null : subtitle2Color);
-
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            rxChat.title.value,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: Theme.of(context).textTheme.headline5,
-          ),
-        ),
-        const SizedBox(height: 10),
-        if (chat.ongoingCall == null &&
-            chat.lastDelivery.microsecondsSinceEpoch != 0)
-          Text(
-            chat.lastDelivery.toDateAndWeekday(),
-            style: textStyle,
-          ),
-        if (chat.ongoingCall != null && microsecondsSinceEpoch != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: CustomTimerWidget(
-              duration: const Duration(seconds: 1),
-              getWidget: () => Text(
-                Duration(
-                  microseconds: DateTime.now().microsecondsSinceEpoch -
-                      microsecondsSinceEpoch,
-                ).hhMmSs(),
-                style: textStyle,
-              ),
-            ),
-          ),
-      ],
-    );
   }
 }

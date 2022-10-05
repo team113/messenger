@@ -14,31 +14,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:messenger/l10n/l10n.dart';
-
-import 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
-
 export 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
+import 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
 
 /// Extension adding [DateTime] to [PreciseDateTime] conversion method.
 extension DateTimeToPreciseDateTime on DateTime {
   /// Constructs a [PreciseDateTime] from this [DateTime].
   PreciseDateTime toPrecise() => PreciseDateTime(this);
-}
-
-/// Extension adding conversion to date from a [PreciseDateTime].
-extension AdditionalFormatting on PreciseDateTime {
-  /// Converts [PreciseDateTime] to a date string or day of the week.
-  ///
-  /// If the date is less than a week, then output the day of the week, otherwise the date in the format yyyy-mm-dd.
-  String toDateAndWeekday() {
-    final DateTime pastWeek = DateTime.now().subtract(const Duration(days: 7));
-    if (val.isBefore(pastWeek)) {
-      final String day = val.day.toString().padLeft(2, '0');
-      final String month = val.month.toString().padLeft(2, '0');
-      return '${val.year}-$month-$day';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': val.weekday});
-    }
-  }
 }
