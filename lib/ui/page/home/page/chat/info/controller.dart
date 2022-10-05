@@ -16,12 +16,14 @@
 
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
@@ -66,6 +68,9 @@ class ChatInfoController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
   Timer? _linkTimer;
 
+  /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
+  Timer? _addAvatarTimer;
+
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
@@ -82,6 +87,9 @@ class ChatInfoController extends GetxController {
   /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
   /// - `status.isSuccess`, meaning [chat] is successfully fetched.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// Status of the [Chat.avatar] update.
+  final Rx<RxStatus> avatarStatus = Rx<RxStatus>(RxStatus.empty());
 
   @override
   void onInit() {
@@ -281,6 +289,44 @@ class ChatInfoController extends GetxController {
     );
 
     MessagePopup.success('label_copied_to_clipboard'.l10n);
+  }
+
+  /// Opens a file choose popup and updates the [Chat.avatar] with the selected
+  /// [image].
+  Future<void> pickGalleryItem() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withReadStream: true,
+    );
+
+    if (result != null) {
+      _updateChatAvatar(result.files.first);
+    }
+  }
+
+  /// Resets [Chat.avatar] to null.
+  Future<void> removeChatAvatar() async => _updateChatAvatar(null);
+
+  /// Updates the [Chat.avatar] field with the provided [image], or resets it to
+  /// null.
+  Future<void> _updateChatAvatar(PlatformFile? image) async {
+    try {
+      _addAvatarTimer?.cancel();
+      avatarStatus.value = RxStatus.loading();
+      await _chatService.uploadChatAvatar(
+        chatId,
+        file: (image == null) ? null : NativeFile.fromPlatformFile(image),
+      );
+      avatarStatus.value = RxStatus.success();
+    } on UpdateChatAvatarException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      _addAvatarTimer = Timer(const Duration(seconds: 1),
+          () => avatarStatus.value = RxStatus.empty());
+    }
   }
 
   /// Fetches the [chat].

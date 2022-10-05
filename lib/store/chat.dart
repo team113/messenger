@@ -30,6 +30,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -572,6 +573,50 @@ class ChatRepository implements AbstractChatRepository {
         text: text,
         attachments: attachments,
       );
+
+  @override
+  Future<void> uploadChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    dio.MultipartFile? upload;
+
+    if (file != null) {
+      await file.ensureCorrectMediaType();
+
+      if (file.stream != null) {
+        upload = dio.MultipartFile(
+          file.stream!,
+          file.size,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.bytes != null) {
+        upload = dio.MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          file.path!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+    }
+
+    await _graphQlProvider.updateChatAvatar(
+      id,
+      file: upload,
+      onSendProgress: onSendProgress,
+    );
+  }
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

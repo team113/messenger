@@ -20,6 +20,7 @@ import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
@@ -274,6 +275,20 @@ class ChatService extends DisposableService {
       attachments: attachments,
     );
   }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
+  Future<void> uploadChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) =>
+      _chatRepository.uploadChatAvatar(id,
+          file: file, onSendProgress: onSendProgress);
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

@@ -62,6 +62,7 @@ class ChatInfoView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 10),
+                                _avatar(c),
                                 _name(c),
                                 _link(context, c),
                                 Padding(
@@ -102,28 +103,44 @@ class ChatInfoView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns [Chat.name] editable field.
-  Widget _name(ChatInfoController c) => Obx(
+  /// Returns [Chat.avatar], change and delete [Chat.avatar] buttons.
+  Widget _avatar(ChatInfoController c) => Obx(
         () => _padding(
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
               AvatarWidget.fromRxChat(c.chat, radius: 29),
               const SizedBox(width: 10),
-              Expanded(
-                child: ReactiveTextField(
-                  key: const Key('RenameChatField'),
-                  state: c.chatName,
-                  style: const TextStyle(fontSize: 20),
-                  suffix: Icons.edit,
-                  label: c.chat?.chat.value.name == null
-                      ? c.chat?.title.value
-                      : 'label_name'.l10n,
-                  hint: 'label_name_hint'.l10n,
+              if (c.avatarStatus.value.isEmpty) ...[
+                TextButton(
+                  onPressed: c.pickGalleryItem,
+                  child: const Text('Change avatar'),
                 ),
-              )
+                if (c.chat?.avatar.value != null)
+                  TextButton(
+                    onPressed: c.removeChatAvatar,
+                    child: const Text('Delete avatar'),
+                  ),
+              ],
+              if (c.avatarStatus.value.isLoading)
+                const CircularProgressIndicator(),
+              if (c.avatarStatus.value.isSuccess) const Icon(Icons.check)
             ],
+          ),
+        ),
+      );
+
+  /// Returns [Chat.name] editable field.
+  Widget _name(ChatInfoController c) => Obx(
+        () => _padding(
+          ReactiveTextField(
+            key: const Key('RenameChatField'),
+            state: c.chatName,
+            style: const TextStyle(fontSize: 20),
+            suffix: Icons.edit,
+            label: c.chat?.chat.value.name == null
+                ? c.chat?.title.value
+                : 'label_name'.l10n,
+            hint: 'label_name_hint'.l10n,
           ),
         ),
       );

@@ -1,0 +1,15 @@
+mutation UpdateChatAvatar(
+    $chatId: ChatId!
+    $file: Upload
+    $crop: CropAreaInput
+) {
+    updateChatAvatar(chatId: $chatId, file: $file, crop: $crop) {
+        __typename
+        ... on ChatEventsVersioned {
+            ...ChatEventsVersioned
+        }
+        ... on UpdateChatAvatarError {
+            code
+        }
+    }
+}
