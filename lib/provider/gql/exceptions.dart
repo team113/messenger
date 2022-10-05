@@ -669,6 +669,8 @@ class PostChatMessageException
         return 'err_unknown_replying_chat_item'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case PostChatMessageErrorCode.wrongItemsCount:
+        return 'err_wrong_items_count'.l10n;
     }
   }
 }

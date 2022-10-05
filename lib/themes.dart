@@ -38,6 +38,7 @@ class Themes {
     return ThemeData.light().copyWith(
         extensions: [
           Style(
+            barrierColor: const Color(0xBB000000),
             boldBody: GoogleFonts.roboto(
               color: Colors.black,
               fontSize: 17,
@@ -46,6 +47,9 @@ class Themes {
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
             cardRadius: BorderRadius.circular(14),
+            contextMenuBackgroundColor: const Color(0xFFF2F2F2),
+            contextMenuHoveredColor: const Color(0xFFE5E7E9),
+            contextMenuRadius: BorderRadius.circular(10),
             sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
@@ -191,6 +195,15 @@ class Themes {
         scrollbarTheme: ThemeData.light()
             .scrollbarTheme
             .copyWith(thickness: MaterialStateProperty.all(6)),
+        radioTheme: ThemeData.light().radioTheme.copyWith(
+          fillColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return const Color(0xFF63B4FF);
+            }
+
+            return const Color(0xFF888888);
+          }),
+        ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
@@ -245,12 +258,19 @@ class CustomBoxShadow extends BoxShadow {
 /// [ThemeExtension] containing custom additional style-related fields.
 class Style extends ThemeExtension<Style> {
   const Style({
+    required this.barrierColor,
     required this.boldBody,
     required this.cardBorder,
     required this.cardColor,
     required this.cardRadius,
+    required this.contextMenuBackgroundColor,
+    required this.contextMenuHoveredColor,
+    required this.contextMenuRadius,
     required this.sidebarColor,
   });
+
+  /// [Color] of the modal background barrier color.
+  final Color barrierColor;
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
@@ -264,22 +284,41 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
 
+  /// Background [Color] of the [ContextMenu].
+  final Color contextMenuBackgroundColor;
+
+  /// [Color] of the hovered [ContextMenuButton].
+  final Color contextMenuHoveredColor;
+
+  /// [BorderRadius] of the [ContextMenu].
+  final BorderRadius contextMenuRadius;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
   @override
   ThemeExtension<Style> copyWith({
+    Color? barrierColor,
     TextStyle? boldBody,
     Border? cardBorder,
     Color? cardColor,
     BorderRadius? cardRadius,
+    Color? contextMenuBackgroundColor,
+    Color? contextMenuHoveredColor,
+    BorderRadius? contextMenuRadius,
     Color? sidebarColor,
   }) {
     return Style(
+      barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
       cardRadius: cardRadius ?? this.cardRadius,
+      contextMenuBackgroundColor:
+          contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
+      contextMenuHoveredColor:
+          contextMenuHoveredColor ?? this.contextMenuHoveredColor,
+      contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
       sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
@@ -291,10 +330,23 @@ class Style extends ThemeExtension<Style> {
     }
 
     return Style(
+      barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
+      contextMenuBackgroundColor: Color.lerp(
+        contextMenuBackgroundColor,
+        other.contextMenuBackgroundColor,
+        t,
+      )!,
+      contextMenuHoveredColor: Color.lerp(
+        contextMenuHoveredColor,
+        other.contextMenuHoveredColor,
+        t,
+      )!,
+      contextMenuRadius:
+          BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }

@@ -117,8 +117,10 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       await WindowManager.instance.setFullScreen(true);
     } else if (isMobile) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: []);
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [],
+      );
     }
   }
 
@@ -149,7 +151,7 @@ class PlatformUtilsImpl {
     CancelToken? cancelToken,
   }) async {
     if (PlatformUtils.isWeb) {
-      WebUtils.downloadFile(url, filename);
+      await WebUtils.downloadFile(url, filename);
       return null;
     } else {
       final String name = p.basenameWithoutExtension(filename);

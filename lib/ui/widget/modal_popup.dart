@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// Stylized modal popup.
@@ -27,18 +28,22 @@ abstract class ModalPopup {
     required BuildContext context,
     required Widget child,
     BoxConstraints desktopConstraints = const BoxConstraints(maxWidth: 300),
-    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
     BoxConstraints modalConstraints = const BoxConstraints(maxWidth: 420),
-    EdgeInsets desktopPadding =
-        const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    BoxConstraints mobileConstraints = const BoxConstraints(maxWidth: 360),
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
+    EdgeInsets desktopPadding = const EdgeInsets.all(10),
+    bool isDismissible = true,
   }) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     if (context.isMobile && PlatformUtils.isMobile) {
       return showModalBottomSheet(
         context: context,
-        barrierColor: const Color(0xBB000000),
+        barrierColor: style.barrierColor,
         isScrollControlled: true,
         backgroundColor: Colors.white,
+        isDismissible: isDismissible,
+        enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(8),
@@ -51,17 +56,19 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    width: 60,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCCCCCC),
-                      borderRadius: BorderRadius.circular(12),
+                if (isDismissible) ...[
+                  Center(
+                    child: Container(
+                      width: 60,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCCCCCC),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
+                ],
                 Flexible(
                   child: Padding(
                     padding: mobilePadding,
@@ -80,7 +87,8 @@ abstract class ModalPopup {
     } else {
       return showDialog(
         context: context,
-        barrierColor: const Color(0xBB000000),
+        barrierColor: style.barrierColor,
+        barrierDismissible: isDismissible,
         builder: (context) {
           return Center(
             child: Container(
@@ -115,15 +123,17 @@ abstract class ModalPopup {
                             : EdgeInsets.zero,
                         child: SizedBox(
                           height: 16,
-                          child: InkResponse(
-                            onTap: Navigator.of(context).pop,
-                            radius: 11,
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Color(0xBB818181),
-                            ),
-                          ),
+                          child: isDismissible
+                              ? InkResponse(
+                                  onTap: Navigator.of(context).pop,
+                                  radius: 11,
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Color(0xBB818181),
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                     ),

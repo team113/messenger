@@ -54,7 +54,6 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -86,7 +85,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -137,7 +136,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-21T11:42:40.553339+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'to hide message',
                   'editedAt': null,
                   'attachments': []
@@ -152,7 +151,7 @@ void main() async {
                   'authorId': 'me',
                   'at': '2022-01-21T11:42:35.284555+00:00',
                   'ver': '1',
-                  'repliesTo': null,
+                  'repliesTo': [],
                   'text': 'text message',
                   'editedAt': null,
                   'attachments': []
@@ -283,7 +282,7 @@ void main() async {
       home: Builder(
         builder: (BuildContext context) {
           router.context = context;
-          return Scaffold(body: ContextMenuOverlay(child: child));
+          return Scaffold(body: child);
         },
       ),
     );
@@ -336,7 +335,13 @@ void main() async {
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.tap(find.byKey(const Key('Delete')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.tap(find.byKey(const Key('DeleteForAll')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(
@@ -356,7 +361,13 @@ void main() async {
     await tester.longPress(hidden);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.tap(find.byKey(const Key('Delete')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.tap(find.byKey(const Key('HideForMe')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(

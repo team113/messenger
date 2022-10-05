@@ -36,14 +36,11 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/page/call/participant/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/widget/context_menu/overlay.dart';
 import '/ui/widget/modal_popup.dart';
-import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -729,7 +726,6 @@ class CallController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
-    Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
   }

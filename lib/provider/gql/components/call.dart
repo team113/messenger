@@ -73,7 +73,7 @@ abstract class CallGraphQlMixin {
     int? last,
     IncomingChatCallsCursor? before,
   }) async {
-    var variables = IncomingCallsArguments(
+    final variables = IncomingCallsArguments(
       first: first,
       after: after,
       last: last,
@@ -136,7 +136,7 @@ abstract class CallGraphQlMixin {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
-    var variables = CallEventsArguments(id: id, deviceId: deviceId);
+    final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'CallEvents',
@@ -186,7 +186,7 @@ abstract class CallGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
-    var variables = IncomingCallsTopEventsArguments(count: count);
+    final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'IncomingCallsTopEvents',
@@ -224,7 +224,7 @@ abstract class CallGraphQlMixin {
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
-    var variables = StartCallArguments(
+    final variables = StartCallArguments(
       chatId: chatId,
       creds: creds,
       withVideo: withVideo,
@@ -271,7 +271,7 @@ abstract class CallGraphQlMixin {
   /// [MyUser] joined the current [ChatCall] already (is a member of it).
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
       ChatId chatId, ChatCallCredentials creds) async {
-    var variables = JoinCallArguments(chatId: chatId, creds: creds);
+    final variables = JoinCallArguments(chatId: chatId, creds: creds);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'JoinCall',
@@ -311,7 +311,7 @@ abstract class CallGraphQlMixin {
     ChatId chatId,
     ChatCallDeviceId deviceId,
   ) async {
-    var variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
+    final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'LeaveCall',
@@ -349,7 +349,7 @@ abstract class CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if there is no current
   /// [ChatCall], or it is declined by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> declineChatCall(ChatId chatId) async {
-    var variables = DeclineCallArguments(chatId: chatId);
+    final variables = DeclineCallArguments(chatId: chatId);
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'DeclineCall',
@@ -391,7 +391,7 @@ abstract class CallGraphQlMixin {
   /// [MyUser] has raised/lowered his hand already.
   Future<ChatCallEventsVersionedMixin?> toggleChatCallHand(
       ChatId chatId, bool raised) async {
-    var variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
+    final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleCallHand',
@@ -442,7 +442,7 @@ abstract class CallGraphQlMixin {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
-    var variables = TransformDialogCallIntoGroupCallArguments(
+    final variables = TransformDialogCallIntoGroupCallArguments(
       chatId: chatId,
       additionalMemberIds: additionalMemberIds,
       groupName: groupName,

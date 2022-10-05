@@ -38,7 +38,6 @@ import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/download_file.dart';
-import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/in_chat_with.dart';
@@ -46,6 +45,7 @@ import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
+import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -71,7 +71,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         cancelFileDownload,
         copyFromField,
         downloadFile,
-        expectNWidget,
         fillField,
         fillFieldN,
         goToUserPage,
@@ -86,6 +85,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         noInternetConnection,
         pasteToField,
         restartApp,
+        scrollAndSee,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,

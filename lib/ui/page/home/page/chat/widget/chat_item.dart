@@ -40,7 +40,9 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -70,6 +72,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onResend,
     this.onFileTap,
+    this.onAttachmentError,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -89,22 +92,22 @@ class ChatItemWidget extends StatefulWidget {
   final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
-  final Function()? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a delete action of this [ChatItem] is triggered.
-  final Function()? onDelete;
+  final void Function()? onDelete;
 
   /// Callback, called when join call button is pressed.
-  final Function()? onJoinCall;
+  final void Function()? onJoinCall;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
-  final Function()? onReply;
+  final void Function()? onReply;
 
   /// Callback, called when an edit action of this [ChatItem] is triggered.
-  final Function()? onEdit;
+  final void Function()? onEdit;
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
-  final Function(String text)? onCopy;
+  final void Function(String text)? onCopy;
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
@@ -115,16 +118,19 @@ class ChatItemWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
-  final Function(ChatItemId)? onRepliedTap;
+  final void Function(ChatItemId)? onRepliedTap;
 
   /// Callback, called when a forwarded message of this [ChatItem] is tapped.
-  final Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemId, ChatId)? onForwardedTap;
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
-  final Function()? onResend;
+  final void Function()? onResend;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
-  final Function(FileAttachment)? onFileTap;
+  final void Function(FileAttachment)? onFileTap;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onAttachmentError;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -338,13 +344,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (snapshot.data?.user.value != null)
-                          Text(
-                            snapshot.data?.user.value.name?.val ??
-                                snapshot.data?.user.value.num.val ??
-                                '...',
-                            style: style.boldBody.copyWith(color: color),
-                          ),
+                        Text(
+                          snapshot.data?.user.value.name?.val ??
+                              snapshot.data?.user.value.num.val ??
+                              '...',
+                          style: style.boldBody.copyWith(color: color),
+                        ),
                         if (content != null) ...[
                           const SizedBox(height: 2),
                           content,
@@ -394,11 +399,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: const Key('ChatMessage'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (msg.repliesTo != null) ...[
-            InkWell(
-              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: _repliedMessage(msg.repliesTo!),
-            ),
+          if (msg.repliesTo.isNotEmpty) ...[
+            ...msg.repliesTo.map((e) {
+              return InkWell(
+                onTap: () => widget.onRepliedTap?.call(e.id),
+                child: _repliedMessage(e),
+              );
+            }),
             if (msg.text != null) const SizedBox(height: 5),
           ],
           if (msg.text != null) Text(msg.text!.val),
@@ -548,7 +555,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.medium}'),
+                      image: NetworkImage(
+                        '${Config.files}${image.medium.relativeRef}',
+                      ),
+                      onError: (_, __) => widget.onAttachmentError?.call(),
                       fit: BoxFit.cover,
                     ),
             ),
@@ -577,9 +587,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.finishedAt!.val
+              .difference(item.conversationStartedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == widget.me
             ? 'label_outgoing_call'.l10n
@@ -653,13 +666,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (snapshot.data?.user.value != null)
-                      Text(
-                        snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
-                            '...',
-                        style: style.boldBody.copyWith(color: color),
-                      ),
+                    Text(
+                      snapshot.data?.user.value.name?.val ??
+                          snapshot.data?.user.value.num.val ??
+                          '...',
+                      style: style.boldBody.copyWith(color: color),
+                    ),
                     if (content != null) ...[
                       const SizedBox(height: 2),
                       DefaultTextStyle.merge(
@@ -710,11 +722,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  var link = '${Config.url}/files${o.original}';
+                  String link = '${Config.files}${o.original.relativeRef}';
                   if (o is FileAttachment) {
                     gallery.add(GalleryItem.video(link, o.filename));
                   } else if (o is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, o.filename));
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await widget.onAttachmentError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
                   }
                 }
 
@@ -742,10 +765,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   bytes: e.file.bytes!,
                                   height: 300,
                                 )
-                          : VideoThumbnail.path(
+                          : VideoThumbnail.url(
                               key: _galleryKeys[i],
-                              path: '${Config.url}/files${e.original}',
+                              url: '${Config.files}${e.original.relativeRef}',
                               height: 300,
+                              onError: widget.onAttachmentError,
                             ),
                       Container(
                         width: 60,
@@ -774,17 +798,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Container(
                         key: const Key('SentImage'),
                         child: Image.network(
-                          '${Config.url}/files${e.original}',
+                          '${Config.files}${e.original.relativeRef}',
                           key: _galleryKeys[i],
                           fit: BoxFit.cover,
                           height: 300,
-                          errorBuilder: (_, __, ___) => const SizedBox(
-                            width: 300.0,
-                            height: 300.0,
-                            child: Center(
-                              child: Icon(Icons.error, color: Colors.red),
-                            ),
-                          ),
+                          errorBuilder: (_, __, ___) {
+                            return InitCallback(
+                              callback: () => widget.onAttachmentError?.call(),
+                              child: const SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
             ElasticAnimatedSwitcher(
@@ -927,7 +955,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
               child: Text(
-                '${e.size ~/ 1024} KB',
+                e.original.size == null
+                    ? '... KB'
+                    : '${e.original.size! ~/ 1024} KB',
                 style: const TextStyle(
                   color: Color(0xFF888888),
                   fontSize: 13,
@@ -1016,11 +1046,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
-                child: AvatarWidget.fromUser(
-                  widget.user?.user.value ??
-                      widget.chat.value!.getUser(item.authorId),
-                  radius: 15,
-                ),
+                child: widget.user != null
+                    ? AvatarWidget.fromRxUser(
+                        widget.user,
+                        radius: 15,
+                      )
+                    : AvatarWidget.fromUser(
+                        widget.chat.value!.getUser(item.authorId),
+                        radius: 15,
+                      ),
               ),
             ),
           Flexible(
@@ -1049,91 +1083,146 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       borderRadius: BorderRadius.circular(15),
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        menu: ContextMenu(
-                          actions: [
-                            if (copyable != null)
-                              ContextMenuButton(
-                                key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy?.call(copyable!),
+                        alignment: fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
+                        actions: [
+                          if (copyable != null)
+                            ContextMenuButton(
+                              key: const Key('CopyButton'),
+                              label: 'btn_copy'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
                               ),
-                            if (item.status.value == SendingStatus.sent) ...[
-                              ContextMenuButton(
-                                key: const Key('ReplyButton'),
-                                label: 'btn_reply'.l10n,
-                                onPressed: () => widget.onReply?.call(),
+                              onPressed: () => widget.onCopy?.call(copyable!),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: 'btn_reply'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/reply.svg',
+                                width: 18.8,
+                                height: 16,
                               ),
-                              if (item is ChatMessage || item is ChatForward)
-                                ContextMenuButton(
-                                  key: const Key('ForwardButton'),
-                                  label: 'btn_forward'.l10n,
-                                  onPressed: () async {
-                                    List<AttachmentId> attachments = [];
-                                    if (item is ChatMessage) {
-                                      attachments = item.attachments
-                                          .map((a) => a.id)
-                                          .toList();
-                                    } else if (item is ChatForward) {
-                                      ChatItem nested = item.item;
-                                      if (nested is ChatMessage) {
-                                        attachments = nested.attachments
-                                            .map((a) => a.id)
-                                            .toList();
-                                      }
-                                    }
+                              onPressed: widget.onReply,
+                            ),
+                            if (item is ChatMessage || item is ChatForward)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: 'btn_forward'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  width: 18.8,
+                                  height: 16,
+                                ),
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [ChatItemQuote(item: item)],
+                                  );
+                                },
+                              ),
+                            if (item is ChatMessage &&
+                                fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !isRead))
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  width: 17,
+                                  height: 17,
+                                ),
+                                onPressed: widget.onEdit,
+                              ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                bool deletable = widget.item.value.authorId ==
+                                        widget.me &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage ||
+                                        widget.item.value is ChatForward);
 
-                                    await ChatForwardView.show(
-                                      context,
-                                      widget.chat.value!.id,
-                                      [
-                                        ChatItemQuote(
-                                          item: item,
-                                          attachments: attachments,
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onHide,
+                                      child: Text(
+                                        'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
+                                      ),
+                                    ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
                                         ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              if (item is ChatMessage &&
-                                  fromMe &&
-                                  (item.at
-                                          .add(
-                                              ChatController.editMessageTimeout)
-                                          .isAfter(PreciseDateTime.now()) ||
-                                      !isRead))
-                                ContextMenuButton(
-                                  key: const Key('EditButton'),
-                                  label: 'btn_edit'.l10n,
-                                  onPressed: () => widget.onEdit?.call(),
-                                ),
-                              ContextMenuButton(
-                                key: const Key('HideForMe'),
-                                label: 'btn_hide_for_me'.l10n,
-                                onPressed: () => widget.onHide?.call(),
-                              ),
-                              if (item.authorId == widget.me &&
-                                  !widget.chat.value!.isRead(item, widget.me) &&
-                                  (item is ChatMessage || item is ChatForward))
-                                ContextMenuButton(
-                                  key: const Key('DeleteForAll'),
-                                  label: 'btn_delete_for_all'.l10n,
-                                  onPressed: () => widget.onDelete?.call(),
-                                ),
-                            ],
-                            if (item.status.value == SendingStatus.error) ...[
-                              ContextMenuButton(
-                                key: const Key('Resend'),
-                                label: 'btn_resend_message'.l10n,
-                                onPressed: () => widget.onResend?.call(),
-                              ),
-                              ContextMenuButton(
-                                key: const Key('Delete'),
-                                label: 'btn_delete_message'.l10n,
-                                onPressed: () => widget.onDelete?.call(),
-                              ),
-                            ],
+                                      )
+                                  ],
+                                );
+                              },
+                            ),
                           ],
-                        ),
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: 'btn_resend_message'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: widget.onResend,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onDelete,
+                                      child: Text(
+                                        'label_delete_for_everyone'.l10n,
+                                        key: const Key('DeleteForAll'),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ],
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
