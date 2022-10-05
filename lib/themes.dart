@@ -293,13 +293,13 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// [TextStyle] to use for messages in [ChatView].
+  /// [TextStyle] to use for messages [ChatMemberInfo].
   final TextStyle systemMessageTextStyle;
 
-  /// [Border] of the [ChatView] messages.
+  /// [Border] of the messages [ChatMemberInfo].
   final Border systemMessageBorder;
 
-  /// [Color] of the [ChatView] messages.
+  /// [Color] of the messages [ChatMemberInfo].
   final Color systemMessageColor;
 
   @override

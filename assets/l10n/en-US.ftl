@@ -484,5 +484,5 @@ label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_you = You
 label_you_were_added_to_group = You were added to the group
-label_was_added = was added
-label_was_removed = was removed
+label_was_added = {$who} was added
+label_was_removed = {$who} was removed

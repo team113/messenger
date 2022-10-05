@@ -251,52 +251,7 @@ class _ChatViewState extends State<ChatView>
                                           c.elements.values.elementAt(i);
 
                                       if (e is UnreadMessagesElement) {
-                                        final Style? style = Theme.of(context)
-                                            .extension<Style>();
-
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 24),
-                                          child: Row(
-                                            children: [
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Container(
-                                                  width: double.infinity,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                    border: style
-                                                        ?.systemMessageBorder,
-                                                    color: style
-                                                        ?.systemMessageColor,
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      'label_unread_messages'
-                                                          .l10nfmt({
-                                                        'quantity':
-                                                            c.unreadMessages
-                                                      }),
-                                                      style: const TextStyle(
-                                                        fontSize: 13,
-                                                        color:
-                                                            Color(0xFF888888),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                            ],
-                                          ),
-                                        );
+                                        return _unreadMessages(context, c);
                                       } else if (e is ChatMessageElement ||
                                           e is ChatCallElement ||
                                           e is ChatMemberInfoElement) {
@@ -1224,6 +1179,45 @@ class _ChatViewState extends State<ChatView>
       }
       c.horizontalScrollTimer.value = null;
     });
+  }
+
+  /// Builds a visual representation of a [UnreadMessagesElement].
+  Widget _unreadMessages(BuildContext context, ChatController c) {
+    final Style? style = Theme.of(context).extension<Style>();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style?.systemMessageBorder,
+                color: style?.systemMessageColor,
+              ),
+              child: Center(
+                child: Text(
+                  'label_unread_messages'
+                      .l10nfmt({'quantity': c.unreadMessages}),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF888888),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
+    );
   }
 }
 

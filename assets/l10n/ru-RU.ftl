@@ -502,5 +502,5 @@ label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
-label_was_added = был добавлен
-label_was_removed = был удален
+label_was_added = {$who} был добавлен
+label_was_removed = {$who} был удален

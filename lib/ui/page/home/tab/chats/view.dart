@@ -18,7 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.graphql.dart';
+import '/api/backend/schema.graphql.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -261,13 +261,14 @@ class ChatsTabView extends StatelessWidget {
                   break;
 
                 case ChatMemberInfoAction.added:
-                  content = Text(
-                      '${item.user.name ?? item.user.num} ${'label_was_added'.l10n}');
+                  content = Text('label_was_added'
+                      .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
+
                   break;
 
                 case ChatMemberInfoAction.removed:
-                  content = Text(
-                      '${item.user.name ?? item.user.num} ${'label_was_removed'.l10n}');
+                  content = Text('label_was_removed'
+                      .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
                   break;
 
                 case ChatMemberInfoAction.artemisUnknown:
