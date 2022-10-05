@@ -771,6 +771,8 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
               chatEntity.value.ongoingCall = event.call;
+
+              // Notify about call?
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -789,6 +791,8 @@ class HiveRxChat implements RxChat {
               if (chatEntity.value.lastItem?.id == event.call.id) {
                 chatEntity.value.lastItem = event.call;
               }
+
+              _chatRepository.removeCredentials(event.call.id);
 
               var message =
                   await get(event.call.id, timestamp: event.call.timestamp);

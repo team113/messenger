@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -30,6 +31,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
 import '/util/obs/obs.dart';
 import 'event/chat_call.dart';
@@ -37,10 +39,15 @@ import 'event/incoming_chat_call.dart';
 
 /// Implementation of an [AbstractCallRepository].
 class CallRepository implements AbstractCallRepository {
-  CallRepository(this._graphQlProvider, this._userRepo);
+  CallRepository(
+    this._graphQlProvider,
+    this._userRepo,
+    this._credentialsProvider,
+  );
 
+  // Account ALL [Chat.ongoingCall] there?
   @override
-  RxObsMap<ChatId, Rx<OngoingCall>> get calls => _calls;
+  RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -48,32 +55,35 @@ class CallRepository implements AbstractCallRepository {
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// Reactive map of the current [OngoingCall]s.
-  final RxObsMap<ChatId, Rx<OngoingCall>> _calls =
-      RxObsMap<ChatId, Rx<OngoingCall>>();
+  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
+  final ChatCallCredentialsHiveProvider _credentialsProvider;
+
+  /// Temporary [ChatCallCredentials] of the [Chat]s containing just started
+  /// [OngoingCall]s.
+  final Map<ChatId, ChatCallCredentials> _credentials = {};
 
   @override
-  Rx<OngoingCall>? operator [](ChatId chatId) => _calls[chatId];
+  Rx<OngoingCall>? operator [](ChatId chatId) => calls[chatId];
 
   @override
   void operator []=(ChatId chatId, Rx<OngoingCall> call) =>
-      _calls[chatId] = call;
+      calls[chatId] = call;
 
   @override
-  void add(Rx<OngoingCall> call) => _calls[call.value.chatId.value] = call;
+  void add(Rx<OngoingCall> call) => calls[call.value.chatId.value] = call;
 
   @override
-  void move(ChatId chatId, ChatId newChatId) => _calls.move(chatId, newChatId);
+  void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
 
   @override
-  Rx<OngoingCall>? remove(ChatId chatId) => _calls.remove(chatId);
+  Rx<OngoingCall>? remove(ChatId chatId) => calls.remove(chatId);
 
   @override
-  bool contains(ChatId chatId) => _calls.containsKey(chatId);
+  bool contains(ChatId chatId) => calls.containsKey(chatId);
 
   @override
   Future<void> start(Rx<OngoingCall> call) async {
-    _calls[call.value.chatId.value] = call;
+    calls[call.value.chatId.value] = call;
 
     var response = await _graphQlProvider.startChatCall(
       call.value.chatId.value,
@@ -90,7 +100,7 @@ class CallRepository implements AbstractCallRepository {
     } else {
       throw CallAlreadyJoinedException();
     }
-    _calls[call.value.chatId.value]?.refresh();
+    calls[call.value.chatId.value]?.refresh();
   }
 
   @override
@@ -111,13 +121,13 @@ class CallRepository implements AbstractCallRepository {
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
-    _calls.remove(chatId);
+    calls.remove(chatId);
   }
 
   @override
   Future<void> decline(ChatId chatId) async {
     await _graphQlProvider.declineChatCall(chatId);
-    _calls.remove(chatId);
+    calls.remove(chatId);
   }
 
   @override
@@ -135,6 +145,64 @@ class CallRepository implements AbstractCallRepository {
         additionalMemberIds,
         groupName,
       );
+
+  @override
+  ChatCallCredentials generateCredentials(ChatId id) {
+    ChatCallCredentials? creds = _credentials[id];
+    if (creds == null) {
+      creds = ChatCallCredentials(const Uuid().v4());
+      _credentials[id] = creds;
+      print(
+          '[CallRepository] generateCredentials for $id, generating new: $creds');
+    } else {
+      print('[CallRepository] generateCredentials for $id, existing: $creds');
+    }
+
+    return creds;
+  }
+
+  @override
+  void transferCredentials(ChatId chatId, ChatItemId callId) {
+    print(
+        '[CallRepository] transferCredentials from $chatId, to: $callId, (${_credentials[chatId]})');
+    ChatCallCredentials? creds = _credentials[chatId];
+    if (creds != null) {
+      _credentialsProvider.put(callId, creds);
+      _credentials.remove(chatId);
+    }
+  }
+
+  @override
+  ChatCallCredentials getCredentials(ChatItemId id) {
+    ChatCallCredentials? creds = _credentialsProvider.get(id);
+    if (creds == null) {
+      creds = ChatCallCredentials(const Uuid().v4());
+      _credentialsProvider.put(id, creds);
+      print('[CallRepository] getCredentials for $id, generating new: $creds');
+    } else {
+      print('[CallRepository] getCredentials for $id, existing: $creds');
+    }
+
+    return creds;
+  }
+
+  @override
+  void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
+    print(
+        '[CallRepository] Move credentials from $callId to $newCallId (${_credentialsProvider.get(callId)})');
+    ChatCallCredentials? creds = _credentialsProvider.get(callId);
+    if (creds != null) {
+      _credentialsProvider.put(newCallId, creds);
+      _credentialsProvider.remove(callId);
+    }
+  }
+
+  @override
+  Future<void> removeCredentials(ChatItemId id) {
+    print(
+        '[CallRepository] Remove credentials of $id (${_credentialsProvider.get(id)})');
+    return _credentialsProvider.remove(id);
+  }
 
   @override
   Future<Stream<ChatCallEvents>> heartbeat(

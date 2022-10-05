@@ -41,6 +41,9 @@ typedef InputDevices = RxList<MediaDeviceInfo>;
 
 /// Possible states of an [OngoingCall].
 enum OngoingCallState {
+  // TODO: ???
+  // notStarted,
+
   /// Initialized locally, so a server is not yet aware of it.
   local,
 
@@ -357,7 +360,10 @@ class OngoingCall {
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);
+              calls.removeCredentials(node.call.id);
             } else {
+              calls.transferCredentials(chatId.value, node.call.id);
+
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
                     ? OngoingCallState.pending
@@ -397,6 +403,7 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
+                    calls.removeCredentials(node.call.id);
                     calls.remove(chatId.value);
                   }
                   break;
@@ -472,7 +479,12 @@ class OngoingCall {
                   connected = false;
                   connect(calls);
 
-                  calls.moveCall(node.chatId, node.newChatId);
+                  calls.moveCall(
+                    chatId: node.chatId,
+                    newChatId: node.newChatId,
+                    callId: node.callId,
+                    newCallId: node.newCallId,
+                  );
                   break;
 
                 case ChatCallEventKind.redialed:
@@ -1174,6 +1186,7 @@ class OngoingCall {
       _initRoom();
     }
 
+    print('[OngoingCall] Credentials are $creds');
     await _room?.join('$link/$_me?token=$creds');
     Log.print('Room joined!', 'CALL');
 

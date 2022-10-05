@@ -107,7 +107,7 @@ class CallService extends DisposableService {
           withVideo: withVideo,
           withScreen: withScreen,
           mediaSettings: media.value,
-          creds: ChatCallCredentials(const Uuid().v4()),
+          creds: _callsRepo.generateCredentials(chatId),
           state: OngoingCallState.local,
         ),
       );
@@ -154,7 +154,7 @@ class CallService extends DisposableService {
             withScreen: withScreen,
             mediaSettings: media.value,
             creds:
-                stored?.value.creds ?? ChatCallCredentials(const Uuid().v4()),
+                stored?.value.creds ?? _callsRepo.generateCredentials(chatId),
             state: OngoingCallState.joining,
           ),
         );
@@ -292,15 +292,31 @@ class CallService extends DisposableService {
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
-  void moveCall(ChatId chatId, ChatId newChatId) {
+  void moveCall({
+    required ChatId chatId,
+    required ChatId newChatId,
+    required ChatItemId callId,
+    required ChatItemId newCallId,
+  }) {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
+      _callsRepo.moveCredentials(callId, newCallId);
       if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }
     }
   }
+
+  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
+  /// specified [OngoingCall].
+  void transferCredentials(ChatId chatId, ChatItemId callId) =>
+      _callsRepo.transferCredentials(chatId, callId);
+
+  /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
+  /// provided [id].
+  Future<void> removeCredentials(ChatItemId id) =>
+      _callsRepo.removeCredentials(id);
 
   /// Subscribes to the updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) async {
@@ -326,7 +342,7 @@ class CallService extends DisposableService {
                         c.caller?.id == me &&
                         c.conversationStartedAt == null,
                     withScreen: false,
-                    creds: ChatCallCredentials(const Uuid().v4()),
+                    creds: _callsRepo.getCredentials(c.id),
                   ),
                 );
                 _callsRepo.add(call);
@@ -354,7 +370,7 @@ class CallService extends DisposableService {
                   withVideo: false,
                   withScreen: false,
                   mediaSettings: media.value,
-                  creds: ChatCallCredentials(const Uuid().v4()),
+                  creds: _callsRepo.getCredentials(e.call.id),
                 ),
               );
               _callsRepo.add(call);
