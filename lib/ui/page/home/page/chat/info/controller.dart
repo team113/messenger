@@ -300,16 +300,16 @@ class ChatInfoController extends GetxController {
     );
 
     if (result != null) {
-      _updateChatAvatar(result.files.first);
+      updateChatAvatar(result.files.first);
     }
   }
 
   /// Resets [Chat.avatar] to null.
-  Future<void> removeChatAvatar() async => _updateChatAvatar(null);
+  Future<void> removeChatAvatar() async => updateChatAvatar(null);
 
   /// Updates the [Chat.avatar] field with the provided [image], or resets it to
   /// null.
-  Future<void> _updateChatAvatar(PlatformFile? image) async {
+  Future<void> updateChatAvatar(PlatformFile? image) async {
     try {
       _addAvatarTimer?.cancel();
       avatarStatus.value = RxStatus.loading();

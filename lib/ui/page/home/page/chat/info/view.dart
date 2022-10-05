@@ -112,11 +112,13 @@ class ChatInfoView extends StatelessWidget {
               const SizedBox(width: 10),
               if (c.avatarStatus.value.isEmpty) ...[
                 TextButton(
+                  key: const Key('ChangeAvatar'),
                   onPressed: c.pickGalleryItem,
                   child: const Text('Change avatar'),
                 ),
                 if (c.chat?.avatar.value != null)
                   TextButton(
+                    key: const Key('DeleteAvatar'),
                     onPressed: c.removeChatAvatar,
                     child: const Text('Delete avatar'),
                   ),

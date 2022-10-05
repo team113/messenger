@@ -177,6 +177,7 @@ class _ChatViewState extends State<ChatView>
                                     shadowColor: const Color(0x55000000),
                                     color: Colors.white,
                                     child: InkWell(
+                                      key: const Key('ChatAvatar'),
                                       customBorder: const CircleBorder(),
                                       onTap: onDetailsTap,
                                       child: Center(
