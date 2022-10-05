@@ -313,7 +313,7 @@ class ChatInfoController extends GetxController {
     try {
       _addAvatarTimer?.cancel();
       avatarStatus.value = RxStatus.loading();
-      await _chatService.uploadChatAvatar(
+      await _chatService.updateChatAvatar(
         chatId,
         file: (image == null) ? null : NativeFile.fromPlatformFile(image),
       );

@@ -282,12 +282,12 @@ class ChatService extends DisposableService {
   /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
   /// containing the uploaded file and the file argument itself must be `null`,
   /// otherwise this mutation will fail.
-  Future<void> uploadChatAvatar(
+  Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _chatRepository.uploadChatAvatar(id,
+      _chatRepository.updateChatAvatar(id,
           file: file, onSendProgress: onSendProgress);
 
   /// Callback, called when a [User] identified by the provided [userId] gets

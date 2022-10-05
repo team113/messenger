@@ -575,7 +575,7 @@ class ChatRepository implements AbstractChatRepository {
       );
 
   @override
-  Future<void> uploadChatAvatar(
+  Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
