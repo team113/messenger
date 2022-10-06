@@ -152,7 +152,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// whether the provided [ChatItem] was read by the authenticated [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
-    if (chat == null) return false;
+    if (chat == null) {
+      return false;
+    }
 
     if (_fromMe) {
       return chat.isRead(widget.item.value, widget.me);
@@ -161,7 +163,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
-  /// Indicates whether the authenticated [User] has posted this [ChatItem].
+  /// Indicates whether this [ChatItemWidget.item] was posted by the
+  /// authenticated [MyUser].
   bool get _fromMe => widget.item.value.authorId == widget.me;
 
   @override
@@ -218,7 +221,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMemberInfo() {
     final Style? style = Theme.of(context).extension<Style>();
     final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
-    Widget content = Text('${message.action}');
+
+    Widget? content;
 
     switch (message.action) {
       case ChatMemberInfoAction.created:
@@ -233,54 +237,56 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         break;
 
       case ChatMemberInfoAction.added:
-        content = Text('label_was_added'
-            .l10nfmt({'who': '${message.user.name ?? message.user.num}'}));
+        content = Text(
+          'label_was_added'
+              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        );
         break;
 
       case ChatMemberInfoAction.removed:
-        content = Text('label_was_removed'
-            .l10nfmt({'who': '${message.user.name ?? message.user.num}'}));
+        content = Text(
+          'label_was_removed'
+              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        );
         break;
 
       case ChatMemberInfoAction.artemisUnknown:
         // No-op.
         break;
     }
+
     final bool isSent = widget.item.value.status.value == SendingStatus.sent;
 
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        SwipeableStatus(
-          animation: widget.animation,
-          asStack: true,
-          isSent: isSent && _fromMe,
-          isDelivered: isSent &&
-              _fromMe &&
-              widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
-                  false,
-          isRead: isSent && (!_fromMe || _isRead),
-          isError: message.status.value == SendingStatus.error,
-          isSending: message.status.value == SendingStatus.sending,
-          swipeable:
-              Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: style?.systemMessageBorder,
-                color: style?.systemMessageColor,
-              ),
-              child: DefaultTextStyle.merge(
-                style: style?.systemMessageTextStyle,
-                child: content,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: SwipeableStatus(
+        animation: widget.animation,
+        asStack: true,
+        isSent: isSent && _fromMe,
+        isDelivered: isSent &&
+            _fromMe &&
+            widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
+                false,
+        isRead: isSent && (!_fromMe || _isRead),
+        isError: message.status.value == SendingStatus.error,
+        isSending: message.status.value == SendingStatus.sending,
+        swipeable:
+            Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style?.systemMessageBorder,
+              color: style?.systemMessageColor,
+            ),
+            child: DefaultTextStyle.merge(
+              style: style?.systemMessageTextStyle,
+              child: content ?? Text('${message.action}'),
             ),
           ),
         ),
-        const SizedBox(height: 8),
-      ],
+      ),
     );
   }
 

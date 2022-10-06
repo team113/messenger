@@ -250,7 +250,8 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ];
             } else if (item is ChatMemberInfo) {
-              Widget content = Text('${item.action}');
+              Widget? content;
+
               switch (item.action) {
                 case ChatMemberInfoAction.created:
                   if (chat.isGroup) {
@@ -261,21 +262,25 @@ class ChatsTabView extends StatelessWidget {
                   break;
 
                 case ChatMemberInfoAction.added:
-                  content = Text('label_was_added'
-                      .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
+                  content = Text(
+                    'label_was_added'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
 
                   break;
 
                 case ChatMemberInfoAction.removed:
-                  content = Text('label_was_removed'
-                      .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
+                  content = Text(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
                   break;
 
                 case ChatMemberInfoAction.artemisUnknown:
                   // No-op.
                   break;
               }
-              subtitle = [Flexible(child: content)];
+              subtitle = [Flexible(child: content ?? Text('${item.action}'))];
             } else {
               subtitle = [
                 Flexible(child: Text('label_empty_message'.l10n, maxLines: 2))

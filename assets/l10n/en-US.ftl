@@ -260,23 +260,6 @@ label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_account_access_will_be_lost = Account access will be lost
 label_account_created = Account is created
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] Today
-                            [1] Yesterday
-                            *[other] {$days} days ago
-                        }
-                    [1] A week ago
-                    *[other] {$weeks} weeks ago
-                }
-            [1] A month ago
-            *[other] {$months} months ago
-        }
-    [1] An year ago
-    *[other] {$years} years ago
-}
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -300,6 +283,23 @@ label_ago = { $years ->
             *[other] {$months} months ago
         }
     [1] an year ago
+    *[other] {$years} years ago
+}
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Today
+                            [1] Yesterday
+                            *[other] {$days} days ago
+                        }
+                    [1] A week ago
+                    *[other] {$weeks} weeks ago
+                }
+            [1] A month ago
+            *[other] {$months} months ago
+        }
+    [1] An year ago
     *[other] {$years} years ago
 }
 label_application = application

@@ -264,28 +264,6 @@ label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
 label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] Сегодня
-                            [1] Вчера
-                            [2] Позавчера
-                            [few] {$days} дня назад
-                            *[other] {$days} дней назад
-                        }
-                    [1] Неделю назад
-                    [few] {$weeks} недели назад
-                    *[other] {$weeks} недель
-                }
-            [1] Месяц назад
-            [few] {$months} месяца назад
-            *[other] {$months} месяцев назад
-        }
-    [1] Год назад
-    [few] {$years} года назад
-    *[other] {$years} лет назад
-}
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -315,6 +293,28 @@ label_ago = { $years ->
             *[other] {$months} месяцев назад
         }
     [1] год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
     [few] {$years} года назад
     *[other] {$years} лет назад
 }

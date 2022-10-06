@@ -474,35 +474,32 @@ class _ChatViewState extends State<ChatView>
   Widget _timeLabel(DateTime time) {
     final Style? style = Theme.of(context).extension<Style>();
 
-    return Column(
-      children: [
-        const SizedBox(height: 24),
-        SwipeableStatus(
-          animation: _animation,
-          asStack: true,
-          padding: const EdgeInsets.only(right: 8),
-          crossAxisAlignment: CrossAxisAlignment.center,
-          swipeable: Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(DateFormat('dd.MM.yy').format(time)),
-          ),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: style?.systemMessageBorder,
-                color: style?.systemMessageColor,
-              ),
-              child: Text(
-                time.toRelative(),
-                style: const TextStyle(color: Color(0xFF888888)),
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: SwipeableStatus(
+        animation: _animation,
+        asStack: true,
+        padding: const EdgeInsets.only(right: 8),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        swipeable: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Text(DateFormat('dd.MM.yy').format(time)),
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style?.systemMessageBorder,
+              color: style?.systemMessageColor,
+            ),
+            child: Text(
+              time.toRelative(),
+              style: const TextStyle(color: Color(0xFF888888)),
             ),
           ),
         ),
-        const SizedBox(height: 24),
-      ],
+      ),
     );
   }
 
@@ -1181,7 +1178,7 @@ class _ChatViewState extends State<ChatView>
     });
   }
 
-  /// Builds a visual representation of a [UnreadMessagesElement].
+  /// Builds a visual representation of an [UnreadMessagesElement].
   Widget _unreadMessages(BuildContext context, ChatController c) {
     final Style? style = Theme.of(context).extension<Style>();
 

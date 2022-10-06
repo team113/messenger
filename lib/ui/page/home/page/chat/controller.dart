@@ -430,10 +430,11 @@ class ChatController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
     chat = await _chatService.get(id);
-    unreadMessages = chat?.chat.value.unreadCount ?? 0;
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      unreadMessages = chat!.chat.value.unreadCount;
+
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
         ChatItem item = e.value;
