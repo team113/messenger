@@ -157,7 +157,7 @@ class _ChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final DateTime? startCall = c.getCallStart(chat.id)?.val;
+      final DateTime? startCall = chat.ongoingCall?.at.val;
 
       final TextStyle? textStyle = Theme.of(context)
           .textTheme
@@ -167,7 +167,7 @@ class _ChatTile extends StatelessWidget {
                   ? null
                   : Theme.of(context).colorScheme.secondary);
 
-      bool selected = router.routes
+      final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith(Routes.chat))
               ?.startsWith('${Routes.chat}/${chat.id}') ==
           true;
@@ -515,12 +515,12 @@ class _ChatTile extends StatelessWidget {
 
           case ChatMemberInfoAction.added:
             content = Text('label_chat_was_added'
-                .l10nfmt({'who': item.user.name ?? item.user.num}));
+                .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
             break;
 
           case ChatMemberInfoAction.removed:
             content = Text('label_chat_was_removed'
-                .l10nfmt({'who': item.user.name ?? item.user.num}));
+                .l10nfmt({'who': '${item.user.name ?? item.user.num}'}));
             break;
 
           case ChatMemberInfoAction.artemisUnknown:

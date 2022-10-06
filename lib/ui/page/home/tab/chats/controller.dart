@@ -187,10 +187,6 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Gets the start time of the [Chat] call with the specified [id].
-  PreciseDateTime? getCallStart(ChatId id) =>
-      _callService.calls[id]?.value.call.value?.at;
-
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
     chats.sort((a, b) {
