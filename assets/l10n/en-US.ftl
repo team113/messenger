@@ -310,6 +310,7 @@ label_call_title =
         }
     }
 label_camera = Camera
+label_change_avatar = Change avatar
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
@@ -328,6 +329,7 @@ label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
+label_delete_avatar = Delete avatar
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?

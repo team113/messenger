@@ -19,16 +19,15 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/routes.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-dialog of the provided [User] with the authenticated
-/// [MyUser].
+/// Creates a [Chat]-group of the provided [User] with the authenticated
+/// [MyUser] with specified chat name.
 ///
 /// Examples:
-/// - Given Bob has group chat with me.
+/// - Given Bob has group chat with me named 'Chat name'.
 final StepDefinitionGeneric hasGroupChatWithMe =
     given2<TestUser, String, CustomWorld>(
   '{user} has group chat with me named {string}',

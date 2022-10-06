@@ -287,8 +287,11 @@ class ChatService extends DisposableService {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _chatRepository.updateChatAvatar(id,
-          file: file, onSendProgress: onSendProgress);
+      _chatRepository.updateChatAvatar(
+        id,
+        file: file,
+        onSendProgress: onSendProgress,
+      );
 
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].

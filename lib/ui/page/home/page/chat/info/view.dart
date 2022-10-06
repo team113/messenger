@@ -39,7 +39,7 @@ class ChatInfoView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ChatInfoController>(
       init: ChatInfoController(id, Get.find(), Get.find()),
-      tag: id.val,
+      tag: 'ChatInfo${id.val}',
       builder: (c) => Obx(
         () {
           if (c.status.value.isSuccess) {
@@ -103,7 +103,7 @@ class ChatInfoView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns [Chat.avatar], change and delete [Chat.avatar] buttons.
+  /// Returns [Chat.avatar] image, change and delete [Chat.avatar] buttons.
   Widget _avatar(ChatInfoController c) => Obx(
         () => _padding(
           Row(
@@ -114,13 +114,13 @@ class ChatInfoView extends StatelessWidget {
                 TextButton(
                   key: const Key('ChangeAvatar'),
                   onPressed: c.pickGalleryItem,
-                  child: const Text('Change avatar'),
+                  child: Text('label_change_avatar'.l10n),
                 ),
                 if (c.chat?.avatar.value != null)
                   TextButton(
                     key: const Key('DeleteAvatar'),
-                    onPressed: c.removeChatAvatar,
-                    child: const Text('Delete avatar'),
+                    onPressed: () async => await c.updateChatAvatar(null),
+                    child: Text('label_delete_avatar'.l10n),
                   ),
               ],
               if (c.avatarStatus.value.isLoading)
@@ -131,7 +131,7 @@ class ChatInfoView extends StatelessWidget {
         ),
       );
 
-  /// Returns [Chat.name] editable field.
+  /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c) => Obx(
         () => _padding(
           ReactiveTextField(

@@ -17,22 +17,20 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/routes.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
+/// Change chat avatar in chat specified by name.
 ///
 /// Examples:
-/// - Given I am in chat with Bob
-final StepDefinitionGeneric changeChatAvatar = given<CustomWorld>(
-  'I am change chat avatar',
-  (context) async {
+/// - Then I am change chat avatar inside chat 'Chat name'
+final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
+  'I am change chat avatar inside chat {string}',
+  (chatName, context) async {
     final PlatformFile image = PlatformFile(
       name: 'test',
       size: 2,
@@ -41,12 +39,10 @@ final StepDefinitionGeneric changeChatAvatar = given<CustomWorld>(
       ),
     );
 
-    print('1');
-    if (Get.isRegistered<ChatInfoController>()) {
-      print('2');
-      final controller = Get.find<ChatInfoController>();
+    ChatId chatId = context.world.groupChats[chatName]!;
+    if (Get.isRegistered<ChatInfoController>(tag: 'ChatInfo$chatId')) {
+      final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
       await controller.updateChatAvatar(image);
-      print('3');
     }
   },
 );

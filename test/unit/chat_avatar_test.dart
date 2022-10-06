@@ -18,7 +18,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -48,7 +47,7 @@ void main() async {
     '__typename': 'User',
     'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
     'num': '7461878581615099',
-    'name': 'ihor',
+    'name': 'user',
     'bio': null,
     'avatar': null,
     'callCover': null,

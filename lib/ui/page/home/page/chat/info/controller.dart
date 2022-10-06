@@ -304,10 +304,7 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Resets [Chat.avatar] to null.
-  Future<void> removeChatAvatar() async => updateChatAvatar(null);
-
-  /// Updates the [Chat.avatar] field with the provided [image], or resets it to
+  /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// null.
   Future<void> updateChatAvatar(PlatformFile? image) async {
     try {

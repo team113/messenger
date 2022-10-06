@@ -580,7 +580,7 @@ class ChatRepository implements AbstractChatRepository {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    dio.MultipartFile? upload;
+    late dio.MultipartFile upload;
 
     if (file != null) {
       await file.ensureCorrectMediaType();
@@ -613,7 +613,7 @@ class ChatRepository implements AbstractChatRepository {
 
     await _graphQlProvider.updateChatAvatar(
       id,
-      file: upload,
+      file: (file == null) ? null : upload,
       onSendProgress: onSendProgress,
     );
   }

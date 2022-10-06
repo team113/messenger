@@ -18,15 +18,14 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
+/// Routes the [router] to the [Chat]-group page with the provided chat name.
 ///
 /// Examples:
-/// - Given I am in chat with Bob
+/// - Given I am in chat 'Chat name'
 final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
-  'I am in chat named {string}',
+  'I am in chat {string}',
   (String chatName, context) async {
     router.chat(context.world.groupChats[chatName]!);
 

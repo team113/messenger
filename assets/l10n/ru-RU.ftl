@@ -321,6 +321,7 @@ label_call_title =
         }
     }
 label_camera = Камера
+label_change_avatar = Изменить аватар
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_dropped = Отменённый звонок
 label_chat_call_ended = Завершённый звонок
@@ -339,6 +340,7 @@ label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
 label_current_password = Текущий пароль
+label_delete_avatar = Удалить аватар
 label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
