@@ -19,7 +19,6 @@ import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';

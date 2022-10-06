@@ -23,7 +23,6 @@ import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -38,7 +37,6 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/custom_app_bar.dart';
 import '/ui/widget/chat_tile.dart';
 import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -159,8 +157,7 @@ class _ChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final int? microsecondsSinceEpoch =
-          c.getCallStart(chat.id)?.microsecondsSinceEpoch;
+      final DateTime? startCall = c.getCallStart(chat.id)?.val;
 
       final TextStyle? textStyle = Theme.of(context)
           .textTheme
@@ -183,8 +180,8 @@ class _ChatTile extends StatelessWidget {
             key: const Key('DropCallButton'),
             onPressed: () => c.dropCall(chat.id),
             child: Container(
-              height: 32,
-              width: 32,
+              height: 38,
+              width: 38,
               decoration: BoxDecoration(
                 color: style.dropButtonColor,
                 shape: BoxShape.circle,
@@ -192,8 +189,8 @@ class _ChatTile extends StatelessWidget {
               child: Center(
                 child: SvgLoader.asset(
                   'assets/icons/call_end.svg',
-                  width: 32,
-                  height: 32,
+                  width: 38,
+                  height: 38,
                 ),
               ),
             ),
@@ -203,8 +200,8 @@ class _ChatTile extends StatelessWidget {
             key: const Key('JoinCallButton'),
             onPressed: () => c.joinCall(chat.id),
             child: Container(
-              height: 32,
-              width: 32,
+              height: 38,
+              width: 38,
               decoration: BoxDecoration(
                 color: style.joinButtonColor,
                 shape: BoxShape.circle,
@@ -212,13 +209,12 @@ class _ChatTile extends StatelessWidget {
               child: Center(
                 child: SvgLoader.asset(
                   'assets/icons/audio_call_start.svg',
-                  width: 15,
-                  height: 15,
+                  width: 18,
+                  height: 18,
                 ),
               ),
             ),
           );
-          ;
         }
       } else {
         trailing = const SizedBox.shrink(key: Key('NoCall'));
@@ -231,20 +227,17 @@ class _ChatTile extends StatelessWidget {
           if (chat.ongoingCall == null &&
               chat.lastDelivery.microsecondsSinceEpoch != 0)
             Text(
-              chat.lastDelivery.toDateAndWeekday(),
+              chat.lastDelivery.val.toLocal().toDateOrWeekdayOrTime(),
               style: textStyle,
             ),
-          if (chat.ongoingCall != null && microsecondsSinceEpoch != null)
+          if (chat.ongoingCall != null && startCall != null)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: PeriodicBuilder(
                 period: const Duration(seconds: 1),
                 builder: (_) {
                   return Text(
-                    Duration(
-                      microseconds: DateTime.now().microsecondsSinceEpoch -
-                          microsecondsSinceEpoch,
-                    ).hhMmSs(),
+                    DateTime.now().difference(startCall).hhMmSs(),
                     style: textStyle,
                   );
                 },
@@ -293,7 +286,11 @@ class _ChatTile extends StatelessWidget {
           ),
         ],
         trailing: [
-          AnimatedSwitcher(duration: 300.milliseconds, child: trailing)
+          Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child:
+                AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
+          )
         ],
         actions: [
           ContextMenuButton(
@@ -365,16 +362,20 @@ class _ChatTile extends StatelessWidget {
     RxChat rxChat,
     Color subtitleColor,
   ) {
-    final Chat chat = rxChat.chat.value;
     final Iterable<String> typings = rxChat.typingUsers
         .where((User user) => user.id != c.me)
         .map((User user) => user.name?.val ?? user.num.val);
-    List<Widget> subtitle = [];
-    ChatItem? item;
+
+    final Chat chat = rxChat.chat.value;
+
+    final ChatItem? item;
     if (rxChat.messages.isNotEmpty) {
       item = rxChat.messages.last.value;
+    } else {
+      item = chat.lastItem;
     }
-    item ??= chat.lastItem;
+
+    List<Widget> subtitle = [];
 
     if (typings.isNotEmpty) {
       if (!rxChat.chat.value.isGroup) {
@@ -513,13 +514,13 @@ class _ChatTile extends StatelessWidget {
             break;
 
           case ChatMemberInfoAction.added:
-            content = Text(
-                '${item.user.name ?? item.user.num} ${'label_chat_was_added'.l10n}');
+            content = Text('label_chat_was_added'
+                .l10nfmt({'who': item.user.name ?? item.user.num}));
             break;
 
           case ChatMemberInfoAction.removed:
-            content = Text(
-                '${item.user.name ?? item.user.num} ${'label_chat_was_removed'.l10n}');
+            content = Text('label_chat_was_removed'
+                .l10nfmt({'who': item.user.name ?? item.user.num}));
             break;
 
           case ChatMemberInfoAction.artemisUnknown:
@@ -539,19 +540,27 @@ class _ChatTile extends StatelessWidget {
   }
 }
 
-/// Extension adding conversion to date from a [PreciseDateTime].
-extension _AdditionalFormatting on PreciseDateTime {
-  /// Converts [PreciseDateTime] to a date string or day of the week.
+/// Extension adding conversion to formatted date from a [DateTime].
+extension _AdditionalFormatting on DateTime {
+  /// Converts [DateTime] to a date string or day of the week or time.
   ///
-  /// If the date is less than a week, then output the day of the week, otherwise the date in the format yyyy-mm-dd.
-  String toDateAndWeekday() {
-    final DateTime pastWeek = DateTime.now().subtract(const Duration(days: 7));
-    if (val.isBefore(pastWeek)) {
-      final String day = val.day.toString().padLeft(2, '0');
-      final String month = val.month.toString().padLeft(2, '0');
-      return '${val.year}-$month-$day';
+  /// If the date is today, then output the time, if less than a week, then output
+  /// the day of the week, otherwise the date is in the format yyyy-mm-dd.
+  String toDateOrWeekdayOrTime() {
+    final int differenceInDays = DateTime.now().difference(this).inDays;
+
+    if (differenceInDays > 7) {
+      final String day = this.day.toString().padLeft(2, '0');
+      final String month = this.month.toString().padLeft(2, '0');
+
+      return '$year-$month-$day';
+    } else if (differenceInDays < 1) {
+      final String hour = this.hour.toString().padLeft(2, '0');
+      final String minute = this.minute.toString().padLeft(2, '0');
+
+      return '$hour:$minute';
     } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': val.weekday});
+      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
     }
   }
 }

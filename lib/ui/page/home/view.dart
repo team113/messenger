@@ -163,7 +163,7 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
                         // [AnimatedOpacity] boilerplate.
-                        Widget _tab({
+                        Widget tab({
                           required Widget child,
                           HomeTab? tab,
                         }) {
@@ -183,7 +183,7 @@ class _HomeViewState extends State<HomeView> {
                           items: [
                             CustomNavigationBarItem(
                               key: const Key('ContactsButton'),
-                              child: _tab(
+                              child: tab(
                                 tab: HomeTab.contacts,
                                 child: SvgLoader.asset(
                                   'assets/icons/contacts_active.svg',
@@ -197,7 +197,7 @@ class _HomeViewState extends State<HomeView> {
                               badge: c.unreadChatsCount.value == 0
                                   ? null
                                   : '${c.unreadChatsCount.value}',
-                              child: _tab(
+                              child: tab(
                                 tab: HomeTab.chats,
                                 child: SvgLoader.asset(
                                   'assets/icons/chats_active.svg',
@@ -210,7 +210,7 @@ class _HomeViewState extends State<HomeView> {
                               key: const Key('MenuButton'),
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 2),
-                                child: _tab(
+                                child: tab(
                                   tab: HomeTab.menu,
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
