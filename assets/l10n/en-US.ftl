@@ -123,6 +123,7 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
@@ -130,6 +131,7 @@ btn_copy = Copy
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
+btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
@@ -310,7 +312,6 @@ label_call_title =
         }
     }
 label_camera = Camera
-label_change_avatar = Change avatar
 label_chat_call_declined = Declined call
 label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
@@ -329,7 +330,6 @@ label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
 label_current_password = Current password
-label_delete_avatar = Delete avatar
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?

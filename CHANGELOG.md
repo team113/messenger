@@ -11,7 +11,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7.0) | [Milestone](/../../milestone/2)
 
-### Changed
+### Added
 
 - UI:
     - Chat page:

@@ -38,6 +38,7 @@ class ChatInfoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatInfoController>(
+      key: const Key('ChatInfo'),
       init: ChatInfoController(id, Get.find(), Get.find()),
       tag: 'ChatInfo${id.val}',
       builder: (c) => Obx(
@@ -104,32 +105,57 @@ class ChatInfoView extends StatelessWidget {
       Padding(padding: const EdgeInsets.all(8), child: child);
 
   /// Returns [Chat.avatar] image, change and delete [Chat.avatar] buttons.
-  Widget _avatar(ChatInfoController c) => Obx(
-        () => _padding(
-          Row(
-            children: [
-              AvatarWidget.fromRxChat(c.chat, radius: 29),
-              const SizedBox(width: 10),
-              if (c.avatarStatus.value.isEmpty) ...[
-                TextButton(
-                  key: const Key('ChangeAvatar'),
-                  onPressed: c.pickGalleryItem,
-                  child: Text('label_change_avatar'.l10n),
-                ),
-                if (c.chat?.avatar.value != null)
-                  TextButton(
-                    key: const Key('DeleteAvatar'),
-                    onPressed: () async => await c.updateChatAvatar(null),
-                    child: Text('label_delete_avatar'.l10n),
-                  ),
-              ],
-              if (c.avatarStatus.value.isLoading)
-                const CircularProgressIndicator(),
-              if (c.avatarStatus.value.isSuccess) const Icon(Icons.check)
-            ],
-          ),
+  Widget _avatar(ChatInfoController c) {
+    Widget avatarWidget() {
+      if (c.avatarStatus.value.isLoading) {
+        return const CircularProgressIndicator(
+          key: Key('AvatarProgressIndicator'),
+        );
+      } else if (c.avatarStatus.value.isSuccess) {
+        return const Center(
+          key: Key('AvatarIcon'),
+          child: Icon(Icons.check),
+        );
+      } else {
+        return Row(
+          key: const Key('AvatarRow'),
+          children: [
+            TextButton(
+              key: const Key('ChangeAvatar'),
+              onPressed: c.pickGalleryItem,
+              child: Text('btn_change_avatar'.l10n),
+            ),
+            if (c.chat?.avatar.value != null)
+              TextButton(
+                key: const Key('DeleteAvatar'),
+                onPressed: () async => await c.updateChatAvatar(null),
+                child: Text('btn_delete_avatar'.l10n),
+              ),
+          ],
+        );
+      }
+    }
+
+    return Obx(
+      () => _padding(
+        Row(
+          children: [
+            AvatarWidget.fromRxChat(c.chat, radius: 29, fromChatInfoView: true),
+            const SizedBox(width: 10),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: avatarWidget(),
+              ),
+            )
+          ],
         ),
-      );
+      ),
+    );
+  }
 
   /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c) => Obx(

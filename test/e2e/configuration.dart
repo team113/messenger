@@ -42,11 +42,11 @@ import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
-import 'steps/in_chat_named.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/open_chats_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
@@ -87,6 +87,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatWith,
         longPressMessageByAttachment,
         longPressMessageByText,
+        inGroupWithUser,
+        openChatsInfoPage,
         longPressWidget,
         noInternetConnection,
         pasteToField,

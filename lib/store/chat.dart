@@ -613,7 +613,7 @@ class ChatRepository implements AbstractChatRepository {
 
     await _graphQlProvider.updateChatAvatar(
       id,
-      file: (file == null) ? null : upload,
+      file: file == null ? null : upload,
       onSendProgress: onSendProgress,
     );
   }

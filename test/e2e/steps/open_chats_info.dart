@@ -15,25 +15,29 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat]-group page with the provided chat name.
+/// Changes chat avatar in chat specified by name.
 ///
 /// Examples:
-/// - Given I am in chat 'Chat name'
-final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
-  'I am in chat {string}',
-  (String chatName, context) async {
-    router.chat(context.world.groupChats[chatName]!);
+/// - Then I open chat's info page
+final StepDefinitionGeneric openChatsInfoPage = then<CustomWorld>(
+  'I open chat\'s info page',
+  (context) async {
+    final controller =
+        Get.find<ChatController>(tag: router.route.split('/').last);
+    router.chatInfo(controller.id);
 
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
         return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
+          context.world.appDriver.findBy('ChatInfo', FindType.key),
         );
       },
     );

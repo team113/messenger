@@ -26,7 +26,10 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   Map<String, CustomUser> sessions = {};
 
   /// [Map] of group [Chat]s identified by their names.
-  Map<String, ChatId> groupChats = {};
+  Map<String, ChatId> groups = {};
+
+  /// [ChatId] of currently opened chat.
+  ChatId? currentChat;
 
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;

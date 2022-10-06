@@ -312,7 +312,7 @@ class ChatInfoController extends GetxController {
       avatarStatus.value = RxStatus.loading();
       await _chatService.updateChatAvatar(
         chatId,
-        file: (image == null) ? null : NativeFile.fromPlatformFile(image),
+        file: image == null ? null : NativeFile.fromPlatformFile(image),
       );
       avatarStatus.value = RxStatus.success();
     } on UpdateChatAvatarException catch (e) {
@@ -321,8 +321,10 @@ class ChatInfoController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      _addAvatarTimer = Timer(const Duration(seconds: 1),
-          () => avatarStatus.value = RxStatus.empty());
+      _addAvatarTimer = Timer(
+        const Duration(seconds: 1),
+        () => avatarStatus.value = RxStatus.empty(),
+      );
     }
   }
 

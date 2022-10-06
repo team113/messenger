@@ -24,13 +24,13 @@ import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Change chat avatar in chat specified by name.
+/// Changes chat avatar in chat specified by name.
 ///
 /// Examples:
-/// - Then I am change chat avatar inside chat 'Chat name'
-final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
-  'I am change chat avatar inside chat {string}',
-  (chatName, context) async {
+/// - Then I am change chat avatar
+final StepDefinitionGeneric changeChatAvatar = then<CustomWorld>(
+  'I am change chat avatar',
+  (context) async {
     final PlatformFile image = PlatformFile(
       name: 'test',
       size: 2,
@@ -39,7 +39,7 @@ final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
       ),
     );
 
-    ChatId chatId = context.world.groupChats[chatName]!;
+    ChatId chatId = context.world.currentChat!;
     if (Get.isRegistered<ChatInfoController>(tag: 'ChatInfo$chatId')) {
       final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
       await controller.updateChatAvatar(image);

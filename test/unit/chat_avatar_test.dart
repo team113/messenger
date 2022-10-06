@@ -80,10 +80,6 @@ void main() async {
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
 
-  setUp(() async {
-    await myUserProvider.clear();
-  });
-
   Get.put(myUserProvider);
   Get.put(galleryItemProvider);
   Get.put(userHiveProvider);
@@ -100,14 +96,12 @@ void main() async {
           '__typename': 'ChatEventsVersioned',
           'events': [
             {
-              '__typename': 'EventChatAvatarDeleted',
               'chatId': '123',
               'byUser': byUserData,
               'at': DateTime.now().toString()
             }
           ],
-          'ver':
-              '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}'
+          'ver': '2'
         }
       }).updateChatAvatar as ChatEventsVersionedMixin?),
     );
@@ -122,48 +116,19 @@ void main() async {
           '__typename': 'ChatEventsVersioned',
           'events': [
             {
-              '__typename': 'EventChatAvatarUpdated',
               'chatId': '123',
               'avatar': {
-                '__typename': 'ChatAvatar',
-                'crop': null,
-                'full': {
-                  '__typename': 'File',
-                  'relativeRef': '',
-                  'checksum': '',
-                  'size': 0
-                },
-                'big': {
-                  '__typename': 'File',
-                  'relativeRef': '',
-                  'checksum': '',
-                  'size': 0
-                },
-                'medium': {
-                  '__typename': 'File',
-                  'relativeRef': '',
-                  'checksum': '',
-                  'size': 0
-                },
-                'small': {
-                  '__typename': 'File',
-                  'relativeRef': '',
-                  'checksum': '',
-                  'size': 0
-                },
-                'original': {
-                  '__typename': 'File',
-                  'relativeRef': '',
-                  'checksum': '',
-                  'size': 0
-                }
+                'full': {'relativeRef': ''},
+                'big': {'relativeRef': ''},
+                'medium': {'relativeRef': ''},
+                'small': {'relativeRef': ''},
+                'original': {'relativeRef': ''}
               },
               'byUser': byUserData,
               'at': DateTime.now().toString()
             }
           ],
-          'ver':
-              '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}'
+          'ver': '1'
         }
       }).updateChatAvatar as ChatEventsVersionedMixin?),
     );
@@ -174,6 +139,7 @@ void main() async {
         sessionProvider,
       ),
     );
+    await authService.init();
 
     UserRepository userRepository = UserRepository(
       graphQlProvider,
@@ -241,6 +207,7 @@ void main() async {
         sessionProvider,
       ),
     );
+    await authService.init();
 
     UserRepository userRepository = UserRepository(
       graphQlProvider,
