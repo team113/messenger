@@ -1012,7 +1012,7 @@ abstract class ChatGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat]
-  /// uses the specified [file] already as an [avatar] with the same [crop]
+  /// uses the specified [file] already as an [avatar] with the same `crop`
   /// area.
   Future<ChatEventsVersionedMixin?> updateChatAvatar(
     ChatId id, {
