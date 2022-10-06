@@ -111,16 +111,15 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       : _items.first.key.currentContext!.size!.width;
 
   @override
-  void didUpdateWidget(old) {
-    Function equals = const ListEquality().equals;
-    if (!equals(
-      old.items.map((e) => e.runtimeType).toList(),
+  void didUpdateWidget(covariant Dock<T> oldWidget) {
+    if (!const ListEquality().equals(
+      oldWidget.items.map((e) => e.runtimeType).toList(),
       widget.items.map((e) => e.runtimeType).toList(),
     )) {
       _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
     }
 
-    super.didUpdateWidget(old);
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

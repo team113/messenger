@@ -330,12 +330,12 @@ class CallController extends GetxController {
   /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
 
-  /// Worker capturing any [buttons] changes to update
+  /// Worker capturing any [buttons] changes to update the
   /// [ApplicationSettings.callButtons] value.
   Worker? _buttonsWorker;
 
   /// Worker capturing any [ApplicationSettings.callButtons] changes to update
-  /// [buttons] value.
+  /// the [buttons] value.
   Worker? _settingsWorker;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
@@ -633,6 +633,7 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
+    // Constructs a list of [CallButton]s from the provided [list] of [String]s.
     List<CallButton> toButtons(List<String>? list) {
       List<CallButton>? persisted = list
           ?.map((e) {
@@ -671,6 +672,7 @@ class CallController extends GetxController {
           .whereNotNull()
           .toList();
 
+      // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
         persisted = [
           ScreenButton(this),
@@ -681,10 +683,12 @@ class CallController extends GetxController {
         ];
       }
 
+      // Ensure [EndCallButton] is always in the list.
       if (persisted!.whereType<EndCallButton>().isEmpty) {
         persisted.add(EndCallButton(this));
       }
 
+      // Ensure [MoreButton] is always in the list.
       if (persisted.whereType<MoreButton>().isEmpty) {
         persisted.add(MoreButton(this));
       }
@@ -712,18 +716,19 @@ class CallController extends GetxController {
           .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
     });
 
-    Function equals = const ListEquality().equals;
     List<String>? previous =
         _settingsRepository.applicationSettings.value?.callButtons;
-    _settingsWorker = ever(_settingsRepository.applicationSettings,
-        (ApplicationSettings? settings) {
-      if (!equals(settings?.callButtons, previous)) {
-        if (settings != null) {
-          buttons.value = toButtons(settings.callButtons);
+    _settingsWorker = ever(
+      _settingsRepository.applicationSettings,
+      (ApplicationSettings? settings) {
+        if (!const ListEquality().equals(settings?.callButtons, previous)) {
+          if (settings != null) {
+            buttons.value = toButtons(settings.callButtons);
+          }
+          previous = settings?.callButtons;
         }
-        previous = settings?.callButtons;
-      }
-    });
+      },
+    );
 
     _showUiWorker = ever(showUi, (bool showUi) {
       if (displayMore.value && !showUi) {

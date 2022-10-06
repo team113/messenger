@@ -9,13 +9,13 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.0-alpha.7] · 2022-??-??
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
-[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/4)
+[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
 
 ### Added
 
 - UI:
     - Media panel:
-        - Buttons positions persisting ([#159], [#137])
+        - Dock buttons persistance. ([#159], [#137])
 
 [#137]: /../../issues/137
 [#159]: /../../pull/159
