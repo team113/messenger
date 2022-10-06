@@ -23,6 +23,7 @@ library main;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:extended_image_library/extended_image_library.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
