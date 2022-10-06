@@ -413,15 +413,30 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
+            onHide: (e) => c.hideChatItem(e),
+            onDelete: (e) => c.deleteMessage(e),
             onReply: () {
               if (c.repliedMessages.contains(element.forwards.last.value)) {
+                for(var e in element.forwards) {
+                  c.repliedMessages.remove(e.value);
+                }
+
+                if(element.note.value != null) {
+                  c.repliedMessages.remove(element.note.value!.value);
+                }
                 c.repliedMessages.remove(element.forwards.last.value);
               } else {
-                c.repliedMessages.insert(0, element.forwards.last.value);
+                for(var e in element.forwards) {
+                  c.repliedMessages.insert(0, e.value);
+                }
+
+                if(element.note.value != null) {
+                  c.repliedMessages.insert(0, element.note.value!.value);
+                }
               }
             },
-            onRepliedTap: (id) => c.animateTo(id),
             onGallery: c.calculateGallery,
+            onEdit: (e) => c.editMessage(e),
             onForwardedTap: (id, chatId) {
               if (chatId == c.id) {
                 c.animateTo(id);
@@ -433,8 +448,8 @@ class _ChatViewState extends State<ChatView>
                 );
               }
             },
+            onFileTap: (e, a) => c.download(e, a),
             onAttachmentError: () async {
-              // TODO: ChatItemId?
               for (ChatItem item in [
                 element.note.value?.value,
                 ...element.forwards.map((e) => e.value),

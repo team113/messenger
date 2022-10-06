@@ -48,6 +48,14 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            primaryBorder: Border.all(
+              color: const Color(0xFFB9D9FA),
+              width: 0.5,
+            ),
+            secondaryBorder: Border.all(
+              color: const Color(0xFFDADADA),
+              width: 0.5,
+            ),
             sidebarColor: Colors.white.withOpacity(0.4),
           ),
         ],
@@ -258,6 +266,8 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.primaryBorder,
+    required this.secondaryBorder,
     required this.sidebarColor,
   });
 
@@ -279,6 +289,12 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
+  /// Primary [Border].
+  final Border primaryBorder;
+
+  /// Secondary [Border].
+  final Border secondaryBorder;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
@@ -290,6 +306,8 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
+    Border? primaryBorder,
+    Border? secondaryBorder,
     Color? sidebarColor,
   }) {
     return Style(
@@ -301,6 +319,8 @@ class Style extends ThemeExtension<Style> {
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
     );
   }
@@ -327,6 +347,8 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
     );
   }
