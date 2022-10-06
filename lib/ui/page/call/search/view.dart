@@ -33,55 +33,53 @@ import 'controller.dart';
 class SearchView extends StatelessWidget {
   const SearchView({
     Key? key,
-    required this.searchTypes,
+    required this.categories,
     required this.title,
     this.chat,
     this.selectable = true,
     this.enabled = true,
-    this.submitLabel,
-    this.onItemTap,
+    this.submit,
+    this.onPressed,
     this.onSubmit,
     this.onBack,
   }) : super(key: key);
 
-  /// [Search] types this [SearchView] doing.
-  final List<Search> searchTypes;
+  /// [SearchCategory]ies to search through.
+  final List<SearchCategory> categories;
 
-  /// [RxChat] this [SearchView] is bound to.
-  final Rx<RxChat?>? chat;
+  /// [RxChat] this [SearchView] is bound to, if any.
+  final RxChat? chat;
 
-  /// Indicator whether searched items is selectable.
+  /// Indicator whether the searched items are selectable.
   final bool selectable;
 
-  /// Indicator whether the selected items can be submitted.
+  /// Indicator whether the selected items can be submitted, if [selectable], or
+  /// otherwise [onPressed] may be called.
   final bool enabled;
 
-  /// Title showed on this [SearchView].
+  /// Title of this [SearchView].
   final String title;
 
-  /// Label showed on the submit button.
+  /// Label of the submit button.
   ///
-  /// If not set then submit button will not be displayed
-  final String? submitLabel;
+  /// Only meaningful if [onSubmit] is non-`null`.
+  final String? submit;
 
-  /// Callback, called when a searched item is tapped.
-  final void Function(dynamic)? onItemTap;
+  /// Callback, called when a searched item is pressed.
+  final void Function(dynamic)? onPressed;
 
-  /// Callback, called when the submit button tapped.
-  ///
-  /// If not set then submit button will not be displayed.
+  /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
-  /// Callback, called when the back button tapped.
+  /// Callback, called when the back button is pressed.
   ///
-  /// If not set then back button will not be displayed.
+  /// If `null`, then no back button will be displayed.
   final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: SearchController(
@@ -89,7 +87,7 @@ class SearchView extends StatelessWidget {
         Get.find(),
         Get.find(),
         chat: chat,
-        searchTypes: searchTypes,
+        categories: categories,
       ),
       builder: (SearchController c) {
         Widget tile({
@@ -113,10 +111,11 @@ class SearchView extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: 200.milliseconds,
                       child: selected
-                          ? const CircleAvatar(
-                              backgroundColor: Color(0xFF63B4FF),
+                          ? CircleAvatar(
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                               radius: 12,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.check,
                                 color: Colors.white,
                                 size: 14,
@@ -168,8 +167,8 @@ class SearchView extends StatelessWidget {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
-                        children: searchTypes
-                            .map((e) => _type(c, Search.recent, thin))
+                        children: categories
+                            .map((e) => _category(context, c, e))
                             .toList(),
                       ),
                     ),
@@ -195,9 +194,7 @@ class SearchView extends StatelessWidget {
                     if (c.searchStatus.value.isSuccess) {
                       return Center(child: Text('label_nothing_found'.l10n));
                     } else if (c.searchStatus.value.isEmpty) {
-                      return Center(
-                        child: Text('label_use_search'.l10n),
-                      );
+                      return Center(child: Text('label_use_search'.l10n));
                     }
 
                     return const Center(child: CircularProgressIndicator());
@@ -215,9 +212,11 @@ class SearchView extends StatelessWidget {
                             return tile(
                               user: e,
                               selected: c.selectedUsers.contains(e),
-                              onTap: () => selectable
-                                  ? c.selectUser(e)
-                                  : onItemTap?.call(e),
+                              onTap: selectable
+                                  ? () => c.selectUser(e)
+                                  : enabled
+                                      ? () => onPressed?.call(e)
+                                      : null,
                             );
                           });
                         } else if (e is RxChatContact) {
@@ -225,9 +224,11 @@ class SearchView extends StatelessWidget {
                             return tile(
                               contact: e,
                               selected: c.selectedContacts.contains(e),
-                              onTap: () => selectable
-                                  ? c.selectContact(e)
-                                  : onItemTap?.call(e),
+                              onTap: selectable
+                                  ? () => c.selectContact(e)
+                                  : enabled
+                                      ? () => onPressed?.call(e)
+                                      : null,
                             );
                           });
                         }
@@ -243,56 +244,55 @@ class SearchView extends StatelessWidget {
                   );
                 }),
               ),
-              if (submitLabel != null) ...[
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    children: [
-                      if (onBack != null) ...[
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('BackButton'),
-                            maxWidth: null,
-                            title: Text(
-                              'btn_back'.l10n,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            onPressed: onBack,
-                            color: const Color(0xFF63B4FF),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    if (onBack != null) ...[
                       Expanded(
-                        child: Obx(() {
-                          bool enabled = this.enabled &&
-                              (c.selectedContacts.isNotEmpty ||
-                                  c.selectedUsers.isNotEmpty);
-
-                          return OutlinedRoundedButton(
-                            key: const Key('SearchSubmitButton'),
-                            maxWidth: null,
-                            title: Text(
-                              submitLabel!,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: TextStyle(
-                                color: enabled ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            onPressed: () =>
-                                enabled ? onSubmit?.call(c.selected()) : null,
-                            color: const Color(0xFF63B4FF),
-                          );
-                        }),
+                        child: OutlinedRoundedButton(
+                          key: const Key('BackButton'),
+                          maxWidth: null,
+                          title: Text(
+                            'btn_back'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          onPressed: onBack,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
+                      const SizedBox(width: 10),
                     ],
-                  ),
-                )
-              ],
+                    Expanded(
+                      child: Obx(() {
+                        bool enabled = this.enabled &&
+                            (c.selectedContacts.isNotEmpty ||
+                                c.selectedUsers.isNotEmpty);
+
+                        return OutlinedRoundedButton(
+                          key: const Key('SearchSubmitButton'),
+                          maxWidth: null,
+                          title: Text(
+                            submit ?? 'btn_submit'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: enabled ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          onPressed: enabled
+                              ? () => onSubmit?.call(c.selected())
+                              : null,
+                          color: Theme.of(context).colorScheme.secondary,
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 16),
             ],
           ),
@@ -301,20 +301,42 @@ class SearchView extends StatelessWidget {
     );
   }
 
-  /// Returns button to jump to the provided [Search] type search results.
-  Widget _type(SearchController s, Search type, TextStyle? textStyle) {
+  /// Builds a [WidgetButton] of the provided [category].
+  Widget _category(
+    BuildContext context,
+    SearchController c,
+    SearchCategory category,
+  ) {
     return WidgetButton(
-      onPressed: () => s.jumpTo(type),
+      onPressed: () => c.jumpTo(category),
       child: Obx(() {
-        return Text(
-          type.name.capitalizeFirst!,
-          style: textStyle?.copyWith(
-            fontSize: 15,
-            color:
-                s.selectedSearch.value == type ? const Color(0xFF63B4FF) : null,
-          ),
+        final TextStyle? thin = Theme.of(context).textTheme.bodyText1?.copyWith(
+              fontSize: 15,
+              color: c.category.value == category
+                  ? Theme.of(context).colorScheme.secondary
+                  : null,
+            );
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: Text(category.l10n, style: thin),
         );
       }),
     );
+  }
+}
+
+/// Extension adding [L10n] to a [SearchCategory].
+extension _SearchCategoryL10n on SearchCategory {
+  /// Returns a localized [String] of this [SearchCategory].
+  String get l10n {
+    switch (this) {
+      case SearchCategory.recent:
+        return 'label_recent'.l10n;
+      case SearchCategory.contacts:
+        return 'label_contacts'.l10n;
+      case SearchCategory.users:
+        return 'label_users'.l10n;
+    }
   }
 }

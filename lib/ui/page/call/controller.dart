@@ -37,14 +37,13 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/call/participant/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/widget/modal_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
+import 'participant/view.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -1005,22 +1004,13 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [ParticipantsView].
+  /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<dynamic> openAddMember(BuildContext context) {
     keepUi(false);
-    return ModalPopup.show(
-      context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantsView(call: _currentCall, duration: duration),
+    return ParticipantView.show(
+      context,
+      call: _currentCall,
+      duration: duration,
     );
   }
 

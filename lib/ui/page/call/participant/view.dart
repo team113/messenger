@@ -27,16 +27,19 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
-/// View of the call participants modal.
-class ParticipantsView extends StatelessWidget {
-  const ParticipantsView({
+/// [OngoingCall.members] enumeration and administration view.
+///
+/// Intended to be displayed with the [show] method.
+class ParticipantView extends StatelessWidget {
+  const ParticipantView({
+    Key? key,
     required this.call,
     required this.duration,
-    Key? key,
   }) : super(key: key);
 
   /// [OngoingCall] this modal is bound to.
@@ -45,11 +48,32 @@ class ParticipantsView extends StatelessWidget {
   /// Duration of the [call].
   final Rx<Duration> duration;
 
+  /// Displays an [ParticipantView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required Rx<OngoingCall> call,
+    required Rx<Duration> duration,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      desktopConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      modalConstraints: const BoxConstraints(maxWidth: 380),
+      mobileConstraints: const BoxConstraints(
+        maxWidth: double.infinity,
+        maxHeight: double.infinity,
+      ),
+      mobilePadding: const EdgeInsets.all(0),
+      child: ParticipantView(call: call, duration: duration),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final TextStyle? thin =
-        theme.textTheme.bodyText1?.copyWith(color: Colors.black);
+        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
 
     return GetBuilder(
       init: ParticipantController(
@@ -64,24 +88,26 @@ class ParticipantsView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          Widget child;
+          final Widget child;
 
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
-              child = SearchView(
-                searchTypes: const [
-                  Search.recent,
-                  Search.contacts,
-                  Search.users
-                ],
-                title: 'label_add_participants'.l10n,
-                submitLabel: 'btn_add'.l10n,
-                onBack: () =>
-                    c.stage.value = ParticipantsFlowStage.participants,
-                onSubmit: c.submit,
-                enabled: c.status.value.isEmpty,
-                chat: c.chat,
-              );
+              child = Obx(() {
+                return SearchView(
+                  categories: const [
+                    SearchCategory.recent,
+                    SearchCategory.contacts,
+                    SearchCategory.users
+                  ],
+                  title: 'label_add_participants'.l10n,
+                  onBack: () =>
+                      c.stage.value = ParticipantsFlowStage.participants,
+                  submit: 'btn_add'.l10n,
+                  onSubmit: c.submit,
+                  enabled: c.status.value.isEmpty,
+                  chat: c.chat.value,
+                );
+              });
               break;
 
             case ParticipantsFlowStage.participants:
@@ -100,7 +126,7 @@ class ParticipantsView extends StatelessWidget {
                 const SizedBox(height: 18),
                 Expanded(
                   child: ListView(
-                    physics: const ScrollPhysics(),
+                    controller: ScrollController(),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     children: c.chat.value!.members.values.map((e) {
                       return Padding(
@@ -113,7 +139,20 @@ class ParticipantsView extends StatelessWidget {
                 const SizedBox(height: 18),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: _addParticipant(context, c),
+                  child: OutlinedRoundedButton(
+                    maxWidth: null,
+                    title: Text(
+                      'btn_add_participants'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      c.status.value = RxStatus.empty();
+                      c.stage.value = ParticipantsFlowStage.search;
+                    },
+                    color: const Color(0xFF63B4FF),
+                  ),
                 ),
               ];
 
@@ -143,91 +182,95 @@ class ParticipantsView extends StatelessWidget {
     );
   }
 
-  /// Returns [Widget] with the information of the provided [chat].
+  /// Returns a visual representation of the provided [chat].
   Widget _chat(BuildContext context, RxChat? chat) {
-    return Obx(() {
-      Style style = Theme.of(context).extension<Style>()!;
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-        child: Container(
-          decoration: BoxDecoration(
+    Style style = Theme.of(context).extension<Style>()!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          color: Colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: style.cardColor.darken(0.05),
+          child: InkWell(
             borderRadius: style.cardRadius,
-            color: Colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: style.cardColor.darken(0.05),
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: () {},
-              hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-                child: Row(
-                  children: [
-                    AvatarWidget.fromRxChat(chat, radius: 30),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
+            onTap: () {},
+            hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Obx(() {
+                                return Text(
                                   chat?.title.value ?? '',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: Theme.of(context).textTheme.headline5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 3),
-                            child: Row(
-                              children: [
-                                Text(
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Row(
+                            children: [
+                              Obx(() {
+                                return Text(
                                   'label_a_of_b'.l10nfmt({
                                     'a':
                                         '${call.value.members.keys.map((k) => k.userId).toSet().length}',
                                     'b': '${chat?.members.length}',
                                   }),
                                   style: Theme.of(context).textTheme.subtitle2,
+                                );
+                              }),
+                              Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 8,
                                 ),
-                                Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                  width: 1,
-                                  height: 12,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .subtitle2
-                                      ?.color,
-                                ),
-                                Text(
+                                width: 1,
+                                height: 12,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .subtitle2
+                                    ?.color,
+                              ),
+                              Obx(() {
+                                return Text(
                                   duration.value.hhMmSs(),
                                   style: Theme.of(context).textTheme.subtitle2,
-                                ),
-                              ],
-                            ),
+                                );
+                              }),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-      );
-    });
+      ),
+    );
   }
 
-  /// Returns [Widget] with the information of the provided [user].
+  /// Returns a visual representation of the provided [user].
   Widget _user(ParticipantController c, RxUser user) {
     return ContactTile(
       user: user,
@@ -245,7 +288,9 @@ class ParticipantsView extends StatelessWidget {
                 color: const Color(0xFF63B4FF),
                 type: MaterialType.circle,
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    // TODO: Redial the provided [user].
+                  },
                   borderRadius: BorderRadius.circular(60),
                   child: SizedBox(
                     width: 30,
@@ -262,30 +307,10 @@ class ParticipantsView extends StatelessWidget {
               ),
             );
           }
+
           return Container();
         }),
       ],
-    );
-  }
-
-  /// Returns button to change stage to [ParticipantsFlowStage.search].
-  Widget _addParticipant(
-    BuildContext context,
-    ParticipantController c,
-  ) {
-    return OutlinedRoundedButton(
-      maxWidth: null,
-      title: Text(
-        'btn_add_participants'.l10n,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
-        style: const TextStyle(color: Colors.white),
-      ),
-      onPressed: () {
-        c.status.value = RxStatus.empty();
-        c.stage.value = ParticipantsFlowStage.search;
-      },
-      color: const Color(0xFF63B4FF),
     );
   }
 }

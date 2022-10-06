@@ -33,13 +33,13 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Possible [ParticipantsView] flow stage.
+/// Possible [ParticipantView] flow stage.
 enum ParticipantsFlowStage {
   search,
   participants,
 }
 
-/// Controller of the [OngoingCall.members] modal.
+/// Controller of a [ParticipantView].
 class ParticipantController extends GetxController {
   ParticipantController(
     this._call,
@@ -51,7 +51,7 @@ class ParticipantController extends GetxController {
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
 
-  /// Callback, called when the [ParticipantsView] this controller is bound to
+  /// Callback, called when a [ParticipantView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
@@ -66,7 +66,7 @@ class ParticipantController extends GetxController {
   /// - `status.isLoading`, meaning [submit] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
-  /// Worker for catching the [OngoingCallState.ended] state of the call to
+  /// Worker for catching the [OngoingCallState.ended] state of the [_call] to
   /// [pop] the view.
   Worker? _stateWorker;
 
@@ -76,7 +76,7 @@ class ParticipantController extends GetxController {
   /// [OngoingCall] that this modal is bound to.
   final Rx<OngoingCall> _call;
 
-  /// [Chat]s service used to add members to a [Chat].
+  /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
 
   /// [CallService] transforming the [_call] into a group-call.
@@ -134,7 +134,7 @@ class ParticipantController extends GetxController {
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
   ///
-  /// If this [chat] is a dialog, then transforms the [Chat.currentCall] into a
+  /// If this [chat] is a dialog, then transforms the [Chat.ongoingCall] into a
   /// [Chat]-group call.
   Future<void> submit(List<UserId> ids) async {
     status.value = RxStatus.loading();
