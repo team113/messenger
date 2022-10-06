@@ -58,4 +58,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [background] value.
   Future<void> setBackground(Uint8List? bytes);
+
+  /// Sets the [ApplicationSettings.callButtons] value.
+  Future<void> setCallButtons(List<String> buttons);
 }

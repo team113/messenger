@@ -344,26 +344,29 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 vertical: 13,
                                 horizontal: 5,
                               ),
-                              child: Dock<CallButton>(
-                                items: c.buttons,
-                                itemWidth: CallController.buttonSize,
-                                itemBuilder: (e) => e.build(
-                                  hinted: c.draggedButton.value == null,
-                                ),
-                                onReorder: (buttons) {
-                                  c.buttons.clear();
-                                  c.buttons.addAll(buttons);
-                                  c.relocateSecondary();
-                                },
-                                onDragStarted: (b) {
-                                  c.isMoreHintDismissed.value = true;
-                                  c.draggedButton.value = b;
-                                },
-                                onDragEnded: (_) =>
-                                    c.draggedButton.value = null,
-                                onLeave: (_) => c.displayMore.value = true,
-                                onWillAccept: (d) => d?.c == c,
-                              ),
+                              child: Obx(() {
+                                return Dock<CallButton>(
+                                  // ignore: invalid_use_of_protected_member
+                                  items: c.buttons.value,
+                                  itemWidth: CallController.buttonSize,
+                                  itemBuilder: (e) => e.build(
+                                    hinted: c.draggedButton.value == null,
+                                  ),
+                                  onReorder: (buttons) {
+                                    c.buttons.clear();
+                                    c.buttons.addAll(buttons);
+                                    c.relocateSecondary();
+                                  },
+                                  onDragStarted: (b) {
+                                    c.isMoreHintDismissed.value = true;
+                                    c.draggedButton.value = b;
+                                  },
+                                  onDragEnded: (_) =>
+                                      c.draggedButton.value = null,
+                                  onLeave: (_) => c.displayMore.value = true,
+                                  onWillAccept: (d) => d?.c == c,
+                                );
+                              }),
                             ),
                           ),
                         ),
