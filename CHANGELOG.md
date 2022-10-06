@@ -6,6 +6,19 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.7.0] · 2022-??-??
+[0.1.0-alpha.7.0]: /../../tree/v0.1.0-alpha.7.0
+
+[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7.0) | [Milestone](/../../milestone/2)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - ChatAvatar uploading and deleting. ([#163], [#146])
+
+
+
 ## [0.1.0-alpha.6.1] · 2022-10-03
 [0.1.0-alpha.6.1]: /../../tree/v0.1.0-alpha.6.1
 
