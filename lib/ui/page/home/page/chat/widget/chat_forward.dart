@@ -156,120 +156,105 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return DefaultTextStyle(
       style: style.boldBody,
-      child: Obx(
-        () {
-          return _rounded(context, Padding(
-            padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
-            child: ClipRRect(
-              clipBehavior: fromMe ? Clip.antiAlias : Clip.none,
-              borderRadius: BorderRadius.circular(15),
-              child: IntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: fromMe
-                        ? isRead
-                        ? const Color.fromRGBO(
-                        210, 227, 249, 1)
-                        : const Color.fromRGBO(
-                        244, 249, 255, 1)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    border: fromMe
-                        ? isRead
-                        ? style.primaryBorder
-                        : Border.all(
-                      color: const Color(0xFFDAEDFF),
-                      width: 0.5,
-                    )
-                        : style.secondaryBorder,
-                  ),
-                  child: Obx(
-                          () {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.stretch,
-                          children: [
-                            if (widget.note.value != null) ..._note(),
-                            if (widget.note.value == null &&
-                                !fromMe &&
-                                widget.chat.value?.isGroup == true)
-                              Transform.translate(
-                                offset: const Offset(-36, 0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    InkWell(
-                                      customBorder:
-                                      const CircleBorder(),
-                                      onTap: () => router.user(
-                                          widget.authorId,
-                                          push: true),
-                                      child: AvatarWidget.fromRxUser(
-                                        widget.user,
-                                        radius: 15,
-                                        useLayoutBuilder: false,
-                                      ),
+      child: Obx(() {
+        return _rounded(
+            context,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+              child: ClipRRect(
+                clipBehavior: fromMe ? Clip.antiAlias : Clip.none,
+                borderRadius: BorderRadius.circular(15),
+                child: IntrinsicWidth(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    decoration: BoxDecoration(
+                      color: fromMe
+                          ? isRead
+                              ? const Color.fromRGBO(210, 227, 249, 1)
+                              : const Color.fromRGBO(244, 249, 255, 1)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      border: fromMe
+                          ? isRead
+                              ? style.primaryBorder
+                              : Border.all(
+                                  color: const Color(0xFFDAEDFF),
+                                  width: 0.5,
+                                )
+                          : style.secondaryBorder,
+                    ),
+                    child: Obx(() {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (widget.note.value != null) ..._note(),
+                          if (widget.note.value == null &&
+                              !fromMe &&
+                              widget.chat.value?.isGroup == true)
+                            Transform.translate(
+                              offset: const Offset(-36, 0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  InkWell(
+                                    customBorder: const CircleBorder(),
+                                    onTap: () => router.user(widget.authorId,
+                                        push: true),
+                                    child: AvatarWidget.fromRxUser(
+                                      widget.user,
+                                      radius: 15,
+                                      useLayoutBuilder: false,
                                     ),
-                                    Padding(
-                                      padding:
-                                      const EdgeInsets.fromLTRB(
-                                        12 + 6,
-                                        4,
-                                        9,
-                                        4,
-                                      ),
-                                      child: Text(
-                                        widget.user?.user.value.name
-                                            ?.val ??
-                                            widget.user?.user.value.num
-                                                .val ??
-                                            '...',
-                                        style: style.boldBody
-                                            .copyWith(color: color),
-                                      ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12 + 6,
+                                      4,
+                                      9,
+                                      4,
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ...widget.forwards.mapIndexed(
-                                  (i, e) => ClipRRect(
-                                clipBehavior:
-                                i == widget.forwards.length - 1
-                                    ? Clip.antiAlias
-                                    : Clip.none,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: widget.note.value == null &&
-                                      i == 0
-                                      ? const Radius.circular(15)
-                                      : Radius.zero,
-                                  topRight: widget.note.value == null &&
-                                      i == 0
-                                      ? const Radius.circular(15)
-                                      : Radius.zero,
-                                  bottomLeft:
-                                  i == widget.forwards.length - 1
-                                      ? const Radius.circular(15)
-                                      : Radius.zero,
-                                  bottomRight:
-                                  i == widget.forwards.length - 1
-                                      ? const Radius.circular(15)
-                                      : Radius.zero,
-                                ),
-                                child: _forwardedMessage(e),
+                                    child: Text(
+                                      widget.user?.user.value.name?.val ??
+                                          widget.user?.user.value.num.val ??
+                                          '...',
+                                      style:
+                                          style.boldBody.copyWith(color: color),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        );
-                      }
+                          ...widget.forwards.mapIndexed(
+                            (i, e) => ClipRRect(
+                              clipBehavior: i == widget.forwards.length - 1
+                                  ? Clip.antiAlias
+                                  : Clip.none,
+                              borderRadius: BorderRadius.only(
+                                topLeft: widget.note.value == null && i == 0
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                                topRight: widget.note.value == null && i == 0
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                                bottomLeft: i == widget.forwards.length - 1
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                                bottomRight: i == widget.forwards.length - 1
+                                    ? const Radius.circular(15)
+                                    : Radius.zero,
+                              ),
+                              child: _forwardedMessage(e),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
                 ),
               ),
-            ),
-          ));
-        }
-      ),
+            ));
+      }),
     );
   }
 
@@ -291,15 +276,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (item.attachments.isNotEmpty) {
           List<Attachment> media = item.attachments
               .where((e) =>
-          e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+                  e is ImageAttachment ||
+                  (e is FileAttachment && e.isVideo) ||
+                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
               .toList();
 
           List<Attachment> files = item.attachments
               .where((e) =>
-          (e is FileAttachment && !e.isVideo) ||
-              (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
+                  (e is FileAttachment && !e.isVideo) ||
+                  (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
               .toList();
 
           if (media.isNotEmpty || files.isNotEmpty) {
@@ -313,10 +298,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     child: Column(
                       children: files
                           .map((e) => buildFileAttachment(
-                        e,
-                        fromMe: widget.authorId == widget.me,
-                        onFileTap: (a) => widget.onFileTap?.call(item, a),
-                      ))
+                                e,
+                                fromMe: widget.authorId == widget.me,
+                                onFileTap: (a) =>
+                                    widget.onFileTap?.call(item, a),
+                              ))
                           .toList(),
                     ),
                   ),
@@ -327,33 +313,33 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   opacity: isRead || !fromMe ? 1 : 0.55,
                   child: media.length == 1
                       ? buildMediaAttachment(
-                    media.first,
-                    media,
-                    key: _galleryKeys[0],
-                    context: context,
-                    onGallery: widget.onGallery,
-                    onError: widget.onAttachmentError,
-                    filled: false,
-                  )
-                      : SizedBox(
-                    width: media.length * 120,
-                    height: max(media.length * 60, 300),
-                    child: FitView(
-                      dividerColor: Colors.transparent,
-                      children: media
-                          .mapIndexed(
-                            (i, e) => buildMediaAttachment(
-                          e,
+                          media.first,
                           media,
-                          key: _galleryKeys[i],
+                          key: _galleryKeys[0],
                           context: context,
                           onGallery: widget.onGallery,
                           onError: widget.onAttachmentError,
+                          filled: false,
+                        )
+                      : SizedBox(
+                          width: media.length * 120,
+                          height: max(media.length * 60, 300),
+                          child: FitView(
+                            dividerColor: Colors.transparent,
+                            children: media
+                                .mapIndexed(
+                                  (i, e) => buildMediaAttachment(
+                                    e,
+                                    media,
+                                    key: _galleryKeys[i],
+                                    context: context,
+                                    onGallery: widget.onGallery,
+                                    onError: widget.onAttachmentError,
+                                  ),
+                                )
+                                .toList(),
+                          ),
                         ),
-                      )
-                          .toList(),
-                    ),
-                  ),
                 ),
             ];
           }
@@ -393,13 +379,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
               child: item.withVideo
                   ? SvgLoader.asset(
-                'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                height: 13,
-              )
+                      'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 13,
+                    )
                   : SvgLoader.asset(
-                'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                height: 15,
-              ),
+                      'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                      height: 15,
+                    ),
             ),
             Flexible(child: Text(title)),
             if (time != null) ...[
@@ -430,11 +416,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         decoration: BoxDecoration(
           color: (msg.item.authorId == widget.me)
               ? isRead || !fromMe
-              ? const Color.fromRGBO(219, 234, 253, 1)
-              : const Color.fromRGBO(230, 241, 254, 1)
+                  ? const Color.fromRGBO(219, 234, 253, 1)
+                  : const Color.fromRGBO(230, 241, 254, 1)
               : isRead || !fromMe
-              ? const Color.fromRGBO(249, 249, 249, 1)
-              : const Color.fromRGBO(255, 255, 255, 1),
+                  ? const Color.fromRGBO(249, 249, 249, 1)
+                  : const Color.fromRGBO(255, 255, 255, 1),
         ),
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
@@ -447,8 +433,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 Color color = snapshot.data?.user.value.id == widget.me
                     ? const Color(0xFF63B4FF)
                     : AvatarWidget.colors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    AvatarWidget.colors.length];
+                        (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                            AvatarWidget.colors.length];
 
                 return Row(
                   mainAxisSize: MainAxisSize.min,
@@ -474,7 +460,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 Transform.scale(
                                   scaleX: -1,
                                   child:
-                                  Icon(Icons.reply, size: 17, color: color),
+                                      Icon(Icons.reply, size: 17, color: color),
                                 ),
                                 const SizedBox(width: 6),
                                 Flexible(
@@ -482,7 +468,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     snapshot.data?.user.value.name?.val ??
                                         snapshot.data?.user.value.num.val ??
                                         '...',
-                                    style: style.boldBody.copyWith(color: color),
+                                    style:
+                                        style.boldBody.copyWith(color: color),
                                   ),
                                 ),
                               ],
@@ -513,7 +500,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         ),
       );
     });
-
   }
 
   /// Renders [widget.note].
@@ -689,23 +675,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       isDelivered: isSent &&
           fromMe &&
           widget.chat.value?.lastDelivery
-              .isBefore(widget.forwards.first.value.at) ==
+                  .isBefore(widget.forwards.first.value.at) ==
               false,
       isRead: isSent && (!fromMe || isRead),
-      isError:
-      widget.forwards.first.value.status.value == SendingStatus.error,
+      isError: widget.forwards.first.value.status.value == SendingStatus.error,
       isSending:
-      widget.forwards.first.value.status.value == SendingStatus.sending,
+          widget.forwards.first.value.status.value == SendingStatus.sending,
       swipeable: Text(
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
-        fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!fromMe && widget.chat.value!.isGroup)
-            const SizedBox(width: 30),
+          if (!fromMe && widget.chat.value!.isGroup) const SizedBox(width: 30),
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
@@ -722,9 +706,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     type: MaterialType.transparency,
                     child: ContextMenuRegion(
                       preventContextMenu: false,
-                      alignment: fromMe
-                          ? Alignment.bottomRight
-                          : Alignment.bottomLeft,
+                      alignment:
+                          fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
                       actions: [
                         if (copyable != null)
                           ContextMenuButton(
@@ -777,10 +760,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             );
                           },
                         ),
-                        if (widget.onEdit != null && fromMe &&
+                        if (widget.onEdit != null &&
+                            fromMe &&
                             (widget.note.value?.value.at
-                                .add(ChatController.editMessageTimeout)
-                                .isAfter(PreciseDateTime.now()) == true ||
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ==
+                                    true ||
                                 !isRead))
                           ContextMenuButton(
                             key: const Key('EditButton'),
@@ -790,7 +775,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               width: 17,
                               height: 17,
                             ),
-                            onPressed: () => widget.onEdit?.call(widget.note.value!.value),
+                            onPressed: () =>
+                                widget.onEdit?.call(widget.note.value!.value),
                           ),
                         ContextMenuButton(
                           label: 'Delete'.l10n,
@@ -800,10 +786,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             height: 17,
                           ),
                           onPressed: () async {
-                            bool deletable = widget.authorId ==
-                                widget.me &&
-                                !widget.chat.value!
-                                    .isRead(widget.forwards.first.value, widget.me);
+                            bool deletable = widget.authorId == widget.me &&
+                                !widget.chat.value!.isRead(
+                                    widget.forwards.first.value, widget.me);
 
                             await ConfirmDialog.show(
                               context,
@@ -814,9 +799,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               variants: [
                                 ConfirmDialogVariant(
                                   onProceed: () {
-                                    widget.forwards.map((e) => widget.onHide?.call(e.value));
-                                    if(widget.note.value != null) {
-                                      widget.onHide?.call(widget.note.value!.value);
+                                    widget.forwards.map(
+                                        (e) => widget.onHide?.call(e.value));
+                                    if (widget.note.value != null) {
+                                      widget.onHide
+                                          ?.call(widget.note.value!.value);
                                     }
                                   },
                                   child: Text(
@@ -827,9 +814,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 if (deletable)
                                   ConfirmDialogVariant(
                                     onProceed: () {
-                                      widget.forwards.map((e) => widget.onDelete?.call(e.value));
-                                      if(widget.note.value != null) {
-                                        widget.onDelete?.call(widget.note.value!.value);
+                                      widget.forwards.map((e) =>
+                                          widget.onDelete?.call(e.value));
+                                      if (widget.note.value != null) {
+                                        widget.onDelete
+                                            ?.call(widget.note.value!.value);
                                       }
                                     },
                                     child: Text(

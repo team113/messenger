@@ -767,9 +767,9 @@ class ChatController extends GetxController {
           .whereType<ChatForwardElement>()
           .toList()
           .firstWhereOrNull((e) =>
-      e.forwards.any((e1) => e1.value.id == id) ||
-          e.note.value?.value.id == id);
-      if(element != null) {
+              e.forwards.any((e1) => e1.value.id == id) ||
+              e.note.value?.value.id == id);
+      if (element != null) {
         index = elements.values.toList().indexOf(element);
       }
     }

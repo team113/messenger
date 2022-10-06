@@ -417,20 +417,20 @@ class _ChatViewState extends State<ChatView>
             onDelete: (e) => c.deleteMessage(e),
             onReply: () {
               if (c.repliedMessages.contains(element.forwards.last.value)) {
-                for(var e in element.forwards) {
+                for (var e in element.forwards) {
                   c.repliedMessages.remove(e.value);
                 }
 
-                if(element.note.value != null) {
+                if (element.note.value != null) {
                   c.repliedMessages.remove(element.note.value!.value);
                 }
                 c.repliedMessages.remove(element.forwards.last.value);
               } else {
-                for(var e in element.forwards) {
+                for (var e in element.forwards) {
                   c.repliedMessages.insert(0, e.value);
                 }
 
-                if(element.note.value != null) {
+                if (element.note.value != null) {
                   c.repliedMessages.insert(0, element.note.value!.value);
                 }
               }
