@@ -10,7 +10,6 @@ class RetryImage extends StatefulWidget {
     this.url, {
     this.error403,
     this.fit,
-    this.width,
     this.height,
     Key? key,
   }) : super(key: key);
@@ -23,9 +22,6 @@ class RetryImage extends StatefulWidget {
 
   /// BoxFit of image.
   final BoxFit? fit;
-
-  /// Width of image.
-  final double? width;
 
   /// Height of image.
   final double? height;
@@ -64,13 +60,11 @@ class _RetryImageState extends State<RetryImage> {
   Widget build(BuildContext context) => _loaded
       ? Image.memory(
           _image,
-          width: widget.width,
           height: widget.height,
           fit: widget.fit,
         )
       : Container(
           height: widget.height,
-          width: widget.width,
           alignment: Alignment.center,
           child: Container(
             constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
@@ -84,17 +78,17 @@ class _RetryImageState extends State<RetryImage> {
   /// Trying to load image.
   Future<void> _loadImage() async {
     http.Response? data;
+
     try {
       data = await http.get(Uri.parse(widget.url));
     } catch (e) {
       // No-op.
     }
+
     if (data?.statusCode == 403) {
       widget.error403?.call();
-      if (mounted) {
-        setState(() {});
-      }
     }
+
     if (data?.bodyBytes != null && data!.statusCode == 200) {
       _loaded = true;
       _image = data.bodyBytes;
