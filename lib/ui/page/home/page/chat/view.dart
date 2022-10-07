@@ -413,8 +413,24 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
-            onHide: (e) => c.hideChatItem(e),
-            onDelete: (e) => c.deleteMessage(e),
+            onHide: () {
+              for (var f in element.forwards) {
+                c.hideChatItem(f.value);
+              }
+
+              if (element.note.value != null) {
+                c.hideChatItem(element.note.value!.value);
+              }
+            },
+            onDelete: () {
+              for (var f in element.forwards) {
+                c.deleteMessage(f.value);
+              }
+
+              if (element.note.value != null) {
+                c.deleteMessage(element.note.value!.value);
+              }
+            },
             onReply: () {
               if (c.repliedMessages.contains(element.forwards.last.value)) {
                 for (var e in element.forwards) {
@@ -435,8 +451,9 @@ class _ChatViewState extends State<ChatView>
                 }
               }
             },
+            onCopy: c.copyText,
             onGallery: c.calculateGallery,
-            onEdit: (e) => c.editMessage(e),
+            onEdit: () => c.editMessage(element.note.value!.value),
             onForwardedTap: (id, chatId) {
               if (chatId == c.id) {
                 c.animateTo(id);

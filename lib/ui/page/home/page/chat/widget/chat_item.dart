@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -231,7 +230,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
     bool fromMe = msg.authorId == widget.me;
@@ -252,9 +251,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             decoration: BoxDecoration(
               color: fromMe
                   ? isRead
-                      ? const Color.fromRGBO(210, 227, 249, 1)
-                      : const Color.fromRGBO(244, 249, 255, 1)
-                  : Colors.white,
+                      ? style.myUserReadMessageColor
+                      : style.myUserUnreadMessageColor
+                  : style.messageColor,
               borderRadius: BorderRadius.circular(15),
               border: fromMe
                   ? isRead
@@ -528,9 +527,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 : style.secondaryBorder,
             color: fromMe
                 ? isRead
-                    ? const Color.fromRGBO(210, 227, 249, 1)
-                    : const Color.fromRGBO(244, 249, 255, 1)
-                : Colors.white,
+                    ? style.myUserReadMessageColor
+                    : style.myUserUnreadMessageColor
+                : style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
           child: ClipRRect(
@@ -816,7 +815,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             ),
           Flexible(
-            key: Key('Message_${item.id}'),
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
                 constraints: BoxConstraints(
@@ -1297,24 +1295,12 @@ Widget buildFileAttachment(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          p.basenameWithoutExtension(e.filename),
-                          style: const TextStyle(fontSize: 15),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        p.extension(e.filename),
-                        style: const TextStyle(fontSize: 15),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  // TODO: Cut with extension visible.
+                  Text(
+                    e.filename,
+                    style: const TextStyle(fontSize: 15),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 5),
                   Text(

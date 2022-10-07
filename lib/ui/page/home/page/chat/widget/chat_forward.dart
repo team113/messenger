@@ -97,16 +97,16 @@ class ChatForwardWidget extends StatefulWidget {
   final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this chat forward is triggered.
-  final void Function(ChatItem)? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a delete action of this chat forward is triggered.
-  final void Function(ChatItem)? onDelete;
+  final void Function()? onDelete;
 
   /// Callback, called when a reply action of this chat forward is triggered.
   final Function()? onReply;
 
   /// Callback, called when an edit action of this chat forward is triggered.
-  final void Function(ChatItem)? onEdit;
+  final void Function()? onEdit;
 
   /// Callback, called when a copy action of this chat forward is triggered.
   final void Function(String text)? onCopy;
@@ -170,9 +170,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     decoration: BoxDecoration(
                       color: fromMe
                           ? isRead
-                              ? const Color.fromRGBO(210, 227, 249, 1)
-                              : const Color.fromRGBO(244, 249, 255, 1)
-                          : Colors.white,
+                              ? style.myUserReadMessageColor
+                              : style.myUserUnreadMessageColor
+                          : style.messageColor,
                       borderRadius: BorderRadius.circular(15),
                       border: fromMe
                           ? isRead
@@ -656,6 +656,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
+    if (widget.forwards.isEmpty) {
+      return Container();
+    }
+
     ChatItem? item = widget.note.value?.value;
 
     bool fromMe = widget.authorId == widget.me;
@@ -722,7 +726,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           ),
                         ContextMenuButton(
                           key: const Key('ReplyButton'),
-                          label: 'Reply'.l10n,
+                          label: 'btn_reply'.l10n,
                           leading: SvgLoader.asset(
                             'assets/icons/reply.svg',
                             width: 18.8,
@@ -732,7 +736,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         ),
                         ContextMenuButton(
                           key: const Key('ForwardButton'),
-                          label: 'Forward'.l10n,
+                          label: 'btn_forward'.l10n,
                           leading: SvgLoader.asset(
                             'assets/icons/forward.svg',
                             width: 18.8,
@@ -760,8 +764,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             );
                           },
                         ),
-                        if (widget.onEdit != null &&
-                            fromMe &&
+                        if (fromMe &&
                             (widget.note.value?.value.at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ==
@@ -775,11 +778,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               width: 17,
                               height: 17,
                             ),
-                            onPressed: () =>
-                                widget.onEdit?.call(widget.note.value!.value),
+                            onPressed: () => widget.onEdit?.call(),
                           ),
                         ContextMenuButton(
-                          label: 'Delete'.l10n,
+                          label: 'btn_delete'.l10n,
                           leading: SvgLoader.asset(
                             'assets/icons/delete_small.svg',
                             width: 17.75,
@@ -798,14 +800,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   : 'label_message_will_deleted_for_you'.l10n,
                               variants: [
                                 ConfirmDialogVariant(
-                                  onProceed: () {
-                                    widget.forwards.map(
-                                        (e) => widget.onHide?.call(e.value));
-                                    if (widget.note.value != null) {
-                                      widget.onHide
-                                          ?.call(widget.note.value!.value);
-                                    }
-                                  },
+                                  onProceed: widget.onHide,
                                   child: Text(
                                     'label_delete_for_me'.l10n,
                                     key: const Key('HideForMe'),
@@ -813,14 +808,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ),
                                 if (deletable)
                                   ConfirmDialogVariant(
-                                    onProceed: () {
-                                      widget.forwards.map((e) =>
-                                          widget.onDelete?.call(e.value));
-                                      if (widget.note.value != null) {
-                                        widget.onDelete
-                                            ?.call(widget.note.value!.value);
-                                      }
-                                    },
+                                    onProceed: widget.onDelete,
                                     child: Text(
                                       'label_delete_for_everyone'.l10n,
                                       key: const Key('DeleteForAll'),

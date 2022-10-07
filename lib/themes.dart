@@ -18,6 +18,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '/domain/model/my_user.dart';
+
 /// Application themes constants.
 class Themes {
   /// Returns a light theme.
@@ -48,6 +50,9 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            messageColor: Colors.white,
+            myUserReadMessageColor: const Color.fromRGBO(210, 227, 249, 1),
+            myUserUnreadMessageColor: const Color.fromRGBO(244, 249, 255, 1),
             primaryBorder: Border.all(
               color: const Color(0xFFB9D9FA),
               width: 0.5,
@@ -266,6 +271,9 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.messageColor,
+    required this.myUserReadMessageColor,
+    required this.myUserUnreadMessageColor,
     required this.primaryBorder,
     required this.secondaryBorder,
     required this.sidebarColor,
@@ -289,10 +297,19 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
-  /// Primary [Border].
+  /// Background [Color] of the chat messages.
+  final Color messageColor;
+
+  /// Background [Color] of the read chat messages posted by [MyUser].
+  final Color myUserReadMessageColor;
+
+  /// Background [Color] of the unread chat messages posted by [MyUser].
+  final Color myUserUnreadMessageColor;
+
+  /// Primary [Border] style.
   final Border primaryBorder;
 
-  /// Secondary [Border].
+  /// Secondary [Border] style.
   final Border secondaryBorder;
 
   /// [Color] of the [HomeView]'s side bar.
@@ -306,6 +323,9 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
+    Color? messageColor,
+    Color? myUserReadMessageColor,
+    Color? myUserUnreadMessageColor,
     Border? primaryBorder,
     Border? secondaryBorder,
     Color? sidebarColor,
@@ -319,6 +339,11 @@ class Style extends ThemeExtension<Style> {
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      messageColor: messageColor ?? this.messageColor,
+      myUserReadMessageColor:
+          myUserReadMessageColor ?? this.myUserReadMessageColor,
+      myUserUnreadMessageColor:
+          myUserUnreadMessageColor ?? this.myUserUnreadMessageColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
@@ -347,6 +372,14 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      messageColor: Color.lerp(messageColor, other.messageColor, t)!,
+      myUserReadMessageColor:
+          Color.lerp(myUserReadMessageColor, other.myUserReadMessageColor, t)!,
+      myUserUnreadMessageColor: Color.lerp(
+        myUserUnreadMessageColor,
+        other.myUserUnreadMessageColor,
+        t,
+      )!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
