@@ -77,7 +77,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// List of [ChatForward]s of this [ChatForwardWidget].
   final RxList<Rx<ChatItem>> forwards;
 
-  /// [ChatMessage] note attached to this [forwards].
+  /// [ChatMessage] attached to this [forwards] as note.
   final Rx<Rx<ChatItem>?> note;
 
   /// [UserId] of the authenticated [MyUser].
@@ -134,7 +134,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   final List<GlobalKey> _galleryKeys = [];
-  final List<GlobalKey> _noteGalleryKeys = [];
 
   @override
   void initState() {
@@ -209,7 +208,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(
-                                      12 + 6,
+                                      18,
                                       4,
                                       9,
                                       4,
@@ -258,7 +257,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  /// Renders the provided [ChatForward].
+  /// Renders the provided [forward] as [ChatForward].
   Widget _forwardedMessage(Rx<ChatItem> forward) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
@@ -456,7 +455,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           children: [
                             Row(
                               children: [
-                                // const SizedBox(width: 6),
                                 Transform.scale(
                                   scaleX: -1,
                                   child:
@@ -502,7 +500,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     });
   }
 
-  /// Renders [widget.note].
+  /// Renders [widget.note] as [ChatMessage].
   List<Widget> _note() {
     ChatItem item = widget.note.value!.value;
 
@@ -621,7 +619,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? buildMediaAttachment(
                       attachments.first,
                       attachments,
-                      key: _noteGalleryKeys[0],
+                      key: _galleryKeys.last,
                       context: context,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
@@ -637,7 +635,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               (i, e) => buildMediaAttachment(
                                 e,
                                 attachments,
-                                key: _noteGalleryKeys[i],
+                                key: _galleryKeys.reversed.elementAt(i),
                                 context: context,
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
@@ -831,7 +829,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].
+  /// Populates the [_galleryKeys] from [widget.forwards] and [widget.note].
   void _populateGlobalKeys() {
     _galleryKeys.clear();
 
@@ -851,8 +849,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
 
     if (widget.note.value != null) {
-      _noteGalleryKeys.clear();
-      _noteGalleryKeys.addAll(
+      _galleryKeys.addAll(
         (widget.note.value!.value as ChatMessage)
             .attachments
             .where((e) =>

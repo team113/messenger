@@ -211,6 +211,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
+    Style style = Theme.of(context).extension<Style>()!;
     var msg = widget.item.value as ChatMessage;
 
     String? text = msg.text?.val.trim();
@@ -219,8 +220,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     } else {
       text = msg.text?.val;
     }
-
-    Style style = Theme.of(context).extension<Style>()!;
 
     List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
@@ -548,7 +547,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Renders [item] as a replied message.
+  /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.authorId == widget.me;
@@ -1150,6 +1149,7 @@ Widget buildMediaAttachment(
           filled ? Positioned.fill(child: attachment) : attachment,
           if (isLocal)
             ElasticAnimatedSwitcher(
+              key: Key('AttachmentStatus_${e.id}'),
               child: e.status.value == SendingStatus.sent
                   ? const Icon(
                       Icons.check_circle,
