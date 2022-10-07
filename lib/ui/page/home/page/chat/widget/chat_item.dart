@@ -147,9 +147,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
-  /// If [User] is authenticated indicates whether the provided [ChatItem]
-  /// was read by some [User] other than authenticated, otherwise indicates
-  /// whether the provided [ChatItem] was read by the authenticated [User].
+  /// Indicates whether the provided [ChatItem] was read by some [User].
+  ///
+  /// If [User] is authenticated [ChatItem] was read some [User] other
+  /// than authenticated, otherwise was read by the authenticated [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
     if (chat == null) {
@@ -164,7 +165,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
-  /// authenticated [MyUser].
+  /// authenticated [User].
   bool get _fromMe => widget.item.value.authorId == widget.me;
 
   @override
@@ -229,10 +230,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.chat.value?.isGroup == true) {
           content = Text('label_group_created'.l10n);
         } else {
-          content = Text(
-            'label_dialog_created'.l10n,
-            style: const TextStyle(color: Color(0xFF888888)),
-          );
+          content = Text('label_dialog_created'.l10n);
         }
         break;
 
