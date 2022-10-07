@@ -49,7 +49,6 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
   'I am in chat {string}',
   (String chatName, context) async {
     router.chat(context.world.groups[chatName]!);
-    context.world.currentChat = context.world.groups[chatName];
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();

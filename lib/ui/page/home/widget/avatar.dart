@@ -20,6 +20,7 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -299,6 +300,7 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
+  /// Indicator whether widget called from [ChatInfoView] page.
   final bool fromChatInfoView;
 
   /// Avatar color swatches.

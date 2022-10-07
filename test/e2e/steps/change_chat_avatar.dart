@@ -19,7 +19,7 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '../world/custom_world.dart';
@@ -39,7 +39,9 @@ final StepDefinitionGeneric changeChatAvatar = then<CustomWorld>(
       ),
     );
 
-    ChatId chatId = context.world.currentChat!;
+    List<String> routes = router.route.split('/');
+    routes.removeLast();
+    String chatId = routes.last;
     if (Get.isRegistered<ChatInfoController>(tag: 'ChatInfo$chatId')) {
       final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
       await controller.updateChatAvatar(image);

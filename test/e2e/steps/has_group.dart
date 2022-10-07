@@ -28,7 +28,7 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Given I am in group "Chat name" with Bob.
-final StepDefinitionGeneric hasGroupChatWithMe =
+final StepDefinitionGeneric inGroupWithUserWithName =
     given2<String, TestUser, CustomWorld>(
   'I am in group {string} with {user}',
   (String chatName, TestUser user, context) async {
@@ -47,10 +47,10 @@ final StepDefinitionGeneric hasGroupChatWithMe =
 );
 
 /// Creates a [Chat]-group of the provided [User] with the authenticated
-/// [MyUser] with specified chat name.
+/// [MyUser].
 ///
 /// Examples:
-/// - Given I am in group "Chat name" with Bob.
+/// - Given I am in group with Bob.
 final StepDefinitionGeneric inGroupWithUser = given1<TestUser, CustomWorld>(
   'I am in group with {user}',
   (TestUser user, context) async {

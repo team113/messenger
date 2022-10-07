@@ -106,6 +106,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns [Chat.avatar] image, change and delete [Chat.avatar] buttons.
   Widget _avatar(ChatInfoController c) {
+    /// Returns progress indicator, success icon, change or delete [Chat.avatar]
+    /// buttons.
     Widget avatarWidget() {
       if (c.avatarStatus.value.isLoading) {
         return const CircularProgressIndicator(
