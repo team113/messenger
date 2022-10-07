@@ -1365,10 +1365,10 @@ extension LocalizedDurationExtension on Duration {
   String localizedString() {
     var microseconds = inMicroseconds;
 
+    if (microseconds < 0) microseconds = -microseconds;
+
     var hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-
-    if (microseconds < 0) microseconds = -microseconds;
 
     var minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
