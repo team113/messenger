@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http_client_helper/http_client_helper.dart';
 
 class RetryImage extends StatefulWidget {
   const RetryImage(this.url, {Key? key}) : super(key: key);
