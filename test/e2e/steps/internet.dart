@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -59,10 +61,16 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
 final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   'I do not have Internet',
   (context) => Future.sync(() {
+    const MethodChannel channel =
+        MethodChannel('plugins.flutter.io/connectivity');
+
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      return methodCall.method;
+    });
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
-      provider.client.throwException = true;
+      provider.client.throwException = false;
     }
   }),
 );

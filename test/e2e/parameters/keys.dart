@@ -39,6 +39,8 @@ enum WidgetKey {
   Delete,
   DeleteAccountButton,
   EmailsExpandable,
+  ImageLoading,
+  ImageLoaded,
   ForwardButton,
   ForwardField,
   HomeView,

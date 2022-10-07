@@ -30,13 +30,13 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     router.chat(context.world.sessions[user.name]!.dialog!);
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-    );
+    // await context.world.appDriver.waitUntil(
+    //   () async {
+    //     await context.world.appDriver.waitForAppToSettle();
+    //     return context.world.appDriver.isPresent(
+    //       context.world.appDriver.findBy('ChatView', FindType.key),
+    //     );
+    //   },
+    // );
   },
 );

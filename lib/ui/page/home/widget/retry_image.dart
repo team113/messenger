@@ -62,6 +62,7 @@ class _RetryImageState extends State<RetryImage> {
           _image,
           height: widget.height,
           fit: widget.fit,
+          key: const Key('ImageLoaded'),
         )
       : Container(
           height: widget.height,
@@ -70,7 +71,9 @@ class _RetryImageState extends State<RetryImage> {
             constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
             child: const AspectRatio(
               aspectRatio: 1 / 1,
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                key: Key('ImageLoading'),
+              ),
             ),
           ),
         );
