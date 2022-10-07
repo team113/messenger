@@ -655,8 +655,8 @@ class CallController extends GetxController {
               case 'SettingsButton':
                 return SettingsButton(this);
 
-              case 'AddMemberCallButton':
-                return AddMemberCallButton(this);
+              case 'ParticipantsButton':
+                return ParticipantsButton(this);
 
               case 'HandButton':
                 return HandButton(this);
