@@ -31,7 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.padding,
   }) : super(key: key);
 
-  /// Primary widget displayed in the center.
+  /// Primary centered [Widget] of this [CustomAppBar].
   final Widget? title;
 
   /// [Widget]s displayed in a row before the [title].

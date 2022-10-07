@@ -15,14 +15,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/repository/chat.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 
 /// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
@@ -34,7 +34,6 @@ class ChatTile extends StatelessWidget {
     this.leading = const [],
     this.trailing = const [],
     this.actions = const [],
-    this.style,
     this.selected = false,
     this.onTap,
     this.height = 94,
@@ -52,26 +51,25 @@ class ChatTile extends StatelessWidget {
   /// Optional trailing [Widget]s.
   final List<Widget> trailing;
 
-  /// Additional content displayed below the title.
+  /// Additional content displayed below the [chat]'s title.
   final List<Widget> subtitle;
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
   final List<ContextMenuButton> actions;
 
-  /// Chat tile styles.
-  final Style? style;
-
-  /// Indicator whether chat selection for applying certain styles.
+  /// Indicator whether this [ChatTile] is selected.
   final bool selected;
 
-  /// Callback, called when the chat tile is tapped.
+  /// Callback, called when this [ChatTile] is pressed.
   final void Function()? onTap;
 
-  /// Fixed tile height.
+  /// Height of this [ChatTile].
   final double height;
 
   @override
   Widget build(BuildContext context) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     return ContextMenuRegion(
       key: Key('ContextMenuRegion_${chat?.chat.value.id}'),
       preventContextMenu: false,
@@ -81,20 +79,18 @@ class ChatTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: InkWellWithHover(
-            selectedColor: style?.primaryCardColor,
-            unselectedColor: style?.cardColor,
+            selectedColor: style.primaryCardColor,
+            unselectedColor: style.cardColor,
             selected: selected,
-            hoveredBorder: selected
-                ? style?.primaryBorder
-                : style?.hoveredBorderUnselected,
-            unhoveredBorder:
-                selected ? style?.primaryBorder : style?.cardBorder,
-            borderRadius: style?.cardRadius,
+            hoveredBorder:
+                selected ? style.primaryBorder : style.hoveredBorderUnselected,
+            unhoveredBorder: selected ? style.primaryBorder : style.cardBorder,
+            borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style?.unselectedHoverColor,
-            selectedHoverColor: style?.primaryCardColor,
+            unselectedHoverColor: style.unselectedHoverColor,
+            selectedHoverColor: style.primaryCardColor,
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
                   AvatarWidget.fromRxChat(chat, radius: 30),
@@ -102,13 +98,14 @@ class ChatTile extends StatelessWidget {
                   ...leading,
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
                             Expanded(
                               child: Text(
-                                chat?.title.value ?? 'dot'.l10n * 3,
+                                chat?.title.value ?? ('dot'.l10n * 3),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: Theme.of(context).textTheme.headline5,

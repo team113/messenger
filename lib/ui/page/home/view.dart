@@ -163,10 +163,7 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
                         // [AnimatedOpacity] boilerplate.
-                        Widget tab({
-                          required Widget child,
-                          HomeTab? tab,
-                        }) {
+                        Widget tab({required Widget child, HomeTab? tab}) {
                           return Obx(() {
                             return AnimatedOpacity(
                               duration: 150.milliseconds,
@@ -177,16 +174,13 @@ class _HomeViewState extends State<HomeView> {
                         }
 
                         return CustomNavigationBar(
-                          selectedColor: const Color(0xFF63B4FF),
-                          unselectedColor: const Color(0xFF88c6ff),
-                          size: 30,
                           items: [
                             CustomNavigationBarItem(
                               key: const Key('ContactsButton'),
                               child: tab(
                                 tab: HomeTab.contacts,
                                 child: SvgLoader.asset(
-                                  'assets/icons/contacts_active.svg',
+                                  'assets/icons/contacts.svg',
                                   width: 30,
                                   height: 30,
                                 ),
@@ -200,7 +194,7 @@ class _HomeViewState extends State<HomeView> {
                               child: tab(
                                 tab: HomeTab.chats,
                                 child: SvgLoader.asset(
-                                  'assets/icons/chats_active.svg',
+                                  'assets/icons/chats.svg',
                                   width: 36.06,
                                   height: 30,
                                 ),
@@ -221,7 +215,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ],
                           currentIndex: router.tab.index,
-                          onTap: (int i) => c.pages.jumpToPage(i),
+                          onTap: (i) => c.pages.jumpToPage(i),
                         );
                       }),
                     ),

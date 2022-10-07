@@ -54,7 +54,6 @@ class Themes {
             dropButtonColor: Colors.red,
             hoveredBorderUnselected:
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
-            joinButtonColor: const Color(0xFF63B4FF),
             primaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             primaryCardColor: const Color.fromRGBO(210, 227, 249, 1),
@@ -288,7 +287,6 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuRadius,
     required this.dropButtonColor,
     required this.hoveredBorderUnselected,
-    required this.joinButtonColor,
     required this.primaryBorder,
     required this.primaryCardColor,
     required this.sidebarColor,
@@ -332,9 +330,6 @@ class Style extends ThemeExtension<Style> {
   /// [Border] to use in sidebar for chats.
   final Border hoveredBorderUnselected;
 
-  /// [Color] join button.
-  final Color joinButtonColor;
-
   /// [Border] to use in sidebar for chats if chat is selected.
   final Border primaryBorder;
 
@@ -371,7 +366,6 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     Color? dropButtonColor,
-    Color? joinButtonColor,
     Color? primaryCardColor,
     Color? sidebarColor,
     Color? statusMessageError,
@@ -398,7 +392,6 @@ class Style extends ThemeExtension<Style> {
       dropButtonColor: dropButtonColor ?? this.dropButtonColor,
       hoveredBorderUnselected:
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
-      joinButtonColor: joinButtonColor ?? this.joinButtonColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
       primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
@@ -438,7 +431,6 @@ class Style extends ThemeExtension<Style> {
       dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
       hoveredBorderUnselected: Border.lerp(
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
-      joinButtonColor: Color.lerp(joinButtonColor, other.joinButtonColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,

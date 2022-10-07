@@ -168,6 +168,7 @@ btn_submit = Submit
 btn_video_call = Video call
 btn_write_message = Write a message
 btn_your_profile = Your profile
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Indicated account is not found
@@ -320,9 +321,9 @@ label_chat_call_unanswered = Unanswered call
 label_chat_created = Chat created
 label_chat_members = Members
 label_chat_monolog = Saved messages
-label_chats = Messages
 label_chat_was_added = {$who} was added
 label_chat_was_removed = {$who} was removed
+label_chats = Messages
 label_contact = Contact
 label_contacts = Contacts
 label_copied_to_clipboard = Copied to the clipboard
@@ -447,8 +448,6 @@ label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_settings = Settings
-label_sign_in = Log In
-label_sign_in_input = Gapopa ID, Login, Email or Phone
 label_short_weekday =
     {$weekday ->
         [1] Mon
@@ -459,6 +458,8 @@ label_short_weekday =
         [6] Sat
         *[other] Sun
     }
+label_sign_in = Log In
+label_sign_in_input = Gapopa ID, Login, Email or Phone
 label_subtitle_participants = participants
 label_tab_chats = Chats
 label_tab_contacts = Contacts
@@ -474,3 +475,4 @@ label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
 label_you = You
 label_you_were_added_to_group = You were added to the group
+plus = +

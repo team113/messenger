@@ -168,6 +168,7 @@ btn_submit = Применить
 btn_video_call = Видеозвонок
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
+colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 err_account_not_found = Указанный аккаунт не найден
@@ -331,9 +332,9 @@ label_chat_call_unanswered = Неотвеченный звонок
 label_chat_created = Чат создан
 label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
+label_chat_was_added = {$who} был(а) добавлен(а)
+label_chat_was_removed = {$who} был(а) удален(а)
 label_chats = Чаты
-label_chat_was_added = {$who} был добавлен
-label_chat_was_removed = {$who} был удален
 label_contact = Контакт
 label_contacts = Контакты
 label_copied_to_clipboard = Скопировано в буфер обмена
@@ -460,8 +461,6 @@ label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_settings = Настройки
-label_sign_in = Войти
-label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
 label_short_weekday =
     {$weekday ->
         [1] пн
@@ -472,6 +471,8 @@ label_short_weekday =
         [6] сб
         *[other] вс
     }
+label_sign_in = Войти
+label_sign_in_input = Gapopa ID, Логин, Эл.почта, или Номер телефона
 label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
@@ -487,3 +488,4 @@ label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+plus = +

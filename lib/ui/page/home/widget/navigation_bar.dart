@@ -29,10 +29,7 @@ class CustomNavigationBar extends StatelessWidget {
     Key? key,
     this.currentIndex = 0,
     this.items = const [],
-    this.size,
     this.onTap,
-    this.selectedColor = const Color(0xFF4193DC),
-    this.unselectedColor = const Color(0xA6818181),
   }) : super(key: key);
 
   /// Currently selected index of an item in the [items] list.
@@ -45,21 +42,12 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
-  /// Default size of [items] icons.
-  final double? size;
-
-  /// Selected item color.
-  final Color selectedColor;
-
-  /// Unselected item color.
-  final Color unselectedColor;
-
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: Container(
         decoration: BoxDecoration(
           boxShadow: const [
@@ -116,17 +104,9 @@ class CustomNavigationBar extends StatelessWidget {
                                   highlightColor: Colors.transparent,
                                   splashColor: Colors.transparent,
                                   onTap: () => onTap?.call(i),
-                                  child: DefaultTextStyle(
-                                      style: TextStyle(
-                                        color: currentIndex == i
-                                            ? selectedColor
-                                            : unselectedColor,
-                                        fontSize: 11,
-                                      ),
-                                      child: b.child!),
+                                  child: b.child!,
                                 ),
                               ),
-                            if (b.label != null) Text(b.label!),
                           ],
                         ),
                       );
@@ -146,16 +126,12 @@ class CustomNavigationBar extends StatelessWidget {
 class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
-    this.label,
     this.badge,
     this.child,
   });
 
   /// Unique [Key] of this [CustomNavigationBarItem].
   final Key? key;
-
-  /// Label of this item.
-  final String? label;
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;

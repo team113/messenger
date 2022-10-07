@@ -516,7 +516,7 @@ class OngoingCall {
   /// Leaves this [OngoingCall].
   ///
   /// Throws a [LeaveChatCallException].
-  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId!);
+  Future<void> leave(CallService calls) => calls.leave(chatId.value);
 
   /// Declines this [OngoingCall].
   ///

@@ -124,22 +124,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  /// Indicates whether call is active in the [Chat] identified by the provided [id].
-  bool isInCall(ChatId id) =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
-
-  /// Drops the call in the [Chat] identified by the provided [id].
-  Future<void> dropCall(ChatId chatId) {
-    WebUtils.removeCall(chatId);
-    final ChatCallDeviceId? deviceId =
-        _callService.calls[chatId]?.value.deviceId;
-    if (deviceId != null) {
-      return _callService.leave(chatId, deviceId);
-    } else {
-      return Future<void>.value();
-    }
-  }
-
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {
@@ -186,6 +170,14 @@ class ChatsTabController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Indicates whether there's any [OngoingCall] happening in a [Chat]
+  /// identified by its [id].
+  bool hasCall(ChatId id) =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+
+  /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
+  Future<void> dropCall(ChatId id) => _callService.leave(id);
 
   /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
   void _sortChats() {
