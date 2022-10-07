@@ -6,16 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.7.0] · 2022-??-??
-[0.1.0-alpha.7.0]: /../../tree/v0.1.0-alpha.7.0
+## [0.1.0-alpha.7] · 2022-??-??
+[0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
-[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7.0) | [Milestone](/../../milestone/2)
+[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
 
 ### Added
 
 - UI:
+    - Media panel:
+        - Dock buttons persistence. ([#159], [#137])
     - Chat page:
-        - ChatAvatar uploading and deleting. ([#163], [#146])
+        - ChatAvatar uploading and
+
+[#137]: /../../issues/137
+[#159]: /../../pull/159
+
 
 
 
