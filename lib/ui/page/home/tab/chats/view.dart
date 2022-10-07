@@ -258,7 +258,7 @@ class _ChatTile extends StatelessWidget {
                     child: _subtitle(context, c, rxChat, style.subtitleColor),
                   ),
                 ),
-                ..._messsageStatus(c, chat, style),
+                ..._messageStatus(c, chat, style),
                 if (chat.unreadCount != 0) ...[
                   const SizedBox(width: 10),
                   Container(
@@ -313,7 +313,7 @@ class _ChatTile extends StatelessWidget {
   }
 
   /// Gets message status widget.
-  List<Widget> _messsageStatus(ChatsTabController c, Chat chat, Style style) {
+  List<Widget> _messageStatus(ChatsTabController c, Chat chat, Style style) {
     ChatItem? item = chat.lastItem;
 
     if (item?.authorId == c.me) {
