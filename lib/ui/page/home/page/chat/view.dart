@@ -25,7 +25,6 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/listen_tap.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -186,9 +185,11 @@ class _ChatViewState extends State<ChatView>
                                     child: InkWell(
                                       customBorder: const CircleBorder(),
                                       onTap: onDetailsTap,
-                                      child: AvatarWidget.fromRxChat(
-                                        c.chat,
-                                        radius: 17,
+                                      child: Center(
+                                        child: AvatarWidget.fromRxChat(
+                                          c.chat,
+                                          radius: 17,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -239,159 +240,83 @@ class _ChatViewState extends State<ChatView>
                                       : const NeverScrollableScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
                                     (BuildContext context, int i) {
-                                      List<Widget> widgets = [];
-                                      Rx<ChatItem> e = c.chat!.messages[i];
-                                      if (c.lastReadItem.value == e) {
-                                        widgets.add(
-                                          Container(
-                                            color: const Color(0x33000000),
-                                            padding: const EdgeInsets.all(4),
-                                            margin: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                            ),
-                                            child: Center(
-                                              child: ListenTap(
-                                                isTap: c.isTapMessage,
-                                                child: CustomSelectionText(
-                                                  selections: c.selections,
-                                                  position: i,
-                                                  type: CopyableItem.message,
-                                                  child: Text(
-                                                    'label_unread_messages'
-                                                        .l10n,
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
-                                                    textAlign: TextAlign.center,
+                                      ListElement? e =
+                                          c.elements.values.elementAt(i);
+
+                                      if (e is UnreadMessagesElement) {
+                                        return Container(
+                                          color: const Color(0x33000000),
+                                          padding: const EdgeInsets.all(4),
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          child: Center(
+                                            child: ListenTap(
+                                              isTap: c.isTapMessage,
+                                              child: CustomSelectionText(
+                                                selections: c.selections,
+                                                position: i,
+                                                type: CopyableItem.message,
+                                                child: Text(
+                                                  'label_unread_messages'.l10n,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
                                                   ),
+                                                  textAlign: TextAlign.center,
                                                 ),
                                               ),
                                             ),
                                           ),
                                         );
-                                      }
+                                      } else if (e is ChatMessageElement ||
+                                          e is ChatCallElement ||
+                                          e is ChatMemberInfoElement) {
+                                        Rx<ChatItem>? item;
 
-                                      Widget widget = Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                        ),
-                                        child: FutureBuilder<RxUser?>(
-                                          future: c.getUser(e.value.authorId),
-                                          builder: (_, u) => ChatItemWidget(
-                                            key: Key(e.value.id.val),
-                                            chat: c.chat!.chat,
-                                            item: e,
-                                            me: c.me!,
-                                            user: u.data,
-                                            selections: c.selections,
-                                            isTapMessage: c.isTapMessage,
-                                            position: i,
-                                            getUser: c.getUser,
-                                            onJoinCall: c.joinCall,
-                                            onHide: () =>
-                                                c.hideChatItem(e.value),
-                                            onDelete: () =>
-                                                c.deleteMessage(e.value),
-                                            onReply: () => c
-                                                .repliedMessage.value = e.value,
-                                            onCopy: (String text) =>
-                                                c.copyText(text),
-                                            onRepliedTap: (id) =>
-                                                c.animateTo(id),
-                                            onForwardedTap: (id, chatId) {
-                                              if (chatId == c.id) {
-                                                c.animateTo(id);
-                                              } else {
-                                                router.chat(
-                                                  chatId,
-                                                  itemId: id,
-                                                  push: true,
-                                                );
-                                              }
-                                            },
-                                            animation: _animation,
-                                            onGallery: c.calculateGallery,
-                                            onResend: () =>
-                                                c.resendItem(e.value),
-                                            onEdit: () =>
-                                                c.editMessage(e.value),
-                                            onFileTap: c.download,
-                                          ),
-                                        ),
-                                      );
+                                        if (e is ChatMessageElement) {
+                                          item = e.item;
+                                        } else if (e is ChatCallElement) {
+                                          item = e.item;
+                                        } else if (e is ChatMemberInfoElement) {
+                                          item = e.item;
+                                        }
 
-                                      if (e.value.authorId != c.me &&
-                                          !chat.isReadBy(e.value, c.me) &&
-                                          c.status.value.isSuccess &&
-                                          !c.status.value.isLoadingMore) {
-                                        widget = VisibilityDetector(
-                                          key:
-                                              Key('Detector_${e.value.id.val}'),
-                                          onVisibilityChanged: (info) {
-                                            if (info.visibleFraction > 0) {
-                                              if (c.lastVisibleItem.value?.at
-                                                      .isBefore(e.value.at) !=
-                                                  false) {
-                                                c.lastVisibleItem.value =
-                                                    e.value;
-                                              }
-                                            }
-                                          },
-                                          child: widget,
+                                        return _chatItem(c, item!, i);
+                                      } else if (e is ChatForwardElement) {
+                                        // TODO: Redesign `ChatForward`.
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ...e.forwards
+                                                .map((e) => _chatItem(c, e, i)),
+                                            if (e.note.value != null)
+                                              _chatItem(c, e.note.value!, i),
+                                          ],
+                                        );
+                                      } else if (e is DateTimeElement) {
+                                        return _timeLabel(
+                                          e.id.at.val,
+                                          i,
+                                          c.isTapMessage,
+                                          c.selections,
+                                          (String text) => c.copyText(text),
                                         );
                                       }
 
-                                      if (i == 0) {
-                                        // Display a time over the first message.
-                                        widgets.add(_timeLabel(
-                                          time: e.value.at.val,
-                                          position: i,
-                                          isTapMessage: c.isTapMessage,
-                                          selections: c.selections,
-                                          onCopy: (String text) =>
-                                              c.copyText(text),
-                                        ));
-                                      } else {
-                                        Rx<ChatItem>? previous =
-                                            c.chat?.messages[i - 1];
-
-                                        // Display a time if difference between
-                                        // messages is more than 30 minutes.
-                                        if (previous != null) {
-                                          if (previous.value.at.val
-                                                  .difference(e.value.at.val)
-                                                  .inMinutes <
-                                              -30) {
-                                            widgets.add(_timeLabel(
-                                              time: e.value.at.val,
-                                              position: i,
-                                              isTapMessage: c.isTapMessage,
-                                              selections: c.selections,
-                                              onCopy: (String text) =>
-                                                  c.copyText(text),
-                                            ));
-                                          }
-                                        }
-                                      }
-
-                                      widgets.add(widget);
-
-                                      return Padding(
-                                        padding: EdgeInsets.zero,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: widgets,
-                                        ),
-                                      );
+                                      return Text('Unknown element: $e');
                                     },
-                                    childCount: c.chat?.messages.length,
+                                    childCount: c.elements.length,
+                                    keepPosition: true,
+                                    onItemKey: (i) => c.elements.values
+                                        .elementAt(i)
+                                        .id
+                                        .toString(),
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
-                                    keepPosition: true,
-                                    onItemKey: (int i) => '$i',
-                                    onIsPermanent: (String i) {
+                                    onIsPermanent: (String position) {
                                       if (!c.selections
-                                          .isSelected(int.parse(i))) {
+                                          .isSelected(int.parse(position))) {
                                         return false;
                                       }
                                       return true;
@@ -405,10 +330,8 @@ class _ChatViewState extends State<ChatView>
                                     c.chat!.status.value.isEmpty) &&
                                 c.chat!.messages.isEmpty)
                               const Center(child: Text('No messages')),
-
                             if (c.chat!.status.value.isLoading)
                               const Center(child: CircularProgressIndicator()),
-
                             Obx(
                               () => GestureDetector(
                                 behavior: HitTestBehavior.translucent,
@@ -501,6 +424,57 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
+  /// Returns visual representation of the provided [ChatItem].
+  Widget _chatItem(ChatController c, Rx<ChatItem> item, int position) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: FutureBuilder<RxUser?>(
+        future: c.getUser(item.value.authorId),
+        builder: (_, u) => ChatItemWidget(
+          key: Key(item.value.id.val),
+          chat: c.chat!.chat,
+          item: item,
+          me: c.me!,
+          user: u.data,
+          selections: c.selections,
+          isTapMessage: c.isTapMessage,
+          position: position,
+          getUser: c.getUser,
+          onJoinCall: c.joinCall,
+          onHide: () => c.hideChatItem(item.value),
+          onDelete: () => c.deleteMessage(item.value),
+          onReply: () {
+            if (c.repliedMessages.contains(item.value)) {
+              c.repliedMessages.remove(item.value);
+            } else {
+              c.repliedMessages.insert(0, item.value);
+            }
+          },
+          onCopy: (text) => c.copyText(text),
+          onRepliedTap: (id) => c.animateTo(id),
+          onForwardedTap: (id, chatId) {
+            if (chatId == c.id) {
+              c.animateTo(id);
+            } else {
+              router.chat(chatId, itemId: id, push: true);
+            }
+          },
+          animation: _animation,
+          onGallery: c.calculateGallery,
+          onResend: () => c.resendItem(item.value),
+          onEdit: () => c.editMessage(item.value),
+          onFileTap: (a) => c.download(item.value, a),
+          onAttachmentError: () async {
+            await c.chat?.updateAttachments(item.value);
+            await Future.delayed(
+              Duration.zero,
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   /// Returns a header subtitle of the [Chat].
   Widget _chatSubtitle(ChatController c) {
     final TextStyle style = TextStyle(
@@ -551,15 +525,15 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a centered [time] label.
-  Widget _timeLabel({
-    required DateTime time,
+  Widget _timeLabel(
+    DateTime time,
     int? position,
     Rx<bool>? isTapMessage,
     SplayTreeMap<int, List<SelectionData>>? selections,
     Function(String text)? onCopy,
-  }) {
-    String date = DateFormat('dd.MM.yy').format(time);
-    String timeRelative = time.toRelative();
+  ) {
+    final String date = DateFormat('dd.MM.yy').format(time);
+    final String timeRelative = time.toRelative();
 
     return Column(
       children: [
@@ -573,15 +547,13 @@ class _ChatViewState extends State<ChatView>
             padding: const EdgeInsets.only(right: 8),
             child: ContextMenuRegion(
               preventContextMenu: false,
-              menu: ContextMenu(
-                actions: [
-                  ContextMenuButton(
-                    key: const Key('CopyButton'),
-                    label: 'btn_copy_text'.l10n,
-                    onPressed: () => onCopy?.call(date),
-                  ),
-                ],
-              ),
+              actions: [
+                ContextMenuButton(
+                  key: const Key('CopyButton'),
+                  label: 'btn_copy_text'.l10n,
+                  onPressed: () => onCopy?.call(date),
+                ),
+              ],
               child: ListenTap(
                 isTap: isTapMessage,
                 child: CustomSelectionText(
@@ -603,15 +575,13 @@ class _ChatViewState extends State<ChatView>
               ),
               child: ContextMenuRegion(
                 preventContextMenu: false,
-                menu: ContextMenu(
-                  actions: [
-                    ContextMenuButton(
-                      key: const Key('CopyButton'),
-                      label: 'btn_copy_text'.l10n,
-                      onPressed: () => onCopy?.call(timeRelative),
-                    ),
-                  ],
-                ),
+                actions: [
+                  ContextMenuButton(
+                    key: const Key('CopyButton'),
+                    label: 'btn_copy_text'.l10n,
+                    onPressed: () => onCopy?.call(timeRelative),
+                  ),
+                ],
                 child: ListenTap(
                   isTap: isTapMessage,
                   child: CustomSelectionText(
@@ -687,21 +657,13 @@ class _ChatViewState extends State<ChatView>
             mainAxisSize: MainAxisSize.min,
             children: c.editedMessage.value == null
                 ? [
-                    if (c.repliedMessage.value != null)
+                    if (c.repliedMessages.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(height: 18, width: 2, color: Colors.blue),
-                            const SizedBox(width: 4),
-                            Flexible(child: _repliedMessage(c)),
-                            IconButton(
-                              key: const Key('CancelReplyButton'),
-                              onPressed: () => c.repliedMessage.value = null,
-                              icon: const Icon(Icons.clear, size: 18),
-                            )
-                          ],
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          children: c.repliedMessages
+                              .map((e) => _repliedMessage(c, e))
+                              .toList(),
                         ),
                       ),
                     Container(
@@ -831,25 +793,14 @@ class _ChatViewState extends State<ChatView>
             ),
             const SizedBox(width: 8),
             _button(
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                child: (c.send.isEmpty.value &&
-                        c.attachments.isEmpty &&
-                        c.repliedMessage.value == null)
-                    ? const Padding(
-                        key: Key('Mic'),
-                        padding: EdgeInsets.only(top: 2),
-                        child: Icon(Icons.mic),
-                      )
-                    : const Padding(
-                        key: Key('Send'),
-                        padding: EdgeInsets.only(left: 2, top: 1),
-                        child: Icon(Icons.send, size: 24),
-                      ),
+              icon: const Padding(
+                key: Key('Send'),
+                padding: EdgeInsets.only(left: 2, top: 1),
+                child: Icon(Icons.send, size: 24),
               ),
               onTap: (c.send.isEmpty.value &&
                       c.attachments.isEmpty &&
-                      c.repliedMessage.value == null)
+                      c.repliedMessages.isEmpty)
                   ? () {}
                   : c.send.submit,
             ),
@@ -990,7 +941,7 @@ class _ChatViewState extends State<ChatView>
                               height: 80,
                             )
                   : Image.network(
-                      '${Config.url}/files${e.original}',
+                      '${Config.files}${e.original.relativeRef}',
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
@@ -1132,8 +1083,8 @@ class _ChatViewState extends State<ChatView>
       );
 
   /// Builds a visual representation of a [ChatController.repliedMessage].
-  Widget _repliedMessage(ChatController c) {
-    var item = c.repliedMessage.value;
+  Widget _repliedMessage(ChatController c, ChatItem item) {
+    Widget content;
 
     if (item is ChatMessage) {
       var desc = StringBuffer();
@@ -1148,7 +1099,7 @@ class _ChatViewState extends State<ChatView>
         desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
       }
 
-      return Text(
+      content = Text(
         desc.toString(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -1165,16 +1116,19 @@ class _ChatViewState extends State<ChatView>
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.conversationStartedAt!.val
-            .difference(item.finishedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
 
-      return Row(
+      content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -1206,13 +1160,27 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      return const Text('Forwarded message');
+      content = const Text('Forwarded message');
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
-      return Text(item.action.toString());
+      content = Text(item.action.toString());
     } else {
-      return Text('err_unknown'.l10n);
+      content = Text('err_unknown'.l10n);
     }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(height: 18, width: 2, color: Colors.blue),
+        const SizedBox(width: 4),
+        Flexible(child: content),
+        IconButton(
+          key: Key('CancelReplyButton_${c.repliedMessages.indexOf(item)}'),
+          onPressed: () => c.repliedMessages.remove(item),
+          icon: const Icon(Icons.clear, size: 18),
+        )
+      ],
+    );
   }
 
   /// Builds a visual representation of a [ChatController.editedMessage].

@@ -52,6 +52,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/my_profile_gallery_widget');
   Config.url = 'http://testUrl.com';
+  Config.files = 'files';
   Config.port = 0;
 
   var userData = {
@@ -148,8 +149,8 @@ void main() async {
               'galleryItem': {
                 '__typename': 'ImageGalleryItem',
                 'id': 'testId',
-                'square': '/test.jpg',
-                'original': '/test.jpg',
+                'square': {'relativeRef': 'orig.jpg'},
+                'original': {'relativeRef': 'orig.jpg'},
                 'addedAt': DateTime.now().toString()
               },
               'at': DateTime.now().toString()
@@ -216,11 +217,11 @@ void main() async {
                 '__typename': 'UserAvatar',
                 'galleryItemId': 'testId',
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'big': 'cc.big.jpg',
-                'medium': 'cc.medium.jpg',
-                'small': 'cc.small.jpg',
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'orig.jpg'},
+                'big': {'relativeRef': 'orig.jpg'},
+                'medium': {'relativeRef': 'orig.jpg'},
+                'small': {'relativeRef': 'orig.jpg'},
               },
               'at': DateTime.now().toString()
             }
@@ -256,10 +257,10 @@ void main() async {
                 '__typename': 'UserCallCover',
                 'galleryItemId': 'testId',
                 'crop': null,
-                'original': 'orig.png',
-                'full': 'cc.full.jpg',
-                'vertical': 'cc.vertical.jpg',
-                'square': 'cc.square.jpg'
+                'original': {'relativeRef': 'orig.jpg'},
+                'full': {'relativeRef': 'orig.jpg'},
+                'vertical': {'relativeRef': 'orig.jpg'},
+                'square': {'relativeRef': 'orig.jpg'},
               },
               'at': DateTime.now().toString()
             }

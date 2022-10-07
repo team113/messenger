@@ -22,7 +22,7 @@ class ChatItemQuote {
   ChatItemQuote({
     required this.item,
     this.withText = true,
-    this.attachments = const [],
+    this.attachments,
   });
 
   /// [ChatItem] to be forwarded.
@@ -34,7 +34,8 @@ class ChatItemQuote {
 
   /// IDs of the [ChatItem]s' [Attachment]s to be forwarded.
   ///
-  /// If no [Attachment]s are provided, then [ChatForward] will only contain a
-  /// [ChatMessageText].
-  final List<AttachmentId> attachments;
+  /// - `null` means all the [ChatItem]'s [Attachment]s will be forwarded, if
+  ///   any.
+  /// - [] (empty list) means no [Attachment]s, only the text will be forwarded.
+  final List<AttachmentId>? attachments;
 }

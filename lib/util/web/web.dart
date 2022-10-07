@@ -27,6 +27,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
@@ -100,11 +101,8 @@ external dynamic webkitFullscreenElement;
 @JS('document.msFullscreenElement')
 external dynamic msFullscreenElement;
 
-@JS('indexedDB.databases')
-external databases();
-
-@JS('indexedDB.deleteDatabase')
-external deleteDatabase(String name);
+@JS('cleanIndexedDB')
+external cleanIndexedDB();
 
 @JS('window.isPopup')
 external bool _isPopup;
@@ -314,9 +312,10 @@ class WebUtils {
 
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
-    var qs = await promiseToFuture(databases());
-    for (int i = 0; i < qs.length; i++) {
-      deleteDatabase(qs[i].name);
+    try {
+      await promiseToFuture(cleanIndexedDB());
+    } catch (e) {
+      consoleError(e);
     }
   }
 
@@ -456,7 +455,12 @@ class WebUtils {
   }
 
   /// Downloads a file from the provided [url].
-  static void downloadFile(String url, String name) {
+  static Future<void> downloadFile(String url, String name) async {
+    Response response = await Dio().head(url);
+    if (response.statusCode != 200) {
+      throw Exception('Cannot download file');
+    }
+
     final html.AnchorElement anchorElement = html.AnchorElement(href: url);
     anchorElement.download = name;
     anchorElement.click();

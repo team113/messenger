@@ -98,6 +98,7 @@ void main() async {
           'id': 'first',
           'chatId': 'chatId',
           'authorId': 'authorId',
+          'answered': false,
           'at': DateTime.now().toString(),
           'caller': _caller(),
           'withVideo': false,
@@ -105,6 +106,7 @@ void main() async {
             {
               'user': _caller(),
               'handRaised': false,
+              'joinedAt': DateTime.now().toString(),
             }
           ],
           'ver': '1',
@@ -149,6 +151,7 @@ void main() async {
             'id': 'first',
             'chatId': 'chatId',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -156,6 +159,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '1',
@@ -179,6 +183,7 @@ void main() async {
             'id': 'second',
             'chatId': 'chatId',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -186,6 +191,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '2',
@@ -287,6 +293,7 @@ void main() async {
             'id': 'id',
             'chatId': 'incoming',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -294,6 +301,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '1',
@@ -323,6 +331,7 @@ void main() async {
             'id': 'id',
             'chatId': 'incoming',
             'authorId': 'authorId',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller(),
             'withVideo': false,
@@ -330,6 +339,7 @@ void main() async {
               {
                 'user': _caller(),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '2',
@@ -407,6 +417,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'id': 'id',
             'chatId': chatId.val,
             'authorId': 'me',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller('me'),
             'withVideo': false,
@@ -414,6 +425,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               {
                 'user': _caller('me'),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'ver': '$latestVersion',
@@ -440,6 +452,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 'id': 'id',
                 'chatId': chatId.val,
                 'authorId': 'me',
+                'answered': false,
                 'at': DateTime.now().toString(),
                 'caller': _caller('me'),
                 'withVideo': false,
@@ -447,6 +460,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   {
                     'user': _caller('me'),
                     'handRaised': false,
+                    'joinedAt': DateTime.now().toString(),
                   }
                 ],
                 'ver': '$latestVersion',
@@ -473,6 +487,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'id': 'id',
             'chatId': chatId.val,
             'authorId': 'me',
+            'answered': false,
             'at': DateTime.now().toString(),
             'caller': _caller('me'),
             'withVideo': false,
@@ -480,6 +495,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               {
                 'user': _caller('me'),
                 'handRaised': false,
+                'joinedAt': DateTime.now().toString(),
               }
             ],
             'finishReason': 'ChatCallFinishReason.DROPPED',
@@ -515,6 +531,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   'id': 'id',
                   'chatId': chatId.val,
                   'authorId': 'me',
+                  'answered': false,
                   'at': DateTime.now().toString(),
                   'caller': _caller('me'),
                   'withVideo': false,
@@ -522,6 +539,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                     {
                       'user': _caller('me'),
                       'handRaised': false,
+                      'joinedAt': DateTime.now().toString(),
                     }
                   ],
                   'ver': '$latestVersion',

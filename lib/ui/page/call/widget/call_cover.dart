@@ -50,7 +50,7 @@ class CallCoverWidget extends StatelessWidget {
             : Stack(
                 children: [
                   Image.network(
-                    '${Config.url}:${Config.port}/files${cover?.full}',
+                    '${Config.files}${cover?.full.relativeRef}',
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

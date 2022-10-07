@@ -46,7 +46,9 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -81,6 +83,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onForwardedTap,
     this.onResend,
     this.onFileTap,
+    this.onAttachmentError,
   }) : super(key: key);
 
   /// Reactive value of a [ChatItem] to display.
@@ -109,22 +112,22 @@ class ChatItemWidget extends StatefulWidget {
   final Future<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
-  final Function()? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a delete action of this [ChatItem] is triggered.
-  final Function()? onDelete;
+  final void Function()? onDelete;
 
   /// Callback, called when join call button is pressed.
-  final Function()? onJoinCall;
+  final void Function()? onJoinCall;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
-  final Function()? onReply;
+  final void Function()? onReply;
 
   /// Callback, called when an edit action of this [ChatItem] is triggered.
-  final Function()? onEdit;
+  final void Function()? onEdit;
 
   /// Callback, called when a copy action of this [ChatItem] is triggered.
-  final Function(String text)? onCopy;
+  final void Function(String text)? onCopy;
 
   /// Optional animation that controls a [SwipeableStatus].
   final AnimationController? animation;
@@ -135,16 +138,19 @@ class ChatItemWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
-  final Function(ChatItemId)? onRepliedTap;
+  final void Function(ChatItemId)? onRepliedTap;
 
   /// Callback, called when a forwarded message of this [ChatItem] is tapped.
-  final Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemId, ChatId)? onForwardedTap;
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
-  final Function()? onResend;
+  final void Function()? onResend;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
-  final Function(FileAttachment)? onFileTap;
+  final void Function(FileAttachment)? onFileTap;
+
+  /// Callback, called on the [Attachment] fetching errors.
+  final Future<void> Function()? onAttachmentError;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -182,9 +188,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
       if (widget.item.value is ChatMessage) {
-        final msg = widget.item.value as ChatMessage;
-        bool needsUpdate = true;
+        var msg = widget.item.value as ChatMessage;
 
+        bool needsUpdate = true;
         if (oldWidget.item is ChatMessage) {
           needsUpdate = msg.attachments.length !=
               (oldWidget.item as ChatMessage).attachments.length;
@@ -217,23 +223,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
-    final message = widget.item.value as ChatMemberInfo;
+    var message = widget.item.value as ChatMemberInfo;
     final String text = '${message.action}';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Center(
         child: ContextMenuRegion(
           preventContextMenu: false,
-          menu: ContextMenu(
-            actions: [
-              ContextMenuButton(
-                key: const Key('CopyButton'),
-                label: 'btn_copy_text'.l10n,
-                onPressed: () => widget.onCopy?.call(text),
-              ),
-            ],
-          ),
+          actions: [
+            ContextMenuButton(
+              key: const Key('CopyButton'),
+              label: 'btn_copy_text'.l10n,
+              onPressed: () => widget.onCopy?.call(text),
+            ),
+          ],
           child: ListenTap(
             isTap: widget.isTapMessage,
             child: CustomSelectionText(
@@ -250,28 +254,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatForward].
   Widget _renderAsChatForward(BuildContext context) {
-    final ChatForward msg = widget.item.value as ChatForward;
-    final ChatItem item = msg.item;
-    final Style style = Theme.of(context).extension<Style>()!;
+    ChatForward msg = widget.item.value as ChatForward;
+    ChatItem item = msg.item;
+
+    Style style = Theme.of(context).extension<Style>()!;
+
     Widget? content;
     List<Widget> additional = [];
 
     if (item is ChatMessage) {
-      final desc = StringBuffer();
+      var desc = StringBuffer();
 
       if (item.text != null) {
         desc.write(item.text!.val);
       }
 
       if (item.attachments.isNotEmpty) {
-        final List<Attachment> media = item.attachments
+        List<Attachment> media = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||
                 (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
             .toList();
 
-        final List<Attachment> files = item.attachments
+        List<Attachment> files = item.attachments
             .where((e) =>
                 (e is FileAttachment && !e.isVideo) ||
                 (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
@@ -300,10 +306,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         _copyable[CopyableItem.messageForward.index] = text;
       }
     } else if (item is ChatCall) {
-      final bool fromMe = widget.me == item.authorId;
       final String textTime;
       String title = 'label_chat_call_ended'.l10n;
       String? time;
+      bool fromMe = widget.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -413,10 +419,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           future: widget.getUser?.call(item.authorId),
           builder: (context, snapshot) {
             final User? user = snapshot.data?.user.value;
-            final Color color = user?.id == widget.me
+
+            Color color = user?.id == widget.me
                 ? const Color(0xFF63B4FF)
                 : AvatarWidget.colors[
                     (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
+
             final String username = user?.name?.val ?? user?.num.val ?? '...';
 
             if (user != null) {
@@ -484,15 +492,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    final msg = widget.item.value as ChatMessage;
+    var msg = widget.item.value as ChatMessage;
     final String? text = msg.text?.val;
-    final List<Attachment> media = msg.attachments
+
+    List<Attachment> media = msg.attachments
         .where((e) =>
             e is ImageAttachment ||
             (e is FileAttachment && e.isVideo) ||
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
         .toList();
-    final List<Attachment> files = msg.attachments
+
+    List<Attachment> files = msg.attachments
         .where((e) =>
             (e is FileAttachment && !e.isVideo) ||
             (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
@@ -508,11 +518,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         key: const Key('ChatMessage'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (msg.repliesTo != null) ...[
-            InkWell(
-              onTap: () => widget.onRepliedTap?.call(msg.repliesTo!.id),
-              child: _repliedMessage(msg.repliesTo!),
-            ),
+          if (msg.repliesTo.isNotEmpty) ...[
+            ...msg.repliesTo.map((e) {
+              return InkWell(
+                onTap: () => widget.onRepliedTap?.call(e.id),
+                child: _repliedMessage(e),
+              );
+            }),
             if (msg.text != null) const SizedBox(height: 5),
           ],
           if (text != null)
@@ -545,15 +557,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the [widget.item] as a [ChatCall].
   Widget _renderAsChatCall(BuildContext context) {
-    final message = widget.item.value as ChatCall;
-    final bool isOngoing =
+    var message = widget.item.value as ChatCall;
+    bool isOngoing =
         message.finishReason == null && message.conversationStartedAt != null;
-    final List<Widget>? subtitle;
-    final bool fromMe = widget.me == message.authorId;
-    final String textTime;
-    bool isMissed = false;
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
 
     if (isOngoing) {
       _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
@@ -564,6 +570,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     } else {
       _ongoingCallTimer?.cancel();
     }
+
+    List<Widget>? subtitle;
+    bool fromMe = widget.me == message.authorId;
+    bool isMissed = false;
+
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
+    final String textTime;
 
     if (isOngoing) {
       title = 'label_chat_call_ongoing'.l10n;
@@ -631,7 +645,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       ),
                       if (time != null) ...[
-                        const SizedBox(width: 7),
+                        const SizedBox(width: 9),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 1),
                           child: Text(
@@ -664,12 +678,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    Style style = Theme.of(context).extension<Style>()!;
+
     Widget? content;
     List<Widget> additional = [];
 
     if (item is ChatMessage) {
-      final desc = StringBuffer();
+      var desc = StringBuffer();
 
       if (item.text != null) {
         desc.write(item.text!.val);
@@ -677,8 +692,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.attachments.isNotEmpty) {
         additional = item.attachments.map((a) {
-          final ImageAttachment? image = a is ImageAttachment ? a : null;
-
+          ImageAttachment? image = a is ImageAttachment ? a : null;
           return Container(
             margin: const EdgeInsets.only(right: 2),
             decoration: BoxDecoration(
@@ -687,7 +701,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage('${Config.url}/files${image.medium}'),
+                      image: NetworkImage(
+                        '${Config.files}${image.medium.relativeRef}',
+                      ),
+                      onError: (_, __) => widget.onAttachmentError?.call(),
                       fit: BoxFit.cover,
                     ),
             ),
@@ -715,10 +732,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         _copyable[CopyableItem.messageReply.index] = desc.toString();
       }
     } else if (item is ChatCall) {
-      final bool fromMe = widget.me == item.authorId;
       final String textTime;
       String title = 'label_chat_call_ended'.l10n;
       String? time;
+      bool fromMe = widget.me == item.authorId;
       bool isMissed = false;
 
       if (item.finishReason == null && item.conversationStartedAt != null) {
@@ -727,9 +744,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         title = item.finishReason!.localizedString(fromMe) ?? title;
         isMissed = item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
+
+        if (item.finishedAt != null && item.conversationStartedAt != null) {
+          time = item.finishedAt!.val
+              .difference(item.conversationStartedAt!.val)
+              .localizedString();
+        }
       } else {
         title = item.authorId == widget.me
             ? 'label_outgoing_call'.l10n
@@ -829,7 +849,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       future: widget.getUser?.call(item.authorId),
       builder: (context, snapshot) {
         final User? user = snapshot.data?.user.value;
-        final Color color = user?.id == widget.me
+        Color color = user?.id == widget.me
             ? const Color(0xFF63B4FF)
             : AvatarWidget.colors[
                 (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
@@ -894,9 +914,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns visual representation of the provided media-[Attachment].
   Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
-    final bool isLocal = e is LocalAttachment;
-    final bool isVideo;
+    bool isLocal = e is LocalAttachment;
 
+    bool isVideo;
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
@@ -910,21 +930,32 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         onTap: isLocal
             ? null
             : () {
-                final List<Attachment> attachments =
+                List<Attachment> attachments =
                     widget.onGallery?.call() ?? media;
-                final List<GalleryItem> gallery = [];
-                int initial = attachments.indexOf(e);
 
+                int initial = attachments.indexOf(e);
                 if (initial == -1) {
                   initial = 0;
                 }
 
-                for (final Attachment a in attachments) {
-                  final String link = '${Config.url}/files${a.original}';
-                  if (a is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, a.filename));
-                  } else if (a is ImageAttachment) {
-                    gallery.add(GalleryItem.image(link, a.filename));
+                List<GalleryItem> gallery = [];
+                for (var o in attachments) {
+                  String link = '${Config.files}${o.original.relativeRef}';
+                  if (o is FileAttachment) {
+                    gallery.add(GalleryItem.video(link, o.filename));
+                  } else if (o is ImageAttachment) {
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await widget.onAttachmentError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
                   }
                 }
 
@@ -952,10 +983,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   bytes: e.file.bytes!,
                                   height: 300,
                                 )
-                          : VideoThumbnail.path(
+                          : VideoThumbnail.url(
                               key: _galleryKeys[i],
-                              path: '${Config.url}/files${e.original}',
+                              url: '${Config.files}${e.original.relativeRef}',
                               height: 300,
+                              onError: widget.onAttachmentError,
                             ),
                       Container(
                         width: 60,
@@ -984,17 +1016,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Container(
                         key: const Key('SentImage'),
                         child: Image.network(
-                          '${Config.url}/files${e.original}',
+                          '${Config.files}${e.original.relativeRef}',
                           key: _galleryKeys[i],
                           fit: BoxFit.cover,
                           height: 300,
-                          errorBuilder: (_, __, ___) => const SizedBox(
-                            width: 300,
-                            height: 300,
-                            child: Center(
-                              child: Icon(Icons.error, color: Colors.red),
-                            ),
-                          ),
+                          errorBuilder: (_, __, ___) {
+                            return InitCallback(
+                              callback: () => widget.onAttachmentError?.call(),
+                              child: const SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
             ElasticAnimatedSwitcher(
@@ -1024,12 +1060,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns visual representation of the provided file-[Attachment].
   Widget _fileAttachment(Attachment e) {
-    final bool isFile = e is FileAttachment;
-    final String filename = e.filename;
-    final String filesize = ' ${e.size ~/ 1024} KB';
-    Widget leading;
+    bool isFile = e is FileAttachment;
 
+    final String filename = e.filename;
+    final String filesize =
+        e.original.size == null ? '... KB' : '${e.original.size! ~/ 1024} KB';
     _copyable[CopyableItem.messageFile.index] = '$filename$filesize';
+
+    Widget leading;
 
     if (isFile) {
       switch (e.downloadStatus.value) {
@@ -1148,7 +1186,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 1),
                         child: Text(
@@ -1173,12 +1211,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
-    final ChatItem item = widget.item.value;
-    final bool fromMe = item.authorId == widget.me;
-    final bool isSent = item.status.value == SendingStatus.sent;
-    final String messageTime = DateFormat.Hm().format(item.at.val.toLocal());
-    bool isRead = false;
+    ChatItem item = widget.item.value;
+    bool fromMe = item.authorId == widget.me;
 
+    bool isRead = false;
     if (fromMe) {
       isRead = widget.chat.value?.lastReads.firstWhereOrNull(
               (e) => e.memberId != widget.me && !e.at.isBefore(item.at)) !=
@@ -1190,6 +1226,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               .isBefore(item.at) ==
           false;
     }
+
+    bool isSent = item.status.value == SendingStatus.sent;
+    final String messageTime = DateFormat.Hm().format(item.at.val.toLocal());
 
     return SwipeableStatus(
       animation: widget.animation,
@@ -1203,15 +1242,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isSending: item.status.value == SendingStatus.sending,
       swipeable: ContextMenuRegion(
         preventContextMenu: false,
-        menu: ContextMenu(
-          actions: [
-            ContextMenuButton(
-              key: const Key('CopyButton'),
-              label: 'btn_copy_text'.l10n,
-              onPressed: () => widget.onCopy?.call(messageTime),
-            ),
-          ],
-        ),
+        actions: [
+          ContextMenuButton(
+            key: const Key('CopyButton'),
+            label: 'btn_copy_text'.l10n,
+            onPressed: () => widget.onCopy?.call(messageTime),
+          ),
+        ],
         child: ListenTap(
           isTap: widget.isTapMessage,
           child: CustomSelectionText(
@@ -1262,11 +1299,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
-                child: AvatarWidget.fromUser(
-                  widget.user?.user.value ??
-                      widget.chat.value!.getUser(item.authorId),
-                  radius: 15,
-                ),
+                child: widget.user != null
+                    ? AvatarWidget.fromRxUser(
+                        widget.user,
+                        radius: 15,
+                      )
+                    : AvatarWidget.fromUser(
+                        widget.chat.value!.getUser(item.authorId),
+                        radius: 15,
+                      ),
               ),
             ),
           Flexible(
@@ -1295,93 +1336,147 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       borderRadius: BorderRadius.circular(15),
                       child: ContextMenuRegion(
                         preventContextMenu: false,
-                        menu: ContextMenu(
-                          actions: [
-                            if (_copyable.isNotEmpty)
-                              ContextMenuButton(
-                                key: const Key('CopyButton'),
-                                label: 'btn_copy_text'.l10n,
-                                onPressed: () => widget.onCopy
-                                    ?.call(_copyable.values.join('\n')),
+                        alignment: fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
+                        actions: [
+                          if (_copyable.isNotEmpty)
+                            ContextMenuButton(
+                              key: const Key('CopyButton'),
+                              label: 'btn_copy'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
                               ),
-                            if (item.status.value == SendingStatus.sent) ...[
-                              ContextMenuButton(
-                                key: const Key('ReplyButton'),
-                                label: 'btn_reply'.l10n,
-                                onPressed: () => widget.onReply?.call(),
+                              onPressed: () => widget.onCopy
+                                  ?.call(_copyable.values.join('\n')),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: 'btn_reply'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/reply.svg',
+                                width: 18.8,
+                                height: 16,
                               ),
-                              if (item is ChatMessage || item is ChatForward)
-                                ContextMenuButton(
-                                  key: const Key('ForwardButton'),
-                                  label: 'btn_forward'.l10n,
-                                  onPressed: () async {
-                                    List<AttachmentId> attachments = [];
+                              onPressed: widget.onReply,
+                            ),
+                            if (item is ChatMessage || item is ChatForward)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: 'btn_forward'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  width: 18.8,
+                                  height: 16,
+                                ),
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [ChatItemQuote(item: item)],
+                                  );
+                                },
+                              ),
+                            if (item is ChatMessage &&
+                                fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !isRead))
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  width: 17,
+                                  height: 17,
+                                ),
+                                onPressed: widget.onEdit,
+                              ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                bool deletable = widget.item.value.authorId ==
+                                        widget.me &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage ||
+                                        widget.item.value is ChatForward);
 
-                                    if (item is ChatMessage) {
-                                      attachments = item.attachments
-                                          .map((a) => a.id)
-                                          .toList();
-                                    } else if (item is ChatForward) {
-                                      final ChatItem nested = item.item;
-                                      if (nested is ChatMessage) {
-                                        attachments = nested.attachments
-                                            .map((a) => a.id)
-                                            .toList();
-                                      }
-                                    }
-
-                                    await ChatForwardView.show(
-                                      context,
-                                      widget.chat.value!.id,
-                                      [
-                                        ChatItemQuote(
-                                          item: item,
-                                          attachments: attachments,
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onHide,
+                                      child: Text(
+                                        'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
+                                      ),
+                                    ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
                                         ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              if (item is ChatMessage &&
-                                  fromMe &&
-                                  (item.at
-                                          .add(
-                                              ChatController.editMessageTimeout)
-                                          .isAfter(PreciseDateTime.now()) ||
-                                      !isRead))
-                                ContextMenuButton(
-                                  key: const Key('EditButton'),
-                                  label: 'btn_edit'.l10n,
-                                  onPressed: () => widget.onEdit?.call(),
-                                ),
-                              ContextMenuButton(
-                                key: const Key('HideForMe'),
-                                label: 'btn_hide_for_me'.l10n,
-                                onPressed: () => widget.onHide?.call(),
-                              ),
-                              if (item.authorId == widget.me &&
-                                  !widget.chat.value!.isRead(item, widget.me) &&
-                                  (item is ChatMessage || item is ChatForward))
-                                ContextMenuButton(
-                                  key: const Key('DeleteForAll'),
-                                  label: 'btn_delete_for_all'.l10n,
-                                  onPressed: () => widget.onDelete?.call(),
-                                ),
-                            ],
-                            if (item.status.value == SendingStatus.error) ...[
-                              ContextMenuButton(
-                                key: const Key('Resend'),
-                                label: 'btn_resend_message'.l10n,
-                                onPressed: () => widget.onResend?.call(),
-                              ),
-                              ContextMenuButton(
-                                key: const Key('Delete'),
-                                label: 'btn_delete_message'.l10n,
-                                onPressed: () => widget.onDelete?.call(),
-                              ),
-                            ],
+                                      )
+                                  ],
+                                );
+                              },
+                            ),
                           ],
-                        ),
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: 'btn_resend_message'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: widget.onResend,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onDelete,
+                                      child: Text(
+                                        'label_delete_for_everyone'.l10n,
+                                        key: const Key('DeleteForAll'),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ],
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -1439,21 +1534,21 @@ extension LocalizedDurationExtension on Duration {
   ///
   /// `HH` part is omitted if this [Duration] is less than an one hour.
   String hhMmSs() {
-    int microseconds = inMicroseconds;
+    var microseconds = inMicroseconds;
 
-    final int hours = microseconds ~/ Duration.microsecondsPerHour;
+    var hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-    final String hoursPadding = hours < 10 ? '0' : '';
+    var hoursPadding = hours < 10 ? '0' : '';
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    final int minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
-    final String minutesPadding = minutes < 10 ? '0' : '';
+    var minutesPadding = minutes < 10 ? '0' : '';
 
-    final int seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
-    final String secondsPadding = seconds < 10 ? '0' : '';
+    var secondsPadding = seconds < 10 ? '0' : '';
 
     if (hours == 0) {
       return '$minutesPadding$minutes:$secondsPadding$seconds';
@@ -1468,17 +1563,17 @@ extension LocalizedDurationExtension on Duration {
   /// `MM` part is omitted if this [Duration] is less than an one minute.
   /// `HH` part is omitted if this [Duration] is less than an one hour.
   String localizedString() {
-    int microseconds = inMicroseconds;
+    var microseconds = inMicroseconds;
 
-    final int hours = microseconds ~/ Duration.microsecondsPerHour;
+    var hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    final int minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
 
-    final int seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
     String result = '$seconds ${'label_duration_second_short'.l10n}';

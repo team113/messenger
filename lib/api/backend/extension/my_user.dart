@@ -21,6 +21,8 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/my_user.dart';
+import 'file.dart';
+import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
 extension MyUserConversion on MyUserMixin {
@@ -44,21 +46,13 @@ extension MyUserConversion on MyUserMixin {
             ? null
             : UserAvatar(
                 galleryItemId: avatar!.galleryItemId,
-                full: avatar!.full,
-                big: avatar!.big,
-                medium: avatar!.medium,
-                small: avatar!.small,
-                original: avatar!.original,
+                full: avatar!.full.toModel(),
+                big: avatar!.big.toModel(),
+                medium: avatar!.medium.toModel(),
+                small: avatar!.small.toModel(),
+                original: avatar!.original.toModel(),
               ),
-        gallery: gallery.nodes.map((e) {
-          var imageData = e as MyUserMixin$Gallery$Nodes$ImageGalleryItem;
-          return ImageGalleryItem(
-            original: Original(imageData.original),
-            square: Square(imageData.square),
-            id: imageData.id,
-            addedAt: imageData.addedAt,
-          );
-        }).toList(),
+        gallery: gallery.nodes.map((e) => e.toModel()).toList(),
         status: status,
         presenceIndex: presence.index,
         emails: MyUserEmails(
@@ -79,4 +73,19 @@ extension MyUserConversion on MyUserMixin {
 
   /// Constructs a new [HiveMyUser] from this [MyUserMixin].
   HiveMyUser toHive() => HiveMyUser(toModel(), ver);
+}
+
+/// Extension adding models construction from
+/// [MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+extension EventMyUserGalleryItemAdded$GalleryItemConversion
+    on MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem {
+  /// Constructs a new [ImageGalleryItem] from this
+  /// [MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+}
+
+/// Extension adding models construction from [MyUserMixin$Gallery$Nodes].
+extension MyUserMixinGalleryNodesConversion on MyUserMixin$Gallery$Nodes {
+  /// Constructs a new [ImageGalleryItem] from this [MyUserMixin$Gallery$Nodes].
+  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
 }

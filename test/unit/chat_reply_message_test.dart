@@ -78,7 +78,7 @@ void main() async {
     'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
-    'currentCall': null,
+    'ongoingCall': null,
     'ver': '0'
   };
 
@@ -119,12 +119,11 @@ void main() async {
     )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
     when(graphQlProvider.postChatMessage(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            text: const ChatMessageText('text'),
-            attachments: anyNamed('attachments'),
-            repliesTo:
-                const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      text: const ChatMessageText('text'),
+      attachments: anyNamed('attachments'),
+      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+    )).thenAnswer(
       (_) => Future.value(PostChatMessage$Mutation.fromJson({
         'postChatMessage': {
           '__typename': 'ChatEventsVersioned',
@@ -140,25 +139,29 @@ void main() async {
                   'authorId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
                   'at': '2022-01-27T11:34:37.191440+00:00',
                   'ver': '1',
-                  'repliesTo': {
-                    'node': {
-                      '__typename': 'ChatMessage',
-                      'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
-                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                      'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
-                      'at': '2022-01-27T10:53:21.405546+00:00',
-                      'ver': '1',
-                      'text': '123',
-                      'repliesTo': {
-                        'cursor':
-                            'IjQyNDQ3MTRjLWQ3M2MtNGIzMS04MzUyLWY4ZDNmZTJlNWMxYiI='
+                  'repliesTo': [
+                    {
+                      'node': {
+                        '__typename': 'ChatMessage',
+                        'id': '2c15e0e9-51f9-4e57-8589-de574a58558b',
+                        'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                        'authorId': '9a583ecf-d371-43d4-87bc-1cc27e4692e8',
+                        'at': '2022-01-27T10:53:21.405546+00:00',
+                        'ver': '1',
+                        'text': '123',
+                        'repliesTo': [
+                          {
+                            'cursor':
+                                'IjQyNDQ3MTRjLWQ3M2MtNGIzMS04MzUyLWY4ZDNmZTJlNWMxYiI='
+                          }
+                        ],
+                        'editedAt': null,
+                        'attachments': []
                       },
-                      'editedAt': null,
-                      'attachments': []
+                      'cursor':
+                          'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
                     },
-                    'cursor':
-                        'IjJjMTVlMGU5LTUxZjktNGU1Ny04NTg5LWRlNTc0YTU4NTU4YiI='
-                  },
+                  ],
                   'text': '1',
                   'editedAt': null,
                   'attachments': []
@@ -192,19 +195,21 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
       attachments: [],
-      repliesTo: ChatMessage(
-        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatId('2'),
-        const UserId('3'),
-        PreciseDateTime.now(),
-      ),
+      repliesTo: [
+        ChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatId('2'),
+          const UserId('3'),
+          PreciseDateTime.now(),
+        ),
+      ],
     );
 
     verify(graphQlProvider.postChatMessage(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
       attachments: anyNamed('attachments'),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     ));
   });
 
@@ -225,7 +230,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
       attachments: anyNamed('attachments'),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).thenThrow(
         const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
 
@@ -249,12 +254,14 @@ void main() async {
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         text: const ChatMessageText('text'),
         attachments: [],
-        repliesTo: ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('2'),
-          const UserId('3'),
-          PreciseDateTime.now(),
-        ),
+        repliesTo: [
+          ChatMessage(
+            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            const ChatId('2'),
+            const UserId('3'),
+            PreciseDateTime.now(),
+          ),
+        ],
       ),
       throwsA(isA<PostChatMessageException>()),
     );
@@ -263,7 +270,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: const ChatMessageText('text'),
       attachments: anyNamed('attachments'),
-      repliesTo: const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     ));
   });
 }

@@ -21,8 +21,11 @@ import 'user.dart';
 /// Extension adding models construction from a [ChatCallMemberMixin].
 extension ChatCallMemberConversion on ChatCallMemberMixin {
   /// Constructs a new [ChatCallMember] from this [ChatCallMemberMixin].
-  ChatCallMember toModel() =>
-      ChatCallMember(user: user.toModel(), handRaised: handRaised);
+  ChatCallMember toModel() => ChatCallMember(
+        user: user.toModel(),
+        handRaised: handRaised,
+        joinedAt: joinedAt,
+      );
 }
 
 /// Extension adding models construction from [ChatCallMixin].
@@ -40,5 +43,6 @@ extension ChatCallConversion on ChatCallMixin {
         finishReasonIndex: finishReason?.index,
         finishedAt: finishedAt,
         joinLink: joinLink,
+        answered: answered,
       );
 }
