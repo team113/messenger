@@ -1147,31 +1147,31 @@ Widget buildMediaAttachment(
         alignment: Alignment.center,
         children: [
           filled ? Positioned.fill(child: attachment) : attachment,
-            ElasticAnimatedSwitcher(
-              key: Key('AttachmentStatus_${e.id}'),
-              child: !isLocal
-                  ? Container(key: const Key('Sent'))
-                  : e.status.value == SendingStatus.sent
-                      ? const Icon(
-                          Icons.check_circle,
-                          key: Key('Sent'),
-                          size: 48,
-                          color: Colors.green,
-                        )
-                      : e.status.value == SendingStatus.sending
-                          ? CircularProgressIndicator(
-                              key: const Key('Sending'),
-                              value: e.progress.value,
-                              backgroundColor: Colors.white,
-                              strokeWidth: 10,
-                            )
-                          : const Icon(
-                              Icons.error,
-                              key: Key('Error'),
-                              size: 48,
-                              color: Colors.red,
-                            ),
-            )
+          ElasticAnimatedSwitcher(
+            key: Key('AttachmentStatus_${e.id}'),
+            child: !isLocal
+                ? Container(key: const Key('Sent'))
+                : e.status.value == SendingStatus.sent
+                    ? const Icon(
+                        Icons.check_circle,
+                        key: Key('Sent'),
+                        size: 48,
+                        color: Colors.green,
+                      )
+                    : e.status.value == SendingStatus.sending
+                        ? CircularProgressIndicator(
+                            key: const Key('Sending'),
+                            value: e.progress.value,
+                            backgroundColor: Colors.white,
+                            strokeWidth: 10,
+                          )
+                        : const Icon(
+                            Icons.error,
+                            key: Key('Error'),
+                            size: 48,
+                            color: Colors.red,
+                          ),
+          )
         ],
       ),
     ),
