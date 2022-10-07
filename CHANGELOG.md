@@ -9,16 +9,19 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.0-alpha.7] · 2022-??-??
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
-[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/4)
+[Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
 
 ### Added
 
 - UI:
     - Media panel:
         - Redesigned participants modal. ([#127], [#122])
+        - Dock buttons persistence. ([#159], [#137])
 
 [#122]: /../../issues/122
 [#127]: /../../pull/127
+[#137]: /../../issues/137
+[#159]: /../../pull/159
 
 
 
