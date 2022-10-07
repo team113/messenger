@@ -1,77 +1,108 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class RetryImage extends StatefulWidget {
-  const RetryImage(this.url, {Key? key}) : super(key: key);
+  const RetryImage(
+    this.url, {
+    this.error403,
+    this.fit,
+    this.width,
+    this.height,
+    Key? key,
+  }) : super(key: key);
 
+  /// Url address of image.
   final String url;
+
+  /// Callback called when url loading was failed with error code 403.
+  final VoidCallback? error403;
+
+  /// BoxFit of image.
+  final BoxFit? fit;
+
+  /// Width of image.
+  final double? width;
+
+  /// Height of image.
+  final double? height;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
 }
 
 class _RetryImageState extends State<RetryImage> {
-  Duration backOff = const Duration(milliseconds: 500);
+  ///
+  Timer? _timer;
 
-  /// Starting period of exponential backoff reconnection.
-  static const int minReconnectPeriodMillis = 500;
+  bool _loaded = false;
+  late Uint8List _image;
+  bool error403WasCalled = false;
 
-  bool loaded = false;
-  late Uint8List image;
-  final StreamController<ImageChunkEvent> chunkEvents =
-      StreamController<ImageChunkEvent>();
-  int _reconnectPeriodMillis = minReconnectPeriodMillis ~/ 2;
+  /// Duration of backOff loading image.
+  int _reconnectPeriodMillis = 500 ~/ 2;
 
   @override
   void initState() {
-    _loadNetwork();
+    _loadImage();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) =>
-      (loaded) ? Image.memory(image) : CircularProgressIndicator();
-
-  /// Get the image from network.
-  Future<void> _loadNetwork() async {
-    await tryRun();
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
-  Future<void> tryRun() async {
+  @override
+  Widget build(BuildContext context) => _loaded
+      ? Image.memory(
+          _image,
+          width: widget.width,
+          height: widget.height,
+          fit: widget.fit,
+        )
+      : Center(
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 50, maxWidth: 50),
+            child: const AspectRatio(
+              aspectRatio: 1 / 1,
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+
+  Future<void> _loadImage() async {
     http.Response? data;
-    while (loaded == false) {
-      print('lelkek');
-      try {
-        data = await http.get(Uri.parse(widget.url));
-      } on OperationCanceledError catch (error) {
-        rethrow;
-      } catch (e) {
-        print(e);
+    try {
+      data = await http.get(Uri.parse(widget.url));
+    } catch (e) {
+      print(e);
+    }
+    if (data?.statusCode == 403 && error403WasCalled == false) {
+      error403WasCalled = true;
+      widget.error403?.call();
+      if (mounted) {
+        setState(() {});
       }
-
-      if (data != null && data.statusCode == 200) {
-        setState(() {
-          loaded = true;
-          image = data!.bodyBytes;
-        });
-        print('loaded');
-        return;
+    }
+    if (data?.bodyBytes != null && data!.statusCode == 200) {
+      _loaded = true;
+      _image = data.bodyBytes;
+      if (mounted) {
+        setState(() {});
       }
+      return;
+    }
 
-      final Future<void> future = CancellationTokenSource.register(
-          null,
-          Future<void>.delayed(
-              Duration(milliseconds: _reconnectPeriodMillis), () {}));
-      await future;
-      print(_reconnectPeriodMillis);
+    _timer = Timer(Duration(milliseconds: _reconnectPeriodMillis), () {
       if (_reconnectPeriodMillis < 32000) {
         _reconnectPeriodMillis *= 2;
       }
-    }
-    return;
+      _loadImage();
+    });
   }
 }

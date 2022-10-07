@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '../home/widget/retry_image.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -94,8 +93,44 @@ class AuthView extends StatelessWidget {
             child: const Center(child: CircularProgressIndicator()),
           );
 
-          return RetryImage(
-              'https://gapopa.net/files/public/0b/71/c2/ce/01/c3/44/f3/9b/da/cd/db/a3/17/11/21/original/.jpg');
+          return ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 350),
+              child: AnimatedSize(
+                curve: Curves.ease,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: constraints.maxHeight >= height ? height : 140,
+                  child: constraints.maxHeight >= height
+                      ? Container(
+                          key: const ValueKey('logo'),
+                          child: RiveAnimation.asset(
+                            'assets/images/logo/logo.riv',
+                            onInit: (a) {
+                              if (!Config.disableInfiniteAnimations) {
+                                final StateMachineController? machine =
+                                    StateMachineController.fromArtboard(
+                                        a, 'Machine');
+                                a.addController(machine!);
+                                c.blink = machine.findInput<bool>('blink')
+                                    as SMITrigger?;
+
+                                Future.delayed(
+                                  const Duration(milliseconds: 500),
+                                  c.animate,
+                                );
+                              }
+                            },
+                          ),
+                        )
+                      : Obx(() {
+                          return SvgLoader.asset(
+                            'assets/images/logo/head000${c.logoFrame.value}.svg',
+                            placeholderBuilder: (context) => placeholder,
+                            height: 140,
+                          );
+                        }),
+                ),
+              ));
         });
 
         // Language selection popup.

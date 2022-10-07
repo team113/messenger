@@ -42,7 +42,7 @@ import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -797,22 +797,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           )
                     : Container(
                         key: const Key('SentImage'),
-                        child: Image.network(
+                        child: RetryImage(
                           '${Config.files}${e.original.relativeRef}',
                           key: _galleryKeys[i],
                           fit: BoxFit.cover,
                           height: 300,
-                          errorBuilder: (_, __, ___) {
-                            return InitCallback(
-                              callback: () => widget.onAttachmentError?.call(),
-                              child: const SizedBox(
-                                height: 300,
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                            );
-                          },
+                          error403: widget.onAttachmentError?.call,
                         ),
                       ),
             ElasticAnimatedSwitcher(
