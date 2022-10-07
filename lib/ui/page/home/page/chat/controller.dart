@@ -1505,13 +1505,13 @@ extension SelectionExtension on Map<int, List<SelectionData>> {
 
   /// Returns non-empty selections.
   List<List<SelectionData>>? get _notEmpty {
-    List<List<SelectionData>> result = [];
-    List<List<SelectionData>> current = values.toList();
+    final List<List<SelectionData>> result = [];
+    final List<List<SelectionData>> current = values.toList();
 
     for (int i = 0; i < current.length; i++) {
-      List<SelectionData> message = current[i];
+      final List<SelectionData> message = current[i];
       if (message.isNotEmpty) {
-        List<SelectionData> filteredMessage =
+        final List<SelectionData> filteredMessage =
             message.where((SelectionData s) => s.isNotEmpty).toList();
         if (filteredMessage.isNotEmpty) {
           result.add(filteredMessage);

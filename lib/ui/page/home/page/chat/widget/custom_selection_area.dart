@@ -34,7 +34,7 @@ class CustomSelectionArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final area = SelectionArea(child: child);
+    final Widget area = SelectionArea(child: child);
     if (onCopy == null) {
       return area;
     } else {
