@@ -17,8 +17,16 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned messages and forwards. ([#162], [#151])
+
 [#137]: /../../issues/137
+[#151]: /../../issues/151
 [#159]: /../../pull/159
+[#162]: /../../pull/162
 
 
 
