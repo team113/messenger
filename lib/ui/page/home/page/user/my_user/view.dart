@@ -59,78 +59,84 @@ class MyUserView extends StatelessWidget {
       init: MyUserController(Get.find(), Get.find(), Get.find(), Get.find()),
       builder: (MyUserController c) {
         return Scaffold(
-          appBar: CustomAppBar.from(
-            context: context,
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: const Color(0x55000000),
-                  color: Colors.white,
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    // onTap: () => router.me(push: true),
-                    onTap: () => MyProfileView.show(context),
-                    child: Center(
-                      child: AvatarWidget.fromMyUser(
-                        c.myUser.value,
-                        radius: 17,
+          appBar: context.isNarrow
+              ? CustomAppBar.from(
+                  context: context,
+                  title: Row(
+                    children: [
+                      Material(
+                        elevation: 6,
+                        type: MaterialType.circle,
+                        shadowColor: const Color(0x55000000),
+                        color: Colors.white,
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          // onTap: () => router.me(push: true),
+                          // onTap: () => MyProfileView.show(context),
+                          onTap: () => router.me(push: true),
+                          child: Center(
+                            child: AvatarWidget.fromMyUser(
+                              c.myUser.value,
+                              radius: 17,
+                              showBadge: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: InkWell(
+                          splashFactory: NoSplash.splashFactory,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          // onTap: () => router.me(push: true),
+                          // onTap: () => MyProfileView.show(context),
+                          onTap: () => router.me(push: true),
+                          child: DefaultTextStyle.merge(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  c.myUser.value?.name?.val ??
+                                      c.myUser.value?.num.val ??
+                                      '...',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Стена',
+                                  style: Theme.of(context).textTheme.caption,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                  leading: context.isNarrow
+                      ? const [StyledBackButton()]
+                      : const [SizedBox(width: 30)],
+                  automaticallyImplyLeading: false,
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 16),
+                      child: WidgetButton(
+                        // onPressed: () => MyProfileView.show(context),
+                        onPressed: () => router.me(push: true),
+                        child: SvgLoader.asset(
+                          'assets/icons/chat_settings.svg',
+                          width: 22,
+                          height: 22,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: InkWell(
-                    splashFactory: NoSplash.splashFactory,
-                    hoverColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    // onTap: () => router.me(push: true),
-                    onTap: () => MyProfileView.show(context),
-                    child: DefaultTextStyle.merge(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            c.myUser.value?.name?.val ??
-                                c.myUser.value?.num.val ??
-                                '...',
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          Text(
-                            'В сети',
-                            style: Theme.of(context).textTheme.caption,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-              ],
-            ),
-            leading: context.isNarrow
-                ? const [StyledBackButton()]
-                : const [SizedBox(width: 30)],
-            automaticallyImplyLeading: false,
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: WidgetButton(
-                  onPressed: () => MyProfileView.show(context),
-                  child: SvgLoader.asset(
-                    'assets/icons/chat_settings.svg',
-                    width: 22,
-                    height: 22,
-                  ),
-                ),
-              ),
-            ],
-          ),
+                  ],
+                )
+              : null,
           body: Obx(() {
             if (c.status.value.isLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -163,23 +169,34 @@ class MyUserView extends StatelessWidget {
             );
           }),
           floatingActionButton: context.isNarrow
-              ? FloatingActionButton(
-                  onPressed: () {
-                    if (router.navigation.value == null) {
-                      router.navigation.value = Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                        child: _sendField(context, c),
-                      );
-                    } else {
-                      router.navigation.value = null;
-                    }
-                  },
-                  backgroundColor: const Color(0xFF63B4FF),
-                  child: Obx(() {
-                    return router.navigation.value == null
-                        ? const Icon(Icons.add_rounded, color: Colors.white)
-                        : const Icon(Icons.close_rounded, color: Colors.white);
-                  }),
+              ? SizedBox.square(
+                  dimension: 50,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (router.navigation.value == null) {
+                        router.navigation.value = Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                          child: _sendField(context, c),
+                        );
+                      } else {
+                        router.navigation.value = null;
+                      }
+                    },
+                    backgroundColor: const Color(0xFF63B4FF),
+                    child: Obx(() {
+                      return router.navigation.value == null
+                          ? const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 36,
+                            )
+                          : const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 32,
+                            );
+                    }),
+                  ),
                 )
               : null,
           bottomNavigationBar: context.isNarrow

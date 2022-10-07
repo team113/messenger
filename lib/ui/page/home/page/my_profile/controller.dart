@@ -177,6 +177,8 @@ class MyProfileController extends GetxController {
   /// Returns current [MyUser] value.
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  UserId? get me => _authService.userId;
+
   /// Indicates whether the [ImageGalleryItem] at [galleryIndex] is the current
   /// [MyUser.avatar].
   bool get isAvatar =>

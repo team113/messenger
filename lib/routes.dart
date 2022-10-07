@@ -85,6 +85,13 @@ class Routes {
   static const settingsMedia = '/settings/media';
   static const user = '/user';
 
+  static const profile = '/profile';
+  static const privacy = '/privacy';
+  static const devices = '/devices';
+  static const storage = '/storage';
+  static const media = '/media';
+  static const language = '/language';
+
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
 
@@ -578,6 +585,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.settingsMedia ||
         _state.route == Routes.personalization ||
         _state.route == Routes.download ||
+        _state.route == Routes.profile ||
+        _state.route == Routes.media ||
+        _state.route == Routes.privacy ||
+        _state.route == Routes.storage ||
+        _state.route == Routes.devices ||
+        _state.route == Routes.language ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -653,13 +666,11 @@ extension RouteLinks on RouterState {
   void personalization({bool push = false}) =>
       push ? this.push(Routes.personalization) : go(Routes.personalization);
 
-  void download() => go(Routes.download);
+  void download({bool push = false}) =>
+      push ? this.push(Routes.download) : go(Routes.download);
 
   /// Changes router location to the [Routes.me] page.
   void me({bool push = false}) => push ? this.push(Routes.me) : go(Routes.me);
-
-  void menu({bool push = false}) =>
-      push ? this.push(Routes.menu) : go(Routes.menu);
 
   /// Changes router location to the [Routes.contact] page.
   ///
@@ -692,6 +703,24 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+
+  void profile({bool push = false}) =>
+      push ? this.push(Routes.profile) : go(Routes.profile);
+
+  void privacy({bool push = false}) =>
+      push ? this.push(Routes.privacy) : go(Routes.privacy);
+
+  void devices({bool push = false}) =>
+      push ? this.push(Routes.devices) : go(Routes.devices);
+
+  void storage({bool push = false}) =>
+      push ? this.push(Routes.storage) : go(Routes.storage);
+
+  void media({bool push = false}) =>
+      push ? this.push(Routes.media) : go(Routes.media);
+
+  void language({bool push = false}) =>
+      push ? this.push(Routes.language) : go(Routes.language);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

@@ -46,6 +46,8 @@ class ContactTile extends StatelessWidget {
     this.radius = 26,
     this.margin = const EdgeInsets.symmetric(vertical: 4),
     this.onBadgeTap,
+    this.onAvatarTap,
+    this.showBadge = true,
   }) : super(key: key);
 
   final RxChatContact? contact;
@@ -71,6 +73,8 @@ class ContactTile extends StatelessWidget {
   final double radius;
 
   final void Function()? onBadgeTap;
+  final void Function()? onAvatarTap;
+  final bool showBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -118,19 +122,25 @@ class ContactTile extends StatelessWidget {
                             AvatarWidget.fromRxContact(
                               contact,
                               radius: radius,
+                              onAvatarTap: onAvatarTap,
                               onBadgeTap: onBadgeTap,
+                              showBadge: showBadge,
                             )
                           else if (user != null)
                             AvatarWidget.fromRxUser(
                               user,
                               radius: radius,
+                              onAvatarTap: onAvatarTap,
                               onBadgeTap: onBadgeTap,
+                              showBadge: showBadge,
                             )
                           else
                             AvatarWidget.fromMyUser(
                               myUser,
                               radius: radius,
+                              onAvatarTap: onAvatarTap,
                               onBadgeTap: onBadgeTap,
+                              showBadge: showBadge,
                             ),
                           const SizedBox(width: 12),
                           Expanded(

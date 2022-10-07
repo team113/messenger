@@ -19,15 +19,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/view.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/dropdown.dart';
 import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:messenger/ui/page/home/tab/menu/more/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -46,9 +49,7 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        if (context.isNarrow) {
-          return UserView(c.me!);
-        }
+        Style style = Theme.of(context).extension<Style>()!;
 
         Widget button({
           Key? key,
@@ -56,7 +57,6 @@ class MenuTabView extends StatelessWidget {
           required Widget title,
           void Function()? onTap,
         }) {
-          Style style = Theme.of(context).extension<Style>()!;
           return Padding(
             key: key,
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -103,148 +103,407 @@ class MenuTabView extends StatelessWidget {
           );
         }
 
-        return Scaffold(
-          // appBar: CustomAppBar.from(
-          //   context: context,
-          //   title: Text(
-          //     'Your accounts'.l10n,
-          //     style: Theme.of(context).textTheme.caption?.copyWith(
-          //           color: Colors.black,
-          //           fontWeight: FontWeight.w300,
-          //           fontSize: 18,
-          //         ),
-          //   ),
-          //   // leading: const [SizedBox(width: 30)],
-          //   // actions: [
-          //   //   WidgetButton(
-          //   //     onPressed: () => MoreView.show(context),
-          //   //     child: const Padding(
-          //   //       padding: EdgeInsets.only(right: 16),
-          //   //       child: Icon(Icons.settings, color: Color(0xFF63B4FF)),
-          //   //     ),
-          //   //   ),
-          //   // ],
-          // ),
-          body: Column(
-            children: [
-              const SizedBox(height: 10),
-              Expanded(
-                child: Obx(() {
-                  return ListView(
-                    controller: ScrollController(),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: ContactTile(
-                          darken: 0,
-                          myUser: c.myUser.value,
-                          onTap: () {
-                            if (router.routes.length != 1) {
-                              router.user(c.me!);
-                            }
-                          },
-                          onBadgeTap: () => _displayPresence(context, c),
-                          radius: 26 + 7,
-                          subtitle: [
-                            WidgetButton(
-                              onPressed: () => _displayPresence(context, c),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  SizedBox(height: 5),
-                                  Text(
-                                    'В сети',
-                                    style: TextStyle(color: Color(0xFF888888)),
-                                  ),
-                                ],
-                              ),
-                            )
+        Widget bigButton({
+          Key? key,
+          Widget? leading,
+          required Widget title,
+          required Widget subtitle,
+          void Function()? onTap,
+        }) {
+          return Padding(
+            key: key,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: SizedBox(
+              height: 73,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  border: style.cardBorder,
+                  color: Colors.transparent,
+                ),
+                child: Material(
+                  type: MaterialType.card,
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                  child: InkWell(
+                    borderRadius: style.cardRadius,
+                    onTap: onTap,
+                    hoverColor: const Color.fromARGB(255, 244, 249, 255),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                      child: Row(
+                        children: [
+                          if (leading != null) ...[
+                            const SizedBox(width: 12),
+                            leading,
+                            const SizedBox(width: 18),
                           ],
-                          // trailing: [
-                          //   Padding(
-                          //     padding: const EdgeInsets.only(right: 8),
-                          //     child: WidgetButton(
-                          //       onPressed: () async {
-                          //         if (await c.confirmLogout()) {
-                          //           router.go(await c.logout());
-                          //           router.tab = HomeTab.chats;
-                          //         }
-                          //       },
-                          //       child: const Icon(
-                          //         Icons.logout,
-                          //         color: Color(0xFF63B4FF),
-                          //         size: 28,
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ],
-                        ),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                DefaultTextStyle(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: Theme.of(context).textTheme.headline5!,
+                                  child: title,
+                                ),
+                                const SizedBox(height: 6),
+                                subtitle,
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      // const SizedBox(height: 8),
-                      // button(
-                      //   key: const Key('AddAccountButton'),
-                      //   leading: const Icon(
-                      //     Icons.manage_accounts,
-                      //     color: Color(0xFF63B4FF),
-                      //   ),
-                      //   title: Text('Add account'.l10n),
-                      //   onTap: () {},
-                      // ),
-
-                      _name(c),
-                      const SizedBox(height: 8),
-                      _num(c),
-                      const SizedBox(height: 8),
-                      _presence(c),
-                      const SizedBox(height: 8),
-                      _link(context, c),
-                      const SizedBox(height: 8),
-                      _login(c),
-                      const SizedBox(height: 8),
-                      _phones(c, context),
-                      const SizedBox(height: 8),
-                      _emails(c, context),
-                      const SizedBox(height: 8),
-                      _password(context, c),
-                      const SizedBox(height: 8),
-                      _deleteAccount(c),
-                      const SizedBox(height: 8),
-                      button(
-                        leading: const Icon(Icons.settings),
-                        title: Text('Settings'.l10n),
-                        onTap: () => router.settings(push: true),
-                      ),
-                      const SizedBox(height: 8),
-                      button(
-                        leading: const Icon(Icons.workspaces),
-                        title: Text('Personalization'.l10n),
-                        onTap: () => router.personalization(push: true),
-                      ),
-                      const SizedBox(height: 8),
-                      button(
-                        key: const Key('DownloadButton'),
-                        leading: const Icon(
-                          Icons.download,
-                          color: Color(0xFF63B4FF),
-                        ),
-                        title: Text('Download application'.l10n),
-                        onTap: router.download,
-                      ),
-                      const SizedBox(height: 8),
-                      button(
-                        title: Text('btn_logout'.l10n),
-                        onTap: () async {
-                          if (await c.confirmLogout()) {
-                            router.go(await c.logout());
-                            router.tab = HomeTab.chats;
-                          }
-                        },
-                      ),
-                    ],
-                  );
-                }),
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 10),
+            ),
+          );
+        }
+
+        return Scaffold(
+          appBar: true // context.isNarrow
+              ? CustomAppBar.from(
+                  context: context,
+                  onPressed:
+                      context.isNarrow && ModalRoute.of(context)?.canPop == true
+                          ? Navigator.of(context).pop
+                          : null,
+                  title: context.isNarrow
+                      ? Row(
+                          children: [
+                            Material(
+                              elevation: 6,
+                              type: MaterialType.circle,
+                              shadowColor: const Color(0x55000000),
+                              color: Colors.white,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                child: Center(
+                                  child: AvatarWidget.fromMyUser(
+                                    c.myUser.value,
+                                    radius: 17,
+                                    showBadge: false,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        c.myUser.value?.name?.val ??
+                                            c.myUser.value?.num.val ??
+                                            '...',
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
+                                      Text(
+                                        'Стена',
+                                        style:
+                                            Theme.of(context).textTheme.caption,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                        )
+                      : const Text('Accounts'),
+                  leading: context.isNarrow
+                      ? const [StyledBackButton()]
+                      : const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: WidgetButton(
+                              child: Icon(
+                                Icons.help,
+                                color: Color(0xFF63B4FF),
+                              ),
+                            ),
+                          ),
+                        ],
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: WidgetButton(
+                        onPressed: () {},
+                        child: const Icon(
+                          Icons.person_rounded,
+                          color: Color(0xFF63b4ff),
+                        ),
+                        // child: SvgLoader.asset(
+                        //   'assets/icons/search.svg',
+                        //   width: 17.77,
+                        // ),
+                      ),
+                    ),
+                  ],
+                  automaticallyImplyLeading: false,
+                )
+              : PreferredSize(
+                  preferredSize: const Size(double.infinity, 77),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: style.cardRadius,
+                        boxShadow: const [
+                          CustomBoxShadow(
+                            blurRadius: 8,
+                            color: Color(0x22000000),
+                            blurStyle: BlurStyle.outer,
+                          ),
+                        ],
+                      ),
+                      child: ContactTile(
+                        darken: 0,
+                        myUser: c.myUser.value,
+                        onTap: () => router.user(c.me!),
+                        showBadge: false,
+                        onAvatarTap: c.uploadAvatar,
+                        onBadgeTap: () => _displayPresence(context, c),
+                        radius: 26,
+                        subtitle: [
+                          WidgetButton(
+                            onPressed: () => _displayPresence(context, c),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                SizedBox(height: 5),
+                                Text(
+                                  'Стена',
+                                  style: TextStyle(color: Color(0xFF888888)),
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                        margin: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ),
+          body: ListView(
+            controller: ScrollController(),
+            children: [
+              if (!context.isNarrow)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 4 + 3, 10, 0),
+                  height: 77,
+                  decoration: BoxDecoration(
+                    borderRadius: style.cardRadius,
+                    // boxShadow: const [
+                    //   CustomBoxShadow(
+                    //     blurRadius: 8,
+                    //     color: Color(0x22000000),
+                    //     blurStyle: BlurStyle.outer,
+                    //   ),
+                    // ],
+                  ),
+                  child: ContactTile(
+                    darken: 0,
+                    myUser: c.myUser.value,
+                    onTap: () => router.user(c.me!),
+                    showBadge: false,
+                    onAvatarTap: c.uploadAvatar,
+                    onBadgeTap: () => _displayPresence(context, c),
+                    radius: 26 + 6,
+                    subtitle: [
+                      WidgetButton(
+                        onPressed: () => _displayPresence(context, c),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            SizedBox(height: 5),
+                            Text(
+                              'Стена',
+                              style: TextStyle(color: Color(0xFF888888)),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                    margin: EdgeInsets.zero,
+                  ),
+                ),
+              // if (!context.isNarrow)
+              //   ,
+              // const SizedBox(height: 8),
+              // button(
+              //   key: const Key('AddAccountButton'),
+              //   leading: const Icon(
+              //     Icons.manage_accounts,
+              //     color: Color(0xFF63B4FF),
+              //   ),
+              //   title: Text('Add account'.l10n),
+              //   onTap: () {},
+              // ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.person,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Profile'.l10n),
+                subtitle: Text('Avatar, name, login, password.'.l10n),
+                onTap: () => router.profile(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.security,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Privacy'.l10n),
+                subtitle: Text('Who can see your page, etc.'.l10n),
+                onTap: () => router.privacy(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.devices,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Devices'.l10n),
+                subtitle: Text('All logged in sessions.'.l10n),
+                onTap: () => router.devices(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.storage,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Storage'.l10n),
+                subtitle: Text('Cache used and limits.'.l10n),
+                onTap: () => router.storage(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.video_call,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Media'.l10n),
+                subtitle: Text('Video, microphone and call settings.'.l10n),
+                // onTap: () => router.settings(push: context.isNarrow),
+                onTap: () => router.media(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                leading: const Icon(
+                  Icons.workspaces,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Personalization'.l10n),
+                subtitle: Text('Background picture and theme.'.l10n),
+                onTap: () => router.personalization(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                key: const Key('LanguageButton'),
+                leading: const Icon(
+                  Icons.language,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Language'.l10n),
+                subtitle: Text('Change language.'.l10n),
+                onTap: () => router.language(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                key: const Key('DownloadButton'),
+                leading: const Icon(
+                  Icons.download,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Download application'.l10n),
+                subtitle: Text('Android, Linux, macOS, Windows.'.l10n),
+                onTap: () => router.download(push: context.isNarrow),
+              ),
+              const SizedBox(height: 8),
+              bigButton(
+                title: Text('btn_logout'.l10n),
+                leading: const Icon(
+                  Icons.logout,
+                  color: Color(0xFF63B4FF),
+                ),
+                subtitle: Text('End current session.'.l10n),
+                onTap: () async {
+                  if (await c.confirmLogout()) {
+                    router.go(await c.logout());
+                    router.tab = HomeTab.chats;
+                  }
+                },
+              ),
+              const SizedBox(height: 600),
+
+              _name(c),
+              const SizedBox(height: 8),
+              _num(c),
+              const SizedBox(height: 8),
+              _presence(c),
+              const SizedBox(height: 8),
+              _link(context, c),
+              const SizedBox(height: 8),
+              _login(c),
+              const SizedBox(height: 8),
+              _phones(c, context),
+              const SizedBox(height: 8),
+              _emails(c, context),
+              const SizedBox(height: 8),
+              _password(context, c),
+              const SizedBox(height: 8),
+              _deleteAccount(c),
+              const SizedBox(height: 8),
+              button(
+                leading: const Icon(Icons.settings),
+                title: Text('Settings'.l10n),
+                onTap: () => router.settings(push: true),
+              ),
+              const SizedBox(height: 8),
+              button(
+                leading: const Icon(Icons.workspaces),
+                title: Text('Personalization'.l10n),
+                onTap: () => router.personalization(push: true),
+              ),
+              const SizedBox(height: 8),
+              button(
+                key: const Key('DownloadButton'),
+                leading: const Icon(
+                  Icons.download,
+                  color: Color(0xFF63B4FF),
+                ),
+                title: Text('Download application'.l10n),
+                onTap: router.download,
+              ),
+              const SizedBox(height: 8),
+              button(
+                title: Text('btn_logout'.l10n),
+                onTap: () async {
+                  if (await c.confirmLogout()) {
+                    router.go(await c.logout());
+                    router.tab = HomeTab.chats;
+                  }
+                },
+              ),
             ],
           ),
         );
@@ -272,7 +531,7 @@ class MenuTabView extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               ListTile(
                 tileColor: const Color(0xFFEEEEEE),
                 shape: RoundedRectangleBorder(
@@ -285,7 +544,7 @@ class MenuTabView extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               ListTile(
                 tileColor: const Color(0xFFEEEEEE),
                 shape: RoundedRectangleBorder(
@@ -389,9 +648,9 @@ class MenuTabView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text('label_direct_chat_link_description'.l10n),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(

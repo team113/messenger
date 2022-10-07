@@ -16,10 +16,12 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/util/platform_utils.dart';
 
@@ -31,11 +33,15 @@ class Selector<T> extends StatefulWidget {
     Key? key,
     required this.items,
     required this.itemBuilder,
+    this.buttonBuilder,
     this.initial,
     this.onSelected,
     this.buttonKey,
     this.alignment = Alignment.topCenter,
     this.debounce,
+    this.width = 260,
+    this.margin = EdgeInsets.zero,
+    this.withDividers = true,
     required this.isMobile,
   }) : super(key: key);
 
@@ -51,6 +57,9 @@ class Selector<T> extends StatefulWidget {
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
 
+  /// Builder building the provided item.
+  final Widget Function(int i, T data)? buttonBuilder;
+
   /// [GlobalKey] of an [Object] displaying this [Selector].
   final GlobalKey? buttonKey;
 
@@ -65,16 +74,24 @@ class Selector<T> extends StatefulWidget {
   /// Indicator whether a mobile design with [CupertinoPicker] should be used.
   final bool isMobile;
 
+  final double width;
+  final EdgeInsets margin;
+  final bool withDividers;
+
   /// Displays a [Selector] wrapped in a modal popup.
   static Future<T?> show<T extends Object>({
     required BuildContext context,
     required List<T> items,
     required Widget Function(T data) itemBuilder,
+    Widget Function(int i, T data)? buttonBuilder,
     void Function(T)? onSelected,
     GlobalKey? buttonKey,
     Alignment alignment = Alignment.topCenter,
     Duration? debounce,
+    double width = 260,
+    EdgeInsets margin = EdgeInsets.zero,
     T? initial,
+    bool withDividers = true,
   }) {
     bool isMobile = context.isMobile;
 
@@ -87,7 +104,11 @@ class Selector<T> extends StatefulWidget {
         onSelected: onSelected,
         buttonKey: buttonKey,
         alignment: alignment,
+        width: width,
+        margin: margin,
         isMobile: isMobile,
+        buttonBuilder: buttonBuilder,
+        withDividers: withDividers,
       );
     }
 
@@ -267,6 +288,8 @@ class _SelectorState<T> extends State<Selector<T>> {
 
   /// Returns desktop design of this [Selector].
   Widget _desktop(BuildContext context) {
+    Style style = Theme.of(context).extension<Style>()!;
+
     return LayoutBuilder(builder: (context, constraints) {
       double? left, right;
       double? top, bottom;
@@ -284,7 +307,15 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy,
           );
 
-          left = offset.dx - 260 / 2;
+          left = offset.dx - widget.width / 2;
+          bottom = MediaQuery.of(context).size.height - offset.dy;
+        } else if (widget.alignment == Alignment.topLeft) {
+          offset = Offset(
+            offset.dx + (box?.size.width ?? 0),
+            offset.dy,
+          );
+
+          left = offset.dx - widget.width;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
@@ -292,7 +323,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (box?.size.height ?? 0),
           );
 
-          left = offset.dx - 260 / 2;
+          left = offset.dx - widget.width / 2;
           top = offset.dy;
         } else {
           offset = Offset(
@@ -300,7 +331,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (box?.size.height ?? 0) / 2,
           );
 
-          left = offset.dx - 260 / 2;
+          left = offset.dx - widget.width / 2;
           top = offset.dy;
         }
       }
@@ -318,31 +349,46 @@ class _SelectorState<T> extends State<Selector<T>> {
       }
 
       // Builds the provided [item].
-      Widget button(T item) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          child: Material(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
-            child: InkWell(
-              hoverColor: const Color(0x3363B4FF),
-              highlightColor: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                _selected.value = item;
-                if (_debounce == null) {
-                  widget.onSelected?.call(_selected.value);
-                }
-              },
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: widget.itemBuilder(item),
+      Widget button(int i, T item) {
+        if (widget.buttonBuilder != null) {
+          return widget.buttonBuilder!.call(i, item);
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+              child: Material(
+                borderRadius: style.contextMenuRadius,
+                color: Colors.white,
+                child: InkWell(
+                  hoverColor: const Color(0x3363B4FF),
+                  highlightColor: Colors.white.withOpacity(0.1),
+                  borderRadius: style.contextMenuRadius,
+                  onTap: () {
+                    _selected.value = item;
+                    if (_debounce == null) {
+                      widget.onSelected?.call(_selected.value);
+                    }
+                  },
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: widget.itemBuilder(item),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            // if (widget.withDividers && i < widget.items.length - 1)
+            //   Container(
+            //     color: const Color(0x11000000),
+            //     height: 1,
+            //     width: double.infinity,
+            //   ),
+          ],
         );
       }
 
@@ -355,74 +401,68 @@ class _SelectorState<T> extends State<Selector<T>> {
             bottom: bottom,
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 260,
-                    constraints: const BoxConstraints(maxHeight: 280),
-                    padding: const EdgeInsets.fromLTRB(
-                      0,
-                      10,
-                      0,
-                      10,
+              child: Container(
+                width: widget.width,
+                constraints: const BoxConstraints(maxHeight: 280),
+                margin: widget.margin,
+                // padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                decoration: BoxDecoration(
+                  color: style.contextMenuBackgroundColor,
+                  // color: CupertinoColors.systemBackground.resolveFrom(context),
+                  borderRadius: style.contextMenuRadius,
+                ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: style.contextMenuRadius,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: widget.items.mapIndexed(button).toList(),
+                        ),
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color:
-                          CupertinoColors.systemBackground.resolveFrom(context),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Stack(
-                      children: [
-                        SingleChildScrollView(
-                          child: Column(
-                            children: widget.items.map(button).toList(),
+                    if (widget.items.length >= 8)
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                            height: 15,
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Color(0xFFFFFFFF),
+                                  Color(0x00FFFFFF),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                        if (widget.items.length >= 8)
-                          Positioned.fill(
-                            child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Container(
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 10),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color(0xFFFFFFFF),
-                                      Color(0x00FFFFFF),
-                                    ],
-                                  ),
-                                ),
+                      ),
+                    if (widget.items.length >= 8)
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            height: 15,
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Color(0x00FFFFFF),
+                                  Color(0xFFFFFFFF),
+                                ],
                               ),
                             ),
                           ),
-                        if (widget.items.length >= 8)
-                          Positioned.fill(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                height: 15,
-                                margin: const EdgeInsets.only(right: 10),
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color(0x00FFFFFF),
-                                      Color(0xFFFFFFFF),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

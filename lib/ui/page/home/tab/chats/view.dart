@@ -750,13 +750,13 @@ class ChatsTabView extends StatelessWidget {
 
                                     return Padding(
                                       padding: EdgeInsets.only(
-                                        top: i == 0 ? 10 : 0,
+                                        top: i == 0 ? 3 : 0,
                                         bottom: i ==
                                                 c.chats.length +
                                                     c.contacts.length +
                                                     c.users.length -
                                                     1
-                                            ? 10
+                                            ? 4
                                             : 0,
                                       ),
                                       child: child,

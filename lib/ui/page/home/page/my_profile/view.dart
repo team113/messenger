@@ -21,11 +21,13 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/tab/menu/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
@@ -70,6 +72,12 @@ class MyProfileView extends StatelessWidget {
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
       builder: (MyProfileController c) {
+        if (context.isNarrow) {
+          return const MenuTabView();
+        }
+
+        return Scaffold(appBar: AppBar());
+
         return Obx(() {
           if (c.myUser.value == null) {
             return Scaffold(

@@ -18,6 +18,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/ui/page/home/page/user/view.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
@@ -33,6 +36,7 @@ import 'overlay/controller.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'page/user/my_user/view.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
@@ -160,17 +164,22 @@ class _HomeViewState extends State<HomeView> {
                             },
 
                             // [KeepAlivePage] used to keep the tabs' states.
-                            children: const [
-                              KeepAlivePage(child: FinanceTabView()),
-                              KeepAlivePage(child: ContactsTabView()),
-                              KeepAlivePage(child: ChatsTabView()),
-                              KeepAlivePage(child: MenuTabView()),
+                            children: [
+                              const KeepAlivePage(child: FinanceTabView()),
+                              const KeepAlivePage(child: ContactsTabView()),
+                              const KeepAlivePage(child: ChatsTabView()),
+                              KeepAlivePage(
+                                child: context.isNarrow
+                                    ? const MyUserView()
+                                    : const MenuTabView(),
+                              ),
                             ],
                           );
                         }),
                       ),
                       // extendBody: true,
                       bottomNavigationBar: SafeArea(
+                        key: const Key('NavigationBar'),
                         child: Obx(() {
                           Widget child = router.navigation.value ??
                               CustomNavigationBar(
@@ -193,18 +202,11 @@ class _HomeViewState extends State<HomeView> {
                                           color: Color(0xFF63b4ff),
                                           size: 36,
                                         ),
-                                        // child: SvgLoader.asset(
-                                        //   'assets/icons/contacts_active.svg',
-                                        //   width: 30,
-                                        //   height: 30,
-                                        // ),
                                       ),
                                     ),
                                   ),
                                   CustomNavigationBarItem(
                                     key: const Key('ContactsButton'),
-                                    // icon: FontAwesomeIcons.solidCircleUser,
-                                    // label: 'label_tab_contacts'.l10n,
                                     leading: Obx(
                                       () => AnimatedOpacity(
                                         duration: 150.milliseconds,
@@ -213,7 +215,7 @@ class _HomeViewState extends State<HomeView> {
                                                 ? 1
                                                 : 0.6,
                                         child: SvgLoader.asset(
-                                          'assets/icons/contacts_active.svg',
+                                          'assets/icons/contacts.svg',
                                           width: 30,
                                           height: 30,
                                         ),
@@ -222,24 +224,20 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                   CustomNavigationBarItem(
                                     key: const Key('ChatsButton'),
-                                    // icon: FontAwesomeIcons.solidComment,
-                                    // label: 'label_tab_chats'.l10n,
                                     badge: c.unreadChatsCount.value == 0
                                         ? null
                                         : '${c.unreadChatsCount.value}',
-                                    leading: Obx(
-                                      () => Padding(
-                                        padding: const EdgeInsets.only(top: 0),
-                                        child: AnimatedOpacity(
-                                          duration: 150.milliseconds,
-                                          opacity: c.page.value == HomeTab.chats
-                                              ? 1
-                                              : 0.6,
-                                          child: SvgLoader.asset(
-                                            'assets/icons/chats_active.svg',
-                                            width: 36.06,
-                                            height: 30,
-                                          ),
+                                    leading: Padding(
+                                      padding: const EdgeInsets.only(top: 0),
+                                      child: AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity: c.page.value == HomeTab.chats
+                                            ? 1
+                                            : 0.6,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/chats.svg',
+                                          width: 36.06,
+                                          height: 30,
                                         ),
                                       ),
                                     ),
@@ -248,13 +246,55 @@ class _HomeViewState extends State<HomeView> {
                                     key: const Key('MenuButton'),
                                     // icon: FontAwesomeIcons.bars,
                                     leading: ContextMenuRegion(
+                                      alignment: Alignment.bottomRight,
+                                      moveDownwards: false,
+                                      selectorKey: c.profileKey,
+                                      width: 220,
+                                      margin: PlatformUtils.isMobile
+                                          ? const EdgeInsets.only(bottom: 54)
+                                          : const EdgeInsets.only(
+                                              bottom: 17,
+                                              left: 26,
+                                            ),
                                       actions: [
                                         ContextMenuButton(
-                                          label: 'Status',
+                                          label: 'Online',
+                                          onPressed: () =>
+                                              c.setPresence(Presence.present),
+                                          leading: const CircleAvatar(
+                                            radius: 8,
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'Away',
+                                          onPressed: () =>
+                                              c.setPresence(Presence.away),
+                                          leading: const CircleAvatar(
+                                            radius: 8,
+                                            backgroundColor: Colors.orange,
+                                          ),
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'Muted',
                                           onPressed: () {},
+                                          leading: const CircleAvatar(
+                                            radius: 8,
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'Hidden',
+                                          onPressed: () =>
+                                              c.setPresence(Presence.hidden),
+                                          leading: const CircleAvatar(
+                                            radius: 8,
+                                            backgroundColor: Colors.grey,
+                                          ),
                                         ),
                                       ],
                                       child: Padding(
+                                        key: c.profileKey,
                                         padding:
                                             const EdgeInsets.only(bottom: 2),
                                         child: Obx(
@@ -274,6 +314,43 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                     // label: 'label_tab_menu'.l10n,
                                   ),
+                                  // CustomNavigationBarItem(
+                                  //   key: const Key('MenuButton2'),
+                                  //   leading: ContextMenuRegion(
+                                  //     actions: [
+                                  //       ContextMenuButton(
+                                  //         label: 'Status',
+                                  //         onPressed: () {},
+                                  //       ),
+                                  //     ],
+                                  //     child: Padding(
+                                  //       padding:
+                                  //           const EdgeInsets.only(bottom: 2),
+                                  //       child: Obx(
+                                  //         () => AnimatedOpacity(
+                                  //           duration: 150.milliseconds,
+                                  //           opacity:
+                                  //               c.page.value == HomeTab.menu
+                                  //                   ? 1
+                                  //                   : 0.6,
+                                  //           child: Container(
+                                  //             decoration: const BoxDecoration(
+                                  //               shape: BoxShape.circle,
+                                  //               color: Color(0xFF63b4ff),
+                                  //             ),
+                                  //             width: 30,
+                                  //             height: 30,
+                                  //             child: const Icon(
+                                  //               Icons.menu,
+                                  //               color: Colors.white,
+                                  //             ),
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  //   // label: 'label_tab_menu'.l10n,
+                                  // ),
                                 ],
                                 currentIndex: router.tab.index,
                                 onTap: (i) {
@@ -288,7 +365,17 @@ class _HomeViewState extends State<HomeView> {
                                   //     },
                                   //   );
                                   // } else {
+
                                   c.pages.jumpToPage(i);
+
+                                  // if (i < 2) {
+                                  //   c.pages.jumpToPage(i);
+                                  // } else if (i == 2) {
+                                  //   router
+                                  //       .user(Get.find<AuthService>().userId!);
+                                  // } else if (i >= 3) {
+                                  //   c.pages.jumpToPage(i - 1);
+                                  // }
                                   // }
                                 },
                               );

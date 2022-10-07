@@ -435,9 +435,8 @@ class _ChatViewState extends State<ChatView>
                                   : c.canGoDown.isTrue
                                       ? FloatingActionButton(
                                           onPressed: c.animateToBottom,
-                                          child: const Icon(
-                                            Icons.arrow_downward,
-                                          ),
+                                          child:
+                                              const Icon(Icons.arrow_downward),
                                         )
                                       : Container(),
                         ),

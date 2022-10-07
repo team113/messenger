@@ -52,6 +52,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.useLayoutBuilder = true,
     this.onBadgeTap,
+    this.onAvatarTap,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -64,6 +65,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     void Function()? onBadgeTap,
+    void Function()? onAvatarTap,
   }) =>
       AvatarWidget(
         key: key,
@@ -77,6 +79,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -90,6 +93,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool showBadge = true,
     void Function()? onBadgeTap,
+    void Function()? onAvatarTap,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -101,6 +105,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
     }
 
@@ -120,6 +125,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
     });
   }
@@ -133,6 +139,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool showBadge = true,
     void Function()? onBadgeTap,
+    void Function()? onAvatarTap,
   }) =>
       AvatarWidget(
         isOnline: showBadge && myUser?.online == true,
@@ -145,6 +152,7 @@ class AvatarWidget extends StatelessWidget {
         minRadius: minRadius,
         opacity: opacity,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -157,6 +165,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool useLayoutBuilder = true,
     void Function()? onBadgeTap,
+    void Function()? onAvatarTap,
   }) =>
       AvatarWidget(
         key: key,
@@ -169,6 +178,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -182,6 +192,7 @@ class AvatarWidget extends StatelessWidget {
     bool showBadge = true,
     bool useLayoutBuilder = true,
     void Function()? onBadgeTap,
+    void Function()? onAvatarTap,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -193,6 +204,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       );
     }
 
@@ -210,6 +222,7 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         useLayoutBuilder: useLayoutBuilder,
         onBadgeTap: onBadgeTap,
+        onAvatarTap: onAvatarTap,
       ),
     );
   }
@@ -320,6 +333,7 @@ class AvatarWidget extends StatelessWidget {
   final bool useLayoutBuilder;
 
   final void Function()? onBadgeTap;
+  final void Function()? onAvatarTap;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -416,42 +430,45 @@ class AvatarWidget extends StatelessWidget {
           end: maxWidth >= 40 ? badgeSize / 4 : -badgeSize / 5,
         ),
         elevation: 0,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
+        child: WidgetButton(
+          onPressed: onAvatarTap,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: minHeight,
+              minWidth: minWidth,
+              maxWidth: maxWidth,
+              maxHeight: maxHeight,
             ),
-            image: avatar == null
-                ? null
-                : DecorationImage(
-                    image: NetworkImage(
-                      '${Config.files}${avatar?.original.relativeRef}',
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [gradient.lighten(), gradient],
+              ),
+              image: avatar == null
+                  ? null
+                  : DecorationImage(
+                      image: NetworkImage(
+                        '${Config.files}${avatar?.original.relativeRef}',
+                      ),
+                      fit: BoxFit.cover,
+                      isAntiAlias: true,
                     ),
-                    fit: BoxFit.cover,
-                    isAntiAlias: true,
-                  ),
-            shape: BoxShape.circle,
+              shape: BoxShape.circle,
+            ),
+            child: avatar == null
+                ? Center(
+                    child: Text(
+                      (title ?? '??').initials(),
+                      style: Theme.of(context).textTheme.headline4?.copyWith(
+                            fontSize: 15 * (maxWidth / 40.0),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  )
+                : null,
           ),
-          child: avatar == null
-              ? Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                )
-              : null,
         ),
       );
     }

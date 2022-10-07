@@ -352,7 +352,7 @@ class ContactsTabView extends StatelessWidget {
                           return CustomScrollView(
                             slivers: [
                               const SliverPadding(
-                                padding: EdgeInsets.only(top: 10),
+                                padding: EdgeInsets.only(top: 0),
                               ),
                               if (!isSearching) ...[
                                 // SliverToBoxAdapter(
@@ -409,7 +409,7 @@ class ContactsTabView extends StatelessWidget {
                                     return Padding(
                                       padding: EdgeInsets.only(
                                         top: i == 0 && c.allFavorites.isEmpty
-                                            ? 10
+                                            ? 3
                                             : 0,
                                       ),
                                       child: _contact(
@@ -427,7 +427,7 @@ class ContactsTabView extends StatelessWidget {
                                     return Padding(
                                       padding: EdgeInsets.only(
                                         top: i == 0 && c.allFavorites.isEmpty
-                                            ? 10
+                                            ? 3
                                             : 0,
                                       ),
                                       child: tile(
@@ -439,7 +439,7 @@ class ContactsTabView extends StatelessWidget {
                                 ),
                               ),
                               const SliverPadding(
-                                padding: EdgeInsets.only(top: 10),
+                                padding: EdgeInsets.only(top: 8),
                               ),
                             ],
                           );

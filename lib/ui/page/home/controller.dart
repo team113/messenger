@@ -20,6 +20,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show Presence;
+import 'package:messenger/domain/model/user.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/my_user.dart';
@@ -53,6 +55,8 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final Rx<int> unreadChatsCount = Rx<int>(0);
 
+  final GlobalKey profileKey = GlobalKey();
+
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
   ///
@@ -76,6 +80,7 @@ class HomeController extends GetxController {
   Rx<RxStatus> get authStatus => _auth.status;
 
   Rx<MyUser?> get myUser => _myUser.myUser;
+  UserId? get me => _auth.userId;
 
   /// Returns the width side bar is allowed to occupy.
   double get sideBarAllowedWidth =>
@@ -146,6 +151,9 @@ class HomeController extends GetxController {
   /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
   Future<void> setSideBarWidth() =>
       _settings.setSideBarWidth(sideBarWidth.value);
+
+  Future<void> setPresence(Presence presence) =>
+      _myUser.updateUserPresence(presence);
 
   /// Refreshes the controller on [router] change.
   ///

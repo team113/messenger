@@ -56,8 +56,15 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
     List<Page<dynamic>> pages = [
-      MaterialPage(
-        child: _NestedHomeView(Get.find<AuthService>().userId!, _state.tab),
+      _CustomPage(
+        child: AnimatedSwitcher(
+          duration: 250.milliseconds,
+          child: _NestedHomeView(
+            Get.find<AuthService>().userId!,
+            key: Key(_state.tab.name),
+            _state.tab,
+          ),
+        ),
       )
     ];
 
@@ -79,6 +86,42 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('DownloadPage'),
           name: Routes.download,
           child: DownloadView(false),
+        ));
+      } else if (route == Routes.media) {
+        pages.add(const _CustomPage(
+          key: ValueKey('MediaSettingsPage'),
+          name: Routes.media,
+          child: MediaSettingsView(),
+        ));
+      } else if (route == Routes.profile) {
+        pages.add(const _CustomPage(
+          key: ValueKey('SettingsPage'),
+          name: Routes.settings,
+          child: SettingsView(),
+        ));
+      } else if (route == Routes.privacy) {
+        pages.add(const _CustomPage(
+          key: ValueKey('SettingsPage'),
+          name: Routes.privacy,
+          child: SettingsView(),
+        ));
+      } else if (route == Routes.storage) {
+        pages.add(const _CustomPage(
+          key: ValueKey('SettingsPage'),
+          name: Routes.storage,
+          child: SettingsView(),
+        ));
+      } else if (route == Routes.devices) {
+        pages.add(const _CustomPage(
+          key: ValueKey('SettingsPage'),
+          name: Routes.devices,
+          child: SettingsView(),
+        ));
+      } else if (route == Routes.language) {
+        pages.add(const _CustomPage(
+          key: ValueKey('SettingsPage'),
+          name: Routes.language,
+          child: SettingsView(),
         ));
       } else if (route.startsWith(Routes.settings)) {
         pages.add(const _CustomPage(
@@ -236,7 +279,6 @@ class _NestedHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('tab is $tab');
     if (!context.isNarrow && tab == HomeTab.menu) {
       return UserView(me);
     }

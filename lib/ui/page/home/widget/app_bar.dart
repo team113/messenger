@@ -17,6 +17,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -25,6 +26,7 @@ abstract class CustomAppBar {
   static PreferredSizeWidget from({
     Key? key,
     required BuildContext context,
+    void Function()? onPressed,
     Widget? title,
     List<Widget>? leading,
     List<Widget>? actions,
@@ -37,42 +39,45 @@ abstract class CustomAppBar {
       preferredSize: const Size(double.infinity, 60),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            boxShadow: const [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: Color(0x22000000),
-                blurStyle: BlurStyle.outer,
-              ),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
+        child: WidgetButton(
+          onPressed: onPressed,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              border: style.cardBorder,
+              boxShadow: const [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: Color(0x22000000),
+                  blurStyle: BlurStyle.outer,
+                ),
+              ],
             ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                color: style.cardColor,
+            child: ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
               ),
-              padding: padding,
-              child: Row(
-                children: [
-                  if (leading != null) ...leading,
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: Theme.of(context).appBarTheme.titleTextStyle,
-                      child: Center(child: title ?? Container()),
+              borderRadius: style.cardRadius,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                ),
+                padding: padding,
+                child: Row(
+                  children: [
+                    if (leading != null) ...leading,
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        style: Theme.of(context).appBarTheme.titleTextStyle,
+                        child: Center(child: title ?? Container()),
+                      ),
                     ),
-                  ),
-                  if (actions != null) ...actions,
-                ],
+                    if (actions != null) ...actions,
+                  ],
+                ),
               ),
             ),
           ),

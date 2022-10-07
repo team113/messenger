@@ -21,10 +21,16 @@ import '/themes.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({Key? key, required this.actions}) : super(key: key);
+  const ContextMenu({
+    Key? key,
+    required this.actions,
+    this.width = 220,
+  }) : super(key: key);
 
   /// List of [ContextMenuButton]s to display in this [ContextMenu].
   final List<ContextMenuButton> actions;
+
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +55,7 @@ class ContextMenu extends StatelessWidget {
     Style style = Theme.of(context).extension<Style>()!;
 
     return Container(
-      width: 220,
+      width: width,
       margin: const EdgeInsets.only(left: 1, top: 1),
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
@@ -80,14 +86,18 @@ class ContextMenuButton extends StatefulWidget {
     Key? key,
     required this.label,
     this.leading,
+    this.trailing,
     this.onPressed,
   }) : super(key: key);
 
   /// Label of this [ContextMenuButton].
   final String label;
 
-  /// Optional leading widget, typically an [Icon].
+  /// Optional leading widget.
   final Widget? leading;
+
+  /// Optional trailing widget, typically an [Icon].
+  final Widget? trailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -124,6 +134,15 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.leading != null) ...[
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    iconTheme: const IconThemeData(color: Colors.blue),
+                  ),
+                  child: widget.leading!,
+                ),
+                const SizedBox(width: 14),
+              ],
               Expanded(
                 child: Text(
                   widget.label,
@@ -132,13 +151,13 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                           color: Colors.black),
                 ),
               ),
-              if (widget.leading != null) ...[
+              if (widget.trailing != null) ...[
                 const SizedBox(width: 14),
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme: const IconThemeData(color: Colors.blue),
                   ),
-                  child: widget.leading!,
+                  child: widget.trailing!,
                 ),
               ],
             ],
