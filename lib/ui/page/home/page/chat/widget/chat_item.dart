@@ -147,10 +147,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
-  /// Indicates whether the provided [ChatItem] was read by some [User].
-  ///
-  /// If [User] is authenticated [ChatItem] was read some [User] other
-  /// than authenticated, otherwise was read by the authenticated [User].
+  /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
     if (chat == null) {
@@ -220,10 +217,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
-    final Style? style = Theme.of(context).extension<Style>();
+    final Style style = Theme.of(context).extension<Style>()!;
     final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
 
-    Widget? content;
+    final Widget content;
 
     switch (message.action) {
       case ChatMemberInfoAction.created:
@@ -249,7 +246,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         break;
 
       case ChatMemberInfoAction.artemisUnknown:
-        // No-op.
+        content = Text('${message.action}');
         break;
     }
 
@@ -263,24 +260,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         isSent: isSent && _fromMe,
         isDelivered: isSent &&
             _fromMe &&
-            widget.chat.value?.lastDelivery.isBefore(widget.item.value.at) ==
-                false,
+            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
         isRead: isSent && (!_fromMe || _isRead),
         isError: message.status.value == SendingStatus.error,
         isSending: message.status.value == SendingStatus.sending,
-        swipeable:
-            Text(DateFormat.Hm().format(widget.item.value.at.val.toLocal())),
+        swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              border: style?.systemMessageBorder,
-              color: style?.systemMessageColor,
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
             ),
-            child: DefaultTextStyle.merge(
-              style: style?.systemMessageTextStyle,
-              child: content ?? Text('${message.action}'),
+            child: DefaultTextStyle(
+              style: style.systemMessageStyle,
+              child: content,
             ),
           ),
         ),

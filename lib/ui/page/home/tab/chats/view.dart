@@ -18,7 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.graphql.dart' show ChatMemberInfoAction;
+import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -250,7 +250,7 @@ class ChatsTabView extends StatelessWidget {
                 ),
               ];
             } else if (item is ChatMemberInfo) {
-              Widget? content;
+              final Widget content;
 
               switch (item.action) {
                 case ChatMemberInfoAction.created:
@@ -277,13 +277,14 @@ class ChatsTabView extends StatelessWidget {
                   break;
 
                 case ChatMemberInfoAction.artemisUnknown:
-                  // No-op.
+                  content = Text('${item.action}');
                   break;
               }
-              subtitle = [Flexible(child: content ?? Text('${item.action}'))];
+
+              subtitle = [Flexible(child: content)];
             } else {
               subtitle = [
-                Flexible(child: Text('label_empty_message'.l10n, maxLines: 2))
+                Flexible(child: Text('label_empty_message'.l10n, maxLines: 2)),
               ];
             }
           }

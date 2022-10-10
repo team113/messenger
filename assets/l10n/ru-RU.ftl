@@ -365,6 +365,7 @@ label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
+label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -385,7 +386,6 @@ label_direct_chat_link_in_chat_description =
     - просматривать профиль группы,
     - отправлять сообщения в чат группы,
     - совершать звонки
-label_dialog_created = Диалог создан
 label_drop_here =
     Перетащите сюда,
     чтобы прикрепить
@@ -500,7 +500,7 @@ label_video = Видео
 label_video_call = Видеозвонок
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
+label_was_added = {$who} был(а) добавлен(а)
+label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
-label_was_added = {$who} был добавлен
-label_was_removed = {$who} был удален

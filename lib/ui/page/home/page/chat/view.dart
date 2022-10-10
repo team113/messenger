@@ -251,7 +251,7 @@ class _ChatViewState extends State<ChatView>
                                           c.elements.values.elementAt(i);
 
                                       if (e is UnreadMessagesElement) {
-                                        return _unreadMessages(context, c);
+                                        return _unreadLabel(context, c);
                                       } else if (e is ChatMessageElement ||
                                           e is ChatCallElement ||
                                           e is ChatMemberInfoElement) {
@@ -472,7 +472,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time) {
-    final Style? style = Theme.of(context).extension<Style>();
+    final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -490,13 +490,10 @@ class _ChatViewState extends State<ChatView>
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              border: style?.systemMessageBorder,
-              color: style?.systemMessageColor,
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
             ),
-            child: Text(
-              time.toRelative(),
-              style: const TextStyle(color: Color(0xFF888888)),
-            ),
+            child: Text(time.toRelative(), style: style.systemMessageStyle),
           ),
         ),
       ),
@@ -1179,40 +1176,23 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Builds a visual representation of an [UnreadMessagesElement].
-  Widget _unreadMessages(BuildContext context, ChatController c) {
-    final Style? style = Theme.of(context).extension<Style>();
+  Widget _unreadLabel(BuildContext context, ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Row(
-        children: [
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: style?.systemMessageBorder,
-                color: style?.systemMessageColor,
-              ),
-              child: Center(
-                child: Text(
-                  'label_unread_messages'
-                      .l10nfmt({'quantity': c.unreadMessages}),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF888888),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+          style: style.systemMessageStyle,
+        ),
       ),
     );
   }

@@ -49,14 +49,14 @@ class Themes {
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             sidebarColor: Colors.white.withOpacity(0.4),
-            systemMessageTextStyle: GoogleFonts.roboto(
+            systemMessageBorder:
+                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
+            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
+            systemMessageStyle: GoogleFonts.roboto(
               color: const Color(0xFF888888),
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-            systemMessageBorder:
-                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
-            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
           ),
         ],
         colorScheme: colors,
@@ -267,9 +267,9 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
     required this.sidebarColor,
-    required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
+    required this.systemMessageStyle,
   });
 
   /// [Color] of the modal background barrier color.
@@ -293,14 +293,14 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// [TextStyle] to use for messages [ChatMemberInfo].
-  final TextStyle systemMessageTextStyle;
-
-  /// [Border] of the messages [ChatMemberInfo].
+  /// [Border] to apply to system messages.
   final Border systemMessageBorder;
 
-  /// [Color] of the messages [ChatMemberInfo].
+  /// [Color] of system messages.
   final Color systemMessageColor;
+
+  /// [TextStyle] of system messages.
+  final TextStyle systemMessageStyle;
 
   @override
   ThemeExtension<Style> copyWith({
@@ -311,9 +311,9 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
     Color? sidebarColor,
-    TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
+    TextStyle? systemMessageStyle,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
@@ -325,10 +325,9 @@ class Style extends ThemeExtension<Style> {
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
       sidebarColor: sidebarColor ?? this.sidebarColor,
-      systemMessageTextStyle:
-          systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
+      systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
     );
   }
 
@@ -355,15 +354,15 @@ class Style extends ThemeExtension<Style> {
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      systemMessageTextStyle: TextStyle.lerp(
-        systemMessageTextStyle,
-        other.systemMessageTextStyle,
-        t,
-      )!,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:
           Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
+      systemMessageStyle: TextStyle.lerp(
+        systemMessageStyle,
+        other.systemMessageStyle,
+        t,
+      )!,
     );
   }
 }

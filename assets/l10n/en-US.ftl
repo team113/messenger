@@ -349,6 +349,7 @@ label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
+label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to
@@ -367,7 +368,6 @@ label_direct_chat_link_in_chat_description =
     - visit group profile,
     - send messages to group chat,
     - make calls
-label_dialog_created = Dialog created
 label_drop_here =
     Drop here
     to upload
@@ -482,7 +482,7 @@ label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
-label_you = You
-label_you_were_added_to_group = You were added to the group
 label_was_added = {$who} was added
 label_was_removed = {$who} was removed
+label_you = You
+label_you_were_added_to_group = You were added to the group
