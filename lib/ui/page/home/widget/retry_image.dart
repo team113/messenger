@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -41,6 +41,9 @@ class _RetryImageState extends State<RetryImage> {
   /// [Uint8List] image bytes.
   late Uint8List _image;
 
+  /// Image download progress.
+  double _progress = 0;
+
   /// Duration of backOff loading image.
   int _reconnectPeriodMillis = 500 ~/ 2;
 
@@ -62,17 +65,23 @@ class _RetryImageState extends State<RetryImage> {
           _image,
           height: widget.height,
           fit: widget.fit,
-          key: const Key('ImageLoaded'),
+          key: const Key('RetryImageLoaded'),
         )
       : Container(
           height: widget.height,
           alignment: Alignment.center,
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
-            child: const AspectRatio(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 40,
+              maxWidth: 40,
+              minWidth: 10,
+              minHeight: 10,
+            ),
+            child: AspectRatio(
               aspectRatio: 1 / 1,
               child: CircularProgressIndicator(
-                key: Key('ImageLoading'),
+                key: const Key('RetryImageLoading'),
+                value: _progress,
               ),
             ),
           ),
@@ -80,10 +89,19 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Trying to load image.
   Future<void> _loadImage() async {
-    http.Response? data;
+    Response? data;
 
     try {
-      data = await http.get(Uri.parse(widget.url));
+      data = await Dio().get(
+        widget.url,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            _progress = received / total;
+            setState(() {});
+          }
+        },
+        options: Options(responseType: ResponseType.bytes),
+      );
     } catch (e) {
       // No-op.
     }
@@ -92,9 +110,9 @@ class _RetryImageState extends State<RetryImage> {
       widget.error403?.call();
     }
 
-    if (data?.bodyBytes != null && data!.statusCode == 200) {
+    if (data?.data != null && data!.statusCode == 200) {
       _loaded = true;
-      _image = data.bodyBytes;
+      _image = data.data;
       if (mounted) {
         setState(() {});
       }

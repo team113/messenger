@@ -70,7 +70,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         copyFromField,
-        sendsAttachmentImageToMe,
         downloadFile,
         fillField,
         fillFieldN,

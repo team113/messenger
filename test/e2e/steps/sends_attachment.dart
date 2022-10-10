@@ -134,17 +134,15 @@ final StepDefinitionGeneric sendsAttachmentToMe =
 
     if (provider is MockGraphQlProvider) {
       print('make delay');
-      provider.client.delay = Duration(seconds: 2);
+      provider.client.delay = Duration(seconds: 4);
       provider.client.throwException = false;
     }
 
-    await provider.postChatMessage(
+    provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,
       text: null,
       attachments: [response.attachment.toModel().id],
     );
-
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

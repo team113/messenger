@@ -795,15 +795,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             fit: BoxFit.cover,
                             height: 300,
                           )
-                    : Container(
-                        key: const Key('SentImage'),
-                        child: RetryImage(
-                          '${Config.files}${e.original.relativeRef}',
-                          key: _galleryKeys[i],
-                          fit: BoxFit.cover,
-                          height: 300,
-                          error403: widget.onAttachmentError?.call,
-                        ),
+                    : RetryImage(
+                        '${Config.files}${e.original.relativeRef}',
+                        fit: BoxFit.cover,
+                        height: 300,
+                        error403: widget.onAttachmentError?.call,
                       ),
             ElasticAnimatedSwitcher(
               key: Key('AttachmentStatus_${e.id}'),

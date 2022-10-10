@@ -491,11 +491,6 @@ class ChatRepository implements AbstractChatRepository {
         );
       }
 
-      print(attachment.file.bytes!);
-      print(attachment.file.mime);
-      print(attachment.file.mime?.subtype);
-      print(attachment.file.mime?.type);
-      print(attachment.file.mime?.parameters);
       var response = await _graphQlProvider.uploadAttachment(
         upload,
         onSendProgress: (now, max) => attachment.progress.value = now / max,

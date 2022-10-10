@@ -28,20 +28,21 @@ import '../parameters/keys.dart';
 /// - Then I wait until `WidgetKey` is present
 final StepDefinitionGeneric waitUntilKeyExists =
     then2<WidgetKey, Existence, FlutterWorld>(
-  'I wait until {key} is {existence}',
-  (key, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              );
-      },
-    );
-  },
-);
+        'I wait until {key} is {existence}', (key, existence, context) async {
+  await context.world.appDriver.waitForAppToSettle();
+  await context.world.appDriver.waitUntil(
+    () async {
+      return existence == Existence.absent
+          ? context.world.appDriver.isAbsent(
+              context.world.appDriver.findByKeySkipOffstage(key.name),
+            )
+          : context.world.appDriver.isPresent(
+              context.world.appDriver.findByKeySkipOffstage(key.name),
+            );
+    },
+    pollInterval: Duration(milliseconds: 10),
+    timeout: Duration(seconds: 60),
+  );
+},
+        configuration: StepDefinitionConfiguration()
+          ..timeout = const Duration(minutes: 1));

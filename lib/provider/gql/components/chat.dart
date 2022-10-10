@@ -701,23 +701,17 @@ abstract class ChatGraphQlMixin {
         }),
         options: dio.Options(contentType: 'multipart/form-data'),
         onSendProgress: onSendProgress,
-        onException: (data) {
-          print(data);
-          return UploadAttachmentException((UploadAttachment$Mutation.fromJson(
-                          data)
-                      .uploadAttachment
-                  as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
-              .code);
-        },
+        onException: (data) => UploadAttachmentException((UploadAttachment$Mutation
+                        .fromJson(data)
+                    .uploadAttachment
+                as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
+            .code),
       );
 
       return (UploadAttachment$Mutation.fromJson(response.data['data']))
               .uploadAttachment
           as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk;
     } on dio.DioError catch (e) {
-      print(e.response?.data);
-      print(e.response?.statusMessage);
-      print(e.response?.statusCode);
       if (e.response?.statusCode == 413) {
         throw const UploadAttachmentException(
           UploadAttachmentErrorCode.tooBigSize,
