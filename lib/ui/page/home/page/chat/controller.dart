@@ -888,16 +888,13 @@ class ChatController extends GetxController {
   ///
   /// First get [selections] selected text, if it is not there then take [text].
   void copyText([String? text]) {
-    String? result;
-    final String? selection = selections.formatted;
-    if (selection != null && selection.isNotEmpty) {
-      result = selection;
-    } else if (text != null && text.isNotEmpty) {
-      result = text;
+    String? copyable = selections.formatted;
+    if (copyable == null || copyable.isEmpty) {
+      copyable = text;
     }
 
-    if (result != null) {
-      Clipboard.setData(ClipboardData(text: result));
+    if (copyable != null && copyable.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: copyable));
       MessagePopup.success('label_copied_to_clipboard'.l10n);
     }
   }
@@ -1435,7 +1432,7 @@ class _ListViewIndexCalculationResult {
 
 /// Type of selected text in chat.
 ///
-/// Identification of selected text to sort by [CopyableItem.index]
+/// Identification of selected text to sort by [CopyableItem.index].
 enum CopyableItem {
   /// Relative time (for example, 4 days ago, 14:28).
   relativeTime,
@@ -1476,6 +1473,7 @@ class SelectionData {
   bool get isNotEmpty => data.value?.isNotEmpty == true;
 }
 
+/// Extension that adds formatting to the selected text.
 extension SelectionExtension on Map<int, List<SelectionData>> {
   /// Gets selected formatted text.
   String? get formatted {
@@ -1485,10 +1483,10 @@ extension SelectionExtension on Map<int, List<SelectionData>> {
 
     final result = StringBuffer();
     for (int i = 0; i < sorted.length; i++) {
-      List<SelectionData> message = sorted[i];
+      final List<SelectionData> message = sorted[i];
       if (message.isEmpty) continue;
       for (int y = 0; y < message.length; y++) {
-        String? value = message[y].data.value;
+        final String? value = message[y].data.value;
         if (value == null || value.isEmpty) continue;
         result.write(value);
         if (y != message.length - 1) {
