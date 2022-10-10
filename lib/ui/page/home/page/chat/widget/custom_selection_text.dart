@@ -128,7 +128,10 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
   @override
   void initState() {
     super.initState();
+
     delegate = _SelectableRegionContainerDelegate(_selectionChange);
+
+    delegate.addListener(_selectionChange);
 
     _gestureRecognizers[SerialTapGestureRecognizer] =
         GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
@@ -160,6 +163,7 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
   void dispose() {
     selectionData.data.close();
     widget.selections.remove(widget.position);
+    delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();
   }
@@ -194,7 +198,7 @@ class _SelectableRegionContainerDelegate
     extends MultiSelectableSelectionContainerDelegate {
   _SelectableRegionContainerDelegate(this.builder);
 
-  /// .
+  /// Builder copies the selected contents.
   final void Function() builder;
 
   /// Storage of [Selectable]s on [SelectionEventType.startEdgeUpdate].
@@ -271,6 +275,7 @@ class _SelectableRegionContainerDelegate
     _hasReceivedEndEvent.clear();
     _lastStartEdgeUpdateGlobalPosition = null;
     _lastEndEdgeUpdateGlobalPosition = null;
+    builder();
     return result;
   }
 
@@ -311,8 +316,6 @@ class _SelectableRegionContainerDelegate
       case SelectionEventType.selectWord:
         break;
     }
-    builder();
-
     return super.dispatchSelectionEventToChild(selectable, event);
   }
 
