@@ -36,6 +36,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
@@ -245,30 +246,7 @@ class _ChatViewState extends State<ChatView>
                                           c.elements.values.elementAt(i);
 
                                       if (e is UnreadMessagesElement) {
-                                        return Container(
-                                          color: const Color(0x33000000),
-                                          padding: const EdgeInsets.all(4),
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 4,
-                                          ),
-                                          child: Center(
-                                            child: ListenTap(
-                                              isTap: c.isTapMessage,
-                                              child: CustomSelectionText(
-                                                selections: c.selections,
-                                                position: i,
-                                                type: CopyableItem.message,
-                                                child: Text(
-                                                  'label_unread_messages'.l10n,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
+                                        return _unreadLabel(context, c, i);
                                       } else if (e is ChatMessageElement ||
                                           e is ChatCallElement ||
                                           e is ChatMemberInfoElement) {
@@ -533,19 +511,53 @@ class _ChatViewState extends State<ChatView>
     SplayTreeMap<int, List<SelectionData>>? selections,
     Function(String text)? onCopy,
   ) {
+    final Style style = Theme.of(context).extension<Style>()!;
     final String date = DateFormat('dd.MM.yy').format(time);
     final String timeRelative = time.toRelative();
 
-    return Column(
-      children: [
-        const SizedBox(height: 7),
-        SwipeableStatus(
-          animation: _animation,
-          asStack: true,
-          padding: EdgeInsets.zero,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          swipeable: Padding(
-            padding: const EdgeInsets.only(right: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: SwipeableStatus(
+        animation: _animation,
+        asStack: true,
+        padding: const EdgeInsets.only(right: 8),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        swipeable: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: ContextMenuRegion(
+            preventContextMenu: false,
+            actions: [
+              ContextMenuButton(
+                key: const Key('CopyButton'),
+                label: 'btn_copy'.l10n,
+                leading: SvgLoader.asset(
+                  'assets/icons/copy_small.svg',
+                  width: 14.82,
+                  height: 17,
+                ),
+                onPressed: () => onCopy?.call(date),
+              ),
+            ],
+            child: ListenTap(
+              isTap: isTapMessage,
+              child: CustomSelectionText(
+                selections: selections,
+                position: position,
+                type: CopyableItem.date,
+                animation: _animation,
+                child: Text(date),
+              ),
+            ),
+          ),
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
+            ),
             child: ContextMenuRegion(
               preventContextMenu: false,
               actions: [
@@ -557,7 +569,7 @@ class _ChatViewState extends State<ChatView>
                     width: 14.82,
                     height: 17,
                   ),
-                  onPressed: () => onCopy?.call(date),
+                  onPressed: () => onCopy?.call(timeRelative),
                 ),
               ],
               child: ListenTap(
@@ -565,52 +577,17 @@ class _ChatViewState extends State<ChatView>
                 child: CustomSelectionText(
                   selections: selections,
                   position: position,
-                  type: CopyableItem.date,
-                  animation: _animation,
-                  child: Text(date),
-                ),
-              ),
-            ),
-          ),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.white,
-              ),
-              child: ContextMenuRegion(
-                preventContextMenu: false,
-                actions: [
-                  ContextMenuButton(
-                    key: const Key('CopyButton'),
-                    label: 'btn_copy'.l10n,
-                    leading: SvgLoader.asset(
-                      'assets/icons/copy_small.svg',
-                      width: 14.82,
-                      height: 17,
-                    ),
-                    onPressed: () => onCopy?.call(timeRelative),
-                  ),
-                ],
-                child: ListenTap(
-                  isTap: isTapMessage,
-                  child: CustomSelectionText(
-                    selections: selections,
-                    position: position,
-                    type: CopyableItem.relativeTime,
-                    child: Text(
-                      timeRelative,
-                      style: const TextStyle(color: Color(0xFF888888)),
-                    ),
+                  type: CopyableItem.relativeTime,
+                  child: Text(
+                    timeRelative,
+                    style: style.systemMessageStyle,
                   ),
                 ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 7),
-      ],
+      ),
     );
   }
 
@@ -1288,6 +1265,35 @@ class _ChatViewState extends State<ChatView>
       c.horizontalScrollTimer.value = null;
     });
   }
+
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _unreadLabel(BuildContext context, ChatController c, int position) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: ListenTap(
+          child: CustomSelectionText(
+            selections: c.selections,
+            position: position,
+            type: CopyableItem.message,
+            child: Text(
+              'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+              style: style.systemMessageStyle,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Extension adding an ability to get text represented [DateTime] relative to
@@ -1301,10 +1307,6 @@ extension DateTimeToRelative on DateTime {
     DateTime relative = now ?? DateTime.now();
     int days = relative.julianDayNumber() - local.julianDayNumber();
 
-    String time =
-        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-    String date = '';
-
     int months = 0;
     if (days >= 28) {
       months =
@@ -1314,16 +1316,12 @@ extension DateTimeToRelative on DateTime {
       }
     }
 
-    if (days > 0) {
-      date = 'label_ago'.l10nfmt({
-        'years': months ~/ 12,
-        'months': months,
-        'weeks': days ~/ 7,
-        'days': days,
-      });
-    }
-
-    return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
   }
 
   /// Returns a Julian day number of this [DateTime].

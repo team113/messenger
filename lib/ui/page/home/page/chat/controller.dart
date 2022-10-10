@@ -155,6 +155,9 @@ class ChatController extends GetxController {
   /// Key is position of message in chat, and value is all selected text.
   final SplayTreeMap<int, List<SelectionData>> selections = SplayTreeMap();
 
+  /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
+  int unreadMessages = 0;
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -439,6 +442,8 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      unreadMessages = chat!.chat.value.unreadCount;
+
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
         ChatItem item = e.value;
