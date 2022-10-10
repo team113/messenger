@@ -21,8 +21,8 @@ import 'dart:io';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:intl/intl.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -339,7 +339,7 @@ class _ChatViewState extends State<ChatView>
                                 onHorizontalDragUpdate: c.isTapMessage.value
                                     ? null
                                     : (DragUpdateDetails d) {
-                                        double value =
+                                        final double value =
                                             _animation.value - d.delta.dx / 100;
                                         _animation.value = value.clamp(0, 1);
                                       },

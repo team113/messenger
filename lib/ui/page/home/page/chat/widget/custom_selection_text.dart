@@ -59,7 +59,7 @@ class CustomSelectionText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type != null && selections != null && position != null) {
-      final container = _CustomSelectionContainer(
+      final Widget container = _CustomSelectionContainer(
         selections: selections!,
         position: position!,
         type: type!,

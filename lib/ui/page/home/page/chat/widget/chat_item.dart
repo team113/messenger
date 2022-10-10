@@ -425,7 +425,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           builder: (context, snapshot) {
             final User? user = snapshot.data?.user.value;
 
-            Color color = user?.id == widget.me
+            final Color color = user?.id == widget.me
                 ? const Color(0xFF63B4FF)
                 : AvatarWidget.colors[
                     (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
@@ -854,7 +854,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       future: widget.getUser?.call(item.authorId),
       builder: (context, snapshot) {
         final User? user = snapshot.data?.user.value;
-        Color color = user?.id == widget.me
+        final Color color = user?.id == widget.me
             ? const Color(0xFF63B4FF)
             : AvatarWidget.colors[
                 (user?.num.val.sum() ?? 3) % AvatarWidget.colors.length];
