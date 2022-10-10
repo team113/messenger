@@ -127,6 +127,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               Expanded(
                 child: Text(
                   widget.label,
+                  textAlign: TextAlign.left,
                   style: context.theme.outlinedButtonTheme.style!.textStyle!
                       .resolve({MaterialState.disabled})!.copyWith(
                           color: Colors.black),

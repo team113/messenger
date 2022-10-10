@@ -234,7 +234,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           actions: [
             ContextMenuButton(
               key: const Key('CopyButton'),
-              label: 'btn_copy_text'.l10n,
+              label: 'btn_copy'.l10n,
+              leading: SvgLoader.asset(
+                'assets/icons/copy_small.svg',
+                width: 14.82,
+                height: 17,
+              ),
               onPressed: () => widget.onCopy?.call(text),
             ),
           ],
@@ -1245,7 +1250,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         actions: [
           ContextMenuButton(
             key: const Key('CopyButton'),
-            label: 'btn_copy_text'.l10n,
+            label: 'btn_copy'.l10n,
+            leading: SvgLoader.asset(
+              'assets/icons/copy_small.svg',
+              width: 14.82,
+              height: 17,
+            ),
             onPressed: () => widget.onCopy?.call(messageTime),
           ),
         ],

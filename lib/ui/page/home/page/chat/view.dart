@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/listen_tap.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -52,6 +51,7 @@ import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
 import 'widget/custom_selection_area.dart';
 import 'widget/custom_selection_text.dart';
+import 'widget/listen_tap.dart';
 import 'widget/swipeable_status.dart';
 
 /// View of the [Routes.chat] page.
@@ -102,6 +102,7 @@ class _ChatViewState extends State<ChatView>
         () {
           if (c.status.value.isSuccess) {
             Chat chat = c.chat!.chat.value;
+            int positionIndex = 0;
 
             // Opens [Routes.chatInfo] or [Routes.user] page basing on the
             // [Chat.isGroup] indicator.
@@ -314,12 +315,12 @@ class _ChatViewState extends State<ChatView>
                                     initIndex: c.initIndex,
                                     initOffset: c.initOffset,
                                     initOffsetBasedOnBottom: false,
-                                    onIsPermanent: (String position) {
-                                      if (!c.selections
-                                          .isSelected(int.parse(position))) {
-                                        return false;
+                                    onIsPermanent: (_) {
+                                      if (c.selections
+                                          .isSelected(positionIndex++)) {
+                                        return true;
                                       }
-                                      return true;
+                                      return false;
                                     },
                                   ),
                                 ),
@@ -550,7 +551,12 @@ class _ChatViewState extends State<ChatView>
               actions: [
                 ContextMenuButton(
                   key: const Key('CopyButton'),
-                  label: 'btn_copy_text'.l10n,
+                  label: 'btn_copy'.l10n,
+                  leading: SvgLoader.asset(
+                    'assets/icons/copy_small.svg',
+                    width: 14.82,
+                    height: 17,
+                  ),
                   onPressed: () => onCopy?.call(date),
                 ),
               ],
@@ -561,7 +567,7 @@ class _ChatViewState extends State<ChatView>
                   position: position,
                   type: CopyableItem.date,
                   animation: _animation,
-                  child: Text(DateFormat('dd.MM.yy').format(time)),
+                  child: Text(date),
                 ),
               ),
             ),
@@ -578,7 +584,12 @@ class _ChatViewState extends State<ChatView>
                 actions: [
                   ContextMenuButton(
                     key: const Key('CopyButton'),
-                    label: 'btn_copy_text'.l10n,
+                    label: 'btn_copy'.l10n,
+                    leading: SvgLoader.asset(
+                      'assets/icons/copy_small.svg',
+                      width: 14.82,
+                      height: 17,
+                    ),
                     onPressed: () => onCopy?.call(timeRelative),
                   ),
                 ],

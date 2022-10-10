@@ -128,8 +128,7 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
   @override
   void initState() {
     super.initState();
-    delegate = _SelectableRegionContainerDelegate();
-    delegate.addListener(_selectionChange);
+    delegate = _SelectableRegionContainerDelegate(_selectionChange);
 
     _gestureRecognizers[SerialTapGestureRecognizer] =
         GestureRecognizerFactoryWithHandlers<SerialTapGestureRecognizer>(
@@ -144,7 +143,6 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
           if (details.count == 3) {
             delegate.handleSelectAll(const SelectAllSelectionEvent());
           }
-          _selectionChange();
         };
       },
     );
@@ -162,7 +160,6 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
   void dispose() {
     selectionData.data.close();
     widget.selections.remove(widget.position);
-    delegate.removeListener(_selectionChange);
     delegate.dispose();
     super.dispose();
   }
@@ -181,8 +178,8 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
   /// Writes data to [selectionData.data].
   void _selectionChange() {
     if (widget.animation == null || widget.animation?.isCompleted == true) {
-      final String? oldText = selectionData.data.value;
-      final String? newText = delegate.getSelectedContent()?.plainText;
+      final String oldText = selectionData.data.value ?? '';
+      final String newText = delegate.getSelectedContent()?.plainText ?? '';
       if (oldText != newText) {
         selectionData.data.value = newText;
       }
@@ -195,6 +192,11 @@ class _CustomSelectionContainerState extends State<_CustomSelectionContainer> {
 /// Manage selected text. Taken from Flutter framework.
 class _SelectableRegionContainerDelegate
     extends MultiSelectableSelectionContainerDelegate {
+  _SelectableRegionContainerDelegate(this.builder);
+
+  /// .
+  final void Function() builder;
+
   /// Storage of [Selectable]s on [SelectionEventType.startEdgeUpdate].
   final Set<Selectable> _hasReceivedStartEvent = <Selectable>{};
 
@@ -242,6 +244,7 @@ class _SelectableRegionContainerDelegate
     }
     // Synthesizes last update event so the edge updates continue to work.
     _updateLastEdgeEventsFromGeometries();
+    builder();
     return result;
   }
 
@@ -257,6 +260,7 @@ class _SelectableRegionContainerDelegate
       _hasReceivedEndEvent.add(selectables[currentSelectionEndIndex]);
     }
     _updateLastEdgeEventsFromGeometries();
+    builder();
     return result;
   }
 
@@ -307,6 +311,8 @@ class _SelectableRegionContainerDelegate
       case SelectionEventType.selectWord:
         break;
     }
+    builder();
+
     return super.dispatchSelectionEventToChild(selectable, event);
   }
 
