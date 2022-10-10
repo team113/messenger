@@ -18,6 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -248,8 +249,43 @@ class ChatsTabView extends StatelessWidget {
                           : Container(),
                 ),
               ];
+            } else if (item is ChatMemberInfo) {
+              final Widget content;
+
+              switch (item.action) {
+                case ChatMemberInfoAction.created:
+                  if (chat.isGroup) {
+                    content = Text('label_group_created'.l10n);
+                  } else {
+                    content = Text('label_dialog_created'.l10n);
+                  }
+                  break;
+
+                case ChatMemberInfoAction.added:
+                  content = Text(
+                    'label_was_added'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
+
+                  break;
+
+                case ChatMemberInfoAction.removed:
+                  content = Text(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.artemisUnknown:
+                  content = Text('${item.action}');
+                  break;
+              }
+
+              subtitle = [Flexible(child: content)];
             } else {
-              // TODO: Implement other ChatItems.
+              subtitle = [
+                Flexible(child: Text('label_empty_message'.l10n, maxLines: 2)),
+              ];
             }
           }
         } else {
