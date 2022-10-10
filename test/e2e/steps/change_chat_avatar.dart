@@ -24,7 +24,7 @@ import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Changes chat avatar in chat specified by name.
+/// Changes [Chat.avatar] in a [Chat] identified by the provided [ChatName].
 ///
 /// Examples:
 /// - Then I am change chat avatar

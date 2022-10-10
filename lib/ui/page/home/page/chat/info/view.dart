@@ -104,20 +104,17 @@ class ChatInfoView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns [Chat.avatar] image, change and delete [Chat.avatar] buttons.
+  /// Returns a [Chat.avatar] visual representation along with manipulation
+  /// buttons.
   Widget _avatar(ChatInfoController c) {
-    /// Returns progress indicator, success icon, change or delete [Chat.avatar]
-    /// buttons.
-    Widget avatarWidget() {
-      if (c.avatarStatus.value.isLoading) {
+    // Builds the manipulation buttons with progress indication.
+    Widget buttons() {
+      if (c.avatar.value.isLoading) {
         return const CircularProgressIndicator(
           key: Key('AvatarProgressIndicator'),
         );
-      } else if (c.avatarStatus.value.isSuccess) {
-        return const Center(
-          key: Key('AvatarIcon'),
-          child: Icon(Icons.check),
-        );
+      } else if (c.avatar.value.isSuccess) {
+        return const Center(key: Key('AvatarIcon'), child: Icon(Icons.check));
       } else {
         return Row(
           key: const Key('AvatarRow'),
@@ -138,8 +135,8 @@ class ChatInfoView extends StatelessWidget {
       }
     }
 
-    return Obx(
-      () => _padding(
+    return Obx(() {
+      return _padding(
         Row(
           children: [
             AvatarWidget.fromRxChat(c.chat, radius: 29, fromChatInfoView: true),
@@ -147,33 +144,35 @@ class ChatInfoView extends StatelessWidget {
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
-                transitionBuilder: (Widget child, Animation<double> animation) {
+                transitionBuilder: (child, animation) {
                   return ScaleTransition(scale: animation, child: child);
                 },
-                child: avatarWidget(),
+                child: buttons(),
               ),
             )
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   /// Returns a [Chat.name] editable field.
-  Widget _name(ChatInfoController c) => Obx(
-        () => _padding(
-          ReactiveTextField(
-            key: const Key('RenameChatField'),
-            state: c.chatName,
-            style: const TextStyle(fontSize: 20),
-            suffix: Icons.edit,
-            label: c.chat?.chat.value.name == null
-                ? c.chat?.title.value
-                : 'label_name'.l10n,
-            hint: 'label_name_hint'.l10n,
-          ),
+  Widget _name(ChatInfoController c) {
+    return Obx(() {
+      return _padding(
+        ReactiveTextField(
+          key: const Key('RenameChatField'),
+          state: c.chatName,
+          style: const TextStyle(fontSize: 20),
+          suffix: Icons.edit,
+          label: c.chat?.chat.value.name == null
+              ? c.chat?.title.value
+              : 'label_name'.l10n,
+          hint: 'label_name_hint'.l10n,
         ),
       );
+    });
+  }
 
   /// Returns a [Chat.directLink] editable field.
   Widget _link(BuildContext context, ChatInfoController c) => Obx(

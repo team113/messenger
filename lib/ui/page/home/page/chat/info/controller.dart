@@ -47,6 +47,20 @@ class ChatInfoController extends GetxController {
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
 
+  /// Reactive state of the [Chat] this page is about.
+  RxChat? chat;
+
+  /// Status of the [chat] fetching.
+  ///
+  /// May be:
+  /// - `status.isLoading`, meaning [chat] is being fetched from the service.
+  /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
+  /// - `status.isSuccess`, meaning [chat] is successfully fetched.
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// Status of the [Chat.avatar] upload or removal.
+  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -68,28 +82,14 @@ class ChatInfoController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
   Timer? _linkTimer;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [avatarStatus].
-  Timer? _addAvatarTimer;
+  /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
+  Timer? _avatarTimer;
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
-
-  /// Reactive state of the [Chat] this page is about.
-  RxChat? chat;
-
-  /// Status of the [chat] fetching.
-  ///
-  /// May be:
-  /// - `status.isLoading`, meaning [chat] is being fetched from the service.
-  /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
-  /// - `status.isSuccess`, meaning [chat] is successfully fetched.
-  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
-
-  /// Status of the [Chat.avatar] update.
-  final Rx<RxStatus> avatarStatus = Rx<RxStatus>(RxStatus.empty());
 
   @override
   void onInit() {
@@ -196,6 +196,9 @@ class ChatInfoController extends GetxController {
   @override
   onClose() {
     _worker?.dispose();
+    _nameTimer?.cancel();
+    _linkTimer?.cancel();
+    _avatarTimer?.cancel();
     super.onClose();
   }
 
@@ -307,23 +310,25 @@ class ChatInfoController extends GetxController {
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// null.
   Future<void> updateChatAvatar(PlatformFile? image) async {
+    _avatarTimer?.cancel();
+    avatar.value = RxStatus.loading();
+
     try {
-      _addAvatarTimer?.cancel();
-      avatarStatus.value = RxStatus.loading();
       await _chatService.updateChatAvatar(
         chatId,
         file: image == null ? null : NativeFile.fromPlatformFile(image),
       );
-      avatarStatus.value = RxStatus.success();
+
+      avatar.value = RxStatus.success();
     } on UpdateChatAvatarException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
     } finally {
-      _addAvatarTimer = Timer(
+      _avatarTimer = Timer(
         const Duration(seconds: 1),
-        () => avatarStatus.value = RxStatus.empty(),
+        () => avatar.value = RxStatus.empty(),
       );
     }
   }

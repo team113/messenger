@@ -1005,7 +1005,7 @@ abstract class ChatGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [MyUserEvent] is always produced on success:
+  /// Only the following [ChatEvent]s may be produced on success:
   /// - [EventChatAvatarUpdated] (if [file] argument is specified);
   /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
   ///
@@ -1029,11 +1029,11 @@ abstract class ChatGraphQlMixin {
     if (file == null) {
       final QueryResult result = await client.mutate(
         query,
-        onException: (data) => UpdateChatAvatarException((UpdateChatAvatar$Mutation
-                        .fromJson(data)
-                    .updateChatAvatar
-                as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
-            .code),
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
       );
 
       return UpdateChatAvatar$Mutation.fromJson(result.data!).updateChatAvatar
@@ -1053,15 +1053,15 @@ abstract class ChatGraphQlMixin {
         }),
         options: dio.Options(contentType: 'multipart/form-data'),
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateChatAvatarException((UpdateChatAvatar$Mutation
-                        .fromJson(data)
-                    .updateChatAvatar
-                as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
-            .code),
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
       );
 
-      return (UpdateChatAvatar$Mutation.fromJson(response.data['data'])
-          .updateChatAvatar as ChatEventsVersionedMixin?);
+      return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
+          .updateChatAvatar as ChatEventsVersionedMixin?;
     } on dio.DioError catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(

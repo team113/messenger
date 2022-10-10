@@ -20,7 +20,6 @@ import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
@@ -33,6 +32,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/info/controller.dart';
 
 /// Widget to build an [Avatar].
 ///

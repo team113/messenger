@@ -43,7 +43,7 @@ import 'my_profile_gallery_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/chat_avatar_unit');
-  var byUserData = {
+  var userData = {
     '__typename': 'User',
     'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
     'num': '7461878581615099',
@@ -97,7 +97,7 @@ void main() async {
           'events': [
             {
               'chatId': '123',
-              'byUser': byUserData,
+              'byUser': userData,
               'at': DateTime.now().toString()
             }
           ],
@@ -122,9 +122,9 @@ void main() async {
                 'big': {'relativeRef': ''},
                 'medium': {'relativeRef': ''},
                 'small': {'relativeRef': ''},
-                'original': {'relativeRef': ''}
+                'original': {'relativeRef': ''},
               },
-              'byUser': byUserData,
+              'byUser': userData,
               'at': DateTime.now().toString()
             }
           ],

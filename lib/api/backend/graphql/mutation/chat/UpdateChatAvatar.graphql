@@ -3,7 +3,11 @@ mutation UpdateChatAvatar(
     $file: Upload
     $crop: CropAreaInput
 ) {
-    updateChatAvatar(chatId: $chatId, file: $file, crop: $crop) {
+    updateChatAvatar(
+        chatId: $chatId
+        file: $file
+        crop: $crop
+    ) {
         __typename
         ... on ChatEventsVersioned {
             ...ChatEventsVersioned

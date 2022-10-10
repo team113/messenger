@@ -41,10 +41,10 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   },
 );
 
-/// Routes the [router] to the [Chat]-group page with the provided chat name.
+/// Routes the [router] to the [Chat]-group page with the provided name.
 ///
 /// Examples:
-/// - Given I am in chat 'Chat name'
+/// - Given I am in chat "Example"
 final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
   'I am in chat {string}',
   (String chatName, context) async {

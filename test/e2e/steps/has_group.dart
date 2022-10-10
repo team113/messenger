@@ -24,22 +24,24 @@ import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Creates a [Chat]-group of the provided [User] with the authenticated
-/// [MyUser] with specified chat name.
+/// [MyUser] and specified [ChatName].
 ///
 /// Examples:
 /// - Given I am in group "Chat name" with Bob.
 final StepDefinitionGeneric inGroupWithUserWithName =
     given2<String, TestUser, CustomWorld>(
   'I am in group {string} with {user}',
-  (String chatName, TestUser user, context) async {
+  (String name, TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
+
     var chat = await provider.createGroupChat(
       [authService.credentials.value!.userId],
-      name: ChatName(chatName),
+      name: ChatName(name),
     );
-    context.world.groups[chatName] = chat.id;
+
+    context.world.groups[name] = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
