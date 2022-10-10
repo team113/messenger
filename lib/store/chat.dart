@@ -373,6 +373,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatMessage(message.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -401,6 +405,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatForward(forward.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -426,6 +434,10 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChatItem(id);
+
+      if (item != null) {
+        chat?.remove(item.value.id, item.value.timestamp);
+      }
     } catch (_) {
       if (item != null) {
         chat?.messages.insertAfter(

@@ -57,4 +57,9 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setSideBarWidth(double width) =>
       putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+
+  /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
+  /// [Hive].
+  Future<void> setCallButtons(List<String> buttons) =>
+      putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
 }
