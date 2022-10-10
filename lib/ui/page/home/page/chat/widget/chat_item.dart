@@ -244,7 +244,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatMemberInfo() {
     final Style style = Theme.of(context).extension<Style>()!;
     final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
-
     final Widget content;
 
     switch (message.action) {
@@ -276,7 +275,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     final bool isSent = widget.item.value.status.value == SendingStatus.sent;
-
     final String text = '${message.action}';
 
     return Padding(
@@ -322,7 +320,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     selections: widget.selections,
                     position: widget.position,
                     type: CopyableItem.message,
-                    child: Text(text),
+                    child: content,
                   ),
                 ),
               ),
@@ -407,35 +405,51 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             : 'label_incoming_call'.l10n;
       }
 
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
+      textTime = ' $time';
+      if (time != null) {
+        _copyable[CopyableItem.messageForward.index] = '$title$textTime';
+      } else {
+        _copyable[CopyableItem.messageForward.index] = title;
+      }
+
+      content = ListenTap(
+        isTap: widget.isTapMessage,
+        child: CustomSelectionText(
+          selections: widget.selections,
+          position: widget.position,
+          type: CopyableItem.message,
+          isIgnoreSelectionCursor: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
+                child: item.withVideo
+                    ? SvgLoader.asset(
+                        'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 13,
+                      )
+                    : SvgLoader.asset(
+                        'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
+                        height: 15,
+                      ),
               ),
-            ),
-          ],
-        ],
+              Flexible(child: Text(title)),
+              if (time != null) ...[
+                const SizedBox(width: 7),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 1),
+                  child: Text(
+                    textTime,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.boldBody,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       );
     } else if (item is ChatMemberInfo) {
       final String text = item.action.toString();
@@ -1277,20 +1291,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
     ChatItem item = widget.item.value;
-
-    bool isRead = false;
-    if (_fromMe) {
-      isRead = widget.chat.value?.lastReads.firstWhereOrNull(
-              (e) => e.memberId != widget.me && !e.at.isBefore(item.at)) !=
-          null;
-    } else {
-      isRead = widget.chat.value?.lastReads
-              .firstWhereOrNull((e) => e.memberId == widget.me)
-              ?.at
-              .isBefore(item.at) ==
-          false;
-    }
-
     bool isSent = item.status.value == SendingStatus.sent;
     final String messageTime = DateFormat.Hm().format(item.at.val.toLocal());
 
