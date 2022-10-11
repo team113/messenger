@@ -42,7 +42,7 @@ final StepDefinitionGeneric waitUntilImage =
                     .findByKeySkipOffstage('RetryImageLoaded'),
               );
       },
-      pollInterval: const Duration(milliseconds: 5),
+      pollInterval: const Duration(milliseconds: 1),
       timeout: const Duration(seconds: 60),
     );
   },

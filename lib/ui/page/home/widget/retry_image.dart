@@ -51,11 +51,8 @@ class _RetryImageState extends State<RetryImage> {
   /// [Timer] of backOff loading image.
   Timer? _timer;
 
-  /// Indicator whether image was loaded or not.
-  bool _loaded = false;
-
   /// [Uint8List] image bytes.
-  late Uint8List _image;
+  Uint8List? _image;
 
   /// Image download progress.
   double _progress = 0;
@@ -76,9 +73,9 @@ class _RetryImageState extends State<RetryImage> {
   }
 
   @override
-  Widget build(BuildContext context) => _loaded
+  Widget build(BuildContext context) => _image != null
       ? Image.memory(
-          _image,
+          _image!,
           height: widget.height,
           fit: widget.fit,
           key: const Key('RetryImageLoaded'),
@@ -126,10 +123,7 @@ class _RetryImageState extends State<RetryImage> {
 
     if (data?.statusCode == 403) {
       widget.error403?.call();
-    }
-
-    if (data?.data != null && data!.statusCode == 200) {
-      _loaded = true;
+    } else if (data?.data != null && data!.statusCode == 200) {
       _image = data.data;
       if (mounted) {
         setState(() {});

@@ -6,7 +6,7 @@ Feature: Trying to load chat images
     And Bob has dialog with me
 
   Scenario: Try to load image when i'm open chat
-    When Bob sends image to me
+    And Bob sends image to me
     And I am in chat with Bob without waiting for chat loading
 
     Then I wait until image is loading
@@ -14,7 +14,7 @@ Feature: Trying to load chat images
 
 
   Scenario: Try to load image when i'm in chat
-    When I am in chat with Bob without waiting for chat loading
+    When I am in chat with Bob
     And Bob sends image to me
 
     Then I wait until image is loading
