@@ -34,6 +34,7 @@ import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
 import 'parameters/online_status.dart';
+import 'parameters/retry_image.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
@@ -45,6 +46,7 @@ import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/restart_app.dart';
+import 'steps/retry_image.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
@@ -81,7 +83,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatWith,
         longPressMessageByAttachment,
         longPressMessageByText,
-        backToPreviousPage,
         longPressWidget,
         noInternetConnection,
         pasteToField,
@@ -89,6 +90,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         seesAs,
         sendsAttachmentToMe,
+        sendsImageToMe,
         sendsMessageToMe,
         signInAs,
         tapDropdownItem,
@@ -101,6 +103,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         user,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
+        waitUntilImage,
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
@@ -124,6 +127,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
         OnlineStatusParameter(),
+        RetryImageParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),

@@ -20,28 +20,31 @@ import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../parameters/retry_image.dart';
 
 /// Waits until the provided [WidgetKey] is present or absent.
 ///
 /// Examples:
-/// - Then I wait until `WidgetKey` is absent
-/// - Then I wait until `WidgetKey` is present
-final StepDefinitionGeneric waitUntilKeyExists =
-    then2<WidgetKey, Existence, FlutterWorld>(
-  'I wait until {key} is {existence}',
-  (key, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              );
-      },
-    );
-  },
-);
+/// - Then I wait until image is loading
+/// - Then I wait until image is loaded
+final StepDefinitionGeneric waitUntilImage =
+    then1<RetryImageStatuses, FlutterWorld>(
+        'I wait until image is {retry_status}', (status, context) async {
+  await context.world.appDriver.waitForAppToSettle();
+  await context.world.appDriver.waitUntil(
+    () async {
+      return status == RetryImageStatuses.loading
+          ? context.world.appDriver.isPresent(
+              context.world.appDriver
+                  .findByKeySkipOffstage('RetryImageLoading'),
+            )
+          : context.world.appDriver.isPresent(
+              context.world.appDriver.findByKeySkipOffstage('RetryImageLoaded'),
+            );
+    },
+    pollInterval: const Duration(milliseconds: 10),
+    timeout: const Duration(seconds: 60),
+  );
+},
+        configuration: StepDefinitionConfiguration()
+          ..timeout = const Duration(seconds: 60));

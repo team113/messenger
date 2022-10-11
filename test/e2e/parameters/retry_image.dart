@@ -15,18 +15,19 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/routes.dart';
 
-import '../parameters/users.dart';
-import '../world/custom_world.dart';
+/// [OnlineStatus]es available in an [OnlineStatusParameter].
+enum RetryImageStatuses { loading, loaded }
 
-/// Routes the [RouterState] to the provided [TestUser]'s page.
-final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
-  "I go to {user}'s page",
-  (TestUser user, context) async {
-    router.user(context.world.sessions[user.name]!.userId);
-    await context.world.appDriver.waitForAppToSettle();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+/// [CustomParameter] representing an [User.online] status.
+class RetryImageParameter extends CustomParameter<RetryImageStatuses> {
+  RetryImageParameter()
+      : super(
+          'retry_status',
+          RegExp(
+            '(${RetryImageStatuses.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
+          ),
+          (c) => RetryImageStatuses.values.firstWhere((e) => e.name == c),
+        );
+}

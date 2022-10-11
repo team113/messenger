@@ -797,6 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           )
                     : RetryImage(
                         '${Config.files}${e.original.relativeRef}',
+                        key: _galleryKeys[i],
                         fit: BoxFit.cover,
                         height: 300,
                         error403: widget.onAttachmentError?.call,
