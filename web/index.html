@@ -132,6 +132,17 @@
         }
       });
     }
+
+bool visible = true;
+    function handleVisibilityChange() {
+  if (document.visibilityState === "hidden") {
+    visible = false;
+  } else {
+    visible = true;
+  }
+}
+
+document.addEventListener("visibilitychange", handleVisibilityChange, false);
   </script>
 </head>
 <body>

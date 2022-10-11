@@ -97,6 +97,14 @@ class CallWorker extends DisposableService {
     _initBackgroundService();
     _initWebUtils();
 
+    WebUtils.onVisibleChanged.listen((b) {
+      if (b) {
+        print('show');
+      } else {
+        print('hidden');
+      }
+    });
+
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock) {
       Wakelock.enable().onError((_, __) => false);
