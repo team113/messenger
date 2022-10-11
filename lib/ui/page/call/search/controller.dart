@@ -245,8 +245,6 @@ class SearchController extends GetxController {
         });
 
         populate();
-
-        searchStatus.value = RxStatus.success();
       } else {
         searchStatus.value = RxStatus.empty();
         searchResults.value = null;
@@ -327,7 +325,10 @@ class SearchController extends GetxController {
             if (chat?.members.containsKey(user?.id) != true &&
                 !recent.containsKey(user?.id)) {
               if (query.value != null) {
-                if (e.contact.value.name.val.contains(query.value!) == true) {
+                if (e.contact.value.name.val
+                        .toLowerCase()
+                        .contains(query.value!.toLowerCase()) ==
+                    true) {
                   return true;
                 }
               } else {
@@ -346,7 +347,10 @@ class SearchController extends GetxController {
           if (!recent.containsKey(e.id) &&
               !allContacts.containsKey(e.user.value!.id)) {
             if (query.value != null) {
-              if (e.contact.value.name.val.contains(query.value!) == true) {
+              if (e.contact.value.name.val
+                      .toLowerCase()
+                      .contains(query.value!.toLowerCase()) ==
+                  true) {
                 return true;
               }
             } else {
@@ -379,7 +383,10 @@ class SearchController extends GetxController {
         users.value = {
           for (var u in selectedUsers.where((e) {
             if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-              if (e.user.value.name?.val.contains(query.value!) == true) {
+              if (e.user.value.name?.val
+                      .toLowerCase()
+                      .contains(query.value!.toLowerCase()) ==
+                  true) {
                 return true;
               }
             }
@@ -400,7 +407,9 @@ class SearchController extends GetxController {
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id)) {
                 if (query.value != null) {
-                  if (user?.user.value.name?.val.contains(query.value!) ==
+                  if (user?.user.value.name?.val
+                          .toLowerCase()
+                          .contains(query.value!.toLowerCase()) ==
                       true) {
                     return user;
                   }
@@ -419,7 +428,10 @@ class SearchController extends GetxController {
           for (var u in selectedUsers.where((e) {
             if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
               if (query.value != null) {
-                if (e.user.value.name?.val.contains(query.value!) == true) {
+                if (e.user.value.name?.val
+                        .toLowerCase()
+                        .contains(query.value!.toLowerCase()) ==
+                    true) {
                   return true;
                 }
               } else {

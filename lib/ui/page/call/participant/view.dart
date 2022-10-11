@@ -27,6 +27,8 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -272,45 +274,60 @@ class ParticipantView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [user].
   Widget _user(ParticipantController c, RxUser user) {
-    return ContactTile(
-      user: user,
-      onTap: () {},
-      trailing: [
-        Obx(() {
-          bool inCall = call.value.members.keys
-              .where((e) => e.userId == user.id)
-              .isNotEmpty;
+    return ContextMenuRegion(
+      enabled: user.id != c.me,
+      actions: [
+        ContextMenuButton(
+          label: 'btn_remove'.l10n,
+          onPressed: () => c.removeChatMember(user.id),
+          leading: SvgLoader.asset(
+            'assets/icons/delete_small.svg',
+            width: 17.75,
+            height: 17,
+          ),
+        ),
+      ],
+      moveDownwards: false,
+      child: ContactTile(
+        user: user,
+        onTap: () {},
+        trailing: [
+          Obx(() {
+            bool inCall = call.value.members.keys
+                .where((e) => e.userId == user.id)
+                .isNotEmpty;
 
-          if (!inCall) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Material(
-                color: const Color(0xFF63B4FF),
-                type: MaterialType.circle,
-                child: InkWell(
-                  onTap: () {
-                    // TODO: Redial the provided [user].
-                  },
-                  borderRadius: BorderRadius.circular(60),
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Center(
-                      child: SvgLoader.asset(
-                        'assets/icons/audio_call_start.svg',
-                        width: 13,
-                        height: 13,
+            if (!inCall) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Material(
+                  color: const Color(0xFF63B4FF),
+                  type: MaterialType.circle,
+                  child: InkWell(
+                    onTap: () {
+                      // TODO: Redial the provided [user].
+                    },
+                    borderRadius: BorderRadius.circular(60),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Center(
+                        child: SvgLoader.asset(
+                          'assets/icons/audio_call_start.svg',
+                          width: 13,
+                          height: 13,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }
+              );
+            }
 
-          return Container();
-        }),
-      ],
+            return Container();
+          }),
+        ],
+      ),
     );
   }
 }

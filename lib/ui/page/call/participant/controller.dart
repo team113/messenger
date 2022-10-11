@@ -26,7 +26,10 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show AddChatMemberException, TransformDialogCallIntoGroupCallException;
+    show
+        AddChatMemberException,
+        RemoveChatMemberException,
+        TransformDialogCallIntoGroupCallException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import 'view.dart';
@@ -88,6 +91,9 @@ class ParticipantController extends GetxController {
   /// ID of the [Chat] this modal is bound to.
   Rx<ChatId> get chatId => _call.value.chatId;
 
+  /// Returns [MyUser]'s [UserId].
+  UserId? get me => _chatService.me;
+
   @override
   void onInit() {
     _chatsSubscription = _chatService.chats.changes.listen((e) {
@@ -130,6 +136,21 @@ class ParticipantController extends GetxController {
     _stateWorker?.dispose();
     _chatWorker?.dispose();
     super.onClose();
+  }
+
+  /// Removes [User] identified by the provided [userId] from the [chat].
+  Future<void> removeChatMember(UserId userId) async {
+    try {
+      await _chatService.removeChatMember(chatId.value, userId);
+      if (userId == me) {
+        pop?.call();
+      }
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
