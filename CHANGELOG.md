@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned participants modal. ([#127], [#122])
         - Dock buttons persistence. ([#159], [#137])
-        
+
 ### Changed
 
 - UI:
