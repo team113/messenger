@@ -19,9 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Backoff retry failed images. ([#164], [#126])
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned system messages. ([#161], [#158])
+
 [#126]: /../../issues/126
 [#137]: /../../issues/137
+[#158]: /../../issues/158
 [#159]: /../../pull/159
+[#161]: /../../pull/161
 [#164]: /../../pull/164
 
 
