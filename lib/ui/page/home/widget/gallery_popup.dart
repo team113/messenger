@@ -96,6 +96,7 @@ class GalleryPopup extends StatefulWidget {
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
+    this.onTrashPressed,
   }) : super(key: key);
 
   /// [List] of [GalleryItem]s to display in a gallery.
@@ -109,6 +110,10 @@ class GalleryPopup extends StatefulWidget {
 
   /// Callback, called when the displayed [GalleryItem] is changed.
   final void Function(int)? onPageChanged;
+
+  /// Callback, called when a remove action of the current [GalleryItem] is
+  /// triggered.
+  final void Function(int index)? onTrashPressed;
 
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
@@ -675,6 +680,29 @@ class _GalleryPopupState extends State<GalleryPopup>
           ),
         ),
       ]);
+    }
+
+    if (widget.onTrashPressed != null) {
+      widgets.add(Align(
+        alignment: Alignment.topLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8, top: 8),
+          child: SizedBox(
+            width: 60,
+            height: 60,
+            child: RoundFloatingButton(
+              color: const Color(0x794E5A78),
+              onPressed: () {
+                widget.onTrashPressed?.call(_page);
+                _dismiss();
+              },
+              withBlur: true,
+              assetWidth: 27.21,
+              asset: 'delete',
+            ),
+          ),
+        ),
+      ));
     }
 
     return widgets;

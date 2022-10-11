@@ -49,7 +49,9 @@ class ChatForwardController extends GetxController {
     this._userService, {
     required this.from,
     required this.quotes,
-  });
+    this.text,
+    RxList<Attachment>? attachments,
+  }) : attachments = attachments ?? RxList();
 
   /// Reactive list of the sorted [Chat]s.
   late final RxList<RxChat> chats;
@@ -60,6 +62,9 @@ class ChatForwardController extends GetxController {
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
+  /// Initial text ot the [send].
+  final String? text;
+
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
@@ -67,7 +72,7 @@ class ChatForwardController extends GetxController {
   late final TextFieldState send;
 
   /// [Attachment]s to attach to the [quotes].
-  final RxList<Attachment> attachments = RxList();
+  final RxList<Attachment> attachments;
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;

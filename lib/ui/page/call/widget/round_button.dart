@@ -35,6 +35,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.color = const Color(0x794E5A78),
     this.hint,
     this.withBlur = false,
+    this.textStyle,
     this.child,
   }) : super(key: key);
 
@@ -63,6 +64,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
+
+  /// Optional [TextStyle] of the [text].
+  final TextStyle? textStyle;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -143,10 +147,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               Text(
                 widget.text!,
                 textAlign: TextAlign.center,
-                style: context.textTheme.caption?.copyWith(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
+                style: widget.textStyle ??
+                    context.textTheme.caption?.copyWith(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
                 maxLines: 2,
               ),
             ],

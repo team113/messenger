@@ -61,6 +61,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/obs/rxsplay.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -115,6 +116,9 @@ class ChatController extends GetxController {
   /// [ChatItem] being quoted to reply onto.
   final RxList<ChatItem> repliedMessages = RxList();
 
+  /// Indicator whether forwarding mode is enabled.
+  final RxBool forwarding = RxBool(false);
+
   /// State of an edit message field.
   TextFieldState? edit;
 
@@ -140,8 +144,20 @@ class ChatController extends GetxController {
   /// Indicates currently ongoing horizontal scroll of a view.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
 
+  /// [GlobalKey] of the bottom bar.
+  final GlobalKey bottomBarKey = GlobalKey();
+
+  /// Global [Rect] of the bottom bar.
+  final Rx<Rect?> bottomBarRect = Rx(null);
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
+
+  /// [Attachment] being hovered.
+  final Rx<Attachment?> hoveredAttachment = Rx(null);
+
+  /// Replied [ChatItem] being hovered.
+  final Rx<ChatItem?> hoveredReply = Rx(null);
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
@@ -332,6 +348,10 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
+  /// Returns indicator whether call placed in this [chat] is showed.
+  bool isInCall() =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
+
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) =>
@@ -339,6 +359,9 @@ class ChatController extends GetxController {
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);
+
+  /// Drops the call in the [Chat] identified by the [id].
+  Future<void> dropCall() => _callService.leave(id);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {

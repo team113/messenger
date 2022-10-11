@@ -44,6 +44,12 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardBlur: 5,
+            cardBorder: Border.all(
+              color: const Color(0xFFEBEBEB),
+              width: 0.5,
+            ),
+            cardColor: Colors.white.withOpacity(0.95),
             cardRadius: BorderRadius.circular(14),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
@@ -78,14 +84,17 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
+              titleTextStyle: GoogleFonts.roboto(
+                color: Colors.black,
+                fontWeight: FontWeight.w300,
+                fontSize: 18,
+              ),
             ),
         tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: ThemeData.light()
-            .primaryTextTheme
-            .copyWith(headline6: TextStyle(color: colors.primary)),
+        primaryTextTheme: GoogleFonts.robotoTextTheme(),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
@@ -262,6 +271,9 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.barrierColor,
     required this.boldBody,
+    required this.cardBlur,
+    required this.cardBorder,
+    required this.cardColor,
     required this.cardRadius,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
@@ -277,6 +289,15 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// Blur to use in card-like [Widget]s.
+  final double cardBlur;
+
+  /// [Border] to use in card-like [Widget]s.
+  final Border cardBorder;
+
+  /// Background [Color] to use in card-like [Widget]s.
+  final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
@@ -306,6 +327,9 @@ class Style extends ThemeExtension<Style> {
   ThemeExtension<Style> copyWith({
     Color? barrierColor,
     TextStyle? boldBody,
+    double? cardBlur,
+    Border? cardBorder,
+    Color? cardColor,
     BorderRadius? cardRadius,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
@@ -318,6 +342,9 @@ class Style extends ThemeExtension<Style> {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
+      cardBlur: cardBlur ?? this.cardBlur,
+      cardBorder: cardBorder ?? this.cardBorder,
+      cardColor: cardColor ?? this.cardColor,
       cardRadius: cardRadius ?? this.cardRadius,
       contextMenuBackgroundColor:
           contextMenuBackgroundColor ?? this.contextMenuBackgroundColor,
@@ -340,6 +367,9 @@ class Style extends ThemeExtension<Style> {
     return Style(
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
+      cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
+      cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       contextMenuBackgroundColor: Color.lerp(
         contextMenuBackgroundColor,

@@ -16,28 +16,31 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/widget/widget_button.dart';
+/// Simple [GestureDetector]-based button without any decorations.
+class WidgetButton extends StatelessWidget {
+  const WidgetButton({
+    Key? key,
+    required this.child,
+    this.onPressed,
+  }) : super(key: key);
 
-/// Custom styled [BackButton].
-class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({Key? key}) : super(key: key);
+  /// [Widget] to press.
+  final Widget child;
+
+  /// Callback, called when the [child] is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    if (ModalRoute.of(context)?.canPop == true) {
-      return WidgetButton(
-        onPressed: () => Navigator.maybePop(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Theme.of(context).colorScheme.secondary,
-            size: 22,
-          ),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          color: Colors.transparent,
+          child: child,
         ),
-      );
-    } else {
-      return const SizedBox(width: 30);
-    }
+      ),
+    );
   }
 }

@@ -16,10 +16,14 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:intl/intl.dart';
@@ -30,24 +34,35 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/animated_dots.dart';
+import '/ui/page/call/widget/animated_delayed_scale.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/round_button.dart';
+import '/ui/page/home/widget/animated_typing.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'widget/animated_fab.dart';
+import 'forward/view.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_item.dart';
+import 'widget/my_dismissible.dart';
 import 'widget/swipeable_status.dart';
+import 'widget/video_thumbnail/video_thumbnail.dart';
 
 /// View of the [Routes.chat] page.
 class ChatView extends StatefulWidget {
