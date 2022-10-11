@@ -58,7 +58,7 @@ class _RetryImageState extends State<RetryImage> {
   double _progress = 0;
 
   /// Duration of backOff loading image.
-  int _reconnectPeriodMillis = 500 ~/ 2;
+  int _reconnectPeriodMillis = 250;
 
   @override
   void initState() {
