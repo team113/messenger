@@ -28,21 +28,24 @@ import '../parameters/retry_image.dart';
 /// - Then I wait until image is loaded
 final StepDefinitionGeneric waitUntilImage =
     then1<RetryImageStatus, FlutterWorld>(
-        'I wait until image is {retry_status}', (status, context) async {
-  await context.world.appDriver.waitUntil(
-    () async {
-      return status == RetryImageStatus.loading
-          ? context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('RetryImageLoading'),
-            )
-          : context.world.appDriver.isPresent(
-              context.world.appDriver.findByKeySkipOffstage('RetryImageLoaded'),
-            );
-    },
-    pollInterval: const Duration(milliseconds: 5),
-    timeout: const Duration(seconds: 60),
-  );
-},
-        configuration: StepDefinitionConfiguration()
-          ..timeout = const Duration(seconds: 60));
+  'I wait until image is {retry_status}',
+  (status, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        return status == RetryImageStatus.loading
+            ? context.world.appDriver.isPresent(
+                context.world.appDriver
+                    .findByKeySkipOffstage('RetryImageLoading'),
+              )
+            : context.world.appDriver.isPresent(
+                context.world.appDriver
+                    .findByKeySkipOffstage('RetryImageLoaded'),
+              );
+      },
+      pollInterval: const Duration(milliseconds: 5),
+      timeout: const Duration(seconds: 60),
+    );
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 60),
+);

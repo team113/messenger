@@ -97,7 +97,9 @@ class _RetryImageState extends State<RetryImage> {
         onReceiveProgress: (received, total) {
           if (total != -1) {
             _progress = received / total;
-            setState(() {});
+            if (mounted) {
+              setState(() {});
+            }
           }
         },
         options: Options(responseType: ResponseType.bytes),
@@ -119,11 +121,14 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    _timer = Timer(Duration(milliseconds: _reconnectPeriodMillis), () {
-      if (_reconnectPeriodMillis < 32000) {
-        _reconnectPeriodMillis *= 2;
-      }
-      _loadImage();
-    });
+    _timer = Timer(
+      Duration(milliseconds: _reconnectPeriodMillis),
+      () {
+        if (_reconnectPeriodMillis < 32000) {
+          _reconnectPeriodMillis *= 2;
+        }
+        _loadImage();
+      },
+    );
   }
 }
