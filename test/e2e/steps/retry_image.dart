@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
@@ -28,12 +27,11 @@ import '../parameters/retry_image.dart';
 /// - Then I wait until image is loading
 /// - Then I wait until image is loaded
 final StepDefinitionGeneric waitUntilImage =
-    then1<RetryImageStatuses, FlutterWorld>(
+    then1<RetryImageStatus, FlutterWorld>(
         'I wait until image is {retry_status}', (status, context) async {
-  await context.world.appDriver.waitForAppToSettle();
   await context.world.appDriver.waitUntil(
     () async {
-      return status == RetryImageStatuses.loading
+      return status == RetryImageStatus.loading
           ? context.world.appDriver.isPresent(
               context.world.appDriver
                   .findByKeySkipOffstage('RetryImageLoading'),
@@ -42,7 +40,7 @@ final StepDefinitionGeneric waitUntilImage =
               context.world.appDriver.findByKeySkipOffstage('RetryImageLoaded'),
             );
     },
-    pollInterval: const Duration(milliseconds: 10),
+    pollInterval: const Duration(milliseconds: 5),
     timeout: const Duration(seconds: 60),
   );
 },

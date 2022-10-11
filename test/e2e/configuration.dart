@@ -81,6 +81,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveInternetWithoutDelay,
         iAm,
         iAmInChatWith,
+        iAmInChatWithWithoutWaiting,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,

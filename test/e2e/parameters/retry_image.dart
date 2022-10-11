@@ -16,18 +16,18 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [OnlineStatus]es available in an [OnlineStatusParameter].
-enum RetryImageStatuses { loading, loaded }
+/// [RetryImageStatus]es available in an [RetryImageParameter].
+enum RetryImageStatus { loading, loaded }
 
-/// [CustomParameter] representing an [User.online] status.
-class RetryImageParameter extends CustomParameter<RetryImageStatuses> {
+/// [CustomParameter] representing an image loading status.
+class RetryImageParameter extends CustomParameter<RetryImageStatus> {
   RetryImageParameter()
       : super(
           'retry_status',
           RegExp(
-            '(${RetryImageStatuses.values.map((e) => e.name).join('|')})',
+            '(${RetryImageStatus.values.map((e) => e.name).join('|')})',
             caseSensitive: false,
           ),
-          (c) => RetryImageStatuses.values.firstWhere((e) => e.name == c),
+          (c) => RetryImageStatus.values.firstWhere((e) => e.name == c),
         );
 }
