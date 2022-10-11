@@ -16,9 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
+    - Chat page:
+        - Backoff retry failed images. ([#164], [#126])
 
+[#126]: /../../issues/126
 [#137]: /../../issues/137
 [#159]: /../../pull/159
+[#164]: /../../pull/164
 
 
 
