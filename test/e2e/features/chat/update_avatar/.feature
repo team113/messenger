@@ -19,15 +19,15 @@ Feature: Chat avatar update and remove
   Background: User is in group chat with Bob
     Given I am Alice
     And user Bob
-    And I am in group "Alice and Bob" with Bob
-    And I am in chat "Alice and Bob"
+    And I have "Alice and Bob" group with Bob
+    And I am in "Alice and Bob" chat
+    And I open chat's info
 
   Scenario: User change chat avatar and delete it
-    When I open chat's info page
-    Then I wait until `AvatarTextKey` is present
+    Then I wait until text "AA" is present within the `ChatInfoAvatarRow`
 
-    When I am change chat avatar
-    Then I wait until `AvatarTextKey` is absent
+    When I update chat avatar with "test.jpg"
+    Then I wait until text "AA" is absent within the `ChatInfoAvatarRow`
 
     When I tap `DeleteAvatar` button
-    Then I wait until `AvatarTextKey` is present
+    Then I wait until text "AA" is present within the `ChatInfoAvatarRow`

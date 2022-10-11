@@ -32,7 +32,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/info/controller.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -50,7 +49,6 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.fromChatInfoView = false,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -223,7 +221,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool fromChatInfoView = false,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -247,7 +244,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        fromChatInfoView: fromChatInfoView,
       );
     });
   }
@@ -299,9 +295,6 @@ class AvatarWidget extends StatelessWidget {
   ///
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
-
-  /// Indicator whether widget called from [ChatInfoView] page.
-  final bool fromChatInfoView;
 
   /// Avatar color swatches.
   static const List<Color> colors = [
@@ -409,9 +402,6 @@ class AvatarWidget extends StatelessWidget {
           ),
           child: avatar == null
               ? Center(
-                  key: fromChatInfoView
-                      ? const Key('AvatarTextKey')
-                      : UniqueKey(),
                   child: Text(
                     (title ?? '??').initials(),
                     style: Theme.of(context).textTheme.headline4?.copyWith(

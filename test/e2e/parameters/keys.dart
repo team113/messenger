@@ -29,6 +29,7 @@ enum WidgetKey {
   ChangePasswordButton,
   ChatDirectLinkExpandable,
   ChatForwardView,
+  ChatInfoAvatarRow,
   ChatMessage,
   ChatsButton,
   ChatsTab,

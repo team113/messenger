@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
     - Chat page:
-        - ChatAvatar uploading and deleting. ([#163], [#146])
+        - Chat avatar uploading and deleting. ([#163], [#146])
 
 ### Changed
 
@@ -26,10 +26,10 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned system messages. ([#161], [#158])
 
 [#137]: /../../issues/137
+[#146]: /../../issues/146
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
-[#146]: /../../issues/146
 [#163]: /../../pull/163
 
 

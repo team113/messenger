@@ -24,15 +24,15 @@ import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Changes [Chat.avatar] in a [Chat] identified by the provided [ChatName].
+/// Changes [Chat.avatar] in a [Chat].
 ///
 /// Examples:
-/// - Then I am change chat avatar
-final StepDefinitionGeneric changeChatAvatar = then<CustomWorld>(
-  'I am change chat avatar',
-  (context) async {
+/// - Then I update chat avatar with "file name"
+final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
+  'I update chat avatar with {string}',
+  (fileName, context) async {
     final PlatformFile image = PlatformFile(
-      name: 'test',
+      name: fileName,
       size: 2,
       bytes: base64Decode(
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',

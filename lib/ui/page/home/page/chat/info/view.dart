@@ -138,8 +138,9 @@ class ChatInfoView extends StatelessWidget {
     return Obx(() {
       return _padding(
         Row(
+          key: const Key('ChatInfoAvatarRow'),
           children: [
-            AvatarWidget.fromRxChat(c.chat, radius: 29, fromChatInfoView: true),
+            AvatarWidget.fromRxChat(c.chat, radius: 29),
             const SizedBox(width: 10),
             Expanded(
               child: AnimatedSwitcher(

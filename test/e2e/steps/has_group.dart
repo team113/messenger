@@ -27,10 +27,10 @@ import '../world/custom_world.dart';
 /// [MyUser] and specified [ChatName].
 ///
 /// Examples:
-/// - Given I am in group "Chat name" with Bob.
+/// - Given I have "Chat name" group with Bob.
 final StepDefinitionGeneric inGroupWithUserWithName =
     given2<String, TestUser, CustomWorld>(
-  'I am in group {string} with {user}',
+  'I have {string} group with {user}',
   (String name, TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();

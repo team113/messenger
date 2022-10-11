@@ -320,16 +320,17 @@ class ChatInfoController extends GetxController {
       );
 
       avatar.value = RxStatus.success();
-    } on UpdateChatAvatarException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
       _avatarTimer = Timer(
         const Duration(seconds: 1),
         () => avatar.value = RxStatus.empty(),
       );
+    } on UpdateChatAvatarException catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+    } catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

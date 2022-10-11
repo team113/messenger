@@ -15,31 +15,33 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:get/get.dart';
+import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
-import '../world/custom_world.dart';
+import '../parameters/keys.dart';
 
-/// Routes to chat's info page.
+/// Waits until the provided text is present or absent within widget.
 ///
 /// Examples:
-/// - Then I open chat's info
-final StepDefinitionGeneric openChatsInfoPage = then<CustomWorld>(
-  'I open chat\'s info',
-  (context) async {
-    final controller =
-        Get.find<ChatController>(tag: router.route.split('/').last);
-    router.chatInfo(controller.id);
-
+/// - Then I wait until text "Dummy" is absent within the `WidgetKey`
+/// - Then I wait until text "Dummy" is present within the `WidgetKey`
+final StepDefinitionGeneric untilTextExistsWithin =
+    then3<String, Existence, WidgetKey, FlutterWorld>(
+  'I wait until text {string} is {existence} within the {key}',
+  (text, existence, key, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatInfo', FindType.key),
+        var finder = context.world.appDriver.findByDescendant(
+          context.world.appDriver.findBy(key.name, FindType.key),
+          context.world.appDriver.findBy(text, FindType.text),
+          firstMatchOnly: true,
         );
+        return existence == Existence.absent
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );
