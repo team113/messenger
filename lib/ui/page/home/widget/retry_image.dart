@@ -36,7 +36,7 @@ class RetryImage extends StatefulWidget {
   /// Callback called when url loading was failed with error code 403.
   final VoidCallback? error403;
 
-  /// BoxFit of image.
+  /// [BoxFit] of image.
   final BoxFit? fit;
 
   /// Height of image.
@@ -57,7 +57,7 @@ class _RetryImageState extends State<RetryImage> {
   /// Image download progress.
   double _progress = 0;
 
-  /// Duration of backOff loading image.
+  /// [Duration] of backOff loading image.
   int _reconnectPeriodMillis = 250;
 
   @override
