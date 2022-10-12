@@ -145,10 +145,17 @@ class PlatformUtilsImpl {
 
   /// Returns [File] if an file with the provided [filename] and [size] exist in
   /// the [downloadsDirectory].
-  Future<File?> fileExist(String filename, int? size, String url) async {
-    if (!PlatformUtils.isWeb) {
+  ///
+  /// If [size] is `null`, then an attempt to get the size will be performed
+  /// from the given [url].
+  Future<File?> fileExists(
+    String filename, {
+    int? size,
+    String? url,
+  }) async {
+    if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
-          int.parse(((await Dio().head(url)).headers['content-length']
+          int.parse(((await Dio().head(url!)).headers['content-length']
               as List<String>)[0]);
 
       String downloads = await PlatformUtils.downloadsDirectory;
@@ -184,7 +191,7 @@ class PlatformUtilsImpl {
       File? file = await withBackoff<File?>(
         () async {
           try {
-            return await fileExist(filename, size, url);
+            return await fileExists(filename, size: size, url: url);
           } on DioError catch (e) {
             if (e.response?.statusCode == 404) {
               rethrow;

@@ -178,7 +178,7 @@ class CallWorker extends DisposableService {
                   String? avatarUrl;
                   Avatar? avatar = chat?.avatar.value;
                   if (avatar != null) {
-                    avatarUrl = avatar.original.fullUrl;
+                    avatarUrl = avatar.original.url;
                   }
 
                   _notificationService.show(

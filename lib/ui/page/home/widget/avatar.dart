@@ -391,7 +391,7 @@ class AvatarWidget extends StatelessWidget {
             image: avatar == null
                 ? null
                 : DecorationImage(
-                    image: NetworkImage(avatar!.original.fullUrl),
+                    image: NetworkImage(avatar!.original.url),
                     fit: BoxFit.cover,
                     isAntiAlias: true,
                   ),

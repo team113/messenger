@@ -89,7 +89,7 @@ class ChatWorker extends DisposableService {
     String? avatarUrl;
     Avatar? avatar = c.avatar.value;
     if (avatar != null) {
-      avatarUrl = avatar.original.fullUrl;
+      avatarUrl = avatar.original.url;
     }
 
     // Display a new group chat notification.

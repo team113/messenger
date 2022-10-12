@@ -67,6 +67,6 @@ class StorageFile extends HiveObject {
   @HiveField(2)
   final int? size;
 
-  /// Returns url this [StorageFile] placed.
-  String get fullUrl => '${Config.files}$relativeRef';
+  /// Returns an absolute URL to this [StorageFile] on a file storage.
+  String get url => '${Config.files}$relativeRef';
 }

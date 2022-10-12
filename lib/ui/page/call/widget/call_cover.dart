@@ -49,7 +49,7 @@ class CallCoverWidget extends StatelessWidget {
             : Stack(
                 children: [
                   Image.network(
-                    cover!.full.fullUrl,
+                    cover!.full.url,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,

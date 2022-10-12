@@ -26,7 +26,6 @@ import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart'
     show ChatCallFinishReason, ChatMemberInfoAction;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -631,9 +630,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               image: image == null
                   ? null
                   : DecorationImage(
-                      image: NetworkImage(
-                        image.original.fullUrl,
-                      ),
+                      image: NetworkImage(image.original.url),
                       onError: (_, __) => widget.onAttachmentError?.call(),
                       fit: BoxFit.cover,
                     ),
@@ -798,10 +795,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
                 List<GalleryItem> gallery = [];
                 for (var o in attachments) {
-                  String link = o.original.fullUrl;
+                  String link = o.original.url;
                   if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, o.filename,
-                        size: o.original.size));
+                    gallery.add(
+                      GalleryItem.video(
+                        link,
+                        o.filename,
+                        size: o.original.size,
+                      ),
+                    );
                   } else if (o is ImageAttachment) {
                     GalleryItem? item;
 
@@ -811,7 +813,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       size: o.original.size,
                       onError: () async {
                         await widget.onAttachmentError?.call();
-                        item?.link = o.original.fullUrl;
+                        item?.link = o.original.url;
                       },
                     );
 
@@ -845,7 +847,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 )
                           : VideoThumbnail.url(
                               key: _galleryKeys[i],
-                              url: e.original.fullUrl,
+                              url: e.original.url,
                               height: 300,
                               onError: widget.onAttachmentError,
                             ),
@@ -876,7 +878,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : Container(
                         key: const Key('SentImage'),
                         child: Image.network(
-                          e.original.fullUrl,
+                          e.original.url,
                           key: _galleryKeys[i],
                           fit: BoxFit.cover,
                           height: 300,

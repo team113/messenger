@@ -210,9 +210,7 @@ class ChatForwardView extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               image: image == null
                   ? null
-                  : DecorationImage(
-                      image: NetworkImage(image.original.fullUrl),
-                    ),
+                  : DecorationImage(image: NetworkImage(image.original.url)),
             ),
             width: 50,
             height: 50,
@@ -425,7 +423,7 @@ class ChatForwardView extends StatelessWidget {
                               height: 80,
                             )
                   : Image.network(
-                      e.original.fullUrl,
+                      e.original.url,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,

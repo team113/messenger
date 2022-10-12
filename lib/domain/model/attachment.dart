@@ -124,15 +124,15 @@ class FileAttachment extends Attachment {
       }
     }
 
-    File? file = await PlatformUtils.fileExist(
+    File? file = await PlatformUtils.fileExists(
       filename,
-      original.size,
-      original.fullUrl,
+      size: original.size,
+      url: original.url,
     );
 
-    if (file != null && await file.exists()) {
+    if (await file?.exists() == true) {
       downloadStatus.value = DownloadStatus.isFinished;
-      path = file.path;
+      path = file!.path;
     } else {
       downloadStatus.value = DownloadStatus.notStarted;
       path = null;
@@ -148,7 +148,7 @@ class FileAttachment extends Attachment {
       _token = CancelToken();
 
       File? file = await PlatformUtils.download(
-        original.fullUrl,
+        original.url,
         filename,
         original.size,
         onReceiveProgress: (count, total) => progress.value = count / total,

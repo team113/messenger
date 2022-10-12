@@ -837,7 +837,7 @@ class _ChatViewState extends State<ChatView>
                               height: 80,
                             )
                   : Image.network(
-                      e.original.fullUrl,
+                      e.original.url,
                       fit: BoxFit.cover,
                       width: 80,
                       height: 80,
