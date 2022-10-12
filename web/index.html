@@ -132,6 +132,10 @@
         }
       });
     }
+
+    var focused = true;
+    window.addEventListener('blur', function(){focused = false});
+    window.addEventListener('focus', function(){focused = true});
   </script>
 </head>
 <body>

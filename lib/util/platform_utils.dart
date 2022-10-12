@@ -68,6 +68,17 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
+  /// Indicates whether application is focused or not.
+  Future<bool> get isFocused async {
+    if (isWeb) {
+      return Future.value(WebUtils.isFocused);
+    } else if (isDesktop) {
+      return await WindowManager.instance.isFocused();
+    } else {
+      return Future.value(false);
+    }
+  }
+
   /// Returns a stream broadcasting fullscreen changes.
   Stream<bool> get onFullscreenChange {
     if (isWeb) {

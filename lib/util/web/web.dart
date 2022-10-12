@@ -107,6 +107,9 @@ external cleanIndexedDB();
 @JS('window.isPopup')
 external bool _isPopup;
 
+@JS('focused')
+external bool _focused;
+
 /// Helper providing direct access to browser-only features.
 ///
 /// Does nothing on desktop or mobile.
@@ -127,6 +130,9 @@ class WebUtils {
         webkitFullscreenElement != null ||
         msFullscreenElement != null);
   }
+
+  /// Indicates whether application is focused or not.
+  static bool get isFocused => _focused;
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -180,29 +186,6 @@ class WebUtils {
       onListen: () => html.window.addEventListener('storage', storageListener),
       onCancel: () =>
           html.window.removeEventListener('storage', storageListener),
-    );
-
-    return controller.stream;
-  }
-
-  /// Returns a stream broadcasting the browser's page visibility.
-  static Stream<bool> get onVisibleChanged {
-    StreamController<bool>? controller;
-
-    // Event listener reacting on page visibility change.
-    void visibilityListener(_) => controller!.add(
-          html.document.visibilityState == 'visible',
-        );
-
-    controller = StreamController(
-      onListen: () => html.window.addEventListener(
-        'visibilitychange',
-        visibilityListener,
-      ),
-      onCancel: () => html.window.removeEventListener(
-        'visibilitychange',
-        visibilityListener,
-      ),
     );
 
     return controller.stream;

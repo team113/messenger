@@ -91,22 +91,11 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
-  /// Subscription to [WebUtils.onVisibleChanged] to update current page
-  /// visibility status.
-  StreamSubscription? _onVisibleChanged;
-
-  /// Indicator whether current page is active or not.
-  bool _isVisibleTab = true;
-
   @override
   void onInit() {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
-
-    _onVisibleChanged = WebUtils.onVisibleChanged.listen(
-      (value) => _isVisibleTab = value,
-    );
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock) {
@@ -179,10 +168,6 @@ class CallWorker extends DisposableService {
               if (PlatformUtils.isMobile) {
                 showNotification =
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
-              }
-
-              if (_isVisibleTab && PlatformUtils.isWeb) {
-                showNotification = false;
               }
 
               if (showNotification) {
@@ -292,7 +277,6 @@ class CallWorker extends DisposableService {
 
     _subscription.cancel();
     _storageSubscription?.cancel();
-    _onVisibleChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
 
     if (_vibrationTimer != null) {

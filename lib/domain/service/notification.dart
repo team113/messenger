@@ -96,6 +96,10 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
+    if (!PlatformUtils.isMobile && await PlatformUtils.isFocused) {
+      return;
+    }
+
     if (playSound) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(

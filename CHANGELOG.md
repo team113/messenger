@@ -16,8 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
-- Web:
-    - Don't show call notifications when current tab is active. ([#171], [#128])
+    - Don't show notifications when application is focused. ([#171], [#128])
 
 ### Changed
 
