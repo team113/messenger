@@ -1257,3 +1257,28 @@ class ForwardChatItemsException
     }
   }
 }
+
+/// Exception of `Mutation.forwardChatItems` described in the [code].
+class ToggleChatMuteException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatMuteException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatMuteErrorCode code;
+
+  @override
+  String toString() => 'ToggleChatMuteException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatMuteErrorCode.tooShort:
+        return 'err_unknown'.l10n;
+      case ToggleChatMuteErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ToggleChatMuteErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

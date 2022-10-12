@@ -17,6 +17,7 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/tab/chats/mute_chat/controller.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
@@ -78,7 +79,7 @@ class ChatsTabView extends StatelessWidget {
                               .map(
                                 (e) => KeyedSubtree(
                                   key: Key('Chat_${e.chat.value.id}'),
-                                  child: buildChatTile(c, e),
+                                  child: buildChatTile(c, e, context),
                                 ),
                               )
                               .toList(),
@@ -92,7 +93,12 @@ class ChatsTabView extends StatelessWidget {
   }
 
   /// Reactive [ListTile] with [chat]'s information.
-  Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
+  Widget buildChatTile(
+    ChatsTabController c,
+    RxChat rxChat,
+    BuildContext context,
+  ) =>
+      Obx(() {
         Chat chat = rxChat.chat.value;
 
         ChatItem? item;
@@ -338,6 +344,14 @@ class ChatsTabView extends StatelessWidget {
                 label: 'btn_leave_chat'.l10n,
                 onPressed: () => c.leaveChat(chat.id),
               ),
+            ContextMenuButton(
+              key: const Key('ButtonMuteChat'),
+              label: 'btn_mute_chat'.l10n,
+              onPressed: () => showDialog(
+                context: context,
+                builder: (c) => MuteChatView(chat.id),
+              ),
+            ),
           ],
           child: ListTile(
             leading: AvatarWidget.fromRxChat(rxChat),

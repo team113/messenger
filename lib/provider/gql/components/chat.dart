@@ -972,6 +972,47 @@ abstract class ChatGraphQlMixin {
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
   }
 
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  ///
+  /// The maximum number of forwarded [ChatItem]s at once is 100.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatItemPosted] ([ChatForward] and optionally [ChatMessage]).
+  ///
+  /// ### Non-idempotent
+  ///
+  /// Each time posts a new [ChatForward].
+  Future<ChatEventsVersionedMixin?> toggleChatMute(
+      ChatId id, Muting? mute) async {
+    final variables = ToggleChatMuteArguments(id: id, mute: mute);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleChatMute',
+        document: ToggleChatMuteMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleChatMuteException(
+          (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
+          as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+              .code),
+    );
+    return ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
+        as ChatEventsVersionedMixin?;
+  }
+
   /// Returns the [Attachment]s of a [ChatItem] identified by the provided [id].
   ///
   /// The authenticated [MyUser] should be a member of the [Chat] the provided

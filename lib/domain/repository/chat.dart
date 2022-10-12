@@ -159,6 +159,16 @@ abstract class AbstractChatRepository {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> toggleChatMute(ChatId id, DateTime? mute);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

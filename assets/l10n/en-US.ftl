@@ -148,6 +148,8 @@ btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
+btn_mute = Mute
+btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok
 btn_personalize = Personalization
@@ -387,6 +389,7 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
+label_forever = Forever
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
@@ -423,6 +426,19 @@ label_media_output = Output
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_multiple_days = { $quantity ->
+    [1] {$quantity} day
+    *[other] {$quantity} days
+}
+label_multiple_hours = { $quantity ->
+    [1] {$quantity} hour
+    *[other] {$quantity} hours
+}
+label_multiple_minutes = { $quantity ->
+    [1] {$quantity} minute
+    *[other] {$quantity} minutes
+}
+label_mute_chat_for = Mute chat for
 label_name = Name
 label_name_hint = Your publicly visible name
 label_new_password = New password

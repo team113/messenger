@@ -20,6 +20,7 @@ import 'dart:collection';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -572,6 +573,11 @@ class ChatRepository implements AbstractChatRepository {
         text: text,
         attachments: attachments,
       );
+
+  @override
+  Future<void> toggleChatMute(ChatId id, DateTime? mute) =>
+      _graphQlProvider.toggleChatMute(
+          id, mute == null ? null : Muting(duration: PreciseDateTime(mute)));
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

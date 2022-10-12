@@ -148,6 +148,8 @@ btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
+btn_mute = Заглушить
+btn_mute_chat = Заглушить чат
 btn_next = Далее
 btn_ok = Ок
 btn_personalize = Персонализация
@@ -405,6 +407,7 @@ label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
 label_file = Файл
+label_forever = Навсегда
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_group_created = Группа создана
@@ -441,6 +444,19 @@ label_media_output = Устройство выхода
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_multiple_days = { $quantity ->
+    [1] {$quantity} день
+    *[other] {$quantity} дней
+}
+label_multiple_hours = { $quantity ->
+    [1] {$quantity} час
+    *[other] {$quantity} часов
+}
+label_multiple_minutes = { $quantity ->
+    [1] {$quantity} минуту
+    *[other] {$quantity} минут
+}
+label_mute_chat_for = Заглушить чат на
 label_name = Имя
 label_name_hint = Ваше видимое всем имя
 label_new_password = Новый пароль
