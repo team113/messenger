@@ -79,10 +79,6 @@ class CallWorker extends DisposableService {
   /// Subscription to [WebUtils.onStorageChange] [stop]ping the [_audioPlayer].
   StreamSubscription? _storageSubscription;
 
-  /// Subscription to [WebUtils.onVisibleChanged] to update current page
-  /// visibility status.
-  StreamSubscription? _onVisibleChanged;
-
   /// [FlutterCallkeep] used to require the call account permissions.
   final FlutterCallkeep _callKeep = FlutterCallkeep();
 
@@ -94,6 +90,10 @@ class CallWorker extends DisposableService {
 
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
+
+  /// Subscription to [WebUtils.onVisibleChanged] to update current page
+  /// visibility status.
+  StreamSubscription? _onVisibleChanged;
 
   /// Indicator whether current page is active or not.
   bool _isVisibleTab = true;
