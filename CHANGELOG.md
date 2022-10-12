@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
+- Web:
+    - Don't show call notifications when current tab is active. ([#171], [#128])
 
 ### Changed
 
@@ -23,10 +25,12 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
 
+[#128]: /../../issues/128
 [#137]: /../../issues/137
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
+[#171]: /../../pull/171
 
 
 
