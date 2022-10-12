@@ -295,8 +295,8 @@ class ChatInfoController extends GetxController {
   }
 
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected
-  /// [image].
-  Future<void> pickGalleryItem() async {
+  /// image, if any.
+  Future<void> pickAvatar() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       withReadStream: true,
@@ -307,8 +307,11 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Resets the [Chat.avatar] to `null`.
+  Future<void> deleteAvatar() => updateChatAvatar(null);
+
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
-  /// null.
+  /// `null`.
   Future<void> updateChatAvatar(PlatformFile? image) async {
     _avatarTimer?.cancel();
     avatar.value = RxStatus.loading();
@@ -320,6 +323,7 @@ class ChatInfoController extends GetxController {
       );
 
       avatar.value = RxStatus.success();
+
       _avatarTimer = Timer(
         const Duration(seconds: 1),
         () => avatar.value = RxStatus.empty(),

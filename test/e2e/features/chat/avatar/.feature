@@ -23,11 +23,9 @@ Feature: Chat avatar update and remove
     And I am in "Alice and Bob" chat
     And I open chat's info
 
-  Scenario: User change chat avatar and delete it
-    Then I wait until text "AA" is present within the `ChatInfoAvatarRow`
-
+  Scenario: User uploads and deletes chat avatar
     When I update chat avatar with "test.jpg"
-    Then I wait until text "AA" is absent within the `ChatInfoAvatarRow`
+    Then I wait until text "AA" is absent within `ChatAvatar`
 
     When I tap `DeleteAvatar` button
-    Then I wait until text "AA" is present within the `ChatInfoAvatarRow`
+    Then I wait until text "AA" is present within `ChatAvatar`

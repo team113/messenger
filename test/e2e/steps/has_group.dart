@@ -23,12 +23,12 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-group of the provided [User] with the authenticated
-/// [MyUser] and specified [ChatName].
+/// Creates a [Chat]-group with the provided [User] and the authenticated
+/// [MyUser].
 ///
 /// Examples:
-/// - Given I have "Chat name" group with Bob.
-final StepDefinitionGeneric inGroupWithUserWithName =
+/// - Given I have "Name" group with Bob.
+final StepDefinitionGeneric haveGroupNamed =
     given2<String, TestUser, CustomWorld>(
   'I have {string} group with {user}',
   (String name, TestUser user, context) async {
@@ -42,26 +42,6 @@ final StepDefinitionGeneric inGroupWithUserWithName =
     );
 
     context.world.groups[name] = chat.id;
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Creates a [Chat]-group of the provided [User] with the authenticated
-/// [MyUser].
-///
-/// Examples:
-/// - Given I am in group with Bob.
-final StepDefinitionGeneric inGroupWithUser = given1<TestUser, CustomWorld>(
-  'I am in group with {user}',
-  (TestUser user, context) async {
-    final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
-    await provider.createGroupChat(
-      [authService.credentials.value!.userId],
-    );
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

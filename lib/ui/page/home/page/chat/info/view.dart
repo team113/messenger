@@ -110,24 +110,21 @@ class ChatInfoView extends StatelessWidget {
     // Builds the manipulation buttons with progress indication.
     Widget buttons() {
       if (c.avatar.value.isLoading) {
-        return const CircularProgressIndicator(
-          key: Key('AvatarProgressIndicator'),
-        );
+        return const CircularProgressIndicator();
       } else if (c.avatar.value.isSuccess) {
-        return const Center(key: Key('AvatarIcon'), child: Icon(Icons.check));
+        return const Center(child: Icon(Icons.check));
       } else {
         return Row(
-          key: const Key('AvatarRow'),
           children: [
             TextButton(
               key: const Key('ChangeAvatar'),
-              onPressed: c.pickGalleryItem,
+              onPressed: c.pickAvatar,
               child: Text('btn_change_avatar'.l10n),
             ),
             if (c.chat?.avatar.value != null)
               TextButton(
                 key: const Key('DeleteAvatar'),
-                onPressed: () async => await c.updateChatAvatar(null),
+                onPressed: c.deleteAvatar,
                 child: Text('btn_delete_avatar'.l10n),
               ),
           ],
@@ -138,9 +135,12 @@ class ChatInfoView extends StatelessWidget {
     return Obx(() {
       return _padding(
         Row(
-          key: const Key('ChatInfoAvatarRow'),
           children: [
-            AvatarWidget.fromRxChat(c.chat, radius: 29),
+            AvatarWidget.fromRxChat(
+              c.chat,
+              key: const Key('ChatAvatar'),
+              radius: 29,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: AnimatedSwitcher(

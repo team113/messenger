@@ -20,14 +20,14 @@ import 'package:gherkin/gherkin.dart';
 
 import '../parameters/keys.dart';
 
-/// Waits until the provided text is present or absent within widget.
+/// Waits until the provided text is present or absent within [Widget].
 ///
 /// Examples:
-/// - Then I wait until text "Dummy" is absent within the `WidgetKey`
-/// - Then I wait until text "Dummy" is present within the `WidgetKey`
+/// - Then I wait until text "Dummy" is absent within `WidgetKey`
+/// - Then I wait until text "Dummy" is present within `WidgetKey`
 final StepDefinitionGeneric untilTextExistsWithin =
     then3<String, Existence, WidgetKey, FlutterWorld>(
-  'I wait until text {string} is {existence} within the {key}',
+  'I wait until text {string} is {existence} within {key}',
   (text, existence, key, context) async {
     await context.world.appDriver.waitUntil(
       () async {

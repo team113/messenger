@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
-    - Chat page:
+    - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
 
 ### Changed

@@ -24,10 +24,10 @@ import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Changes [Chat.avatar] in a [Chat].
+/// Uploads a new image for [Chat.avatar] in the currently opened [Chat].
 ///
 /// Examples:
-/// - Then I update chat avatar with "file name"
+/// - Then I update chat avatar with "file.jpg"
 final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
   'I update chat avatar with {string}',
   (fileName, context) async {
@@ -39,12 +39,8 @@ final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
       ),
     );
 
-    List<String> routes = router.route.split('/');
-    routes.removeLast();
-    String chatId = routes.last;
-    if (Get.isRegistered<ChatInfoController>(tag: 'ChatInfo$chatId')) {
-      final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
-      await controller.updateChatAvatar(image);
-    }
+    String chatId = router.route.split('/')[1];
+    final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
+    await controller.updateChatAvatar(image);
   },
 );

@@ -22,11 +22,11 @@ import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Routes to chat's info page.
+/// Routes the [router] to the currently opened [Chat]'s info page.
 ///
 /// Examples:
 /// - Then I open chat's info
-final StepDefinitionGeneric openChatsInfoPage = then<CustomWorld>(
+final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
   'I open chat\'s info',
   (context) async {
     final controller =
