@@ -110,10 +110,10 @@ class Themes {
             fontWeight: FontWeight.w400,
             fontSize: 20,
           ),
-          caption: const TextStyle(
-            color: Colors.black,
+          caption: TextStyle(
+            color: colors.primary,
             fontWeight: FontWeight.w300,
-            fontSize: 17,
+            fontSize: 13,
           ),
           subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
           subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
