@@ -107,9 +107,6 @@ external cleanIndexedDB();
 @JS('window.isPopup')
 external bool _isPopup;
 
-@JS('visible')
-external bool visible;
-
 /// Helper providing direct access to browser-only features.
 ///
 /// Does nothing on desktop or mobile.
@@ -166,6 +163,7 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's storage changes.
   static Stream<WebStorageEvent> get onStorageChange {
     StreamController<WebStorageEvent>? controller;
+
     // Event listener reacting on storage changes.
     void storageListener(html.Event event) {
       event as html.StorageEvent;
@@ -187,22 +185,24 @@ class WebUtils {
     return controller.stream;
   }
 
-  /// Returns a stream broadcasting the browser's storage changes.
+  /// Returns a stream broadcasting the browser's page visibility.
   static Stream<bool> get onVisibleChanged {
     StreamController<bool>? controller;
 
-    // Event listener reacting on storage changes.
-    void storageListener(html.Event event) {
-      print(event.toString());
-      print(event.type);
-      controller!.add(visible);
-    }
+    // Event listener reacting on page visibility change.
+    void visibilityListener(_) => controller!.add(
+          html.document.visibilityState == 'visible',
+        );
 
     controller = StreamController(
-      onListen: () =>
-          html.window.addEventListener('visibilitychange', storageListener),
-      onCancel: () =>
-          html.window.removeEventListener('visibilitychange', storageListener),
+      onListen: () => html.window.addEventListener(
+        'visibilitychange',
+        visibilityListener,
+      ),
+      onCancel: () => html.window.removeEventListener(
+        'visibilitychange',
+        visibilityListener,
+      ),
     );
 
     return controller.stream;

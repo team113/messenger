@@ -79,6 +79,10 @@ class CallWorker extends DisposableService {
   /// Subscription to [WebUtils.onStorageChange] [stop]ping the [_audioPlayer].
   StreamSubscription? _storageSubscription;
 
+  /// Subscription to [WebUtils.onVisibleChanged] to update current page
+  /// visibility status.
+  StreamSubscription? _onVisibleChanged;
+
   /// [FlutterCallkeep] used to require the call account permissions.
   final FlutterCallkeep _callKeep = FlutterCallkeep();
 
@@ -91,19 +95,18 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// Indicator whether current page is active or not.
+  bool _isVisibleTab = true;
+
   @override
   void onInit() {
     _initAudio();
     _initBackgroundService();
     _initWebUtils();
 
-    WebUtils.onVisibleChanged.listen((b) {
-      if (b) {
-        print('show');
-      } else {
-        print('hidden');
-      }
-    });
+    _onVisibleChanged = WebUtils.onVisibleChanged.listen(
+      (value) => _isVisibleTab = value,
+    );
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock) {
@@ -176,6 +179,10 @@ class CallWorker extends DisposableService {
               if (PlatformUtils.isMobile) {
                 showNotification =
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
+              }
+
+              if (_isVisibleTab && PlatformUtils.isWeb) {
+                showNotification = false;
               }
 
               if (showNotification) {
@@ -285,6 +292,7 @@ class CallWorker extends DisposableService {
 
     _subscription.cancel();
     _storageSubscription?.cancel();
+    _onVisibleChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
 
     if (_vibrationTimer != null) {
