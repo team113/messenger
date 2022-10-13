@@ -34,7 +34,7 @@ class RetryImage extends StatefulWidget {
   final String url;
 
   /// Callback called when url loading was failed with error code 403.
-  final VoidCallback? error403;
+  final Future<void> Function()? error403;
 
   /// [BoxFit] of image.
   final BoxFit? fit;
@@ -105,6 +105,7 @@ class _RetryImageState extends State<RetryImage> {
     Response? data;
 
     try {
+      print(widget.url);
       data = await Dio().get(
         widget.url,
         onReceiveProgress: (received, total) {
@@ -117,13 +118,14 @@ class _RetryImageState extends State<RetryImage> {
         },
         options: Options(responseType: ResponseType.bytes),
       );
-    } catch (e) {
-      // No-op.
+    } on DioError catch (_, e) {
+      if (_.response?.statusCode == 403) {
+        await widget.error403?.call();
+        setState(() {});
+      }
     }
 
-    if (data?.statusCode == 403) {
-      widget.error403?.call();
-    } else if (data?.data != null && data!.statusCode == 200) {
+    if (data?.data != null && data!.statusCode == 200) {
       _image = data.data;
       if (mounted) {
         setState(() {});

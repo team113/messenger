@@ -411,10 +411,21 @@ class _ChatViewState extends State<ChatView>
           onEdit: () => c.editMessage(item.value),
           onFileTap: (a) => c.download(item.value, a),
           onAttachmentError: () async {
+            print((item.value as ChatMessage)
+                .attachments
+                .first
+                .original
+                .relativeRef);
             await c.chat?.updateAttachments(item.value);
             await Future.delayed(
               Duration.zero,
             );
+
+            print((item.value as ChatMessage)
+                .attachments
+                .first
+                .original
+                .relativeRef);
           },
         ),
       ),

@@ -876,7 +876,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         key: _galleryKeys[i],
                         fit: BoxFit.cover,
                         height: 300,
-                        error403: widget.onAttachmentError?.call,
+                        error403: () async =>
+                            await widget.onAttachmentError?.call(),
                       ),
             ElasticAnimatedSwitcher(
               key: Key('AttachmentStatus_${e.id}'),
