@@ -617,6 +617,7 @@ class CallController extends GetxController {
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
       applySecondaryConstraints();
+      refresh();
     });
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {

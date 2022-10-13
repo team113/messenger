@@ -25,12 +25,19 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
 
+### Fixed
+
+- macOS:
+    - Pressing Escape breaks fullscreen in Call. ([#166], [#169])
+
 [#137]: /../../issues/137
 [#146]: /../../issues/146
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
 [#163]: /../../pull/163
+[#166]: /../../issues/166
+[#169]: /../../pull/169
 
 
 
