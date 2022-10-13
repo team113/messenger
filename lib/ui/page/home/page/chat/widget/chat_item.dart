@@ -24,7 +24,8 @@ import 'package:intl/intl.dart';
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
-import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/api/backend/schema.dart'
+    show ChatCallFinishReason, ChatMemberInfoAction;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -144,6 +145,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 
+  /// Indicates whether this [ChatItem] was read by any [User].
+  bool get _isRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    if (_fromMe) {
+      return chat.isRead(widget.item.value, widget.me);
+    } else {
+      return chat.isReadBy(widget.item.value, widget.me);
+    }
+  }
+
+  /// Indicates whether this [ChatItemWidget.item] was posted by the
+  /// authenticated [User].
+  bool get _fromMe => widget.item.value.authorId == widget.me;
+
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
@@ -202,10 +221,69 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMemberInfo].
   Widget _renderAsChatMemberInfo() {
-    var message = widget.item.value as ChatMemberInfo;
+    final Style style = Theme.of(context).extension<Style>()!;
+    final ChatMemberInfo message = widget.item.value as ChatMemberInfo;
+
+    final Widget content;
+
+    switch (message.action) {
+      case ChatMemberInfoAction.created:
+        if (widget.chat.value?.isGroup == true) {
+          content = Text('label_group_created'.l10n);
+        } else {
+          content = Text('label_dialog_created'.l10n);
+        }
+        break;
+
+      case ChatMemberInfoAction.added:
+        content = Text(
+          'label_was_added'
+              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        );
+        break;
+
+      case ChatMemberInfoAction.removed:
+        content = Text(
+          'label_was_removed'
+              .l10nfmt({'who': '${message.user.name ?? message.user.num}'}),
+        );
+        break;
+
+      case ChatMemberInfoAction.artemisUnknown:
+        content = Text('${message.action}');
+        break;
+    }
+
+    final bool isSent = widget.item.value.status.value == SendingStatus.sent;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Center(child: Text('${message.action}')),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: SwipeableStatus(
+        animation: widget.animation,
+        asStack: true,
+        isSent: isSent && _fromMe,
+        isDelivered: isSent &&
+            _fromMe &&
+            widget.chat.value?.lastDelivery.isBefore(message.at) == false,
+        isRead: isSent && (!_fromMe || _isRead),
+        isError: message.status.value == SendingStatus.error,
+        isSending: message.status.value == SendingStatus.sending,
+        swipeable: Text(DateFormat.Hm().format(message.at.val.toLocal())),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
+            ),
+            child: DefaultTextStyle(
+              style: style.systemMessageStyle,
+              child: content,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -233,7 +311,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }).toList();
 
     bool fromMe = msg.authorId == widget.me;
-    bool isRead = _isRead();
 
     Color color = widget.user?.user.value.id == widget.me
         ? const Color(0xFF63B4FF)
@@ -249,13 +326,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             duration: const Duration(milliseconds: 500),
             decoration: BoxDecoration(
               color: fromMe
-                  ? isRead
+                  ? _isRead
                       ? style.myUserReadMessageColor
                       : style.myUserUnreadMessageColor
                   : style.messageColor,
               borderRadius: BorderRadius.circular(15),
               border: fromMe
-                  ? isRead
+                  ? _isRead
                       ? style.primaryBorder
                       : Border.all(
                           color: const Color(0xFFDAEDFF),
@@ -272,10 +349,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       duration: const Duration(milliseconds: 500),
                       decoration: BoxDecoration(
                         color: e.authorId == widget.me
-                            ? isRead || !fromMe
+                            ? _isRead || !fromMe
                                 ? const Color.fromRGBO(219, 234, 253, 1)
                                 : const Color.fromRGBO(230, 241, 254, 1)
-                            : isRead || !fromMe
+                            : _isRead || !fromMe
                                 ? const Color.fromRGBO(249, 249, 249, 1)
                                 : const Color.fromRGBO(255, 255, 255, 1),
                         borderRadius: i == 0
@@ -287,7 +364,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
-                        opacity: isRead || !fromMe ? 1 : 0.55,
+                        opacity: _isRead || !fromMe ? 1 : 0.55,
                         child: WidgetButton(
                           onPressed: () => widget.onRepliedTap?.call(e.id),
                           child: _repliedMessage(e),
@@ -317,7 +394,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (text != null)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
-                    opacity: isRead || !fromMe ? 1 : 0.7,
+                    opacity: _isRead || !fromMe ? 1 : 0.7,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
@@ -336,7 +413,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (files.isNotEmpty)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
-                    opacity: isRead || !fromMe ? 1 : 0.55,
+                    opacity: _isRead || !fromMe ? 1 : 0.55,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: Column(
@@ -373,7 +450,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
-                      opacity: isRead || !fromMe ? 1 : 0.55,
+                      opacity: _isRead || !fromMe ? 1 : 0.55,
                       child: media.length == 1
                           ? buildMediaAttachment(
                               media.first,
@@ -428,7 +505,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     List<Widget>? subtitle;
-    bool fromMe = widget.me == message.authorId;
     bool isMissed = false;
 
     String title = 'label_chat_call_ended'.l10n;
@@ -440,7 +516,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           .difference(DateTime.now())
           .localizedString();
     } else if (message.finishReason != null) {
-      title = message.finishReason!.localizedString(fromMe) ?? title;
+      title = message.finishReason!.localizedString(_fromMe) ?? title;
       isMissed = (message.finishReason == ChatCallFinishReason.dropped) ||
           (message.finishReason == ChatCallFinishReason.unanswered);
 
@@ -462,11 +538,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
         child: message.withVideo
             ? SvgLoader.asset(
-                'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
+                'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
                 height: 13,
               )
             : SvgLoader.asset(
-                'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
+                'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
                 height: 15,
               ),
       ),
@@ -510,8 +586,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       const SizedBox(width: 8),
     ];
 
-    bool isRead = _isRead();
-
     return _rounded(
       context,
       Padding(
@@ -519,13 +593,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
-            border: fromMe
-                ? isRead
+            border: _fromMe
+                ? _isRead
                     ? style.primaryBorder
                     : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
                 : style.secondaryBorder,
-            color: fromMe
-                ? isRead
+            color: _fromMe
+                ? _isRead
                     ? style.myUserReadMessageColor
                     : style.myUserUnreadMessageColor
                 : style.messageColor,
@@ -535,7 +609,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             borderRadius: BorderRadius.circular(15),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
-              opacity: isRead || !fromMe ? 1 : 0.55,
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
                 child: Row(mainAxisSize: MainAxisSize.min, children: subtitle),
@@ -758,26 +832,25 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     bool fromMe = item.authorId == widget.me;
-    bool isRead = _isRead();
     bool isSent = item.status.value == SendingStatus.sent;
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !fromMe,
-      isSent: isSent && fromMe,
+      asStack: !_fromMe,
+      isSent: isSent && _fromMe,
       isDelivered: isSent &&
-          fromMe &&
+          _fromMe &&
           widget.chat.value?.lastDelivery.isBefore(item.at) == false,
-      isRead: isSent && (!fromMe || isRead),
+      isRead: isSent && (!_fromMe || _isRead),
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
-            fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (fromMe)
+          if (_fromMe)
             Padding(
               key: Key('MessageStatus_${item.id}'),
               padding: const EdgeInsets.only(top: 16),
@@ -804,7 +877,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         : Container(key: const Key('Sent')),
               ),
             ),
-          if (!fromMe && widget.chat.value!.isGroup)
+          if (!_fromMe && widget.chat.value!.isGroup)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: InkWell(
@@ -875,7 +948,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             (item.at
                                     .add(ChatController.editMessageTimeout)
                                     .isAfter(PreciseDateTime.now()) ||
-                                !isRead))
+                                !_isRead))
                           ContextMenuButton(
                             key: const Key('EditButton'),
                             label: 'btn_edit'.l10n,
@@ -974,26 +1047,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ],
       ),
     );
-  }
-
-  /// Returns indicator whether [ChatItemWidget.item] is read.
-  bool _isRead() {
-    bool fromMe = widget.item.value.authorId == widget.me;
-    bool isRead = false;
-    if (fromMe) {
-      isRead = widget.chat.value?.lastReads.firstWhereOrNull((e) =>
-              e.memberId != widget.me &&
-              !e.at.isBefore(widget.item.value.at)) !=
-          null;
-    } else {
-      isRead = widget.chat.value?.lastReads
-              .firstWhereOrNull((e) => e.memberId == widget.me)
-              ?.at
-              .isBefore(widget.item.value.at) ==
-          false;
-    }
-
-    return isRead;
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].

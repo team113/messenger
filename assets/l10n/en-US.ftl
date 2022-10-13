@@ -123,6 +123,7 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
@@ -130,6 +131,7 @@ btn_copy = Copy
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
+btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
@@ -285,6 +287,23 @@ label_ago = { $years ->
     [1] an year ago
     *[other] {$years} years ago
 }
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Today
+                            [1] Yesterday
+                            *[other] {$days} days ago
+                        }
+                    [1] A week ago
+                    *[other] {$weeks} weeks ago
+                }
+            [1] A month ago
+            *[other] {$months} months ago
+        }
+    [1] An year ago
+    *[other] {$years} years ago
+}
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
@@ -332,6 +351,7 @@ label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delivered = Delivered
+label_dialog_created = Dialog created
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to
@@ -361,6 +381,7 @@ label_edit_message_hint = No text
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails
+label_empty_message = Empty message
 label_enable_popup_calls = Display calls in popup windows
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -370,6 +391,7 @@ label_favorite_contacts = Favorite
 label_file = File
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
+label_group_created = Group created
 label_hidden = Status is hidden
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
@@ -454,10 +476,15 @@ label_typing = is typing
 label_typings = are typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
-label_unread_messages = Unread messages
+label_unread_messages = { $quantity ->
+    [1] {$quantity} unread message
+    *[other] {$quantity} unread messages
+}
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.
 label_video_saved_to_gallery = Video saved to gallery.
+label_was_added = {$who} was added
+label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group

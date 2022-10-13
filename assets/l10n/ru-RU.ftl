@@ -123,6 +123,7 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Сменить
+btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -130,6 +131,7 @@ btn_copy = Скопировать
 btn_create_group = Создать группу
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
+btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
@@ -296,6 +298,28 @@ label_ago = { $years ->
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
@@ -343,6 +367,7 @@ label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
+label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -374,6 +399,7 @@ label_edit_message_hint = Без текста
 label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
+label_empty_message = Пустое сообщение
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -383,6 +409,7 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
+label_group_created = Группа создана
 label_hidden = Статус скрыт
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
@@ -467,10 +494,15 @@ label_typing = печатает
 label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = Непрочитанные сообщения
+label_unread_messages = { $quantity ->
+    [1] {$quantity} непрочитанное сообщение
+    *[other] {$quantity} непрочитанных сообщения
+}
 label_video = Видео
 label_video_call = Видеозвонок
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
+label_was_added = {$who} был(а) добавлен(а)
+label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу

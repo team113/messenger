@@ -36,6 +36,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/widget/chat_forward.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -482,22 +483,7 @@ class _ChatViewState extends State<ChatView>
     } else if (element is DateTimeElement) {
       return _timeLabel(element.id.at.val);
     } else if (element is UnreadMessagesElement) {
-      return Container(
-        color: const Color(0x33000000),
-        padding: const EdgeInsets.all(4),
-        margin: const EdgeInsets.symmetric(
-          vertical: 4,
-        ),
-        child: Center(
-          child: Text(
-            'label_unread_messages'.l10n,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+      return _unreadLabel(context, c);
     }
 
     return Container();
@@ -554,34 +540,31 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a centered [time] label.
   Widget _timeLabel(DateTime time) {
-    return Column(
-      children: [
-        const SizedBox(height: 7),
-        SwipeableStatus(
-          animation: _animation,
-          asStack: true,
-          padding: EdgeInsets.zero,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          swipeable: Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Text(DateFormat('dd.MM.yy').format(time)),
-          ),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.white,
-              ),
-              child: Text(
-                time.toRelative(),
-                style: const TextStyle(color: Color(0xFF888888)),
-              ),
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: SwipeableStatus(
+        animation: _animation,
+        asStack: true,
+        padding: const EdgeInsets.only(right: 8),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        swipeable: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: Text(DateFormat('dd.MM.yy').format(time)),
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
             ),
+            child: Text(time.toRelative(), style: style.systemMessageStyle),
           ),
         ),
-        const SizedBox(height: 7),
-      ],
+      ),
     );
   }
 
@@ -1259,6 +1242,28 @@ class _ChatViewState extends State<ChatView>
       c.horizontalScrollTimer.value = null;
     });
   }
+
+  /// Builds a visual representation of an [UnreadMessagesElement].
+  Widget _unreadLabel(BuildContext context, ChatController c) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Center(
+        child: Text(
+          'label_unread_messages'.l10nfmt({'quantity': c.unreadMessages}),
+          style: style.systemMessageStyle,
+        ),
+      ),
+    );
+  }
 }
 
 /// Extension adding an ability to get text represented [DateTime] relative to
@@ -1272,10 +1277,6 @@ extension DateTimeToRelative on DateTime {
     DateTime relative = now ?? DateTime.now();
     int days = relative.julianDayNumber() - local.julianDayNumber();
 
-    String time =
-        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-    String date = '';
-
     int months = 0;
     if (days >= 28) {
       months =
@@ -1285,16 +1286,12 @@ extension DateTimeToRelative on DateTime {
       }
     }
 
-    if (days > 0) {
-      date = 'label_ago'.l10nfmt({
-        'years': months ~/ 12,
-        'months': months,
-        'weeks': days ~/ 7,
-        'days': days,
-      });
-    }
-
-    return date.isEmpty ? time : '${date.capitalizeFirst!}, $time';
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
   }
 
   /// Returns a Julian day number of this [DateTime].

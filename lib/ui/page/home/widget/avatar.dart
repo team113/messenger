@@ -205,12 +205,14 @@ class AvatarWidget extends StatelessWidget {
     String? title,
     Avatar? avatar,
     UserId? me, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
   }) =>
       AvatarWidget(
+        key: key,
         avatar: avatar,
         title: title,
         color: chat?.colorDiscriminant(me).sum(),
@@ -223,6 +225,7 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [RxChat].
   static Widget fromRxChat(
     RxChat? chat, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
@@ -230,6 +233,7 @@ class AvatarWidget extends StatelessWidget {
   }) {
     if (chat == null) {
       return AvatarWidget(
+        key: key,
         radius: radius,
         maxRadius: maxRadius,
         minRadius: minRadius,
@@ -241,6 +245,7 @@ class AvatarWidget extends StatelessWidget {
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
+        key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway: user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
