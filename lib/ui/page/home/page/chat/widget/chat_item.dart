@@ -1281,6 +1281,8 @@ Widget buildFileAttachment(
         );
         break;
     }
+
+    leading = KeyedSubtree(key: const Key('Sent'), child: leading);
   } else if (e is LocalAttachment) {
     switch (e.status.value) {
       case SendingStatus.sending:
