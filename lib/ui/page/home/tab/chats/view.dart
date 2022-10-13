@@ -299,6 +299,11 @@ class ChatsTabView extends StatelessWidget {
                   child: OutlinedRoundedButton(
                     key: const Key('AddDialogMembersButton'),
                     maxWidth: null,
+                    leading: SvgLoader.asset(
+                      'assets/icons/group.svg',
+                      width: 21.77,
+                      height: 18.44,
+                    ),
                     title: Text(
                       'Create group',
                       overflow: TextOverflow.ellipsis,
@@ -307,7 +312,8 @@ class ChatsTabView extends StatelessWidget {
                         color: enabled ? Colors.white : Colors.black,
                       ),
                     ),
-                    onPressed: enabled ? c.createGroup : null,
+                    onPressed: c.createGroup,
+                    // onPressed: enabled ? c.createGroup : null,
                     color: enabled ? const Color(0xFF63B4FF) : Colors.white,
                   ),
                 ),
@@ -405,54 +411,32 @@ class ChatsTabView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(left: 20, right: 12),
                     child: Obx(() {
-                      return SizedBox(
-                        width: 21.77,
-                        height: 18.44,
-                        child: AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: WidgetButton(
-                            onPressed: c.searching.value
-                                ? null
-                                : () {
-                                    if (c.groupCreating.value) {
-                                      if (c.selectedChats.isEmpty &&
-                                          c.selectedContacts.isEmpty &&
-                                          c.selectedUsers.isEmpty &&
-                                          c.query.value?.isEmpty != false) {
-                                        c.search.clear();
-                                        c.query.value = null;
-                                        c.searchResults.value = null;
-                                        c.searchStatus.value = RxStatus.empty();
-                                        c.searching.value = false;
-                                        c.groupCreating.value = false;
-                                        router.navigation.value = null;
-                                        c.selectedChats.clear();
-                                        c.selectedUsers.clear();
-                                        c.selectedContacts.clear();
-                                        c.populate();
-                                      }
-                                    } else if (c.groupCreating.isFalse) {
-                                      c.groupCreating.value = true;
-                                      router.navigation.value =
-                                          createGroupButton();
-                                      Future.delayed(
-                                        Duration.zero,
-                                        c.search.focus.requestFocus,
-                                      );
-                                      c.populate();
-                                    }
-                                  },
-                            child: c.searching.value
-                                ? SvgLoader.asset(
-                                    'assets/icons/search.svg',
-                                    width: 17.77,
-                                  )
-                                : SvgLoader.asset(
-                                    'assets/icons/group.svg',
-                                    width: 21.77,
-                                    height: 18.44,
-                                  ),
+                      return AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: WidgetButton(
+                          onPressed: c.searching.value || c.groupCreating.value
+                              ? null
+                              : () {
+                                  c.searching.value = true;
+                                  Future.delayed(
+                                    Duration.zero,
+                                    c.search.focus.requestFocus,
+                                  );
+                                },
+                          child: SvgLoader.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
                           ),
+                          // child: c.searching.value
+                          //     ? SvgLoader.asset(
+                          //         'assets/icons/search.svg',
+                          //         width: 17.77,
+                          //       )
+                          //     : SvgLoader.asset(
+                          //         'assets/icons/group.svg',
+                          //         width: 21.77,
+                          //         height: 18.44,
+                          //       ),
                         ),
                       );
                     }),
@@ -490,12 +474,39 @@ class ChatsTabView extends StatelessWidget {
                           onPressed: c.searching.value || c.groupCreating.value
                               ? null
                               : () {
-                                  if (c.searching.isFalse) {
-                                    c.searching.value = true;
+                                  // if (c.searching.isFalse) {
+                                  //   c.searching.value = true;
+                                  //   Future.delayed(
+                                  //     Duration.zero,
+                                  //     c.search.focus.requestFocus,
+                                  //   );
+                                  // }
+                                  if (c.groupCreating.value) {
+                                    if (c.selectedChats.isEmpty &&
+                                        c.selectedContacts.isEmpty &&
+                                        c.selectedUsers.isEmpty &&
+                                        c.query.value?.isEmpty != false) {
+                                      c.search.clear();
+                                      c.query.value = null;
+                                      c.searchResults.value = null;
+                                      c.searchStatus.value = RxStatus.empty();
+                                      c.searching.value = false;
+                                      c.groupCreating.value = false;
+                                      router.navigation.value = null;
+                                      c.selectedChats.clear();
+                                      c.selectedUsers.clear();
+                                      c.selectedContacts.clear();
+                                      c.populate();
+                                    }
+                                  } else if (c.groupCreating.isFalse) {
+                                    c.groupCreating.value = true;
+                                    router.navigation.value =
+                                        createGroupButton();
                                     Future.delayed(
                                       Duration.zero,
                                       c.search.focus.requestFocus,
                                     );
+                                    c.populate();
                                   }
                                 },
                           child: SizedBox(
@@ -507,8 +518,9 @@ class ChatsTabView extends StatelessWidget {
                                     height: 18.44,
                                   )
                                 : SvgLoader.asset(
-                                    'assets/icons/search.svg',
-                                    width: 17.77,
+                                    'assets/icons/group.svg',
+                                    width: 21.77,
+                                    height: 18.44,
                                   ),
                           ),
                         );

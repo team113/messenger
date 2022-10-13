@@ -79,6 +79,8 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> sortedChats;
 
+  final RxBool sorting = RxBool(false);
+
   /// [Chat]s service used to update the [sortedChats].
   final ChatService _chatService;
 
@@ -350,6 +352,15 @@ class ChatsTabController extends GetxController {
 
   /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
   Future<void> createGroup() async {
+    bool enabled = (selectedContacts.isNotEmpty ||
+            selectedUsers.isNotEmpty ||
+            selectedChats.isNotEmpty) &&
+        creatingStatus.value.isEmpty;
+
+    if (!enabled) {
+      return;
+    }
+
     String? groupChatName;
 
     creatingStatus.value = RxStatus.loading();

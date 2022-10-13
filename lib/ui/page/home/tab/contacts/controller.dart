@@ -61,6 +61,8 @@ class ContactsTabController extends GetxController {
   final RxMap<ChatContactId, RxChatContact> contacts = RxMap();
   final RxMap<UserId, RxUser> users = RxMap();
 
+  final RxBool sorting = RxBool(false);
+
   final RxnString query = RxnString();
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());

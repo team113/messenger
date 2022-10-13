@@ -170,7 +170,7 @@ class ContactsTabView extends StatelessWidget {
             }),
             actions: [
               Padding(
-                padding: const EdgeInsets.only(left: 12, right: 18),
+                padding: const EdgeInsets.only(left: 12, right: 14, top: 2),
                 child: Obx(() {
                   Widget child;
 
@@ -186,37 +186,59 @@ class ContactsTabView extends StatelessWidget {
                       },
                       child: SvgLoader.asset(
                         'assets/icons/close_primary.svg',
+                        width: 15,
                         height: 15,
                       ),
                     );
                   } else {
-                    child = WidgetButton(
-                      onPressed: () async {
-                        await ModalPopup.show(
-                          context: context,
-                          child: const CreateGroupView(),
-                          desktopConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                          ),
-                          modalConstraints: const BoxConstraints(maxWidth: 380),
-                          mobileConstraints: const BoxConstraints(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                          ),
-                          mobilePadding: const EdgeInsets.all(0),
-                          desktopPadding: const EdgeInsets.all(0),
-                        );
-                      },
-                      child: SvgLoader.asset(
-                        'assets/icons/group.svg',
-                        height: 18.44,
-                      ),
-                    );
+                    // child = WidgetButton(
+                    //   onPressed: () async {
+                    //     await ModalPopup.show(
+                    //       context: context,
+                    //       child: const CreateGroupView(),
+                    //       desktopConstraints: const BoxConstraints(
+                    //         maxWidth: double.infinity,
+                    //         maxHeight: double.infinity,
+                    //       ),
+                    //       modalConstraints: const BoxConstraints(maxWidth: 380),
+                    //       mobileConstraints: const BoxConstraints(
+                    //         maxWidth: double.infinity,
+                    //         maxHeight: double.infinity,
+                    //       ),
+                    //       mobilePadding: const EdgeInsets.all(0),
+                    //       desktopPadding: const EdgeInsets.all(0),
+                    //     );
+                    //   },
+                    //   child: SvgLoader.asset(
+                    //     'assets/icons/group.svg',
+                    //     height: 18.44,
+                    //   ),
+                    // );
+                    child = Obx(() {
+                      return WidgetButton(
+                        key: Key('${c.sorting.value}'),
+                        onPressed: c.sorting.toggle,
+                        child: SizedBox(
+                          width: 29.69,
+                          height: 21,
+                          child: c.sorting.value
+                              ? SvgLoader.asset(
+                                  'assets/icons/sort_abc.svg',
+                                  width: 30,
+                                  height: 21,
+                                )
+                              : SvgLoader.asset(
+                                  'assets/icons/sort_time.svg',
+                                  width: 30,
+                                  height: 21,
+                                ),
+                        ),
+                      );
+                    });
                   }
 
                   return SizedBox(
-                    width: 21.77,
+                    width: 29.69,
                     child: AnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,

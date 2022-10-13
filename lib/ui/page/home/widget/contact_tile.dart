@@ -48,6 +48,7 @@ class ContactTile extends StatelessWidget {
     this.onBadgeTap,
     this.onAvatarTap,
     this.showBadge = true,
+    this.border,
   }) : super(key: key);
 
   final RxChatContact? contact;
@@ -76,6 +77,8 @@ class ContactTile extends StatelessWidget {
   final void Function()? onAvatarTap;
   final bool showBadge;
 
+  final Border? border;
+
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
@@ -98,7 +101,7 @@ class ContactTile extends StatelessWidget {
                 constraints: const BoxConstraints(minHeight: 76),
                 decoration: BoxDecoration(
                   borderRadius: style.cardRadius,
-                  border: style.cardBorder,
+                  border: border ?? style.cardBorder,
                   color: Colors.transparent,
                 ),
                 child: Material(

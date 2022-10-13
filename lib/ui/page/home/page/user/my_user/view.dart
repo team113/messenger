@@ -106,7 +106,7 @@ class MyUserView extends StatelessWidget {
                                   style: const TextStyle(color: Colors.black),
                                 ),
                                 Text(
-                                  'Стена',
+                                  'Public',
                                   style: Theme.of(context).textTheme.caption,
                                 ),
                               ],

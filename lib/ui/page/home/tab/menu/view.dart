@@ -37,6 +37,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import 'accounts/view.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.menu` tab.
@@ -164,14 +165,15 @@ class MenuTabView extends StatelessWidget {
           );
         }
 
+        void Function()? onBack =
+            context.isNarrow && ModalRoute.of(context)?.canPop == true
+                ? Navigator.of(context).pop
+                : null;
+
         return Scaffold(
           appBar: true // context.isNarrow
               ? CustomAppBar.from(
                   context: context,
-                  onPressed:
-                      context.isNarrow && ModalRoute.of(context)?.canPop == true
-                          ? Navigator.of(context).pop
-                          : null,
                   title: context.isNarrow
                       ? Row(
                           children: [
@@ -181,6 +183,7 @@ class MenuTabView extends StatelessWidget {
                               shadowColor: const Color(0x55000000),
                               color: Colors.white,
                               child: InkWell(
+                                onTap: onBack,
                                 customBorder: const CircleBorder(),
                                 child: Center(
                                   child: AvatarWidget.fromMyUser(
@@ -194,6 +197,7 @@ class MenuTabView extends StatelessWidget {
                             const SizedBox(width: 10),
                             Flexible(
                               child: InkWell(
+                                onTap: onBack,
                                 splashFactory: NoSplash.splashFactory,
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
@@ -213,7 +217,7 @@ class MenuTabView extends StatelessWidget {
                                             color: Colors.black),
                                       ),
                                       Text(
-                                        'Стена',
+                                        'Public',
                                         style:
                                             Theme.of(context).textTheme.caption,
                                       ),
@@ -228,11 +232,12 @@ class MenuTabView extends StatelessWidget {
                       : const Text('Accounts'),
                   leading: context.isNarrow
                       ? const [StyledBackButton()]
-                      : const [
+                      : [
                           Padding(
-                            padding: EdgeInsets.only(left: 16),
+                            padding: const EdgeInsets.only(left: 16),
                             child: WidgetButton(
-                              child: Icon(
+                              onPressed: () => AccountsView.show(context),
+                              child: const Icon(
                                 Icons.help,
                                 color: Color(0xFF63B4FF),
                               ),
@@ -243,15 +248,11 @@ class MenuTabView extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: WidgetButton(
-                        onPressed: () {},
+                        onPressed: () => AccountsView.show(context),
                         child: const Icon(
                           Icons.person_rounded,
                           color: Color(0xFF63b4ff),
                         ),
-                        // child: SvgLoader.asset(
-                        //   'assets/icons/search.svg',
-                        //   width: 17.77,
-                        // ),
                       ),
                     ),
                   ],
@@ -288,7 +289,7 @@ class MenuTabView extends StatelessWidget {
                               children: const [
                                 SizedBox(height: 5),
                                 Text(
-                                  'Стена',
+                                  'Public',
                                   style: TextStyle(color: Color(0xFF888888)),
                                 ),
                               ],
@@ -333,7 +334,7 @@ class MenuTabView extends StatelessWidget {
                           children: const [
                             SizedBox(height: 5),
                             Text(
-                              'Стена',
+                              'Public',
                               style: TextStyle(color: Color(0xFF888888)),
                             ),
                           ],

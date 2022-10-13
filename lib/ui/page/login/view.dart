@@ -265,11 +265,6 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 52),
                 spaced(
-                  primaryButton(
-                    key: const Key('LoginButton'),
-                    title: 'btn_login'.l10n,
-                    onPressed: c.signIn,
-                  ),
                   secondaryButton(
                     key: const Key('RecoveryButton'),
                     title: 'btn_forgot_password'.l10n,
@@ -281,6 +276,11 @@ class LoginView extends StatelessWidget {
                       c.recovery.unchecked = c.login.text;
                       c.stage.value = LoginViewStage.recovery;
                     },
+                  ),
+                  primaryButton(
+                    key: const Key('LoginButton'),
+                    title: 'btn_login'.l10n,
+                    onPressed: c.signIn,
                   ),
                 ),
                 const SizedBox(height: 16),

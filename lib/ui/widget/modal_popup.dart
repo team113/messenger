@@ -33,15 +33,16 @@ abstract class ModalPopup {
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(32, 0, 32, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
+    Color? color,
   }) {
     Style style = Theme.of(context).extension<Style>()!;
 
-    if (context.isMobile && PlatformUtils.isMobile) {
+    if (context.isNarrow /*context.isMobile && PlatformUtils.isMobile*/) {
       return showModalBottomSheet(
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: color ?? Colors.white,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         shape: const RoundedRectangleBorder(
@@ -99,7 +100,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: color ?? Colors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Stack(

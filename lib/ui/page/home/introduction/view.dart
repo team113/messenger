@@ -138,6 +138,16 @@ class IntroductionView extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedRoundedButton(
+                        key: const Key('CloseButton'),
+                        maxWidth: null,
+                        title: Text('btn_close'.l10n, style: thin),
+                        onPressed: Navigator.of(context).pop,
+                        color: const Color(0xFFEEEEEE),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedRoundedButton(
                         key: const Key('SetPasswordButton'),
                         maxWidth: null,
                         title: Text(
@@ -149,16 +159,6 @@ class IntroductionView extends StatelessWidget {
                         color: const Color(0xFF63B4FF),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: OutlinedRoundedButton(
-                        key: const Key('CloseButton'),
-                        maxWidth: null,
-                        title: Text('btn_close'.l10n, style: thin),
-                        onPressed: Navigator.of(context).pop,
-                        color: const Color(0xFFEEEEEE),
-                      ),
-                    )
                   ],
                 ),
               ];
