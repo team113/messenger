@@ -15,10 +15,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../world/custom_world.dart';
 
@@ -29,9 +28,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
   'I open chat\'s info',
   (context) async {
-    final controller =
-        Get.find<ChatController>(tag: router.route.split('/').last);
-    router.chatInfo(controller.id);
+    router.chatInfo(ChatId(router.route.split('/').last));
 
     await context.world.appDriver.waitUntil(
       () async {

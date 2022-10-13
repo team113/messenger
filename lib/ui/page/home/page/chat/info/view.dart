@@ -104,10 +104,11 @@ class ChatInfoView extends StatelessWidget {
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
 
-  /// Returns a [Chat.avatar] visual representation along with manipulation
+  /// Returns a [Chat.avatar] visual representation along with its manipulation
   /// buttons.
   Widget _avatar(ChatInfoController c) {
-    // Builds the manipulation buttons with progress indication.
+    // Builds the manipulation buttons with [Chat.avatar] upload or removal
+    // indication.
     Widget buttons() {
       if (c.avatar.value.isLoading) {
         return const CircularProgressIndicator();
