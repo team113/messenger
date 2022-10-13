@@ -88,9 +88,11 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
 
   test('ChatService successfully adds and resets chat avatar', () async {
-    when(graphQlProvider.updateChatAvatar(const ChatId('123'),
-            file: null, onSendProgress: null))
-        .thenAnswer(
+    when(graphQlProvider.updateChatAvatar(
+      const ChatId('123'),
+      file: null,
+      onSendProgress: null,
+    )).thenAnswer(
       (_) => Future.value(UpdateChatAvatar$Mutation.fromJson({
         'updateChatAvatar': {
           '__typename': 'ChatEventsVersioned',
