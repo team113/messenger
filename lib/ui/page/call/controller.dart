@@ -39,14 +39,13 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'add_dialog_member/view.dart';
 import 'component/common.dart';
+import 'participant/view.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -656,8 +655,8 @@ class CallController extends GetxController {
               case 'SettingsButton':
                 return SettingsButton(this);
 
-              case 'AddMemberCallButton':
-                return AddMemberCallButton(this);
+              case 'ParticipantsButton':
+                return ParticipantsButton(this);
 
               case 'HandButton':
                 return HandButton(this);
@@ -702,7 +701,7 @@ class CallController extends GetxController {
 
     panel = RxList([
       SettingsButton(this),
-      AddMemberCallButton(this),
+      ParticipantsButton(this),
       HandButton(this),
       ScreenButton(this),
       RemoteVideoButton(this),
@@ -1099,23 +1098,14 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
-  /// [AddDialogMemberView].
+  /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<dynamic> openAddMember(BuildContext context) {
-    if (isGroup) {
-      return showDialog(
-        context: context,
-        builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
-      );
-    } else if (isDialog) {
-      return showDialog(
-        context: context,
-        builder: (_) =>
-            AddDialogMemberView(chat.value!.chat.value.id, _currentCall),
-      );
-    }
-
-    return Future.value();
+    keepUi(false);
+    return ParticipantView.show(
+      context,
+      call: _currentCall,
+      duration: duration,
+    );
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
