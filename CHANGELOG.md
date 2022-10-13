@@ -15,7 +15,6 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Redesigned participants modal. ([#127], [#122])
         - Dock buttons persistence. ([#159], [#137])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
@@ -25,6 +24,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
+    - Media panel:
+        - Redesigned participants modal. ([#127], [#122])
+
+### Fixed
+
+- macOS:
+    - Escape not exiting fullscreen in calls. ([#169], [#166])
 
 [#122]: /../../issues/122
 [#127]: /../../pull/127
@@ -34,6 +40,8 @@ All user visible changes to this project will be documented in this file. This p
 [#159]: /../../pull/159
 [#161]: /../../pull/161
 [#163]: /../../pull/163
+[#166]: /../../issues/166
+[#169]: /../../pull/169
 
 
 
