@@ -24,11 +24,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
-        - Redesigned chat page. ([#170], [#151])
+        - Redesigned chat page. ([#170], [#133])
 
+[#133]: /../../issues/133
 [#137]: /../../issues/137
 [#146]: /../../issues/146
-[#151]: /../../issues/151
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
