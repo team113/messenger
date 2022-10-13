@@ -280,10 +280,7 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.removeChatMember(chatId, userId);
-
-      if (userId == me) {
-        _chatLocal.remove(chatId);
-      }
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));

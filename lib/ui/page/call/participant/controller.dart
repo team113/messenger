@@ -76,7 +76,7 @@ class ParticipantController extends GetxController {
   /// Worker performing a [_fetchChat] on the [chatId] changes.
   Worker? _chatWorker;
 
-  /// [OngoingCall] that this modal is bound to.
+  /// [OngoingCall] this modal is bound to.
   final Rx<OngoingCall> _call;
 
   /// [Chat]s service adding members to the [chat].
@@ -88,7 +88,7 @@ class ParticipantController extends GetxController {
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
-  /// ID of the [Chat] this modal is bound to.
+  /// Returns an ID of the [Chat] this modal is bound to.
   Rx<ChatId> get chatId => _call.value.chatId;
 
   /// Returns [MyUser]'s [UserId].
@@ -155,9 +155,9 @@ class ParticipantController extends GetxController {
 
   /// Adds the [User]s identified by the provided [UserId]s to this [chat].
   ///
-  /// If this [chat] is a dialog, then transforms the [Chat.ongoingCall] into a
+  /// If this [chat] is a dialog, then transforms the [_call] into a
   /// [Chat]-group call.
-  Future<void> submit(List<UserId> ids) async {
+  Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
     try {

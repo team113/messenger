@@ -50,7 +50,7 @@ class ParticipantView extends StatelessWidget {
   /// Duration of the [call].
   final Rx<Duration> duration;
 
-  /// Displays an [ParticipantView] wrapped in a [ModalPopup].
+  /// Displays a [ParticipantView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<OngoingCall> call,
@@ -99,13 +99,13 @@ class ParticipantView extends StatelessWidget {
                   categories: const [
                     SearchCategory.recent,
                     SearchCategory.contacts,
-                    SearchCategory.users
+                    SearchCategory.users,
                   ],
                   title: 'label_add_participants'.l10n,
                   onBack: () =>
                       c.stage.value = ParticipantsFlowStage.participants,
                   submit: 'btn_add'.l10n,
-                  onSubmit: c.submit,
+                  onSubmit: c.addMembers,
                   enabled: c.status.value.isEmpty,
                   chat: c.chat.value,
                 );
@@ -133,7 +133,7 @@ class ParticipantView extends StatelessWidget {
                     children: c.chat.value!.members.values.map((e) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: _user(c, e),
+                        child: _user(context, c, e),
                       );
                     }).toList(),
                   ),
@@ -153,7 +153,7 @@ class ParticipantView extends StatelessWidget {
                       c.status.value = RxStatus.empty();
                       c.stage.value = ParticipantsFlowStage.search;
                     },
-                    color: const Color(0xFF63B4FF),
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ];
@@ -200,7 +200,9 @@ class ParticipantView extends StatelessWidget {
           color: style.cardColor.darken(0.05),
           child: InkWell(
             borderRadius: style.cardRadius,
-            onTap: () {},
+            onTap: () {
+              // TODO: Open the [Routes.chat] page.
+            },
             hoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -273,7 +275,7 @@ class ParticipantView extends StatelessWidget {
   }
 
   /// Returns a visual representation of the provided [user].
-  Widget _user(ParticipantController c, RxUser user) {
+  Widget _user(BuildContext context, ParticipantController c, RxUser user) {
     return ContextMenuRegion(
       enabled: user.id != c.me,
       actions: [
@@ -290,7 +292,10 @@ class ParticipantView extends StatelessWidget {
       moveDownwards: false,
       child: ContactTile(
         user: user,
-        onTap: () {},
+        onTap: () {
+          // TODO: Open the [Routes.user] page.
+        },
+        darken: 0.05,
         trailing: [
           Obx(() {
             bool inCall = call.value.members.keys
@@ -301,7 +306,7 @@ class ParticipantView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Material(
-                  color: const Color(0xFF63B4FF),
+                  color: Theme.of(context).colorScheme.secondary,
                   type: MaterialType.circle,
                   child: InkWell(
                     onTap: () {

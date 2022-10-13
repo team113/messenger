@@ -286,10 +286,10 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// [Border] to use in card-like [Widget]s.
+  /// [Border] to apply to card-like [Widget]s.
   final Border cardBorder;
 
-  /// Background [Color] to use in card-like [Widget]s.
+  /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.

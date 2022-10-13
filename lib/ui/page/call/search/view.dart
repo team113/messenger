@@ -103,6 +103,7 @@ class SearchView extends StatelessWidget {
               user: user,
               onTap: onTap,
               selected: selected,
+              darken: 0.05,
               trailing: [
                 if (selectable)
                   SizedBox(

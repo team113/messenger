@@ -455,6 +455,10 @@ extension BrightnessColorExtension on Color {
   Color lighten([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
 
+    if (amount == 0) {
+      return this;
+    }
+
     final hsl = HSLColor.fromColor(this);
     final hslLight =
         hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
@@ -465,6 +469,10 @@ extension BrightnessColorExtension on Color {
   /// Returns a darken variant of this color.
   Color darken([double amount = .2]) {
     assert(amount >= 0 && amount <= 1);
+
+    if (amount == 0) {
+      return this;
+    }
 
     final hsl = HSLColor.fromColor(this);
     final hslLight =

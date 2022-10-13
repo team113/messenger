@@ -34,7 +34,7 @@ class ContactTile extends StatelessWidget {
     this.trailing = const [],
     this.onTap,
     this.selected = false,
-    this.darken = 0.05,
+    this.darken = 0,
   }) : super(key: key);
 
   /// [RxChatContact] to display.

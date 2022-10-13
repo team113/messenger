@@ -81,17 +81,19 @@ class SearchController extends GetxController {
   ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
-  /// [RxUser]s of the [SearchCategory.recent] category.
+  /// [RxUser]s found under the [SearchCategory.recent] category.
   final RxMap<UserId, RxUser> recent = RxMap();
 
-  /// [RxChatContact]s of the [SearchCategory.contacts] category.
+  /// [RxChatContact]s found under the [SearchCategory.contacts] category.
   final RxMap<UserId, RxChatContact> contacts = RxMap();
 
-  /// [RxUser]s of the [SearchCategory.users] category.
+  /// [RxUser]s found under the [SearchCategory.users] category.
   final RxMap<UserId, RxUser> users = RxMap();
 
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
+  ///
+  /// Used to determine the current [category].
   final FlutterListViewController controller = FlutterListViewController();
 
   /// [TextFieldState] of the search field.
@@ -115,13 +117,13 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
-  /// [Chat]s service for searching the [Chat]s.
+  /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
 
-  /// Users service for searching the [User]s.
+  /// [User]s service searching the [User]s.
   final UserService _userService;
 
-  /// [ChatContact]s for searching the [ChatContact]s.
+  /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
   /// Returns [MyUser]'s [UserId].
@@ -261,14 +263,14 @@ class SearchController extends GetxController {
       if (category == SearchCategory.recent && recent.isNotEmpty) {
         controller.jumpTo(0);
       } else if (category == SearchCategory.contacts && contacts.isNotEmpty) {
-        double to = recent.length * (84 + 10);
+        double to = recent.length * (76 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
         } else {
           controller.jumpTo(to);
         }
       } else if (category == SearchCategory.users && users.isNotEmpty) {
-        double to = (recent.length + contacts.length) * (84 + 10);
+        double to = (recent.length + contacts.length) * (76 + 10);
         if (to > controller.position.maxScrollExtent) {
           controller.jumpTo(controller.position.maxScrollExtent);
         } else {
