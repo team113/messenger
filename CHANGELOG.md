@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned participants modal. ([#127], [#122])
         - Dock buttons persistence. ([#159], [#137])
+    - Chat info page:
+        - Chat avatar uploading and deleting. ([#163], [#146])
 
 ### Changed
 
@@ -27,9 +29,11 @@ All user visible changes to this project will be documented in this file. This p
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#137]: /../../issues/137
+[#146]: /../../issues/146
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
+[#163]: /../../pull/163
 
 
 

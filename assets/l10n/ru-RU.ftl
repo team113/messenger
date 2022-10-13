@@ -121,6 +121,7 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Сменить
+btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -128,6 +129,7 @@ btn_copy = Скопировать
 btn_create_group = Создать группу
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
+btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
