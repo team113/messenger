@@ -16,32 +16,31 @@
 
 import 'package:flutter/material.dart';
 
-/// Widget used to keep the state of its [child] alive.
-///
-/// Required in [PageView]s since switching the page resets the state of the
-/// widget.
-class KeepAlivePage extends StatefulWidget {
-  const KeepAlivePage({
+/// Simple [GestureDetector]-based button without any decorations.
+class WidgetButton extends StatelessWidget {
+  const WidgetButton({
     Key? key,
     required this.child,
+    this.onPressed,
   }) : super(key: key);
 
-  /// [Widget] to keep state of.
+  /// [Widget] to press.
   final Widget child;
 
-  @override
-  State<KeepAlivePage> createState() => _KeepAlivePageState();
-}
+  /// Callback, called when the [child] is pressed.
+  final void Function()? onPressed;
 
-/// State of a [KeepAlivePage] used to keep its state alive.
-class _KeepAlivePageState extends State<KeepAlivePage>
-    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
+    return MouseRegion(
+      cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: Container(
+          color: Colors.transparent,
+          child: child,
+        ),
+      ),
+    );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
