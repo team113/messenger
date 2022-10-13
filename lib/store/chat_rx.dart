@@ -26,6 +26,7 @@ import '/api/backend/schema.dart'
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -240,6 +241,11 @@ class HiveRxChat implements RxChat {
       for (HiveChatItem item in items) {
         if (item.value.chatId == id) {
           put(item);
+
+          ChatItem chatItem = item.value;
+          if (chatItem is ChatCall && chatItem.finishReasonIndex == null) {
+            chat.value.ongoingCall = chatItem;
+          }
         } else {
           _chatRepository.putChatItem(item);
         }
@@ -802,11 +808,24 @@ class HiveRxChat implements RxChat {
               break;
 
             case ChatEventKind.callMemberLeft:
-              // TODO: Implement EventChatCallMemberLeft.
+              event as EventChatCallMemberLeft;
+              int? i = chatEntity.value.ongoingCall?.members
+                  .indexWhere((e) => e.user.id == event.user.id);
+
+              if (i != null && i != -1) {
+                chatEntity.value.ongoingCall?.members.removeAt(i);
+              }
               break;
 
             case ChatEventKind.callMemberJoined:
-              // TODO: Implement EventChatCallMemberJoined.
+              event as EventChatCallMemberJoined;
+              chatEntity.value.ongoingCall?.members.add(
+                ChatCallMember(
+                  user: event.user,
+                  handRaised: false,
+                  joinedAt: event.at,
+                ),
+              );
               break;
 
             case ChatEventKind.lastItemUpdated:

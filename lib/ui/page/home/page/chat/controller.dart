@@ -165,6 +165,9 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
+  /// Duration of the ongoing call placed in this [chat].
+  final Rx<Duration> duration = Rx<Duration>(Duration.zero);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -195,7 +198,10 @@ class ChatController extends GetxController {
   StreamSubscription? _typingSubscription;
 
   /// Subscription for the [RxChat.messages] updating the [elements].
-  late final StreamSubscription _messagesSubscription;
+  StreamSubscription? _messagesSubscription;
+
+  /// Subscription for the [RxChat.chat] updating the [_durationTimer].
+  StreamSubscription? _chatSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -206,6 +212,9 @@ class ChatController extends GetxController {
 
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
+
+  /// [Timer] for updating [duration] of the call if any.
+  Timer? _durationTimer;
 
   /// [AudioPlayer] playing a sent message sound.
   AudioPlayer? _audioPlayer;
@@ -331,11 +340,13 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _messagesSubscription.cancel();
+    _messagesSubscription?.cancel();
+    _chatSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
     _typingTimer?.cancel();
+    _durationTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     listController.removeListener(_updateFabStates);
     listController.dispose();
@@ -628,6 +639,29 @@ class ChatController extends GetxController {
             // No-op.
             break;
         }
+      });
+
+      void onChat(Chat chat) {
+        if (chat.ongoingCall != null && _durationTimer == null) {
+          _durationTimer = Timer.periodic(
+            const Duration(seconds: 1),
+            (_) {
+              duration.value = DateTime.now().difference(
+                  chat.ongoingCall!.conversationStartedAt?.val ??
+                      DateTime.now());
+            },
+          );
+        } else if (chat.ongoingCall == null && _durationTimer != null) {
+          _durationTimer!.cancel();
+          _durationTimer = null;
+          duration.value = Duration.zero;
+        }
+      }
+
+      onChat(chat!.chat.value);
+
+      _chatSubscription = chat!.chat.listen((e) {
+        onChat(e);
       });
 
       _messagesWorker ??= ever(

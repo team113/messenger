@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -318,6 +319,10 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer(location: Offset.zero);
+    addTearDown(gesture.removePointer);
+
     Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
         .addPlatformAttachment(
       PlatformFile(
@@ -329,6 +334,10 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.byKey(const Key('Send')), findsOneWidget);
+
+    await gesture
+        .moveTo(tester.getCenter(find.byKey(const Key('Attachment_0'))));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

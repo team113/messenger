@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
     Key? key,
-    this.duration = const Duration(milliseconds: 250),
+    this.duration = const Duration(seconds: 1),
     this.color = Colors.white,
   }) : super(key: key);
 
@@ -47,7 +47,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
     super.initState();
 
     _controller = AnimationController(vsync: this)
-      ..repeat(period: const Duration(seconds: 1));
+      ..repeat(period: widget.duration);
   }
 
   @override
