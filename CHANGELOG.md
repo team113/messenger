@@ -28,7 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - macOS:
-    - Pressing Escape breaks fullscreen in Call. ([#166], [#169])
+    - Escape not exiting fullscreen in calls. ([#169], [#166])
 
 [#137]: /../../issues/137
 [#146]: /../../issues/146
