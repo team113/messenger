@@ -39,8 +39,8 @@ final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
       ),
     );
 
-    String chatId = router.route.split('/')[1];
-    final controller = Get.find<ChatInfoController>(tag: 'ChatInfo$chatId');
+    final controller =
+        Get.find<ChatInfoController>(tag: router.route.split('/')[2]);
     await controller.updateChatAvatar(image);
   },
 );

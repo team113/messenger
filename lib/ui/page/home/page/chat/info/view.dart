@@ -38,9 +38,9 @@ class ChatInfoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ChatInfoController>(
-      key: const Key('ChatInfo'),
+      key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find()),
-      tag: 'ChatInfo${id.val}',
+      tag: id.val,
       builder: (c) => Obx(
         () {
           if (c.status.value.isSuccess) {

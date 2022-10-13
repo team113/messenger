@@ -37,7 +37,7 @@ final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
       () async {
         await context.world.appDriver.waitForAppToSettle();
         return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatInfo', FindType.key),
+          context.world.appDriver.findBy('ChatInfoView', FindType.key),
         );
       },
     );

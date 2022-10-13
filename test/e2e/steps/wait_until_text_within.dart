@@ -20,7 +20,8 @@ import 'package:gherkin/gherkin.dart';
 
 import '../parameters/keys.dart';
 
-/// Waits until the provided text is present or absent within [Widget].
+/// Waits until the provided text is present or absent within [Widget]
+/// identified by the specified key.
 ///
 /// Examples:
 /// - Then I wait until text "Dummy" is absent within `WidgetKey`

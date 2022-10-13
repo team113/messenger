@@ -87,7 +87,7 @@ void main() async {
   Get.put(sessionProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
 
-  test('ChatService successfully adds and removes chat avatar', () async {
+  test('ChatService successfully adds and resets chat avatar', () async {
     when(graphQlProvider.updateChatAvatar(const ChatId('123'),
             file: null, onSendProgress: null))
         .thenAnswer(
@@ -98,7 +98,7 @@ void main() async {
             {
               'chatId': '123',
               'byUser': userData,
-              'at': DateTime.now().toString()
+              'at': DateTime.now().toString(),
             }
           ],
           'ver': '2'
@@ -125,7 +125,7 @@ void main() async {
                 'original': {'relativeRef': ''},
               },
               'byUser': userData,
-              'at': DateTime.now().toString()
+              'at': DateTime.now().toString(),
             }
           ],
           'ver': '1'
@@ -192,14 +192,16 @@ void main() async {
       file: captureThat(isNotNull, named: 'file'),
       onSendProgress: null,
     )).thenThrow(
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize));
+      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize),
+    );
 
     when(graphQlProvider.updateChatAvatar(
       const ChatId('123'),
       file: null,
       onSendProgress: null,
     )).thenThrow(
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.unknownChat));
+      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.unknownChat),
+    );
 
     AuthService authService = Get.put(
       AuthService(
