@@ -391,9 +391,7 @@ class _ChatViewState extends State<ChatView>
             onFileTap: (a) => c.download(e.value, a),
             onAttachmentError: () async {
               await c.chat?.updateAttachments(e.value);
-              await Future.delayed(
-                Duration.zero,
-              );
+              await Future.delayed(Duration.zero);
             },
           ),
         ),
@@ -414,7 +412,7 @@ class _ChatViewState extends State<ChatView>
             getUser: c.getUser,
             animation: _animation,
             onHide: () {
-              for (var f in element.forwards) {
+              for (Rx<ChatItem> f in element.forwards) {
                 c.hideChatItem(f.value);
               }
 
@@ -423,7 +421,7 @@ class _ChatViewState extends State<ChatView>
               }
             },
             onDelete: () {
-              for (var f in element.forwards) {
+              for (Rx<ChatItem> f in element.forwards) {
                 c.deleteMessage(f.value);
               }
 
@@ -433,7 +431,7 @@ class _ChatViewState extends State<ChatView>
             },
             onReply: () {
               if (c.repliedMessages.contains(element.forwards.last.value)) {
-                for (var e in element.forwards) {
+                for (Rx<ChatItem> e in element.forwards) {
                   c.repliedMessages.remove(e.value);
                 }
 
@@ -442,7 +440,7 @@ class _ChatViewState extends State<ChatView>
                 }
                 c.repliedMessages.remove(element.forwards.last.value);
               } else {
-                for (var e in element.forwards) {
+                for (Rx<ChatItem> e in element.forwards) {
                   c.repliedMessages.insert(0, e.value);
                 }
 

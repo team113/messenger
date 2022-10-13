@@ -103,7 +103,7 @@ class ChatForwardWidget extends StatefulWidget {
   final void Function()? onDelete;
 
   /// Callback, called when a reply action of this chat forward is triggered.
-  final Function()? onReply;
+  final void Function()? onReply;
 
   /// Callback, called when an edit action of this chat forward is triggered.
   final void Function()? onEdit;
@@ -118,7 +118,7 @@ class ChatForwardWidget extends StatefulWidget {
   final List<Attachment> Function()? onGallery;
 
   /// Callback, called when a forwarded message is tapped.
-  final Function(ChatItemId, ChatId)? onForwardedTap;
+  final void Function(ChatItemId, ChatId)? onForwardedTap;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
@@ -286,62 +286,59 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
               .toList();
 
-          if (media.isNotEmpty || files.isNotEmpty) {
-            additional = [
-              if (files.isNotEmpty)
-                AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: isRead || !fromMe ? 1 : 0.55,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                    child: Column(
-                      children: files
-                          .map((e) => buildFileAttachment(
-                                e,
-                                fromMe: widget.authorId == widget.me,
-                                onFileTap: (a) =>
-                                    widget.onFileTap?.call(item, a),
-                              ))
-                          .toList(),
-                    ),
+          additional = [
+            if (files.isNotEmpty)
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: isRead || !fromMe ? 1 : 0.55,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                  child: Column(
+                    children: files
+                        .map((e) => buildFileAttachment(
+                              e,
+                              fromMe: widget.authorId == widget.me,
+                              onFileTap: (a) => widget.onFileTap?.call(item, a),
+                            ))
+                        .toList(),
                   ),
                 ),
-              if (media.isNotEmpty)
-                AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: isRead || !fromMe ? 1 : 0.55,
-                  child: media.length == 1
-                      ? buildMediaAttachment(
-                          media.first,
-                          media,
-                          key: _galleryKeys[0],
-                          context: context,
-                          onGallery: widget.onGallery,
-                          onError: widget.onAttachmentError,
-                          filled: false,
-                        )
-                      : SizedBox(
-                          width: media.length * 120,
-                          height: max(media.length * 60, 300),
-                          child: FitView(
-                            dividerColor: Colors.transparent,
-                            children: media
-                                .mapIndexed(
-                                  (i, e) => buildMediaAttachment(
-                                    e,
-                                    media,
-                                    key: _galleryKeys[i],
-                                    context: context,
-                                    onGallery: widget.onGallery,
-                                    onError: widget.onAttachmentError,
-                                  ),
-                                )
-                                .toList(),
-                          ),
+              ),
+            if (media.isNotEmpty)
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: isRead || !fromMe ? 1 : 0.55,
+                child: media.length == 1
+                    ? buildMediaAttachment(
+                        media.first,
+                        media,
+                        key: _galleryKeys[0],
+                        context: context,
+                        onGallery: widget.onGallery,
+                        onError: widget.onAttachmentError,
+                        filled: false,
+                      )
+                    : SizedBox(
+                        width: media.length * 120,
+                        height: max(media.length * 60, 300),
+                        child: FitView(
+                          dividerColor: Colors.transparent,
+                          children: media
+                              .mapIndexed(
+                                (i, e) => buildMediaAttachment(
+                                  e,
+                                  media,
+                                  key: _galleryKeys[i],
+                                  context: context,
+                                  onGallery: widget.onGallery,
+                                  onError: widget.onAttachmentError,
+                                ),
+                              )
+                              .toList(),
                         ),
-                ),
-            ];
-          }
+                      ),
+              ),
+          ];
         }
 
         if (item.text != null && item.text!.val.isNotEmpty) {
