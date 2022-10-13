@@ -370,7 +370,8 @@ class _ChatViewState extends State<ChatView>
 
                                     return Text('Unknown element: $e');
                                   },
-                                  childCount: c.elements.length,
+                                  // ignore: invalid_use_of_protected_member
+                                  childCount: c.elements.value.length,
                                   keepPosition: true,
                                   onItemKey: (i) => c.elements.values
                                       .elementAt(i)
