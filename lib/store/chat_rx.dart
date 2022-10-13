@@ -163,6 +163,7 @@ class HiveRxChat implements RxChat {
       await _local.init(userId: me);
       if (!_local.isEmpty) {
         for (HiveChatItem i in _local.messages) {
+          print('date 2332: ${i.value.timestamp}');
           messages.add(Rx<ChatItem>(i.value));
         }
       }
@@ -252,6 +253,7 @@ class HiveRxChat implements RxChat {
   @override
   Future<void> updateAttachments(ChatItem item) async {
     HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
+    // print('${item.id} - ${item.timestamp} - ${item.at}');
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
 
@@ -289,6 +291,7 @@ class HiveRxChat implements RxChat {
       }
 
       for (Attachment a in all) {
+        // print(a.original.relativeRef);
         replace(a);
       }
 
@@ -410,24 +413,33 @@ class HiveRxChat implements RxChat {
   /// Puts the provided [item] to [Hive].
   Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
     return _guard.protect(
-      () => Future.sync(() {
+      () => Future.sync(() async {
         if (!_local.isReady) {
           return;
         }
+        print('time 234: ${item.value.timestamp}');
 
         HiveChatItem? saved = _local.get(item.value.timestamp);
+        print('after time: ${saved?.value.timestamp}');
         if (saved == null) {
-          _local.put(item);
+          print('zxc1');
+          await _local.put(item);
         } else {
-          if (saved.value.id.val != item.value.id.val) {
-            // If there's collision, then decrease timestamp with 1 millisecond
-            // offset and save this item again.
-            item.value.at =
-                item.value.at.subtract(const Duration(milliseconds: 1));
-            put(item);
-          } else if (saved.ver < item.ver || ignoreVersion) {
-            _local.put(item);
-          }
+          print('zxc2');
+          await _local.put(item);
+          saved = _local.get(item.value.timestamp);
+          print('after time2: ${saved?.value.timestamp}');
+          // if (saved.value.id.val != item.value.id.val) {
+          //   print('zxc3');
+          //   // If there's collision, then decrease timestamp with 1 millisecond
+          //   // offset and save this item again.
+          //   item.value.at =
+          //       item.value.at.subtract(const Duration(milliseconds: 1));
+          //   put(item);
+          // } else if (saved.ver < item.ver || ignoreVersion) {
+          //   print('zxc4');
+          //   _local.put(item);
+          // }
         }
       }),
     );
@@ -478,8 +490,17 @@ class HiveRxChat implements RxChat {
           return null;
         }
 
-        timestamp ??=
-            messages.firstWhereOrNull((e) => e.value.id == id)?.value.timestamp;
+        for (var lel in _local.messages) {
+          if (lel.value is ChatMessage &&
+              (lel.value as ChatMessage).attachments.isNotEmpty) {
+            // print('||||||||||  ${lel.value.timestamp} ${lel.key}');
+          }
+        }
+
+        timestamp ??= _local.messages
+            .firstWhereOrNull((e) => e.value.id == id)
+            ?.value
+            .timestamp;
 
         HiveChatItem? result;
         if (timestamp != null) {

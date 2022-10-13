@@ -430,6 +430,7 @@ class ChatController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
     chat = await _chatService.get(id);
+    // print('time 11: ${chat?.messages.first.value.timestamp}');
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
@@ -514,12 +515,14 @@ class ChatController extends GetxController {
       }
 
       for (Rx<ChatItem> e in chat!.messages) {
+        print('date 1: ${e.value.timestamp} ${e.value.at}');
         add(e);
       }
 
       _messagesSubscription = chat!.messages.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
+            print('date 2: ${e.element.value.timestamp}');
             add(e.element);
             break;
 

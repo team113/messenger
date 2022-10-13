@@ -105,7 +105,6 @@ class _RetryImageState extends State<RetryImage> {
     Response? data;
 
     try {
-      print(widget.url);
       data = await Dio().get(
         widget.url,
         onReceiveProgress: (received, total) {
@@ -119,12 +118,9 @@ class _RetryImageState extends State<RetryImage> {
         options: Options(responseType: ResponseType.bytes),
       );
     } on DioError catch (_, e) {
-      if (_.response?.statusCode == 403) {
-        await widget.error403?.call();
-        setState(() {});
-      }
+      if (_.response?.statusCode == 403) {}
     }
-
+    await widget.error403?.call();
     if (data?.data != null && data!.statusCode == 200) {
       _image = data.data;
       if (mounted) {

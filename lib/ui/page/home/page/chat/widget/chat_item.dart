@@ -168,6 +168,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateGlobalKeys(widget.item.value);
+    print('initChatItem ${widget.item.value.timestamp}');
     super.initState();
   }
 
