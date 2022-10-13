@@ -62,11 +62,11 @@ class ParticipantController extends GetxController {
   final Rx<ParticipantsFlowStage> stage =
       Rx(ParticipantsFlowStage.participants);
 
-  /// Status of a [submit] completion.
+  /// Status of a [addMembers] completion.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning no [submit] is executing.
-  /// - `status.isLoading`, meaning [submit] is executing.
+  /// - `status.isEmpty`, meaning no [addMembers] is executing.
+  /// - `status.isLoading`, meaning [addMembers] is executing.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
   /// Worker for catching the [OngoingCallState.ended] state of the [_call] to
