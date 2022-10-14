@@ -23,6 +23,7 @@ import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -158,6 +159,14 @@ abstract class AbstractChatRepository {
     List<ChatItemQuote> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
+  });
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
   });
 }
 
