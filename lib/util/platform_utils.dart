@@ -291,23 +291,14 @@ class _WindowListener extends WindowListener {
 }
 
 /// Calls the provided [callback] with backoff.
+///
+/// Retrying the [callback] if it throws any error.
 Future<T?> withBackoff<T>(
   Future<T> Function() callback,
   CancelToken? cancelToken,
 ) async {
-  Duration backoff = 125.milliseconds;
+  Duration backoff = Duration.zero;
   T? result;
-
-  try {
-    result = await callback();
-    return result;
-  } catch (_) {
-    // No-op.
-  }
-
-  if (cancelToken?.isCancelled == true) {
-    return null;
-  }
 
   while (result == null) {
     try {
@@ -321,7 +312,9 @@ Future<T?> withBackoff<T>(
       result = await callback();
       return result;
     } catch (_) {
-      if (backoff < 2.seconds) {
+      if (backoff.inMilliseconds == 0) {
+        backoff = 125.milliseconds;
+      } else if (backoff < 16.seconds) {
         backoff *= 2;
       }
     }
