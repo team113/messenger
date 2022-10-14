@@ -36,9 +36,7 @@ alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
 btn_add_participant = Добавить участника
-btn_add_participant_desc =
-    Добавить
-    участника
+btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
@@ -152,6 +150,10 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_participants = Участники
+btn_participants_desc =
+    Список
+    участников
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
@@ -264,6 +266,7 @@ label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
+label_add_participants = Добавить участников
 label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
 label_ago = { $years ->
@@ -451,11 +454,14 @@ label_no_chat_found = Чат не найден
 label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
 label_no_registration = без регистрации
+label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participants = Участники
+label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
 label_password_not_set = Пароль не задан
 label_password_set_successfully = Пароль успешно задан
@@ -469,6 +475,7 @@ label_presence_away = Отошёл
 label_presence_hidden = Скрыт
 label_presence_present = Информация о последнем входе
 label_read_by = Прочитано
+label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
@@ -477,6 +484,7 @@ label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
 label_search_recent = Недавние
+label_selected = Выбрано: {$count}
 label_send_message_hint = Сообщение...
 label_service_connected = Сервис успешно подключен
 label_service_encountered_error = Сервис столкнулся с ошибкой
@@ -499,6 +507,8 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
+label_use_search = Используйте поиск, чтобы найти пользователя
+label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок
 label_video_downloaded = Видео загружено.

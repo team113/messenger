@@ -438,8 +438,8 @@ Widget mobileCall(CallController c, BuildContext context) {
             buttons(
               [
                 padding(withDescription(
-                  AddMemberCallButton(c).build(),
-                  Text('btn_add_participant_desc'.l10n),
+                  ParticipantsButton(c).build(),
+                  Text('btn_participants_desc'.l10n),
                 )),
                 padding(withDescription(
                   HandButton(c).build(),

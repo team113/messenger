@@ -45,10 +45,7 @@ class Themes {
               fontWeight: FontWeight.w400,
             ),
             cardBlur: 5,
-            cardBorder: Border.all(
-              color: const Color(0xFFEBEBEB),
-              width: 0.5,
-            ),
+            cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
             cardRadius: BorderRadius.circular(14),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
@@ -105,10 +102,10 @@ class Themes {
             fontSize: 18,
           ),
           headline4: TextStyle(color: colors.primary, fontSize: 24),
-          headline5: TextStyle(
-            color: colors.primary,
+          headline5: const TextStyle(
+            color: Colors.black,
             fontWeight: FontWeight.w400,
-            fontSize: 20,
+            fontSize: 18,
           ),
           caption: TextStyle(
             color: colors.primary,
@@ -116,7 +113,11 @@ class Themes {
             fontSize: 13,
           ),
           subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: const TextStyle(color: Colors.black, fontSize: 13),
+          subtitle2: TextStyle(
+            color: colors.primary,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
           bodyText1: const TextStyle(
             color: Colors.black,
             fontSize: 15,
@@ -293,10 +294,10 @@ class Style extends ThemeExtension<Style> {
   /// Blur to use in card-like [Widget]s.
   final double cardBlur;
 
-  /// [Border] to use in card-like [Widget]s.
+  /// [Border] to apply to card-like [Widget]s.
   final Border cardBorder;
 
-  /// Background [Color] to use in card-like [Widget]s.
+  /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.
