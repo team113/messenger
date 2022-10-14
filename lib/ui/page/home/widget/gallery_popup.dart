@@ -111,8 +111,8 @@ class GalleryPopup extends StatefulWidget {
   /// Callback, called when the displayed [GalleryItem] is changed.
   final void Function(int)? onPageChanged;
 
-  /// Callback, called when a remove action of the current [GalleryItem] is
-  /// triggered.
+  /// Callback, called when a remove action of a [GalleryItem] at the provided
+  /// index is triggered.
   final void Function(int index)? onTrashPressed;
 
   /// Displays a dialog with the provided [gallery] above the current contents.

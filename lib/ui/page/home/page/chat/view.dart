@@ -153,8 +153,7 @@ class _ChatViewState extends State<ChatView>
                 children: [
                   Scaffold(
                     resizeToAvoidBottomInset: true,
-                    appBar: CustomAppBar.from(
-                      context: context,
+                    appBar: CustomAppBar(
                       title: Row(
                         children: [
                           Material(
@@ -224,7 +223,7 @@ class _ChatViewState extends State<ChatView>
                           AnimatedSwitcher(
                             key: const Key('ActiveCallButton'),
                             duration: 300.milliseconds,
-                            child: c.isInCall()
+                            child: c.inCall
                                 ? WidgetButton(
                                     key: const Key('Drop'),
                                     onPressed: c.dropCall,
@@ -250,8 +249,10 @@ class _ChatViewState extends State<ChatView>
                                     child: Container(
                                       height: 32,
                                       width: 32,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF63B4FF),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
@@ -270,8 +271,7 @@ class _ChatViewState extends State<ChatView>
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
-                          // TODO: Look at `PointerPanZoomUpdateEvent`:
-                          //       https://github.com/flutter/flutter/issues/23604
+                          // TODO: Use [PointerPanZoomUpdateEvent] here.
                           if (s.scrollDelta.dy.abs() < 3 &&
                               (s.scrollDelta.dx.abs() > 3 ||
                                   c.horizontalScrollTimer.value != null)) {
@@ -443,8 +443,9 @@ class _ChatViewState extends State<ChatView>
                                     c.listController.position.maxScrollExtent) {
                               Rect current = c.bottomBarRect.value!;
                               c.listController.jumpTo(
-                                  c.listController.position.pixels +
-                                      (current.height - previous.height));
+                                c.listController.position.pixels +
+                                    (current.height - previous.height),
+                              );
                             }
                           });
 
@@ -559,17 +560,19 @@ class _ChatViewState extends State<ChatView>
       Rx<Chat> chat = c.chat!.chat;
 
       if (chat.value.ongoingCall != null) {
-        var subtitle = StringBuffer();
+        final subtitle = StringBuffer();
         if (!context.isMobile) {
           subtitle.write('${'label_call_active'.l10n} |');
         }
 
         final Set<UserId> actualMembers =
             chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
-        subtitle.write('${'label_a_of_b'.l10nfmt({
-              'a': actualMembers.length,
-              'b': c.chat!.members.length
-            })} | ${c.duration.value.hhMmSs()}');
+        subtitle.write(
+          '${'label_a_of_b'.l10nfmt({
+                'a': actualMembers.length,
+                'b': c.chat!.members.length
+              })} | ${c.duration.value.hhMmSs()}',
+        );
 
         return Text(subtitle.toString(), style: style);
       }
@@ -606,7 +609,7 @@ class _ChatViewState extends State<ChatView>
           children: [
             Flexible(
               child: Text(
-                typings.join(', '),
+                typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: style?.copyWith(
@@ -624,12 +627,12 @@ class _ChatViewState extends State<ChatView>
       }
 
       if (chat.value.isGroup) {
-        var subtitle = chat.value.getSubtitle();
+        final String? subtitle = chat.value.getSubtitle();
         if (subtitle != null) {
           return Text(subtitle, style: style);
         }
       } else if (chat.value.isDialog) {
-        var partner =
+        final ChatMember? partner =
             chat.value.members.firstWhereOrNull((u) => u.user.id != c.me);
         if (partner != null) {
           return FutureBuilder<RxUser?>(
@@ -736,7 +739,7 @@ class _ChatViewState extends State<ChatView>
   /// Returns a [ReactiveTextField] for sending a message in this [Chat].
   Widget _sendField(ChatController c) {
     Style style = Theme.of(context).extension<Style>()!;
-    const double iconSize = 22;
+
     return Container(
       key: const Key('SendField'),
       decoration: BoxDecoration(
@@ -752,8 +755,7 @@ class _ChatViewState extends State<ChatView>
         mainAxisSize: MainAxisSize.min,
         children: [
           LayoutBuilder(builder: (context, constraints) {
-            bool grab =
-                (127) * c.attachments.length > constraints.maxWidth - 16;
+            bool grab = 127 * c.attachments.length > constraints.maxWidth - 16;
             return Stack(
               children: [
                 Obx(() {
@@ -848,7 +850,11 @@ class _ChatViewState extends State<ChatView>
                                           },
                                           reverse: true,
                                           padding: const EdgeInsets.fromLTRB(
-                                              1, 0, 1, 0),
+                                            1,
+                                            0,
+                                            1,
+                                            0,
+                                          ),
                                           children: c.repliedMessages.map((e) {
                                             return ReorderableDragStartListener(
                                               key: Key('Handle_${e.id}'),
@@ -944,11 +950,11 @@ class _ChatViewState extends State<ChatView>
                         height: 56,
                         child: Center(
                           child: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
+                            width: 22,
+                            height: 22,
                             child: SvgLoader.asset(
                               'assets/icons/attach.svg',
-                              height: iconSize,
+                              height: 22,
                             ),
                           ),
                         ),
@@ -971,11 +977,11 @@ class _ChatViewState extends State<ChatView>
                         height: 56,
                         child: Center(
                           child: SizedBox(
-                            width: iconSize,
-                            height: iconSize,
+                            width: 22,
+                            height: 22,
                             child: SvgLoader.asset(
                               'assets/icons/attach.svg',
-                              height: iconSize,
+                              height: 22,
                             ),
                           ),
                         ),
@@ -1086,12 +1092,9 @@ class _ChatViewState extends State<ChatView>
                                       key: const Key('Send'),
                                       width: 25.18,
                                       height: 22.85,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(top: 0),
-                                        child: SvgLoader.asset(
-                                          'assets/icons/send.svg',
-                                          height: 22.85,
-                                        ),
+                                      child: SvgLoader.asset(
+                                        'assets/icons/send.svg',
+                                        height: 22.85,
                                       ),
                                     ),
                                   ),
@@ -1222,12 +1225,9 @@ class _ChatViewState extends State<ChatView>
                             key: const Key('Edit'),
                             width: 25.18,
                             height: 22.85,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 0),
-                              child: SvgLoader.asset(
-                                'assets/icons/send.svg',
-                                height: 22.85,
-                              ),
+                            child: SvgLoader.asset(
+                              'assets/icons/send.svg',
+                              height: 22.85,
                             ),
                           ),
                         ),
@@ -1260,7 +1260,7 @@ class _ChatViewState extends State<ChatView>
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          textStyle: const TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             color: Colors.black,
           ),
@@ -1506,9 +1506,9 @@ class _ChatViewState extends State<ChatView>
                 e.original.size == null
                     ? '... KB'
                     : '${e.original.size! ~/ 1024} KB',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF888888),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -1615,7 +1615,7 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Builds the provided [ChatItem] as replied.
+  /// Builds a visual representation of the provided [item] being replied.
   Widget _repliedMessage(ChatController c, ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
     bool fromMe = item.authorId == c.me;
@@ -1725,7 +1725,7 @@ class _ChatViewState extends State<ChatView>
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('Forwarded message', style: style.boldBody);
+      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
     } else if (item is ChatMemberInfo) {
       // TODO: Implement `ChatMemberInfo`.
       content = Text(item.action.toString(), style: style.boldBody);
@@ -1752,7 +1752,7 @@ class _ChatViewState extends State<ChatView>
                   future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == c.me
-                        ? const Color(0xFF63B4FF)
+                        ? Theme.of(context).colorScheme.secondary
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
@@ -1760,10 +1760,7 @@ class _ChatViewState extends State<ChatView>
                     return Container(
                       decoration: BoxDecoration(
                         border: Border(
-                          left: BorderSide(
-                            width: 2,
-                            color: color,
-                          ),
+                          left: BorderSide(width: 2, color: color),
                         ),
                       ),
                       margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -1799,17 +1796,16 @@ class _ChatViewState extends State<ChatView>
 
                               return Text(
                                 name ?? '...',
-                                style: style.boldBody
-                                    .copyWith(color: const Color(0xFF63B4FF)),
+                                style: style.boldBody.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
                               );
                             },
                           ),
                           if (content != null) ...[
                             const SizedBox(height: 2),
-                            DefaultTextStyle.merge(
-                              maxLines: 1,
-                              child: content,
-                            ),
+                            DefaultTextStyle.merge(maxLines: 1, child: content),
                           ],
                           if (additional.isNotEmpty) ...[
                             const SizedBox(height: 4),

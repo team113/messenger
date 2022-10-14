@@ -24,7 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
-        - Redesigned chat page. ([#170], [#133])
+        - Redesigned header and send field. ([#170], [#133])
     - Media panel:
         - Redesigned participants modal. ([#127], [#122])
 
@@ -42,12 +42,9 @@ All user visible changes to this project will be documented in this file. This p
 [#159]: /../../pull/159
 [#161]: /../../pull/161
 [#163]: /../../pull/163
-<<<<<<< HEAD
-[#170]: /../../pull/170
-=======
 [#166]: /../../issues/166
 [#169]: /../../pull/169
->>>>>>> origin/main
+[#170]: /../../pull/170
 
 
 

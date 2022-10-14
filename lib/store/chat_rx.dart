@@ -810,9 +810,10 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callMemberLeft:
               event as EventChatCallMemberLeft;
               int? i = chatEntity.value.ongoingCall?.members
-                  .indexWhere((e) => e.user.id == event.user.id);
+                      .indexWhere((e) => e.user.id == event.user.id) ??
+                  -1;
 
-              if (i != null && i != -1) {
+              if (i != -1) {
                 chatEntity.value.ongoingCall?.members.removeAt(i);
               }
               break;

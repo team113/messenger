@@ -147,7 +147,7 @@ class ChatController extends GetxController {
   /// [GlobalKey] of the bottom bar.
   final GlobalKey bottomBarKey = GlobalKey();
 
-  /// Global [Rect] of the bottom bar.
+  /// [Rect] the bottom bar takes.
   final Rx<Rect?> bottomBarRect = Rx(null);
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
@@ -165,7 +165,7 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Duration of the ongoing call placed in this [chat].
+  /// Duration of the [Chat.ongoingCall].
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
@@ -260,6 +260,11 @@ class ChatController extends GetxController {
       return false;
     }
   }
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  bool get inCall =>
+      _callService.calls[id] != null || WebUtils.containsCall(id);
 
   @override
   void onInit() {
@@ -358,10 +363,6 @@ class ChatController extends GetxController {
 
     super.onClose();
   }
-
-  /// Returns indicator whether call placed in this [chat] is showed.
-  bool isInCall() =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
 
   // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
@@ -641,28 +642,35 @@ class ChatController extends GetxController {
         }
       });
 
-      void onChat(Chat chat) {
-        if (chat.ongoingCall != null && _durationTimer == null) {
-          _durationTimer = Timer.periodic(
-            const Duration(seconds: 1),
-            (_) {
-              duration.value = DateTime.now().difference(
-                  chat.ongoingCall!.conversationStartedAt?.val ??
-                      DateTime.now());
-            },
-          );
-        } else if (chat.ongoingCall == null && _durationTimer != null) {
-          _durationTimer!.cancel();
-          _durationTimer = null;
+      // Previous [Chat.ongoingCall], used to update the [_durationTimer].
+      ChatItemId? previousCall;
+
+      // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
+      // from the stored [previousCall].
+      void setUpTimer(Chat chat) {
+        if (previousCall != chat.ongoingCall?.id) {
+          previousCall = chat.ongoingCall?.id;
+
           duration.value = Duration.zero;
+          _durationTimer?.cancel();
+          _durationTimer = null;
+
+          if (chat.ongoingCall != null) {
+            _durationTimer = Timer.periodic(
+              const Duration(seconds: 1),
+              (_) {
+                duration.value = DateTime.now().difference(
+                  chat.ongoingCall!.conversationStartedAt?.val ??
+                      DateTime.now(),
+                );
+              },
+            );
+          }
         }
       }
 
-      onChat(chat!.chat.value);
-
-      _chatSubscription = chat!.chat.listen((e) {
-        onChat(e);
-      });
+      setUpTimer(chat!.chat.value);
+      _chatSubscription = chat!.chat.listen(setUpTimer);
 
       _messagesWorker ??= ever(
         chat!.messages,

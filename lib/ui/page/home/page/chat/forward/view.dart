@@ -51,7 +51,7 @@ class ChatForwardView extends StatelessWidget {
     required this.from,
     required this.quotes,
     this.text,
-    this.attachments,
+    this.attachments = const [],
   }) : super(key: key);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -60,11 +60,11 @@ class ChatForwardView extends StatelessWidget {
   /// [ChatItemQuote]s to be forwarded.
   final List<ChatItemQuote> quotes;
 
-  /// Initial text of the send field.
+  /// Initial [String] to put in the send field.
   final String? text;
 
-  /// Initial [Attachment]s.
-  final RxList<Attachment>? attachments;
+  /// Initial [Attachment]s to attach to the provided [quotes].
+  final List<Attachment> attachments;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -72,7 +72,7 @@ class ChatForwardView extends StatelessWidget {
     ChatId from,
     List<ChatItemQuote> quotes, {
     String? text,
-    RxList<Attachment>? attachments,
+    List<Attachment> attachments = const [],
   }) {
     return ModalPopup.show(
       context: context,

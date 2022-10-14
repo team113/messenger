@@ -380,8 +380,6 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
-label_edit_message = Message editing
-label_edit_message_hint = No text
 label_email_confirmation_code_was_sent =
       Confirmation code was send to your Email and/or to your phone
 label_emails = Emails

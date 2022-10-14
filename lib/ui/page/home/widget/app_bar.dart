@@ -21,60 +21,73 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
-/// Decorated [PreferredSize] [Widget] with provided [leading] and [actions].
-abstract class CustomAppBar {
-  static PreferredSizeWidget from({
+/// Custom decorated [AppBar].
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const CustomAppBar({
     Key? key,
-    required BuildContext context,
-    Widget? title,
-    List<Widget>? leading,
-    List<Widget>? actions,
-    EdgeInsets? padding,
-  }) {
-    Style style = Theme.of(context).extension<Style>()!;
+    this.title,
+    this.leading = const [],
+    this.actions = const [],
+    this.padding,
+  }) : super(key: key);
 
-    return PreferredSize(
-      key: key,
-      preferredSize: const Size(double.infinity, 60),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            boxShadow: const [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: Color(0x22000000),
-                blurStyle: BlurStyle.outer,
-              ),
-            ],
-          ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
+  /// Primary centered [Widget] of this [CustomAppBar].
+  final Widget? title;
+
+  /// [Widget]s displayed in a row before the [title].
+  final List<Widget> leading;
+
+  /// [Widget]s displayed in a row after the [title].
+  final List<Widget> actions;
+
+  /// Padding to apply to the contents.
+  final EdgeInsets? padding;
+
+  @override
+  Size get preferredSize => const Size(double.infinity, 60);
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
+          boxShadow: const [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: Color(0x22000000),
+              blurStyle: BlurStyle.outer,
             ),
-            borderRadius: style.cardRadius,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                color: style.cardColor,
-              ),
-              padding: padding,
-              child: Row(
-                children: [
-                  if (leading != null) ...leading,
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: Theme.of(context).appBarTheme.titleTextStyle,
-                      child: Center(child: title ?? Container()),
-                    ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
+          ),
+          borderRadius: style.cardRadius,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              color: style.cardColor,
+            ),
+            padding: padding,
+            child: Row(
+              children: [
+                ...leading,
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    style: Theme.of(context).appBarTheme.titleTextStyle,
+                    child: Center(child: title ?? const SizedBox.shrink()),
                   ),
-                  if (actions != null) ...actions,
-                ],
-              ),
+                ),
+                ...actions,
+              ],
             ),
           ),
         ),
