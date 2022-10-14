@@ -20,7 +20,6 @@ import 'dart:collection';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'

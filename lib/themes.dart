@@ -63,6 +63,14 @@ class Themes {
             statusMessageRead: const Color(0xFF63B4FF),
             subtitleColor: const Color(0xFF666666),
             unselectedHoverColor: const Color.fromARGB(255, 244, 249, 255),
+            systemMessageBorder:
+                Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
+            systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
+            systemMessageStyle: GoogleFonts.roboto(
+              color: const Color(0xFF888888),
+              fontSize: 13,
+              fontWeight: FontWeight.w300,
+            ),
           ),
         ],
         colorScheme: colors,
@@ -123,7 +131,11 @@ class Themes {
             fontSize: 17,
           ),
           subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
-          subtitle2: TextStyle(color: colors.primary, fontSize: 15),
+          subtitle2: TextStyle(
+            color: colors.primary,
+            fontSize: 15,
+            fontWeight: FontWeight.w300,
+          ),
           bodyText1: const TextStyle(
             color: Colors.black,
             fontSize: 15,
@@ -295,6 +307,9 @@ class Style extends ThemeExtension<Style> {
     required this.statusMessageRead,
     required this.subtitleColor,
     required this.unselectedHoverColor,
+    required this.systemMessageBorder,
+    required this.systemMessageColor,
+    required this.systemMessageStyle,
   });
 
   /// [Color] of the modal background barrier color.
@@ -354,6 +369,15 @@ class Style extends ThemeExtension<Style> {
   /// [Color] to use in sidebar for chats when hovering.
   final Color unselectedHoverColor;
 
+  /// [Border] to apply to system messages.
+  final Border systemMessageBorder;
+
+  /// [Color] of system messages.
+  final Color systemMessageColor;
+
+  /// [TextStyle] of system messages.
+  final TextStyle systemMessageStyle;
+
   @override
   ThemeExtension<Style> copyWith({
     Border? cardBorder,
@@ -376,6 +400,9 @@ class Style extends ThemeExtension<Style> {
     Color? unselectedHoverColor,
     double? cardBlur,
     TextStyle? boldBody,
+    Border? systemMessageBorder,
+    Color? systemMessageColor,
+    TextStyle? systemMessageStyle,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
@@ -400,6 +427,9 @@ class Style extends ThemeExtension<Style> {
       statusMessageRead: statusMessageRead ?? this.statusMessageRead,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       unselectedHoverColor: unselectedHoverColor ?? this.unselectedHoverColor,
+      systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
+      systemMessageColor: systemMessageColor ?? this.systemMessageColor,
+      systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
     );
   }
 
@@ -444,6 +474,15 @@ class Style extends ThemeExtension<Style> {
       subtitleColor: Color.lerp(subtitleColor, other.subtitleColor, t)!,
       unselectedHoverColor:
           Color.lerp(unselectedHoverColor, other.unselectedHoverColor, t)!,
+      systemMessageBorder:
+          Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
+      systemMessageColor:
+          Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
+      systemMessageStyle: TextStyle.lerp(
+        systemMessageStyle,
+        other.systemMessageStyle,
+        t,
+      )!,
     );
   }
 }

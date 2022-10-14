@@ -273,9 +273,9 @@ class CallService extends DisposableService {
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
-    List<UserId> additionalMemberIds,
+    List<UserId> additionalMemberIds, {
     ChatName? groupName,
-  ) async {
+  }) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(
