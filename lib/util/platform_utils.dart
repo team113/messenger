@@ -27,8 +27,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../routes.dart';
 import '/config.dart';
+import '/routes.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -41,6 +41,9 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
+
+  /// Worker to react on [router.lifecycle] changes.
+  Worker? _mobileWorker;
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -69,32 +72,30 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
-  Worker? _mobileWorker;
-
+  /// Returns a stream broadcasting application focus changes.
   Stream<bool> get onFocusChanged {
     StreamController<bool>? controller;
 
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      var windowListener = _WindowFocusListener(
+      _WindowFocusListener listener = _WindowFocusListener(
         onBlur: () => controller!.add(false),
         onFocus: () => controller!.add(true),
       );
 
       controller = StreamController<bool>(
-        onListen: () => WindowManager.instance.addListener(windowListener),
-        onCancel: () => WindowManager.instance.removeListener(windowListener),
+        onListen: () => WindowManager.instance.addListener(listener),
+        onCancel: () => WindowManager.instance.removeListener(listener),
       );
 
       return controller.stream;
     } else {
       controller = StreamController<bool>(
-        onListen: () {
-          _mobileWorker = ever(router.lifecycle, (AppLifecycleState a) {
-            controller?.add(a.inForeground);
-          });
-        },
+        onListen: () => _mobileWorker = ever(
+          router.lifecycle,
+          (AppLifecycleState a) => controller?.add(a.inForeground),
+        ),
         onCancel: () => _mobileWorker?.dispose(),
       );
 
@@ -120,7 +121,7 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowListener(
+      var windowListener = _WindowFullscreenListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -250,13 +251,11 @@ extension MobileExtensionOnContext on BuildContext {
       : MediaQuery.of(this).size.shortestSide < 600;
 }
 
-/// Listener interface for receiving window events.
-class _WindowListener extends WindowListener {
-  _WindowListener({
+/// Listener interface for receiving window fullscreen events.
+class _WindowFullscreenListener extends WindowListener {
+  _WindowFullscreenListener({
     required this.onLeaveFullscreen,
     required this.onEnterFullscreen,
-    this.onFocus,
-    this.onBlur,
   });
 
   /// Callback, called when the window exits fullscreen.
@@ -265,34 +264,24 @@ class _WindowListener extends WindowListener {
   /// Callback, called when the window enters fullscreen.
   final VoidCallback onEnterFullscreen;
 
-  VoidCallback? onFocus;
-
-  VoidCallback? onBlur;
-
   @override
   void onWindowEnterFullScreen() => onEnterFullscreen();
 
   @override
   void onWindowLeaveFullScreen() => onLeaveFullscreen();
-
-  @override
-  void onWindowFocus() => onFocus?.call();
-
-  @override
-  void onWindowBlur() => onBlur?.call();
 }
 
-/// Listener interface for receiving window events.
+/// Listener interface for receiving window focus events.
 class _WindowFocusListener extends WindowListener {
   _WindowFocusListener({
     required this.onFocus,
     required this.onBlur,
   });
 
-  /// Callback, called when the window exits fullscreen.
+  /// Callback, called when the window is being focused.
   final VoidCallback onFocus;
 
-  /// Callback, called when the window enters fullscreen.
+  /// Callback, called when the window is being blurred.
   final VoidCallback onBlur;
 
   @override

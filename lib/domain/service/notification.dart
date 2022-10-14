@@ -35,7 +35,10 @@ class NotificationService extends DisposableService {
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
+  /// Subscription to events of application focus changes.
   StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether application is focused or not.
   bool _focused = true;
 
   /// Initializes this [NotificationService].
@@ -53,10 +56,10 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((event) {
-      _focused = event;
-    });
-    _focused = await PlatformUtils.isFocused;
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+
+    PlatformUtils.isFocused.then((value) => _focused = value);
+
     _initAudio();
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
@@ -104,9 +107,7 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
-    if (_focused) {
-      return;
-    }
+    if (_focused) return;
 
     if (playSound) {
       runZonedGuarded(() async {
