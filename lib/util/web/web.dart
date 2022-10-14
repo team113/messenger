@@ -107,8 +107,8 @@ external cleanIndexedDB();
 @JS('window.isPopup')
 external bool _isPopup;
 
-@JS('focused')
-external bool _focused;
+@JS('document.hasFocus')
+external bool _hasFocus();
 
 /// Helper providing direct access to browser-only features.
 ///
@@ -132,7 +132,7 @@ class WebUtils {
   }
 
   /// Indicates whether application is focused or not.
-  static bool get isFocused => _focused;
+  static bool get isFocused => _hasFocus();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -209,6 +209,30 @@ class WebUtils {
       onCancel: () {
         html.document.removeEventListener('mouseenter', enterListener);
         html.document.removeEventListener('mouseleave', leaveListener);
+      },
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the browser's window focus changes.
+  static Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on focus window.
+    void focusListener(html.Event event) => controller!.add(true);
+
+    // Event listener reacting on blur window.
+    void blurListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.document.addEventListener('focus', focusListener);
+        html.document.addEventListener('blur', blurListener);
+      },
+      onCancel: () {
+        html.document.removeEventListener('focus', focusListener);
+        html.document.removeEventListener('blur', blurListener);
       },
     );
 

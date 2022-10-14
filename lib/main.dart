@@ -62,9 +62,6 @@ Future<void> main() async {
 
     await _initHive();
 
-    Get.put(NotificationService())
-        .init(onNotificationResponse: onNotificationResponse);
-
     var graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
@@ -75,6 +72,9 @@ Future<void> main() async {
     await L10n.init();
 
     router = RouterState(authService);
+
+    Get.put(NotificationService())
+        .init(onNotificationResponse: onNotificationResponse);
 
     Get.put(BackgroundWorker(Get.find()));
 

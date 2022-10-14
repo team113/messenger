@@ -35,6 +35,9 @@ class NotificationService extends DisposableService {
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
+  StreamSubscription? _onFocusChanged;
+  bool _focused = true;
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
@@ -50,6 +53,10 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((event) {
+      _focused = event;
+    });
+    _focused = await PlatformUtils.isFocused;
     _initAudio();
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
@@ -78,6 +85,7 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
+    _onFocusChanged?.cancel();
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/notification.mp3']]
         .whereNotNull()
@@ -96,7 +104,7 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
-    if (!PlatformUtils.isMobile && await PlatformUtils.isFocused) {
+    if (_focused) {
       return;
     }
 
