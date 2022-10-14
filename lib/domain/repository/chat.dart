@@ -23,6 +23,7 @@ import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -159,6 +160,14 @@ abstract class AbstractChatRepository {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  });
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -166,7 +175,9 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
-  /// Reactive list of [ChatItem]s of a [chat].
+  // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
+  //       [PreciseDateTime] and [ChatItemId] as a key.
+  /// Observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages;
 
   /// Status of the [messages] fetching.

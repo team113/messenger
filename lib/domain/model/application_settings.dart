@@ -49,6 +49,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(3)
   double? sideBarWidth;
 
+  /// [CallButton]s placed in a [Dock] of an [OngoingCall].
   @HiveField(4)
   List<String> callButtons;
 }

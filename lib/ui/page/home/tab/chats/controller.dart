@@ -20,7 +20,9 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
@@ -47,6 +49,12 @@ import '/util/obs/obs.dart';
 
 export 'view.dart';
 
+enum SearchCategory {
+  chat,
+  user,
+  contact,
+}
+
 /// Controller of the [HomeTab.chats] tab .
 class ChatsTabController extends GetxController {
   ChatsTabController(
@@ -55,6 +63,7 @@ class ChatsTabController extends GetxController {
     this._authService,
     this._userService,
     this._contactService,
+    this._myUserService,
   );
 
   final RxBool groupCreating = RxBool(false);
@@ -76,6 +85,8 @@ class ChatsTabController extends GetxController {
 
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
 
+  final RxList<ListElement> elements = RxList([]);
+
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> sortedChats;
 
@@ -95,6 +106,8 @@ class ChatsTabController extends GetxController {
 
   final ContactService _contactService;
 
+  final MyUserService _myUserService;
+
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
   Worker? _searchWorker;
@@ -109,6 +122,8 @@ class ChatsTabController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
@@ -350,16 +365,35 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  void closeSearch([bool reset = true]) {
+    if (reset || !searching.value) {
+      groupCreating.value = false;
+      router.navigation.value = null;
+    }
+
+    search.clear();
+    query.value = null;
+    searchResults.value = null;
+    searchStatus.value = RxStatus.empty();
+    searching.value = false;
+
+    selectedChats.clear();
+    selectedUsers.clear();
+    selectedContacts.clear();
+
+    populate();
+  }
+
   /// Creates a group [Chat] with [selectedContacts] and [groupChatName].
   Future<void> createGroup() async {
-    bool enabled = (selectedContacts.isNotEmpty ||
-            selectedUsers.isNotEmpty ||
-            selectedChats.isNotEmpty) &&
-        creatingStatus.value.isEmpty;
+    // bool enabled = (selectedContacts.isNotEmpty ||
+    //         selectedUsers.isNotEmpty ||
+    //         selectedChats.isNotEmpty) &&
+    //     creatingStatus.value.isEmpty;
 
-    if (!enabled) {
-      return;
-    }
+    // if (!enabled) {
+    //   return;
+    // }
 
     String? groupChatName;
 
@@ -380,7 +414,7 @@ class ChatsTabController extends GetxController {
         name: chatName,
       ));
 
-      router.chat(chat.chat.value.id);
+      router.chatInfo(chat.chat.value.id);
 
       search.clear();
       query.value = null;
@@ -453,9 +487,9 @@ class ChatsTabController extends GetxController {
                   return true;
                 }
               }
+            } else {
+              return true;
             }
-
-            return true;
           }
 
           return false;
@@ -481,70 +515,95 @@ class ChatsTabController extends GetxController {
       } else {
         users.value = {};
       }
+    } else {
+      if (query.value?.isNotEmpty != true) {
+        chats.value = {
+          for (var c in sortedChats) c.chat.value.id: c,
+        };
 
-      return;
-    }
+        users.clear();
+        contacts.clear();
+        return;
+      }
 
-    if (query.value?.isNotEmpty != true) {
       chats.value = {
-        for (var c in sortedChats) c.chat.value.id: c,
+        for (var u in _chatService.chats.values.where((e) {
+          if (e.title.value.contains(query.value!) == true) {
+            return true;
+          }
+
+          return false;
+        }))
+          u.chat.value.id: u,
       };
 
-      users.clear();
-      contacts.clear();
-      return;
-    }
-
-    chats.value = {
-      for (var u in _chatService.chats.values.where((e) {
-        if (e.title.value.contains(query.value!) == true) {
-          return true;
-        }
-
-        return false;
-      }))
-        u.chat.value.id: u,
-    };
-
-    contacts.value = {
-      for (var u in _contactService.contacts.values.where((e) {
-        if (e.user.value != null && e.contact.value.users.length == 1) {
-          if (e.contact.value.name.val.contains(query.value!) == true) {
-            if (chats.values.firstWhereOrNull((c) =>
-                    c.chat.value.isDialog &&
-                    c.members.containsKey(e.user.value!.id)) ==
-                null) {
-              return true;
-            }
-          }
-        }
-
-        return false;
-      }))
-        u.user.value!.id: u,
-    };
-
-    if (searchResults.value?.isNotEmpty == true) {
-      users.value = {
-        for (var u in searchResults.value!.where((e) {
-          if (!contacts.containsKey(e.id)) {
-            if (chats.values.firstWhereOrNull((c) =>
-                    c.chat.value.isDialog && c.members.containsKey(e.id)) ==
-                null) {
-              return true;
+      contacts.value = {
+        for (var u in _contactService.contacts.values.where((e) {
+          if (e.user.value != null && e.contact.value.users.length == 1) {
+            if (e.contact.value.name.val.contains(query.value!) == true) {
+              if (chats.values.firstWhereOrNull((c) =>
+                      c.chat.value.isDialog &&
+                      c.members.containsKey(e.user.value!.id)) ==
+                  null) {
+                return true;
+              }
             }
           }
 
           return false;
         }))
-          u.id: u,
+          u.user.value!.id: u,
       };
-    } else {
-      users.value = {};
+
+      if (searchResults.value?.isNotEmpty == true) {
+        users.value = {
+          for (var u in searchResults.value!.where((e) {
+            if (!contacts.containsKey(e.id)) {
+              if (chats.values.firstWhereOrNull((c) =>
+                      c.chat.value.isDialog && c.members.containsKey(e.id)) ==
+                  null) {
+                return true;
+              }
+            }
+
+            return false;
+          }))
+            u.id: u,
+        };
+      } else {
+        users.value = {};
+      }
+    }
+
+    elements.clear();
+
+    if (groupCreating.value) {
+      elements.add(const MyUserElement());
+    }
+
+    if (chats.isNotEmpty) {
+      elements.add(const DividerElement(SearchCategory.chat));
+      for (var c in chats.values) {
+        elements.add(ChatElement(c));
+      }
+    }
+
+    if (contacts.isNotEmpty) {
+      elements.add(const DividerElement(SearchCategory.contact));
+      for (var c in contacts.values) {
+        elements.add(ContactElement(c));
+      }
+    }
+
+    if (users.isNotEmpty) {
+      elements.add(const DividerElement(SearchCategory.user));
+      for (var c in users.values) {
+        elements.add(UserElement(c));
+      }
     }
 
     print(
-      'populate, recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
+      'populate ${query.value} (${elements.length}), recent: ${chats.length}, contact: ${contacts.length}, user: ${users.length}',
     );
   }
 
@@ -633,4 +692,32 @@ class _ChatSortingData {
 
   /// Disposes this [_ChatSortingData].
   void dispose() => worker.dispose();
+}
+
+abstract class ListElement {
+  const ListElement();
+}
+
+class ChatElement extends ListElement {
+  const ChatElement(this.chat);
+  final RxChat chat;
+}
+
+class ContactElement extends ListElement {
+  const ContactElement(this.contact);
+  final RxChatContact contact;
+}
+
+class UserElement extends ListElement {
+  const UserElement(this.user);
+  final RxUser user;
+}
+
+class DividerElement extends ListElement {
+  const DividerElement(this.category);
+  final SearchCategory category;
+}
+
+class MyUserElement extends ListElement {
+  const MyUserElement();
 }

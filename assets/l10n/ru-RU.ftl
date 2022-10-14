@@ -127,6 +127,7 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Сменить
+btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -134,6 +135,7 @@ btn_copy = Скопировать
 btn_create_group = Создать группу
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
+btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
@@ -163,7 +165,6 @@ btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
 btn_save_to_gallery = Сохранить в галерею
-btn_set_password = Задать пароль
 btn_saved_messages = Сохранённые сообщения
 btn_set_password = Задать пароль
 btn_settings = Настройки
@@ -269,37 +270,6 @@ label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
 label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
-label_today = Сегодня
-label_date_monday = Понедельник
-label_date_tuesday = Вторник
-label_date_wednesday = Среда
-label_date_thursday = Четверг
-label_date_friday = Пятница
-label_date_saturday = Суббота
-label_date_sunday = Воскресенье
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] Сегодня
-                            [1] Вчера
-                            [2] Позавчера
-                            [few] {$days} дня назад
-                            *[other] {$days} дней назад
-                        }
-                    [1] Неделю назад
-                    [few] {$weeks} недели назад
-                    *[other] {$weeks} недель
-                }
-            [1] Месяц назад
-            [few] {$months} месяца назад
-            *[other] {$months} месяцев назад
-        }
-    [1] Год назад
-    [few] {$years} года назад
-    *[other] {$years} лет назад
-}
-label_date = { $day }.{ $month }.{ $year }
 label_ago = { $years ->
     [0] { $months ->
             [0] { $weeks ->
@@ -329,6 +299,28 @@ label_ago = { $years ->
             *[other] {$months} месяцев назад
         }
     [1] год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
@@ -367,8 +359,6 @@ label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
-label_choose_chat = Пожалуйста, выберите чат
-label_choose_contact = Выберите пользователя
 label_contact = Контакт
 label_contacts = Контакты
 label_copied_to_clipboard = Скопировано в буфер обмена
@@ -381,6 +371,7 @@ label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
+label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -412,6 +403,7 @@ label_edit_message_hint = Без текста
 label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
+label_empty_message = Пустое сообщение
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -421,6 +413,7 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
+label_group_created = Группа создана
 label_hidden = Статус скрыт
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
@@ -500,17 +493,21 @@ label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_temp_plug = Временная заглушка на вкладке меню
 label_transition_count = Переходов
 label_typing = печатает
 label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = Непрочитанные сообщения
+label_unread_messages = { $quantity ->
+    [1] {$quantity} непрочитанное сообщение
+    *[other] {$quantity} непрочитанных сообщения
+}
 label_video = Видео
 label_video_call = Видеозвонок
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
+label_was_added = {$who} был(а) добавлен(а)
+label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 btn_personalize = Персонализация

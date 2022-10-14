@@ -375,6 +375,7 @@ class OngoingCall {
 
             call.value = node.call;
             call.refresh();
+
             break;
 
           case ChatCallEventsKind.event:
@@ -431,6 +432,7 @@ class OngoingCall {
                       isConnected: false,
                     );
                   }
+
                   break;
 
                 case ChatCallEventKind.handLowered:

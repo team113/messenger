@@ -78,7 +78,7 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
-            sidebarColor: Colors.white.withOpacity(0.4),
+            sidebarColor: Colors.white.withOpacity(0.6),
             unreadMessageThickness: 4,
             systemMessageTextStyle: GoogleFonts.roboto(
               color: const Color(0xFF888888),

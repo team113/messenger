@@ -212,6 +212,8 @@ class MyUserRepository implements AbstractMyUserRepository {
         return e.galleryItem;
       }
     }
+
+    return null;
   }
 
   @override
