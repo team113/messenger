@@ -411,8 +411,8 @@ class _ChatViewState extends State<ChatView>
           onEdit: () => c.editMessage(item.value),
           onFileTap: (a) => c.download(item.value, a),
           onAttachmentError: () async {
-            // print(
-            //     '||||||| ${item.value.id} - ${item.value.timestamp} - ${item.value.at}');
+            print(
+                '||||||| ${item.value.id} - ${item.value.timestamp} - ${item.value.at}');
             await c.chat?.updateAttachments(item.value);
             await Future.delayed(
               Duration.zero,
