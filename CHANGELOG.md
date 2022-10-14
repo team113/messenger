@@ -24,13 +24,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned system messages. ([#161], [#158])
-
-### Changed
-
-- UI:
-    - Chat page:
         - Redesigned messages and forwards. ([#162], [#151])
+    - Media panel:
+        - Redesigned participants modal. ([#127], [#122])
 
+### Fixed
+
+- macOS:
+    - Escape not exiting fullscreen in calls. ([#169], [#166])
+
+[#122]: /../../issues/122
+[#127]: /../../pull/127
 [#137]: /../../issues/137
 [#146]: /../../issues/146
 [#151]: /../../issues/151
@@ -39,6 +43,8 @@ All user visible changes to this project will be documented in this file. This p
 [#161]: /../../pull/161
 [#162]: /../../pull/162
 [#163]: /../../pull/163
+[#166]: /../../issues/166
+[#169]: /../../pull/169
 
 
 

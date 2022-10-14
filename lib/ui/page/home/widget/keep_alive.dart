@@ -26,6 +26,7 @@ class KeepAlivePage extends StatefulWidget {
     required this.child,
   }) : super(key: key);
 
+  /// [Widget] to keep state of.
   final Widget child;
 
   @override

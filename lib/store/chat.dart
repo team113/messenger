@@ -279,12 +279,8 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     try {
-      var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
-      // Response is `null` if [MyUser] removed himself (left the chat).
-      if (response == null) {
-        _chatLocal.remove(chatId);
-      }
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));
