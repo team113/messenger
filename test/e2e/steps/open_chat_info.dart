@@ -14,34 +14,29 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/routes.dart';
 
-/// Widget used to keep the state of its [child] alive.
+import '../world/custom_world.dart';
+
+/// Routes the [router] to the currently opened [Chat]'s info page.
 ///
-/// Required in [PageView]s since switching the page resets the state of the
-/// widget.
-class KeepAlivePage extends StatefulWidget {
-  const KeepAlivePage({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
+/// Examples:
+/// - Then I open chat's info
+final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
+  'I open chat\'s info',
+  (context) async {
+    router.chatInfo(ChatId(router.route.split('/').last));
 
-  /// [Widget] to keep state of.
-  final Widget child;
-
-  @override
-  State<KeepAlivePage> createState() => _KeepAlivePageState();
-}
-
-/// State of a [KeepAlivePage] used to keep its state alive.
-class _KeepAlivePageState extends State<KeepAlivePage>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child;
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatInfoView', FindType.key),
+        );
+      },
+    );
+  },
+);
