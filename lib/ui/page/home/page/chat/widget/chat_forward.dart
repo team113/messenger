@@ -27,6 +27,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -135,8 +136,28 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// corresponding [Widget].
   final List<GlobalKey> _galleryKeys = [];
 
+  /// Indicates whether this chat forward was read by any [User].
+  bool get _isRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    if (_fromMe) {
+      return chat.isRead(widget.forwards.first.value, widget.me);
+    } else {
+      return chat.isReadBy(widget.forwards.first.value, widget.me);
+    }
+  }
+
+  /// Indicates whether this [ChatForwardWidget.forwards] were forwarded by the
+  /// authenticated [MyUser].
+  bool get _fromMe => widget.authorId == widget.me;
+
   @override
   void initState() {
+    assert(widget.forwards.isNotEmpty);
+
     _populateGlobalKeys();
     super.initState();
   }
@@ -144,9 +165,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   @override
   Widget build(BuildContext context) {
     Style style = Theme.of(context).extension<Style>()!;
-
-    bool fromMe = widget.authorId == widget.me;
-    bool isRead = _isRead(widget.forwards.first.value);
 
     Color color = widget.user?.user.value.id == widget.me
         ? const Color(0xFF63B4FF)
@@ -161,20 +179,20 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             Padding(
               padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
               child: ClipRRect(
-                clipBehavior: fromMe ? Clip.antiAlias : Clip.none,
+                clipBehavior: _fromMe ? Clip.antiAlias : Clip.none,
                 borderRadius: BorderRadius.circular(15),
                 child: IntrinsicWidth(
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     decoration: BoxDecoration(
-                      color: fromMe
-                          ? isRead
+                      color: _fromMe
+                          ? _isRead
                               ? style.myUserReadMessageColor
                               : style.myUserUnreadMessageColor
                           : style.messageColor,
                       borderRadius: BorderRadius.circular(15),
-                      border: fromMe
-                          ? isRead
+                      border: _fromMe
+                          ? _isRead
                               ? style.primaryBorder
                               : Border.all(
                                   color: const Color(0xFFDAEDFF),
@@ -189,7 +207,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         children: [
                           if (widget.note.value != null) ..._note(),
                           if (widget.note.value == null &&
-                              !fromMe &&
+                              !_fromMe &&
                               widget.chat.value?.isGroup == true)
                             Transform.translate(
                               offset: const Offset(-36, 0),
@@ -265,9 +283,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       Style style = Theme.of(context).extension<Style>()!;
 
-      bool fromMe = widget.authorId == widget.me;
-      bool isRead = _isRead(item);
-
       Widget? content;
       List<Widget> additional = [];
 
@@ -290,7 +305,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             if (files.isNotEmpty)
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
-                opacity: isRead || !fromMe ? 1 : 0.55,
+                opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                   child: Column(
@@ -307,7 +322,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             if (media.isNotEmpty)
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 500),
-                opacity: isRead || !fromMe ? 1 : 0.55,
+                opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: media.length == 1
                     ? buildMediaAttachment(
                         media.first,
@@ -411,16 +426,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
           color: (msg.item.authorId == widget.me)
-              ? isRead || !fromMe
+              ? _isRead || !_fromMe
                   ? const Color.fromRGBO(219, 234, 253, 1)
                   : const Color.fromRGBO(230, 241, 254, 1)
-              : isRead || !fromMe
+              : _isRead || !_fromMe
                   ? const Color.fromRGBO(249, 249, 249, 1)
                   : const Color.fromRGBO(255, 255, 255, 1),
         ),
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
-          opacity: isRead || !fromMe ? 1 : 0.55,
+          opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
             onPressed: () => widget.onForwardedTap?.call(item.id, item.chatId),
             child: FutureBuilder<RxUser?>(
@@ -515,16 +530,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
       }).toList();
 
-      bool fromMe = widget.authorId == widget.me;
-      bool isRead = _isRead(item);
-
       Color color = widget.user?.user.value.id == widget.me
           ? const Color(0xFF63B4FF)
           : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
               AvatarWidget.colors.length];
 
       return [
-        if (!fromMe && widget.chat.value?.isGroup == true)
+        if (!_fromMe && widget.chat.value?.isGroup == true)
           Transform.translate(
             offset: const Offset(-36, 0),
             child: Row(
@@ -563,11 +575,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (item.text != null)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 500),
-            opacity: isRead || !fromMe ? 1 : 0.7,
+            opacity: _isRead || !_fromMe ? 1 : 0.7,
             child: Padding(
               padding: EdgeInsets.fromLTRB(
                 12,
-                (!fromMe && widget.chat.value?.isGroup == true) ? 0 : 10,
+                (!_fromMe && widget.chat.value?.isGroup == true) ? 0 : 10,
                 9,
                 files.isEmpty ? 10 : 0,
               ),
@@ -577,7 +589,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (files.isNotEmpty)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 500),
-            opacity: isRead || !fromMe ? 1 : 0.55,
+            opacity: _isRead || !_fromMe ? 1 : 0.55,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
               child: Column(
@@ -596,14 +608,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             borderRadius: BorderRadius.only(
               topLeft: item.text != null ||
                       item.repliesTo.isNotEmpty ||
-                      (!fromMe && widget.chat.value?.isGroup == true)
+                      (!_fromMe && widget.chat.value?.isGroup == true)
                   ? Radius.zero
                   : files.isEmpty
                       ? const Radius.circular(15)
                       : Radius.zero,
               topRight: item.text != null ||
                       item.repliesTo.isNotEmpty ||
-                      (!fromMe && widget.chat.value?.isGroup == true)
+                      (!_fromMe && widget.chat.value?.isGroup == true)
                   ? Radius.zero
                   : files.isEmpty
                       ? const Radius.circular(15)
@@ -611,7 +623,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             ),
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 500),
-              opacity: isRead || !fromMe ? 1 : 0.55,
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: attachments.length == 1
                   ? buildMediaAttachment(
                       attachments.first,
@@ -651,14 +663,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget child) {
-    if (widget.forwards.isEmpty) {
-      return Container();
-    }
-
     ChatItem? item = widget.note.value?.value;
 
-    bool fromMe = widget.authorId == widget.me;
-    bool isRead = _isRead(widget.forwards.first.value);
     bool isSent =
         widget.forwards.first.value.status.value == SendingStatus.sent;
 
@@ -669,14 +675,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     return SwipeableStatus(
       animation: widget.animation,
-      asStack: !fromMe,
-      isSent: isSent && fromMe,
+      asStack: !_fromMe,
+      isSent: isSent && _fromMe,
       isDelivered: isSent &&
-          fromMe &&
+          _fromMe &&
           widget.chat.value?.lastDelivery
                   .isBefore(widget.forwards.first.value.at) ==
               false,
-      isRead: isSent && (!fromMe || isRead),
+      isRead: isSent && (!_fromMe || _isRead),
       isError: widget.forwards.first.value.status.value == SendingStatus.error,
       isSending:
           widget.forwards.first.value.status.value == SendingStatus.sending,
@@ -686,9 +692,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
-            fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!fromMe && widget.chat.value!.isGroup) const SizedBox(width: 30),
+          if (!_fromMe && widget.chat.value!.isGroup) const SizedBox(width: 30),
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
@@ -696,7 +702,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   maxWidth: min(
                     550,
                     constraints.maxWidth * 0.84 +
-                        (fromMe ? SwipeableStatus.width : -10),
+                        (_fromMe ? SwipeableStatus.width : -10),
                   ),
                 ),
                 child: Padding(
@@ -705,8 +711,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     type: MaterialType.transparency,
                     child: ContextMenuRegion(
                       preventContextMenu: false,
-                      alignment:
-                          fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
+                      alignment: _fromMe
+                          ? Alignment.bottomRight
+                          : Alignment.bottomLeft,
                       actions: [
                         if (copyable != null)
                           ContextMenuButton(
@@ -759,12 +766,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             );
                           },
                         ),
-                        if (fromMe &&
+                        if (_fromMe &&
                             (widget.note.value?.value.at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ==
                                     true ||
-                                !isRead))
+                                !_isRead))
                           ContextMenuButton(
                             key: const Key('EditButton'),
                             label: 'btn_edit'.l10n,
@@ -857,24 +864,5 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             .toList(),
       );
     }
-  }
-
-  /// Returns indicator whether the provided [ChatItem] is read.
-  bool _isRead(ChatItem item) {
-    bool fromMe = widget.authorId == widget.me;
-    bool isRead = false;
-    if (fromMe) {
-      isRead = widget.chat.value?.lastReads.firstWhereOrNull(
-              (e) => e.memberId != widget.me && !e.at.isBefore(item.at)) !=
-          null;
-    } else {
-      isRead = widget.chat.value?.lastReads
-              .firstWhereOrNull((e) => e.memberId == widget.me)
-              ?.at
-              .isBefore(item.at) ==
-          false;
-    }
-
-    return isRead;
   }
 }

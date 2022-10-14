@@ -32,6 +32,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -160,7 +161,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
-  /// authenticated [User].
+  /// authenticated [MyUser].
   bool get _fromMe => widget.item.value.authorId == widget.me;
 
   @override
@@ -316,6 +317,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ? const Color(0xFF63B4FF)
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
+
+    double avatarOffset = 0;
+    if ((!fromMe && widget.chat.value?.isGroup == true) &&
+        msg.repliesTo.isNotEmpty) {
+      for (ChatItem reply in msg.repliesTo) {
+        if (reply is ChatMessage) {
+          if (reply.text != null && reply.attachments.isNotEmpty) {
+            avatarOffset += 54 + 54 - 4;
+          } else if (reply.text == null && reply.attachments.isNotEmpty) {
+            avatarOffset += 86 - 4;
+          } else if (reply.text != null) {
+            if (msg.attachments.isEmpty && text == null) {
+              avatarOffset += 59 - 5;
+            } else {
+              avatarOffset += 55 - 4 + 8;
+            }
+          }
+        }
+
+        if (reply is ChatCall) {
+          if (msg.attachments.isEmpty && text == null) {
+            avatarOffset += 59 - 4;
+          } else {
+            avatarOffset += 55 - 4 + 8;
+          }
+        }
+
+        if (reply is ChatForward) {
+          if (msg.attachments.isEmpty && text == null) {
+            avatarOffset += 59 - 5;
+          } else {
+            avatarOffset += 55 - 4 + 8;
+          }
+        }
+      }
+    }
 
     return _rounded(
       context,
@@ -485,6 +522,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         ),
       ),
+      avatarOffset: avatarOffset,
     );
   }
 
@@ -744,7 +782,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title)),
+          Flexible(child: Text(title, style: style.boldBody)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -823,7 +861,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns rounded rectangle of a [child] representing a message box.
-  Widget _rounded(BuildContext context, Widget child) {
+  Widget _rounded(
+    BuildContext context,
+    Widget child, {
+    double avatarOffset = 0,
+  }) {
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -879,7 +921,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           if (!_fromMe && widget.chat.value!.isGroup)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: EdgeInsets.only(top: 8 + avatarOffset),
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
