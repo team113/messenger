@@ -306,10 +306,10 @@ class Style extends ThemeExtension<Style> {
     required this.statusMessageNotRead,
     required this.statusMessageRead,
     required this.subtitleColor,
-    required this.unselectedHoverColor,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.unselectedHoverColor,
   });
 
   /// [Color] of the modal background barrier color.
@@ -321,11 +321,11 @@ class Style extends ThemeExtension<Style> {
   /// Blur to use in sidebar for chats.
   final double cardBlur;
 
-  /// [Color] to use in sidebar for chats if chat is not selected.
-  final Color cardColor;
-
   /// [Border] to use in sidebar for chats if chat is not selected.
   final Border cardBorder;
+
+  /// [Color] to use in sidebar for chats if chat is not selected.
+  final Color cardColor;
 
   /// [BorderRadius] to use in card-like [Widget]s.
   final BorderRadius cardRadius;
@@ -366,9 +366,6 @@ class Style extends ThemeExtension<Style> {
   /// [Color] used for the primary text in lists.
   final Color subtitleColor;
 
-  /// [Color] to use in sidebar for chats when hovering.
-  final Color unselectedHoverColor;
-
   /// [Border] to apply to system messages.
   final Border systemMessageBorder;
 
@@ -377,6 +374,9 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
+
+  /// [Color] to use in sidebar for chats when hovering.
+  final Color unselectedHoverColor;
 
   @override
   ThemeExtension<Style> copyWith({
@@ -395,7 +395,6 @@ class Style extends ThemeExtension<Style> {
     Color? statusMessageError,
     Color? statusMessageNotRead,
     Color? statusMessageRead,
-    Color? subtitle2Color,
     Color? subtitleColor,
     Color? unselectedHoverColor,
     double? cardBlur,

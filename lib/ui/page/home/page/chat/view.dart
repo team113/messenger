@@ -934,7 +934,7 @@ class _ChatViewState extends State<ChatView>
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  typings.join(', '),
+                  typings.join('comma_space'.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
