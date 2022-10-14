@@ -95,39 +95,26 @@ class _ChatViewState extends State<ChatView>
         itemId: widget.itemId,
       ),
       tag: widget.id.val,
-      builder: (c) {
-        // Opens [Routes.chatInfo] or [Routes.user] page basing on the
-        // [Chat.isGroup] indicator.
-        void onDetailsTap() {
-          Chat? chat = c.chat?.chat.value;
-          if (chat != null) {
-            if (chat.isGroup) {
-              router.chatInfo(widget.id);
-            } else if (chat.members.isNotEmpty) {
-              router.user(
-                chat.members
-                        .firstWhereOrNull((e) => e.user.id != c.me)
-                        ?.user
-                        .id ??
-                    chat.members.first.user.id,
-                push: true,
-              );
-            }
-          }
-        }
+      builder: (c) => Obx(
+        () {
+          if (c.status.value.isSuccess) {
+            Chat chat = c.chat!.chat.value;
 
-        return Obx(
-          () {
-            if (c.status.value.isEmpty) {
-              return Scaffold(
-                appBar: AppBar(),
-                body: Center(child: Text('label_no_chat_found'.l10n)),
-              );
-            } else if (!c.status.value.isSuccess) {
-              return Scaffold(
-                appBar: AppBar(),
-                body: const Center(child: CircularProgressIndicator()),
-              );
+            // Opens [Routes.chatInfo] or [Routes.user] page basing on the
+            // [Chat.isGroup] indicator.
+            void onDetailsTap() {
+              if (chat.isGroup) {
+                router.chatInfo(widget.id);
+              } else if (chat.members.isNotEmpty) {
+                router.user(
+                  chat.members
+                          .firstWhereOrNull((e) => e.user.id != c.me)
+                          ?.user
+                          .id ??
+                      chat.members.first.user.id,
+                  push: true,
+                );
+              }
             }
 
             return DropTarget(
@@ -337,9 +324,18 @@ class _ChatViewState extends State<ChatView>
                 ),
               ),
             );
-          },
-        );
-      },
+          } else if (c.status.value.isEmpty) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
+            );
+          } else {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+        },
+      ),
     );
   }
 

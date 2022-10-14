@@ -766,19 +766,11 @@ class ChatController extends GetxController {
     bool offsetBasedOnBottom = false,
     double offset = 0,
   }) async {
-    int index = elements.values.toList().indexWhere((e) => e.id.id == id);
-
-    if (index == -1) {
-      ListElement? element = elements.values
-          .whereType<ChatForwardElement>()
-          .toList()
-          .firstWhereOrNull((e) =>
-              e.forwards.any((e1) => e1.value.id == id) ||
-              e.note.value?.value.id == id);
-      if (element != null) {
-        index = elements.values.toList().indexOf(element);
-      }
-    }
+    int index = elements.values.toList().indexWhere((e) =>
+        e.id.id == id ||
+        (e is ChatForwardElement &&
+            (e.forwards.any((e1) => e1.value.id == id) ||
+                e.note.value?.value.id == id)));
 
     if (index != -1) {
       if (listController.hasClients) {
