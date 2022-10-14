@@ -36,9 +36,7 @@ alert_popup_permissions_description =
 alert_popup_permissions_title = Please enable the popup permissions
 btn_add = Add
 btn_add_participant = Add participant
-btn_add_participant_desc =
-    Add
-    participant
+btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_allow = Allow
 btn_audio_call = Audio call
@@ -123,6 +121,7 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_close = Close
 btn_confirm = Confirm
@@ -130,6 +129,7 @@ btn_copy = Copy
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
+btn_delete_avatar = Delete avatar
 btn_delete_direct_chat_link = Delete
 btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
@@ -150,6 +150,10 @@ btn_logout = Logout
 btn_media_settings = Media settings
 btn_next = Next
 btn_ok = Ok
+btn_participants = Participants
+btn_participants_desc =
+    Call
+    participants
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_remove = Remove
@@ -258,6 +262,7 @@ label_add_email = Add an email
 label_add_email_hint = Write your email address
 label_add_number = Add a number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
+label_add_participants = Add participants
 label_account_access_will_be_lost = Account access will be lost
 label_account_created = Account is created
 label_ago = { $years ->
@@ -430,11 +435,14 @@ label_no_chat_found = No chat found
 label_no_chats = No chats
 label_no_contacts = No contacts
 label_no_registration = no registration
+label_nothing_found = Nothing was found
 label_num = Gapopa ID
 label_offline = Offline
 label_online = Online
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participants = Participants
+label_participants_added_successfully = Participants successfully added
 label_password = Password
 label_password_not_set = Password not set
 label_password_set_successfully = Password successfully set
@@ -448,6 +456,7 @@ label_presence_away = Away
 label_presence_hidden = Hidden
 label_presence_present = Last visit information
 label_read_by = Read by
+label_recent = Recent
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
@@ -456,6 +465,7 @@ label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
 label_search_recent = Recent
+label_selected = Selected: {$count}
 label_send_message_hint = Message...
 label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error
@@ -478,6 +488,8 @@ label_unread_messages = { $quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
+label_use_search = Use search to find an user
+label_users = Users
 label_video = Video
 label_video_call = Video call
 label_video_downloaded = Video downloaded.

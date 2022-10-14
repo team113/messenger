@@ -991,4 +991,85 @@ abstract class ChatGraphQlMixin {
     );
     return GetAttachments$Query.fromJson(result.data!);
   }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
+  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat]
+  /// uses the specified [file] already as an [avatar] with the same `crop`
+  /// area.
+  Future<ChatEventsVersionedMixin?> updateChatAvatar(
+    ChatId id, {
+    dio.MultipartFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    final variables = UpdateChatAvatarArguments(chatId: id, file: null);
+    final query = MutationOptions(
+      operationName: 'UpdateChatAvatar',
+      document: UpdateChatAvatarMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    if (file == null) {
+      final QueryResult result = await client.mutate(
+        query,
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
+      );
+
+      return UpdateChatAvatar$Mutation.fromJson(result.data!).updateChatAvatar
+          as UpdateChatAvatar$Mutation$UpdateChatAvatar$ChatEventsVersioned;
+    }
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        dio.FormData.fromMap({
+          'operations': encodedBody,
+          'map': '{ "file": ["variables.upload"] }',
+          'file': file,
+        }),
+        options: dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateChatAvatarException(
+          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+              .code,
+        ),
+      );
+
+      return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
+          .updateChatAvatar as ChatEventsVersionedMixin?;
+    } on dio.DioError catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateChatAvatarException(
+          UpdateChatAvatarErrorCode.tooBigSize,
+        );
+      }
+
+      rethrow;
+    }
+  }
 }
