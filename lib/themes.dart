@@ -354,13 +354,13 @@ class Style extends ThemeExtension<Style> {
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
-  /// Icon [Color] when an error occurred while sending a message.
+  /// Status icon [Color] when an error occurred while sending a message.
   final Color statusMessageError;
 
-  /// Icon [Color] when a message has not been read.
+  /// Status icon [Color] when a message has not been read.
   final Color statusMessageNotRead;
 
-  /// Icon [Color] when a message has been read.
+  /// Status icon [Color] when a message has been read.
   final Color statusMessageRead;
 
   /// [Color] used for the primary text in lists.
@@ -375,7 +375,7 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
-  /// [Color] to use in sidebar for chats when hovering.
+  /// [Color] to use in sidebar for unselected chats when hovering.
   final Color unselectedHoverColor;
 
   @override
