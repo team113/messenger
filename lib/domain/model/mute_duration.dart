@@ -41,7 +41,7 @@ class MuteDuration {
     this.forever,
   });
 
-  factory MuteDuration.forever() => MuteDuration();
+  factory MuteDuration.forever() => MuteDuration(forever: true);
   factory MuteDuration.until(PreciseDateTime until) =>
       MuteDuration(until: until);
 }

@@ -101,7 +101,6 @@ class MuteChatView extends StatelessWidget {
                           ),
                           Expanded(
                             child: ListView.separated(
-                              controller: c.scroll,
                               itemBuilder: (BuildContext context, int index) {
                                 return Obx(() => ListTile(
                                       onTap: () => c.selectedMute.value = index,

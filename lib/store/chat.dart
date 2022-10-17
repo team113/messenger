@@ -616,9 +616,9 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> toggleChatMute(ChatId id, DateTime? mute) =>
+  Future<void> toggleChatMute(ChatId id, Muting? mute) =>
       _graphQlProvider.toggleChatMute(
-          id, mute == null ? null : Muting(duration: PreciseDateTime(mute)));
+          id, mute);
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
@@ -712,9 +712,16 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatMuted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
+      print(node.duration.$$typename);
       return EventChatMuted(
         e.chatId,
-        node.duration as MuteDuration,
+        node.duration.$$typename == 'MuteForeverDuration'
+            ? MuteDuration.forever()
+            : MuteDuration.until(
+                (node.duration
+                        as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
+                    .until,
+              ),
       );
     } else if (e.$$typename == 'EventChatAvatarDeleted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatAvatarDeleted;

@@ -297,7 +297,7 @@ class ChatService extends DisposableService {
   /// If [text] or [attachments] argument is specified, then the forwarded
   /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
   /// [text] and/or [attachments].
-  Future<void> toggleChatMute(ChatId id, DateTime? mute) =>
+  Future<void> toggleChatMute(ChatId id, Muting? mute) =>
       _chatRepository.toggleChatMute(id, mute);
 
   /// Callback, called when a [User] identified by the provided [userId] gets

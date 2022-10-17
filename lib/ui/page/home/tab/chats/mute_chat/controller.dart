@@ -14,13 +14,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
 
+import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart';
 
 export 'view.dart';
 
@@ -29,9 +30,6 @@ class MuteChatController extends GetxController {
   MuteChatController(this.id, this.pop, this._chatService);
 
   final ChatId id;
-
-  final GlobalKey customKey = GlobalKey();
-  final ScrollController scroll = ScrollController();
 
   /// Status of a [createGroup] completion.
   ///
@@ -88,7 +86,7 @@ class MuteChatController extends GetxController {
     try {
       await _chatService.toggleChatMute(
         id,
-        muteDateTimes[selectedMute.value!].dateTime,
+        Muting(duration: muteDateTimes[selectedMute.value!].dateTime),
       );
       pop();
     } on ToggleChatMuteException catch (e) {
@@ -103,11 +101,11 @@ class MuteChatController extends GetxController {
 class MuteLabel {
   MuteLabel(this.label, {Duration? duration}) {
     if (duration != null) {
-      dateTime = DateTime.now().add(duration);
+      dateTime = PreciseDateTime.now().add(duration);
     }
   }
 
   final String label;
 
-  DateTime? dateTime;
+  PreciseDateTime? dateTime;
 }

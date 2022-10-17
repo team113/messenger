@@ -352,6 +352,15 @@ class ChatsTabView extends StatelessWidget {
                 builder: (c) => MuteChatView(chat.id),
               ),
             ),
+            if (chat.muted != null)
+              ContextMenuButton(
+                key: const Key('ButtonUnMuteChat'),
+                label: 'btn_unmute_chat'.l10n,
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (c) => MuteChatView(chat.id),
+                ),
+              ),
           ],
           child: ListTile(
             leading: AvatarWidget.fromRxChat(rxChat),

@@ -152,6 +152,11 @@ class _ChatViewState extends State<ChatView>
                                             color: Colors.black),
                                       ),
                                       _chatSubtitle(c),
+                                      if (chat.muted?.until != null)
+                                        Text(
+                                            '${chat.muted?.until!.val.toString()}'),
+                                      if (chat.muted?.forever == true)
+                                        Text('forever')
                                     ],
                                   ),
                                 ),

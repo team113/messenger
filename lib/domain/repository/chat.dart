@@ -27,6 +27,7 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
+import '/api/backend/schema.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
@@ -177,7 +178,7 @@ abstract class AbstractChatRepository {
   /// If [text] or [attachments] argument is specified, then the forwarded
   /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
   /// [text] and/or [attachments].
-  Future<void> toggleChatMute(ChatId id, DateTime? mute);
+  Future<void> toggleChatMute(ChatId id, Muting? mute);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

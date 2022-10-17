@@ -208,4 +208,6 @@ class PreciseDateTime extends NewType<DateTime>
 
     return formattedString;
   }
+
+  Map toJson() => toJson();
 }

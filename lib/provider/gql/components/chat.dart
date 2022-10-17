@@ -998,15 +998,21 @@ abstract class ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> toggleChatMute(
       ChatId id, Muting? mute) async {
     final variables = ToggleChatMuteArguments(id: id, mute: mute);
+    var jsonVariables = variables.toJson();
+    if (mute?.duration != null) {
+      jsonVariables['mute']['duration'] =
+          '${mute?.duration?.val.toIso8601String()}Z';
+    }
+    print(mute?.duration);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleChatMute',
         document: ToggleChatMuteMutation(variables: variables).document,
-        variables: variables.toJson(),
+        variables: jsonVariables,
       ),
       onException: (data) => ToggleChatMuteException(
           (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
-          as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+                  as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
               .code),
     );
     return ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
