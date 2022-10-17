@@ -324,9 +324,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
           if (reply.text != null && reply.attachments.isNotEmpty) {
-            avatarOffset += 54 + 54 - 4;
+            avatarOffset += 54 + 54 + 4;
           } else if (reply.text == null && reply.attachments.isNotEmpty) {
-            avatarOffset += 86 - 4;
+            avatarOffset += 90;
           } else if (reply.text != null) {
             if (msg.attachments.isEmpty && text == null) {
               avatarOffset += 59 - 5;
