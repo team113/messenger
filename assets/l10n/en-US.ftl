@@ -312,6 +312,10 @@ label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
 label_attachments = attachment(s)
+label_attachments_count = [{$count} { $count ->
+    [1] attachment
+    *[other] attachments
+    }]
 label_audio_call = Audio call
 label_away = Away
 label_biography = Biography

@@ -989,11 +989,14 @@ class _ChatViewState extends State<ChatView>
       if (item.text != null) {
         desc.write(item.text!.val);
         if (item.attachments.isNotEmpty) {
-          desc.write(
-              ' [${item.attachments.length} ${'label_attachments'.l10n}]');
+          desc.write(' ');
         }
-      } else if (item.attachments.isNotEmpty) {
-        desc.write('${item.attachments.length} ${'label_attachments'.l10n}]');
+      }
+
+      if (item.attachments.isNotEmpty) {
+        desc.write(
+          'label_attachments_count'.l10nfmt({'count': item.attachments.length}),
+        );
       }
 
       content = Text(
@@ -1091,11 +1094,15 @@ class _ChatViewState extends State<ChatView>
         if (msg.text != null) {
           desc.write(msg.text!.val);
           if (msg.attachments.isNotEmpty) {
-            desc.write(
-                ' [${msg.attachments.length} ${'label_attachments'.l10n}]');
+            desc.write(' ');
           }
-        } else if (msg.attachments.isNotEmpty) {
-          desc.write('[${msg.attachments.length} ${'label_attachments'.l10n}]');
+        }
+
+        if (msg.attachments.isNotEmpty) {
+          desc.write(
+            'label_attachments_count'
+                .l10nfmt({'count': msg.attachments.length}),
+          );
         }
 
         return Padding(

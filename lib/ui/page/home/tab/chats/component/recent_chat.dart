@@ -70,40 +70,63 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         title: [
           const SizedBox(height: 10),
-          if (chat.ongoingCall == null &&
-              chat.lastDelivery.microsecondsSinceEpoch != 0)
-            Text(chat.lastDelivery.val.toLocal().toShortAgo(), style: text),
-          if (chat.ongoingCall != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: PeriodicBuilder(
-                period: const Duration(seconds: 1),
-                builder: (_) {
-                  return Text(
-                    DateTime.now()
-                        .difference(chat.ongoingCall!.at.val)
-                        .hhMmSs(),
-                    style: text,
-                  );
-                },
-              ),
+          if (chat.ongoingCall == null)
+            Text(
+              chat.updatedAt.val.toLocal().toShort(),
+              style: text,
             ),
         ],
         subtitle: [
           const SizedBox(height: 5),
-          SizedBox(
-            height: 23,
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 38,
+            ),
             child: Row(
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context)),
-                _status(context),
-                _counter(),
+                if (chat.ongoingCall == null) ...[
+                  _status(context),
+                  _counter(),
+                ]
               ],
             ),
           ),
         ],
-        trailing: [_callButtons(context)],
+        trailing: [
+          _callButtons(context),
+          if (chat.ongoingCall != null) ...[
+            const SizedBox(width: 7),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const SizedBox(height: 15),
+                PeriodicBuilder(
+                  period: const Duration(seconds: 1),
+                  builder: (_) {
+                    return ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: 35,
+                      ),
+                      child: Text(
+                        DateTime.now()
+                            .difference(chat.ongoingCall!.at.val)
+                            .hhMmSs(),
+                        style: text,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 3),
+                Row(children: [
+                  _status(context),
+                  _counter(),
+                ]),
+              ],
+            ),
+          ]
+        ],
         actions: [
           ContextMenuButton(
             key: const Key('ButtonHideChat'),
@@ -216,12 +239,15 @@ class RecentChatTile extends StatelessWidget {
         if (item.text != null) {
           desc.write(item.text!.val);
           if (item.attachments.isNotEmpty) {
-            desc.write(
-                ' [${item.attachments.length} ${'label_attachments'.l10n}]');
+            desc.write(' ');
           }
-        } else if (item.attachments.isNotEmpty) {
+        }
+
+        if (item.attachments.isNotEmpty) {
           desc.write(
-              '[${item.attachments.length} ${'label_attachments'.l10n}]');
+            'label_attachments_count'
+                .l10nfmt({'count': item.attachments.length}),
+          );
         }
 
         subtitle = [
@@ -324,7 +350,7 @@ class RecentChatTile extends StatelessWidget {
         final bool isSending = item?.status.value == SendingStatus.sending;
 
         return Padding(
-          padding: const EdgeInsets.only(left: 10),
+          padding: const EdgeInsets.only(left: 10, top: 8),
           child: Icon(
             (isRead || isDelivered)
                 ? Icons.done_all
@@ -357,6 +383,7 @@ class RecentChatTile extends StatelessWidget {
           key: const Key('UnreadMessages'),
           margin: const EdgeInsets.only(left: 10),
           width: 23,
+          height: 23,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.red,
@@ -446,20 +473,23 @@ class RecentChatTile extends StatelessWidget {
   }
 }
 
-/// Extension adding conversion from [DateTime] to its short text [difference]
-/// relative to the [DateTime.now].
-extension _DateTimeToShortAgo on DateTime {
-  /// Returns short text representation of a [difference] with [DateTime.now]
-  /// indicating how long ago this [DateTime] happened compared to
-  /// [DateTime.now].
-  String toShortAgo() {
+/// Extension adding conversion from [DateTime] to its short text relative to
+/// the [DateTime.now].
+extension DateTimeToShort on DateTime {
+  /// Returns short text representing this [DateTime].
+  ///
+  /// Returns string in format `HH:MM` if [DateTime] is today.
+  /// Returns short weekday name if [difference] between this [DateTime] and
+  /// [DateTime.now] is less then 7 days.
+  /// Elsewhere returns string in format `YYYY:MM:DD`.
+  String toShort() {
     final DateTime now = DateTime.now();
     final DateTime from = DateTime(now.year, now.month, now.day);
     final DateTime to = DateTime(year, month, day);
 
     final int differenceInDays = from.difference(to).inDays;
 
-    if (differenceInDays > 7) {
+    if (differenceInDays > 6) {
       final String day = this.day.toString().padLeft(2, '0');
       final String month = this.month.toString().padLeft(2, '0');
 

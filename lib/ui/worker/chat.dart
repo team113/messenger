@@ -156,30 +156,33 @@ class _ChatWatchData {
                       .compareTo(ChatWorker.newMessageThreshold) <=
                   -1 &&
               chat.lastItem!.authorId != me?.call()) {
-            String? body;
+            final body = StringBuffer();
 
             if (chat.lastItem is ChatMessage) {
               var msg = chat.lastItem as ChatMessage;
               if (msg.text != null) {
-                body = msg.text?.val;
+                body.write(msg.text?.val);
                 if (msg.attachments.isNotEmpty) {
-                  body =
-                      '$body\n[${msg.attachments.length} ${'label_attachments'.l10n}]';
+                  body.write('\n');
                 }
-              } else if (msg.attachments.isNotEmpty) {
-                body =
-                    '[${msg.attachments.length} ${'label_attachments'.l10n}]';
+              }
+
+              if (msg.attachments.isNotEmpty) {
+                body.write(
+                  'label_attachments_count'
+                      .l10nfmt({'count': msg.attachments.length}),
+                );
               }
             } else if (chat.lastItem is ChatMemberInfo) {
               // TODO: Display [ChatMemberInfo] properly.
               var msg = chat.lastItem as ChatMemberInfo;
-              body = msg.action.toString();
+              body.write(msg.action.toString());
             } else if (chat.lastItem is ChatForward) {
-              body = 'label_forwarded_message'.l10n;
+              body.write('label_forwarded_message'.l10n);
             }
 
-            if (body != null) {
-              onNotification?.call(body, chat.lastItem?.id.val);
+            if (body.isNotEmpty) {
+              onNotification?.call(body.toString(), chat.lastItem?.id.val);
             }
           }
 

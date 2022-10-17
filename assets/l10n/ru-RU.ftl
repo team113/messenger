@@ -328,6 +328,10 @@ label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
 label_attachments = вложение(я)
+label_attachments_count = [{$count} { $count ->
+    [1] прикрепление
+    *[other] прикрепления
+    }]
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
 label_biography = Биография
