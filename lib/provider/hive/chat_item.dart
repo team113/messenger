@@ -16,6 +16,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/domain/model/precise_date_time/precise_date_time_adapter.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';

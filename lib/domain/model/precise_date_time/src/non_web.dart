@@ -14,15 +14,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
-part 'non_web.g.dart';
-
 /// [DateTime] considering the microseconds on any platform, including Web.
-@HiveType(typeId: ModelTypeId.preciseDateTime)
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(DateTime val, {int microsecond = 0}) : super(val);

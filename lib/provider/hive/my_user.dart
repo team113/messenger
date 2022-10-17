@@ -24,7 +24,7 @@ import '/domain/model/gallery_item.dart';
 import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/precise_date_time/precise_date_time_adapter.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';

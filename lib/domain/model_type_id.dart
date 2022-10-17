@@ -93,7 +93,6 @@ class ModelTypeId {
   static const mediaSettings = 71;
   static const chatCallDeviceId = 72;
   static const preciseDateTime = 73;
-  static const preciseDateTimeWeb = 74;
   static const applicationSettings = 75;
   static const sendingStatus = 76;
   static const nativeFile = 77;

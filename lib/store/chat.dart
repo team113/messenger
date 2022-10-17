@@ -105,7 +105,6 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        print('time 777: ${c.value.lastItem?.timestamp}');
         var entry = HiveRxChat(this, _chatLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
@@ -149,12 +148,9 @@ class ChatRepository implements AbstractChatRepository {
   @override
   Future<HiveRxChat?> get(ChatId id) async {
     HiveRxChat? chat = _chats[id];
-    print('getChat');
     if (chat == null) {
       var query = (await _graphQlProvider.getChat(id)).chat;
-      print('123332');
       if (query != null) {
-        print('my time 123: ${_chat(query).lastItem?.first.value.timestamp}');
         return _putEntry(_chat(query));
       }
     }
@@ -246,10 +242,8 @@ class ChatRepository implements AbstractChatRepository {
 
   /// Puts the provided [item] to [Hive].
   Future<void> putChatItem(HiveChatItem item) async {
-    print('item1233212: ${item.value.timestamp}');
     HiveRxChat? entry =
         _chats[item.value.chatId] ?? (await get(item.value.chatId));
-    print('item1233213: ${entry?.messages.first.value.timestamp}');
     if (entry != null) {
       await entry.put(item);
     }
@@ -991,13 +985,11 @@ class ChatRepository implements AbstractChatRepository {
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
     HiveRxChat? entry = chats[data.chat.value.id];
-    print('time 888: ${data.chat.value.lastItem?.timestamp}');
-    print('time 2354124: ${entry?.messages.first.value.timestamp}');
+
     _putChat(data.chat);
 
     if (entry == null) {
       entry = HiveRxChat(this, _chatLocal, data.chat);
-      print('time 1234412: ${entry.messages.first.value.timestamp}');
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();
@@ -1007,11 +999,9 @@ class ChatRepository implements AbstractChatRepository {
       if (data.lastItem != null) ...data.lastItem!,
       if (data.lastReadItem != null) ...data.lastReadItem!,
     ]) {
-      print('time 555: ${item.value.timestamp}');
       entry.put(item);
     }
 
-    print('time 444: ${entry.messages.first.value.timestamp}');
     return entry;
   }
 

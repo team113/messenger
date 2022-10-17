@@ -16,7 +16,7 @@
 
 import 'package:hive_flutter/adapters.dart';
 
-import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/precise_date_time/precise_date_time_adapter.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/model/contact.dart';
