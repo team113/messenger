@@ -16,45 +16,25 @@
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
 
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
+/// Routes the [router] to the currently opened [Chat]'s info page.
 ///
 /// Examples:
-/// - Given I am in chat with Bob
-final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
-  'I am in chat with {user}',
-  (TestUser user, context) async {
-    router.chat(context.world.sessions[user.name]!.dialog!);
+/// - Then I open chat's info
+final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
+  'I open chat\'s info',
+  (context) async {
+    router.chatInfo(ChatId(router.route.split('/').last));
 
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
         return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-    );
-  },
-);
-
-/// Routes the [router] to the [Chat]-group page with the provided [ChatName].
-///
-/// Examples:
-/// - Given I am in "Example" chat
-final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
-  'I am in {string} chat',
-  (String chatName, context) async {
-    router.chat(context.world.groups[chatName]!);
-
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
+          context.world.appDriver.findBy('ChatInfoView', FindType.key),
         );
       },
     );

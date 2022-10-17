@@ -20,6 +20,7 @@ import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
 import '../model/chat_item_quote.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
 import '/api/backend/schema.dart';
@@ -274,6 +275,19 @@ class ChatService extends DisposableService {
       attachments: attachments,
     );
   }
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) =>
+      _chatRepository.updateChatAvatar(
+        id,
+        file: file,
+        onSendProgress: onSendProgress,
+      );
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
