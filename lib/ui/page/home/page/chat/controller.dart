@@ -523,8 +523,7 @@ class ChatController extends GetxController {
                 next.forwards.last.value.at.val.difference(item.at.val) <
                     groupForwardThreshold) {
               next.forwards.add(e);
-              next.forwards
-                  .sort((a, b) => a.value.at.compareTo(b.value.at));
+              next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
               insert = false;
             }
           } else if (next is ChatMessageElement) {
