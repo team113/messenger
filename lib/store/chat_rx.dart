@@ -666,7 +666,6 @@ class HiveRxChat implements RxChat {
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
-    print('event: ${event.kind}');
     switch (event.kind) {
       case ChatEventsKind.initialized:
         // No-op.
@@ -720,10 +719,6 @@ class HiveRxChat implements RxChat {
 
             case ChatEventKind.muted:
               event as EventChatMuted;
-              print('my muted');
-              print('${event.duration.forever}');
-              print('${event.duration.until}');
-              print('${event.duration}');
               chatEntity.value.muted = event.duration;
               break;
 

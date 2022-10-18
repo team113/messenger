@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -25,22 +26,25 @@ import '/provider/gql/exceptions.dart';
 
 export 'view.dart';
 
-/// Controller of the group creation overlay.
+/// Controller of the chat muting overlay.
 class MuteChatController extends GetxController {
   MuteChatController(this.id, this.pop, this._chatService);
 
+  /// [ChatId] of this controller.
   final ChatId id;
 
-  /// Status of a [createGroup] completion.
+  /// Status of a [toggleChatMute] completion.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning no [createGroup] is executing.
-  /// - `status.isLoading`, meaning [createGroup] is executing.
-  /// - `status.isError`, meaning [createGroup] got an error.
+  /// - `status.isEmpty`, meaning no [mute] is executing.
+  /// - `status.isLoading`, meaning [mute] is executing.
+  /// - `status.isError`, meaning [mute] got an error.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
 
+  /// Selected mute period.
   final Rx<int?> selectedMute = Rx<int?>(null);
 
+  /// List of mute periods.
   final List<MuteLabel> muteDateTimes = [
     MuteLabel(
       'label_multiple_minutes'.l10nfmt({'quantity': 15}),
@@ -70,18 +74,20 @@ class MuteChatController extends GetxController {
       'label_multiple_days'.l10nfmt({'quantity': 7}),
       duration: const Duration(days: 7),
     ),
-    MuteLabel('label_forever'.l10n),
+    MuteLabel(
+      'label_forever'.l10n,
+      key: const Key('MuteForever'),
+    ),
   ];
 
-  /// [Chat]s service used to create a group [Chat].
+  /// [Chat]s service used to mute [Chat].
   final ChatService _chatService;
 
-  /// Pops the [CreateGroupView] this controller is bound to.
+  /// Pops the [MuteChatView] this controller is bound to.
   final Function() pop;
 
-  /// Unselects the specified [user].
+  /// Mute [Chat] for selected period.
   Future<void> mute() async {
-    if (selectedMute.value == null) return;
     status.value = RxStatus.loading();
     try {
       await _chatService.toggleChatMute(
@@ -98,14 +104,20 @@ class MuteChatController extends GetxController {
   }
 }
 
+/// Wraps mute duration and label in one class.
 class MuteLabel {
-  MuteLabel(this.label, {Duration? duration}) {
+  MuteLabel(this.label, {Duration? duration, this.key}) {
     if (duration != null) {
       dateTime = PreciseDateTime.now().add(duration);
     }
   }
 
+  /// Unique key of [MuteLabel] class.
+  final Key? key;
+
+  /// Label of mute period.
   final String label;
 
+  /// End [PreciseDateTime] of muting duration.
   PreciseDateTime? dateTime;
 }

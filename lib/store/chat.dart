@@ -20,7 +20,6 @@ import 'dart:collection';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -617,8 +616,7 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   Future<void> toggleChatMute(ChatId id, Muting? mute) =>
-      _graphQlProvider.toggleChatMute(
-          id, mute);
+      _graphQlProvider.toggleChatMute(id, mute);
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.
@@ -712,7 +710,6 @@ class ChatRepository implements AbstractChatRepository {
       );
     } else if (e.$$typename == 'EventChatMuted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
-      print(node.duration.$$typename);
       return EventChatMuted(
         e.chatId,
         node.duration.$$typename == 'MuteForeverDuration'

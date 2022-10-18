@@ -1293,7 +1293,7 @@ class UpdateChatAvatarException
   }
 }
 
-/// Exception of `Mutation.forwardChatItems` described in the [code].
+/// Exception of `Mutation.toggleChatMute` described in the [code].
 class ToggleChatMuteException
     with LocalizedExceptionMixin
     implements Exception {
@@ -1309,7 +1309,7 @@ class ToggleChatMuteException
   String toMessage() {
     switch (code) {
       case ToggleChatMuteErrorCode.tooShort:
-        return 'err_unknown'.l10n;
+        return 'err_too_short'.l10n;
       case ToggleChatMuteErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
       case ToggleChatMuteErrorCode.artemisUnknown:

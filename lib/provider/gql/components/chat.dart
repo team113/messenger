@@ -972,16 +972,17 @@ abstract class ChatGraphQlMixin {
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
   }
 
-  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
-  /// [MyUser].
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
   ///
-  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  /// Muted [Chat] implies that its events don't produce sounds and
+  /// notifications on a client side. This, however, has nothing to do with a
+  /// server and is the responsibility to be satisfied by a client side.
   ///
-  /// If [text] or [attachments] argument is specified, then the forwarded
-  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
-  /// [text] and/or [attachments].
-  ///
-  /// The maximum number of forwarded [ChatItem]s at once is 100.
+  /// Note, that `Mutation.toggleChatMute` doesn't correlate with
+  /// `Mutation.toggleMyUserMute`. Muted [Chat] of unmuted [MyUser] should not
+  /// produce any sounds, and so, unmuted [Chat] of muted [MyUser] should not
+  /// produce any sounds too.
   ///
   /// ### Authentication
   ///
@@ -990,20 +991,26 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatItemPosted] ([ChatForward] and optionally [ChatMessage]).
+  /// - [EventChatMuted] (if `until` argument is not `null`);
+  /// - [EventChatUnmuted] (if `until` argument is `null`).
   ///
-  /// ### Non-idempotent
+  /// ### Idempotent
   ///
-  /// Each time posts a new [ChatForward].
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already muted [until] the specified datetime (or unmuted) for the
+  /// authenticated [MyUser].
   Future<ChatEventsVersionedMixin?> toggleChatMute(
-      ChatId id, Muting? mute) async {
+    ChatId id,
+    Muting? mute,
+  ) async {
     final variables = ToggleChatMuteArguments(id: id, mute: mute);
-    var jsonVariables = variables.toJson();
+
+    Map<String, dynamic> jsonVariables = variables.toJson();
     if (mute?.duration != null) {
       jsonVariables['mute']['duration'] =
           '${mute?.duration?.val.toIso8601String()}Z';
     }
-    print(mute?.duration);
+
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleChatMute',

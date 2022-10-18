@@ -289,14 +289,8 @@ class ChatService extends DisposableService {
         onSendProgress: onSendProgress,
       );
 
-  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
-  /// [MyUser].
-  ///
-  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
-  ///
-  /// If [text] or [attachments] argument is specified, then the forwarded
-  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
-  /// [text] and/or [attachments].
+  /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
+  /// Overrides an existing mute even if it's longer.
   Future<void> toggleChatMute(ChatId id, Muting? mute) =>
       _chatRepository.toggleChatMute(id, mute);
 

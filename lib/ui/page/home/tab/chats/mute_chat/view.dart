@@ -21,10 +21,11 @@ import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
 import 'controller.dart';
 
-/// View of the group creation overlay.
+/// View of the chat muting overlay.
 class MuteChatView extends StatelessWidget {
   const MuteChatView(this.id, {Key? key}) : super(key: key);
 
+  /// [ChatId] of this overlay.
   final ChatId id;
 
   @override
@@ -102,16 +103,19 @@ class MuteChatView extends StatelessWidget {
                           Expanded(
                             child: ListView.separated(
                               itemBuilder: (BuildContext context, int index) {
-                                return Obx(() => ListTile(
-                                      onTap: () => c.selectedMute.value = index,
-                                      leading: Radio(
-                                        value: index,
-                                        onChanged: <int>(val) =>
-                                            c.selectedMute.value = val,
-                                        groupValue: c.selectedMute.value,
-                                      ),
-                                      title: Text(c.muteDateTimes[index].label),
-                                    ));
+                                return Obx(
+                                  () => ListTile(
+                                    key: c.muteDateTimes[index].key,
+                                    onTap: () => c.selectedMute.value = index,
+                                    leading: Radio(
+                                      value: index,
+                                      onChanged: <int>(val) =>
+                                          c.selectedMute.value = val,
+                                      groupValue: c.selectedMute.value,
+                                    ),
+                                    title: Text(c.muteDateTimes[index].label),
+                                  ),
+                                );
                               },
                               separatorBuilder: (_, __) => const Divider(),
                               itemCount: c.muteDateTimes.length,
@@ -141,13 +145,10 @@ class MuteChatView extends StatelessWidget {
                                             )
                                           : const Spacer(),
                                       TextButton(
+                                        key: const Key('MuteButton'),
                                         onPressed: c.selectedMute.value == null
                                             ? null
                                             : c.mute,
-                                        // c.selectedContacts.isEmpty &&
-                                        //     c.selectedUsers.isEmpty
-                                        //     ? null
-                                        //     : c.createGroup,
                                         child: Text(
                                           'btn_mute'.l10n,
                                           style: c.selectedMute.value == null

@@ -146,17 +146,27 @@ class _ChatViewState extends State<ChatView>
                                   onTap: onDetailsTap,
                                   child: Column(
                                     children: [
-                                      Text(
-                                        c.chat!.title.value,
-                                        style: const TextStyle(
-                                            color: Colors.black),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              c.chat!.title.value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                          if (chat.muted != null) ...const [
+                                            SizedBox(width: 5),
+                                            Icon(
+                                              Icons.volume_off,
+                                              key: Key('MutedInChatPage'),
+                                            ),
+                                          ]
+                                        ],
                                       ),
                                       _chatSubtitle(c),
-                                      if (chat.muted?.until != null)
-                                        Text(
-                                            '${chat.muted?.until!.val.toString()}'),
-                                      if (chat.muted?.forever == true)
-                                        Text('forever')
                                     ],
                                   ),
                                 ),

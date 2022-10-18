@@ -17,7 +17,6 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/tab/chats/mute_chat/controller.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
@@ -30,6 +29,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
+import '/ui/page/home/tab/chats/mute_chat/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -356,18 +356,28 @@ class ChatsTabView extends StatelessWidget {
               ContextMenuButton(
                 key: const Key('ButtonUnMuteChat'),
                 label: 'btn_unmute_chat'.l10n,
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (c) => MuteChatView(chat.id),
-                ),
+                onPressed: () async => await c.unMute(chat.id),
               ),
           ],
           child: ListTile(
             leading: AvatarWidget.fromRxChat(rxChat),
-            title: Text(
-              rxChat.title.value,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            title: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    rxChat.title.value,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                if (chat.muted != null) ...const [
+                  SizedBox(width: 5),
+                  Icon(
+                    Icons.volume_off,
+                    key: Key('MutedInChatsList'),
+                  ),
+                ],
+              ],
             ),
             subtitle: subtitle == null
                 ? null

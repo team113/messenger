@@ -35,7 +35,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
-    show RemoveChatMemberException, HideChatException;
+    show HideChatException, RemoveChatMemberException, ToggleChatMuteException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -162,6 +162,18 @@ class ChatsTabController extends GetxController {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmute selected chat.
+  Future<void> unMute(ChatId id) async {
+    try {
+      await _chatService.toggleChatMute(id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e.toMessage());
+    } catch (e) {
+      MessagePopup.error(e.toString());
       rethrow;
     }
   }

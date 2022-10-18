@@ -187,9 +187,4 @@ class PreciseDateTime extends NewType<DateTime>
   /// days of that month plus 11 days into the next month.
   static PreciseDateTime parse(String formattedString) =>
       PreciseDateTime(DateTime.parse(formattedString));
-
-  Map toJson() {
-    print('my json');
-    return toJson();
-  }
 }

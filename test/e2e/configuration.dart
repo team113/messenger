@@ -38,12 +38,14 @@ import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/chat_is_muted.dart';
 import 'steps/download_file.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
+import 'steps/long_press_chat.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/open_chat_info.dart';
@@ -74,6 +76,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
+        chatIsMuted,
         copyFromField,
         downloadFile,
         fillField,
@@ -86,6 +89,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        longPressChat,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
