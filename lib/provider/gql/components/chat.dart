@@ -997,7 +997,7 @@ abstract class ChatGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
-  /// already muted [until] the specified datetime (or unmuted) for the
+  /// already muted `until` the specified datetime (or unmuted) for the
   /// authenticated [MyUser].
   Future<ChatEventsVersionedMixin?> toggleChatMute(
     ChatId id,

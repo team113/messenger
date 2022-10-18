@@ -33,7 +33,7 @@ class MuteChatController extends GetxController {
   /// [ChatId] of this controller.
   final ChatId id;
 
-  /// Status of a [toggleChatMute] completion.
+  /// Status of a `toggleChatMute` completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [mute] is executing.
