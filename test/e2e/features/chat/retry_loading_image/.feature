@@ -12,7 +12,6 @@ Feature: Trying to load chat images
     Then I wait until image is loading
     Then I wait until image is loaded
 
-
   Scenario: Try to load image when i'm in chat
     When I am in chat with Bob
     And Bob sends image to me

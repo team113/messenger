@@ -20,7 +20,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Widget that trying to load image and display it.
+/// [Image] wrapper performs image loading with backoff.
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
@@ -30,25 +30,25 @@ class RetryImage extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  /// Url address of image.
+  /// URL of the image.
   final String url;
 
-  /// Callback called when url loading was failed with error code 403.
+  /// Callback called when image loading from the [url] failed with code 403.
   final Future<void> Function()? error403;
 
-  /// [BoxFit] of image.
+  /// [BoxFit] of the image.
   final BoxFit? fit;
 
-  /// Height of image.
+  /// Height of the image.
   final double? height;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
 }
 
-/// [State] of [RetryImage].
+/// [State] of [RetryImage] maintaining image data loading.
 class _RetryImageState extends State<RetryImage> {
-  /// [Timer] of backOff loading image.
+  /// [Timer] used to performs image loading with backOff.
   Timer? _timer;
 
   /// [Uint8List] image bytes.
@@ -57,7 +57,7 @@ class _RetryImageState extends State<RetryImage> {
   /// Image download progress.
   double _progress = 0;
 
-  /// [Duration] of backOff loading image.
+  /// Timeout [Duration] of backOff image loading.
   int _reconnectPeriodMillis = 250;
 
   @override
@@ -100,7 +100,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
         );
 
-  /// Trying to load image.
+  /// Loads image with backoff.
   Future<void> _loadImage() async {
     Response? data;
 
