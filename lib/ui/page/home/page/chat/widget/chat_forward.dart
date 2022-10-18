@@ -216,8 +216,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 children: [
                                   InkWell(
                                     customBorder: const CircleBorder(),
-                                    onTap: () => router.user(widget.authorId,
-                                        push: true),
+                                    onTap: () => router.user(
+                                      widget.authorId,
+                                      push: true,
+                                    ),
                                     child: AvatarWidget.fromRxUser(
                                       widget.user,
                                       radius: 15,
@@ -425,7 +427,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         decoration: BoxDecoration(
-          color: (msg.item.authorId == widget.me)
+          color: msg.item.authorId == widget.me
               ? _isRead || !_fromMe
                   ? const Color.fromRGBO(219, 234, 253, 1)
                   : const Color.fromRGBO(230, 241, 254, 1)
@@ -579,7 +581,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             child: Padding(
               padding: EdgeInsets.fromLTRB(
                 12,
-                (!_fromMe && widget.chat.value?.isGroup == true) ? 0 : 10,
+                !_fromMe && widget.chat.value?.isGroup == true ? 0 : 10,
                 9,
                 files.isEmpty ? 10 : 0,
               ),
@@ -734,7 +736,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             width: 18.8,
                             height: 16,
                           ),
-                          onPressed: () => widget.onReply?.call(),
+                          onPressed: widget.onReply,
                         ),
                         ContextMenuButton(
                           key: const Key('ForwardButton'),
@@ -780,7 +782,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               width: 17,
                               height: 17,
                             ),
-                            onPressed: () => widget.onEdit?.call(),
+                            onPressed: widget.onEdit,
                           ),
                         ContextMenuButton(
                           label: 'btn_delete'.l10n,

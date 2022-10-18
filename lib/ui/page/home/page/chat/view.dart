@@ -381,7 +381,7 @@ class _ChatViewState extends State<ChatView>
               }
             },
             onCopy: c.copyText,
-            onRepliedTap: (id) => c.animateTo(id),
+            onRepliedTap: c.animateTo,
             onGallery: c.calculateGallery,
             onResend: () => c.resendItem(e.value),
             onEdit: () => c.editMessage(e.value),
@@ -460,7 +460,7 @@ class _ChatViewState extends State<ChatView>
                 );
               }
             },
-            onFileTap: (e, a) => c.download(e, a),
+            onFileTap: c.download,
             onAttachmentError: () async {
               for (ChatItem item in [
                 element.note.value?.value,
