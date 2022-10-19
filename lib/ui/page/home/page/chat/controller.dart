@@ -133,7 +133,11 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// Attachments to be attached to a message.
-  RxList<Attachment> attachments = RxList<Attachment>();
+  RxObsList<Attachment> attachments = RxObsList<Attachment>();
+
+  /// [GlobalKey]s of the [attachments]s used to animate a [GalleryPopup]
+  /// from/to corresponding [Widget].
+  List<GlobalKey> galleryKeys = [];
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -202,6 +206,9 @@ class ChatController extends GetxController {
 
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
+
+  /// Subscription for the [attachments] updating the [galleryKeys].
+  StreamSubscription? _attachmentsSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -332,6 +339,20 @@ class ChatController extends GetxController {
       ),
     );
 
+    _attachmentsSubscription = attachments.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          galleryKeys.insert(e.pos, GlobalKey());
+          break;
+        case OperationKind.removed:
+          galleryKeys.removeAt(e.pos);
+          break;
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
     super.onInit();
   }
 
@@ -347,6 +368,7 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _chatSubscription?.cancel();
+    _attachmentsSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();

@@ -417,6 +417,7 @@ label_introduction_description =
         • You will not press the "Logout" button.
 
     In order not to lose access to your account, set a password.
+label_kb = KB
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login
@@ -433,6 +434,7 @@ label_new_password = New password
 label_no_chat_found = No chat found
 label_no_chats = No chats
 label_no_contacts = No contacts
+label_no_messages = No messages
 label_no_registration = no registration
 label_nothing_found = Nothing was found
 label_num = Gapopa ID

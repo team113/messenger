@@ -435,6 +435,7 @@ label_introduction_description =
         • Вы не нажмёте кнопку "Выйти".
 
     Чтобы не потерять доступ к аккаунту, задайте пароль.
+label_kb = КБ
 label_last_seen = Был(а)
 label_login = Логин
 label_login_hint = Ваш уникальный логин
@@ -451,6 +452,7 @@ label_new_password = Новый пароль
 label_no_chat_found = Чат не найден
 label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
+label_no_messages = Нет сообщений
 label_no_registration = без регистрации
 label_nothing_found = Ничего не найдено
 label_num = Gapopa ID

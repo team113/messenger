@@ -388,8 +388,8 @@ class _ChatViewState extends State<ChatView>
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
                                   c.chat!.messages.isEmpty) {
-                                return const Center(
-                                  child: Text('No messages'),
+                                return Center(
+                                  child: Text('label_no_messages'.l10n),
                                 );
                               }
                               if (c.chat!.status.value.isLoading) {
@@ -562,7 +562,7 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.ongoingCall != null) {
         final subtitle = StringBuffer();
         if (!context.isMobile) {
-          subtitle.write('${'label_call_active'.l10n} |');
+          subtitle.write('${'label_call_active'.l10n} | ');
         }
 
         final Set<UserId> actualMembers =
@@ -1420,24 +1420,22 @@ class _ChatViewState extends State<ChatView>
           }
         }
 
-        GlobalKey key = GlobalKey();
+        List<Attachment> attachments = c.attachments.where((e) {
+          return e is ImageAttachment ||
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo));
+        }).toList();
 
         return WidgetButton(
-          key: key,
+          key: c.galleryKeys[attachments.indexOf(e)],
           onPressed: () {
-            List<Attachment> attachments = c.attachments.where((e) {
-              return e is ImageAttachment ||
-                  (e is FileAttachment && e.isVideo) ||
-                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo));
-            }).toList();
-
             int index = attachments.indexOf(e);
             if (index != -1) {
               GalleryPopup.show(
                 context: context,
                 gallery: GalleryPopup(
                   initial: attachments.indexOf(e),
-                  initialKey: key,
+                  initialKey: c.galleryKeys[attachments.indexOf(e)],
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
                     c.attachments.removeWhere((o) => o == a);
@@ -1504,8 +1502,8 @@ class _ChatViewState extends State<ChatView>
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
                 e.original.size == null
-                    ? '... KB'
-                    : '${e.original.size! ~/ 1024} KB',
+                    ? '... ${'label_kb'.l10n}'
+                    : '${e.original.size! ~/ 1024} ${'label_kb'.l10n}',
                 style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.primary,
@@ -1523,7 +1521,7 @@ class _ChatViewState extends State<ChatView>
     Widget attachment() {
       Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
-        key: Key('Attachment_${c.attachments.indexOf(e)}'),
+        key: Key('Attachment_${e.id}'),
         opaque: false,
         onEnter: (_) => c.hoveredAttachment.value = e,
         onExit: (_) => c.hoveredAttachment.value = null,
@@ -1734,7 +1732,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return MouseRegion(
-      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
       opaque: false,
       onEnter: (d) => c.hoveredReply.value = item,
       onExit: (d) => c.hoveredReply.value = null,
@@ -1752,12 +1749,13 @@ class _ChatViewState extends State<ChatView>
                   future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == c.me
-                        ? Theme.of(context).colorScheme.secondary
+                        ? const Color(0xFF63B4FF)
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
 
                     return Container(
+                      key: Key('Reply_${c.repliedMessages.indexOf(item)}'),
                       decoration: BoxDecoration(
                         border: Border(
                           left: BorderSide(width: 2, color: color),
@@ -1769,28 +1767,17 @@ class _ChatViewState extends State<ChatView>
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          FutureBuilder<RxUser?>(
-                            future: c.getUser(item.authorId),
-                            builder: (context, snapshot) {
+                          Builder(
+                            builder: (context) {
                               String? name;
                               if (snapshot.hasData) {
                                 name = snapshot.data?.user.value.name?.val;
                                 if (snapshot.data?.user.value != null) {
-                                  return Obx(() {
-                                    Color color =
-                                        snapshot.data?.user.value.id == c.me
-                                            ? const Color(0xFF63B4FF)
-                                            : AvatarWidget.colors[snapshot
-                                                    .data!.user.value.num.val
-                                                    .sum() %
-                                                AvatarWidget.colors.length];
-
-                                    return Text(
-                                        snapshot.data!.user.value.name?.val ??
-                                            snapshot.data!.user.value.num.val,
-                                        style: style.boldBody
-                                            .copyWith(color: color));
-                                  });
+                                  return Obx(() => Text(
+                                      snapshot.data!.user.value.name?.val ??
+                                          snapshot.data!.user.value.num.val,
+                                      style: style.boldBody
+                                          .copyWith(color: color)));
                                 }
                               }
 

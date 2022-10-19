@@ -621,10 +621,12 @@ class ChatForwardView extends StatelessWidget {
                     child: Icon(Icons.send, size: 24),
                   ),
                 ),
-                onTap: () {
-                  c.send.submit();
-                  Navigator.of(context).pop();
-                },
+                onTap: c.selectedChats.isEmpty
+                    ? null
+                    : () {
+                        c.send.submit();
+                        Navigator.of(context).pop(true);
+                      },
               ),
             ],
           ),

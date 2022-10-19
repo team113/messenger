@@ -333,10 +333,15 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    AttachmentId id =
+        Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .attachments
+            .first
+            .id;
+
     expect(find.byKey(const Key('Send')), findsOneWidget);
 
-    await gesture
-        .moveTo(tester.getCenter(find.byKey(const Key('Attachment_0'))));
+    await gesture.moveTo(tester.getCenter(find.byKey(Key('Attachment_$id'))));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
