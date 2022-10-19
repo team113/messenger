@@ -352,7 +352,7 @@ class RecentChatTile extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(left: 10, top: 8),
           child: Icon(
-            (isRead || isDelivered)
+            isRead || isDelivered
                 ? Icons.done_all
                 : isSending
                     ? Icons.access_alarm

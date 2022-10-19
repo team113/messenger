@@ -81,8 +81,9 @@ class ChatsTabView extends StatelessWidget {
                             horizontalOffset: 50,
                             child: FadeInAnimation(
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
                                 child: RecentChatTile(c, c.chats[i]),
                               ),
                             ),
