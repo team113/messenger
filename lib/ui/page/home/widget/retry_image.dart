@@ -46,19 +46,19 @@ class RetryImage extends StatefulWidget {
   State<RetryImage> createState() => _RetryImageState();
 }
 
-/// [State] of [RetryImage] maintaining image data loading.
+/// [State] of [RetryImage] maintaining image data loading with backoff.
 class _RetryImageState extends State<RetryImage> {
-  /// [Timer] used to performs image loading with backOff.
+  /// [Timer] used to performs image loading with backoff.
   Timer? _timer;
 
   /// [Uint8List] image bytes.
   Uint8List? _image;
 
-  /// Image download progress.
+  /// Image downloading progress.
   double _progress = 0;
 
-  /// Timeout [Duration] of backOff image loading.
-  int _reconnectPeriodMillis = 250;
+  /// Timeout of the backoff loading.
+  Duration _backoffTimeout = const Duration(microseconds: 250);
 
   @override
   void initState() {
@@ -132,10 +132,10 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     _timer = Timer(
-      Duration(milliseconds: _reconnectPeriodMillis),
+      _backoffTimeout,
       () {
-        if (_reconnectPeriodMillis < 32000) {
-          _reconnectPeriodMillis *= 2;
+        if (_backoffTimeout < const Duration(seconds: 32)) {
+          _backoffTimeout *= 2;
         }
         _loadImage();
       },
