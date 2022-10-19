@@ -30,7 +30,7 @@ export 'view.dart';
 class MuteChatController extends GetxController {
   MuteChatController(this.id, this.pop, this._chatService);
 
-  /// [ChatId] of this controller.
+  /// [ChatId] of muting [Chat].
   final ChatId id;
 
   /// Status of a `toggleChatMute` completion.

@@ -25,7 +25,7 @@ import 'controller.dart';
 class MuteChatView extends StatelessWidget {
   const MuteChatView(this.id, {Key? key}) : super(key: key);
 
-  /// [ChatId] of this overlay.
+  /// [ChatId] of this [Chat] overlay.
   final ChatId id;
 
   @override
@@ -58,8 +58,9 @@ class MuteChatView extends StatelessWidget {
           child: Material(
             color: const Color(0xFFFFFFFF),
             elevation: 8,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             type: MaterialType.card,
             child: GetBuilder(
               init: MuteChatController(
@@ -82,8 +83,10 @@ class MuteChatView extends StatelessWidget {
                                       const EdgeInsets.fromLTRB(18, 0, 5, 0),
                                   child: Row(
                                     children: [
-                                      Text('label_mute_chat_for'.l10n,
-                                          style: font17),
+                                      Text(
+                                        'label_mute_chat_for'.l10n,
+                                        style: font17,
+                                      ),
                                       const Spacer(),
                                       IconButton(
                                         hoverColor: Colors.transparent,
@@ -139,7 +142,8 @@ class MuteChatView extends StatelessWidget {
                                                   c.status.value.errorMessage ??
                                                       'err_unknown'.l10n,
                                                   style: font13.copyWith(
-                                                      color: Colors.red),
+                                                    color: Colors.red,
+                                                  ),
                                                 ),
                                               ),
                                             )
@@ -153,7 +157,8 @@ class MuteChatView extends StatelessWidget {
                                           'btn_mute'.l10n,
                                           style: c.selectedMute.value == null
                                               ? font17.copyWith(
-                                                  color: Colors.grey)
+                                                  color: Colors.grey,
+                                                )
                                               : font17,
                                         ),
                                       ),

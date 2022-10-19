@@ -97,7 +97,7 @@ void main() async {
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
 
-  test('ChatService successfully unmute chat', () async {
+  test('ChatService successfully toggle chat mute', () async {
     var galleryItemProvider = GalleryItemHiveProvider();
     await galleryItemProvider.init();
     var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -138,7 +138,7 @@ void main() async {
     ));
   });
 
-  test('ChatService throws a ToggleChatMuteException when unmuting chat',
+  test('ChatService throws a ToggleChatMuteException when toggle chat mute',
       () async {
     var galleryItemProvider = GalleryItemHiveProvider();
     await galleryItemProvider.init();
