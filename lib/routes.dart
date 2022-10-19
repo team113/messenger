@@ -18,6 +18,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/provider/hive/typed_in_chats.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -473,6 +474,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
+              deps.put(TypedInChatHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =

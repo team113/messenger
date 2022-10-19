@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
+import '../provider/hive/typed_in_chats.dart';
 import '/api/backend/schema.dart'
     show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
 import '/domain/model/attachment.dart';
@@ -54,6 +55,7 @@ class HiveRxChat implements RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
+    this._typedInChatLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id);
@@ -84,6 +86,9 @@ class HiveRxChat implements RxChat {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [HiveBackground] local [Hive] storage.
+  final TypedInChatHiveProvider _typedInChatLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -216,6 +221,17 @@ class HiveRxChat implements RxChat {
   void subscribe() {
     if (!_remoteSubscriptionInitialized) {
       _initRemoteSubscription(id);
+    }
+  }
+
+  @override
+  String? toggleTypedInChat(String? text) {
+    if (text == null) {
+      var data = _typedInChatLocal.get(id);
+      return data == null ? '' : data.text;
+    } else {
+      _typedInChatLocal.set(id, text);
+      return null;
     }
   }
 

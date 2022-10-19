@@ -105,7 +105,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, c);
+        var entry = HiveRxChat(this, _chatLocal, Get.find(), c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -881,7 +881,8 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
+          HiveRxChat entry =
+              HiveRxChat(this, _chatLocal, Get.find(), event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
@@ -989,7 +990,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, data.chat);
+      entry = HiveRxChat(this, _chatLocal, Get.find(), data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();
