@@ -104,7 +104,7 @@ class MuteChatController extends GetxController {
   }
 }
 
-/// Wraps mute duration and label in one class.
+/// Wraps mute duration and label.
 class MuteLabel {
   MuteLabel(this.label, {Duration? duration, this.key}) {
     if (duration != null) {

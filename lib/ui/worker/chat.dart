@@ -178,7 +178,7 @@ class _ChatWatchData {
               body = 'label_forwarded_message'.l10n;
             }
 
-            if (body != null) {
+            if (body != null && chat.muted == null) {
               onNotification?.call(body, chat.lastItem?.id.val);
             }
           }

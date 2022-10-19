@@ -18,6 +18,8 @@ All user visible changes to this project will be documented in this file. This p
         - Dock buttons persistence. ([#159], [#137])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
+    - Chats tab:
+        - Chat muting/unmuting. ([#172], [#63])
 
 ### Changed
 
@@ -32,6 +34,7 @@ All user visible changes to this project will be documented in this file. This p
 - macOS:
     - Escape not exiting fullscreen in calls. ([#169], [#166])
 
+[#63]: /../../issues/63
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#137]: /../../issues/137
@@ -42,6 +45,7 @@ All user visible changes to this project will be documented in this file. This p
 [#163]: /../../pull/163
 [#166]: /../../issues/166
 [#169]: /../../pull/169
+[#172]: /../../pull/172
 
 
 
