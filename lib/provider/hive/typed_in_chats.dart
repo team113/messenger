@@ -37,7 +37,7 @@ class TypedInChatHiveProvider extends HiveBaseProvider<HiveTypedInChat> {
     Hive.maybeRegisterAdapter(HiveTypedInChatAdapter());
   }
 
-  HiveTypedInChat? get(ChatId chatId) => getSafe(chatId.val);
+  String? get(ChatId chatId) => getSafe(chatId.val)?.text;
 
   /// Saves the provided [Uint8List] to [Hive].
   void set(ChatId chatId, String text) => putSafe(

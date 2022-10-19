@@ -258,6 +258,7 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
+          chat?.toggleTypedInChat('');
           repliedMessages.clear();
           attachments.clear();
           s.clear();

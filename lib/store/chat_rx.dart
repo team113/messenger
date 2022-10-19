@@ -227,8 +227,8 @@ class HiveRxChat implements RxChat {
   @override
   String? toggleTypedInChat(String? text) {
     if (text == null) {
-      var data = _typedInChatLocal.get(id);
-      return data == null ? '' : data.text;
+      String? data = _typedInChatLocal.get(id);
+      return data ?? '';
     } else {
       _typedInChatLocal.set(id, text);
       return null;
