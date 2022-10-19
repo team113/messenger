@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 
+import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -107,7 +108,7 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
-    if (_focused) return;
+    if (_focused && payload == router.route) return;
 
     if (playSound) {
       runZonedGuarded(() async {
