@@ -1005,17 +1005,11 @@ abstract class ChatGraphQlMixin {
   ) async {
     final variables = ToggleChatMuteArguments(id: id, mute: mute);
 
-    Map<String, dynamic> jsonVariables = variables.toJson();
-    if (mute?.duration != null) {
-      jsonVariables['mute']['duration'] =
-          '${mute?.duration?.val.toIso8601String()}Z';
-    }
-
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleChatMute',
         document: ToggleChatMuteMutation(variables: variables).document,
-        variables: jsonVariables,
+        variables: variables.toJson(),
       ),
       onException: (data) => ToggleChatMuteException(
           (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
