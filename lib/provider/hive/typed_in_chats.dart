@@ -48,7 +48,7 @@ class TypedInChatHiveProvider extends HiveBaseProvider<HiveTypedInChat> {
       );
 
   /// Deletes the stored [Uint8List].
-  Future<void> delete(String chatId) => deleteSafe(chatId);
+  void delete(ChatId chatId) => deleteSafe(chatId);
 }
 
 /// Persisted in [Hive] storage background's [Uint8List] value.

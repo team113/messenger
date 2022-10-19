@@ -230,9 +230,13 @@ class HiveRxChat implements RxChat {
       String? data = _typedInChatLocal.get(id);
       return data ?? '';
     } else {
-      _typedInChatLocal.set(id, text);
-      return null;
+      if (text.isEmpty) {
+        _typedInChatLocal.delete(id);
+      } else {
+        _typedInChatLocal.set(id, text);
+      }
     }
+    return null;
   }
 
   @override
