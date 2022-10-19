@@ -79,7 +79,7 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      _WindowFocusListener listener = _WindowFocusListener(
+      _WindowListener listener = _WindowListener(
         onBlur: () => controller!.add(false),
         onFocus: () => controller!.add(true),
       );
@@ -121,7 +121,7 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowFullscreenListener(
+      var windowListener = _WindowListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -251,42 +251,36 @@ extension MobileExtensionOnContext on BuildContext {
       : MediaQuery.of(this).size.shortestSide < 600;
 }
 
-/// Listener interface for receiving window fullscreen events.
-class _WindowFullscreenListener extends WindowListener {
-  _WindowFullscreenListener({
-    required this.onLeaveFullscreen,
-    required this.onEnterFullscreen,
+/// Listener interface for receiving window events.
+class _WindowListener extends WindowListener {
+  _WindowListener({
+    this.onLeaveFullscreen,
+    this.onEnterFullscreen,
+    this.onFocus,
+    this.onBlur,
   });
 
   /// Callback, called when the window exits fullscreen.
-  final VoidCallback onLeaveFullscreen;
+  final VoidCallback? onLeaveFullscreen;
 
   /// Callback, called when the window enters fullscreen.
-  final VoidCallback onEnterFullscreen;
-
-  @override
-  void onWindowEnterFullScreen() => onEnterFullscreen();
-
-  @override
-  void onWindowLeaveFullScreen() => onLeaveFullscreen();
-}
-
-/// Listener interface for receiving window focus events.
-class _WindowFocusListener extends WindowListener {
-  _WindowFocusListener({
-    required this.onFocus,
-    required this.onBlur,
-  });
+  final VoidCallback? onEnterFullscreen;
 
   /// Callback, called when the window is being focused.
-  final VoidCallback onFocus;
+  final VoidCallback? onFocus;
 
   /// Callback, called when the window is being blurred.
-  final VoidCallback onBlur;
+  final VoidCallback? onBlur;
 
   @override
-  void onWindowFocus() => onFocus();
+  void onWindowEnterFullScreen() => onEnterFullscreen?.call();
 
   @override
-  void onWindowBlur() => onBlur();
+  void onWindowLeaveFullScreen() => onLeaveFullscreen?.call();
+
+  @override
+  void onWindowFocus() => onFocus?.call();
+
+  @override
+  void onWindowBlur() => onBlur?.call();
 }
