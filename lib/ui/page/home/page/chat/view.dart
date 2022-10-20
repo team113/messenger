@@ -38,7 +38,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
-import '/ui/page/home/page/chat/widget/chat_forward.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -48,6 +47,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
+import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/swipeable_status.dart';
 
@@ -339,7 +339,8 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Returns visual representation of the [ListElement] with provided index.
+  /// Builds a visual representation of a [ListElement] identified by the
+  /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == c.elements.length - 1;
@@ -408,23 +409,31 @@ class _ChatViewState extends State<ChatView>
             user: u.data,
             getUser: c.getUser,
             animation: _animation,
-            onHide: () {
+            onHide: () async {
+              final List<Future> futures = [];
+
               for (Rx<ChatItem> f in element.forwards) {
-                c.hideChatItem(f.value);
+                futures.add(c.hideChatItem(f.value));
               }
 
               if (element.note.value != null) {
-                c.hideChatItem(element.note.value!.value);
+                futures.add(c.hideChatItem(element.note.value!.value));
               }
+
+              await Future.wait(futures);
             },
-            onDelete: () {
+            onDelete: () async {
+              final List<Future> futures = [];
+
               for (Rx<ChatItem> f in element.forwards) {
-                c.deleteMessage(f.value);
+                futures.add(c.deleteMessage(f.value));
               }
 
               if (element.note.value != null) {
-                c.deleteMessage(element.note.value!.value);
+                futures.add(c.deleteMessage(element.note.value!.value));
               }
+
+              await Future.wait(futures);
             },
             onReply: () {
               if (c.repliedMessages.contains(element.forwards.last.value)) {
@@ -453,11 +462,7 @@ class _ChatViewState extends State<ChatView>
               if (chatId == c.id) {
                 c.animateTo(id);
               } else {
-                router.chat(
-                  chatId,
-                  itemId: id,
-                  push: true,
-                );
+                router.chat(chatId, itemId: id, push: true);
               }
             },
             onFileTap: c.download,
@@ -469,9 +474,7 @@ class _ChatViewState extends State<ChatView>
                 await c.chat?.updateAttachments(item);
               }
 
-              await Future.delayed(
-                Duration.zero,
-              );
+              await Future.delayed(Duration.zero);
             },
           ),
         ),
@@ -482,7 +485,7 @@ class _ChatViewState extends State<ChatView>
       return _unreadLabel(context, c);
     }
 
-    return Container();
+    return const SizedBox();
   }
 
   /// Returns a header subtitle of the [Chat].

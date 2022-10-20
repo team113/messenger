@@ -72,56 +72,56 @@ class ChatForwardWidget extends StatefulWidget {
     this.onAttachmentError,
   }) : super(key: key);
 
-  /// Reactive value of a [Chat] this chat forward is posted in.
+  /// Reactive value of a [Chat] these [forwards] are posted in.
   final Rx<Chat?> chat;
 
-  /// List of [ChatForward]s of this [ChatForwardWidget].
+  /// [ChatForward]s to display.
   final RxList<Rx<ChatItem>> forwards;
 
-  /// [ChatMessage] attached to this [forwards] as note.
+  /// [ChatMessage] attached to these [forwards] as note.
   final Rx<Rx<ChatItem>?> note;
 
   /// [UserId] of the authenticated [MyUser].
   final UserId me;
 
-  /// [UserId] of the [user].
+  /// [UserId] of the [user] who posted these [forwards].
   final UserId authorId;
 
-  /// Optional animation that controls a [SwipeableStatus].
+  /// Optional animation controlling a [SwipeableStatus].
   final AnimationController? animation;
 
-  /// [User] forwarded this [forwards].
+  /// [User] posted these [forwards].
   final RxUser? user;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final Future<RxUser?> Function(UserId userId)? getUser;
 
-  /// Callback, called when a hide action of this chat forward is triggered.
+  /// Callback, called when a hide action of these [forwards] is triggered.
   final void Function()? onHide;
 
-  /// Callback, called when a delete action of this chat forward is triggered.
+  /// Callback, called when a delete action of these [forwards] is triggered.
   final void Function()? onDelete;
 
-  /// Callback, called when a reply action of this chat forward is triggered.
+  /// Callback, called when a reply action of these [forwards] is triggered.
   final void Function()? onReply;
 
-  /// Callback, called when an edit action of this chat forward is triggered.
+  /// Callback, called when an edit action of these [forwards] is triggered.
   final void Function()? onEdit;
 
-  /// Callback, called when a copy action of this chat forward is triggered.
+  /// Callback, called when a copy action of these [forwards] is triggered.
   final void Function(String text)? onCopy;
 
   /// Callback, called when a gallery list is required.
   ///
-  /// If not specified, then only media in this [forwards] and [note] will be in
-  /// a gallery.
+  /// If not specified, then only media of these [forwards] and [note] will be
+  /// in a gallery.
   final List<Attachment> Function()? onGallery;
 
-  /// Callback, called when a forwarded message is tapped.
+  /// Callback, called when a [ChatForward] is tapped.
   final void Function(ChatItemId, ChatId)? onForwardedTap;
 
-  /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
+  /// Callback, called when a [FileAttachment] of some [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
 
   /// Callback, called on the [Attachment] fetching errors.
@@ -131,12 +131,14 @@ class ChatForwardWidget extends StatefulWidget {
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
 }
 
+/// State of a [ChatForwardWidget] maintaining the [_galleryKeys].
 class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   final List<GlobalKey> _galleryKeys = [];
 
-  /// Indicates whether this chat forward was read by any [User].
+  /// Indicates whether these [ChatForwardWidget.forwards] were read by any
+  /// [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
     if (chat == null) {
@@ -150,7 +152,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
   }
 
-  /// Indicates whether this [ChatForwardWidget.forwards] were forwarded by the
+  /// Indicates whether these [ChatForwardWidget.forwards] were forwarded by the
   /// authenticated [MyUser].
   bool get _fromMe => widget.authorId == widget.me;
 
@@ -167,7 +169,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     Style style = Theme.of(context).extension<Style>()!;
 
     Color color = widget.user?.user.value.id == widget.me
-        ? const Color(0xFF63B4FF)
+        ? Theme.of(context).colorScheme.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
@@ -187,18 +189,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     decoration: BoxDecoration(
                       color: _fromMe
                           ? _isRead
-                              ? style.myUserReadMessageColor
-                              : style.myUserUnreadMessageColor
+                              ? style.readMessageColor
+                              : style.unreadMessageColor
                           : style.messageColor,
                       borderRadius: BorderRadius.circular(15),
                       border: _fromMe
                           ? _isRead
-                              ? style.primaryBorder
+                              ? style.secondaryBorder
                               : Border.all(
                                   color: const Color(0xFFDAEDFF),
                                   width: 0.5,
                                 )
-                          : style.secondaryBorder,
+                          : style.primaryBorder,
                     ),
                     child: Obx(() {
                       return Column(
@@ -227,12 +229,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      18,
-                                      4,
-                                      9,
-                                      4,
-                                    ),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(18, 4, 9, 4),
                                     child: Text(
                                       widget.user?.user.value.name?.val ??
                                           widget.user?.user.value.num.val ??
@@ -277,7 +275,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  /// Renders the provided [forward] as [ChatForward].
+  /// Returns a visual representation of the provided [forward].
   Widget _forwardedMessage(Rx<ChatItem> forward) {
     return Obx(() {
       ChatForward msg = forward.value as ChatForward;
@@ -416,7 +414,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ],
         );
       } else if (item is ChatMemberInfo) {
-        // TODO: Implement `ChatMemberInfo`.
         content = Text(item.action.toString(), style: style.boldBody);
       } else if (item is ChatForward) {
         content = Text('label_forwarded_message'.l10n, style: style.boldBody);
@@ -514,7 +511,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     });
   }
 
-  /// Renders [widget.note] as [ChatMessage].
+  /// Builds a visual representation of the [ChatForwardWidget.note].
   List<Widget> _note() {
     ChatItem item = widget.note.value!.value;
 
@@ -835,7 +832,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     );
   }
 
-  /// Populates the [_galleryKeys] from [widget.forwards] and [widget.note].
+  /// Populates the [_galleryKeys] from [ChatForwardWidget.forwards] and
+  /// [ChatForwardWidget.note].
   void _populateGlobalKeys() {
     _galleryKeys.clear();
 

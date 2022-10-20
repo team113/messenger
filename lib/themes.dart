@@ -18,8 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '/domain/model/my_user.dart';
-
 /// Application themes constants.
 class Themes {
   /// Returns a light theme.
@@ -53,16 +51,11 @@ class Themes {
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             messageColor: Colors.white,
-            myUserReadMessageColor: const Color.fromRGBO(210, 227, 249, 1),
-            myUserUnreadMessageColor: const Color.fromRGBO(244, 249, 255, 1),
-            primaryBorder: Border.all(
-              color: const Color(0xFFB9D9FA),
-              width: 0.5,
-            ),
-            secondaryBorder: Border.all(
-              color: const Color(0xFFDADADA),
-              width: 0.5,
-            ),
+            primaryBorder:
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            readMessageColor: const Color.fromRGBO(210, 227, 249, 1),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             sidebarColor: Colors.white.withOpacity(0.4),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
@@ -72,6 +65,7 @@ class Themes {
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
+            unreadMessageColor: const Color.fromRGBO(244, 249, 255, 1),
           ),
         ],
         colorScheme: colors,
@@ -288,14 +282,14 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
     required this.messageColor,
-    required this.myUserReadMessageColor,
-    required this.myUserUnreadMessageColor,
     required this.primaryBorder,
+    required this.readMessageColor,
     required this.secondaryBorder,
     required this.sidebarColor,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.unreadMessageColor,
   });
 
   /// [Color] of the modal background barrier color.
@@ -322,19 +316,18 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
-  /// Background [Color] of the chat messages.
+  /// Background [Color] to apply to [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s.
   final Color messageColor;
 
-  /// Background [Color] of the read chat messages posted by [MyUser].
-  final Color myUserReadMessageColor;
-
-  /// Background [Color] of the unread chat messages posted by [MyUser].
-  final Color myUserUnreadMessageColor;
-
-  /// Primary [Border] style.
+  /// [Border] to apply to [ColorScheme.primary] color.
   final Border primaryBorder;
 
-  /// Secondary [Border] style.
+  /// Background [Color] to apply to read [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s posted by the authenticated [MyUser].
+  final Color readMessageColor;
+
+  /// [Border] to apply to [ColorScheme.secondary] color.
   final Border secondaryBorder;
 
   /// [Color] of the [HomeView]'s side bar.
@@ -349,6 +342,10 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
+  /// Background [Color] to apply to unread [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s posted by the authenticated [MyUser].
+  final Color unreadMessageColor;
+
   @override
   ThemeExtension<Style> copyWith({
     Color? barrierColor,
@@ -360,14 +357,14 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
     Color? messageColor,
-    Color? myUserReadMessageColor,
-    Color? myUserUnreadMessageColor,
     Border? primaryBorder,
+    Color? readMessageColor,
     Border? secondaryBorder,
     Color? sidebarColor,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
+    Color? unreadMessageColor,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
@@ -381,16 +378,14 @@ class Style extends ThemeExtension<Style> {
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
       messageColor: messageColor ?? this.messageColor,
-      myUserReadMessageColor:
-          myUserReadMessageColor ?? this.myUserReadMessageColor,
-      myUserUnreadMessageColor:
-          myUserUnreadMessageColor ?? this.myUserUnreadMessageColor,
       primaryBorder: primaryBorder ?? this.primaryBorder,
+      readMessageColor: readMessageColor ?? this.readMessageColor,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
 
@@ -419,14 +414,9 @@ class Style extends ThemeExtension<Style> {
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       messageColor: Color.lerp(messageColor, other.messageColor, t)!,
-      myUserReadMessageColor:
-          Color.lerp(myUserReadMessageColor, other.myUserReadMessageColor, t)!,
-      myUserUnreadMessageColor: Color.lerp(
-        myUserUnreadMessageColor,
-        other.myUserUnreadMessageColor,
-        t,
-      )!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      readMessageColor:
+          Color.lerp(readMessageColor, other.readMessageColor, t)!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
       systemMessageBorder:
@@ -438,6 +428,8 @@ class Style extends ThemeExtension<Style> {
         other.systemMessageStyle,
         t,
       )!,
+      unreadMessageColor:
+          Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
   }
 }

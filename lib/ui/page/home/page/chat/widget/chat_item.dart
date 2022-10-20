@@ -364,18 +364,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             decoration: BoxDecoration(
               color: fromMe
                   ? _isRead
-                      ? style.myUserReadMessageColor
-                      : style.myUserUnreadMessageColor
+                      ? style.readMessageColor
+                      : style.unreadMessageColor
                   : style.messageColor,
               borderRadius: BorderRadius.circular(15),
               border: fromMe
                   ? _isRead
-                      ? style.primaryBorder
+                      ? style.secondaryBorder
                       : Border.all(
                           color: const Color(0xFFDAEDFF),
                           width: 0.5,
                         )
-                  : style.secondaryBorder,
+                  : style.primaryBorder,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -504,14 +504,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               child: FitView(
                                 dividerColor: Colors.transparent,
                                 children: media
-                                    .mapIndexed((i, e) => buildMediaAttachment(
-                                          e,
-                                          media,
-                                          key: _galleryKeys[i],
-                                          context: context,
-                                          onError: widget.onAttachmentError,
-                                          onGallery: widget.onGallery,
-                                        ))
+                                    .mapIndexed(
+                                      (i, e) => buildMediaAttachment(
+                                        e,
+                                        media,
+                                        key: _galleryKeys[i],
+                                        context: context,
+                                        onError: widget.onAttachmentError,
+                                        onGallery: widget.onGallery,
+                                      ),
+                                    )
                                     .toList(),
                               ),
                             ),
@@ -633,13 +635,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           decoration: BoxDecoration(
             border: _fromMe
                 ? _isRead
-                    ? style.primaryBorder
+                    ? style.secondaryBorder
                     : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                : style.secondaryBorder,
+                : style.primaryBorder,
             color: _fromMe
                 ? _isRead
-                    ? style.myUserReadMessageColor
-                    : style.myUserUnreadMessageColor
+                    ? style.readMessageColor
+                    : style.unreadMessageColor
                 : style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
@@ -1109,7 +1111,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 }
 
-/// Returns visual representation of the provided media-[Attachment].
+/// Returns a visual representation of the provided media-[Attachment].
 Widget buildMediaAttachment(
   Attachment e,
   List<Attachment> media, {
@@ -1128,68 +1130,65 @@ Widget buildMediaAttachment(
     isVideo = e is FileAttachment;
   }
 
-  var attachment = isVideo
-      ? Stack(
-          alignment: Alignment.center,
-          children: [
-            isLocal
-                ? e.file.bytes == null
-                    ? const CircularProgressIndicator()
-                    : VideoThumbnail.bytes(
-                        bytes: e.file.bytes!,
-                        key: key,
-                        height: 300,
-                      )
-                : VideoThumbnail.url(
-                    url: '${Config.files}${e.original.relativeRef}',
+  final Widget attachment;
+  if (isVideo) {
+    attachment = Stack(
+      alignment: Alignment.center,
+      children: [
+        isLocal
+            ? e.file.bytes == null
+                ? const CircularProgressIndicator()
+                : VideoThumbnail.bytes(
+                    bytes: e.file.bytes!,
                     key: key,
                     height: 300,
-                    onError: onError,
-                  ),
-            Container(
-              width: 60,
-              height: 60,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0x80000000),
+                  )
+            : VideoThumbnail.url(
+                url: '${Config.files}${e.original.relativeRef}',
+                key: key,
+                height: 300,
+                onError: onError,
               ),
-              child: const Icon(
-                Icons.play_arrow,
-                color: Colors.white,
-                size: 48,
+        Container(
+          width: 60,
+          height: 60,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0x80000000),
+          ),
+          child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+        ),
+      ],
+    );
+  } else if (isLocal) {
+    if (e.file.bytes == null) {
+      attachment = const CircularProgressIndicator();
+    } else {
+      attachment =
+          Image.memory(e.file.bytes!, key: key, fit: BoxFit.cover, height: 300);
+    }
+  } else {
+    attachment = Container(
+      key: const Key('SentImage'),
+      child: Image.network(
+        '${Config.files}${(e as ImageAttachment).big.relativeRef}',
+        key: key,
+        fit: BoxFit.cover,
+        height: 300,
+        errorBuilder: (_, __, ___) {
+          return InitCallback(
+            callback: () => onError?.call(),
+            child: const SizedBox(
+              height: 300,
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
             ),
-          ],
-        )
-      : isLocal
-          ? e.file.bytes == null
-              ? const CircularProgressIndicator()
-              : Image.memory(
-                  e.file.bytes!,
-                  key: key,
-                  fit: BoxFit.cover,
-                  height: 300,
-                )
-          : Container(
-              key: const Key('SentImage'),
-              child: Image.network(
-                '${Config.files}${(e as ImageAttachment).big.relativeRef}',
-                key: key,
-                fit: BoxFit.cover,
-                height: 300,
-                errorBuilder: (_, __, ___) {
-                  return InitCallback(
-                    callback: () => onError?.call(),
-                    child: const SizedBox(
-                      height: 300,
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
+          );
+        },
+      ),
+    );
+  }
 
   return Padding(
     padding: EdgeInsets.zero,
@@ -1198,7 +1197,7 @@ Widget buildMediaAttachment(
       onTap: isLocal
           ? null
           : () {
-              List<Attachment> attachments = onGallery?.call() ?? media;
+              final List<Attachment> attachments = onGallery?.call() ?? media;
 
               int initial = attachments.indexOf(e);
               if (initial == -1) {

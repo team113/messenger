@@ -462,9 +462,7 @@ class ChatController extends GetxController {
               previous.note.value == null) {
             insert = false;
             previous.note.value = e;
-          }
-
-          if (next is ChatForwardElement &&
+          } else if (next is ChatForwardElement &&
               next.authorId == item.authorId &&
               next.forwards.last.value.at.val.difference(item.at.val) <
                   groupForwardThreshold &&
@@ -487,7 +485,7 @@ class ChatController extends GetxController {
               ChatForwardElement(forwards: [e], e.value.at);
 
           ListElementId? previousKey = elements.lastKeyBefore(element.id);
-          ListElement? previous = elements[previousKey];
+          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
 
           ListElementId? nextKey = elements.firstKeyAfter(element.id);
           ListElement? next = elements[nextKey];
@@ -517,18 +515,18 @@ class ChatController extends GetxController {
           }
 
           if (next is ChatForwardElement) {
-            // Combine this [ChatForward] with previous [ChatForward], if it was
+            // Combine this [ChatForward] with next [ChatForward], if it was
             // posted less than [groupForwardThreshold] ago.
             if (next.authorId == item.authorId &&
-                next.forwards.last.value.at.val.difference(item.at.val) <
+                next.forwards.first.value.at.val.difference(item.at.val) <
                     groupForwardThreshold) {
               next.forwards.add(e);
               next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
               insert = false;
             }
           } else if (next is ChatMessageElement) {
-            // Combine the previous [ChatMessage] with this [ChatForward], if it
-            // was posted less than [groupForwardThreshold] ago.
+            // Combine the next [ChatMessage] with this [ChatForward], if it was
+            // posted less than [groupForwardThreshold] ago.
             if (next.item.value.authorId == item.authorId &&
                 next.item.value.at.val.difference(item.at.val) <
                     groupForwardThreshold) {
@@ -795,11 +793,12 @@ class ChatController extends GetxController {
     bool offsetBasedOnBottom = false,
     double offset = 0,
   }) async {
-    int index = elements.values.toList().indexWhere((e) =>
-        e.id.id == id ||
-        (e is ChatForwardElement &&
-            (e.forwards.any((e1) => e1.value.id == id) ||
-                e.note.value?.value.id == id)));
+    int index = elements.values.toList().indexWhere((e) {
+      return e.id.id == id ||
+          (e is ChatForwardElement &&
+              (e.forwards.any((e1) => e1.value.id == id) ||
+                  e.note.value?.value.id == id));
+    });
 
     if (index != -1) {
       if (listController.hasClients) {
