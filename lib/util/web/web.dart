@@ -227,12 +227,12 @@ class WebUtils {
 
     controller = StreamController(
       onListen: () {
-        html.document.addEventListener('focus', focusListener);
-        html.document.addEventListener('blur', blurListener);
+        html.window.addEventListener('focus', focusListener);
+        html.window.addEventListener('blur', blurListener);
       },
       onCancel: () {
-        html.document.removeEventListener('focus', focusListener);
-        html.document.removeEventListener('blur', blurListener);
+        html.window.removeEventListener('focus', focusListener);
+        html.window.removeEventListener('blur', blurListener);
       },
     );
 

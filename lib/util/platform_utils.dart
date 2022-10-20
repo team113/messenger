@@ -88,8 +88,6 @@ class PlatformUtilsImpl {
         onListen: () => WindowManager.instance.addListener(listener),
         onCancel: () => WindowManager.instance.removeListener(listener),
       );
-
-      return controller.stream;
     } else {
       controller = StreamController<bool>(
         onListen: () => _mobileWorker = ever(
@@ -98,9 +96,9 @@ class PlatformUtilsImpl {
         ),
         onCancel: () => _mobileWorker?.dispose(),
       );
-
-      return controller.stream;
     }
+
+    return controller.stream;
   }
 
   /// Returns indicator whether application is focused or not.
