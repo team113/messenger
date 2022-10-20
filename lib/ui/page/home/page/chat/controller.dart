@@ -681,6 +681,8 @@ class ChatController extends GetxController {
             _durationTimer = Timer.periodic(
               const Duration(seconds: 1),
               (_) {
+                // TODO: setup [ChatCall.conversationStartedAt] when call
+                //       started.
                 duration.value = DateTime.now().difference(
                   chat.ongoingCall!.conversationStartedAt?.val ??
                       DateTime.now(),

@@ -18,15 +18,15 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -43,7 +43,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -51,12 +50,11 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'component/attachments_selection.dart';
 import 'controller.dart';
 import 'forward/view.dart';
 import 'widget/back_button.dart';
@@ -751,191 +749,165 @@ class _ChatViewState extends State<ChatView>
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LayoutBuilder(builder: (context, constraints) {
-            bool grab = 127 * c.attachments.length > constraints.maxWidth - 16;
-            return Stack(
-              children: [
-                Obx(() {
-                  bool expanded =
-                      c.repliedMessages.isNotEmpty || c.attachments.isNotEmpty;
-                  return ConditionalBackdropFilter(
-                    condition: style.cardBlur > 0,
-                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    borderRadius: BorderRadius.only(
-                      topLeft: style.cardRadius.topLeft,
-                      topRight: style.cardRadius.topRight,
-                    ),
-                    child: AnimatedSizeAndFade(
-                      fadeDuration: 400.milliseconds,
-                      sizeDuration: 400.milliseconds,
-                      fadeInCurve: Curves.ease,
-                      fadeOutCurve: Curves.ease,
-                      sizeCurve: Curves.ease,
-                      child: !expanded
-                          ? const SizedBox(height: 1, width: double.infinity)
-                          : Obx(() {
-                              return Container(
-                                width: double.infinity,
-                                color: const Color(0xFFFFFFFF).withOpacity(0.4),
-                                padding: c.repliedMessages.isNotEmpty ||
-                                        c.attachments.isNotEmpty
-                                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                                    : EdgeInsets.zero,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (c.repliedMessages.isNotEmpty)
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                        ),
-                                        child: ReorderableListView(
-                                          shrinkWrap: true,
-                                          buildDefaultDragHandles:
-                                              PlatformUtils.isMobile,
-                                          onReorder: (int old, int to) {
-                                            if (old < to) {
-                                              --to;
-                                            }
+      child: ConditionalBackdropFilter(
+        condition: style.cardBlur > 0,
+        filter: ImageFilter.blur(
+          sigmaX: style.cardBlur,
+          sigmaY: style.cardBlur,
+        ),
+        borderRadius: style.cardRadius,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LayoutBuilder(builder: (context, constraints) {
+              bool grab =
+                  127 * c.attachments.length > constraints.maxWidth - 16;
 
-                                            final ChatItem item =
-                                                c.repliedMessages.removeAt(old);
-                                            c.repliedMessages.insert(to, item);
-
-                                            HapticFeedback.lightImpact();
-                                          },
-                                          proxyDecorator:
-                                              (child, i, animation) {
-                                            return AnimatedBuilder(
-                                              animation: animation,
-                                              builder: (
-                                                BuildContext context,
-                                                Widget? child,
-                                              ) {
-                                                final double t = Curves
-                                                    .easeInOut
-                                                    .transform(animation.value);
-                                                final double elevation =
-                                                    lerpDouble(0, 6, t)!;
-                                                final Color color = Color.lerp(
-                                                  const Color(0x00000000),
-                                                  const Color(0x33000000),
-                                                  t,
-                                                )!;
-
-                                                return InitCallback(
-                                                  callback: HapticFeedback
-                                                      .selectionClick,
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: [
-                                                        CustomBoxShadow(
-                                                          color: color,
-                                                          blurRadius: elevation,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: child,
-                                                  ),
-                                                );
-                                              },
-                                              child: child,
-                                            );
-                                          },
-                                          reverse: true,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            1,
-                                            0,
-                                            1,
-                                            0,
-                                          ),
-                                          children: c.repliedMessages.map((e) {
-                                            return ReorderableDragStartListener(
-                                              key: Key('Handle_${e.id}'),
-                                              enabled: !PlatformUtils.isMobile,
-                                              index:
-                                                  c.repliedMessages.indexOf(e),
-                                              child: Dismissible(
-                                                key: Key('${e.id}'),
-                                                direction:
-                                                    DismissDirection.horizontal,
-                                                onDismissed: (_) {
-                                                  c.repliedMessages.remove(e);
-                                                },
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 2,
-                                                  ),
-                                                  child: _repliedMessage(c, e),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    if (c.attachments.isNotEmpty &&
-                                        c.repliedMessages.isNotEmpty)
-                                      const SizedBox(height: 4),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: MouseRegion(
-                                        cursor: grab
-                                            ? SystemMouseCursors.grab
-                                            : MouseCursor.defer,
-                                        opaque: false,
-                                        child: SingleChildScrollView(
-                                          clipBehavior: Clip.none,
-                                          physics: grab
-                                              ? null
-                                              : const NeverScrollableScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: c.attachments
-                                                .map(
-                                                  (e) => _buildAttachment(c, e),
-                                                )
-                                                .toList(),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+              return ConditionalBackdropFilter(
+                condition: style.cardBlur > 0,
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                borderRadius: BorderRadius.only(
+                  topLeft: style.cardRadius.topLeft,
+                  topRight: style.cardRadius.topRight,
+                ),
+                child: Container(
+                  color: const Color(0xFFFFFFFF).withOpacity(0.4),
+                  child: AnimatedSize(
+                    duration: 400.milliseconds,
+                    curve: Curves.ease,
+                    child: Obx(() {
+                      return Container(
+                        width: double.infinity,
+                        padding: c.repliedMessages.isNotEmpty ||
+                                c.attachments.isNotEmpty
+                            ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                            : EdgeInsets.zero,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.repliedMessages.isNotEmpty)
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height / 3,
                                 ),
-                              );
-                            }),
-                    ),
-                  );
-                }),
-              ],
-            );
-          }),
-          ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            borderRadius: BorderRadius.only(
-              topLeft: c.attachments.isEmpty && c.repliedMessages.isEmpty
-                  ? style.cardRadius.topLeft
-                  : Radius.zero,
-              topRight: c.attachments.isEmpty && c.repliedMessages.isEmpty
-                  ? style.cardRadius.topRight
-                  : Radius.zero,
-              bottomLeft: style.cardRadius.bottomLeft,
-              bottomRight: style.cardRadius.bottomLeft,
-            ),
-            child: Container(
+                                child: ReorderableListView(
+                                  shrinkWrap: true,
+                                  buildDefaultDragHandles:
+                                      PlatformUtils.isMobile,
+                                  onReorder: (int old, int to) {
+                                    if (old < to) {
+                                      --to;
+                                    }
+
+                                    final ChatItem item =
+                                        c.repliedMessages.removeAt(old);
+                                    c.repliedMessages.insert(to, item);
+
+                                    HapticFeedback.lightImpact();
+                                  },
+                                  proxyDecorator: (child, i, animation) {
+                                    return AnimatedBuilder(
+                                      animation: animation,
+                                      builder: (
+                                        BuildContext context,
+                                        Widget? child,
+                                      ) {
+                                        final double t = Curves.easeInOut
+                                            .transform(animation.value);
+                                        final double elevation =
+                                            lerpDouble(0, 6, t)!;
+                                        final Color color = Color.lerp(
+                                          const Color(0x00000000),
+                                          const Color(0x33000000),
+                                          t,
+                                        )!;
+
+                                        return InitCallback(
+                                          callback:
+                                              HapticFeedback.selectionClick,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                CustomBoxShadow(
+                                                  color: color,
+                                                  blurRadius: elevation,
+                                                ),
+                                              ],
+                                            ),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: child,
+                                    );
+                                  },
+                                  reverse: true,
+                                  padding: const EdgeInsets.fromLTRB(
+                                    1,
+                                    0,
+                                    1,
+                                    0,
+                                  ),
+                                  children: c.repliedMessages.map((e) {
+                                    return ReorderableDragStartListener(
+                                      key: Key('Handle_${e.id}'),
+                                      enabled: !PlatformUtils.isMobile,
+                                      index: c.repliedMessages.indexOf(e),
+                                      child: Dismissible(
+                                        key: Key('${e.id}'),
+                                        direction: DismissDirection.horizontal,
+                                        onDismissed: (_) {
+                                          c.repliedMessages.remove(e);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                          ),
+                                          child: _repliedMessage(c, e),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            if (c.attachments.isNotEmpty &&
+                                c.repliedMessages.isNotEmpty)
+                              const SizedBox(height: 4),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: MouseRegion(
+                                cursor: grab
+                                    ? SystemMouseCursors.grab
+                                    : MouseCursor.defer,
+                                opaque: false,
+                                child: SingleChildScrollView(
+                                  clipBehavior: Clip.none,
+                                  physics: grab
+                                      ? null
+                                      : const NeverScrollableScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: c.attachments
+                                        .map(
+                                          (e) => _buildAttachment(c, e),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              );
+            }),
+            Container(
               constraints: const BoxConstraints(minHeight: 56),
               decoration: BoxDecoration(color: style.cardColor),
               child: Row(
@@ -963,14 +935,7 @@ class _ChatViewState extends State<ChatView>
                   else
                     WidgetButton(
                       onPressed: () {
-                        ModalPopup.show(
-                          context: context,
-                          mobileConstraints: const BoxConstraints(),
-                          mobilePadding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          desktopConstraints:
-                              const BoxConstraints(maxWidth: 400),
-                          child: _attachmentSelection(c),
-                        );
+                        AttachmentsSelection.show(context, c);
                       },
                       child: SizedBox(
                         width: 56,
@@ -1106,8 +1071,8 @@ class _ChatViewState extends State<ChatView>
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1241,99 +1206,6 @@ class _ChatViewState extends State<ChatView>
         ),
       ),
     );
-  }
-
-  /// Returns buttons for select attachments on mobile.
-  Widget _attachmentSelection(ChatController c) {
-    return Builder(builder: (context) {
-      Widget button({
-        required String text,
-        IconData? icon,
-        Widget? child,
-        void Function()? onPressed,
-      }) {
-        // TODO: TEXT MUST SCALE HORIZONTALLY!!!!!!!!
-        return RoundFloatingButton(
-          text: text,
-          withBlur: false,
-          onPressed: () {
-            onPressed?.call();
-            Navigator.of(context).pop();
-          },
-          style: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          ),
-          color: const Color(0xFF63B4FF),
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: child ?? Icon(icon, color: Colors.white, size: 30),
-          ),
-        );
-      }
-
-      bool isAndroid = PlatformUtils.isAndroid;
-
-      List<Widget> children = [
-        button(
-          text: isAndroid ? 'label_photo'.l10n : 'label_camera'.l10n,
-          onPressed: c.pickImageFromCamera,
-          child: SvgLoader.asset(
-            'assets/icons/make_photo.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-        if (isAndroid)
-          button(
-            text: 'label_video'.l10n,
-            onPressed: c.pickVideoFromCamera,
-            child: SvgLoader.asset(
-              'assets/icons/video_on.svg',
-              width: 60,
-              height: 60,
-            ),
-          ),
-        button(
-          text: 'label_gallery'.l10n,
-          onPressed: c.pickMedia,
-          child: SvgLoader.asset(
-            'assets/icons/gallery.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-        button(
-          text: 'label_file'.l10n,
-          onPressed: c.pickFile,
-          child: SvgLoader.asset(
-            'assets/icons/file.svg',
-            width: 60,
-            height: 60,
-          ),
-        ),
-      ];
-
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: children,
-          ),
-          const SizedBox(height: 40),
-          OutlinedRoundedButton(
-            key: const Key('CloseButton'),
-            title: Text('btn_close'.l10n),
-            onPressed: Navigator.of(context).pop,
-            color: const Color(0xFFEEEEEE),
-          ),
-          const SizedBox(height: 10),
-        ],
-      );
-    });
   }
 
   /// Returns a visual representation of the provided [Attachment].
@@ -1488,13 +1360,22 @@ class _ChatViewState extends State<ChatView>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Text(
-                e.filename,
-                style: const TextStyle(fontSize: 13),
-                textAlign: TextAlign.center,
-                // TODO: Cut the file in way for the extension to be displayed.
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      p.basenameWithoutExtension(e.filename),
+                      style: const TextStyle(fontSize: 13),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    p.extension(e.filename),
+                    style: const TextStyle(fontSize: 13),
+                  )
+                ],
               ),
             ),
             const SizedBox(height: 6),
