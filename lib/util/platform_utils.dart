@@ -143,11 +143,11 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Returns [File] if an file with the provided [filename] and [size] exist in
+  /// Returns a [File] with the provided [filename] and [size], if any exist in
   /// the [downloadsDirectory].
   ///
-  /// If [size] is `null`, then an attempt to get the size will be performed
-  /// from the given [url].
+  /// If [size] is `null`, then an attempt to get the size from the given [url]
+  /// will be performed.
   Future<File?> fileExists(
     String filename, {
     int? size,
@@ -188,6 +188,35 @@ class PlatformUtilsImpl {
       await WebUtils.downloadFile(url, filename);
       return null;
     } else {
+      // Calls the provided [callback] using the exponential backoff algorithm.
+      Future<T?> withBackoff<T>(Future<T> Function() callback) async {
+        Duration backoff = Duration.zero;
+        T? result;
+
+        while (result == null) {
+          try {
+            for (int i = 0; i < backoff.inMilliseconds / 125; i++) {
+              await Future.delayed(125.milliseconds);
+              if (cancelToken?.isCancelled == true) {
+                return null;
+              }
+            }
+
+            result = await callback();
+            return result;
+          } catch (_) {
+            if (backoff.inMilliseconds == 0) {
+              backoff = 125.milliseconds;
+            } else if (backoff < 16.seconds) {
+              backoff *= 2;
+            }
+          }
+        }
+
+        return result;
+      }
+
+      // Retry fetching the size unless any other that `404` error is thrown.
       File? file = await withBackoff<File?>(
         () async {
           try {
@@ -202,7 +231,6 @@ class PlatformUtilsImpl {
 
           return null;
         },
-        cancelToken,
       );
 
       if (file == null) {
@@ -215,6 +243,7 @@ class PlatformUtilsImpl {
           file = File('$path/$name ($i)$extension');
         }
 
+        // Retry the downloading unless any other that `404` error is thrown.
         await withBackoff(
           () async {
             try {
@@ -232,7 +261,6 @@ class PlatformUtilsImpl {
               // No-op.
             }
           },
-          cancelToken,
         );
       }
 
@@ -288,37 +316,4 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowLeaveFullScreen() => onLeaveFullscreen();
-}
-
-/// Calls the provided [callback] with backoff.
-///
-/// Retrying the [callback] if it throws any error.
-Future<T?> withBackoff<T>(
-  Future<T> Function() callback,
-  CancelToken? cancelToken,
-) async {
-  Duration backoff = Duration.zero;
-  T? result;
-
-  while (result == null) {
-    try {
-      for (int i = 0; i < backoff.inMilliseconds / 125; i++) {
-        await Future.delayed(125.milliseconds);
-        if (cancelToken?.isCancelled == true) {
-          return null;
-        }
-      }
-
-      result = await callback();
-      return result;
-    } catch (_) {
-      if (backoff.inMilliseconds == 0) {
-        backoff = 125.milliseconds;
-      } else if (backoff < 16.seconds) {
-        backoff *= 2;
-      }
-    }
-  }
-
-  return result;
 }

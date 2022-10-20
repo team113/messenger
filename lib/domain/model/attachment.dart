@@ -130,9 +130,9 @@ class FileAttachment extends Attachment {
       url: original.url,
     );
 
-    if (await file?.exists() == true) {
+    if (file != null) {
       downloadStatus.value = DownloadStatus.isFinished;
-      path = file!.path;
+      path = file.path;
     } else {
       downloadStatus.value = DownloadStatus.notStarted;
       path = null;
