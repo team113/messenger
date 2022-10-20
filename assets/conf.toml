@@ -21,6 +21,8 @@
 
 # GraphQL API endpoint of HTTP backend server.
 #
+# Should start with a leading `/`, if any path is specified.
+#
 # Default:
 #   graphql = "/api/graphql"
 
@@ -54,7 +56,9 @@
 [downloads]
 # Directory to download files to.
 #
+# Should start with a leading `/`, if any directory is specified.
+#
 # Unused for Web, as browser picks the directory itself.
 #
 # Default:
-#   directory = "messenger"
+#   directory = ""
