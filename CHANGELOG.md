@@ -31,7 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - macOS:
     - Escape not exiting fullscreen in calls. ([#169], [#166])
-- Don't show notifications when application is focused. ([#171], [#128])
+- Notifications showed when target chat is opened. ([#171], [#128])
 
 [#122]: /../../issues/122
 [#127]: /../../pull/127
