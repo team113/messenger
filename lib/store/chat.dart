@@ -881,8 +881,12 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry =
-              HiveRxChat(this, _chatLocal, Get.find(), event.value);
+          HiveRxChat entry = HiveRxChat(
+            this,
+            _chatLocal,
+            Get.find(),
+            event.value,
+          );
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();

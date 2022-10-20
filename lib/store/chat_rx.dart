@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '../provider/hive/typed_in_chats.dart';
 import '/api/backend/schema.dart'
     show ChatMemberInfoAction, PostChatMessageErrorCode, ChatKind;
 import '/domain/model/attachment.dart';
@@ -43,6 +42,7 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/draft_message.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -55,7 +55,7 @@ class HiveRxChat implements RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
-    this._typedInChatLocal,
+    this._draftMessagesLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id);
@@ -87,8 +87,8 @@ class HiveRxChat implements RxChat {
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
-  /// [HiveBackground] local [Hive] storage.
-  final TypedInChatHiveProvider _typedInChatLocal;
+  /// Draft [ChatMessage]s [Hive] storage.
+  final DraftMessageHiveProvider _draftMessagesLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -225,13 +225,13 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  void setTypedInChat(ChatMessage message) => _typedInChatLocal.set(message);
+  void setDraftMessage(ChatMessage message) => _draftMessagesLocal.set(message);
 
   @override
-  void deleteTypedInChat() => _typedInChatLocal.delete(id);
+  void deleteDraftMessage() => _draftMessagesLocal.delete(id);
 
   @override
-  ChatMessage? getTypedInChat() => _typedInChatLocal.get(id);
+  ChatMessage? getDraftMessage() => _draftMessagesLocal.get(id);
 
   @override
   Future<void> fetchMessages() async {

@@ -32,7 +32,7 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Routes the [RouterState] to the provided [TestUser]'s page.
+/// Routes the [RouterState] to the previous page.
 final StepDefinitionGeneric iBackToPreviousPage = then<CustomWorld>(
   'I back to previous page',
   (context) async {
@@ -42,8 +42,6 @@ final StepDefinitionGeneric iBackToPreviousPage = then<CustomWorld>(
           context.world.appDriver.findByKeySkipOffstage('BackButton');
 
       if (await context.world.appDriver.isPresent(finder)) {
-        await context.world.appDriver.scrollIntoView(finder);
-        await context.world.appDriver.waitForAppToSettle();
         await context.world.appDriver.tap(
           finder,
           timeout: context.configuration.timeout,

@@ -221,10 +221,12 @@ abstract class RxChat {
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId id);
 
-  /// Removes a [ChatItem] identified by its [id].
-  ChatMessage? getTypedInChat();
+  /// Returns [ChatMessage] identified by its [id].
+  ChatMessage? getDraftMessage();
 
-  void setTypedInChat(ChatMessage chatMessage);
+  /// Sets [ChatMessage] identified by its [id].
+  void setDraftMessage(ChatMessage chatMessage);
 
-  void deleteTypedInChat();
+  /// Delete [ChatMessage] identified by its [id].
+  void deleteDraftMessage();
 }

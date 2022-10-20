@@ -109,7 +109,30 @@ class ChatsTabView extends StatelessWidget {
             .map((e) => e.name?.val ?? e.num.val);
 
         if (chat.ongoingCall == null) {
-          if (typings.isNotEmpty) {
+          ChatMessage? message = rxChat.getDraftMessage();
+          if (message != null) {
+            var desc = StringBuffer();
+            if (message.text != null) {
+              desc.write(message.text!.val);
+            }
+            if (message.attachments.isNotEmpty) {
+              desc.write(
+                  ' [${message.attachments.length} ${'label_attachments'.l10n}]');
+            }
+            if (message.repliesTo.isNotEmpty) {
+              desc.write(
+                  ' [${message.repliesTo.length} ${'label_replies'.l10n}]');
+            }
+            subtitle = [
+              Flexible(
+                child: Text(
+                  '${'label_draft'.l10n}: ${desc.toString().trim()}',
+                  maxLines: 2,
+                  key: const Key('DraftMessage'),
+                ),
+              ),
+            ];
+          } else if (typings.isNotEmpty) {
             subtitle = [
               Expanded(
                 child: Row(

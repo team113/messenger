@@ -14,46 +14,45 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:typed_data';
-
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../../domain/model/chat.dart';
-import '../../domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model_type_id.dart';
 import 'base.dart';
 
-part 'typed_in_chats.g.dart';
+part 'draft_message.g.dart';
 
-/// [Hive] storage for [HiveBackground].
-class TypedInChatHiveProvider extends HiveBaseProvider<HiveTypedInChat> {
+/// [Hive] storage for [HiveDraftMessage].
+class DraftMessageHiveProvider extends HiveBaseProvider<HiveDraftMessage> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'typedInChat';
+  String get boxName => 'draftMessage';
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(HiveTypedInChatAdapter());
+    Hive.maybeRegisterAdapter(HiveDraftMessageAdapter());
   }
 
+  /// Returns [ChatMessage] finded by [ChatId].
   ChatMessage? get(ChatId chatId) => getSafe(chatId.val)?.chatMessage;
 
-  /// Saves the provided [Uint8List] to [Hive].
+  /// Saves the provided [HiveDraftMessage] to [Hive].
   void set(ChatMessage chatMessage) => putSafe(
         chatMessage.chatId.val,
-        HiveTypedInChat(chatMessage),
+        HiveDraftMessage(chatMessage),
       );
 
-  /// Deletes the stored [Uint8List].
+  /// Deletes the stored [HiveDraftMessage].
   void delete(ChatId chatId) => deleteSafe(chatId.val);
 }
 
-/// Persisted in [Hive] storage background's [Uint8List] value.
-@HiveType(typeId: ModelTypeId.typedInChat)
-class HiveTypedInChat extends HiveObject {
-  HiveTypedInChat(this.chatMessage);
+/// Persisted in [Hive] storage background's [ChatMessage] value.
+@HiveType(typeId: ModelTypeId.draftMessage)
+class HiveDraftMessage extends HiveObject {
+  HiveDraftMessage(this.chatMessage);
 
   @HiveField(0)
   final ChatMessage chatMessage;
