@@ -225,19 +225,13 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  String? toggleTypedInChat(String? text) {
-    if (text == null) {
-      String? data = _typedInChatLocal.get(id);
-      return data ?? '';
-    } else {
-      if (text.isEmpty) {
-        _typedInChatLocal.delete(id);
-      } else {
-        _typedInChatLocal.set(id, text);
-      }
-    }
-    return null;
-  }
+  void setTypedInChat(ChatMessage message) => _typedInChatLocal.set(message);
+
+  @override
+  void deleteTypedInChat() => _typedInChatLocal.delete(id);
+
+  @override
+  ChatMessage? getTypedInChat() => _typedInChatLocal.get(id);
 
   @override
   Future<void> fetchMessages() async {

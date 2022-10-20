@@ -258,7 +258,7 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          chat?.toggleTypedInChat('');
+          chat?.deleteTypedInChat();
           repliedMessages.clear();
           attachments.clear();
           s.clear();
@@ -427,6 +427,18 @@ class ChatController extends GetxController {
     }
   }
 
+  void _updateTypedInChat() => chat?.setTypedInChat(
+        ChatMessage(
+          const ChatItemId(''),
+          id,
+          const UserId(''),
+          PreciseDateTime.now(),
+          text: send.text.isEmpty ? null : ChatMessageText(send.text),
+          attachments: attachments,
+          repliesTo: repliedMessages,
+        ),
+      );
+
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
@@ -435,7 +447,10 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
-      send.text = chat!.toggleTypedInChat(null)!;
+      ChatMessage? chatMessage = chat!.getTypedInChat();
+      send.text = chatMessage?.text?.val ?? '';
+      attachments.value = chatMessage?.attachments ?? [];
+      repliedMessages.value = chatMessage?.repliesTo ?? [];
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {
@@ -917,7 +932,7 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    chat?.toggleTypedInChat(send.text);
+    _updateTypedInChat();
     _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
@@ -975,6 +990,7 @@ class ChatController extends GetxController {
         if (index != -1) {
           attachments[index] = uploaded;
         }
+        _updateTypedInChat();
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
       } on ConnectionException {

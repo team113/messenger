@@ -19,6 +19,7 @@ import 'dart:typed_data';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../domain/model/chat.dart';
+import '../../domain/model/chat_item.dart';
 import '/domain/model_type_id.dart';
 import 'base.dart';
 
@@ -37,25 +38,23 @@ class TypedInChatHiveProvider extends HiveBaseProvider<HiveTypedInChat> {
     Hive.maybeRegisterAdapter(HiveTypedInChatAdapter());
   }
 
-  String? get(ChatId chatId) => getSafe(chatId.val)?.text;
+  ChatMessage? get(ChatId chatId) => getSafe(chatId.val)?.chatMessage;
 
   /// Saves the provided [Uint8List] to [Hive].
-  void set(ChatId chatId, String text) => putSafe(
-        chatId.val,
-        HiveTypedInChat(
-          text,
-        ),
+  void set(ChatMessage chatMessage) => putSafe(
+        chatMessage.chatId.val,
+        HiveTypedInChat(chatMessage),
       );
 
   /// Deletes the stored [Uint8List].
-  void delete(ChatId chatId) => deleteSafe(chatId);
+  void delete(ChatId chatId) => deleteSafe(chatId.val);
 }
 
 /// Persisted in [Hive] storage background's [Uint8List] value.
 @HiveType(typeId: ModelTypeId.typedInChat)
 class HiveTypedInChat extends HiveObject {
-  HiveTypedInChat(this.text);
+  HiveTypedInChat(this.chatMessage);
 
   @HiveField(0)
-  final String text;
+  final ChatMessage chatMessage;
 }

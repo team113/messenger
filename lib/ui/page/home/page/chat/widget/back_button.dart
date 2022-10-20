@@ -28,6 +28,7 @@ class StyledBackButton extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.fromLTRB(0, 7, 0, 8),
         child: InkWell(
+          key: const Key('BackButton'),
           customBorder: const CircleBorder(),
           child: Center(
             child: Padding(

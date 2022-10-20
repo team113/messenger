@@ -79,6 +79,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillField,
         fillFieldN,
         goToUserPage,
+        iBackToPreviousPage,
         hasDialogWithMe,
         haveGroupNamed,
         haveInternetWithDelay,

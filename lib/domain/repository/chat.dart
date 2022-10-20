@@ -222,5 +222,9 @@ abstract class RxChat {
   Future<void> remove(ChatItemId id);
 
   /// Removes a [ChatItem] identified by its [id].
-  String? toggleTypedInChat(String? text);
+  ChatMessage? getTypedInChat();
+
+  void setTypedInChat(ChatMessage chatMessage);
+
+  void deleteTypedInChat();
 }
