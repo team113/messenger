@@ -144,15 +144,18 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
             children: [
               button,
               const SizedBox(height: 5),
-              Text(
-                widget.text!,
-                textAlign: TextAlign.center,
-                style: widget.style ??
-                    context.textTheme.caption?.copyWith(
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
-                maxLines: 2,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  widget.text!,
+                  textAlign: TextAlign.center,
+                  style: widget.style ??
+                      context.textTheme.caption?.copyWith(
+                        color: Colors.white,
+                        fontSize: 13,
+                      ),
+                  maxLines: 2,
+                ),
               ),
             ],
           );
