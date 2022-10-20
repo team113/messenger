@@ -4,17 +4,11 @@ Feature: Trying to load chat images
     Given I am Alice
     And user Bob
     And Bob has dialog with me
+    And Bob sends image to me
+    And I do not have Internet
+    And I am in chat with Bob
 
   Scenario: Try to load image when i'm open chat
-    When Bob sends image to me
-    And I am in chat with Bob without waiting for chat loading
-
-    Then I wait until image is loading
-    Then I wait until image is loaded
-
-  Scenario: Try to load image when i'm in chat
-    When I am in chat with Bob
-    And Bob sends image to me
-
-    Then I wait until image is loading
+    When I wait until image is loading
+    And I have Internet without delay
     Then I wait until image is loaded

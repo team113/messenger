@@ -60,16 +60,3 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
     );
   },
 );
-
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser]
-/// without waiting for page loading.
-///
-/// Examples:
-/// - Given I am in chat with Bob without waiting for chat loading
-final StepDefinitionGeneric iAmInChatWithWithoutWaiting =
-    given1<TestUser, CustomWorld>(
-  'I am in chat with {user} without waiting for chat loading',
-  (TestUser user, context) async {
-    router.chat(context.world.sessions[user.name]!.dialog!);
-  },
-);

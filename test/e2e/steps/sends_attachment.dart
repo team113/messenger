@@ -26,7 +26,6 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/mime.dart';
 
 import '../parameters/users.dart';
-import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
@@ -82,12 +81,7 @@ final StepDefinitionGeneric sendsImageToMe = and1<TestUser, CustomWorld>(
       ),
     );
 
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = const Duration(seconds: 4);
-      provider.client.throwException = false;
-    }
-
-    provider.postChatMessage(
+    await provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,
       text: null,
       attachments: [response.attachment.toModel().id],
