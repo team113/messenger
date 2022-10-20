@@ -103,7 +103,7 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Indicates whether application is focused or not.
+  /// Returns indicator whether application is focused or not.
   Future<bool> get isFocused async {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);

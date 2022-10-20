@@ -131,7 +131,7 @@ class WebUtils {
         msFullscreenElement != null);
   }
 
-  /// Indicates whether application is focused or not.
+  /// Returns indicator whether application is focused or not.
   static bool get isFocused => _hasFocus();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
@@ -219,10 +219,10 @@ class WebUtils {
   static Stream<bool> get onFocusChanged {
     StreamController<bool>? controller;
 
-    // Event listener reacting on focus window.
+    // Listener reacting on focus window event.
     void focusListener(html.Event event) => controller!.add(true);
 
-    // Event listener reacting on blur window.
+    // Listener reacting on blur window event.
     void blurListener(html.Event event) => controller!.add(false);
 
     controller = StreamController(
