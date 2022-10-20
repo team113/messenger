@@ -354,7 +354,7 @@ class ChatsTabView extends StatelessWidget {
             ),
             if (chat.muted != null)
               ContextMenuButton(
-                key: const Key('ButtonUnMuteChat'),
+                key: const Key('ButtonUnmuteChat'),
                 label: 'btn_unmute_chat'.l10n,
                 onPressed: () async => await c.unMute(chat.id),
               ),

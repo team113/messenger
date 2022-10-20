@@ -14,6 +14,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,17 +25,18 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/util/obs/obs.dart';
 
 export 'view.dart';
 
-/// Controller of the chat muting overlay.
+/// Controller of a [MuteChatView].
 class MuteChatController extends GetxController {
   MuteChatController(this.id, this.pop, this._chatService);
 
   /// [ChatId] of muting [Chat].
   final ChatId id;
 
-  /// Status of a `toggleChatMute` completion.
+  /// Status of a [mute] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [mute] is executing.
@@ -44,7 +47,7 @@ class MuteChatController extends GetxController {
   /// Selected mute period.
   final Rx<int?> selectedMute = Rx<int?>(null);
 
-  /// List of mute periods.
+  /// List of the mute periods.
   final List<MuteLabel> muteDateTimes = [
     MuteLabel(
       'label_multiple_minutes'.l10nfmt({'quantity': 15}),
@@ -86,14 +89,49 @@ class MuteChatController extends GetxController {
   /// Pops the [MuteChatView] this controller is bound to.
   final Function() pop;
 
+  /// Subscription for the [ChatService.chats] changes.
+  late final StreamSubscription _chatsSubscription;
+
+  @override
+  void onInit() {
+    _chatsSubscription = _chatService.chats.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          // No-op.
+          break;
+
+        case OperationKind.removed:
+          if (e.key == id) {
+            pop();
+          }
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _chatsSubscription.cancel();
+    super.onClose();
+  }
+
   /// Mute [Chat] for selected period.
   Future<void> mute() async {
     status.value = RxStatus.loading();
     try {
-      await _chatService.toggleChatMute(
-        id,
-        Muting(duration: muteDateTimes[selectedMute.value!].dateTime),
-      );
+      PreciseDateTime? dateTime;
+      Duration? duration = muteDateTimes[selectedMute.value!].duration;
+      if (duration != null) {
+        dateTime = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(id, Muting(duration: dateTime));
       pop();
     } on ToggleChatMuteException catch (e) {
       status.value = RxStatus.error(e.toMessage());
@@ -104,13 +142,9 @@ class MuteChatController extends GetxController {
   }
 }
 
-/// Wraps mute duration and label.
+/// Mute duration and its label wrapper.
 class MuteLabel {
-  MuteLabel(this.label, {Duration? duration, this.key}) {
-    if (duration != null) {
-      dateTime = PreciseDateTime.now().add(duration);
-    }
-  }
+  MuteLabel(this.label, {this.duration, this.key});
 
   /// Unique key of [MuteLabel] class.
   final Key? key;
@@ -118,6 +152,6 @@ class MuteLabel {
   /// Label of mute period.
   final String label;
 
-  /// End [PreciseDateTime] of muting duration.
-  PreciseDateTime? dateTime;
+  /// Muting [Duration].
+  final Duration? duration;
 }

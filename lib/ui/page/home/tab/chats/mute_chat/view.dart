@@ -21,7 +21,7 @@ import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
 import 'controller.dart';
 
-/// View of the chat muting overlay.
+/// View of the chat muting dialog.
 class MuteChatView extends StatelessWidget {
   const MuteChatView(this.id, {Key? key}) : super(key: key);
 

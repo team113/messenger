@@ -36,5 +36,5 @@ Feature: Toggle chat muting
     When I wait until `MutedInChatsList` is present
     Then I long press "Alice and Bob" chat
 
-    When I tap `ButtonUnMuteChat` button
+    When I tap `ButtonUnmuteChat` button
     Then I wait until `MutedInChatsList` is absent

@@ -19,7 +19,7 @@ import 'package:gherkin/gherkin.dart';
 
 import '../world/custom_world.dart';
 
-/// Long presses chat found with the provided name.
+/// Long presses chat with the provided name.
 ///
 /// Examples:
 /// - When I long press "Name" chat.
