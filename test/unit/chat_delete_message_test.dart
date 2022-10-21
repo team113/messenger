@@ -31,7 +31,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -57,8 +56,6 @@ void main() async {
   await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
-  var draftMessageProvider = Get.put(DraftMessageHiveProvider());
-  await draftMessageProvider.init();
   sessionProvider.setCredentials(
     Credentials(
       Session(

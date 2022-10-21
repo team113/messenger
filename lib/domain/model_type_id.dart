@@ -101,5 +101,4 @@ class ModelTypeId {
   static const mediaType = 79;
   static const hiveBackground = 80;
   static const storageFile = 81;
-  static const draftMessage = 82;
 }

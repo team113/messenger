@@ -79,8 +79,15 @@ class ChatsTabController extends GetxController {
   /// Indicates whether [ContactService] is ready to be used.
   RxBool get chatsReady => _chatService.isReady;
 
+  /// Current route reactive value.
+  RxString route = RxString('');
+
+  /// Updates [route] value.
+  void _routerListener() => route.value = router.route;
+
   @override
   void onInit() {
+    router.addListener(_routerListener);
     chats = RxList<RxChat>(_chatService.chats.values.toList());
     _sortChats();
 
@@ -109,15 +116,12 @@ class ChatsTabController extends GetxController {
       }
     });
 
-    _chatService.draftMessagesStream.listen((event) {
-      print(event.value);
-    });
-
     super.onInit();
   }
 
   @override
   void onClose() {
+    router.removeListener(_routerListener);
     for (var data in _sortingData.values) {
       data.dispose();
     }

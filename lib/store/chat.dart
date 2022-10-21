@@ -21,7 +21,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '../provider/hive/draft_message.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
@@ -58,8 +57,7 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._userRepo,
-    this._draftMessagesLocal, {
+    this._userRepo, {
     this.me,
   });
 
@@ -75,9 +73,6 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
-
-  /// Draft [ChatMessage]s [Hive] storage.
-  final DraftMessageHiveProvider _draftMessagesLocal;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -100,9 +95,6 @@ class ChatRepository implements AbstractChatRepository {
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
 
   @override
-  Stream<BoxEvent> get draftMessagesStream => _draftMessagesLocal.boxEvents;
-
-  @override
   RxBool get isReady => _isReady;
 
   @override
@@ -113,7 +105,7 @@ class ChatRepository implements AbstractChatRepository {
 
     if (!_chatLocal.isEmpty) {
       for (HiveChat c in _chatLocal.chats) {
-        var entry = HiveRxChat(this, _chatLocal, Get.find(), c);
+        var entry = HiveRxChat(this, _chatLocal, c);
         _chats[c.value.id] = entry;
         entry.init();
       }
@@ -889,12 +881,7 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry = HiveRxChat(
-            this,
-            _chatLocal,
-            Get.find(),
-            event.value,
-          );
+          HiveRxChat entry = HiveRxChat(this, _chatLocal, event.value);
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
@@ -904,7 +891,6 @@ class ChatRepository implements AbstractChatRepository {
         }
       }
     }
-    // _draftMessages = _draftMessagesLocal.l
   }
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
@@ -1003,7 +989,7 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, Get.find(), data.chat);
+      entry = HiveRxChat(this, _chatLocal, data.chat);
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();

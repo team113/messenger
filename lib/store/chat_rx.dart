@@ -42,7 +42,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
-import '/provider/hive/draft_message.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -55,7 +54,6 @@ class HiveRxChat implements RxChat {
   HiveRxChat(
     this._chatRepository,
     this._chatLocal,
-    this._draftMessagesLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id);
@@ -73,6 +71,9 @@ class HiveRxChat implements RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
+  final Rx<ChatMessage?> draftMessage = Rx<ChatMessage?>(null);
+
+  @override
   final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
 
   @override
@@ -86,9 +87,6 @@ class HiveRxChat implements RxChat {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
-
-  /// Draft [ChatMessage]s [Hive] storage.
-  final DraftMessageHiveProvider _draftMessagesLocal;
 
   /// [ChatItem]s local [Hive] storage.
   final ChatItemHiveProvider _local;
@@ -225,13 +223,24 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  void setDraftMessage(ChatMessage message) => _draftMessagesLocal.set(message);
+  void setDraftMessage(ChatMessage message) {
+    HiveChat? hiveChat = _chatLocal.get(id);
+    if (hiveChat != null) {
+      draftMessage.value = message;
+      hiveChat.value.draftMessage = message;
+      _chatLocal.put(hiveChat);
+    }
+  }
 
   @override
-  void deleteDraftMessage() => _draftMessagesLocal.delete(id);
-
-  @override
-  ChatMessage? getDraftMessage() => _draftMessagesLocal.get(id);
+  void deleteDraftMessage() {
+    HiveChat? hiveChat = _chatLocal.get(id);
+    if (hiveChat != null) {
+      draftMessage.value = null;
+      hiveChat.value.draftMessage = null;
+      _chatLocal.put(hiveChat);
+    }
+  }
 
   @override
   Future<void> fetchMessages() async {

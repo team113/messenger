@@ -17,7 +17,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '../model/attachment.dart';
 import '../model/avatar.dart';
@@ -34,9 +33,6 @@ import '/util/obs/obs.dart';
 abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats;
-
-  /// Returns reactive map of [RxChat]s.
-  Stream<BoxEvent> get draftMessagesStream;
 
   /// Indicates whether this repository was initialized and [chats] can be
   /// used.
@@ -214,6 +210,9 @@ abstract class RxChat {
   /// Returns an actual [UserCallCover] of this [RxChat].
   UserCallCover? get callCover;
 
+  /// Draft [ChatMessage] of this [Chat].
+  Rx<ChatMessage?> get draftMessage;
+
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
 
@@ -224,9 +223,6 @@ abstract class RxChat {
 
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId id);
-
-  /// Returns draft [ChatMessage] of this [Chat].
-  ChatMessage? getDraftMessage();
 
   /// Sets draft [ChatMessage] of this [Chat].
   void setDraftMessage(ChatMessage chatMessage);

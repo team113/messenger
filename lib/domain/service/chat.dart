@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '../model/attachment.dart';
 import '../model/chat.dart';
@@ -47,10 +46,6 @@ class ChatService extends DisposableService {
 
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
-
-  /// Returns the current reactive map of [RxChat]s.
-  Stream<BoxEvent> get draftMessagesStream =>
-      _chatRepository.draftMessagesStream;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;

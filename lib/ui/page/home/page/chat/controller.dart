@@ -319,7 +319,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    repliesWorker?.dispose();
     _messagesSubscription.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
@@ -460,7 +459,7 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
-      ChatMessage? chatMessage = chat!.getDraftMessage();
+      ChatMessage? chatMessage = chat!.draftMessage.value;
       send.text = chatMessage?.text?.val ?? '';
       attachments.value = chatMessage?.attachments ?? [];
       repliedMessages.value = chatMessage?.repliesTo ?? [];

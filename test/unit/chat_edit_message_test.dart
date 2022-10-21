@@ -29,7 +29,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -110,8 +109,6 @@ void main() async {
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
     await chatHiveProvider.init();
-    var draftMessageProvider = Get.put(DraftMessageHiveProvider());
-    await draftMessageProvider.init();
 
     AuthService authService = Get.put(
       AuthService(
@@ -160,8 +157,6 @@ void main() async {
     await userProvider.init();
     var chatHiveProvider = Get.put(ChatHiveProvider());
     await chatHiveProvider.init();
-    var draftMessageProvider = Get.put(DraftMessageHiveProvider());
-    await draftMessageProvider.init();
 
     AuthService authService = Get.put(
       AuthService(
