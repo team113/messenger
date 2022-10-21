@@ -138,9 +138,8 @@ void main() async {
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
-  var draftMessageProvide = DraftMessageHiveProvider();
-  await draftMessageProvide.init();
-  await draftMessageProvide.clear();
+  var draftMessageProvider = Get.put(DraftMessageHiveProvider());
+  await draftMessageProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();

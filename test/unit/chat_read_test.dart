@@ -27,6 +27,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -57,6 +58,8 @@ void main() async {
   await sessionProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var draftMessageProvider = DraftMessageHiveProvider();
+  await draftMessageProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -158,6 +161,7 @@ void main() async {
           },
         )));
 
+    Get.put(draftMessageProvider);
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
@@ -193,6 +197,7 @@ void main() async {
       const ChatItemId(''),
     )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
 
+    Get.put(draftMessageProvider);
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));

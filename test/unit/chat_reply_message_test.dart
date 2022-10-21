@@ -29,6 +29,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -59,6 +60,8 @@ void main() async {
   var userProvider = UserHiveProvider();
   await userProvider.init();
   await userProvider.clear();
+  var draftMessageProvider = Get.put(DraftMessageHiveProvider());
+  await draftMessageProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -176,6 +179,7 @@ void main() async {
           as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned),
     );
 
+    Get.put(draftMessageProvider);
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
@@ -234,6 +238,7 @@ void main() async {
     )).thenThrow(
         const PostChatMessageException(PostChatMessageErrorCode.blacklisted));
 
+    Get.put(draftMessageProvider);
     Get.put(chatHiveProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));

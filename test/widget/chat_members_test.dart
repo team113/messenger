@@ -39,6 +39,7 @@ import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -138,6 +139,9 @@ void main() async {
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => Future.value(const Stream.empty()));
 
+  var draftMessageProvider = Get.put(DraftMessageHiveProvider());
+  await draftMessageProvider.init();
+  await draftMessageProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();

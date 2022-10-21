@@ -30,6 +30,7 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
@@ -52,6 +53,8 @@ void main() async {
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
 
+  var draftMessageProvider = DraftMessageHiveProvider();
+  await draftMessageProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var galleryItemProvider = GalleryItemHiveProvider();
@@ -197,6 +200,7 @@ void main() async {
       }).createChatDirectLink as MyUserEventsVersionedMixin?),
     );
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -226,6 +230,7 @@ void main() async {
       (_) => Future.value(),
     );
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -276,6 +281,7 @@ void main() async {
           as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk),
     );
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -302,6 +308,7 @@ void main() async {
         .thenThrow(const CreateChatDirectLinkException(
             CreateChatDirectLinkErrorCode.unknownChat));
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -339,6 +346,7 @@ void main() async {
     )).thenThrow(const DeleteChatDirectLinkException(
         DeleteChatDirectLinkErrorCode.unknownChat));
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -367,6 +375,7 @@ void main() async {
     )).thenThrow(const UseChatDirectLinkException(
         UseChatDirectLinkErrorCode.unknownDirectLink));
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(

@@ -26,6 +26,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
+import 'package:messenger/provider/hive/draft_message.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -56,6 +57,8 @@ void main() async {
   await sessionProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var draftMessageProvider = DraftMessageHiveProvider();
+  await draftMessageProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -130,6 +133,7 @@ void main() async {
       }).hideChat as HideChat$Mutation$HideChat$ChatEventsVersioned),
     );
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
@@ -159,6 +163,7 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(const HideChatException(HideChatErrorCode.unknownChat));
 
+    Get.put(draftMessageProvider);
     UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
