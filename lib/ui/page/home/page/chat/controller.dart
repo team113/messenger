@@ -431,11 +431,11 @@ class ChatController extends GetxController {
   }
 
   /// Updates draft message of this [Chat].
-  void _updateDraftMessage() {
+  Future<void> _updateDraftMessage() async {
     if (send.text.isNotEmpty ||
         attachments.isNotEmpty ||
         repliedMessages.isNotEmpty) {
-      chat?.setDraftMessage(
+      await chat?.setDraftMessage(
         ChatMessage(
           const ChatItemId(''),
           id,
@@ -459,7 +459,7 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
-      ChatMessage? chatMessage = chat!.draftMessage.value;
+      ChatMessage? chatMessage = chat!.draftMessage?.value;
       send.text = chatMessage?.text?.val ?? '';
       attachments.value = chatMessage?.attachments ?? [];
       repliedMessages.value = chatMessage?.repliesTo ?? [];
@@ -944,7 +944,7 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    _updateDraftMessage();
+    await _updateDraftMessage();
     _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {
@@ -1002,7 +1002,7 @@ class ChatController extends GetxController {
         if (index != -1) {
           attachments[index] = uploaded;
         }
-        _updateDraftMessage();
+        await _updateDraftMessage();
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
       } on ConnectionException {

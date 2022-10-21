@@ -211,7 +211,7 @@ abstract class RxChat {
   UserCallCover? get callCover;
 
   /// Draft [ChatMessage] of this [Chat].
-  Rx<ChatMessage?> get draftMessage;
+  Rx<ChatMessage?>? get draftMessage;
 
   /// Fetches the [messages] from the service.
   Future<void> fetchMessages();
@@ -225,7 +225,7 @@ abstract class RxChat {
   Future<void> remove(ChatItemId id);
 
   /// Sets draft [ChatMessage] of this [Chat].
-  void setDraftMessage(ChatMessage chatMessage);
+  Future<void> setDraftMessage(ChatMessage chatMessage);
 
   /// Deletes draft [ChatMessage] of this [Chat].
   void deleteDraftMessage();

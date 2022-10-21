@@ -109,7 +109,7 @@ class ChatsTabView extends StatelessWidget {
             .map((e) => e.name?.val ?? e.num.val);
 
         if (chat.ongoingCall == null) {
-          ChatMessage? draft = rxChat.draftMessage.value;
+          ChatMessage? draft = rxChat.draftMessage?.value;
           if (draft != null &&
               c.route.value != '${Routes.chat}/${rxChat.chat.value.id}') {
             var desc = StringBuffer();

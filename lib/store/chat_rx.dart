@@ -56,7 +56,8 @@ class HiveRxChat implements RxChat {
     this._chatLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
-        _local = ChatItemHiveProvider(hiveChat.value.id);
+        _local = ChatItemHiveProvider(hiveChat.value.id),
+        draftMessage = Rx<ChatMessage?>(hiveChat.draftMessage);
 
   @override
   final Rx<Chat> chat;
@@ -71,7 +72,7 @@ class HiveRxChat implements RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  final Rx<ChatMessage?> draftMessage = Rx<ChatMessage?>(null);
+  Rx<ChatMessage?>? draftMessage;
 
   @override
   final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
@@ -223,12 +224,12 @@ class HiveRxChat implements RxChat {
   }
 
   @override
-  void setDraftMessage(ChatMessage message) {
+  Future<void> setDraftMessage(ChatMessage message) async {
     HiveChat? hiveChat = _chatLocal.get(id);
     if (hiveChat != null) {
-      draftMessage.value = message;
-      hiveChat.value.draftMessage = message;
-      _chatLocal.put(hiveChat);
+      draftMessage?.value = message;
+      hiveChat.draftMessage = message;
+      await _chatLocal.put(hiveChat);
     }
   }
 
@@ -236,8 +237,8 @@ class HiveRxChat implements RxChat {
   void deleteDraftMessage() {
     HiveChat? hiveChat = _chatLocal.get(id);
     if (hiveChat != null) {
-      draftMessage.value = null;
-      hiveChat.value.draftMessage = null;
+      draftMessage?.value = null;
+      hiveChat.draftMessage = null;
       _chatLocal.put(hiveChat);
     }
   }
