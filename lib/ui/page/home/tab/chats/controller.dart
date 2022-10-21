@@ -109,6 +109,10 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    _chatService.draftMessagesStream.listen((event) {
+      print(event.value);
+    });
+
     super.onInit();
   }
 

@@ -389,6 +389,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
+                deps.put(DraftMessageHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
@@ -413,6 +414,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   graphQlProvider,
                   Get.find(),
                   userRepository,
+                  Get.find(),
                   me: me,
                 ),
               );
@@ -499,6 +501,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 graphQlProvider,
                 Get.find(),
                 userRepository,
+                Get.find(),
                 me: me,
               ),
             );

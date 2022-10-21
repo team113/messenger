@@ -212,6 +212,8 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
+  Worker? repliesWorker;
+
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -302,6 +304,7 @@ class ChatController extends GetxController {
         },
       ),
     );
+    repliesWorker = ever(repliedMessages, (_) => _updateDraftMessage());
 
     super.onInit();
   }
@@ -316,6 +319,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    repliesWorker?.dispose();
     _messagesSubscription.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();

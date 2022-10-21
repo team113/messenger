@@ -21,6 +21,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '../provider/hive/draft_message.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
@@ -57,7 +58,8 @@ class ChatRepository implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._userRepo, {
+    this._userRepo,
+    this._draftMessagesLocal, {
     this.me,
   });
 
@@ -73,6 +75,9 @@ class ChatRepository implements AbstractChatRepository {
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// Draft [ChatMessage]s [Hive] storage.
+  final DraftMessageHiveProvider _draftMessagesLocal;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -93,6 +98,9 @@ class ChatRepository implements AbstractChatRepository {
 
   @override
   RxObsMap<ChatId, HiveRxChat> get chats => _chats;
+
+  @override
+  Stream<BoxEvent> get draftMessagesStream => _draftMessagesLocal.boxEvents;
 
   @override
   RxBool get isReady => _isReady;
@@ -896,6 +904,7 @@ class ChatRepository implements AbstractChatRepository {
         }
       }
     }
+    // _draftMessages = _draftMessagesLocal.l
   }
 
   /// Initializes [_recentChatsRemoteEvents] subscription.

@@ -49,7 +49,7 @@ class DraftMessageHiveProvider extends HiveBaseProvider<HiveDraftMessage> {
   void delete(ChatId chatId) => deleteSafe(chatId.val);
 }
 
-/// Persisted in [Hive] storage background's [ChatMessage] value.
+/// Persisted in [Hive] storage draft [ChatMessage] value.
 @HiveType(typeId: ModelTypeId.draftMessage)
 class HiveDraftMessage extends HiveObject {
   HiveDraftMessage(this.chatMessage);
