@@ -24,7 +24,9 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
-/// Buttons for select attachments on mobile.
+/// Buttons for selecting attachments on mobile.
+///
+/// Intended to be displayed with the [show] method.
 class AttachmentsSelection extends StatelessWidget {
   const AttachmentsSelection(this.c, {Key? key}) : super(key: key);
 
