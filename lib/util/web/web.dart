@@ -198,7 +198,7 @@ class WebUtils {
     // Event listener reacting on window focus events.
     void focusListener(html.Event event) => controller!.add(true);
 
-    // Listener reacting on window unfocus events.
+    // Event listener reacting on window unfocus events.
     void blurListener(html.Event event) => controller!.add(false);
 
     controller = StreamController(

@@ -69,7 +69,7 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
-  /// Returns a stream broadcasting the application focus changes.
+  /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
     StreamController<bool>? controller;
 
@@ -93,7 +93,7 @@ class PlatformUtilsImpl {
           router.lifecycle,
           (AppLifecycleState a) => controller?.add(a.inForeground),
         ),
-        onCancel: () => worker?.dispose(),
+        onCancel: worker?.dispose,
       );
     }
 
