@@ -560,16 +560,16 @@ class _ChatViewState extends State<ChatView>
       if (chat.value.ongoingCall != null) {
         final subtitle = StringBuffer();
         if (!context.isMobile) {
-          subtitle.write('${'label_call_active'.l10n} | ');
+          subtitle.write(
+              '${'label_call_active'.l10n}${'space_vertical_space'.l10n}');
         }
 
         final Set<UserId> actualMembers =
             chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
         subtitle.write(
-          '${'label_a_of_b'.l10nfmt({
-                'a': actualMembers.length,
-                'b': c.chat!.members.length
-              })} | ${c.duration.value.hhMmSs()}',
+          '${'label_a_of_b'.l10nfmt(
+            {'a': actualMembers.length, 'b': c.chat!.members.length},
+          )}${'space_vertical_space'.l10n}${c.duration.value.hhMmSs()}',
         );
 
         return Text(subtitle.toString(), style: style);

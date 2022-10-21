@@ -499,3 +499,4 @@ label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+space_vertical_space = {" "}|{" "}
