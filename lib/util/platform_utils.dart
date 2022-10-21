@@ -189,7 +189,10 @@ class PlatformUtilsImpl {
       return null;
     } else {
       // Calls the provided [callback] using the exponential backoff algorithm.
-      Future<T?> withBackoff<T>(Future<T> Function() callback) async {
+      Future<T?> withBackoff<T>(
+        Future<T> Function() callback,
+        Function(Object) onError,
+      ) async {
         Duration backoff = Duration.zero;
         T? result;
 
@@ -204,7 +207,9 @@ class PlatformUtilsImpl {
 
             result = await callback();
             return result;
-          } catch (_) {
+          } catch (e) {
+            onError(e);
+
             if (backoff.inMilliseconds == 0) {
               backoff = 125.milliseconds;
             } else if (backoff < 16.seconds) {
@@ -218,18 +223,13 @@ class PlatformUtilsImpl {
 
       // Retry fetching the size unless any other that `404` error is thrown.
       File? file = await withBackoff<File?>(
-        () async {
-          try {
-            return await fileExists(filename, size: size, url: url);
-          } on DioError catch (e) {
-            if (e.response?.statusCode == 404) {
-              rethrow;
-            }
-          } catch (_) {
-            // No-op.
+        () => fileExists(filename, size: size, url: url),
+        (e) {
+          if (e is DioError && e.response?.statusCode == 404) {
+            return;
           }
 
-          return null;
+          throw e;
         },
       );
 
@@ -245,21 +245,18 @@ class PlatformUtilsImpl {
 
         // Retry the downloading unless any other that `404` error is thrown.
         await withBackoff(
-          () async {
-            try {
-              await Dio().download(
+          () => Dio().download(
                 url,
                 file!.path,
                 onReceiveProgress: onReceiveProgress,
                 cancelToken: cancelToken,
-              );
-            } on DioError catch (e) {
-              if (e.response?.statusCode == 404) {
-                rethrow;
-              }
-            } catch (_) {
-              // No-op.
+              ),
+          (e) {
+            if (e is DioError && e.response?.statusCode == 404) {
+              return;
             }
+
+            throw e;
           },
         );
       }
