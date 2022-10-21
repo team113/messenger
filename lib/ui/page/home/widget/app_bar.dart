@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/util/platform_utils.dart';
 
 /// Custom decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -51,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+      padding: EdgeInsets.fromLTRB(8, PlatformUtils.isMobile ? 0 : 4, 8, 0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
@@ -77,17 +78,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: style.cardColor,
             ),
             padding: padding,
-            child: Row(
-              children: [
-                ...leading,
-                Expanded(
-                  child: DefaultTextStyle.merge(
-                    style: Theme.of(context).appBarTheme.titleTextStyle,
-                    child: Center(child: title ?? const SizedBox.shrink()),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  ...leading,
+                  Expanded(
+                    child: DefaultTextStyle.merge(
+                      style: Theme.of(context).appBarTheme.titleTextStyle,
+                      child: Center(child: title ?? const SizedBox.shrink()),
+                    ),
                   ),
-                ),
-                ...actions,
-              ],
+                  ...actions,
+                ],
+              ),
             ),
           ),
         ),
