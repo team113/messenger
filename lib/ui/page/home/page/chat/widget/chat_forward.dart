@@ -248,12 +248,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ? Clip.antiAlias
                                   : Clip.none,
                               borderRadius: BorderRadius.only(
-                                topLeft: widget.note.value == null && i == 0
-                                    ? const Radius.circular(15)
-                                    : Radius.zero,
-                                topRight: widget.note.value == null && i == 0
-                                    ? const Radius.circular(15)
-                                    : Radius.zero,
                                 bottomLeft: i == widget.forwards.length - 1
                                     ? const Radius.circular(15)
                                     : Radius.zero,
@@ -310,7 +304,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                   child: Column(
                     children: files
-                        .map((e) => buildFileAttachment(
+                        .map((e) => ChatItemWidget.fileAttachment(
                               e,
                               fromMe: widget.authorId == widget.me,
                               onFileTap: (a) => widget.onFileTap?.call(item, a),
@@ -324,7 +318,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 duration: const Duration(milliseconds: 500),
                 opacity: _isRead || !_fromMe ? 1 : 0.55,
                 child: media.length == 1
-                    ? buildMediaAttachment(
+                    ? ChatItemWidget.mediaAttachment(
                         media.first,
                         media,
                         key: _galleryKeys[0],
@@ -340,7 +334,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           dividerColor: Colors.transparent,
                           children: media
                               .mapIndexed(
-                                (i, e) => buildMediaAttachment(
+                                (i, e) => ChatItemWidget.mediaAttachment(
                                   e,
                                   media,
                                   key: _galleryKeys[i],
@@ -593,7 +587,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
               child: Column(
                 children: files
-                    .map((e) => buildFileAttachment(
+                    .map((e) => ChatItemWidget.fileAttachment(
                           e,
                           fromMe: widget.authorId == widget.me,
                           onFileTap: (a) => widget.onFileTap?.call(item, a),
@@ -624,7 +618,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: attachments.length == 1
-                  ? buildMediaAttachment(
+                  ? ChatItemWidget.mediaAttachment(
                       attachments.first,
                       attachments,
                       key: _galleryKeys.last,
@@ -640,7 +634,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         dividerColor: Colors.transparent,
                         children: attachments
                             .mapIndexed(
-                              (i, e) => buildMediaAttachment(
+                              (i, e) => ChatItemWidget.mediaAttachment(
                                 e,
                                 attachments,
                                 key: _galleryKeys.reversed.elementAt(i),

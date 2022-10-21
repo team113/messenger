@@ -436,7 +436,9 @@ class _ChatViewState extends State<ChatView>
               await Future.wait(futures);
             },
             onReply: () {
-              if (c.repliedMessages.contains(element.forwards.last.value)) {
+              if (element.forwards
+                  .any((e) => c.repliedMessages.contains(e.value)) ||
+                  c.repliedMessages.contains(element.note.value?.value)) {
                 for (Rx<ChatItem> e in element.forwards) {
                   c.repliedMessages.remove(e.value);
                 }

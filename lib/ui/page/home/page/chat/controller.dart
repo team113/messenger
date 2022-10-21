@@ -453,8 +453,8 @@ class ChatController extends GetxController {
 
           bool insert = true;
 
-          // Combine this [ChatMessage] with previous [ChatForward], if it was
-          // posted less than [groupForwardThreshold] ago.
+          // Combine this [ChatMessage] with previous and next [ChatForward]s,
+          // if it was posted less than [groupForwardThreshold] ago.
           if (previous is ChatForwardElement &&
               previous.authorId == item.authorId &&
               item.at.val.difference(previous.forwards.last.value.at.val) <
@@ -485,54 +485,47 @@ class ChatController extends GetxController {
               ChatForwardElement(forwards: [e], e.value.at);
 
           ListElementId? previousKey = elements.lastKeyBefore(element.id);
-          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
+          ListElement? previous = elements[previousKey];
 
           ListElementId? nextKey = elements.firstKeyAfter(element.id);
           ListElement? next = elements[nextKey];
 
           bool insert = true;
 
-          if (previous is ChatForwardElement) {
-            // Combine this [ChatForward] with previous [ChatForward], if it was
-            // posted less than [groupForwardThreshold] ago.
-            if (previous.authorId == item.authorId &&
-                item.at.val.difference(previous.forwards.last.value.at.val) <
-                    groupForwardThreshold) {
-              previous.forwards.add(e);
-              previous.forwards
-                  .sort((a, b) => a.value.at.compareTo(b.value.at));
-              insert = false;
-            }
-          } else if (previous is ChatMessageElement) {
-            // Combine the previous [ChatMessage] with this [ChatForward], if it
+          if (previous is ChatForwardElement &&
+              previous.authorId == item.authorId &&
+              item.at.val.difference(previous.forwards.last.value.at.val) <
+                  groupForwardThreshold) {
+            // Add this [ChatForward] to previous [ChatForwardElement], if it
             // was posted less than [groupForwardThreshold] ago.
-            if (previous.item.value.authorId == item.authorId &&
-                item.at.val.difference(previous.item.value.at.val) <
-                    groupForwardThreshold) {
-              element.note.value = previous.item;
-              elements.remove(previousKey);
-            }
-          }
-
-          if (next is ChatForwardElement) {
-            // Combine this [ChatForward] with next [ChatForward], if it was
+            previous.forwards.add(e);
+            previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+            insert = false;
+          } else if (previous is ChatMessageElement &&
+              previous.item.value.authorId == item.authorId &&
+              item.at.val.difference(previous.item.value.at.val) <
+                  groupForwardThreshold) {
+            // Add the previous [ChatMessage] to this [ChatForwardElement.note],
+            // if it was posted less than [groupForwardThreshold] ago.
+            element.note.value = previous.item;
+            elements.remove(previousKey);
+          } else if (next is ChatForwardElement &&
+              next.authorId == item.authorId &&
+              next.forwards.first.value.at.val.difference(item.at.val) <
+                  groupForwardThreshold) {
+            // Add this [ChatForward] to next [ChatForwardElement], if it was
             // posted less than [groupForwardThreshold] ago.
-            if (next.authorId == item.authorId &&
-                next.forwards.first.value.at.val.difference(item.at.val) <
-                    groupForwardThreshold) {
-              next.forwards.add(e);
-              next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
-              insert = false;
-            }
-          } else if (next is ChatMessageElement) {
-            // Combine the next [ChatMessage] with this [ChatForward], if it was
-            // posted less than [groupForwardThreshold] ago.
-            if (next.item.value.authorId == item.authorId &&
-                next.item.value.at.val.difference(item.at.val) <
-                    groupForwardThreshold) {
-              element.note.value = next.item;
-              elements.remove(nextKey);
-            }
+            next.forwards.add(e);
+            next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+            insert = false;
+          } else if (next is ChatMessageElement &&
+              next.item.value.authorId == item.authorId &&
+              next.item.value.at.val.difference(item.at.val) <
+                  groupForwardThreshold) {
+            // Add the next [ChatMessage] to this [ChatForwardElement.note], if
+            // it was posted less than [groupForwardThreshold] ago.
+            element.note.value = next.item;
+            elements.remove(nextKey);
           }
 
           if (insert) {
