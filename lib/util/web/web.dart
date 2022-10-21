@@ -131,7 +131,7 @@ class WebUtils {
         msFullscreenElement != null);
   }
 
-  /// Returns indicator whether application is focused or not.
+  /// Indicates whether device's browser is in focus.
   static bool get isFocused => _hasFocus();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
@@ -191,6 +191,30 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Returns a stream broadcasting the device's browser focus changes.
+  static Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on window focus events.
+    void focusListener(html.Event event) => controller!.add(true);
+
+    // Listener reacting on window unfocus events.
+    void blurListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.window.addEventListener('focus', focusListener);
+        html.window.addEventListener('blur', blurListener);
+      },
+      onCancel: () {
+        html.window.removeEventListener('focus', focusListener);
+        html.window.removeEventListener('blur', blurListener);
+      },
+    );
+
+    return controller.stream;
+  }
+
   /// Returns a stream broadcasting the browser's window focus changes.
   static Stream<bool> get onWindowFocus {
     StreamController<bool>? controller;
@@ -209,30 +233,6 @@ class WebUtils {
       onCancel: () {
         html.document.removeEventListener('mouseenter', enterListener);
         html.document.removeEventListener('mouseleave', leaveListener);
-      },
-    );
-
-    return controller.stream;
-  }
-
-  /// Returns a stream broadcasting the browser's window focus changes.
-  static Stream<bool> get onFocusChanged {
-    StreamController<bool>? controller;
-
-    // Listener reacting on focus window event.
-    void focusListener(html.Event event) => controller!.add(true);
-
-    // Listener reacting on blur window event.
-    void blurListener(html.Event event) => controller!.add(false);
-
-    controller = StreamController(
-      onListen: () {
-        html.window.addEventListener('focus', focusListener);
-        html.window.addEventListener('blur', blurListener);
-      },
-      onCancel: () {
-        html.window.removeEventListener('focus', focusListener);
-        html.window.removeEventListener('blur', blurListener);
       },
     );
 

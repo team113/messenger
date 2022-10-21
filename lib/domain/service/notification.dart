@@ -36,10 +36,11 @@ class NotificationService extends DisposableService {
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
 
-  /// Subscription to events of application focus changes.
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
   StreamSubscription? _onFocusChanged;
 
-  /// Indicator whether application is focused or not.
+  /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
   /// Initializes this [NotificationService].
@@ -57,9 +58,8 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
-
     PlatformUtils.isFocused.then((value) => _focused = value);
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
 
     _initAudio();
     if (PlatformUtils.isWeb) {
@@ -108,6 +108,8 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
+    // If application is in focus and the payload is the current route, then
+    // don't show a local notification.
     if (_focused && payload == router.route) return;
 
     if (playSound) {

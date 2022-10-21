@@ -42,9 +42,6 @@ class PlatformUtilsImpl {
   /// Path to the downloads directory.
   String? _downloadDirectory;
 
-  /// Worker to react on [router.lifecycle] changes.
-  Worker? _mobileWorker;
-
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 
@@ -72,7 +69,7 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
-  /// Returns a stream broadcasting application focus changes.
+  /// Returns a stream broadcasting the application focus changes.
   Stream<bool> get onFocusChanged {
     StreamController<bool>? controller;
 
@@ -89,19 +86,21 @@ class PlatformUtilsImpl {
         onCancel: () => WindowManager.instance.removeListener(listener),
       );
     } else {
+      Worker? worker;
+
       controller = StreamController<bool>(
-        onListen: () => _mobileWorker = ever(
+        onListen: () => worker = ever(
           router.lifecycle,
           (AppLifecycleState a) => controller?.add(a.inForeground),
         ),
-        onCancel: () => _mobileWorker?.dispose(),
+        onCancel: () => worker?.dispose(),
       );
     }
 
     return controller.stream;
   }
 
-  /// Returns indicator whether application is focused or not.
+  /// Indicates whether the application's window is in focus.
   Future<bool> get isFocused async {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);
@@ -264,10 +263,10 @@ class _WindowListener extends WindowListener {
   /// Callback, called when the window enters fullscreen.
   final VoidCallback? onEnterFullscreen;
 
-  /// Callback, called when the window is being focused.
+  /// Callback, called when the window gets focus.
   final VoidCallback? onFocus;
 
-  /// Callback, called when the window is being blurred.
+  /// Callback, called when the window loses focus.
   final VoidCallback? onBlur;
 
   @override
