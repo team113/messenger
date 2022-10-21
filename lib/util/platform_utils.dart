@@ -206,7 +206,7 @@ class PlatformUtilsImpl {
       String ext = p.extension(filename);
       File file = File('$downloads/$filename');
 
-      // TODO: File might already be downloaded, compare hashes.
+      // TODO: Compare hashes instead of sizes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
         file = File('$downloads/$name ($i)$ext');
       }
@@ -232,26 +232,24 @@ class PlatformUtilsImpl {
       return null;
     } else {
       // Calls the provided [callback] using the exponential backoff algorithm.
-      Future<T?> withBackoff<T>(
-        Future<T> Function() callback,
-        Function(Object) onError,
-      ) async {
+      Future<T?> withBackoff<T>(Future<T> Function() callback) async {
         Duration backoff = Duration.zero;
         T? result;
 
         while (result == null) {
           try {
-            for (int i = 0; i < backoff.inMilliseconds / 125; i++) {
-              await Future.delayed(125.milliseconds);
-              if (cancelToken?.isCancelled == true) {
-                return null;
-              }
+            await Future.delayed(backoff);
+
+            if (cancelToken?.isCancelled == true) {
+              return null;
             }
 
             result = await callback();
             return result;
           } catch (e) {
-            onError(e);
+            if (e is! DioError || e.response?.statusCode != 404) {
+              rethrow;
+            }
 
             if (backoff.inMilliseconds == 0) {
               backoff = 125.milliseconds;
@@ -267,13 +265,6 @@ class PlatformUtilsImpl {
       // Retry fetching the size unless any other that `404` error is thrown.
       File? file = await withBackoff<File?>(
         () => fileExists(filename, size: size, url: url),
-        (e) {
-          if (e is DioError && e.response?.statusCode == 404) {
-            return;
-          }
-
-          throw e;
-        },
       );
 
       if (file == null) {
@@ -294,13 +285,6 @@ class PlatformUtilsImpl {
             onReceiveProgress: onReceiveProgress,
             cancelToken: cancelToken,
           ),
-          (e) {
-            if (e is DioError && e.response?.statusCode == 404) {
-              return;
-            }
-
-            throw e;
-          },
         );
       }
 
