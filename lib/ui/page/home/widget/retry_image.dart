@@ -94,7 +94,7 @@ class _RetryImageState extends State<RetryImage> {
               aspectRatio: 1 / 1,
               child: CircularProgressIndicator(
                 key: const Key('RetryImageLoading'),
-                value: _progress,
+                value: _progress == 0 ? null : _progress,
               ),
             ),
           ),
