@@ -246,11 +246,11 @@ class PlatformUtilsImpl {
         // Retry the downloading unless any other that `404` error is thrown.
         await withBackoff(
           () => Dio().download(
-                url,
-                file!.path,
-                onReceiveProgress: onReceiveProgress,
-                cancelToken: cancelToken,
-              ),
+            url,
+            file!.path,
+            onReceiveProgress: onReceiveProgress,
+            cancelToken: cancelToken,
+          ),
           (e) {
             if (e is DioError && e.response?.statusCode == 404) {
               return;
