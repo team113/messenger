@@ -32,9 +32,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - macOS:
     - Escape not exiting fullscreen in calls. ([#169], [#166])
+- UI:
+    - Local notifications displaying in focused chats. ([#171], [#128])
 
 [#122]: /../../issues/122
 [#127]: /../../pull/127
+[#128]: /../../issues/128
 [#133]: /../../issues/133
 [#137]: /../../issues/137
 [#146]: /../../issues/146
@@ -45,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#166]: /../../issues/166
 [#169]: /../../pull/169
 [#170]: /../../pull/170
+[#171]: /../../pull/171
 
 
 

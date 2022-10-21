@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 
+import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -34,6 +35,13 @@ class NotificationService extends DisposableService {
 
   /// [AudioPlayer] playing a notification sound.
   AudioPlayer? _audioPlayer;
+
+  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
 
   /// Initializes this [NotificationService].
   ///
@@ -50,6 +58,9 @@ class NotificationService extends DisposableService {
     void Function(int, String?, String?, String?)?
         onDidReceiveLocalNotification,
   }) async {
+    PlatformUtils.isFocused.then((value) => _focused = value);
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+
     _initAudio();
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
@@ -78,6 +89,7 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
+    _onFocusChanged?.cancel();
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/notification.mp3']]
         .whereNotNull()
@@ -96,6 +108,10 @@ class NotificationService extends DisposableService {
     String? tag,
     bool playSound = true,
   }) async {
+    // If application is in focus and the payload is the current route, then
+    // don't show a local notification.
+    if (_focused && payload == router.route) return;
+
     if (playSound) {
       runZonedGuarded(() async {
         await _audioPlayer?.play(
