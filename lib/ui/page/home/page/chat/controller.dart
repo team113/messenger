@@ -452,6 +452,8 @@ class ChatController extends GetxController {
           repliesTo: repliedMessages,
         ),
       );
+    } else {
+      await chat?.setDraftMessage(null);
     }
   }
 
