@@ -513,3 +513,4 @@ label_you_were_added_to_group = Вас добавили в группу
 btn_personalize = Персонализация
 label_personalization = Персонализация
 label_tab_finance = Финансы
+label_tab_public = Public

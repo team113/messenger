@@ -42,6 +42,7 @@ import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/finance/view.dart';
 import 'tab/menu/controller.dart';
+import 'tab/publics/view.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -164,14 +165,16 @@ class _HomeViewState extends State<HomeView> {
                             },
 
                             // [KeepAlivePage] used to keep the tabs' states.
-                            children: [
-                              const KeepAlivePage(child: FinanceTabView()),
-                              const KeepAlivePage(child: ContactsTabView()),
-                              const KeepAlivePage(child: ChatsTabView()),
+                            children: const [
+                              KeepAlivePage(child: FinanceTabView()),
+                              KeepAlivePage(child: ContactsTabView()),
+                              KeepAlivePage(child: PublicsTabView()),
+                              KeepAlivePage(child: ChatsTabView()),
                               KeepAlivePage(
-                                child: context.isNarrow
-                                    ? const MyUserView()
-                                    : const MenuTabView(),
+                                child: MenuTabView(),
+                                // child: context.isNarrow
+                                //     ? const MyUserView()
+                                //     : const MenuTabView(),
                               ),
                             ],
                           );
@@ -197,11 +200,16 @@ class _HomeViewState extends State<HomeView> {
                                         opacity: c.page.value == HomeTab.finance
                                             ? 1
                                             : 0.6,
-                                        child: const Icon(
-                                          Icons.monetization_on,
-                                          color: Color(0xFF63b4ff),
-                                          size: 36,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/money.svg',
+                                          width: 30,
+                                          height: 30,
                                         ),
+                                        // child: const Icon(
+                                        //   Icons.monetization_on,
+                                        //   color: Color(0xFF63b4ff),
+                                        //   size: 36,
+                                        // ),
                                       ),
                                     ),
                                   ),
@@ -216,6 +224,26 @@ class _HomeViewState extends State<HomeView> {
                                                 : 0.6,
                                         child: SvgLoader.asset(
                                           'assets/icons/contacts.svg',
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  CustomNavigationBarItem(
+                                    key: const Key('PublicsButton'),
+                                    badge: c.unreadChatsCount.value == 0
+                                        ? null
+                                        : '${c.unreadChatsCount.value}',
+                                    leading: Padding(
+                                      padding: const EdgeInsets.only(top: 0),
+                                      child: AnimatedOpacity(
+                                        duration: 150.milliseconds,
+                                        opacity: c.page.value == HomeTab.public
+                                            ? 1
+                                            : 0.6,
+                                        child: SvgLoader.asset(
+                                          'assets/icons/content.svg',
                                           width: 30,
                                           height: 30,
                                         ),

@@ -495,3 +495,4 @@ label_you_were_added_to_group = You were added to the group
 btn_personalize = Personalization
 label_personalization = Personalization
 label_tab_finance = Finance
+label_tab_public = Public

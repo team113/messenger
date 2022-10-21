@@ -78,6 +78,7 @@ class Routes {
   static const download = '/download';
   static const home = '/';
   static const finance = '/finance';
+  static const public = '/public';
   static const me = '/me';
   static const menu = '/menu';
   static const personalization = '/personalization';
@@ -100,7 +101,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { finance, contacts, chats, menu }
+enum HomeTab { finance, contacts, public, chats, menu }
 
 /// Application's router state.
 ///
@@ -198,6 +199,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.contact ||
             routes.last == Routes.chat ||
             routes.last == Routes.menu ||
+            routes.last == Routes.public ||
             routes.last == Routes.finance ||
             routes.last == Routes.user) {
           routes.last = Routes.home;
@@ -270,6 +272,9 @@ class AppRouteInformationParser
       case Routes.finance:
         configuration = RouteConfiguration(Routes.home, HomeTab.finance);
         break;
+      case Routes.public:
+        configuration = RouteConfiguration(Routes.home, HomeTab.public);
+        break;
       default:
         configuration = RouteConfiguration(routeInformation.location!, null);
         break;
@@ -296,6 +301,9 @@ class AppRouteInformationParser
           break;
         case HomeTab.finance:
           route = Routes.finance;
+          break;
+        case HomeTab.public:
+          route = Routes.public;
           break;
       }
     }
@@ -580,6 +588,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state.route.startsWith(Routes.chat) ||
         _state.route.startsWith(Routes.contact) ||
         _state.route.startsWith(Routes.user) ||
+        _state.route.startsWith(Routes.public) ||
         _state.route == Routes.me ||
         _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
@@ -639,6 +648,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           break;
         case HomeTab.finance:
           WebUtils.title('$prefix${'label_tab_finance'.l10n}');
+          break;
+        case HomeTab.public:
+          WebUtils.title('$prefix${'label_tab_public'.l10n}');
           break;
       }
     } else {
@@ -702,7 +714,8 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');
+  void chatInfo(ChatId id, [String route = Routes.chat]) =>
+      go('$route/$id${Routes.chatInfo}');
 
   void profile({bool push = false}) =>
       push ? this.push(Routes.profile) : go(Routes.profile);
@@ -721,6 +734,20 @@ extension RouteLinks on RouterState {
 
   void language({bool push = false}) =>
       push ? this.push(Routes.language) : go(Routes.language);
+
+  /// Changes router location to the [Routes.public] page.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void public(
+    ChatId id, {
+    bool push = false,
+  }) {
+    if (push) {
+      this.push('${Routes.public}/$id');
+    } else {
+      go('${Routes.public}/$id');
+    }
+  }
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

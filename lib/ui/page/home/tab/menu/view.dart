@@ -174,7 +174,7 @@ class MenuTabView extends StatelessWidget {
           appBar: true // context.isNarrow
               ? CustomAppBar.from(
                   context: context,
-                  title: context.isNarrow
+                  title: (true || context.isNarrow)
                       ? Row(
                           children: [
                             Material(
@@ -217,7 +217,7 @@ class MenuTabView extends StatelessWidget {
                                             color: Colors.black),
                                       ),
                                       Text(
-                                        'Public',
+                                        'Online',
                                         style:
                                             Theme.of(context).textTheme.caption,
                                       ),
@@ -233,25 +233,27 @@ class MenuTabView extends StatelessWidget {
                   leading: context.isNarrow
                       ? const [StyledBackButton()]
                       : [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16),
-                            child: WidgetButton(
-                              onPressed: () => AccountsView.show(context),
-                              child: const Icon(
-                                Icons.help,
-                                color: Color(0xFF63B4FF),
-                              ),
-                            ),
-                          ),
+                          const SizedBox(width: 30),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(left: 16),
+                          //   child: WidgetButton(
+                          //     onPressed: () => AccountsView.show(context),
+                          //     child: const Icon(
+                          //       Icons.help,
+                          //       color: Color(0xFF63B4FF),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                   actions: [
                     Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: WidgetButton(
                         onPressed: () => AccountsView.show(context),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          color: Color(0xFF63b4ff),
+                        child: SvgLoader.asset(
+                          'assets/icons/switch_account.svg',
+                          width: 28.81,
+                          height: 25.35,
                         ),
                       ),
                     ),
@@ -304,7 +306,7 @@ class MenuTabView extends StatelessWidget {
           body: ListView(
             controller: ScrollController(),
             children: [
-              if (!context.isNarrow)
+              if (false) //!context.isNarrow)
                 Container(
                   margin: const EdgeInsets.fromLTRB(10, 4 + 3, 10, 0),
                   height: 77,
@@ -356,7 +358,7 @@ class MenuTabView extends StatelessWidget {
               //   title: Text('Add account'.l10n),
               //   onTap: () {},
               // ),
-              const SizedBox(height: 8),
+
               bigButton(
                 leading: const Icon(
                   Icons.person,

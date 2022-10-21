@@ -14,14 +14,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:ui';
 import 'dart:io';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -50,167 +53,239 @@ import 'package:messenger/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/post.dart';
 
-class MyUserView extends StatelessWidget {
-  const MyUserView({Key? key}) : super(key: key);
+class PublicView extends StatefulWidget {
+  const PublicView(this.id, {Key? key}) : super(key: key);
+
+  final ChatId id;
+
+  @override
+  State<PublicView> createState() => _PublicViewState();
+}
+
+class _PublicViewState extends State<PublicView>
+    with SingleTickerProviderStateMixin {
+  /// [AnimationController] of [SwipeableStatus]es.
+  late final AnimationController _animation;
+
+  @override
+  void initState() {
+    _animation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: MyUserController(Get.find(), Get.find(), Get.find(), Get.find()),
-      builder: (MyUserController c) {
-        return Scaffold(
-          appBar: context.isNarrow
-              ? CustomAppBar.from(
-                  context: context,
-                  title: Row(
-                    children: [
-                      Material(
-                        elevation: 6,
-                        type: MaterialType.circle,
-                        shadowColor: const Color(0x55000000),
-                        color: Colors.white,
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          // onTap: () => router.me(push: true),
-                          // onTap: () => MyProfileView.show(context),
-                          onTap: () => router.me(push: true),
-                          child: Center(
-                            child: AvatarWidget.fromMyUser(
-                              c.myUser.value,
-                              radius: 17,
-                              showBadge: false,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: InkWell(
-                          splashFactory: NoSplash.splashFactory,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          // onTap: () => router.me(push: true),
-                          // onTap: () => MyProfileView.show(context),
-                          onTap: () => router.me(push: true),
-                          child: DefaultTextStyle.merge(
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  c.myUser.value?.name?.val ??
-                                      c.myUser.value?.num.val ??
-                                      '...',
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                                Text(
-                                  'Online',
-                                  style: Theme.of(context).textTheme.caption,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
-                  leading: context.isNarrow
-                      ? const [StyledBackButton()]
-                      : const [SizedBox(width: 30)],
-                  automaticallyImplyLeading: false,
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16),
-                      child: WidgetButton(
-                        // onPressed: () => MyProfileView.show(context),
-                        onPressed: () => router.me(push: true),
-                        child: SvgLoader.asset(
-                          'assets/icons/chat_settings.svg',
-                          width: 22,
-                          height: 22,
+      init: PublicController(
+        widget.id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
+      tag: widget.id.val,
+      builder: (PublicController c) {
+        return Obx(() {
+          if (c.status.value.isEmpty) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text('label_no_chat_found'.l10n)),
+            );
+          } else if (!c.status.value.isSuccess) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          Chat chat = c.chat!.chat.value;
+
+          return Scaffold(
+            appBar: CustomAppBar.from(
+              context: context,
+              title: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: const Color(0x55000000),
+                    color: Colors.white,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => router.chatInfo(widget.id, Routes.public),
+                      child: Center(
+                        child: AvatarWidget.fromRxChat(
+                          c.chat,
+                          radius: 17,
                         ),
                       ),
                     ),
-                  ],
-                )
-              : null,
-          body: Obx(() {
-            if (c.status.value.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      hoverColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      onTap: () => router.chatInfo(widget.id, Routes.public),
+                      child: DefaultTextStyle.merge(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              c.chat!.title.value,
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            Text(
+                              c.chat!.chat.value.getSubtitle() ?? '...',
+                              style: Theme.of(context).textTheme.caption,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              leading: const [StyledBackButton()],
+              automaticallyImplyLeading: false,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: WidgetButton(
+                    // onPressed: () => MyProfileView.show(context),
+                    onPressed: () => router.chatInfo(widget.id, Routes.public),
+                    child: SvgLoader.asset(
+                      'assets/icons/chat_settings.svg',
+                      width: 22,
+                      height: 22,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            body: Obx(() {
+              if (c.status.value.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (c.chat!.messages.isEmpty) {
-              return const Center(child: Text('No messages yet'));
-            }
+              if (c.chat!.messages.isEmpty) {
+                return const Center(child: Text('No messages yet'));
+              }
 
-            return ContextMenuInterceptor(
-              child: Obx(() {
-                return ListView(
-                  children: c.chat!.messages.map((e) {
-                    return PostWidget(
-                      item: e,
-                      me: c.me,
-                      getUser: c.getUser,
-                      onGallery: c.calculateGallery,
-                      onDelete: () => c.deleteMessage(e.value),
-                      onAttachmentError: () async {
-                        await c.chat?.updateAttachments(e.value);
-                        await Future.delayed(
-                          Duration.zero,
-                        );
-                      },
-                    );
-                  }).toList(),
-                );
-              }),
-            );
-          }),
-          floatingActionButton: context.isNarrow
-              ? SizedBox.square(
-                  dimension: 50,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      if (router.navigation.value == null) {
-                        router.navigation.value = Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                          child: _sendField(context, c),
-                        );
+              return Scaffold(
+                body: Listener(
+                  onPointerSignal: (s) {
+                    if (s is PointerScrollEvent) {
+                      if (s.scrollDelta.dy.abs() < 3 &&
+                          (s.scrollDelta.dx.abs() > 3 ||
+                              c.horizontalScrollTimer.value != null)) {
+                        double value =
+                            _animation.value + s.scrollDelta.dx / 100;
+                        _animation.value = value.clamp(0, 1);
+
+                        if (_animation.value == 0 || _animation.value == 1) {
+                          _resetHorizontalScroll(c, 100.milliseconds);
+                        } else {
+                          _resetHorizontalScroll(c);
+                        }
+                      }
+                    }
+                  },
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onHorizontalDragUpdate: (d) {
+                      double value = _animation.value - d.delta.dx / 100;
+                      _animation.value = value.clamp(0, 1);
+                    },
+                    onHorizontalDragEnd: (d) {
+                      if (_animation.value >= 0.5) {
+                        _animation.forward();
                       } else {
-                        router.navigation.value = null;
+                        _animation.reverse();
                       }
                     },
-                    backgroundColor: const Color(0xFF63B4FF),
-                    child: Obx(() {
-                      return router.navigation.value == null
-                          ? const Icon(
-                              Icons.add_rounded,
-                              color: Colors.white,
-                              size: 36,
-                            )
-                          : const Icon(
-                              Icons.close_rounded,
-                              color: Colors.white,
-                              size: 32,
+                    child: ContextMenuInterceptor(
+                      child: Obx(() {
+                        return ListView(
+                          physics: c.horizontalScrollTimer.value == null
+                              ? const BouncingScrollPhysics()
+                              : const NeverScrollableScrollPhysics(),
+                          children: c.chat!.messages.map((e) {
+                            return PostWidget(
+                              animation: _animation,
+                              item: e,
+                              me: c.me,
+                              getUser: c.getUser,
+                              onGallery: c.calculateGallery,
+                              onDelete: () => c.deleteMessage(e.value),
+                              onAttachmentError: () async {
+                                await c.chat?.updateAttachments(e.value);
+                                await Future.delayed(
+                                  Duration.zero,
+                                );
+                              },
                             );
-                    }),
+                          }).toList(),
+                        );
+                      }),
+                    ),
                   ),
-                )
-              : null,
-          bottomNavigationBar: context.isNarrow
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  child: _sendField(context, c),
                 ),
-        );
+              );
+            }),
+            floatingActionButton: context.isNarrow
+                ? SizedBox.square(
+                    dimension: 50,
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        if (router.navigation.value == null) {
+                          router.navigation.value = Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                            child: _sendField(context, c),
+                          );
+                        } else {
+                          router.navigation.value = null;
+                        }
+                      },
+                      backgroundColor: const Color(0xFF63B4FF),
+                      child: Obx(() {
+                        return router.navigation.value == null
+                            ? const Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                                size: 36,
+                              )
+                            : const Icon(
+                                Icons.close_rounded,
+                                color: Colors.white,
+                                size: 32,
+                              );
+                      }),
+                    ),
+                  )
+                : null,
+            bottomNavigationBar: context.isNarrow
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                    child: _sendField(context, c),
+                  ),
+          );
+        });
       },
     );
   }
 
-  Widget _sendField(BuildContext context, MyUserController c) {
+  Widget _sendField(BuildContext context, PublicController c) {
     Style style = Theme.of(context).extension<Style>()!;
     const double iconSize = 22;
 
@@ -477,8 +552,11 @@ class MyUserView extends StatelessWidget {
 
   /// Returns a visual representation of the provided [Attachment].
   Widget _buildAttachment(
-      BuildContext context, MyUserController c, Attachment e,
-      [bool grab = false]) {
+    BuildContext context,
+    PublicController c,
+    Attachment e, [
+    bool grab = false,
+  ]) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
     bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -756,7 +834,7 @@ class MyUserView extends StatelessWidget {
     );
   }
 
-  Widget _attachmentSelection(MyUserController c) {
+  Widget _attachmentSelection(PublicController c) {
     return Builder(builder: (context) {
       Widget button({
         required String text,
@@ -847,6 +925,22 @@ class MyUserView extends StatelessWidget {
           const SizedBox(height: 10),
         ],
       );
+    });
+  }
+
+  /// Cancels a [_horizontalScrollTimer] and starts it again with the provided
+  /// [duration].
+  ///
+  /// Defaults to 150 milliseconds if no [duration] is provided.
+  void _resetHorizontalScroll(PublicController c, [Duration? duration]) {
+    c.horizontalScrollTimer.value?.cancel();
+    c.horizontalScrollTimer.value = Timer(duration ?? 150.milliseconds, () {
+      if (_animation.value >= 0.5) {
+        _animation.forward();
+      } else {
+        _animation.reverse();
+      }
+      c.horizontalScrollTimer.value = null;
     });
   }
 }

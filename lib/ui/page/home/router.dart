@@ -32,6 +32,7 @@ import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/personalization/view.dart';
+import 'page/public/view.dart';
 import 'page/settings/media/controller.dart';
 import 'page/settings/view.dart';
 import 'page/user/view.dart';
@@ -171,6 +172,21 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
         ));
+      } else if (route.startsWith('${Routes.public}/')) {
+        String id = route.replaceFirst('${Routes.public}/', '');
+        pages.add(_CustomPage(
+          key: ValueKey('PublicPage$id'),
+          name: '${Routes.public}/$id',
+          child: PublicView(ChatId(id)),
+        ));
+
+        if (route.endsWith(Routes.chatInfo)) {
+          pages.add(_CustomPage(
+            key: ValueKey('ChatInfoPage$id'),
+            name: '${Routes.public}/$id${Routes.chatInfo}',
+            child: ChatInfoView(ChatId(id)),
+          ));
+        }
       }
     }
 

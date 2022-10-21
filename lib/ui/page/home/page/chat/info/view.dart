@@ -41,62 +41,59 @@ class ChatInfoView extends StatelessWidget {
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find()),
       tag: id.val,
-      builder: (c) => Obx(
-        () {
-          if (c.status.value.isSuccess) {
-            return Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: Text(c.chat!.title.value),
-              ),
-              body: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  SliverList(
-                    delegate: SliverChildListDelegate.fixed(
-                      [
-                        Align(
-                          alignment: Alignment.center,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 450),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 10),
-                                _avatar(c),
-                                _name(c),
-                                _link(context, c),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(8, 10, 8, 0),
-                                  child: Text(
-                                    'label_chat_members'.l10n,
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
+      builder: (c) => Obx(() {
+        if (c.status.value.isSuccess) {
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(c.chat!.title.value),
+            ),
+            body: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverList(
+                  delegate: SliverChildListDelegate.fixed(
+                    [
+                      Align(
+                        alignment: Alignment.center,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 450),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 10),
+                              _avatar(c),
+                              _name(c),
+                              _link(context, c),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+                                child: Text(
+                                  'label_chat_members'.l10n,
+                                  style: const TextStyle(fontSize: 17),
                                 ),
-                                const Divider(),
-                                _members(c, context),
-                              ],
-                            ),
+                              ),
+                              const Divider(),
+                              _members(c, context),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            );
-          } else if (c.status.value.isEmpty) {
-            return Scaffold(
-              body: Center(child: Text('label_no_chat_found'.l10n)),
-            );
-          } else {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-        },
-      ),
+                ),
+              ],
+            ),
+          );
+        } else if (c.status.value.isEmpty) {
+          return Scaffold(
+            body: Center(child: Text('label_no_chat_found'.l10n)),
+          );
+        } else {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      }),
     );
   }
 

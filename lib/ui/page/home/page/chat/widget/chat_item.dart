@@ -353,7 +353,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               color: fromMe
                   ? isRead
                       ? const Color.fromRGBO(210, 227, 249, 1)
-                      : const Color.fromARGB(255, 244, 249, 255)
+                      : const Color(0xFFF4F9FF)
                   : Colors.white,
               borderRadius: BorderRadius.circular(15),
               border: fromMe
