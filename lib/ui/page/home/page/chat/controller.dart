@@ -212,7 +212,11 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.messages] changes.
   Worker? _messagesWorker;
 
-  Worker? repliesWorker;
+  /// Worker capturing any [repliedMessages] changes.
+  Worker? _repliesWorker;
+
+  /// Worker capturing any [attachments] changes.
+  Worker? _attachmentsWorker;
 
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
@@ -260,7 +264,6 @@ class ChatController extends GetxController {
                   (e, _) => MessagePopup.error(e))
               .onError<ConnectionException>((e, _) {});
 
-          chat?.deleteDraftMessage();
           repliedMessages.clear();
           attachments.clear();
           s.clear();
@@ -304,7 +307,8 @@ class ChatController extends GetxController {
         },
       ),
     );
-    repliesWorker = ever(repliedMessages, (_) => _updateDraftMessage());
+    _repliesWorker = ever(repliedMessages, (_) => _updateDraftMessage());
+    _attachmentsWorker = ever(attachments, (_) => _updateDraftMessage());
 
     super.onInit();
   }
@@ -319,6 +323,8 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    _repliesWorker?.dispose();
+    _attachmentsWorker?.dispose();
     _messagesSubscription.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
@@ -446,8 +452,6 @@ class ChatController extends GetxController {
           repliesTo: repliedMessages,
         ),
       );
-    } else {
-      chat?.deleteDraftMessage();
     }
   }
 
@@ -1002,7 +1006,6 @@ class ChatController extends GetxController {
         if (index != -1) {
           attachments[index] = uploaded;
         }
-        await _updateDraftMessage();
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
       } on ConnectionException {

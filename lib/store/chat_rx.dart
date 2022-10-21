@@ -72,9 +72,6 @@ class HiveRxChat implements RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  Rx<ChatMessage?>? draftMessage;
-
-  @override
   final RxMap<UserId, RxUser> members = RxMap<UserId, RxUser>();
 
   @override
@@ -82,6 +79,9 @@ class HiveRxChat implements RxChat {
 
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
+
+  @override
+  Rx<ChatMessage?>? draftMessage;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -230,16 +230,6 @@ class HiveRxChat implements RxChat {
       draftMessage?.value = message;
       hiveChat.draftMessage = message;
       await _chatLocal.put(hiveChat);
-    }
-  }
-
-  @override
-  void deleteDraftMessage() {
-    HiveChat? hiveChat = _chatLocal.get(id);
-    if (hiveChat != null) {
-      draftMessage?.value = null;
-      hiveChat.draftMessage = null;
-      _chatLocal.put(hiveChat);
     }
   }
 
@@ -421,6 +411,13 @@ class HiveRxChat implements RxChat {
         remove(message.value.id, message.value.timestamp);
         _pending.remove(message.value);
         message = event.item.first as HiveChatMessage;
+
+        HiveChat? hiveChat = _chatLocal.get(id);
+        if (hiveChat != null) {
+          draftMessage?.value = null;
+          hiveChat.draftMessage = null;
+          await _chatLocal.put(hiveChat);
+        }
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;
