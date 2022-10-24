@@ -16,6 +16,8 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/domain/model_type_id.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import 'base.dart';

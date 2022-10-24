@@ -772,8 +772,6 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
               chatEntity.value.ongoingCall = event.call;
-
-              // Notify about call?
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:

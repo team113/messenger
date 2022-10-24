@@ -1186,7 +1186,6 @@ class OngoingCall {
       _initRoom();
     }
 
-    print('[OngoingCall] Credentials are $creds');
     await _room?.join('$link/$_me?token=$creds');
     Log.print('Room joined!', 'CALL');
 

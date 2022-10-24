@@ -45,7 +45,6 @@ class CallRepository implements AbstractCallRepository {
     this._credentialsProvider,
   );
 
-  // Account ALL [Chat.ongoingCall] there?
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
 
@@ -152,10 +151,6 @@ class CallRepository implements AbstractCallRepository {
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
       _credentials[id] = creds;
-      print(
-          '[CallRepository] generateCredentials for $id, generating new: $creds');
-    } else {
-      print('[CallRepository] generateCredentials for $id, existing: $creds');
     }
 
     return creds;
@@ -163,8 +158,6 @@ class CallRepository implements AbstractCallRepository {
 
   @override
   void transferCredentials(ChatId chatId, ChatItemId callId) {
-    print(
-        '[CallRepository] transferCredentials from $chatId, to: $callId, (${_credentials[chatId]})');
     ChatCallCredentials? creds = _credentials[chatId];
     if (creds != null) {
       _credentialsProvider.put(callId, creds);
@@ -178,9 +171,6 @@ class CallRepository implements AbstractCallRepository {
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
       _credentialsProvider.put(id, creds);
-      print('[CallRepository] getCredentials for $id, generating new: $creds');
-    } else {
-      print('[CallRepository] getCredentials for $id, existing: $creds');
     }
 
     return creds;
@@ -188,8 +178,6 @@ class CallRepository implements AbstractCallRepository {
 
   @override
   void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
-    print(
-        '[CallRepository] Move credentials from $callId to $newCallId (${_credentialsProvider.get(callId)})');
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
       _credentialsProvider.put(newCallId, creds);
@@ -199,8 +187,6 @@ class CallRepository implements AbstractCallRepository {
 
   @override
   Future<void> removeCredentials(ChatItemId id) {
-    print(
-        '[CallRepository] Remove credentials of $id (${_credentialsProvider.get(id)})');
     return _credentialsProvider.remove(id);
   }
 
