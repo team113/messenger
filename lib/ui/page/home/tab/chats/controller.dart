@@ -60,9 +60,9 @@ class ChatsTabController extends GetxController {
   /// Status of a [mute] completion.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning no [mute] is executing.
-  /// - `status.isLoading`, meaning [mute] is executing.
-  /// - `status.isError`, meaning [mute] got an error.
+  /// - `status.isEmpty`, meaning no [muteChat] is executing.
+  /// - `status.isLoading`, meaning [muteChat] is executing.
+  /// - `status.isError`, meaning [muteChat] got an error.
   final Rx<RxStatus> muteStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// List of the mute periods.
