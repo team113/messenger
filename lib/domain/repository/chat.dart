@@ -27,7 +27,7 @@ import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show Muting;
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.

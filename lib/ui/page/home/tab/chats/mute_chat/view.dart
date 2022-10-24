@@ -68,110 +68,110 @@ class MuteChatView extends StatelessWidget {
                 Navigator.of(context).pop,
                 Get.find(),
               ),
-              builder: (MuteChatController c) => Obx(
-                () => c.status.value.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Column(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 5),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(18, 0, 5, 0),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'label_mute_chat_for'.l10n,
-                                        style: font17,
-                                      ),
-                                      const Spacer(),
-                                      IconButton(
-                                        hoverColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        splashColor: Colors.transparent,
-                                        onPressed: Navigator.of(context).pop,
-                                        icon: const Icon(Icons.close, size: 20),
-                                      ),
-                                    ],
+              builder: (MuteChatController c) => Obx(() {
+                if (c.status.value.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  return Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'label_mute_chat_for'.l10n,
+                                    style: font17,
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                divider
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: ListView.separated(
-                              itemBuilder: (BuildContext context, int index) {
-                                return Obx(
-                                  () => ListTile(
-                                    key: c.muteDateTimes[index].key,
-                                    onTap: () => c.selectedMute.value = index,
-                                    leading: Radio(
-                                      value: index,
-                                      onChanged: <int>(val) =>
-                                          c.selectedMute.value = val,
-                                      groupValue: c.selectedMute.value,
-                                    ),
-                                    title: Text(c.muteDateTimes[index].label),
+                                  const Spacer(),
+                                  IconButton(
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    onPressed: Navigator.of(context).pop,
+                                    icon: const Icon(Icons.close, size: 20),
                                   ),
-                                );
-                              },
-                              separatorBuilder: (_, __) => const Divider(),
-                              itemCount: c.muteDateTimes.length,
+                                ],
+                              ),
                             ),
-                          ),
-                          Container(
-                            color: Colors.white,
-                            child: Column(
-                              children: [
-                                divider,
-                                const SizedBox(height: 5),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(18, 0, 5, 0),
-                                  child: Row(
-                                    children: [
-                                      c.status.value.isError
-                                          ? Expanded(
-                                              child: Center(
-                                                child: Text(
-                                                  c.status.value.errorMessage ??
-                                                      'err_unknown'.l10n,
-                                                  style: font13.copyWith(
-                                                    color: Colors.red,
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                          : const Spacer(),
-                                      TextButton(
-                                        key: const Key('MuteButton'),
-                                        onPressed: c.selectedMute.value == null
-                                            ? null
-                                            : c.mute,
-                                        child: Text(
-                                          'btn_mute'.l10n,
-                                          style: c.selectedMute.value == null
-                                              ? font17.copyWith(
-                                                  color: Colors.grey,
-                                                )
-                                              : font17,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 5)
-                              ],
-                            ),
-                          )
-                        ],
+                            const SizedBox(height: 5),
+                            divider
+                          ],
+                        ),
                       ),
-              ),
+                      Expanded(
+                        child: ListView.separated(
+                          itemBuilder: (BuildContext context, int index) {
+                            return Obx(
+                              () => ListTile(
+                                key: c.muteDateTimes[index].key,
+                                onTap: () => c.selectedMute.value = index,
+                                leading: Radio(
+                                  value: index,
+                                  onChanged: <int>(val) =>
+                                      c.selectedMute.value = val,
+                                  groupValue: c.selectedMute.value,
+                                ),
+                                title: Text(c.muteDateTimes[index].label),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (_, __) => const Divider(),
+                          itemCount: c.muteDateTimes.length,
+                        ),
+                      ),
+                      Container(
+                        color: Colors.white,
+                        child: Column(
+                          children: [
+                            divider,
+                            const SizedBox(height: 5),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 0, 5, 0),
+                              child: Row(
+                                children: [
+                                  c.status.value.isError
+                                      ? Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              c.status.value.errorMessage ??
+                                                  'err_unknown'.l10n,
+                                              style: font13.copyWith(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : const Spacer(),
+                                  TextButton(
+                                    key: const Key('MuteButton'),
+                                    onPressed: c.selectedMute.value == null
+                                        ? null
+                                        : c.mute,
+                                    child: Text(
+                                      'btn_mute'.l10n,
+                                      style: c.selectedMute.value == null
+                                          ? font17.copyWith(
+                                              color: Colors.grey,
+                                            )
+                                          : font17,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 5)
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                }
+              }),
             ),
           ),
         ),

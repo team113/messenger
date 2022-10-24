@@ -344,20 +344,20 @@ class ChatsTabView extends StatelessWidget {
                 label: 'btn_leave_chat'.l10n,
                 onPressed: () => c.leaveChat(chat.id),
               ),
-            ContextMenuButton(
-              key: const Key('ButtonMuteChat'),
-              label: 'btn_mute_chat'.l10n,
-              onPressed: () => showDialog(
-                context: context,
-                builder: (c) => MuteChatView(chat.id),
-              ),
-            ),
-            if (chat.muted != null)
-              ContextMenuButton(
-                key: const Key('ButtonUnmuteChat'),
-                label: 'btn_unmute_chat'.l10n,
-                onPressed: () async => await c.unMute(chat.id),
-              ),
+            chat.muted == null
+                ? ContextMenuButton(
+                    key: const Key('MuteChatButton'),
+                    label: 'btn_mute_chat'.l10n,
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (c) => MuteChatView(chat.id),
+                    ),
+                  )
+                : ContextMenuButton(
+                    key: const Key('UnmuteChatButton'),
+                    label: 'btn_unmute_chat'.l10n,
+                    onPressed: () async => await c.unmute(chat.id),
+                  ),
           ],
           child: ListTile(
             leading: AvatarWidget.fromRxChat(rxChat),
@@ -370,11 +370,11 @@ class ChatsTabView extends StatelessWidget {
                     maxLines: 1,
                   ),
                 ),
-                if (chat.muted != null) ...const [
-                  SizedBox(width: 5),
+                if (chat.muted != null) ...[
+                  const SizedBox(width: 5),
                   Icon(
                     Icons.volume_off,
-                    key: Key('MutedInChatsList'),
+                    key: Key('MuteIndicator_${chat.id}'),
                   ),
                 ],
               ],

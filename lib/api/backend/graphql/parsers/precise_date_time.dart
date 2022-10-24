@@ -20,13 +20,14 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 
 PreciseDateTime fromGraphQLDateTimeToDartPreciseDateTime(String v) =>
     PreciseDateTime.parse(v);
-DateTime fromDartPreciseDateTimeToGraphQLDateTime(PreciseDateTime v) => v.val;
+String fromDartPreciseDateTimeToGraphQLDateTime(PreciseDateTime v) =>
+    v.val.toUtc().toIso8601String();
 List<PreciseDateTime> fromGraphQLListDateTimeToDartListPreciseDateTime(
         List<Object?> v) =>
     v
         .map((e) => fromGraphQLDateTimeToDartPreciseDateTime(e as String))
         .toList();
-List<DateTime> fromDartListPreciseDateTimeToGraphQLListDataTime(
+List<String> fromDartListPreciseDateTimeToGraphQLListDataTime(
         List<PreciseDateTime> v) =>
     v.map((e) => fromDartPreciseDateTimeToGraphQLDateTime(e)).toList();
 List<PreciseDateTime>?
@@ -35,10 +36,9 @@ List<PreciseDateTime>?
         v
             ?.map((e) => fromGraphQLDateTimeToDartPreciseDateTime(e as String))
             .toList();
-List<DateTime>?
-    fromDartListNullablePreciseDateTimeToGraphQLListNullableDateTime(
-            List<PreciseDateTime>? v) =>
-        v?.map((e) => fromDartPreciseDateTimeToGraphQLDateTime(e)).toList();
+List<String>? fromDartListNullablePreciseDateTimeToGraphQLListNullableDateTime(
+        List<PreciseDateTime>? v) =>
+    v?.map((e) => fromDartPreciseDateTimeToGraphQLDateTime(e)).toList();
 
 PreciseDateTime? fromGraphQLDateTimeNullableToDartPreciseDateTimeNullable(
         String? v) =>

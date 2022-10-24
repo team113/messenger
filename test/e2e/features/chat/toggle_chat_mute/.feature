@@ -21,20 +21,20 @@ Feature: Toggle chat muting
     And user Bob
     And I have "Alice and Bob" group with Bob
 
-  Scenario: User mute chat
+  Scenario: User mutes chat
     When I wait until text "Alice and Bob" is present
     And I long press "Alice and Bob" chat
-    Then I tap `ButtonMuteChat` button
+    Then I tap `MuteChatButton` button
 
     When I tap `MuteForever` button
     And I tap `MuteButton` button
-    Then I wait until `MutedInChatsList` is present
+    Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmute chat
-    Given Chat "Alice and Bob" is muted
+    Given chat "Alice and Bob" is muted
 
-    When I wait until `MutedInChatsList` is present
+    When I see "Alice and Bob" chat as muted
     Then I long press "Alice and Bob" chat
 
-    When I tap `ButtonUnmuteChat` button
-    Then I wait until `MutedInChatsList` is absent
+    When I tap `UnmuteChatButton` button
+    Then I see "Alice and Bob" chat as unmuted

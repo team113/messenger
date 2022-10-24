@@ -166,14 +166,14 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Unmute selected chat.
-  Future<void> unMute(ChatId id) async {
+  /// Unmutes identified by the provided [id] chat.
+  Future<void> unmute(ChatId id) async {
     try {
       await _chatService.toggleChatMute(id, null);
     } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e.toMessage());
+      MessagePopup.error(e);
     } catch (e) {
-      MessagePopup.error(e.toString());
+      MessagePopup.error(e);
       rethrow;
     }
   }

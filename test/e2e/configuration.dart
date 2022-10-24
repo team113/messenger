@@ -33,6 +33,7 @@ import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/download_status.dart';
 import 'parameters/keys.dart';
+import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
@@ -52,6 +53,7 @@ import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
+import 'steps/sees_muted_chat.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/tap_dropdown_item.dart';
@@ -98,6 +100,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         pasteToField,
         restartApp,
         scrollAndSee,
+        seeChatAsMuted,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
@@ -135,6 +138,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         DownloadStatusParameter(),
+        MutedStatusParameter(),
         OnlineStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
