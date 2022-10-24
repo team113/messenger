@@ -417,7 +417,7 @@ label_introduction_description =
         • You will not press the "Logout" button.
 
     In order not to lose access to your account, set a password.
-label_kb = KB
+label_kb = {$amount} KB
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login

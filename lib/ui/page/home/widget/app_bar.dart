@@ -22,7 +22,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/util/platform_utils.dart';
 
-/// Custom decorated [AppBar].
+/// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     Key? key,

@@ -54,7 +54,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'component/attachments_selection.dart';
+import 'component/attachment_selector.dart';
 import 'controller.dart';
 import 'forward/view.dart';
 import 'widget/back_button.dart';
@@ -140,7 +140,6 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
-          Chat chat = c.chat!.chat.value;
           return DropTarget(
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
@@ -201,7 +200,7 @@ class _ChatViewState extends State<ChatView>
                       padding: const EdgeInsets.only(left: 4, right: 20),
                       leading: const [StyledBackButton()],
                       actions: [
-                        if (chat.ongoingCall == null) ...[
+                        if (c.chat!.chat.value.ongoingCall == null) ...[
                           WidgetButton(
                             onPressed: () => c.call(true),
                             child: SvgLoader.asset(
@@ -582,10 +581,6 @@ class _ChatViewState extends State<ChatView>
 
       bool isTyping = c.chat?.typingUsers.any((e) => e.id != c.me) == true;
       if (isTyping) {
-        Iterable<String> typings = c.chat!.typingUsers
-            .where((e) => e.id != c.me)
-            .map((e) => e.name?.val ?? e.num.val);
-
         if (c.chat?.chat.value.isGroup == false) {
           return Row(
             mainAxisSize: MainAxisSize.min,
@@ -605,6 +600,10 @@ class _ChatViewState extends State<ChatView>
             ],
           );
         }
+
+        Iterable<String> typings = c.chat!.typingUsers
+            .where((e) => e.id != c.me)
+            .map((e) => e.name?.val ?? e.num.val);
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -942,9 +941,8 @@ class _ChatViewState extends State<ChatView>
                       )
                     else
                       WidgetButton(
-                        onPressed: () {
-                          AttachmentsSelection.show(context, c);
-                        },
+                        onPressed: () =>
+                            AttachmentSourceSelector.show(context, c),
                         child: SizedBox(
                           width: 56,
                           height: 56,
@@ -996,28 +994,9 @@ class _ChatViewState extends State<ChatView>
                                     bool? result = await ChatForwardView.show(
                                       context,
                                       c.id,
-                                      c.repliedMessages.map((e) {
-                                        List<AttachmentId> attachments = [];
-
-                                        if (e is ChatMessage) {
-                                          attachments.addAll(
-                                            e.attachments.map((e) => e.id),
-                                          );
-                                        } else if (e is ChatForward) {
-                                          ChatItem nested = e.item;
-                                          if (nested is ChatMessage) {
-                                            attachments.addAll(
-                                              nested.attachments
-                                                  .map((e) => e.id),
-                                            );
-                                          }
-                                        }
-
-                                        return ChatItemQuote(
-                                          item: e,
-                                          attachments: attachments,
-                                        );
-                                      }).toList(),
+                                      c.repliedMessages
+                                          .map((e) => ChatItemQuote(item: e))
+                                          .toList(),
                                       text: c.send.text,
                                       attachments: c.attachments,
                                     );
@@ -1040,7 +1019,6 @@ class _ChatViewState extends State<ChatView>
                                       child: SizedBox(
                                         width: 26,
                                         height: 22,
-                                        // TODO: replace with more thin icon.
                                         child: SvgLoader.asset(
                                           'assets/icons/forward.svg',
                                           width: 26,
@@ -1229,6 +1207,7 @@ class _ChatViewState extends State<ChatView>
 
     const double size = 125;
 
+    // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       if (isImage || isVideo) {
         Widget child;
@@ -1394,9 +1373,11 @@ class _ChatViewState extends State<ChatView>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
-                e.original.size == null
-                    ? '... ${'label_kb'.l10n}'
-                    : '${e.original.size! ~/ 1024} ${'label_kb'.l10n}',
+                'label_kb'.l10nfmt({
+                  'amount': e.original.size == null
+                      ? 'dot'.l10n * 3
+                      : e.original.size! ~/ 1024
+                }),
                 style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.primary,
@@ -1411,6 +1392,7 @@ class _ChatViewState extends State<ChatView>
       );
     }
 
+    // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
       Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
@@ -1642,7 +1624,7 @@ class _ChatViewState extends State<ChatView>
                   future: c.getUser(item.authorId),
                   builder: (context, snapshot) {
                     Color color = snapshot.data?.user.value.id == c.me
-                        ? const Color(0xFF63B4FF)
+                        ? Theme.of(context).colorScheme.secondary
                         : AvatarWidget.colors[
                             (snapshot.data?.user.value.num.val.sum() ?? 3) %
                                 AvatarWidget.colors.length];
@@ -1663,14 +1645,18 @@ class _ChatViewState extends State<ChatView>
                           Builder(
                             builder: (context) {
                               String? name;
+
                               if (snapshot.hasData) {
                                 name = snapshot.data?.user.value.name?.val;
                                 if (snapshot.data?.user.value != null) {
-                                  return Obx(() => Text(
+                                  return Obx(() {
+                                    return Text(
                                       snapshot.data!.user.value.name?.val ??
                                           snapshot.data!.user.value.num.val,
-                                      style: style.boldBody
-                                          .copyWith(color: color)));
+                                      style:
+                                          style.boldBody.copyWith(color: color),
+                                    );
+                                  });
                                 }
                               }
 

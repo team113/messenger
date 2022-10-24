@@ -1031,9 +1031,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Padding(
               padding: const EdgeInsets.only(bottom: 1),
               child: Text(
-                e.original.size == null
-                    ? '... ${'label_kb'.l10n}'
-                    : '${e.original.size! ~/ 1024} ${'label_kb'.l10n}',
+                'label_kb'.l10nfmt({
+                  'amount': e.original.size == null
+                      ? 'dot'.l10n * 3
+                      : e.original.size! ~/ 1024
+                }),
                 style: const TextStyle(
                   color: Color(0xFF888888),
                   fontSize: 13,

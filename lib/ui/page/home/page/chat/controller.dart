@@ -132,7 +132,7 @@ class ChatController extends GetxController {
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
-  /// Attachments to be attached to a message.
+  /// [Attachment]s to be attached to a message.
   RxObsList<Attachment> attachments = RxObsList<Attachment>();
 
   /// [GlobalKey]s of the [attachments]s used to animate a [GalleryPopup]
@@ -169,7 +169,7 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Duration of the [Chat.ongoingCall].
+  /// Duration of a [Chat.ongoingCall].
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
@@ -669,7 +669,7 @@ class ChatController extends GetxController {
 
       // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
       // from the stored [previousCall].
-      void setUpTimer(Chat chat) {
+      void updateTimer(Chat chat) {
         if (previousCall != chat.ongoingCall?.id) {
           previousCall = chat.ongoingCall?.id;
 
@@ -678,14 +678,13 @@ class ChatController extends GetxController {
           _durationTimer = null;
 
           if (chat.ongoingCall != null) {
+            DateTime now = DateTime.now();
+
             _durationTimer = Timer.periodic(
               const Duration(seconds: 1),
               (_) {
-                // TODO: setup [ChatCall.conversationStartedAt] when call
-                //       started.
                 duration.value = DateTime.now().difference(
-                  chat.ongoingCall!.conversationStartedAt?.val ??
-                      DateTime.now(),
+                  chat.ongoingCall!.conversationStartedAt?.val ?? now,
                 );
               },
             );
@@ -693,8 +692,8 @@ class ChatController extends GetxController {
         }
       }
 
-      setUpTimer(chat!.chat.value);
-      _chatSubscription = chat!.chat.listen(setUpTimer);
+      updateTimer(chat!.chat.value);
+      _chatSubscription = chat!.chat.listen(updateTimer);
 
       _messagesWorker ??= ever(
         chat!.messages,

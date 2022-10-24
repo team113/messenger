@@ -291,7 +291,7 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
 
-  /// Blur to use in card-like [Widget]s.
+  /// Blur to apply to card-like [Widget]s.
   final double cardBlur;
 
   /// [Border] to apply to card-like [Widget]s.
