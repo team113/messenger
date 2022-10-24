@@ -211,35 +211,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           if (widget.note.value == null &&
                               !_fromMe &&
                               widget.chat.value?.isGroup == true)
-                            Transform.translate(
-                              offset: const Offset(-36, 0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  InkWell(
-                                    customBorder: const CircleBorder(),
-                                    onTap: () => router.user(
-                                      widget.authorId,
-                                      push: true,
-                                    ),
-                                    child: AvatarWidget.fromRxUser(
-                                      widget.user,
-                                      radius: 15,
-                                      useLayoutBuilder: false,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(18, 4, 9, 4),
-                                    child: Text(
-                                      widget.user?.user.value.name?.val ??
-                                          widget.user?.user.value.num.val ??
-                                          '...',
-                                      style:
-                                          style.boldBody.copyWith(color: color),
-                                    ),
-                                  ),
-                                ],
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(18, 4, 9, 4),
+                              child: Text(
+                                widget.user?.user.value.name?.val ??
+                                    widget.user?.user.value.num.val ??
+                                    '...',
+                                style: style.boldBody.copyWith(color: color),
                               ),
                             ),
                           ...widget.forwards.mapIndexed(
@@ -530,39 +508,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       return [
         if (!_fromMe && widget.chat.value?.isGroup == true)
-          Transform.translate(
-            offset: const Offset(-36, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => router.user(widget.authorId, push: true),
-                  child: AvatarWidget.fromRxUser(
-                    widget.user,
-                    radius: 15,
-                    useLayoutBuilder: false,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    12 + 6,
-                    8,
-                    9,
-                    files.isEmpty && attachments.isNotEmpty && item.text == null
-                        ? 8
-                        : files.isNotEmpty && item.text == null
-                            ? 0
-                            : 4,
-                  ),
-                  child: Text(
-                    widget.user?.user.value.name?.val ??
-                        widget.user?.user.value.num.val ??
-                        '...',
-                    style: style.boldBody.copyWith(color: color),
-                  ),
-                ),
-              ],
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              12 + 6,
+              8,
+              9,
+              files.isEmpty && attachments.isNotEmpty && item.text == null
+                  ? 8
+                  : files.isNotEmpty && item.text == null
+                      ? 0
+                      : 4,
+            ),
+            child: Text(
+              widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.val ??
+                  '...',
+              style: style.boldBody.copyWith(color: color),
             ),
           ),
         if (item.text != null)
@@ -683,11 +644,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         DateFormat.Hm().format(widget.forwards.first.value.at.val.toLocal()),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisAlignment:
             _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!_fromMe && widget.chat.value!.isGroup) const SizedBox(width: 30),
+          if (!_fromMe && widget.chat.value!.isGroup)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => router.user(widget.authorId, push: true),
+                child: AvatarWidget.fromRxUser(
+                  widget.user,
+                  radius: 15,
+                ),
+              ),
+            ),
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(

@@ -49,7 +49,6 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-    this.useLayoutBuilder = true,
   }) : super(key: key);
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -145,7 +144,6 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool useLayoutBuilder = true,
   }) =>
       AvatarWidget(
         key: key,
@@ -156,7 +154,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -168,7 +165,6 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool showBadge = true,
-    bool useLayoutBuilder = true,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -178,7 +174,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
       );
     }
 
@@ -194,7 +189,6 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
-        useLayoutBuilder: useLayoutBuilder,
       ),
     );
   }
@@ -307,9 +301,6 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  /// Indicator whether this [AvatarWidget] used [LayoutBuilder].
-  final bool useLayoutBuilder;
-
   /// Avatar color swatches.
   static const List<Color> colors = [
     Colors.purple,
@@ -352,7 +343,7 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
-    Widget child(BoxConstraints? constraints) {
+    return LayoutBuilder(builder: (context, constraints) {
       Color gradient;
 
       if (color != null) {
@@ -363,22 +354,10 @@ class AvatarWidget extends StatelessWidget {
         gradient = const Color(0xFF555555);
       }
 
-      double minWidth = min(
-        _minDiameter,
-        constraints?.smallest.shortestSide ?? _minDiameter,
-      );
-      double minHeight = min(
-        _minDiameter,
-        constraints?.smallest.shortestSide ?? _minDiameter,
-      );
-      double maxWidth = min(
-        _maxDiameter,
-        constraints?.biggest.shortestSide ?? _maxDiameter,
-      );
-      double maxHeight = min(
-        _maxDiameter,
-        constraints?.biggest.shortestSide ?? _maxDiameter,
-      );
+      double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
+      double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
+      double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+      double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
       double badgeSize = max(5, maxWidth / 12);
       if (maxWidth < 40) {
@@ -440,13 +419,7 @@ class AvatarWidget extends StatelessWidget {
               : null,
         ),
       );
-    }
-
-    if (!useLayoutBuilder) {
-      return child(null);
-    }
-
-    return LayoutBuilder(builder: (context, constraints) => child(constraints));
+    });
   }
 }
 
