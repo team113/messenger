@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -933,10 +934,12 @@ class ChatController extends GetxController {
     } else {
       try {
         await attachment.download();
-      } catch (_) {
-        await chat?.updateAttachments(item);
-        await Future.delayed(Duration.zero);
-        await attachment.download();
+      } catch (e) {
+        if (e is! DioError || e.type != DioErrorType.cancel) {
+          await chat?.updateAttachments(item);
+          await Future.delayed(Duration.zero);
+          await attachment.download();
+        }
       }
     }
   }
