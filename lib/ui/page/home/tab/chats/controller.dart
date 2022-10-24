@@ -17,8 +17,10 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.graphql.dart' show Muting;
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -49,10 +51,39 @@ class ChatsTabController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._context,
   );
 
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
+
+  /// Status of a [mute] completion.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning no [mute] is executing.
+  /// - `status.isLoading`, meaning [mute] is executing.
+  /// - `status.isError`, meaning [mute] got an error.
+  final Rx<RxStatus> muteStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// List of the mute periods.
+  ///
+  /// `null` meaning mute forever.
+  final List<Duration?> muteDateTimes = const [
+    Duration(minutes: 15),
+    Duration(minutes: 30),
+    Duration(hours: 1),
+    Duration(hours: 6),
+    Duration(hours: 12),
+    Duration(days: 1),
+    Duration(days: 7),
+    null,
+  ];
+
+  /// Indicates whether the mute chat dialog is opened or not.
+  final RxBool isMuteDialogOpened = RxBool(false);
+
+  /// [BuildContext] of current page.
+  final BuildContext _context;
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -99,6 +130,9 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.removed:
+          if (isMuteDialogOpened.value) {
+            Navigator.pop(_context);
+          }
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
           break;
@@ -166,14 +200,32 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Unmutes identified by the provided [id] chat.
-  Future<void> unmute(ChatId id) async {
+  /// Unmutes chat identified by the provided [id] chat.
+  Future<void> unmuteChat(ChatId id) async {
     try {
       await _chatService.toggleChatMute(id, null);
     } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes chat identified by the provided [id] chat.
+  Future<void> muteChat(ChatId id, {Duration? duration}) async {
+    muteStatus.value = RxStatus.loading();
+    try {
+      PreciseDateTime? dateTime;
+      if (duration != null) {
+        dateTime = PreciseDateTime.now().add(duration);
+      }
+
+      await _chatService.toggleChatMute(id, Muting(duration: dateTime));
+    } on ToggleChatMuteException catch (e) {
+      muteStatus.value = RxStatus.error(e.toMessage());
+    } catch (e) {
+      muteStatus.value = RxStatus.error(e.toString());
       rethrow;
     }
   }

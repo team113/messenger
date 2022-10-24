@@ -396,7 +396,6 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
-label_forever = Forever
 label_forwarded_message = Forwarded message
 label_gallery = Gallery
 label_group_created = Group created
@@ -433,17 +432,18 @@ label_media_output = Output
 label_media_settings = Media settings
 label_menu = Menu
 label_message_will_deleted_for_you = The message will be deleted only for you.
-label_multiple_days = { $quantity ->
-    [1] {$quantity} day
-    *[other] {$quantity} days
-}
-label_multiple_hours = { $quantity ->
-    [1] {$quantity} hour
-    *[other] {$quantity} hours
-}
-label_multiple_minutes = { $quantity ->
-    [1] {$quantity} minute
-    *[other] {$quantity} minutes
+label_mute_for = { $days ->
+    [0] { $hours ->
+            [0] { $minutes ->
+                    [0] Forever
+                    [1] 1 minute
+                    *[other] {$minutes} minutes
+                }
+            [1] 1 hour
+            *[other] {$hours} hours
+        }
+    [1] 1 day
+    *[other] {$days} days
 }
 label_mute_chat_for = Mute chat for
 label_name = Name

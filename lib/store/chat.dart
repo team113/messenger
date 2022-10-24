@@ -615,8 +615,24 @@ class ChatRepository implements AbstractChatRepository {
   }
 
   @override
-  Future<void> toggleChatMute(ChatId id, Muting? mute) =>
-      _graphQlProvider.toggleChatMute(id, mute);
+  Future<void> toggleChatMute(ChatId id, Muting? mute) async {
+    HiveRxChat? chat = _chats[id];
+    MuteDuration? muteDuration = chat?.chat.value.muted;
+
+    if (mute == null) {
+      chat?.chat.update((c) => c?.muted = null);
+    } else {
+      chat?.chat.update((c) => c?.muted = mute.duration == null
+          ? MuteDuration.forever()
+          : MuteDuration.until(mute.duration!));
+    }
+    try {
+      await _graphQlProvider.toggleChatMute(id, mute);
+    } catch (e) {
+      chat?.chat.update((c) => c?.muted = muteDuration);
+      rethrow;
+    }
+  }
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

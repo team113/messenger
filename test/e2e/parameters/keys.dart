@@ -58,7 +58,6 @@ enum WidgetKey {
   MenuTab,
   MessageField,
   MonologButton,
-  MuteButton,
   MuteChatButton,
   MuteForever,
   MyProfileButton,

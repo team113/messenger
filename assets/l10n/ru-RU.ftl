@@ -414,7 +414,6 @@ label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
 label_file = Файл
-label_forever = Навсегда
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
 label_group_created = Группа создана
@@ -451,17 +450,21 @@ label_media_output = Устройство выхода
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
-label_multiple_days = { $quantity ->
-    [1] {$quantity} день
-    *[other] {$quantity} дней
-}
-label_multiple_hours = { $quantity ->
-    [1] {$quantity} час
-    *[other] {$quantity} часов
-}
-label_multiple_minutes = { $quantity ->
-    [1] {$quantity} минуту
-    *[other] {$quantity} минут
+label_mute_for = { $days ->
+    [0] { $hours ->
+            [0] { $minutes ->
+                    [0] Навсегда
+                    [1] 1 минуту
+                    [few] {$minutes} минуты
+                    *[other] {$minutes} минут
+                }
+            [1] 1 час
+            [few] {$hours} часа
+            *[other] {$hours} часов
+        }
+    [1] 1 день
+    [few] {$days} дня
+    *[other] {$days} дней
 }
 label_mute_chat_for = Заглушить чат на
 label_name = Имя

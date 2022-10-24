@@ -27,7 +27,7 @@ Feature: Toggle chat muting
     Then I tap `MuteChatButton` button
 
     When I tap `MuteForever` button
-    And I tap `MuteButton` button
+    And I tap `Proceed` button
     Then I see "Alice and Bob" chat as muted
 
   Scenario: User unmute chat

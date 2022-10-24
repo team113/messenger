@@ -18,6 +18,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../widget/confirm_dialog.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -29,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
-import '/ui/page/home/tab/chats/mute_chat/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -46,7 +46,13 @@ class ChatsTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: ChatsTabController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        context,
+      ),
       builder: (ChatsTabController c) {
         return Scaffold(
           appBar: AppBar(
@@ -348,15 +354,38 @@ class ChatsTabView extends StatelessWidget {
                 ? ContextMenuButton(
                     key: const Key('MuteChatButton'),
                     label: 'btn_mute_chat'.l10n,
-                    onPressed: () => showDialog(
-                      context: context,
-                      builder: (c) => MuteChatView(chat.id),
-                    ),
+                    onPressed: () async {
+                      c.isMuteDialogOpened.value = true;
+                      await ConfirmDialog.show(
+                        context,
+                        title: 'label_mute_chat_for'.l10n,
+                        variants: [
+                          for (Duration? duration in c.muteDateTimes)
+                            ConfirmDialogVariant(
+                              onProceed: () async => await c.muteChat(
+                                chat.id,
+                                duration: duration,
+                              ),
+                              child: Text(
+                                'label_mute_for'.l10nfmt({
+                                  'days': duration?.inDays ?? 0,
+                                  'hours': duration?.inHours ?? 0,
+                                  'minutes': duration?.inMinutes ?? 0,
+                                }),
+                                key: duration == null
+                                    ? const Key('MuteForever')
+                                    : null,
+                              ),
+                            ),
+                        ],
+                      );
+                      c.isMuteDialogOpened.value = false;
+                    },
                   )
                 : ContextMenuButton(
                     key: const Key('UnmuteChatButton'),
                     label: 'btn_unmute_chat'.l10n,
-                    onPressed: () async => await c.unmute(chat.id),
+                    onPressed: () async => await c.unmuteChat(chat.id),
                   ),
           ],
           child: ListTile(
