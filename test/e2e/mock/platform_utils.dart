@@ -24,7 +24,7 @@ import 'package:messenger/util/platform_utils.dart';
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
-  FutureOr<File?> download(
+  Future<File?> download(
     String url,
     String filename,
     int? size, {

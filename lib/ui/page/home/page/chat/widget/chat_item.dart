@@ -937,7 +937,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   dimension: 22,
                   child: CircularProgressIndicator(
                     key: const Key('Downloading'),
-                    value: e.progress.value,
+                    value: e.progress.value == 0 ? null : e.progress.value,
                   ),
                 ),
                 const Icon(

@@ -28,13 +28,13 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   }
 
   @override
-  FutureOr<File?> download(
+  Future<File?> download(
     String url,
     String filename,
     int? size, {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-  }) =>
+  }) async =>
       File('test/path');
 
   @override
