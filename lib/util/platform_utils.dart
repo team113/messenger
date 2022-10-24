@@ -28,6 +28,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/routes.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -67,6 +68,48 @@ class PlatformUtilsImpl {
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  /// Returns a stream broadcasting the application's window focus changes.
+  Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    if (isWeb) {
+      return WebUtils.onFocusChanged;
+    } else if (isDesktop) {
+      _WindowListener listener = _WindowListener(
+        onBlur: () => controller!.add(false),
+        onFocus: () => controller!.add(true),
+      );
+
+      controller = StreamController<bool>(
+        onListen: () => WindowManager.instance.addListener(listener),
+        onCancel: () => WindowManager.instance.removeListener(listener),
+      );
+    } else {
+      Worker? worker;
+
+      controller = StreamController<bool>(
+        onListen: () => worker = ever(
+          router.lifecycle,
+          (AppLifecycleState a) => controller?.add(a.inForeground),
+        ),
+        onCancel: worker?.dispose,
+      );
+    }
+
+    return controller.stream;
+  }
+
+  /// Indicates whether the application's window is in focus.
+  Future<bool> get isFocused async {
+    if (isWeb) {
+      return Future.value(WebUtils.isFocused);
+    } else if (isDesktop) {
+      return await WindowManager.instance.isFocused();
+    } else {
+      return Future.value(router.lifecycle.value.inForeground);
+    }
+  }
 
   /// Returns a stream broadcasting fullscreen changes.
   Stream<bool> get onFullscreenChange {
@@ -208,19 +251,33 @@ extension MobileExtensionOnContext on BuildContext {
 /// Listener interface for receiving window events.
 class _WindowListener extends WindowListener {
   _WindowListener({
-    required this.onLeaveFullscreen,
-    required this.onEnterFullscreen,
+    this.onLeaveFullscreen,
+    this.onEnterFullscreen,
+    this.onFocus,
+    this.onBlur,
   });
 
   /// Callback, called when the window exits fullscreen.
-  final VoidCallback onLeaveFullscreen;
+  final VoidCallback? onLeaveFullscreen;
 
   /// Callback, called when the window enters fullscreen.
-  final VoidCallback onEnterFullscreen;
+  final VoidCallback? onEnterFullscreen;
+
+  /// Callback, called when the window gets focus.
+  final VoidCallback? onFocus;
+
+  /// Callback, called when the window loses focus.
+  final VoidCallback? onBlur;
 
   @override
-  void onWindowEnterFullScreen() => onEnterFullscreen();
+  void onWindowEnterFullScreen() => onEnterFullscreen?.call();
 
   @override
-  void onWindowLeaveFullScreen() => onLeaveFullscreen();
+  void onWindowLeaveFullScreen() => onLeaveFullscreen?.call();
+
+  @override
+  void onWindowFocus() => onFocus?.call();
+
+  @override
+  void onWindowBlur() => onBlur?.call();
 }
