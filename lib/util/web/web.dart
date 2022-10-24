@@ -101,14 +101,14 @@ external dynamic webkitFullscreenElement;
 @JS('document.msFullscreenElement')
 external dynamic msFullscreenElement;
 
-@JS('indexedDB.databases')
-external databases();
-
-@JS('indexedDB.deleteDatabase')
-external deleteDatabase(String name);
+@JS('cleanIndexedDB')
+external cleanIndexedDB();
 
 @JS('window.isPopup')
 external bool _isPopup;
+
+@JS('document.hasFocus')
+external bool _hasFocus();
 
 /// Helper providing direct access to browser-only features.
 ///
@@ -130,6 +130,9 @@ class WebUtils {
         webkitFullscreenElement != null ||
         msFullscreenElement != null);
   }
+
+  /// Indicates whether device's browser is in focus.
+  static bool get isFocused => _hasFocus();
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -183,6 +186,30 @@ class WebUtils {
       onListen: () => html.window.addEventListener('storage', storageListener),
       onCancel: () =>
           html.window.removeEventListener('storage', storageListener),
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the device's browser focus changes.
+  static Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    // Event listener reacting on window focus events.
+    void focusListener(html.Event event) => controller!.add(true);
+
+    // Event listener reacting on window unfocus events.
+    void blurListener(html.Event event) => controller!.add(false);
+
+    controller = StreamController(
+      onListen: () {
+        html.window.addEventListener('focus', focusListener);
+        html.window.addEventListener('blur', blurListener);
+      },
+      onCancel: () {
+        html.window.removeEventListener('focus', focusListener);
+        html.window.removeEventListener('blur', blurListener);
+      },
     );
 
     return controller.stream;
@@ -315,9 +342,10 @@ class WebUtils {
 
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb() async {
-    var qs = await promiseToFuture(databases());
-    for (int i = 0; i < qs.length; i++) {
-      deleteDatabase(qs[i].name);
+    try {
+      await promiseToFuture(cleanIndexedDB());
+    } catch (e) {
+      consoleError(e);
     }
   }
 

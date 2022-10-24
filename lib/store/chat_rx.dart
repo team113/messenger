@@ -40,10 +40,11 @@ import '/provider/gql/exceptions.dart'
         PostChatMessageException,
         ResubscriptionRequiredException,
         StaleVersionException;
-import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat.dart';
+import '/provider/hive/chat_item.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/new_type.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
@@ -61,7 +62,7 @@ class HiveRxChat implements RxChat {
   final Rx<Chat> chat;
 
   @override
-  final RxList<Rx<ChatItem>> messages = RxList<Rx<ChatItem>>();
+  final RxObsList<Rx<ChatItem>> messages = RxObsList<Rx<ChatItem>>();
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
@@ -595,7 +596,7 @@ class HiveRxChat implements RxChat {
     _localSubscription = StreamIterator(_local.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
-      var i = messages.indexWhere((e) => e.value.timestamp == event.key);
+      int i = messages.indexWhere((e) => e.value.timestamp == event.key);
       if (event.deleted) {
         if (i != -1) {
           messages.removeAt(i);

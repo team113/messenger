@@ -30,6 +30,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -283,12 +284,8 @@ class ChatRepository implements AbstractChatRepository {
     }
 
     try {
-      var response = await _graphQlProvider.removeChatMember(chatId, userId);
-
-      // Response is `null` if [MyUser] removed himself (left the chat).
-      if (response == null) {
-        _chatLocal.remove(chatId);
-      }
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.chat.update((c) => c?.members.add(member));
@@ -378,6 +375,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatMessage(message.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -406,6 +407,10 @@ class ChatRepository implements AbstractChatRepository {
 
       try {
         await _graphQlProvider.deleteChatForward(forward.id);
+
+        if (item != null) {
+          chat?.remove(item.value.id, item.value.timestamp);
+        }
       } catch (_) {
         if (item != null) {
           chat?.messages.insertAfter(
@@ -431,6 +436,10 @@ class ChatRepository implements AbstractChatRepository {
 
     try {
       await _graphQlProvider.hideChatItem(id);
+
+      if (item != null) {
+        chat?.remove(item.value.id, item.value.timestamp);
+      }
     } catch (_) {
       if (item != null) {
         chat?.messages.insertAfter(
@@ -565,6 +574,50 @@ class ChatRepository implements AbstractChatRepository {
         text: text,
         attachments: attachments,
       );
+
+  @override
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    late dio.MultipartFile upload;
+
+    if (file != null) {
+      await file.ensureCorrectMediaType();
+
+      if (file.stream != null) {
+        upload = dio.MultipartFile(
+          file.stream!,
+          file.size,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.bytes != null) {
+        upload = dio.MultipartFile.fromBytes(
+          file.bytes!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else if (file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          file.path!,
+          filename: file.name,
+          contentType: file.mime,
+        );
+      } else {
+        throw ArgumentError(
+          'At least stream, bytes or path should be specified.',
+        );
+      }
+    }
+
+    await _graphQlProvider.updateChatAvatar(
+      id,
+      file: file == null ? null : upload,
+      onSendProgress: onSendProgress,
+    );
+  }
 
   // TODO: Messages list can be huge, so we should implement pagination and
   //       loading on demand.

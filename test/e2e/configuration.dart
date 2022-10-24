@@ -37,15 +37,18 @@ import 'parameters/online_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/change_chat_avatar.dart';
 import 'steps/download_file.dart';
-import 'steps/expect_n_widget.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
+import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/open_chat_info.dart';
 import 'steps/restart_app.dart';
+import 'steps/scroll_chat.dart';
 import 'steps/sees_as.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -60,6 +63,7 @@ import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_file_status.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
+import 'steps/wait_until_text_within.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -69,23 +73,27 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..stepDefinitions = [
         attachFile,
         cancelFileDownload,
+        changeChatAvatar,
         copyFromField,
         downloadFile,
-        expectNWidget,
         fillField,
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
+        iAmInChatNamed,
         iAmInChatWith,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
         noInternetConnection,
+        openChatInfo,
         pasteToField,
         restartApp,
+        scrollAndSee,
         seesAs,
         sendsAttachmentToMe,
         sendsMessageToMe,
@@ -96,6 +104,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilTextExists,
+        untilTextExistsWithin,
         updateBio,
         user,
         waitUntilAttachmentStatus,

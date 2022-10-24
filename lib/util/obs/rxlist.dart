@@ -110,6 +110,20 @@ class RxObsList<E> extends ListMixin<E>
   }
 
   @override
+  bool remove(Object? element) {
+    bool result = _value.remove(element);
+    refresh();
+    return result;
+  }
+
+  @override
+  E removeAt(int index) {
+    E result = _value.removeAt(index);
+    refresh();
+    return result;
+  }
+
+  @override
   void retainWhere(bool Function(E element) test) {
     _value.retainWhere(test);
     refresh();

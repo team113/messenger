@@ -39,11 +39,17 @@ class WebUtils {
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen => false;
 
+  /// Indicates whether device's browser is in focus.
+  static bool get isFocused => false;
+
   /// Returns a stream broadcasting the fullscreen changes.
   static Stream<bool> get onFullscreenChange => const Stream.empty();
 
   /// Returns a stream broadcasting the browser's storage changes.
   static Stream<WebStorageEvent> get onStorageChange => const Stream.empty();
+
+  /// Returns a stream broadcasting the device's browser focus changes.
+  static Stream<bool> get onFocusChanged => const Stream.empty();
 
   /// Returns a stream broadcasting the browser's window focus changes.
   static Stream<bool> get onWindowFocus => const Stream.empty();

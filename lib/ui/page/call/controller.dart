@@ -26,26 +26,26 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/chat/info/add_member/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/widget/context_menu/overlay.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
-import 'add_dialog_member/view.dart';
 import 'component/common.dart';
+import 'participant/view.dart';
 import 'settings/view.dart';
 
 export 'view.dart';
@@ -57,6 +57,7 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
+    this._settingsRepository,
   );
 
   /// Duration of the current ongoing call.
@@ -311,6 +312,9 @@ class CallController extends GetxController {
   /// [Chat]s service used to fetch the[chat].
   final ChatService _chatService;
 
+  /// Settings repository, used to get the [buttons] value.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Current [OngoingCall].
   final Rx<OngoingCall> _currentCall;
 
@@ -324,6 +328,14 @@ class CallController extends GetxController {
 
   /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
+
+  /// Worker capturing any [buttons] changes to update the
+  /// [ApplicationSettings.callButtons] value.
+  Worker? _buttonsWorker;
+
+  /// Worker capturing any [ApplicationSettings.callButtons] changes to update
+  /// the [buttons] value.
+  Worker? _settingsWorker;
 
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
@@ -604,6 +616,7 @@ class CallController extends GetxController {
     _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
       fullscreen.value = v;
       applySecondaryConstraints();
+      refresh();
     });
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
@@ -620,17 +633,76 @@ class CallController extends GetxController {
       errorTimeout.value = _errorDuration;
     });
 
-    buttons = RxList([
-      ScreenButton(this),
-      VideoButton(this),
-      EndCallButton(this),
-      AudioButton(this),
-      MoreButton(this),
-    ]);
+    // Constructs a list of [CallButton]s from the provided [list] of [String]s.
+    List<CallButton> toButtons(List<String>? list) {
+      List<CallButton>? persisted = list
+          ?.map((e) {
+            switch (e) {
+              case 'ScreenButton':
+                return ScreenButton(this);
+
+              case 'VideoButton':
+                return VideoButton(this);
+
+              case 'EndCallButton':
+                return EndCallButton(this);
+
+              case 'AudioButton':
+                return AudioButton(this);
+
+              case 'MoreButton':
+                return MoreButton(this);
+
+              case 'SettingsButton':
+                return SettingsButton(this);
+
+              case 'ParticipantsButton':
+                return ParticipantsButton(this);
+
+              case 'HandButton':
+                return HandButton(this);
+
+              case 'RemoteVideoButton':
+                return RemoteVideoButton(this);
+
+              case 'RemoteAudioButton':
+                return RemoteAudioButton(this);
+            }
+          })
+          .whereNotNull()
+          .toList();
+
+      // Add default [CallButton]s, if none are persisted.
+      if (persisted?.isNotEmpty != true) {
+        persisted = [
+          ScreenButton(this),
+          VideoButton(this),
+          EndCallButton(this),
+          AudioButton(this),
+          MoreButton(this),
+        ];
+      }
+
+      // Ensure [EndCallButton] is always in the list.
+      if (persisted!.whereType<EndCallButton>().isEmpty) {
+        persisted.add(EndCallButton(this));
+      }
+
+      // Ensure [MoreButton] is always in the list.
+      if (persisted.whereType<MoreButton>().isEmpty) {
+        persisted.add(MoreButton(this));
+      }
+
+      return persisted;
+    }
+
+    buttons = RxList(
+      toButtons(_settingsRepository.applicationSettings.value?.callButtons),
+    );
 
     panel = RxList([
       SettingsButton(this),
-      AddMemberCallButton(this),
+      ParticipantsButton(this),
       HandButton(this),
       ScreenButton(this),
       RemoteVideoButton(this),
@@ -638,6 +710,25 @@ class CallController extends GetxController {
       VideoButton(this),
       AudioButton(this),
     ]);
+
+    _buttonsWorker = ever(buttons, (List<CallButton> list) {
+      _settingsRepository
+          .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
+    });
+
+    List<String>? previous =
+        _settingsRepository.applicationSettings.value?.callButtons;
+    _settingsWorker = ever(
+      _settingsRepository.applicationSettings,
+      (ApplicationSettings? settings) {
+        if (!const ListEquality().equals(settings?.callButtons, previous)) {
+          if (settings != null) {
+            buttons.value = toButtons(settings.callButtons);
+          }
+          previous = settings?.callButtons;
+        }
+      },
+    );
 
     _showUiWorker = ever(showUi, (bool showUi) {
       if (displayMore.value && !showUi) {
@@ -716,6 +807,8 @@ class CallController extends GetxController {
     _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+    _buttonsWorker?.dispose();
+    _settingsWorker?.dispose();
 
     secondaryEntry?.remove();
 
@@ -727,7 +820,6 @@ class CallController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
-    Future.delayed(Duration.zero, ContextMenuOverlay.of(router.context!).hide);
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
   }
@@ -1007,23 +1099,14 @@ class CallController extends GetxController {
     );
   }
 
-  /// Returns a result of the [showDialog] building an [AddChatMemberView] or an
-  /// [AddDialogMemberView].
+  /// Returns a result of the [showDialog] building a [ParticipantView].
   Future<dynamic> openAddMember(BuildContext context) {
-    if (isGroup) {
-      return showDialog(
-        context: context,
-        builder: (_) => AddChatMemberView(chat.value!.chat.value.id),
-      );
-    } else if (isDialog) {
-      return showDialog(
-        context: context,
-        builder: (_) =>
-            AddDialogMemberView(chat.value!.chat.value.id, _currentCall),
-      );
-    }
-
-    return Future.value();
+    keepUi(false);
+    return ParticipantView.show(
+      context,
+      call: _currentCall,
+      duration: duration,
+    );
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].

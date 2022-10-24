@@ -14,27 +14,29 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/routes.dart';
 
-import '../parameters/keys.dart';
+import '../world/custom_world.dart';
 
-/// Indicates whether the provided number of specific [Widget]s are visible.
+/// Routes the [router] to the currently opened [Chat]'s info page.
 ///
 /// Examples:
-/// - Then I expect to see 1 `ChatMessage`
-final expectNWidget = then2<int, WidgetKey, FlutterWorld>(
-  RegExp(r'I expect to see {int} {key}'),
-  (quantity, key, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+/// - Then I open chat's info
+final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
+  'I open chat\'s info',
+  (context) async {
+    router.chatInfo(ChatId(router.route.split('/').last));
 
-    final finder = find.byKey(Key(key.name), skipOffstage: false);
-    await context.world.appDriver.scrollIntoView(finder.last);
-    await context.world.appDriver.waitForAppToSettle();
-
-    final finder2 = find.byKey(Key(key.name), skipOffstage: false);
-    context.expectMatch(finder2.evaluate().length, quantity);
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatInfoView', FindType.key),
+        );
+      },
+    );
   },
 );
