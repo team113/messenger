@@ -69,6 +69,21 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = 2.seconds;
+      provider.client.throwException = true;
+    }
+  }),
+);
+
+/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
+///
+/// Examples:
+/// - I do not have Internet
+final StepDefinitionGeneric noInternetConnection2 = given<CustomWorld>(
+  'I do not have Internet2 ',
+  (context) => Future.sync(() {
+    final GraphQlProvider provider = Get.find();
+    if (provider is MockGraphQlProvider) {
+      provider.client.delay = 2.seconds;
       provider.client.throwException = false;
     }
     context.world.oldConfigFiles = Config.files;
