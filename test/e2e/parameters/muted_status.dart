@@ -19,7 +19,7 @@ import 'package:gherkin/gherkin.dart';
 /// [MutedStatus]es available in an [MutedStatusParameter].
 enum MutedStatus { muted, unmuted }
 
-/// [CustomParameter] representing an [User.online] status.
+/// [CustomParameter] representing an chat mute status.
 class MutedStatusParameter extends CustomParameter<MutedStatus> {
   MutedStatusParameter()
       : super(

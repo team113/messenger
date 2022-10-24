@@ -30,7 +30,7 @@ Feature: Toggle chat muting
     And I tap `Proceed` button
     Then I see "Alice and Bob" chat as muted
 
-  Scenario: User unmute chat
+  Scenario: User unmutes chat
     Given chat "Alice and Bob" is muted
 
     When I see "Alice and Bob" chat as muted

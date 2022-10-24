@@ -18,7 +18,6 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../widget/confirm_dialog.dart';
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -31,6 +30,7 @@ import '/routes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatCallFinishReasonL10n;
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';

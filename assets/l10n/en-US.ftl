@@ -148,7 +148,6 @@ btn_leave_chat = Leave chat
 btn_login = Log in
 btn_logout = Logout
 btn_media_settings = Media settings
-btn_mute = Mute
 btn_mute_chat = Mute chat
 btn_next = Next
 btn_ok = Ok

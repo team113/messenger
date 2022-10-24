@@ -148,7 +148,6 @@ btn_leave_chat = Выйти из чата
 btn_login = Войти
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
-btn_mute = Заглушить
 btn_mute_chat = Заглушить чат
 btn_next = Далее
 btn_ok = Ок

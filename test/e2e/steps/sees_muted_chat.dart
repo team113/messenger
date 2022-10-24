@@ -16,8 +16,6 @@
 
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/api/backend/extension/user.dart';
 
 import '../configuration.dart';
 import '../parameters/muted_status.dart';
