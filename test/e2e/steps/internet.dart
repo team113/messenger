@@ -79,7 +79,7 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
 /// Examples:
 /// - I do not have Internet
 final StepDefinitionGeneric noInternetConnection2 = given<CustomWorld>(
-  'I do not have Internet2 ',
+  'I do not have2 Internet',
   (context) => Future.sync(() {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
