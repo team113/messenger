@@ -911,7 +911,7 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
-        member.connection = conn;
+        member._connection = conn;
         member.isConnected.value = true;
       } else {
         members[id] = CallMember(
@@ -1485,9 +1485,6 @@ class CallMember {
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
-
-  /// Sets [_connection] of this [CallMember].
-  set connection(ConnectionHandle val) => _connection = val;
 
   /// Sets the inbound video of this [CallMember] as [enabled].
   Future<void> setVideoEnabled(
