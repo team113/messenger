@@ -302,7 +302,8 @@ class _ChatViewState extends State<ChatView>
                         },
                         child: Stack(
                           children: [
-                            // Required for the [Stack] to take [Scaffold]'s size.
+                            // Required for the [Stack] to take [Scaffold]'s
+                            // size.
                             IgnorePointer(
                               child: ContextMenuInterceptor(child: Container()),
                             ),
@@ -333,8 +334,7 @@ class _ChatViewState extends State<ChatView>
                                     : const NeverScrollableScrollPhysics(),
                                 delegate: FlutterListViewDelegate(
                                   (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
+                                  childCount: c.elements.length,
                                   keepPosition: true,
                                   onItemKey: (i) => c.elements.values
                                       .elementAt(i)
@@ -346,7 +346,6 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               );
                             }),
-
                             Obx(() {
                               if ((c.chat!.status.value.isSuccess ||
                                       c.chat!.status.value.isEmpty) &&
@@ -361,7 +360,7 @@ class _ChatViewState extends State<ChatView>
                                 );
                               }
 
-                              return Container();
+                              return const SizedBox();
                             }),
                           ],
                         ),
@@ -386,7 +385,7 @@ class _ChatViewState extends State<ChatView>
                                           child:
                                               const Icon(Icons.arrow_downward),
                                         )
-                                      : Container(),
+                                      : const SizedBox(),
                         ),
                       );
                     }),
@@ -1493,9 +1492,8 @@ class _ChatViewState extends State<ChatView>
                 child: content(),
               ),
               Center(
-                child: SizedBox(
-                  height: 30,
-                  width: 30,
+                child: SizedBox.square(
+                  dimension: 30,
                   child: ElasticAnimatedSwitcher(
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
@@ -1668,8 +1666,10 @@ class _ChatViewState extends State<ChatView>
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.boldBody
-                    .copyWith(color: const Color(0xFF888888), fontSize: 13),
+                style: style.boldBody.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 13,
+                ),
               ),
             ),
           ],
@@ -1740,7 +1740,7 @@ class _ChatViewState extends State<ChatView>
                               }
 
                               return Text(
-                                name ?? '...',
+                                name ?? ('dot'.l10n * 3),
                                 style: style.boldBody.copyWith(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
@@ -1799,15 +1799,15 @@ class _ChatViewState extends State<ChatView>
 
   /// Builds a visual representation of a [ChatController.editedMessage].
   Widget _editedMessage(ChatController c) {
-    Style style = Theme.of(context).extension<Style>()!;
-    bool fromMe = c.editedMessage.value?.authorId == c.me;
+    final Style style = Theme.of(context).extension<Style>()!;
+    final bool fromMe = c.editedMessage.value?.authorId == c.me;
 
     if (c.editedMessage.value != null && c.edit != null) {
       if (c.editedMessage.value is ChatMessage) {
         Widget? content;
         List<Widget> additional = [];
 
-        final item = c.editedMessage.value as ChatMessage;
+        final ChatMessage item = c.editedMessage.value as ChatMessage;
 
         var desc = StringBuffer();
         if (item.text != null) {

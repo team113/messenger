@@ -215,7 +215,7 @@ class ChatController extends GetxController {
   /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
   Timer? _typingTimer;
 
-  /// [Timer] for updating [duration] of the call if any.
+  /// [Timer] for updating [duration] of a [Chat.ongoingCall], if any.
   Timer? _durationTimer;
 
   /// [AudioPlayer] playing a sent message sound.
@@ -664,7 +664,8 @@ class ChatController extends GetxController {
         }
       });
 
-      // Previous [Chat.ongoingCall], used to update the [_durationTimer].
+      // Previous [Chat.ongoingCall], used to reset the [_durationTimer] on its
+      // changes.
       ChatItemId? previousCall;
 
       // Updates the [_durationTimer], if current [Chat.ongoingCall] differs

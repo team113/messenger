@@ -837,14 +837,16 @@ class HiveRxChat implements RxChat {
                 ),
               );
 
-              if (chat.value.isDialog &&
-                  chatEntity.value.ongoingCall?.members
-                          .map((e) => e.user.id)
-                          .toSet()
-                          .length ==
-                      2) {
-                chatEntity.value.ongoingCall!.conversationStartedAt ??=
-                    PreciseDateTime.now();
+              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
+                  chat.value.isDialog) {
+                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                    .map((e) => e.user.id)
+                    .toSet();
+
+                if (ids != null && ids.length >= 2) {
+                  chatEntity.value.ongoingCall?.conversationStartedAt =
+                      PreciseDateTime.now();
+                }
               }
               break;
 
