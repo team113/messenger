@@ -135,7 +135,7 @@ class ChatForwardWidget extends StatefulWidget {
 class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
-  final List<GlobalKey> _galleryKeys = [];
+  final Map<ChatItemId, List<GlobalKey>> _galleryKeys = {};
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
@@ -302,7 +302,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     ? ChatItemWidget.mediaAttachment(
                         media.first,
                         media,
-                        key: _galleryKeys[0],
+                        key: _galleryKeys[item.id]?.firstOrNull,
                         onGallery: widget.onGallery,
                         onError: widget.onAttachmentError,
                         filled: false,
@@ -317,7 +317,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 (i, e) => ChatItemWidget.mediaAttachment(
                                   e,
                                   media,
-                                  key: _galleryKeys[i],
+                                  key: _galleryKeys[item.id]?[i],
                                   onGallery: widget.onGallery,
                                   onError: widget.onAttachmentError,
                                 ),
@@ -595,7 +595,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   ? ChatItemWidget.mediaAttachment(
                       attachments.first,
                       attachments,
-                      key: _galleryKeys.last,
+                      key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
@@ -610,7 +610,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 e,
                                 attachments,
-                                key: _galleryKeys.reversed.elementAt(i),
+                                key: _galleryKeys[item.id]?[i],
                                 onGallery: widget.onGallery,
                                 onError: widget.onAttachmentError,
                               ),
@@ -818,29 +818,25 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     for (Rx<ChatItem> forward in widget.forwards) {
       final ChatItem item = (forward.value as ChatForward).item;
       if (item is ChatMessage) {
-        _galleryKeys.addAll(
-          item.attachments
-              .where((e) =>
-                  e is ImageAttachment ||
-                  (e is FileAttachment && e.isVideo) ||
-                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-              .map((e) => GlobalKey())
-              .toList(),
-        );
-      }
-    }
-
-    if (widget.note.value != null) {
-      _galleryKeys.addAll(
-        (widget.note.value!.value as ChatMessage)
-            .attachments
+        _galleryKeys[item.id] = item.attachments
             .where((e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && e.isVideo) ||
                 (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
             .map((e) => GlobalKey())
-            .toList(),
-      );
+            .toList();
+      }
+    }
+
+    if (widget.note.value != null) {
+      final ChatMessage item = (widget.note.value!.value as ChatMessage);
+      _galleryKeys[item.id] = item.attachments
+          .where((e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+          .map((e) => GlobalKey())
+          .toList();
     }
   }
 }
