@@ -616,27 +616,6 @@ class ElementStyleTabView extends StatelessWidget {
                 ),
               ),
               element(
-                title: 'Кнопка назад в чате.',
-                asset: 'assets/icons/arrow_left.svg',
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: SvgLoader.asset(
-                          'assets/icons/arrow_left.svg',
-                          height: 16,
-                        ),
-                      ),
-                    ),
-                    onTap: () => Navigator.maybePop(context),
-                  ),
-                ),
-              ),
-              element(
                 background: true,
                 title: 'Временная метка в чате.',
                 child: Container(
