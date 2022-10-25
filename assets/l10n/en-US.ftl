@@ -421,6 +421,7 @@ label_introduction_description =
         • You will not press the "Logout" button.
 
     In order not to lose access to your account, set a password.
+label_kb = {$amount} KB
 label_last_seen = Last seen
 label_login = Login
 label_login_hint = Your unique login
@@ -515,3 +516,4 @@ label_was_added = {$who} was added
 label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
+plus = +
