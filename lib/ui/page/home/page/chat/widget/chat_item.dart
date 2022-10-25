@@ -263,7 +263,13 @@ class ChatItemWidget extends StatefulWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            filled ? Positioned.fill(child: attachment) : attachment,
+            filled
+                ? Positioned.fill(child: attachment)
+                : Container(
+                    constraints: const BoxConstraints(minWidth: 300),
+                    width: double.infinity,
+                    child: attachment,
+                  ),
             ElasticAnimatedSwitcher(
               key: Key('AttachmentStatus_${e.id}'),
               child: !isLocal

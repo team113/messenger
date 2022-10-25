@@ -212,7 +212,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             !_fromMe &&
                             widget.chat.value?.isGroup == true)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(18, 4, 9, 4),
+                            padding: const EdgeInsets.fromLTRB(12, 4, 9, 4),
                             child: Text(
                               widget.user?.user.value.name?.val ??
                                   widget.user?.user.value.num.val ??
@@ -494,6 +494,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     if (item is ChatMessage) {
       Style style = Theme.of(context).extension<Style>()!;
 
+      String? text = item.text?.val.trim();
+      if (text?.isEmpty == true) {
+        text = null;
+      } else {
+        text = item.text?.val;
+      }
+
       List<Attachment> attachments = item.attachments.where((e) {
         return ((e is ImageAttachment) ||
             (e is FileAttachment && e.isVideo) ||
@@ -514,12 +521,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (!_fromMe && widget.chat.value?.isGroup == true)
           Padding(
             padding: EdgeInsets.fromLTRB(
-              12 + 6,
-              8,
+              12,
+              item.attachments.isEmpty && text == null ? 4 : 8,
               9,
-              files.isEmpty && attachments.isNotEmpty && item.text == null
+              files.isEmpty && attachments.isNotEmpty && text == null
                   ? 8
-                  : files.isNotEmpty && item.text == null
+                  : files.isNotEmpty && text == null
                       ? 0
                       : 4,
             ),
@@ -530,7 +537,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               style: style.boldBody.copyWith(color: color),
             ),
           ),
-        if (item.text != null)
+        if (text != null)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 500),
             opacity: _isRead || !_fromMe ? 1 : 0.7,
@@ -541,7 +548,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 9,
                 files.isEmpty ? 10 : 0,
               ),
-              child: Text(item.text!.val, style: style.boldBody),
+              child: Text(text, style: style.boldBody),
             ),
           ),
         if (files.isNotEmpty)
@@ -566,14 +573,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (attachments.isNotEmpty)
           ClipRRect(
             borderRadius: BorderRadius.only(
-              topLeft: item.text != null ||
+              topLeft: text != null ||
                       item.repliesTo.isNotEmpty ||
                       (!_fromMe && widget.chat.value?.isGroup == true)
                   ? Radius.zero
                   : files.isEmpty
                       ? const Radius.circular(15)
                       : Radius.zero,
-              topRight: item.text != null ||
+              topRight: text != null ||
                       item.repliesTo.isNotEmpty ||
                       (!_fromMe && widget.chat.value?.isGroup == true)
                   ? Radius.zero
