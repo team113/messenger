@@ -17,7 +17,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.graphql.dart' show Muting;
@@ -47,11 +46,11 @@ export 'view.dart';
 /// Controller of the [HomeTab.chats] tab .
 class ChatsTabController extends GetxController {
   ChatsTabController(
+    this.pop,
     this._chatService,
     this._callService,
     this._authService,
     this._userService,
-    this._context,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -82,8 +81,8 @@ class ChatsTabController extends GetxController {
   /// Indicates whether the mute chat dialog is opened or not.
   final RxBool isMuteDialogOpened = RxBool(false);
 
-  /// [BuildContext] of current page.
-  final BuildContext _context;
+  /// Pops the mute chat dialog.
+  final Function() pop;
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -131,7 +130,7 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           if (isMuteDialogOpened.value) {
-            Navigator.pop(_context);
+            pop();
           }
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
@@ -200,7 +199,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Unmutes chat identified by the provided [id] chat.
+  /// Unmutes the [Chat] identified by the provided [id].
   Future<void> unmuteChat(ChatId id) async {
     try {
       await _chatService.toggleChatMute(id, null);
@@ -212,7 +211,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Mutes chat identified by the provided [id] chat.
+  /// Mutes the [Chat] identified by the provided [id].
   Future<void> muteChat(ChatId id, {Duration? duration}) async {
     muteStatus.value = RxStatus.loading();
     try {

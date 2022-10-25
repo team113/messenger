@@ -19,12 +19,10 @@ import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/muted_status.dart';
-import '../parameters/online_status.dart';
-import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether the provided [TestUser] sees other [TestUser] as the
-/// specified [OnlineStatus] or not.
+/// Indicates whether the [Chat] with the provided name displayed with the
+/// specified [MutedStatus]  or not.
 final StepDefinitionGeneric seeChatAsMuted =
     then2<String, MutedStatus, CustomWorld>(
   'I see {string} chat as {muted}',

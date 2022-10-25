@@ -141,15 +141,16 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           ),
         if (widget.variants.length > 1 && widget.description != null)
           const SizedBox(height: 15),
-        Flexible(
-          fit: FlexFit.loose,
-          child: ListView(
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
-            children: [for (var variant in widget.variants) button(variant)],
+        if (widget.variants.length > 1)
+          Flexible(
+            fit: FlexFit.loose,
+            child: ListView(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
+              children: [for (var variant in widget.variants) button(variant)],
+            ),
           ),
-        ),
-        if (widget.variants.isNotEmpty || widget.description != null)
+        if (widget.variants.length > 1 || widget.description != null)
           const SizedBox(height: 25),
         Row(
           children: [

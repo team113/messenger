@@ -16,10 +16,11 @@
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
 import '../world/custom_world.dart';
 
-/// Long presses chat with the provided name.
+/// Long presses the [Chat] with the provided name.
 ///
 /// Examples:
 /// - When I long press "Name" chat.

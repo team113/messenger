@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 
 import '../world/custom_world.dart';
 
-/// Mutes a [Chat] with the provided name.
+/// Mutes the [Chat] with the provided name.
 ///
 /// Examples:
 /// - Given chat "Name" is muted.

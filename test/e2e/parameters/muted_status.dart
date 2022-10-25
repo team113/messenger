@@ -15,11 +15,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
 /// [MutedStatus]es available in an [MutedStatusParameter].
 enum MutedStatus { muted, unmuted }
 
-/// [CustomParameter] representing an chat mute status.
+/// [CustomParameter] representing an [Chat] mute status.
 class MutedStatusParameter extends CustomParameter<MutedStatus> {
   MutedStatusParameter()
       : super(

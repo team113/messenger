@@ -47,11 +47,11 @@ class ChatsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ChatsTab'),
       init: ChatsTabController(
+        Navigator.of(context).pop,
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
-        context,
       ),
       builder: (ChatsTabController c) {
         return Scaffold(
