@@ -29,6 +29,27 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
     router.chat(context.world.sessions[user.name]!.dialog!);
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
+    );
+  },
+);
+
+/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
+///
+/// Examples:
+/// - Given I am in chat with Bob
+final StepDefinitionGeneric iAmInChatWithWithoutWaiting =
+    given1<TestUser, CustomWorld>(
+  'I am in chat with {user} without waiting',
+  (TestUser user, context) async {
+    router.chat(context.world.sessions[user.name]!.dialog!);
   },
 );
 
@@ -40,5 +61,14 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
   'I am in {string} chat',
   (String chatName, context) async {
     router.chat(context.world.groups[chatName]!);
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
+    );
   },
 );

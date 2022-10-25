@@ -16,7 +16,6 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../mock/graphql.dart';
@@ -35,9 +34,6 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    if (context.world.oldConfigFiles != null) {
-      Config.files = context.world.oldConfigFiles!;
-    }
   }),
 );
 
@@ -52,9 +48,6 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
       provider.client.throwException = false;
-    }
-    if (context.world.oldConfigFiles != null) {
-      Config.files = context.world.oldConfigFiles!;
     }
   }),
 );
@@ -71,22 +64,5 @@ final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
       provider.client.delay = 2.seconds;
       provider.client.throwException = true;
     }
-  }),
-);
-
-/// Makes all [GraphQlProvider] requests throw a [ConnectionException].
-///
-/// Examples:
-/// - I do not have Internet
-final StepDefinitionGeneric noInternetConnection2 = given<CustomWorld>(
-  'I do not have2 Internet',
-  (context) => Future.sync(() {
-    final GraphQlProvider provider = Get.find();
-    if (provider is MockGraphQlProvider) {
-      provider.client.delay = 2.seconds;
-      provider.client.throwException = false;
-    }
-    context.world.oldConfigFiles = Config.files;
-    Config.files = 'https://google.cm';
   }),
 );
