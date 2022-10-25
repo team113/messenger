@@ -20,21 +20,18 @@ fragment NestedChatMessage on ChatMessage {
     authorId
     at
     ver
-    text
     repliesTo {
         cursor
     }
+    text
     editedAt
     attachments {
         __typename
-        id
-        original
-        filename
-        size
         ... on ImageAttachment {
-            big
-            medium
-            small
+            ...ImageAttachment
+        }
+        ... on FileAttachment {
+            ...FileAttachment
         }
     }
 }

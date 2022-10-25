@@ -173,7 +173,7 @@ class HandButton extends CallButton {
   const HandButton(CallController c) : super(c);
 
   @override
-  String get hint => c.isHandRaised.value
+  String get hint => c.me.isHandRaised.value
       ? 'btn_call_hand_down'.l10n
       : 'btn_call_hand_up'.l10n;
 
@@ -181,7 +181,7 @@ class HandButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return _common(
-        asset: 'hand_${c.isHandRaised.value ? 'down' : 'up'}',
+        asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
         onPressed: c.toggleHand,
       );
@@ -207,11 +207,11 @@ class SettingsButton extends CallButton {
 }
 
 /// [CallButton] invoking the [CallController.openAddMember].
-class AddMemberCallButton extends CallButton {
-  const AddMemberCallButton(CallController c) : super(c);
+class ParticipantsButton extends CallButton {
+  const ParticipantsButton(CallController c) : super(c);
 
   @override
-  String get hint => 'btn_add_participant'.l10n;
+  String get hint => 'btn_participants'.l10n;
 
   @override
   Widget build({bool hinted = true}) {
@@ -464,7 +464,7 @@ Widget callTitle(CallController c) => Obx(
                         ? 'label_video_call'.l10n
                         : 'label_audio_call'.l10n;
         return CallTitle(
-          c.me,
+          c.me.id.userId,
           chat: c.chat.value?.chat.value,
           title: c.chat.value?.title.value,
           avatar: c.chat.value?.avatar.value,

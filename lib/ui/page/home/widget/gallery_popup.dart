@@ -26,11 +26,14 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
+import '/ui/page/home/widget/init_callback.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -39,24 +42,50 @@ import '/util/web/web_utils.dart';
 /// [GalleryItem] is treated as a video if [isVideo] is `true`, or as an image
 /// otherwise.
 class GalleryItem {
-  const GalleryItem({
+  GalleryItem({
     required this.link,
+    required this.name,
     this.isVideo = false,
+    this.onError,
   });
 
   /// Constructs a [GalleryItem] treated as an image.
-  factory GalleryItem.image(String link) =>
-      GalleryItem(link: link, isVideo: false);
+  factory GalleryItem.image(
+    String link,
+    String name, {
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: false,
+        onError: onError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
-  factory GalleryItem.video(String link) =>
-      GalleryItem(link: link, isVideo: true);
+  factory GalleryItem.video(
+    String link,
+    String name, {
+    Future<void> Function()? onError,
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        isVideo: true,
+        onError: onError,
+      );
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
 
   /// Original URL to the file this [GalleryItem] represents.
-  final String link;
+  String link;
+
+  /// File name of this [GalleryItem].
+  final String name;
+
+  /// Callback, called on the fetch errors of this [GalleryItem].
+  final Future<void> Function()? onError;
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -226,10 +255,6 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     });
 
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      _enterFullscreen();
-    }
-
     node.requestFocus();
 
     super.initState();
@@ -334,74 +359,112 @@ class _GalleryPopupState extends State<GalleryPopup>
   Widget _pageView() {
     // Use more advanced [PhotoViewGallery] on native mobile platforms.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      return PhotoViewGallery.builder(
-        scrollPhysics: const BouncingScrollPhysics(),
-        wantKeepAlive: false,
-        builder: (BuildContext context, int index) {
-          GalleryItem e = widget.children[index];
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: 'btn_save_to_gallery'.l10n,
+            onPressed: () => _saveToGallery(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_share'.l10n,
+            onPressed: () => _share(widget.children[_page]),
+          ),
+          ContextMenuButton(
+            label: 'btn_info'.l10n,
+            onPressed: () {},
+          ),
+        ],
+        moveDownwards: false,
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          wantKeepAlive: false,
+          builder: (BuildContext context, int index) {
+            GalleryItem e = widget.children[index];
 
-          if (!e.isVideo) {
-            return PhotoViewGalleryPageOptions(
-              imageProvider: NetworkImage(e.link),
-              initialScale: PhotoViewComputedScale.contained * 0.99,
-              minScale: PhotoViewComputedScale.contained * 0.99,
+            if (!e.isVideo) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: NetworkImage(e.link),
+                initialScale: PhotoViewComputedScale.contained * 0.99,
+                minScale: PhotoViewComputedScale.contained * 0.99,
+                maxScale: PhotoViewComputedScale.contained * 3,
+                errorBuilder: (_, __, ___) {
+                  return InitCallback(
+                    callback: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                    child: const SizedBox(
+                      height: 300,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                },
+              );
+            }
+
+            return PhotoViewGalleryPageOptions.customChild(
+              disableGestures: e.isVideo,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? Video(
+                        e.link,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                        onError: () async {
+                          await e.onError?.call();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      )
+                    : Image.network(e.link),
+              ),
+              minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
             );
-          }
-
-          return PhotoViewGalleryPageOptions.customChild(
-            disableGestures: e.isVideo,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: e.isVideo
-                  ? Video(
-                      e.link,
-                      onClose: _dismiss,
-                      isFullscreen: _isFullscreen,
-                      toggleFullscreen: () {
-                        node.requestFocus();
-                        _toggleFullscreen();
-                      },
-                      onController: (c) {
-                        if (c == null) {
-                          _videoControllers.remove(index);
-                        } else {
-                          _videoControllers[index] = c;
-                        }
-                      },
-                    )
-                  : Image.network(e.link),
-            ),
-            minScale: PhotoViewComputedScale.contained,
-            maxScale: PhotoViewComputedScale.contained * 3,
-          );
-        },
-        itemCount: widget.children.length,
-        loadingBuilder: (context, event) => Center(
-          child: SizedBox(
-            width: 20.0,
-            height: 20.0,
-            child: CircularProgressIndicator(
-              value: event == null
-                  ? 0
-                  : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+          },
+          itemCount: widget.children.length,
+          loadingBuilder: (context, event) => Center(
+            child: SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+              ),
             ),
           ),
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+          pageController: _pageController,
+          onPageChanged: (i) {
+            setState(() => _page = i);
+            _bounds = _calculatePosition() ?? _bounds;
+            widget.onPageChanged?.call(i);
+          },
         ),
-        backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-        pageController: _pageController,
-        onPageChanged: (i) {
-          setState(() => _page = i);
-          _bounds = _calculatePosition() ?? _bounds;
-          widget.onPageChanged?.call(i);
-        },
       );
     }
 
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
       onPageChanged: (i) {
         setState(() => _page = i);
         _bounds = _calculatePosition() ?? _bounds;
@@ -409,54 +472,71 @@ class _GalleryPopupState extends State<GalleryPopup>
       },
       pageSnapping: !_ignorePageSnapping,
       children: widget.children.mapIndexed((index, e) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 1),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              e.isVideo
-                  ? Video(
-                      e.link,
-                      onClose: _dismiss,
-                      isFullscreen: _isFullscreen,
-                      toggleFullscreen: () {
-                        node.requestFocus();
-                        _toggleFullscreen();
-                      },
-                      onController: (c) {
-                        if (c == null) {
-                          _videoControllers.remove(index);
-                        } else {
-                          _videoControllers[index] = c;
-                        }
-                      },
-                    )
-                  : ContextMenuRegion(
-                      enabled: !PlatformUtils.isWeb,
-                      menu: ContextMenu(
-                        actions: [
-                          ContextMenuButton(
-                            label: 'Download',
-                            onPressed: () {},
+        return ContextMenuRegion(
+          enabled: !PlatformUtils.isWeb,
+          actions: [
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () => _download(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: e.isVideo
+                ? Video(
+                    e.link,
+                    onClose: _dismiss,
+                    isFullscreen: _isFullscreen,
+                    toggleFullscreen: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    onController: (c) {
+                      if (c == null) {
+                        _videoControllers.remove(index);
+                      } else {
+                        _videoControllers[index] = c;
+                      }
+                    },
+                    onError: () async {
+                      await e.onError?.call();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                  )
+                : GestureDetector(
+                    onTap: () {},
+                    onDoubleTap: () {
+                      node.requestFocus();
+                      _toggleFullscreen();
+                    },
+                    child: PlatformUtils.isWeb
+                        ? IgnorePointer(child: WebImage(e.link))
+                        : Image.network(
+                            e.link,
+                            errorBuilder: (_, __, ___) {
+                              return InitCallback(
+                                callback: () async {
+                                  await e.onError?.call();
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                },
+                                child: const SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          ContextMenuButton(
-                            label: 'Info',
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-                      child: GestureDetector(
-                        onTap: () {},
-                        onDoubleTap: () {
-                          node.requestFocus();
-                          _toggleFullscreen();
-                        },
-                        child: PlatformUtils.isWeb
-                            ? IgnorePointer(child: WebImage(e.link))
-                            : Image.network(e.link),
-                      ),
-                    ),
-            ],
+                  ),
           ),
         );
       }).toList(),
@@ -775,6 +855,68 @@ class _GalleryPopupState extends State<GalleryPopup>
     _ignoreSnappingTimer = Timer(250.milliseconds, () {
       setState(() => _ignorePageSnapping = false);
     });
+  }
+
+  /// Downloads the provided [GalleryItem].
+  Future<void> _download(GalleryItem item) async {
+    try {
+      try {
+        await PlatformUtils.download(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.download(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
+      MessagePopup.success(item.isVideo
+          ? 'label_video_downloaded'.l10n
+          : 'label_image_downloaded'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  Future<void> _saveToGallery(GalleryItem item) async {
+    try {
+      try {
+        await PlatformUtils.saveToGallery(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.saveToGallery(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+
+      MessagePopup.success(item.isVideo
+          ? 'label_video_saved_to_gallery'.l10n
+          : 'label_image_saved_to_gallery'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and opens a share dialog with it.
+  Future<void> _share(GalleryItem item) async {
+    try {
+      try {
+        await PlatformUtils.share(item.link, item.name);
+      } catch (_) {
+        if (item.onError != null) {
+          await item.onError?.call();
+          await PlatformUtils.share(item.link, item.name);
+        } else {
+          rethrow;
+        }
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
   }
 }
 

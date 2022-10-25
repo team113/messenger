@@ -41,6 +41,7 @@ class ChatCall extends ChatItem {
     this.finishReasonIndex,
     this.finishedAt,
     this.joinLink,
+    this.answered = false,
   }) : super(id, chatId, authorId, at);
 
   /// [User] who started this [ChatCall].
@@ -78,6 +79,11 @@ class ChatCall extends ChatItem {
   set finishReason(ChatCallFinishReason? reason) {
     finishReasonIndex = reason?.index;
   }
+
+  /// Indicator whether this [ChatCall] is answered by the authenticated
+  /// [MyUser].
+  @HiveField(12)
+  final bool answered;
 }
 
 /// Member of a [ChatCall].
@@ -86,15 +92,20 @@ class ChatCallMember {
   ChatCallMember({
     required this.user,
     required this.handRaised,
+    required this.joinedAt,
   });
 
   /// [User] representing this [ChatCallMember].
   @HiveField(0)
-  User user;
+  final User user;
 
   /// Indicator whether this [ChatCallMember] raised a hand.
   @HiveField(1)
   bool handRaised;
+
+  /// [PreciseDateTime] when this [ChatCallMember] joined the [ChatCall].
+  @HiveField(2)
+  final PreciseDateTime joinedAt;
 }
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media

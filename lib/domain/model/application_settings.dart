@@ -23,7 +23,13 @@ part 'application_settings.g.dart';
 /// Overall application settings used by the whole app.
 @HiveType(typeId: ModelTypeId.applicationSettings)
 class ApplicationSettings extends HiveObject {
-  ApplicationSettings({this.enablePopups, this.locale});
+  ApplicationSettings({
+    this.enablePopups,
+    this.locale,
+    this.showIntroduction,
+    this.sideBarWidth,
+    this.callButtons = const [],
+  });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
   /// separate popup windows, or otherwise inside the main application.
@@ -38,4 +44,12 @@ class ApplicationSettings extends HiveObject {
   /// the application.
   @HiveField(2)
   bool? showIntroduction;
+
+  /// Width of the [HomeView]'s side bar.
+  @HiveField(3)
+  double? sideBarWidth;
+
+  /// [CallButton]s placed in a [Dock] of an [OngoingCall].
+  @HiveField(4)
+  List<String> callButtons;
 }

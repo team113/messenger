@@ -52,4 +52,14 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setShowIntroduction(bool show) => putSafe(
       0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
+
+  /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
+  /// [Hive].
+  Future<void> setSideBarWidth(double width) =>
+      putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+
+  /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
+  /// [Hive].
+  Future<void> setCallButtons(List<String> buttons) =>
+      putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
 }

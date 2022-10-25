@@ -70,14 +70,6 @@ void main() async {
         {
           'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'name': 'null',
-          'avatar': {
-            'galleryItemId': 'galleryItemId',
-            'full': 'galleryItemId',
-            'big': 'galleryItemId',
-            'medium': 'galleryItemId',
-            'small': 'galleryItemId',
-            'original': 'galleryItemId',
-          },
           'members': {'nodes': []},
           'kind': 'GROUP',
           'isHidden': false,
@@ -92,7 +84,7 @@ void main() async {
           'gallery': {'nodes': []},
           'unreadCount': 0,
           'totalCount': 0,
-          'currentCall': null,
+          'ongoingCall': null,
           'ver': '0'
         }
       ]
@@ -209,8 +201,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.createChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -239,8 +230,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     await chatService.deleteChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -263,14 +253,6 @@ void main() async {
           'chat': {
             'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
             'name': 'null',
-            'avatar': {
-              'galleryItemId': 'galleryItemId',
-              'full': 'galleryItemId',
-              'big': 'galleryItemId',
-              'medium': 'galleryItemId',
-              'small': 'galleryItemId',
-              'original': 'galleryItemId',
-            },
             'members': {'nodes': []},
             'kind': 'GROUP',
             'isHidden': false,
@@ -285,7 +267,7 @@ void main() async {
             'gallery': {'nodes': []},
             'unreadCount': 0,
             'totalCount': 0,
-            'currentCall': null,
+            'ongoingCall': null,
             'ver': '0'
           },
           'event': null
@@ -298,7 +280,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     authService.useChatDirectLink(ChatDirectLinkSlug('link'));
 
@@ -324,8 +306,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
       () async => await chatService.createChatDirectLink(
@@ -362,8 +343,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    ChatService chatService =
-        Get.put(ChatService(chatRepository, myUserService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
       () async => await chatService.deleteChatDirectLink(
@@ -391,7 +371,7 @@ void main() async {
         UserRepository(graphQlProvider, userProvider, galleryItemProvider));
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     expect(
       () => authService.useChatDirectLink(

@@ -95,16 +95,16 @@ class ChatMessage extends ChatItem {
     ChatId chatId,
     UserId authorId,
     PreciseDateTime at, {
-    this.repliesTo,
+    this.repliesTo = const [],
     this.text,
     this.editedAt,
     this.attachments = const [],
     SendingStatus? status,
   }) : super(id, chatId, authorId, at, status: status);
 
-  /// Quote of the [ChatItem] this [ChatMessage] replies to.
+  /// [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
-  ChatItem? repliesTo;
+  final List<ChatItem> repliesTo;
 
   /// Text of this [ChatMessage].
   @HiveField(6)
@@ -116,17 +116,18 @@ class ChatMessage extends ChatItem {
 
   /// [Attachment]s of this [ChatMessage].
   @HiveField(8)
-  List<Attachment> attachments;
+  final List<Attachment> attachments;
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
   /// [authorId], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
-        repliesTo?.id == other.repliesTo?.id &&
+        repliesTo.every((e) => other.repliesTo.any((m) => m.id == e.id)) &&
         authorId == other.authorId &&
         chatId == other.chatId &&
-        attachments.every((e) => other.attachments
-            .any((m) => m.size == e.size && m.filename == e.filename));
+        attachments.every((e) => other.attachments.any((m) =>
+            m.original.relativeRef == e.original.relativeRef &&
+            m.filename == e.filename));
   }
 }
 
@@ -138,12 +139,12 @@ class ChatForward extends ChatItem {
     ChatId chatId,
     UserId authorId,
     PreciseDateTime at, {
-    this.item,
+    required this.item,
   }) : super(id, chatId, authorId, at);
 
   /// Forwarded [ChatItem].
   @HiveField(5)
-  ChatItem? item;
+  ChatItem item;
 }
 
 /// Unique ID of a [ChatItem].
@@ -162,4 +163,35 @@ class ChatItemId extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(String val) : super(val);
+
+  /// Maximum allowed number of characters in this [ChatMessageText].
+  static const int maxLength = 8192;
+
+  /// Splits this [ChatMessageText] equally by the [maxLength] characters.
+  List<ChatMessageText> split() {
+    if (maxLength <= 0) {
+      return [];
+    }
+
+    final List<String> chunks = [];
+
+    int start = 0;
+    int end = 1;
+
+    while (end * maxLength <= val.length) {
+      chunks.add(val.substring(maxLength * start++, maxLength * end++));
+    }
+
+    final bool isRestOfLine = val.length % maxLength != 0;
+    if (isRestOfLine) {
+      chunks.add(
+        val.substring(
+          maxLength * start,
+          maxLength * start + val.length % maxLength,
+        ),
+      );
+    }
+
+    return chunks.map((e) => ChatMessageText(e)).toList();
+  }
 }

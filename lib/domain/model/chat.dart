@@ -52,7 +52,7 @@ class Chat extends HiveObject {
     this.lastReadItem,
     this.unreadCount = 0,
     this.totalCount = 0,
-    this.currentCall,
+    this.ongoingCall,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
@@ -146,7 +146,7 @@ class Chat extends HiveObject {
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
   @HiveField(16)
-  ChatCall? currentCall;
+  ChatCall? ongoingCall;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;

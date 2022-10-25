@@ -39,11 +39,17 @@ class WebUtils {
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen => false;
 
+  /// Indicates whether device's browser is in focus.
+  static bool get isFocused => false;
+
   /// Returns a stream broadcasting the fullscreen changes.
   static Stream<bool> get onFullscreenChange => const Stream.empty();
 
   /// Returns a stream broadcasting the browser's storage changes.
   static Stream<WebStorageEvent> get onStorageChange => const Stream.empty();
+
+  /// Returns a stream broadcasting the device's browser focus changes.
+  static Stream<bool> get onFocusChanged => const Stream.empty();
 
   /// Returns a stream broadcasting the browser's window focus changes.
   static Stream<bool> get onWindowFocus => const Stream.empty();
@@ -163,6 +169,11 @@ class WebUtils {
 
   /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
   static WebCallPreferences? getCallPreferences(ChatId chatId) => null;
+
+  /// Downloads the file from the provided [url].
+  static Future<void> downloadFile(String url, String name) async {
+    // No-op.
+  }
 
   /// Prints a string representation of the provided [object] to the console as
   /// an error.

@@ -54,7 +54,7 @@ abstract class ContactGraphQlMixin {
     ChatContactsCursor? before,
     bool noFavorite = false,
   }) async {
-    var variables = ContactsArguments(
+    final variables = ContactsArguments(
       first: first,
       last: last,
       before: before,
@@ -97,7 +97,7 @@ abstract class ContactGraphQlMixin {
     required UserName name,
     List<ChatContactRecord>? records,
   }) async {
-    var variables = CreateChatContactArguments(name: name, records: records);
+    final variables = CreateChatContactArguments(name: name, records: records);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateChatContact',
@@ -131,7 +131,7 @@ abstract class ContactGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
   /// [ChatContact] doesn't exist already.
   Future<DeleteChatContact$Mutation> deleteChatContact(ChatContactId id) async {
-    var variables = DeleteChatContactArguments(id: id);
+    final variables = DeleteChatContactArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteChatContact',
@@ -194,7 +194,7 @@ abstract class ContactGraphQlMixin {
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
   Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) {
-    var variables = ContactsEventsArguments(ver: ver);
+    final variables = ContactsEventsArguments(ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ContactsEvents',

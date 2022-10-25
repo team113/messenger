@@ -15,45 +15,104 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
+import '/routes.dart';
 import 'web/web_utils.dart';
 
-// TODO: Remove when jonataslaw/getx#1936 is fixed:
-//       https://github.com/jonataslaw/getx/issues/1936
-/// [GetPlatform] adapter that fixes incorrect [GetPlatform.isMacOS] detection.
-class PlatformUtils {
-  /// Indicates whether application is running in a web browser.
-  static bool get isWeb => GetPlatform.isWeb;
+/// Global variable to access [PlatformUtilsImpl].
+///
+/// May be reassigned to mock specific functionally.
+// ignore: non_constant_identifier_names
+PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
+/// Helper providing platform related features.
+class PlatformUtilsImpl {
+  /// Path to the downloads directory.
+  String? _downloadDirectory;
+
+  /// Indicates whether application is running in a web browser.
+  bool get isWeb => GetPlatform.isWeb;
+
+  // TODO: Remove when jonataslaw/getx#1936 is fixed:
+  //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
-  static bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
+  bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
 
   /// Indicates whether device's OS is Windows.
-  static bool get isWindows => GetPlatform.isWindows;
+  bool get isWindows => GetPlatform.isWindows;
 
   /// Indicates whether device's OS is Linux.
-  static bool get isLinux => GetPlatform.isLinux;
+  bool get isLinux => GetPlatform.isLinux;
 
   /// Indicates whether device's OS is Android.
-  static bool get isAndroid => GetPlatform.isAndroid;
+  bool get isAndroid => GetPlatform.isAndroid;
 
   /// Indicates whether device's OS is iOS.
-  static bool get isIOS => GetPlatform.isIOS;
+  bool get isIOS => GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  static bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
+  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
-  static bool get isDesktop =>
+  bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
+  /// Returns a stream broadcasting the application's window focus changes.
+  Stream<bool> get onFocusChanged {
+    StreamController<bool>? controller;
+
+    if (isWeb) {
+      return WebUtils.onFocusChanged;
+    } else if (isDesktop) {
+      _WindowListener listener = _WindowListener(
+        onBlur: () => controller!.add(false),
+        onFocus: () => controller!.add(true),
+      );
+
+      controller = StreamController<bool>(
+        onListen: () => WindowManager.instance.addListener(listener),
+        onCancel: () => WindowManager.instance.removeListener(listener),
+      );
+    } else {
+      Worker? worker;
+
+      controller = StreamController<bool>(
+        onListen: () => worker = ever(
+          router.lifecycle,
+          (AppLifecycleState a) => controller?.add(a.inForeground),
+        ),
+        onCancel: worker?.dispose,
+      );
+    }
+
+    return controller.stream;
+  }
+
+  /// Indicates whether the application's window is in focus.
+  Future<bool> get isFocused async {
+    if (isWeb) {
+      return Future.value(WebUtils.isFocused);
+    } else if (isDesktop) {
+      return await WindowManager.instance.isFocused();
+    } else {
+      return Future.value(router.lifecycle.value.inForeground);
+    }
+  }
+
   /// Returns a stream broadcasting fullscreen changes.
-  static Stream<bool> get onFullscreenChange {
+  Stream<bool> get onFullscreenChange {
     if (isWeb) {
       return WebUtils.onFullscreenChange;
     } else if (isDesktop) {
@@ -77,20 +136,39 @@ class PlatformUtils {
     return const Stream.empty();
   }
 
+  /// Returns a path to the downloads directory.
+  Future<String> get downloadsDirectory async {
+    if (_downloadDirectory != null) {
+      return _downloadDirectory!;
+    }
+
+    String path;
+    if (PlatformUtils.isMobile) {
+      path = (await getTemporaryDirectory()).path;
+    } else {
+      path = (await getDownloadsDirectory())!.path;
+    }
+
+    _downloadDirectory = '$path/${Config.downloads}';
+    return _downloadDirectory!;
+  }
+
   /// Enters fullscreen mode.
-  static Future<void> enterFullscreen() async {
+  Future<void> enterFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(true);
     } else if (isDesktop) {
       await WindowManager.instance.setFullScreen(true);
     } else if (isMobile) {
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: []);
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: [],
+      );
     }
   }
 
   /// Exits fullscreen mode.
-  static Future<void> exitFullscreen() async {
+  Future<void> exitFullscreen() async {
     if (isWeb) {
       WebUtils.toggleFullscreen(false);
     } else if (isDesktop) {
@@ -107,6 +185,58 @@ class PlatformUtils {
       );
     }
   }
+
+  /// Downloads a file from the provided [url].
+  FutureOr<File?> download(
+    String url,
+    String filename, {
+    Function(int count, int total)? onReceiveProgress,
+    CancelToken? cancelToken,
+  }) async {
+    if (PlatformUtils.isWeb) {
+      await WebUtils.downloadFile(url, filename);
+      return null;
+    } else {
+      final String name = p.basenameWithoutExtension(filename);
+      final String extension = p.extension(filename);
+      final String path = await downloadsDirectory;
+
+      // TODO: File might already be downloaded, compare hashes.
+      File file = File('$path/$filename');
+      for (int i = 1; await file.exists(); ++i) {
+        file = File('$path/$name ($i)$extension');
+      }
+
+      await Dio().download(
+        url,
+        file.path,
+        onReceiveProgress: onReceiveProgress,
+        cancelToken: cancelToken,
+      );
+
+      return file;
+    }
+  }
+
+  /// Downloads an image from the provided [url] and saves it to the gallery.
+  Future<void> saveToGallery(String url, String name) async {
+    if (isMobile && !isWeb) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await Dio().download(url, path);
+      await ImageGallerySaver.saveFile(path, name: name);
+      File(path).delete();
+    }
+  }
+
+  /// Downloads a file from the provided [url] and opens [Share] dialog with it.
+  Future<void> share(String url, String name) async {
+    final Directory temp = await getTemporaryDirectory();
+    final String path = '${temp.path}/$name';
+    await Dio().download(url, path);
+    await Share.shareFiles([path]);
+    File(path).delete();
+  }
 }
 
 /// Determining whether a [BuildContext] is mobile or not.
@@ -121,19 +251,33 @@ extension MobileExtensionOnContext on BuildContext {
 /// Listener interface for receiving window events.
 class _WindowListener extends WindowListener {
   _WindowListener({
-    required this.onLeaveFullscreen,
-    required this.onEnterFullscreen,
+    this.onLeaveFullscreen,
+    this.onEnterFullscreen,
+    this.onFocus,
+    this.onBlur,
   });
 
   /// Callback, called when the window exits fullscreen.
-  final VoidCallback onLeaveFullscreen;
+  final VoidCallback? onLeaveFullscreen;
 
   /// Callback, called when the window enters fullscreen.
-  final VoidCallback onEnterFullscreen;
+  final VoidCallback? onEnterFullscreen;
+
+  /// Callback, called when the window gets focus.
+  final VoidCallback? onFocus;
+
+  /// Callback, called when the window loses focus.
+  final VoidCallback? onBlur;
 
   @override
-  void onWindowEnterFullScreen() => onEnterFullscreen();
+  void onWindowEnterFullScreen() => onEnterFullscreen?.call();
 
   @override
-  void onWindowLeaveFullScreen() => onLeaveFullscreen();
+  void onWindowLeaveFullScreen() => onLeaveFullscreen?.call();
+
+  @override
+  void onWindowFocus() => onFocus?.call();
+
+  @override
+  void onWindowBlur() => onBlur?.call();
 }

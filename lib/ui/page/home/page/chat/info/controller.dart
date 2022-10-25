@@ -16,16 +16,18 @@
 
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CreateChatDirectLinkErrorCode;
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -39,17 +41,31 @@ class ChatInfoController extends GetxController {
   ChatInfoController(
     this.chatId,
     this._chatService,
-    this._myUserService,
+    this._authService,
   );
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
 
+  /// Reactive state of the [Chat] this page is about.
+  RxChat? chat;
+
+  /// Status of the [chat] fetching.
+  ///
+  /// May be:
+  /// - `status.isLoading`, meaning [chat] is being fetched from the service.
+  /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
+  /// - `status.isSuccess`, meaning [chat] is successfully fetched.
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
+  /// Status of the [Chat.avatar] upload or removal.
+  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
-  /// [MyUser] service used to get [me] value.
-  final MyUserService _myUserService;
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -66,22 +82,14 @@ class ChatInfoController extends GetxController {
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.
   Timer? _linkTimer;
 
+  /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
+  Timer? _avatarTimer;
+
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _myUserService.myUser.value?.id;
-
-  /// Reactive state of the [Chat] this page is about.
-  RxChat? chat;
-
-  /// Status of the [chat] fetching.
-  ///
-  /// May be:
-  /// - `status.isLoading`, meaning [chat] is being fetched from the service.
-  /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
-  /// - `status.isSuccess`, meaning [chat] is successfully fetched.
-  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+  UserId? get me => _authService.userId;
 
   @override
   void onInit() {
@@ -188,6 +196,9 @@ class ChatInfoController extends GetxController {
   @override
   onClose() {
     _worker?.dispose();
+    _nameTimer?.cancel();
+    _linkTimer?.cancel();
+    _avatarTimer?.cancel();
     super.onClose();
   }
 
@@ -281,6 +292,50 @@ class ChatInfoController extends GetxController {
     );
 
     MessagePopup.success('label_copied_to_clipboard'.l10n);
+  }
+
+  /// Opens a file choose popup and updates the [Chat.avatar] with the selected
+  /// image, if any.
+  Future<void> pickAvatar() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withReadStream: true,
+    );
+
+    if (result != null) {
+      updateChatAvatar(result.files.first);
+    }
+  }
+
+  /// Resets the [Chat.avatar] to `null`.
+  Future<void> deleteAvatar() => updateChatAvatar(null);
+
+  /// Updates the [Chat.avatar] with the provided [image], or resets it to
+  /// `null`.
+  Future<void> updateChatAvatar(PlatformFile? image) async {
+    _avatarTimer?.cancel();
+    avatar.value = RxStatus.loading();
+
+    try {
+      await _chatService.updateChatAvatar(
+        chatId,
+        file: image == null ? null : NativeFile.fromPlatformFile(image),
+      );
+
+      avatar.value = RxStatus.success();
+
+      _avatarTimer = Timer(
+        const Duration(seconds: 1),
+        () => avatar.value = RxStatus.empty(),
+      );
+    } on UpdateChatAvatarException catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+    } catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Fetches the [chat].

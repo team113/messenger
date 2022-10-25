@@ -27,22 +27,20 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -50,12 +48,10 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
-import 'package:messenger/ui/widget/context_menu/overlay.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -84,22 +80,6 @@ void main() async {
     'ver': '0'
   };
 
-  var userData = {
-    'id': '12',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'bio': 'bio',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-  };
-
   var recentChats = {
     'recentChats': {'nodes': []}
   };
@@ -107,9 +87,6 @@ void main() async {
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var galleryItemProvider = Get.put(GalleryItemHiveProvider());
   await galleryItemProvider.init();
   await galleryItemProvider.clear();
@@ -127,6 +104,8 @@ void main() async {
   await settingsProvider.clear();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
 
   var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -149,7 +128,7 @@ void main() async {
       home: Builder(
         builder: (BuildContext context) {
           router.context = context;
-          return Scaffold(body: ContextMenuOverlay(child: child));
+          return Scaffold(body: child);
         },
       ),
     );
@@ -178,18 +157,6 @@ void main() async {
 
       return Future.value(contactEvents.stream);
     });
-
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
-          },
-        ),
-      ])),
-    );
 
     when(graphQlProvider.recentChats(
       first: 120,
@@ -249,16 +216,17 @@ void main() async {
     );
     Get.put(ContactService(contactRepository));
 
-    AbstractMyUserRepository myUserRepository =
-        MyUserRepository(graphQlProvider, myUserProvider, galleryItemProvider);
     AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(settingsProvider, applicationSettingsProvider));
-    MyUserService myUserService =
-        Get.put(MyUserService(authService, myUserRepository));
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+      ),
+    );
 
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
         ChatRepository(graphQlProvider, chatProvider, userRepository));
-    Get.put(ChatService(chatRepository, myUserService));
+    Get.put(ChatService(chatRepository, authService));
 
     CallRepository callRepository =
         CallRepository(graphQlProvider, userRepository);
@@ -272,7 +240,7 @@ void main() async {
     await tester.longPress(find.byType(ContextMenuRegion));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.text('btn_change_contact_name'.l10n));
+    await tester.tap(find.text('btn_rename'.l10n));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(
@@ -293,6 +261,5 @@ void main() async {
     ));
   });
 
-  await myUserProvider.clear();
   await contactProvider.clear();
 }

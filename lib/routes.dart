@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
+import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
@@ -36,6 +37,7 @@ import 'domain/service/user.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
+import 'provider/hive/background.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/gallery_item.dart';
@@ -53,7 +55,6 @@ import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
-import 'ui/widget/context_menu/overlay.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
@@ -76,6 +77,7 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
+  static const personalization = '/personalization';
   static const settings = '/settings';
   static const settingsMedia = '/settings/media';
   static const user = '/user';
@@ -121,6 +123,9 @@ class RouterState extends ChangeNotifier {
   /// Reactive title prefix of the current browser tab.
   final RxnString prefix = RxnString(null);
 
+  /// Dynamic arguments of the [route].
+  Map<String, dynamic>? arguments;
+
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 
@@ -151,12 +156,14 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
+    arguments = null;
     _routes = [_guarded(to)];
     notifyListeners();
   }
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    arguments = null;
     int pageIndex = _routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
       while (_routes.length - 1 > pageIndex) {
@@ -349,7 +356,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
       String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
       return [
         MaterialPage(
@@ -380,11 +387,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+                deps.put(BackgroundHiveProvider()).init(userId: me),
               ]);
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(Get.find(), Get.find()),
+                SettingsRepository(Get.find(), Get.find(), Get.find()),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
@@ -430,13 +438,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              MyUserService myUserService =
-                  deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               deps.put(
                   CallService(Get.find(), settingsRepository, callRepository));
-              deps.put(ChatService(chatRepository, myUserService));
+              deps.put(ChatService(chatRepository, Get.find()));
 
               return deps;
             },
@@ -465,11 +472,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
+              deps.put(BackgroundHiveProvider()).init(userId: me),
             ]);
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(Get.find(), Get.find()),
+              SettingsRepository(Get.find(), Get.find(), Get.find()),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -525,7 +533,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
             ));
             ChatService chatService =
-                deps.put(ChatService(chatRepository, myUserService));
+                deps.put(ChatService(chatRepository, Get.find()));
 
             deps.put(CallWorker(
               Get.find(),
@@ -559,6 +567,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route == Routes.me ||
         _state.route == Routes.settings ||
         _state.route == Routes.settingsMedia ||
+        _state.route == Routes.personalization ||
         _state.route == Routes.home) {
       _updateTabTitle();
     } else {
@@ -571,8 +580,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   @override
   Widget build(BuildContext context) => LifecycleObserver(
         didChangeAppLifecycleState: (v) => _state.lifecycle.value = v,
-        child: ContextMenuOverlay(
-          child: Navigator(
+        child: Scaffold(
+          body: Navigator(
             key: navigatorKey,
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
@@ -626,6 +635,9 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.settingsMedia] page.
   void settingsMedia() => go(Routes.settingsMedia);
 
+  /// Changes router location to the [Routes.personalization] page.
+  void personalization() => go(Routes.personalization);
+
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);
 
@@ -644,8 +656,19 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.chat] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void chat(ChatId id, {bool push = false}) =>
-      push ? this.push('${Routes.chat}/$id') : go('${Routes.chat}/$id');
+  void chat(
+    ChatId id, {
+    bool push = false,
+    ChatItemId? itemId,
+  }) {
+    if (push) {
+      this.push('${Routes.chat}/$id');
+    } else {
+      go('${Routes.chat}/$id');
+    }
+
+    arguments = {'itemId': itemId};
+  }
 
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id) => go('${Routes.chat}/$id${Routes.chatInfo}');

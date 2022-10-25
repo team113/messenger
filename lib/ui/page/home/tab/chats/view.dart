@@ -15,10 +15,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:badges/badges.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -95,11 +95,11 @@ class ChatsTabView extends StatelessWidget {
   Widget buildChatTile(ChatsTabController c, RxChat rxChat) => Obx(() {
         Chat chat = rxChat.chat.value;
 
-        ChatItem? lastItem;
+        ChatItem? item;
         if (rxChat.messages.isNotEmpty) {
-          lastItem = rxChat.messages.last.value;
+          item = rxChat.messages.last.value;
         }
-        lastItem ??= chat.lastItem;
+        item ??= chat.lastItem;
 
         const Color subtitleColor = Color(0xFF666666);
         List<Widget>? subtitle;
@@ -108,7 +108,7 @@ class ChatsTabView extends StatelessWidget {
             .where((e) => e.id != c.me)
             .map((e) => e.name?.val ?? e.num.val);
 
-        if (chat.currentCall == null) {
+        if (chat.ongoingCall == null) {
           if (typings.isNotEmpty) {
             subtitle = [
               Expanded(
@@ -133,9 +133,8 @@ class ChatsTabView extends StatelessWidget {
                 ),
               )
             ];
-          } else if (lastItem != null) {
-            if (lastItem is ChatCall) {
-              var item = chat.lastItem as ChatCall;
+          } else if (item != null) {
+            if (item is ChatCall) {
               String description = 'label_chat_call_ended'.l10n;
               if (item.finishedAt == null && item.finishReason == null) {
                 subtitle = [
@@ -159,9 +158,7 @@ class ChatsTabView extends StatelessWidget {
                   Flexible(child: Text(description, maxLines: 2)),
                 ];
               }
-            } else if (lastItem is ChatMessage) {
-              var item = lastItem;
-
+            } else if (item is ChatMessage) {
               var desc = StringBuffer();
 
               if (!chat.isGroup && item.authorId == c.me) {
@@ -186,14 +183,12 @@ class ChatsTabView extends StatelessWidget {
                     child: FutureBuilder<RxUser?>(
                       future: c.getUser(item.authorId),
                       builder: (_, snapshot) => snapshot.data != null
-                          ? Obx(
-                              () => AvatarWidget.fromUser(
-                                snapshot.data!.user.value,
-                                radius: 10,
-                              ),
+                          ? AvatarWidget.fromRxUser(
+                              snapshot.data,
+                              radius: 10,
                             )
                           : AvatarWidget.fromUser(
-                              chat.getUser(item.authorId),
+                              chat.getUser(item!.authorId),
                               radius: 10,
                             ),
                     ),
@@ -217,8 +212,80 @@ class ChatsTabView extends StatelessWidget {
                           : Container(),
                 ),
               ];
+            } else if (item is ChatForward) {
+              subtitle = [
+                if (chat.isGroup)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: FutureBuilder<RxUser?>(
+                      future: c.getUser(item.authorId),
+                      builder: (_, snapshot) => snapshot.data != null
+                          ? AvatarWidget.fromRxUser(
+                              snapshot.data,
+                              radius: 10,
+                            )
+                          : AvatarWidget.fromUser(
+                              chat.getUser(item!.authorId),
+                              radius: 10,
+                            ),
+                    ),
+                  ),
+                Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
+                ElasticAnimatedSwitcher(
+                  child: item.status.value == SendingStatus.sending
+                      ? const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.access_alarm, size: 15),
+                        )
+                      : item.status.value == SendingStatus.error
+                          ? const Padding(
+                              padding: EdgeInsets.only(left: 4),
+                              child: Icon(
+                                Icons.error_outline,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            )
+                          : Container(),
+                ),
+              ];
+            } else if (item is ChatMemberInfo) {
+              final Widget content;
+
+              switch (item.action) {
+                case ChatMemberInfoAction.created:
+                  if (chat.isGroup) {
+                    content = Text('label_group_created'.l10n);
+                  } else {
+                    content = Text('label_dialog_created'.l10n);
+                  }
+                  break;
+
+                case ChatMemberInfoAction.added:
+                  content = Text(
+                    'label_was_added'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
+
+                  break;
+
+                case ChatMemberInfoAction.removed:
+                  content = Text(
+                    'label_was_removed'
+                        .l10nfmt({'who': '${item.user.name ?? item.user.num}'}),
+                  );
+                  break;
+
+                case ChatMemberInfoAction.artemisUnknown:
+                  content = Text('${item.action}');
+                  break;
+              }
+
+              subtitle = [Flexible(child: content)];
             } else {
-              // TODO: Implement other ChatItems.
+              subtitle = [
+                Flexible(child: Text('label_empty_message'.l10n, maxLines: 2)),
+              ];
             }
           }
         } else {
@@ -259,46 +326,21 @@ class ChatsTabView extends StatelessWidget {
         return ContextMenuRegion(
           key: Key('ContextMenuRegion_${chat.id}'),
           preventContextMenu: false,
-          menu: ContextMenu(
-            actions: [
-              ContextMenuButton(
-                key: const Key('ButtonHideChat'),
-                label: 'btn_hide_chat'.l10n,
-                onPressed: () => c.hideChat(chat.id),
-              ),
-              if (chat.isGroup)
-                ContextMenuButton(
-                  key: const Key('ButtonLeaveChat'),
-                  label: 'btn_leave_chat'.l10n,
-                  onPressed: () => c.leaveChat(chat.id),
-                ),
-            ],
-          ),
-          child: ListTile(
-            leading: Obx(
-              () => Badge(
-                showBadge: rxChat.chat.value.isDialog &&
-                    rxChat.members.values
-                            .firstWhereOrNull((e) => e.id != c.me)
-                            ?.user
-                            .value
-                            .online ==
-                        true,
-                badgeContent: Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                  padding: const EdgeInsets.all(5),
-                ),
-                padding: const EdgeInsets.all(2),
-                badgeColor: Colors.white,
-                animationType: BadgeAnimationType.scale,
-                position: BadgePosition.bottomEnd(bottom: 0, end: 0),
-                elevation: 0,
-                child: AvatarWidget.fromRxChat(rxChat),
-              ),
+          actions: [
+            ContextMenuButton(
+              key: const Key('ButtonHideChat'),
+              label: 'btn_hide_chat'.l10n,
+              onPressed: () => c.hideChat(chat.id),
             ),
+            if (chat.isGroup)
+              ContextMenuButton(
+                key: const Key('ButtonLeaveChat'),
+                label: 'btn_leave_chat'.l10n,
+                onPressed: () => c.leaveChat(chat.id),
+              ),
+          ],
+          child: ListTile(
+            leading: AvatarWidget.fromRxChat(rxChat),
             title: Text(
               rxChat.title.value,
               overflow: TextOverflow.ellipsis,

@@ -16,6 +16,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -76,7 +77,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   static const Duration animateDuration = Duration(milliseconds: 150);
 
   /// [_DraggedItem]s of this [Dock].
-  late final List<_DraggedItem<T>> _items;
+  List<_DraggedItem<T>> _items = [];
 
   /// Current [Duration] of the [AnimatedContainer]s.
   Duration _animateDuration = animateDuration;
@@ -110,6 +111,18 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       : _items.first.key.currentContext!.size!.width;
 
   @override
+  void didUpdateWidget(covariant Dock<T> oldWidget) {
+    if (!const ListEquality().equals(
+      oldWidget.items.map((e) => e.runtimeType).toList(),
+      widget.items.map((e) => e.runtimeType).toList(),
+    )) {
+      _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void initState() {
     _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
     super.initState();
@@ -130,7 +143,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     ///
     /// The [Flexible]s are animated, thus creating the expanding/shrinking
     /// effects.
-    Widget _builder(
+    Widget builder(
       BuildContext context,
       List<T?> candidates,
       List<dynamic> rejected,
@@ -288,7 +301,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       },
       onWillAccept: (e) =>
           (widget.onWillAccept?.call(e) ?? true) && _entry == null,
-      builder: _builder,
+      builder: builder,
     );
   }
 

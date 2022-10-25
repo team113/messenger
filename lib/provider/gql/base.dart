@@ -17,8 +17,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio
-    show Dio, DioError, Options, Response, DioErrorType;
+import 'package:dio/dio.dart' as dio show Dio, DioError, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -219,15 +218,11 @@ class GraphQlClient {
             onSendProgress: onSendProgress,
           );
         } on dio.DioError catch (e) {
-          if (e.response?.data != null &&
-              e.response?.statusCode != 200 &&
-              e.type == dio.DioErrorType.response) {
-            if (onException != null) {
-              try {
-                throw onException(e.response!.data);
-              } catch (_) {
-                // No-op.
-              }
+          if (e.response != null) {
+            if (onException != null &&
+                e.response?.data is Map<String, dynamic> &&
+                e.response?.data['data'] != null) {
+              throw onException(e.response!.data['data']);
             }
           }
 

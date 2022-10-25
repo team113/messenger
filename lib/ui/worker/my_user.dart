@@ -14,6 +14,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -32,14 +33,20 @@ class MyUserWorker extends DisposableService {
   /// [Worker] reacting on the [MyUser] changes.
   Worker? _worker;
 
+  /// [MyUser.unreadChatsCount] latest value, used to exclude the unnecessary
+  /// [_updateBadge] invokes.
+  int? _lastUnreadChatsCount;
+
   @override
   void onInit() {
+    _updateBadge(_myUser.myUser.value?.unreadChatsCount ?? 0);
     router.prefix.value = _myUser.myUser.value == null ||
             _myUser.myUser.value?.unreadChatsCount == 0
         ? null
         : '(${_myUser.myUser.value!.unreadChatsCount})';
 
     _worker = ever(_myUser.myUser, (MyUser? u) {
+      _updateBadge(u?.unreadChatsCount ?? 0);
       router.prefix.value = u == null || u.unreadChatsCount == 0
           ? null
           : '(${u.unreadChatsCount})';
@@ -53,5 +60,24 @@ class MyUserWorker extends DisposableService {
     _worker?.dispose();
     router.prefix.value = null;
     super.onClose();
+  }
+
+  /// Updates the application's badge with the provided [count].
+  void _updateBadge(int count) async {
+    if (_lastUnreadChatsCount != count) {
+      _lastUnreadChatsCount = count;
+
+      try {
+        if (await FlutterAppBadger.isAppBadgeSupported()) {
+          if (count == 0) {
+            FlutterAppBadger.removeBadge();
+          } else {
+            FlutterAppBadger.updateBadgeCount(count);
+          }
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
   }
 }

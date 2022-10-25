@@ -90,13 +90,14 @@ class UserSearchBar extends StatelessWidget {
                     children: c.searchStatus.value.isSuccess
                         ? [
                             const SizedBox(height: 10),
-                            ...c.searchResults.isEmpty
+                            ...c.searchResults.value?.isEmpty != false
                                 ? [
                                     ListTile(
-                                        title:
-                                            Text('label_search_not_found'.l10n))
+                                      title:
+                                          Text('label_search_not_found'.l10n),
+                                    )
                                   ]
-                                : c.searchResults
+                                : (c.searchResults.value ?? [])
                                     .map((e) => _user(e, c))
                                     .toList(),
                             const SizedBox(height: 10),
@@ -138,7 +139,7 @@ class UserSearchBar extends StatelessWidget {
   /// Returns a [ListTile] with the information of the provided [User].
   Widget _user(RxUser user, UserSearchBarController c) => ListTile(
         key: Key('${user.id}'),
-        leading: AvatarWidget.fromUser(user.user.value),
+        leading: AvatarWidget.fromRxUser(user),
         title: Text(user.user.value.name?.val ?? user.user.value.num.val),
         trailing: trailingIcon == null
             ? null

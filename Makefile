@@ -39,7 +39,7 @@ CURRENT_BRANCH := $(or $(GITHUB_REF_NAME),\
 VERSION ?= $(strip $(shell grep -m1 'version: ' pubspec.yaml | cut -d' ' -f2))
 FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
-                                                              | tr -d'"'))
+                                                              | tr -d '"'))
 
 
 
@@ -436,11 +436,9 @@ endif
 		--label org.opencontainers.image.source=$(github_url)/$(github_repo) \
 		--label org.opencontainers.image.revision=$(strip \
 			$(shell git show --pretty=format:%H --no-patch)) \
-		--label org.opencontainers.image.version=$(strip $(VERSION)) \
+		--label org.opencontainers.image.version=$(subst v,,$(strip \
+			$(shell git describe --tags --dirty --match='v*'))) \
 		-t $(OWNER)/$(NAME)$(docker-image-path):$(or $(tag),dev) .
-# TODO: Enable after first release.
-#		--label org.opencontainers.image.version=$(subst v,,$(strip \
-			$(shell git describe --tags --dirty --match='v*')))
 
 
 # Push project Docker images to container registries.
@@ -528,11 +526,13 @@ ifeq ($(pull),yes)
 	docker-compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
-	rm -rf .cache/cockroachdb/ .cache/coturn/ .cache/minio/
+	rm -rf .cache/baza/ .cache/cockroachdb/
 endif
-ifeq ($(wildcard .cache/minio),)
-	@mkdir -p .cache/minio/data/files/
-	@mkdir -p .cache/minio/certs/
+ifeq ($(wildcard .cache/baza),)
+	@mkdir -p .cache/baza/data/
+	@mkdir -p .cache/baza/cache/
+	@chmod 0777 .cache/baza/data/
+	@chmod 0777 .cache/baza/cache/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \

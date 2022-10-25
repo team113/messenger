@@ -21,7 +21,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:js' as js;
-import 'dart:typed_data';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';

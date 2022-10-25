@@ -36,9 +36,7 @@ alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 btn_add = Добавить
 btn_add_participant = Добавить участника
-btn_add_participant_desc =
-    Добавить
-    участника
+btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
@@ -122,26 +120,29 @@ btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
     камеру
-btn_change_contact_name = Переименовать контакт
+btn_change = Сменить
+btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_close = Закрыть
 btn_confirm = Подтвердить
-btn_copy_text = Скопировать текст
+btn_copy = Скопировать
 btn_create_group = Создать группу
+btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
+btn_delete_avatar = Удалить аватар
 btn_delete_direct_chat_link = Удалить
 btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
-btn_delete_message = Удалить
 btn_dismiss = Запретить
 btn_download = Скачать
 btn_edit = Редактировать
 btn_forgot_password = Забыли пароль?
+btn_forward = Переслать
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_generate_direct_chat_link = Сгенерировать
 btn_hide_chat = Скрыть чат
-btn_hide_for_me = Удалить для меня
+btn_info = Информация
 btn_join_call = Присоединиться
 btn_leave_chat = Выйти из чата
 btn_login = Войти
@@ -149,13 +150,23 @@ btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_next = Далее
 btn_ok = Ок
+btn_participants = Участники
+btn_participants_desc =
+    Список
+    участников
+btn_personalize = Персонализация
+btn_proceed = Продолжить
+btn_remove = Удалить
+btn_rename = Переименовать
 btn_reply = Ответить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
-btn_set_password = Задать пароль
+btn_save_to_gallery = Сохранить в галерею
 btn_saved_messages = Сохранённые сообщения
+btn_set_password = Задать пароль
 btn_settings = Настройки
+btn_share = Поделиться
 btn_start = Начать
 btn_submit = Применить
 btn_video_call = Видеозвонок
@@ -182,6 +193,7 @@ err_contact_not_group = Чат с указанным ID не является г
 err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
 err_contact_unknown_user = Пользователь с указанным ID не существует
+err_could_not_download = При загрузке произошла ошибка
 err_current_password_empty = Текущий пароль не должен быть пустым
 err_data_transfer =
     Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.
@@ -228,11 +240,15 @@ err_unknown_chat_direct_link = Неизвестная ссылка
 err_unknown_chat_item = Неизвестное сообщение
 err_unknown_contact = Неизвестный контакт
 err_unknown_device = Неизвестное устройство
+err_unknown_forwarded_attachment = Неизвестное прикрепление
+err_unknown_forwarded_item = Неизвестное пересылаемое сообщение
 err_unknown_gallery_item = Неизвестный элемент галереи
 err_unknown_replying_chat_item = Цитируемого сообщения не существует
 err_unknown_user = Неизвестный пользователь
 err_unsupported_format = Неподдерживаемый формат
+err_unsupported_forwarded_item = Неподдерживаемое пересылаемое сообщение
 err_uploaded_file_malformed = Файл повреждён
+err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный текущий пароль
 err_wrong_recovery_code = Неверный код
@@ -250,6 +266,8 @@ label_add_email = Добавить почту
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить номер
 label_add_number_hint = Напишите номер в формате +33 478 88 88 88
+label_add_participants = Добавить участников
+label_account_access_will_be_lost = Доступ к аккаунту будет утерян
 label_account_created = Аккаунт создан
 label_ago = { $years ->
     [0] { $months ->
@@ -280,6 +298,28 @@ label_ago = { $years ->
             *[other] {$months} месяцев назад
         }
     [1] год назад
+    [few] {$years} года назад
+    *[other] {$years} лет назад
+}
+label_ago_date = { $years ->
+    [0] { $months ->
+            [0] { $weeks ->
+                    [0] { $days ->
+                            [0] Сегодня
+                            [1] Вчера
+                            [2] Позавчера
+                            [few] {$days} дня назад
+                            *[other] {$days} дней назад
+                        }
+                    [1] Неделю назад
+                    [few] {$weeks} недели назад
+                    *[other] {$weeks} недель
+                }
+            [1] Месяц назад
+            [few] {$months} месяца назад
+            *[other] {$months} месяцев назад
+        }
+    [1] Год назад
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
@@ -318,8 +358,6 @@ label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
 label_chat_monolog = Сохранённые сообщения
 label_chats = Чаты
-label_choose_chat = Пожалуйста, выберите чат
-label_choose_contact = Выберите пользователя
 label_contact = Контакт
 label_contacts = Контакты
 label_copied_to_clipboard = Скопировано в буфер обмена
@@ -328,7 +366,11 @@ label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
 label_current_password = Текущий пароль
+label_delete_for_everyone = Удалить для всех
+label_delete_for_me = Удалить для меня
+label_delete_message = Удалить сообщение?
 label_delivered = Доставлено
+label_dialog_created = Диалог создан
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -360,6 +402,7 @@ label_edit_message_hint = Без текста
 label_email_confirmation_code_was_sent =
     Код подтверждения был отправлен Вам на Email и/или на телефон
 label_emails = Эл.почта
+label_empty_message = Пустое сообщение
 label_enable_popup_calls = Отображать звонки в отдельных окнах
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -369,6 +412,7 @@ label_favorite_contacts = Избранные
 label_file = Файл
 label_forwarded_message = Пересланное сообщение
 label_gallery = Галерея
+label_group_created = Группа создана
 label_hidden = Статус скрыт
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
@@ -381,6 +425,8 @@ label_hint_drag_n_drop_video =
 
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
+label_image_downloaded = Изображение загружено.
+label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_incoming_call = Входящий звонок
 label_introduction_description =
     Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
@@ -399,6 +445,7 @@ label_media_no_device_available = Нет доступных устройств
 label_media_output = Устройство выхода
 label_media_settings = Настройки медиа
 label_menu = Меню
+label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_name = Имя
 label_name_hint = Ваше видимое всем имя
 label_new_password = Новый пароль
@@ -406,12 +453,16 @@ label_no_chat_found = Чат не найден
 label_no_chats = Нет чатов
 label_no_contacts = Нет контактов
 label_no_registration = без регистрации
+label_nothing_found = Ничего не найдено
 label_num = Gapopa ID
 label_offline = Офлайн
 label_online = Онлайн
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participants = Участники
+label_participants_added_successfully = Участники успешно добавлены
 label_password = Пароль
+label_password_not_set = Пароль не задан
 label_password_set_successfully = Пароль успешно задан
 label_password_was_changed = Пароль был изменен
 label_phone_confirmation_code_was_send =
@@ -423,13 +474,16 @@ label_presence_away = Отошёл
 label_presence_hidden = Скрыт
 label_presence_present = Информация о последнем входе
 label_read_by = Прочитано
+label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
+label_personalization = Персонализация
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
 label_search_recent = Недавние
+label_selected = Выбрано: {$count}
 label_send_message_hint = Сообщение...
 label_service_connected = Сервис успешно подключен
 label_service_encountered_error = Сервис столкнулся с ошибкой
@@ -443,14 +497,22 @@ label_subtitle_participants = участников
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_temp_plug = Временная заглушка на вкладке меню
 label_transition_count = Переходов
 label_typing = печатает
 label_typings = печатают
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = Непрочитанные сообщения
+label_unread_messages = { $quantity ->
+    [1] {$quantity} непрочитанное сообщение
+    *[other] {$quantity} непрочитанных сообщения
+}
+label_use_search = Используйте поиск, чтобы найти пользователя
+label_users = Пользователи
 label_video = Видео
 label_video_call = Видеозвонок
+label_video_downloaded = Видео загружено.
+label_video_saved_to_gallery = Видео сохранено в галерею.
+label_was_added = {$who} был(а) добавлен(а)
+label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу

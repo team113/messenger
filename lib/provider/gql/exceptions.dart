@@ -669,6 +669,8 @@ class PostChatMessageException
         return 'err_unknown_replying_chat_item'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case PostChatMessageErrorCode.wrongItemsCount:
+        return 'err_wrong_items_count'.l10n;
     }
   }
 }
@@ -1214,6 +1216,78 @@ class TransformDialogCallIntoGroupCallException
       case TransformDialogCallIntoGroupCallErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.forwardChatItems` described in the [code].
+class ForwardChatItemsException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ForwardChatItemsException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ForwardChatItemsErrorCode code;
+
+  @override
+  String toString() => 'ForwardChatItemsException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ForwardChatItemsErrorCode.blacklisted:
+        return 'err_blacklisted'.l10n;
+      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+        return 'err_no_text_and_no_attachment'.l10n;
+      case ForwardChatItemsErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ForwardChatItemsErrorCode.wrongItemsCount:
+        return 'err_wrong_items_count'.l10n;
+      case ForwardChatItemsErrorCode.unknownForwardedAttachment:
+        return 'err_unknown_forwarded_attachment'.l10n;
+      case ForwardChatItemsErrorCode.unsupportedForwardedItem:
+        return 'err_unsupported_forwarded_item'.l10n;
+      case ForwardChatItemsErrorCode.unknownForwardedItem:
+        return 'err_unknown_forwarded_item'.l10n;
+      case ForwardChatItemsErrorCode.unknownAttachment:
+        return 'err_unknown_attachment'.l10n;
+      case ForwardChatItemsErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.updateChatAvatar` described in the [code].
+class UpdateChatAvatarException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateChatAvatarException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateChatAvatarErrorCode code;
+
+  @override
+  String toString() => 'UpdateChatAvatarException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateChatAvatarErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+        return 'err_invalid_crop_coordinates'.l10n;
+      case UpdateChatAvatarErrorCode.invalidCropPoints:
+        return 'err_invalid_crop_points'.l10n;
+      case UpdateChatAvatarErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateChatAvatarErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
+      case UpdateChatAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

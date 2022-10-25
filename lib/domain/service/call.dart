@@ -75,8 +75,9 @@ class CallService extends DisposableService {
   void onClose() {
     super.onClose();
 
-    for (var call in List.from(_callsRepo.calls.values, growable: false)) {
-      var removed = _callsRepo.remove(call.value.chatId);
+    for (Rx<OngoingCall> call
+        in List.from(_callsRepo.calls.values, growable: false)) {
+      Rx<OngoingCall>? removed = _callsRepo.remove(call.value.chatId.value);
       removed?.value.state.value = OngoingCallState.ended;
       removed?.value.dispose();
     }
@@ -265,9 +266,9 @@ class CallService extends DisposableService {
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
-    List<UserId> additionalMemberIds,
+    List<UserId> additionalMemberIds, {
     ChatName? groupName,
-  ) async {
+  }) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(

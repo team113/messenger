@@ -22,6 +22,8 @@ import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
+import '../model/chat_item_quote.dart';
+import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
 import '../repository/user.dart';
@@ -83,7 +85,7 @@ abstract class AbstractChatRepository {
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
-    ChatItem? repliesTo,
+    List<ChatItem> repliesTo = const [],
   });
 
   /// Resends the specified [item].
@@ -116,13 +118,13 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(ChatItemId itemId, ChatMessageText? text);
+  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage message);
 
   /// Deletes the specified [ChatForward] posted by the authenticated [MyUser].
-  Future<void> deleteChatForward(ChatId chatId, ChatItemId id);
+  Future<void> deleteChatForward(ChatForward forward);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatId chatId, ChatItemId id);
@@ -142,6 +144,30 @@ abstract class AbstractChatRepository {
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Future<Stream<dynamic>> keepTyping(ChatId id);
+
+  /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
+  /// [MyUser].
+  ///
+  /// Supported [ChatItem]s are [ChatMessage] and [ChatForward].
+  ///
+  /// If [text] or [attachments] argument is specified, then the forwarded
+  /// [ChatItem]s will be followed with a posted [ChatMessage] containing that
+  /// [text] and/or [attachments].
+  Future<void> forwardChatItems(
+    ChatId from,
+    ChatId to,
+    List<ChatItemQuote> items, {
+    ChatMessageText? text,
+    List<AttachmentId>? attachments,
+  });
+
+  /// Updates the [Chat.avatar] field with the provided image, or resets it to
+  /// `null`, by authority of the authenticated [MyUser].
+  Future<void> updateChatAvatar(
+    ChatId id, {
+    NativeFile? file,
+    void Function(int count, int total)? onSendProgress,
+  });
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
@@ -149,8 +175,10 @@ abstract class RxChat {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
-  /// Reactive list of [ChatItem]s of a [chat].
-  RxList<Rx<ChatItem>> get messages;
+  // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
+  //       [PreciseDateTime] and [ChatItemId] as a key.
+  /// Observable list of [ChatItem]s of the [chat].
+  RxObsList<Rx<ChatItem>> get messages;
 
   /// Status of the [messages] fetching.
   ///
@@ -183,7 +211,12 @@ abstract class RxChat {
   UserCallCover? get callCover;
 
   /// Fetches the [messages] from the service.
-  Future<void> fetchMessages(ChatId chatId);
+  Future<void> fetchMessages();
+
+  /// Updates the [Attachment]s of the specified [item] to be up-to-date.
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  Future<void> updateAttachments(ChatItem item);
 
   /// Removes a [ChatItem] identified by its [id].
   Future<void> remove(ChatItemId id);
