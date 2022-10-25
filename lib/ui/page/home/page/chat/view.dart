@@ -638,10 +638,16 @@ class _ChatViewState extends State<ChatView>
         final Set<UserId> actualMembers =
             chat.value.ongoingCall!.members.map((k) => k.user.id).toSet();
         subtitle.write(
-          '${'label_a_of_b'.l10nfmt(
+          'label_a_of_b'.l10nfmt(
             {'a': actualMembers.length, 'b': c.chat!.members.length},
-          )}${'space_vertical_space'.l10n}${c.duration.value.hhMmSs()}',
+          ),
         );
+
+        if (c.duration.value != null) {
+          subtitle.write(
+            '${'space_vertical_space'.l10n}${c.duration.value?.hhMmSs()}',
+          );
+        }
 
         return Text(subtitle.toString(), style: style);
       }

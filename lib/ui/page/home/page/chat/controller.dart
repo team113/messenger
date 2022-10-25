@@ -168,7 +168,7 @@ class ChatController extends GetxController {
   int unreadMessages = 0;
 
   /// Duration of a [Chat.ongoingCall].
-  final Rx<Duration> duration = Rx<Duration>(Duration.zero);
+  final Rx<Duration?> duration = Rx(null);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -674,7 +674,7 @@ class ChatController extends GetxController {
         if (previousCall != chat.ongoingCall?.id) {
           previousCall = chat.ongoingCall?.id;
 
-          duration.value = Duration.zero;
+          duration.value = null;
           _durationTimer?.cancel();
           _durationTimer = null;
 
