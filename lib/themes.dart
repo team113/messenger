@@ -52,8 +52,6 @@ class Themes {
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
             messageColor: Colors.white,
-            primaryBorder:
-                Border.all(color: const Color(0xFFDADADA), width: 0.5),
             readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
@@ -310,7 +308,6 @@ class Style extends ThemeExtension<Style> {
     required this.secondaryBorder,
     required this.dropButtonColor,
     required this.hoveredBorderUnselected,
-    required this.primaryBorder,
     required this.primaryCardColor,
     required this.sidebarColor,
     required this.statusMessageError,
@@ -369,9 +366,6 @@ class Style extends ThemeExtension<Style> {
 
   /// [Border] to use in sidebar for chats.
   final Border hoveredBorderUnselected;
-
-  /// [Border] to use in sidebar for chats if chat is selected.
-  final Border primaryBorder;
 
   /// [Color] to use in sidebar for chats if chat is selected.
   final Color primaryCardColor;
@@ -502,7 +496,6 @@ class Style extends ThemeExtension<Style> {
       dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
       hoveredBorderUnselected: Border.lerp(
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
-      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
       primaryCardColor:
           Color.lerp(primaryCardColor, other.primaryCardColor, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
