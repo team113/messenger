@@ -82,6 +82,7 @@ class _RetryImageState extends State<RetryImage> {
         )
       : Container(
           height: widget.height,
+          width: 200,
           alignment: Alignment.center,
           child: ConstrainedBox(
             constraints: const BoxConstraints(
