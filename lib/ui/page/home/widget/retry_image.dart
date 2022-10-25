@@ -104,7 +104,7 @@ class _RetryImageState extends State<RetryImage> {
   /// Loads image with backoff.
   Future<void> _loadImage() async {
     Response? data;
-    print(widget.url);
+
     try {
       data = await Dio().get(
         widget.url,
@@ -119,9 +119,6 @@ class _RetryImageState extends State<RetryImage> {
         options: Options(responseType: ResponseType.bytes),
       );
     } on DioError catch (_) {
-      print(_.response?.statusCode);
-      print(_.error);
-      print(_.message);
       if (_.response?.statusCode == 403) {
         await widget.error403?.call();
       }
