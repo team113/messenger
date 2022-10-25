@@ -57,7 +57,7 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   late final RxList<RxChat> chats;
 
-  /// Status of a [mute] completion.
+  /// Status of a [muteChat] completion.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning no [muteChat] is executing.
