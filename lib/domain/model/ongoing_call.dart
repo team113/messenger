@@ -1453,7 +1453,7 @@ class CallMemberId {
 class CallMember {
   CallMember(
     this.id,
-    this.connection, {
+    this._connection, {
     bool isHandRaised = false,
     bool isConnected = false,
   })  : isHandRaised = RxBool(isHandRaised),
@@ -1484,7 +1484,10 @@ class CallMember {
   final RxBool isConnected;
 
   /// [ConnectionHandle] of this [CallMember].
-  ConnectionHandle? connection;
+  ConnectionHandle? _connection;
+
+  /// Sets [_connection] of this [CallMember].
+  set connection(ConnectionHandle val) => _connection = val;
 
   /// Sets the inbound video of this [CallMember] as [enabled].
   Future<void> setVideoEnabled(
@@ -1492,18 +1495,18 @@ class CallMember {
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
     if (enabled) {
-      await connection?.enableRemoteVideo(source);
+      await _connection?.enableRemoteVideo(source);
     } else {
-      await connection?.disableRemoteVideo(source);
+      await _connection?.disableRemoteVideo(source);
     }
   }
 
   /// Sets the inbound audio of this [CallMember] as [enabled].
   Future<void> setAudioEnabled(bool enabled) async {
     if (enabled) {
-      await connection?.enableRemoteAudio();
+      await _connection?.enableRemoteAudio();
     } else {
-      await connection?.disableRemoteAudio();
+      await _connection?.disableRemoteAudio();
     }
   }
 }
