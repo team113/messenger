@@ -521,9 +521,6 @@ class CallController extends GetxController {
     }
 
     Size callSize = this.size;
-    print('callSize.widthcallSize.widthcallSize.widthcallSize.widthcallSize.widthcallSize.width');
-    print(callSize.width);
-    print(callSize.height);
     double secondarySize = (callSize.shortestSide *
             (callSize.aspectRatio > 1.5 || callSize.aspectRatio < 0.66
                 ? 0.45
