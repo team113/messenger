@@ -5,10 +5,11 @@ Feature: Trying to load chat images
     And user Bob
     And Bob has dialog with me
     And Bob sends image to me
-    And I do not have2 Internet
-    And I am in chat with Bob
 
   Scenario: Try to load image when i'm open chat
+#    When I do not have2 Internet
+    Then I am in chat with Bob
+
     When I wait until image is loading
-    And I have Internet without delay
+#    And I have Internet without delay
     Then I wait until image is loaded

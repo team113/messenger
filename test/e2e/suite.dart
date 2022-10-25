@@ -23,7 +23,8 @@ import 'configuration.dart';
 part 'suite.g.dart';
 
 /// Entry point of E2E tests.
-@GherkinTestSuite(featurePaths: ['test/e2e/features/**.feature'])
+@GherkinTestSuite(
+    featurePaths: ['test/e2e/features/chat/retry_loading_image/**.feature'])
 void main() async {
   Config.disableInfiniteAnimations = true;
   executeTestSuite(
