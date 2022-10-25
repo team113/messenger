@@ -140,15 +140,14 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     Attachment e,
     List<Attachment> media, {
-    required GlobalKey key,
-    required BuildContext context,
+    GlobalKey? key,
     List<Attachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
   }) {
-    bool isLocal = e is LocalAttachment;
+    final bool isLocal = e is LocalAttachment;
 
-    bool isVideo;
+    final bool isVideo;
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
@@ -197,7 +196,7 @@ class ChatItemWidget extends StatefulWidget {
         );
       }
     } else {
-      attachment = Container(
+      attachment = KeyedSubtree(
         key: const Key('SentImage'),
         child: Image.network(
           '${Config.files}${(e as ImageAttachment).big.relativeRef}',
@@ -206,12 +205,10 @@ class ChatItemWidget extends StatefulWidget {
           height: 300,
           errorBuilder: (_, __, ___) {
             return InitCallback(
-              callback: () => onError?.call(),
-              child: const SizedBox(
-                height: 300,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
+              callback: onError,
+              child: const SizedBox.square(
+                dimension: 300,
+                child: Center(child: CircularProgressIndicator()),
               ),
             );
           },
@@ -255,7 +252,7 @@ class ChatItemWidget extends StatefulWidget {
                 }
 
                 GalleryPopup.show(
-                  context: context,
+                  context: router.context!,
                   gallery: GalleryPopup(
                     children: gallery,
                     initial: initial,
@@ -298,7 +295,7 @@ class ChatItemWidget extends StatefulWidget {
     );
   }
 
-  /// Returns visual representation of the provided file-[Attachment].
+  /// Returns a visual representation of the provided file-[Attachment].
   static Widget fileAttachment(
     Attachment e, {
     required bool fromMe,
@@ -417,7 +414,6 @@ class ChatItemWidget extends StatefulWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // TODO: Cut with extension visible.
                     Row(
                       children: [
                         Flexible(
@@ -438,9 +434,11 @@ class ChatItemWidget extends StatefulWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      e.original.size == null
-                          ? '... KB'
-                          : '${e.original.size! ~/ 1024} KB',
+                      'label_kb'.l10nfmt({
+                        'amount': e.original.size == null
+                            ? 'dot'.l10n * 3
+                            : e.original.size! ~/ 1024
+                      }),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -524,7 +522,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
     return DefaultTextStyle(
       style: style.boldBody,
       child: Obx(() {
@@ -614,8 +612,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   /// Renders [widget.item] as [ChatMessage].
   Widget _renderAsChatMessage(BuildContext context) {
-    Style style = Theme.of(context).extension<Style>()!;
-    var msg = widget.item.value as ChatMessage;
+    final Style style = Theme.of(context).extension<Style>()!;
+    final ChatMessage msg = widget.item.value as ChatMessage;
 
     String? text = msg.text?.val.trim();
     if (text?.isEmpty == true) {
@@ -635,15 +633,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
-    bool fromMe = msg.authorId == widget.me;
-
-    Color color = widget.user?.user.value.id == widget.me
-        ? const Color(0xFF63B4FF)
+    Color color = _fromMe
+        ? Theme.of(context).colorScheme.secondary
         : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
             AvatarWidget.colors.length];
 
     double avatarOffset = 0;
-    if ((!fromMe && widget.chat.value?.isGroup == true) &&
+    if ((!_fromMe && widget.chat.value?.isGroup == true) &&
         msg.repliesTo.isNotEmpty) {
       for (ChatItem reply in msg.repliesTo) {
         if (reply is ChatMessage) {
@@ -686,13 +682,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             decoration: BoxDecoration(
-              color: fromMe
+              color: _fromMe
                   ? _isRead
                       ? style.readMessageColor
                       : style.unreadMessageColor
                   : style.messageColor,
               borderRadius: BorderRadius.circular(15),
-              border: fromMe
+              border: _fromMe
                   ? _isRead
                       ? style.secondaryBorder
                       : Border.all(
@@ -710,12 +706,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       duration: const Duration(milliseconds: 500),
                       decoration: BoxDecoration(
                         color: e.authorId == widget.me
-                            ? _isRead || !fromMe
-                                ? const Color.fromRGBO(219, 234, 253, 1)
-                                : const Color.fromRGBO(230, 241, 254, 1)
-                            : _isRead || !fromMe
-                                ? const Color.fromRGBO(249, 249, 249, 1)
-                                : const Color.fromRGBO(255, 255, 255, 1),
+                            ? _isRead || !_fromMe
+                                ? const Color(0xFFDBEAFD)
+                                : const Color(0xFFE6F1FE)
+                            : _isRead || !_fromMe
+                                ? const Color(0xFFF9F9F9)
+                                : const Color(0xFFFFFFFF),
                         borderRadius: i == 0
                             ? const BorderRadius.only(
                                 topLeft: Radius.circular(15),
@@ -725,7 +721,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                       child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 500),
-                        opacity: _isRead || !fromMe ? 1 : 0.55,
+                        opacity: _isRead || !_fromMe ? 1 : 0.55,
                         child: WidgetButton(
                           onPressed: () => widget.onRepliedTap?.call(e.id),
                           child: _repliedMessage(e),
@@ -733,7 +729,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                     );
                   }),
-                if (!fromMe && widget.chat.value?.isGroup == true)
+                if (!_fromMe && widget.chat.value?.isGroup == true)
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
@@ -748,18 +744,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: Text(
                       widget.user?.user.value.name?.val ??
                           widget.user?.user.value.num.val ??
-                          '...',
+                          'dot'.l10n * 3,
                       style: style.boldBody.copyWith(color: color),
                     ),
                   ),
                 if (text != null)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !fromMe ? 1 : 0.7,
+                    opacity: _isRead || !_fromMe ? 1 : 0.7,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         12,
-                        (!fromMe && widget.chat.value?.isGroup == true)
+                        (!_fromMe && widget.chat.value?.isGroup == true)
                             ? 0
                             : 10,
                         9,
@@ -774,17 +770,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (files.isNotEmpty)
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !fromMe ? 1 : 0.55,
+                    opacity: _isRead || !_fromMe ? 1 : 0.55,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: Column(
                         children: files
-                            .map((e) => ChatItemWidget.fileAttachment(
-                                  e,
-                                  fromMe:
-                                      widget.item.value.authorId == widget.me,
-                                  onFileTap: widget.onFileTap,
-                                ))
+                            .map(
+                              (e) => ChatItemWidget.fileAttachment(
+                                e,
+                                fromMe: _fromMe,
+                                onFileTap: widget.onFileTap,
+                              ),
+                            )
                             .toList(),
                       ),
                     ),
@@ -794,14 +791,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.only(
                       topLeft: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe && widget.chat.value?.isGroup == true)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
                               : Radius.zero,
                       topRight: text != null ||
                               msg.repliesTo.isNotEmpty ||
-                              (!fromMe && widget.chat.value?.isGroup == true)
+                              (!_fromMe && widget.chat.value?.isGroup == true)
                           ? Radius.zero
                           : files.isEmpty
                               ? const Radius.circular(15)
@@ -811,14 +808,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 500),
-                      opacity: _isRead || !fromMe ? 1 : 0.55,
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
                       child: media.length == 1
                           ? ChatItemWidget.mediaAttachment(
                               media.first,
                               media,
                               filled: false,
                               key: _galleryKeys[0],
-                              context: context,
                               onError: widget.onAttachmentError,
                               onGallery: widget.onGallery,
                             )
@@ -833,7 +829,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         e,
                                         media,
                                         key: _galleryKeys[i],
-                                        context: context,
                                         onError: widget.onAttachmentError,
                                         onGallery: widget.onGallery,
                                       ),
@@ -895,7 +890,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
-    Style style = Theme.of(context).extension<Style>()!;
+    final Style style = Theme.of(context).extension<Style>()!;
 
     subtitle = [
       Padding(
@@ -1035,29 +1030,33 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             .toList();
 
         if (item.attachments.length > 3) {
-          additional.add(Container(
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: fromMe
-                  ? Colors.white.withOpacity(0.25)
-                  : Colors.black.withOpacity(0.03),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            width: 50,
-            height: 50,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Text(
-                  '+${item.attachments.length - 3}',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF888888),
+          final int count = max(item.attachments.length - 3, 99);
+
+          additional.add(
+            Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.25)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 50,
+              height: 50,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    '${'plus'.l10n}$count',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 ),
               ),
             ),
-          ));
+          );
         }
       }
 
@@ -1137,7 +1136,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       future: widget.getUser?.call(item.authorId),
       builder: (context, snapshot) {
         Color color = snapshot.data?.user.value.id == widget.me
-            ? const Color(0xFF63B4FF)
+            ? Theme.of(context).colorScheme.secondary
             : AvatarWidget.colors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     AvatarWidget.colors.length];
@@ -1198,6 +1197,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (item is ChatMessage) {
       copyable = item.text?.val;
     }
+
     bool isSent = item.status.value == SendingStatus.sent;
 
     return SwipeableStatus(
@@ -1335,11 +1335,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             height: 17,
                           ),
                           onPressed: () async {
-                            bool deletable =
-                                widget.item.value.authorId == widget.me &&
-                                    !widget.chat.value!
-                                        .isRead(widget.item.value, widget.me) &&
-                                    (widget.item.value is ChatMessage);
+                            bool deletable = _fromMe &&
+                                !widget.chat.value!
+                                    .isRead(widget.item.value, widget.me) &&
+                                (widget.item.value is ChatMessage);
 
                             await ConfirmDialog.show(
                               context,

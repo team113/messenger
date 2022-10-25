@@ -446,9 +446,8 @@ class _ChatViewState extends State<ChatView>
                 if (element.note.value != null) {
                   c.repliedMessages.remove(element.note.value!.value);
                 }
-                c.repliedMessages.remove(element.forwards.last.value);
               } else {
-                for (Rx<ChatItem> e in element.forwards) {
+                for (Rx<ChatItem> e in element.forwards.reversed) {
                   c.repliedMessages.insert(0, e.value);
                 }
 

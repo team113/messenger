@@ -53,7 +53,7 @@ class Themes {
             messageColor: Colors.white,
             primaryBorder:
                 Border.all(color: const Color(0xFFDADADA), width: 0.5),
-            readMessageColor: const Color.fromRGBO(210, 227, 249, 1),
+            readMessageColor: const Color(0xFFD2E3F9),
             secondaryBorder:
                 Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             sidebarColor: Colors.white.withOpacity(0.4),
@@ -65,7 +65,7 @@ class Themes {
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
-            unreadMessageColor: const Color.fromRGBO(244, 249, 255, 1),
+            unreadMessageColor: const Color(0xFFF4F9FF),
           ),
         ],
         colorScheme: colors,
@@ -316,15 +316,14 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
-  /// Background [Color] to apply to [ChatMessage]s, [ChatForward]s and
-  /// [ChatCall]s.
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
   final Color messageColor;
 
   /// [Border] to apply to [ColorScheme.primary] color.
   final Border primaryBorder;
 
-  /// Background [Color] to apply to read [ChatMessage]s, [ChatForward]s and
-  /// [ChatCall]s posted by the authenticated [MyUser].
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s
+  /// posted by the authenticated [MyUser].
   final Color readMessageColor;
 
   /// [Border] to apply to [ColorScheme.secondary] color.
@@ -342,7 +341,7 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
-  /// Background [Color] to apply to unread [ChatMessage]s, [ChatForward]s and
+  /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
 
