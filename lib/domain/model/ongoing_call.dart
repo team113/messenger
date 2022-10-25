@@ -767,11 +767,9 @@ class OngoingCall {
   /// No-op if [isRemoteVideoEnabled] is already [enabled].
   Future<void> setRemoteVideoEnabled(bool enabled) async {
     try {
-      print('1');
       final List<Future> futures = [];
 
       if (enabled && isRemoteVideoEnabled.isFalse) {
-        print('2');
         for (CallMember m in members.values.where((e) => e.id != _me)) {
           futures.addAll([
             m.setVideoEnabled(true, source: MediaSourceKind.Device),
@@ -781,7 +779,6 @@ class OngoingCall {
 
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        print('3');
         for (CallMember m in members.values.where((e) => e.id != _me)) {
           m.tracks.where((e) => e.kind == MediaKind.Video).forEach((e) {
             futures.add(m.setVideoEnabled(false, source: e.source));
@@ -793,8 +790,6 @@ class OngoingCall {
 
       await Future.wait(futures);
     } on MediaStateTransitionException catch (_) {
-      print('4');
-      print(_);
       // No-op.
     }
   }
@@ -916,6 +911,7 @@ class OngoingCall {
       final CallMember? member = members[id];
 
       if (member != null) {
+        member.connection = conn;
         member.isConnected.value = true;
       } else {
         members[id] = CallMember(
@@ -1457,7 +1453,7 @@ class CallMemberId {
 class CallMember {
   CallMember(
     this.id,
-    this._connection, {
+    this.connection, {
     bool isHandRaised = false,
     bool isConnected = false,
   })  : isHandRaised = RxBool(isHandRaised),
@@ -1488,7 +1484,7 @@ class CallMember {
   final RxBool isConnected;
 
   /// [ConnectionHandle] of this [CallMember].
-  ConnectionHandle? _connection;
+  ConnectionHandle? connection;
 
   /// Sets the inbound video of this [CallMember] as [enabled].
   Future<void> setVideoEnabled(
@@ -1496,18 +1492,18 @@ class CallMember {
     MediaSourceKind source = MediaSourceKind.Device,
   }) async {
     if (enabled) {
-      await _connection?.enableRemoteVideo(source);
+      await connection?.enableRemoteVideo(source);
     } else {
-      await _connection?.disableRemoteVideo(source);
+      await connection?.disableRemoteVideo(source);
     }
   }
 
   /// Sets the inbound audio of this [CallMember] as [enabled].
   Future<void> setAudioEnabled(bool enabled) async {
     if (enabled) {
-      await _connection?.enableRemoteAudio();
+      await connection?.enableRemoteAudio();
     } else {
-      await _connection?.disableRemoteAudio();
+      await connection?.disableRemoteAudio();
     }
   }
 }
