@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 
 import '../controller.dart'
     show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
@@ -32,6 +33,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -39,6 +41,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
@@ -49,6 +52,7 @@ import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'swipeable_status.dart';
 import 'video_thumbnail/video_thumbnail.dart';
 
@@ -70,7 +74,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onCopy,
     this.onGallery,
     this.onRepliedTap,
-    this.onForwardedTap,
     this.onResend,
     this.onFileTap,
     this.onAttachmentError,
@@ -121,9 +124,6 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemId)? onRepliedTap;
 
-  /// Callback, called when a forwarded message of this [ChatItem] is tapped.
-  final void Function(ChatItemId, ChatId)? onForwardedTap;
-
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
 
@@ -135,6 +135,333 @@ class ChatItemWidget extends StatefulWidget {
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
+
+  /// Returns a visual representation of the provided media-[Attachment].
+  static Widget mediaAttachment(
+    Attachment e,
+    List<Attachment> media, {
+    GlobalKey? key,
+    List<Attachment> Function()? onGallery,
+    Future<void> Function()? onError,
+    bool filled = true,
+  }) {
+    final bool isLocal = e is LocalAttachment;
+
+    final bool isVideo;
+    if (isLocal) {
+      isVideo = e.file.isVideo;
+    } else {
+      isVideo = e is FileAttachment;
+    }
+
+    final Widget attachment;
+    if (isVideo) {
+      attachment = Stack(
+        alignment: Alignment.center,
+        children: [
+          isLocal
+              ? e.file.bytes == null
+                  ? const CircularProgressIndicator()
+                  : VideoThumbnail.bytes(
+                      bytes: e.file.bytes!,
+                      key: key,
+                      height: 300,
+                    )
+              : VideoThumbnail.url(
+                  url: '${Config.files}${e.original.relativeRef}',
+                  key: key,
+                  height: 300,
+                  onError: onError,
+                ),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0x80000000),
+            ),
+            child: const Icon(Icons.play_arrow, color: Colors.white, size: 48),
+          ),
+        ],
+      );
+    } else if (isLocal) {
+      if (e.file.bytes == null) {
+        attachment = const CircularProgressIndicator();
+      } else {
+        attachment = Image.memory(
+          e.file.bytes!,
+          key: key,
+          fit: BoxFit.cover,
+          height: 300,
+        );
+      }
+    } else {
+      attachment = KeyedSubtree(
+        key: const Key('SentImage'),
+        child: Image.network(
+          '${Config.files}${(e as ImageAttachment).big.relativeRef}',
+          key: key,
+          fit: BoxFit.cover,
+          height: 300,
+          errorBuilder: (_, __, ___) {
+            return InitCallback(
+              callback: onError,
+              child: const SizedBox.square(
+                dimension: 300,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.zero,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: isLocal
+            ? null
+            : () {
+                final List<Attachment> attachments = onGallery?.call() ?? media;
+
+                int initial = attachments.indexOf(e);
+                if (initial == -1) {
+                  initial = 0;
+                }
+
+                List<GalleryItem> gallery = [];
+                for (var o in attachments) {
+                  String link = '${Config.files}${o.original.relativeRef}';
+                  if (o is FileAttachment) {
+                    gallery.add(GalleryItem.video(link, o.filename));
+                  } else if (o is ImageAttachment) {
+                    GalleryItem? item;
+
+                    item = GalleryItem.image(
+                      link,
+                      o.filename,
+                      onError: () async {
+                        await onError?.call();
+                        item?.link = '${Config.files}${o.original.relativeRef}';
+                      },
+                    );
+
+                    gallery.add(item);
+                  }
+                }
+
+                GalleryPopup.show(
+                  context: router.context!,
+                  gallery: GalleryPopup(
+                    children: gallery,
+                    initial: initial,
+                    initialKey: key,
+                  ),
+                );
+              },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            filled
+                ? Positioned.fill(child: attachment)
+                : Container(
+                    constraints: const BoxConstraints(minWidth: 300),
+                    width: double.infinity,
+                    child: attachment,
+                  ),
+            ElasticAnimatedSwitcher(
+              key: Key('AttachmentStatus_${e.id}'),
+              child: !isLocal
+                  ? Container(key: const Key('Sent'))
+                  : e.status.value == SendingStatus.sent
+                      ? const Icon(
+                          Icons.check_circle,
+                          key: Key('Sent'),
+                          size: 48,
+                          color: Colors.green,
+                        )
+                      : e.status.value == SendingStatus.sending
+                          ? CircularProgressIndicator(
+                              key: const Key('Sending'),
+                              value: e.progress.value,
+                              backgroundColor: Colors.white,
+                              strokeWidth: 10,
+                            )
+                          : const Icon(
+                              Icons.error,
+                              key: Key('Error'),
+                              size: 48,
+                              color: Colors.red,
+                            ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Returns a visual representation of the provided file-[Attachment].
+  static Widget fileAttachment(
+    Attachment e, {
+    required bool fromMe,
+    void Function(FileAttachment)? onFileTap,
+  }) {
+    Widget leading = Container();
+    if (e is FileAttachment) {
+      switch (e.downloadStatus.value) {
+        case DownloadStatus.inProgress:
+          leading = InkWell(
+            onTap: () => onFileTap?.call(e),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SvgLoader.asset(
+                  'assets/icons/download_cancel.svg',
+                  key: const Key('CancelDownloading'),
+                  width: 28,
+                  height: 28,
+                ),
+                SizedBox.square(
+                  dimension: 26.3,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.3,
+                    key: const Key('Downloading'),
+                    value: e.progress.value,
+                    color: Colors.white.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          );
+          break;
+
+        case DownloadStatus.isFinished:
+          leading = const Icon(
+            Icons.file_copy,
+            key: Key('Downloaded'),
+            color: Color(0xFF63B4FF),
+            size: 28,
+          );
+          break;
+
+        case DownloadStatus.notStarted:
+          leading = SvgLoader.asset(
+            'assets/icons/download.svg',
+            key: const Key('Download'),
+            width: 28,
+            height: 28,
+          );
+          break;
+      }
+
+      leading = KeyedSubtree(key: const Key('Sent'), child: leading);
+    } else if (e is LocalAttachment) {
+      switch (e.status.value) {
+        case SendingStatus.sending:
+          leading = SizedBox.square(
+            key: const Key('Sending'),
+            dimension: 18,
+            child: CircularProgressIndicator(
+              value: e.progress.value,
+              backgroundColor: Colors.white,
+              strokeWidth: 5,
+            ),
+          );
+          break;
+
+        case SendingStatus.sent:
+          leading = const Icon(
+            Icons.check_circle,
+            key: Key('Sent'),
+            size: 18,
+            color: Colors.green,
+          );
+          break;
+
+        case SendingStatus.error:
+          leading = const Icon(
+            Icons.error_outline,
+            key: Key('Error'),
+            size: 18,
+            color: Colors.red,
+          );
+          break;
+      }
+    }
+
+    leading = AnimatedSwitcher(
+      key: Key('AttachmentStatus_${e.id}'),
+      duration: 250.milliseconds,
+      child: leading,
+    );
+
+    return Padding(
+      key: Key('File_${e.id}'),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: WidgetButton(
+        onPressed: e is FileAttachment ? () => onFileTap?.call(e) : null,
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: fromMe
+                ? Colors.white.withOpacity(0.2)
+                : Colors.black.withOpacity(0.03),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            children: [
+              const SizedBox(width: 8),
+              leading,
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            p.basenameWithoutExtension(e.filename),
+                            style: const TextStyle(fontSize: 15),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          p.extension(e.filename),
+                          style: const TextStyle(fontSize: 15),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'label_kb'.l10nfmt({
+                        'amount': e.original.size == null
+                            ? 'dot'.l10n * 3
+                            : e.original.size! ~/ 1024
+                      }),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF888888),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// State of a [ChatItemWidget] used to update an active call [Timer].
@@ -162,7 +489,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
-  /// authenticated [User].
+  /// authenticated [MyUser].
   bool get _fromMe => widget.item.value.authorId == widget.me;
 
   @override
@@ -201,18 +528,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (widget.item.value is ChatMessage) {
-        return _renderAsChatMessage(context);
-      } else if (widget.item.value is ChatForward) {
-        return _renderAsChatForward(context);
-      } else if (widget.item.value is ChatCall) {
-        return _renderAsChatCall(context);
-      } else if (widget.item.value is ChatMemberInfo) {
-        return _renderAsChatMemberInfo();
-      }
-      throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
-    });
+    final Style style = Theme.of(context).extension<Style>()!;
+    return DefaultTextStyle(
+      style: style.boldBody,
+      child: Obx(() {
+        if (widget.item.value is ChatMessage) {
+          return _renderAsChatMessage(context);
+        } else if (widget.item.value is ChatForward) {
+          throw Exception(
+            'Use `ChatForward` widget for rendering `ChatForward`s instead',
+          );
+        } else if (widget.item.value is ChatCall) {
+          return _renderAsChatCall(context);
+        } else if (widget.item.value is ChatMemberInfo) {
+          return _renderAsChatMemberInfo();
+        }
+        throw UnimplementedError('Unknown ChatItem ${widget.item.value}');
+      }),
+    );
   }
 
   /// Renders [widget.item] as [ChatMemberInfo].
@@ -283,224 +616,240 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Renders [widget.item] as [ChatForward].
-  Widget _renderAsChatForward(BuildContext context) {
-    ChatForward msg = widget.item.value as ChatForward;
-    ChatItem item = msg.item;
+  /// Renders [widget.item] as [ChatMessage].
+  Widget _renderAsChatMessage(BuildContext context) {
+    final Style style = Theme.of(context).extension<Style>()!;
+    final ChatMessage msg = widget.item.value as ChatMessage;
 
-    Style style = Theme.of(context).extension<Style>()!;
+    String? text = msg.text?.val.trim();
+    if (text?.isEmpty == true) {
+      text = null;
+    } else {
+      text = msg.text?.val;
+    }
 
-    Widget? content;
-    List<Widget> additional = [];
+    List<Attachment> media = msg.attachments.where((e) {
+      return ((e is ImageAttachment) ||
+          (e is FileAttachment && e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+    }).toList();
 
-    if (item is ChatMessage) {
-      var desc = StringBuffer();
+    List<Attachment> files = msg.attachments.where((e) {
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+    }).toList();
 
-      if (item.text != null) {
-        desc.write(item.text!.val);
-      }
+    Color color = _fromMe
+        ? Theme.of(context).colorScheme.secondary
+        : AvatarWidget.colors[(widget.user?.user.value.num.val.sum() ?? 3) %
+            AvatarWidget.colors.length];
 
-      if (item.attachments.isNotEmpty) {
-        List<Attachment> media = item.attachments
-            .where((e) =>
-                e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-            .toList();
+    double avatarOffset = 0;
+    if ((!_fromMe && widget.chat.value?.isGroup == true) &&
+        msg.repliesTo.isNotEmpty) {
+      for (ChatItem reply in msg.repliesTo) {
+        if (reply is ChatMessage) {
+          if (reply.text != null && reply.attachments.isNotEmpty) {
+            avatarOffset += 54 + 54 + 4;
+          } else if (reply.text == null && reply.attachments.isNotEmpty) {
+            avatarOffset += 90;
+          } else if (reply.text != null) {
+            if (msg.attachments.isEmpty && text == null) {
+              avatarOffset += 59 - 5;
+            } else {
+              avatarOffset += 55 - 4 + 8;
+            }
+          }
+        }
 
-        List<Attachment> files = item.attachments
-            .where((e) =>
-                (e is FileAttachment && !e.isVideo) ||
-                (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
-            .toList();
+        if (reply is ChatCall) {
+          if (msg.attachments.isEmpty && text == null) {
+            avatarOffset += 59 - 4;
+          } else {
+            avatarOffset += 55 - 4 + 8;
+          }
+        }
 
-        if (media.isNotEmpty || files.isNotEmpty) {
-          additional = [
-            ...media.mapIndexed((i, e) => _mediaAttachment(i, e, media)),
-            if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-            ...files.map(_fileAttachment),
-          ];
+        if (reply is ChatForward) {
+          if (msg.attachments.isEmpty && text == null) {
+            avatarOffset += 59 - 5;
+          } else {
+            avatarOffset += 55 - 4 + 8;
+          }
         }
       }
-
-      if (desc.isNotEmpty) {
-        content = Text(
-          desc.toString(),
-          style: style.boldBody,
-        );
-      }
-    } else if (item is ChatCall) {
-      String title = 'label_chat_call_ended'.l10n;
-      String? time;
-      bool isMissed = false;
-
-      if (item.finishReason == null && item.conversationStartedAt != null) {
-        title = 'label_chat_call_ongoing'.l10n;
-      } else if (item.finishReason != null) {
-        title = item.finishReason!.localizedString(_fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
-            item.finishReason == ChatCallFinishReason.unanswered;
-        time = item.finishedAt!.val
-            .difference(item.conversationStartedAt!.val)
-            .localizedString();
-      } else {
-        title = item.authorId == widget.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
-      }
-
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgLoader.asset(
-                    'assets/icons/call_video${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
-          ),
-          Flexible(child: Text(title)),
-          if (time != null) ...[
-            const SizedBox(width: 9),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                time,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.boldBody,
-              ),
-            ),
-          ],
-        ],
-      );
-    } else if (item is ChatMemberInfo) {
-      // TODO: Implement `ChatMemberInfo`.
-      content = Text(item.action.toString(), style: style.boldBody);
-    } else if (item is ChatForward) {
-      content = Text('label_forwarded_message'.l10n, style: style.boldBody);
-    } else {
-      content = Text('err_unknown'.l10n, style: style.boldBody);
     }
 
     return _rounded(
       context,
-      InkWell(
-        onTap: () => widget.onForwardedTap?.call(msg.item.id, msg.item.chatId),
-        child: FutureBuilder<RxUser?>(
-          key: Key('FutureBuilder_${item.id}'),
-          future: widget.getUser?.call(item.authorId),
-          builder: (context, snapshot) {
-            Color color = snapshot.data?.user.value.id == widget.me
-                ? const Color(0xFF63B4FF)
-                : AvatarWidget.colors[
-                    (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                        AvatarWidget.colors.length];
-
-            return Row(
-              key: Key('Row_${item.id}'),
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
+      Container(
+        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        child: IntrinsicWidth(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              color: _fromMe
+                  ? _isRead
+                      ? style.readMessageColor
+                      : style.unreadMessageColor
+                  : style.messageColor,
+              borderRadius: BorderRadius.circular(15),
+              border: _fromMe
+                  ? _isRead
+                      ? style.secondaryBorder
+                      : Border.all(
+                          color: const Color(0xFFDAEDFF),
+                          width: 0.5,
+                        )
+                  : style.primaryBorder,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(width: 12),
-                Icon(Icons.reply, size: 26, color: color),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(left: BorderSide(width: 2, color: color)),
-                    ),
-                    margin: const EdgeInsets.fromLTRB(0, 8, 12, 8),
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          snapshot.data?.user.value.name?.val ??
-                              snapshot.data?.user.value.num.val ??
-                              '...',
-                          style: style.boldBody.copyWith(color: color),
+                if (msg.repliesTo.isNotEmpty)
+                  ...msg.repliesTo.mapIndexed((i, e) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      decoration: BoxDecoration(
+                        color: e.authorId == widget.me
+                            ? _isRead || !_fromMe
+                                ? const Color(0xFFDBEAFD)
+                                : const Color(0xFFE6F1FE)
+                            : _isRead || !_fromMe
+                                ? const Color(0xFFF9F9F9)
+                                : const Color(0xFFFFFFFF),
+                        borderRadius: i == 0
+                            ? const BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                topRight: Radius.circular(15),
+                              )
+                            : BorderRadius.zero,
+                      ),
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: _isRead || !_fromMe ? 1 : 0.55,
+                        child: WidgetButton(
+                          onPressed: () => widget.onRepliedTap?.call(e.id),
+                          child: _repliedMessage(e),
                         ),
-                        if (content != null) ...[
-                          const SizedBox(height: 2),
-                          content,
-                        ],
-                        if (additional.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: msg.authorId == widget.me
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                            children: additional,
-                          ),
-                        ],
-                      ],
+                      ),
+                    );
+                  }),
+                if (!_fromMe && widget.chat.value?.isGroup == true)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      12,
+                      msg.attachments.isEmpty && text == null ? 4 : 8,
+                      9,
+                      files.isEmpty && media.isNotEmpty && text == null
+                          ? 8
+                          : files.isNotEmpty && text == null
+                              ? 0
+                              : 4,
+                    ),
+                    child: Text(
+                      widget.user?.user.value.name?.val ??
+                          widget.user?.user.value.num.val ??
+                          'dot'.l10n * 3,
+                      style: style.boldBody.copyWith(color: color),
                     ),
                   ),
-                ),
+                if (text != null)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.7,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        12,
+                        (!_fromMe && widget.chat.value?.isGroup == true)
+                            ? 0
+                            : 10,
+                        9,
+                        files.isEmpty ? 10 : 0,
+                      ),
+                      child: Text(
+                        text,
+                        style: style.boldBody,
+                      ),
+                    ),
+                  ),
+                if (files.isNotEmpty)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 500),
+                    opacity: _isRead || !_fromMe ? 1 : 0.55,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                      child: Column(
+                        children: files
+                            .map(
+                              (e) => ChatItemWidget.fileAttachment(
+                                e,
+                                fromMe: _fromMe,
+                                onFileTap: widget.onFileTap,
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                if (media.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: text != null ||
+                              msg.repliesTo.isNotEmpty ||
+                              (!_fromMe && widget.chat.value?.isGroup == true)
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      topRight: text != null ||
+                              msg.repliesTo.isNotEmpty ||
+                              (!_fromMe && widget.chat.value?.isGroup == true)
+                          ? Radius.zero
+                          : files.isEmpty
+                              ? const Radius.circular(15)
+                              : Radius.zero,
+                      bottomLeft: const Radius.circular(15),
+                      bottomRight: const Radius.circular(15),
+                    ),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.55,
+                      child: media.length == 1
+                          ? ChatItemWidget.mediaAttachment(
+                              media.first,
+                              media,
+                              filled: false,
+                              key: _galleryKeys[0],
+                              onError: widget.onAttachmentError,
+                              onGallery: widget.onGallery,
+                            )
+                          : SizedBox(
+                              width: media.length * 120,
+                              height: max(media.length * 60, 300),
+                              child: FitView(
+                                dividerColor: Colors.transparent,
+                                children: media
+                                    .mapIndexed(
+                                      (i, e) => ChatItemWidget.mediaAttachment(
+                                        e,
+                                        media,
+                                        key: _galleryKeys[i],
+                                        onError: widget.onAttachmentError,
+                                        onGallery: widget.onGallery,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                  ),
               ],
-            );
-          },
+            ),
+          ),
         ),
       ),
-    );
-  }
-
-  /// Renders [widget.item] as [ChatMessage].
-  Widget _renderAsChatMessage(BuildContext context) {
-    var msg = widget.item.value as ChatMessage;
-
-    List<Attachment> media = msg.attachments
-        .where((e) =>
-            e is ImageAttachment ||
-            (e is FileAttachment && e.isVideo) ||
-            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-        .toList();
-
-    List<Attachment> files = msg.attachments
-        .where((e) =>
-            (e is FileAttachment && !e.isVideo) ||
-            (e is LocalAttachment && !e.file.isImage && !e.file.isVideo))
-        .toList();
-
-    return _rounded(
-      context,
-      Column(
-        key: const Key('ChatMessage'),
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (msg.repliesTo.isNotEmpty) ...[
-            ...msg.repliesTo.map((e) {
-              return InkWell(
-                onTap: () => widget.onRepliedTap?.call(e.id),
-                child: _repliedMessage(e),
-              );
-            }),
-            if (msg.text != null) const SizedBox(height: 5),
-          ],
-          if (msg.text != null) Text(msg.text!.val),
-          if (msg.text != null && msg.attachments.isNotEmpty)
-            const SizedBox(height: 5),
-          if (media.isNotEmpty)
-            Column(
-              crossAxisAlignment: msg.authorId == widget.me
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: media
-                  .mapIndexed((i, e) => _mediaAttachment(i, e, media))
-                  .toList(),
-            ),
-          if (media.isNotEmpty && files.isNotEmpty) const SizedBox(height: 6),
-          ...files.map(_fileAttachment),
-        ],
-      ),
+      avatarOffset: avatarOffset,
     );
   }
 
@@ -547,6 +896,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           : 'label_incoming_call'.l10n;
     }
 
+    final Style style = Theme.of(context).extension<Style>()!;
+
     subtitle = [
       Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
@@ -576,6 +927,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: style.boldBody,
                     ),
                   ),
                   if (time != null) ...[
@@ -586,8 +938,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: Color(0xFF888888), fontSize: 13),
+                        style: Theme.of(context).textTheme.subtitle2,
                       ),
                     ),
                   ],
@@ -602,52 +953,124 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      Row(mainAxisSize: MainAxisSize.min, children: subtitle),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            border: _fromMe
+                ? _isRead
+                    ? style.secondaryBorder
+                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
+                : style.primaryBorder,
+            color: _fromMe
+                ? _isRead
+                    ? style.readMessageColor
+                    : style.unreadMessageColor
+                : style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+                child: Row(mainAxisSize: MainAxisSize.min, children: subtitle),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   /// Renders the provided [item] as a replied message.
   Widget _repliedMessage(ChatItem item) {
     Style style = Theme.of(context).extension<Style>()!;
+    bool fromMe = item.authorId == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
 
     if (item is ChatMessage) {
-      var desc = StringBuffer();
-
-      if (item.text != null) {
-        desc.write(item.text!.val);
-      }
-
       if (item.attachments.isNotEmpty) {
-        additional = item.attachments.map((a) {
-          ImageAttachment? image = a is ImageAttachment ? a : null;
-          return Container(
-            margin: const EdgeInsets.only(right: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE7E7E7),
-              borderRadius: BorderRadius.circular(8),
-              image: image == null
-                  ? null
-                  : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.files}${image.medium.relativeRef}',
-                      ),
-                      onError: (_, __) => widget.onAttachmentError?.call(),
-                      fit: BoxFit.cover,
+        additional = item.attachments
+            .map((a) {
+              ImageAttachment? image;
+
+              if (a is ImageAttachment) {
+                image = a;
+              }
+
+              return Container(
+                margin: const EdgeInsets.only(right: 2),
+                decoration: BoxDecoration(
+                  color: fromMe
+                      ? Colors.white.withOpacity(0.25)
+                      : Colors.black.withOpacity(0.03),
+                  borderRadius: BorderRadius.circular(10),
+                  image: image == null
+                      ? null
+                      : DecorationImage(
+                          image: NetworkImage(
+                            '${Config.files}${image.medium.relativeRef}',
+                          ),
+                          onError: (_, __) => widget.onAttachmentError?.call(),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                width: 50,
+                height: 50,
+                child: image == null
+                    ? Icon(
+                        Icons.file_copy,
+                        color: fromMe ? Colors.white : const Color(0xFFDDDDDD),
+                        size: 28,
+                      )
+                    : null,
+              );
+            })
+            .take(3)
+            .toList();
+
+        if (item.attachments.length > 3) {
+          final int count = max(item.attachments.length - 3, 99);
+
+          additional.add(
+            Container(
+              margin: const EdgeInsets.only(right: 2),
+              decoration: BoxDecoration(
+                color: fromMe
+                    ? Colors.white.withOpacity(0.25)
+                    : Colors.black.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 50,
+              height: 50,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    '${'plus'.l10n}$count',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
+                  ),
+                ),
+              ),
             ),
-            width: 50,
-            height: 50,
-            child: image == null ? const Icon(Icons.file_copy, size: 16) : null,
           );
-        }).toList();
+        }
       }
 
-      if (desc.isNotEmpty) {
+      if (item.text != null && item.text!.val.isNotEmpty) {
         content = Text(
-          desc.toString(),
+          item.text!.val,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: style.boldBody,
         );
       }
@@ -690,7 +1113,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title)),
+          Flexible(child: Text(title, style: style.boldBody)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -716,17 +1139,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     return FutureBuilder<RxUser?>(
-      key: Key('FutureBuilder_${item.id}'),
       future: widget.getUser?.call(item.authorId),
       builder: (context, snapshot) {
         Color color = snapshot.data?.user.value.id == widget.me
-            ? const Color(0xFF63B4FF)
+            ? Theme.of(context).colorScheme.secondary
             : AvatarWidget.colors[
                 (snapshot.data?.user.value.num.val.sum() ?? 3) %
                     AvatarWidget.colors.length];
 
         return Row(
-          key: Key('Row_${item.id}'),
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -754,7 +1175,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: content,
-                      )
+                      ),
                     ],
                     if (additional.isNotEmpty) ...[
                       const SizedBox(height: 4),
@@ -770,287 +1191,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
-  /// Returns visual representation of the provided media-[Attachment].
-  Widget _mediaAttachment(int i, Attachment e, List<Attachment> media) {
-    bool isLocal = e is LocalAttachment;
-
-    bool isVideo;
-    if (isLocal) {
-      isVideo = e.file.isVideo;
-    } else {
-      isVideo = e is FileAttachment;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: isLocal
-            ? null
-            : () {
-                List<Attachment> attachments =
-                    widget.onGallery?.call() ?? media;
-
-                int initial = attachments.indexOf(e);
-                if (initial == -1) {
-                  initial = 0;
-                }
-
-                List<GalleryItem> gallery = [];
-                for (var o in attachments) {
-                  String link = '${Config.files}${o.original.relativeRef}';
-                  if (o is FileAttachment) {
-                    gallery.add(GalleryItem.video(link, o.filename));
-                  } else if (o is ImageAttachment) {
-                    GalleryItem? item;
-
-                    item = GalleryItem.image(
-                      link,
-                      o.filename,
-                      onError: () async {
-                        await widget.onAttachmentError?.call();
-                        item?.link = '${Config.files}${o.original.relativeRef}';
-                      },
-                    );
-
-                    gallery.add(item);
-                  }
-                }
-
-                GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    children: gallery,
-                    initial: initial,
-                    initialKey: _galleryKeys[i],
-                  ),
-                );
-              },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            isVideo
-                ? Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      isLocal
-                          ? e.file.bytes == null
-                              ? const CircularProgressIndicator()
-                              : VideoThumbnail.bytes(
-                                  key: _galleryKeys[i],
-                                  bytes: e.file.bytes!,
-                                  height: 300,
-                                )
-                          : VideoThumbnail.url(
-                              key: _galleryKeys[i],
-                              url: '${Config.files}${e.original.relativeRef}',
-                              height: 300,
-                              onError: widget.onAttachmentError,
-                            ),
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0x80000000),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                    ],
-                  )
-                : isLocal
-                    ? e.file.bytes == null
-                        ? const CircularProgressIndicator()
-                        : Image.memory(
-                            e.file.bytes!,
-                            key: _galleryKeys[i],
-                            fit: BoxFit.cover,
-                            height: 300,
-                          )
-                    : Container(
-                        key: const Key('SentImage'),
-                        child: Image.network(
-                          '${Config.files}${e.original.relativeRef}',
-                          key: _galleryKeys[i],
-                          fit: BoxFit.cover,
-                          height: 300,
-                          errorBuilder: (_, __, ___) {
-                            return InitCallback(
-                              callback: () => widget.onAttachmentError?.call(),
-                              child: const SizedBox(
-                                height: 300,
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-            ElasticAnimatedSwitcher(
-              key: Key('AttachmentStatus_${e.id}'),
-              child:
-                  !isLocal || (isLocal && e.status.value == SendingStatus.sent)
-                      ? Container(key: const Key('Sent'))
-                      : e.status.value == SendingStatus.sending
-                          ? CircularProgressIndicator(
-                              key: const Key('Sending'),
-                              value: e.progress.value,
-                              backgroundColor: Colors.white,
-                              strokeWidth: 10,
-                            )
-                          : const Icon(
-                              Icons.error,
-                              key: Key('Error'),
-                              size: 48,
-                              color: Colors.red,
-                            ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Returns visual representation of the provided file-[Attachment].
-  Widget _fileAttachment(Attachment e) {
-    bool isFile = e is FileAttachment;
-    Widget leading;
-
-    if (isFile) {
-      switch (e.downloadStatus.value) {
-        case DownloadStatus.inProgress:
-          leading = InkWell(
-            onTap: () => widget.onFileTap?.call(e),
-            child: Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                SizedBox.square(
-                  dimension: 22,
-                  child: CircularProgressIndicator(
-                    key: const Key('Downloading'),
-                    value: e.progress.value,
-                  ),
-                ),
-                const Icon(
-                  Icons.clear,
-                  key: Key('CancelDownloading'),
-                  size: 20,
-                ),
-              ],
-            ),
-          );
-          break;
-
-        case DownloadStatus.isFinished:
-          leading = const Icon(
-            Icons.attach_file,
-            key: Key('Downloaded'),
-            size: 18,
-            color: Colors.blue,
-          );
-          break;
-
-        case DownloadStatus.notStarted:
-          leading = const Icon(
-            Icons.download,
-            key: Key('Download'),
-            size: 18,
-            color: Colors.blue,
-          );
-          break;
-      }
-
-      leading = KeyedSubtree(key: const Key('Sent'), child: leading);
-    } else if (e is LocalAttachment) {
-      switch (e.status.value) {
-        case SendingStatus.sending:
-          leading = SizedBox.square(
-            key: const Key('Sending'),
-            dimension: 18,
-            child: CircularProgressIndicator(
-              value: e.progress.value,
-              backgroundColor: Colors.white,
-              strokeWidth: 5,
-            ),
-          );
-          break;
-
-        case SendingStatus.sent:
-          leading = const Icon(
-            Icons.check_circle,
-            key: Key('Sent'),
-            size: 18,
-            color: Colors.green,
-          );
-          break;
-
-        case SendingStatus.error:
-          leading = const Icon(
-            Icons.error_outline,
-            key: Key('Error'),
-            size: 18,
-            color: Colors.red,
-          );
-          break;
-      }
-    } else {
-      leading = Container();
-    }
-
-    return Padding(
-      key: Key('File_${e.id}'),
-      padding: const EdgeInsets.fromLTRB(2, 6, 2, 6),
-      child: InkWell(
-        onTap: isFile
-            ? e.isDownloading
-                ? null
-                : () => widget.onFileTap?.call(e)
-            : null,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              key: Key('AttachmentStatus_${e.id}'),
-              padding: const EdgeInsets.fromLTRB(5, 2, 10, 0),
-              child: ElasticAnimatedSwitcher(child: leading),
-            ),
-            Flexible(
-              child: Text(
-                e.filename,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 1),
-              child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
-                style: const TextStyle(
-                  color: Color(0xFF888888),
-                  fontSize: 13,
-                ),
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// Returns rounded rectangle of a [child] representing a message box.
-  Widget _rounded(BuildContext context, Widget child) {
+  Widget _rounded(
+    BuildContext context,
+    Widget child, {
+    double avatarOffset = 0,
+  }) {
     ChatItem item = widget.item.value;
 
     String? copyable;
@@ -1080,7 +1226,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           if (_fromMe)
             Padding(
               key: Key('MessageStatus_${item.id}'),
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(top: 16),
               child: AnimatedDelayedSwitcher(
                 delay: item.status.value == SendingStatus.sending
                     ? const Duration(seconds: 2)
@@ -1106,201 +1252,165 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           if (!_fromMe && widget.chat.value!.isGroup)
             Padding(
-              padding: const EdgeInsets.only(top: 9),
+              padding: EdgeInsets.only(top: 8 + avatarOffset),
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () => router.user(item.authorId, push: true),
-                child: widget.user != null
-                    ? AvatarWidget.fromRxUser(
-                        widget.user,
-                        radius: 15,
-                      )
-                    : AvatarWidget.fromUser(
-                        widget.chat.value!.getUser(item.authorId),
-                        radius: 15,
-                      ),
+                child: AvatarWidget.fromRxUser(widget.user, radius: 15),
               ),
             ),
           Flexible(
-            key: Key('Message_${item.id}'),
             child: LayoutBuilder(builder: (context, constraints) {
               return ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: min(
                     550,
                     constraints.maxWidth * 0.84 +
-                        (_fromMe ? SwipeableStatus.width : 0),
+                        (_fromMe ? SwipeableStatus.width : -10),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead
-                        ? 1
-                        : _fromMe
-                            ? 0.65
-                            : 0.8,
-                    child: Material(
-                      elevation: 6,
-                      shadowColor: const Color(0x33000000),
-                      borderRadius: BorderRadius.circular(15),
-                      child: ContextMenuRegion(
-                        preventContextMenu: false,
-                        alignment: _fromMe
-                            ? Alignment.bottomRight
-                            : Alignment.bottomLeft,
-                        actions: [
-                          if (copyable != null)
-                            ContextMenuButton(
-                              key: const Key('CopyButton'),
-                              label: 'btn_copy'.l10n,
-                              leading: SvgLoader.asset(
-                                'assets/icons/copy_small.svg',
-                                width: 14.82,
-                                height: 17,
-                              ),
-                              onPressed: () => widget.onCopy?.call(copyable!),
-                            ),
-                          if (item.status.value == SendingStatus.sent) ...[
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: 'btn_reply'.l10n,
-                              leading: SvgLoader.asset(
-                                'assets/icons/reply.svg',
-                                width: 18.8,
-                                height: 16,
-                              ),
-                              onPressed: widget.onReply,
-                            ),
-                            if (item is ChatMessage || item is ChatForward)
-                              ContextMenuButton(
-                                key: const Key('ForwardButton'),
-                                label: 'btn_forward'.l10n,
-                                leading: SvgLoader.asset(
-                                  'assets/icons/forward.svg',
-                                  width: 18.8,
-                                  height: 16,
-                                ),
-                                onPressed: () async {
-                                  await ChatForwardView.show(
-                                    context,
-                                    widget.chat.value!.id,
-                                    [ChatItemQuote(item: item)],
-                                  );
-                                },
-                              ),
-                            if (item is ChatMessage &&
-                                _fromMe &&
-                                (item.at
-                                        .add(ChatController.editMessageTimeout)
-                                        .isAfter(PreciseDateTime.now()) ||
-                                    !_isRead))
-                              ContextMenuButton(
-                                key: const Key('EditButton'),
-                                label: 'btn_edit'.l10n,
-                                leading: SvgLoader.asset(
-                                  'assets/icons/edit.svg',
-                                  width: 17,
-                                  height: 17,
-                                ),
-                                onPressed: widget.onEdit,
-                              ),
-                            ContextMenuButton(
-                              key: const Key('Delete'),
-                              label: 'btn_delete'.l10n,
-                              leading: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
-                              ),
-                              onPressed: () async {
-                                bool deletable = _fromMe &&
-                                    !widget.chat.value!
-                                        .isRead(widget.item.value, widget.me) &&
-                                    (widget.item.value is ChatMessage ||
-                                        widget.item.value is ChatForward);
-
-                                await ConfirmDialog.show(
-                                  context,
-                                  title: 'label_delete_message'.l10n,
-                                  description: deletable
-                                      ? null
-                                      : 'label_message_will_deleted_for_you'
-                                          .l10n,
-                                  variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onHide,
-                                      child: Text(
-                                        'label_delete_for_me'.l10n,
-                                        key: const Key('HideForMe'),
-                                      ),
-                                    ),
-                                    if (deletable)
-                                      ConfirmDialogVariant(
-                                        onProceed: widget.onDelete,
-                                        child: Text(
-                                          'label_delete_for_everyone'.l10n,
-                                          key: const Key('DeleteForAll'),
-                                        ),
-                                      )
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                          if (item.status.value == SendingStatus.error) ...[
-                            ContextMenuButton(
-                              key: const Key('Resend'),
-                              label: 'btn_resend_message'.l10n,
-                              leading: SvgLoader.asset(
-                                'assets/icons/send_small.svg',
-                                width: 18.37,
-                                height: 16,
-                              ),
-                              onPressed: widget.onResend,
-                            ),
-                            ContextMenuButton(
-                              key: const Key('Delete'),
-                              label: 'btn_delete'.l10n,
-                              leading: SvgLoader.asset(
-                                'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
-                              ),
-                              onPressed: () async {
-                                await ConfirmDialog.show(
-                                  context,
-                                  title: 'label_delete_message'.l10n,
-                                  variants: [
-                                    ConfirmDialogVariant(
-                                      onProceed: widget.onDelete,
-                                      child: Text(
-                                        'label_delete_for_everyone'.l10n,
-                                        key: const Key('DeleteForAll'),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              },
-                            ),
-                          ],
-                        ],
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: _fromMe
-                                ? const Color(0xFFDCE9FD)
-                                : const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(15),
+                child: Material(
+                  key: Key('Message_${item.id}'),
+                  type: MaterialType.transparency,
+                  child: ContextMenuRegion(
+                    preventContextMenu: false,
+                    alignment:
+                        _fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
+                    actions: [
+                      if (copyable != null)
+                        ContextMenuButton(
+                          key: const Key('CopyButton'),
+                          label: 'btn_copy'.l10n,
+                          leading: SvgLoader.asset(
+                            'assets/icons/copy_small.svg',
+                            width: 14.82,
+                            height: 17,
                           ),
-                          child: DefaultTextStyle.merge(
-                            style: const TextStyle(fontSize: 16),
-                            child: child,
-                          ),
+                          onPressed: () => widget.onCopy?.call(copyable!),
                         ),
-                      ),
-                    ),
+                      if (item.status.value == SendingStatus.sent) ...[
+                        ContextMenuButton(
+                          key: const Key('ReplyButton'),
+                          label: 'btn_reply'.l10n,
+                          leading: SvgLoader.asset(
+                            'assets/icons/reply.svg',
+                            width: 18.8,
+                            height: 16,
+                          ),
+                          onPressed: widget.onReply,
+                        ),
+                        if (item is ChatMessage)
+                          ContextMenuButton(
+                            key: const Key('ForwardButton'),
+                            label: 'btn_forward'.l10n,
+                            leading: SvgLoader.asset(
+                              'assets/icons/forward.svg',
+                              width: 18.8,
+                              height: 16,
+                            ),
+                            onPressed: () async {
+                              await ChatForwardView.show(
+                                context,
+                                widget.chat.value!.id,
+                                [ChatItemQuote(item: item)],
+                              );
+                            },
+                          ),
+                        if (item is ChatMessage &&
+                            _fromMe &&
+                            (item.at
+                                    .add(ChatController.editMessageTimeout)
+                                    .isAfter(PreciseDateTime.now()) ||
+                                !_isRead))
+                          ContextMenuButton(
+                            key: const Key('EditButton'),
+                            label: 'btn_edit'.l10n,
+                            leading: SvgLoader.asset(
+                              'assets/icons/edit.svg',
+                              width: 17,
+                              height: 17,
+                            ),
+                            onPressed: widget.onEdit,
+                          ),
+                        ContextMenuButton(
+                          key: const Key('Delete'),
+                          label: 'btn_delete'.l10n,
+                          leading: SvgLoader.asset(
+                            'assets/icons/delete_small.svg',
+                            width: 17.75,
+                            height: 17,
+                          ),
+                          onPressed: () async {
+                            bool deletable = _fromMe &&
+                                !widget.chat.value!
+                                    .isRead(widget.item.value, widget.me) &&
+                                (widget.item.value is ChatMessage);
+
+                            await ConfirmDialog.show(
+                              context,
+                              title: 'label_delete_message'.l10n,
+                              description: deletable
+                                  ? null
+                                  : 'label_message_will_deleted_for_you'.l10n,
+                              variants: [
+                                ConfirmDialogVariant(
+                                  onProceed: widget.onHide,
+                                  child: Text(
+                                    'label_delete_for_me'.l10n,
+                                    key: const Key('HideForMe'),
+                                  ),
+                                ),
+                                if (deletable)
+                                  ConfirmDialogVariant(
+                                    onProceed: widget.onDelete,
+                                    child: Text(
+                                      'label_delete_for_everyone'.l10n,
+                                      key: const Key('DeleteForAll'),
+                                    ),
+                                  )
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                      if (item.status.value == SendingStatus.error) ...[
+                        ContextMenuButton(
+                          key: const Key('Resend'),
+                          label: 'btn_resend_message'.l10n,
+                          leading: SvgLoader.asset(
+                            'assets/icons/send_small.svg',
+                            width: 18.37,
+                            height: 16,
+                          ),
+                          onPressed: widget.onResend,
+                        ),
+                        ContextMenuButton(
+                          key: const Key('Delete'),
+                          label: 'btn_delete'.l10n,
+                          leading: SvgLoader.asset(
+                            'assets/icons/delete_small.svg',
+                            width: 17.75,
+                            height: 17,
+                          ),
+                          onPressed: () async {
+                            await ConfirmDialog.show(
+                              context,
+                              title: 'label_delete_message'.l10n,
+                              variants: [
+                                ConfirmDialogVariant(
+                                  onProceed: widget.onDelete,
+                                  child: Text(
+                                    'label_delete_for_everyone'.l10n,
+                                    key: const Key('DeleteForAll'),
+                                  ),
+                                )
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                    child: child,
                   ),
                 ),
               );
@@ -1322,16 +1432,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           .map((e) => GlobalKey())
           .toList();
     } else if (msg is ChatForward) {
-      final ChatItem item = msg.item;
-      if (item is ChatMessage) {
-        _galleryKeys = item.attachments
-            .where((e) =>
-                e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-            .map((e) => GlobalKey())
-            .toList();
-      }
+      throw Exception(
+        'Use `ChatForward` widget for rendering `ChatForward`s instead',
+      );
     }
   }
 }
@@ -1374,10 +1477,10 @@ extension LocalizedDurationExtension on Duration {
   String localizedString() {
     var microseconds = inMicroseconds;
 
+    if (microseconds < 0) microseconds = -microseconds;
+
     var hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-
-    if (microseconds < 0) microseconds = -microseconds;
 
     var minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);

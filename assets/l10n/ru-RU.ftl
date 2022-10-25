@@ -517,4 +517,5 @@ label_was_added = {$who} был(а) добавлен(а)
 label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+plus = +
 space_vertical_space = {" "}|{" "}
