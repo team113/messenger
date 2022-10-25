@@ -436,6 +436,7 @@ label_introduction_description =
         • Вы не нажмёте кнопку "Выйти".
 
     Чтобы не потерять доступ к аккаунту, задайте пароль.
+label_kb = {$amount} КБ
 label_last_seen = Был(а)
 label_login = Логин
 label_login_hint = Ваш уникальный логин
@@ -516,3 +517,4 @@ label_was_added = {$who} был(а) добавлен(а)
 label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+plus = +

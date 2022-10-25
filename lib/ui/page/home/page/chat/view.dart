@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_fab.dart';
 import 'widget/back_button.dart';
+import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/swipeable_status.dart';
 
@@ -246,43 +248,7 @@ class _ChatViewState extends State<ChatView>
                                       ? const BouncingScrollPhysics()
                                       : const NeverScrollableScrollPhysics(),
                                   delegate: FlutterListViewDelegate(
-                                    (BuildContext context, int i) {
-                                      ListElement? e =
-                                          c.elements.values.elementAt(i);
-
-                                      if (e is UnreadMessagesElement) {
-                                        return _unreadLabel(context, c);
-                                      } else if (e is ChatMessageElement ||
-                                          e is ChatCallElement ||
-                                          e is ChatMemberInfoElement) {
-                                        Rx<ChatItem>? item;
-
-                                        if (e is ChatMessageElement) {
-                                          item = e.item;
-                                        } else if (e is ChatCallElement) {
-                                          item = e.item;
-                                        } else if (e is ChatMemberInfoElement) {
-                                          item = e.item;
-                                        }
-
-                                        return _chatItem(c, item!);
-                                      } else if (e is ChatForwardElement) {
-                                        // TODO: Redesign `ChatForward`.
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ...e.forwards
-                                                .map((e) => _chatItem(c, e)),
-                                            if (e.note.value != null)
-                                              _chatItem(c, e.note.value!),
-                                          ],
-                                        );
-                                      } else if (e is DateTimeElement) {
-                                        return _timeLabel(e.id.at.val);
-                                      }
-
-                                      return Text('Unknown element: $e');
-                                    },
+                                    (context, i) => _listElement(context, c, i),
                                     childCount: c.elements.length,
                                     keepPosition: true,
                                     onItemKey: (i) => c.elements.values
@@ -373,52 +339,154 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
-  /// Returns visual representation of the provided [ChatItem].
-  Widget _chatItem(ChatController c, Rx<ChatItem> item) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: FutureBuilder<RxUser?>(
-        future: c.getUser(item.value.authorId),
-        builder: (_, u) => ChatItemWidget(
-          key: Key(item.value.id.val),
-          chat: c.chat!.chat,
-          item: item,
-          me: c.me!,
-          user: u.data,
-          getUser: c.getUser,
-          onJoinCall: c.joinCall,
-          onHide: () => c.hideChatItem(item.value),
-          onDelete: () => c.deleteMessage(item.value),
-          onReply: () {
-            if (c.repliedMessages.contains(item.value)) {
-              c.repliedMessages.remove(item.value);
-            } else {
-              c.repliedMessages.insert(0, item.value);
-            }
-          },
-          onCopy: (text) => c.copyText(text),
-          onRepliedTap: (id) => c.animateTo(id),
-          onForwardedTap: (id, chatId) {
-            if (chatId == c.id) {
-              c.animateTo(id);
-            } else {
-              router.chat(chatId, itemId: id, push: true);
-            }
-          },
-          animation: _animation,
-          onGallery: c.calculateGallery,
-          onResend: () => c.resendItem(item.value),
-          onEdit: () => c.editMessage(item.value),
-          onFileTap: (a) => c.download(item.value, a),
-          onAttachmentError: () async {
-            await c.chat?.updateAttachments(item.value);
-            await Future.delayed(
-              Duration.zero,
-            );
-          },
+  /// Builds a visual representation of a [ListElement] identified by the
+  /// provided index.
+  Widget _listElement(BuildContext context, ChatController c, int i) {
+    ListElement element = c.elements.values.elementAt(i);
+    bool isLast = i == c.elements.length - 1;
+
+    if (element is ChatMessageElement ||
+        element is ChatCallElement ||
+        element is ChatMemberInfoElement) {
+      Rx<ChatItem> e;
+
+      if (element is ChatMessageElement) {
+        e = element.item;
+      } else if (element is ChatCallElement) {
+        e = element.item;
+      } else if (element is ChatMemberInfoElement) {
+        e = element.item;
+      } else {
+        throw Exception('Unreachable');
+      }
+
+      return Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(e.value.authorId),
+          builder: (_, u) => ChatItemWidget(
+            chat: c.chat!.chat,
+            item: e,
+            me: c.me!,
+            user: u.data,
+            getUser: c.getUser,
+            animation: _animation,
+            onJoinCall: c.joinCall,
+            onHide: () => c.hideChatItem(e.value),
+            onDelete: () => c.deleteMessage(e.value),
+            onReply: () {
+              if (c.repliedMessages.contains(e.value)) {
+                c.repliedMessages.remove(e.value);
+              } else {
+                c.repliedMessages.insert(0, e.value);
+              }
+            },
+            onCopy: c.copyText,
+            onRepliedTap: c.animateTo,
+            onGallery: c.calculateGallery,
+            onResend: () => c.resendItem(e.value),
+            onEdit: () => c.editMessage(e.value),
+            onFileTap: (a) => c.download(e.value, a),
+            onAttachmentError: () async {
+              await c.chat?.updateAttachments(e.value);
+              await Future.delayed(Duration.zero);
+            },
+          ),
         ),
-      ),
-    );
+      );
+    } else if (element is ChatForwardElement) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(8, 0, 8, isLast ? 8 : 0),
+        child: FutureBuilder<RxUser?>(
+          future: c.getUser(element.authorId),
+          builder: (_, u) => ChatForwardWidget(
+            key: Key('ChatForwardWidget_${element.id}'),
+            chat: c.chat!.chat,
+            forwards: element.forwards,
+            note: element.note,
+            authorId: element.authorId,
+            me: c.me!,
+            user: u.data,
+            getUser: c.getUser,
+            animation: _animation,
+            onHide: () async {
+              final List<Future> futures = [];
+
+              for (Rx<ChatItem> f in element.forwards) {
+                futures.add(c.hideChatItem(f.value));
+              }
+
+              if (element.note.value != null) {
+                futures.add(c.hideChatItem(element.note.value!.value));
+              }
+
+              await Future.wait(futures);
+            },
+            onDelete: () async {
+              final List<Future> futures = [];
+
+              for (Rx<ChatItem> f in element.forwards) {
+                futures.add(c.deleteMessage(f.value));
+              }
+
+              if (element.note.value != null) {
+                futures.add(c.deleteMessage(element.note.value!.value));
+              }
+
+              await Future.wait(futures);
+            },
+            onReply: () {
+              if (element.forwards
+                      .any((e) => c.repliedMessages.contains(e.value)) ||
+                  c.repliedMessages.contains(element.note.value?.value)) {
+                for (Rx<ChatItem> e in element.forwards) {
+                  c.repliedMessages.remove(e.value);
+                }
+
+                if (element.note.value != null) {
+                  c.repliedMessages.remove(element.note.value!.value);
+                }
+              } else {
+                for (Rx<ChatItem> e in element.forwards.reversed) {
+                  c.repliedMessages.insert(0, e.value);
+                }
+
+                if (element.note.value != null) {
+                  c.repliedMessages.insert(0, element.note.value!.value);
+                }
+              }
+            },
+            onCopy: c.copyText,
+            onGallery: c.calculateGallery,
+            onEdit: () => c.editMessage(element.note.value!.value),
+            onForwardedTap: (id, chatId) {
+              if (chatId == c.id) {
+                c.animateTo(id);
+              } else {
+                router.chat(chatId, itemId: id, push: true);
+              }
+            },
+            onFileTap: c.download,
+            onAttachmentError: () async {
+              for (ChatItem item in [
+                element.note.value?.value,
+                ...element.forwards.map((e) => e.value),
+              ].whereNotNull()) {
+                await c.chat?.updateAttachments(item);
+              }
+
+              await Future.delayed(Duration.zero);
+            },
+          ),
+        ),
+      );
+    } else if (element is DateTimeElement) {
+      return _timeLabel(element.id.at.val);
+    } else if (element is UnreadMessagesElement) {
+      return _unreadLabel(context, c);
+    }
+
+    return const SizedBox();
   }
 
   /// Returns a header subtitle of the [Chat].

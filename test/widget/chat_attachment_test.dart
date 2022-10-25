@@ -318,8 +318,9 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    ChatController chatController =
+        Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -333,8 +334,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
-        .addPlatformAttachment(
+    chatController.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -346,7 +346,11 @@ void main() async {
     await tester.tap(find.byKey(const Key('Send')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.text('test.txt', skipOffstage: false), findsOneWidget);
+    AttachmentId id = (chatController.chat!.messages.last.value as ChatMessage)
+        .attachments
+        .first
+        .id;
+    expect(find.byKey(Key('File_$id'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
   });
