@@ -767,9 +767,11 @@ class OngoingCall {
   /// No-op if [isRemoteVideoEnabled] is already [enabled].
   Future<void> setRemoteVideoEnabled(bool enabled) async {
     try {
+      print('1');
       final List<Future> futures = [];
 
       if (enabled && isRemoteVideoEnabled.isFalse) {
+        print('2');
         for (CallMember m in members.values.where((e) => e.id != _me)) {
           futures.addAll([
             m.setVideoEnabled(true, source: MediaSourceKind.Device),
@@ -779,6 +781,7 @@ class OngoingCall {
 
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
+        print('3');
         for (CallMember m in members.values.where((e) => e.id != _me)) {
           m.tracks.where((e) => e.kind == MediaKind.Video).forEach((e) {
             futures.add(m.setVideoEnabled(false, source: e.source));
@@ -790,6 +793,8 @@ class OngoingCall {
 
       await Future.wait(futures);
     } on MediaStateTransitionException catch (_) {
+      print('4');
+      print(_);
       // No-op.
     }
   }

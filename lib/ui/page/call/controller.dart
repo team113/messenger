@@ -927,7 +927,10 @@ class CallController extends GetxController {
   }
 
   /// Toggles inbound video in the current [OngoingCall] on and off.
-  Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
+  Future<void> toggleRemoteVideos() async {
+    print('toggle');
+    await _currentCall.value.toggleRemoteVideo();
+  }
 
   /// Toggles inbound audio in the current [OngoingCall] on and off.
   Future<void> toggleRemoteAudios() => _currentCall.value.toggleRemoteAudio();
