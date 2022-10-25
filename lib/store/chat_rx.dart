@@ -778,6 +778,11 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
               chatEntity.value.ongoingCall = event.call;
+
+              if (chat.value.isGroup) {
+                chatEntity.value.ongoingCall!.conversationStartedAt =
+                    PreciseDateTime.now();
+              }
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -827,6 +832,16 @@ class HiveRxChat implements RxChat {
                   joinedAt: event.at,
                 ),
               );
+
+              if (chat.value.isDialog &&
+                  chatEntity.value.ongoingCall?.members
+                          .map((e) => e.user.id)
+                          .toSet()
+                          .length ==
+                      2) {
+                chatEntity.value.ongoingCall!.conversationStartedAt ??=
+                    PreciseDateTime.now();
+              }
               break;
 
             case ChatEventKind.lastItemUpdated:

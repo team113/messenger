@@ -657,14 +657,14 @@ class ChatController extends GetxController {
           _durationTimer = null;
 
           if (chat.ongoingCall != null) {
-            DateTime now = DateTime.now();
-
             _durationTimer = Timer.periodic(
               const Duration(seconds: 1),
               (_) {
-                duration.value = DateTime.now().difference(
-                  chat.ongoingCall!.conversationStartedAt?.val ?? now,
-                );
+                if (chat.ongoingCall!.conversationStartedAt != null) {
+                  duration.value = DateTime.now().difference(
+                    chat.ongoingCall!.conversationStartedAt!.val,
+                  );
+                }
               },
             );
           }
