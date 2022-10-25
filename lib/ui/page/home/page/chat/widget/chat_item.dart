@@ -198,20 +198,12 @@ class ChatItemWidget extends StatefulWidget {
     } else {
       attachment = KeyedSubtree(
         key: const Key('SentImage'),
-        child: Image.network(
-          '${Config.files}${(e as ImageAttachment).big.relativeRef}',
+        child: RetryImage(
+          '${Config.files}${e.original.relativeRef}',
           key: key,
           fit: BoxFit.cover,
           height: 300,
-          errorBuilder: (_, __, ___) {
-            return InitCallback(
-              callback: onError,
-              child: const SizedBox.square(
-                dimension: 300,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            );
-          },
+          error403: onError,
         ),
       );
     }
