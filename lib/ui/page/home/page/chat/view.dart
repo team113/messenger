@@ -390,12 +390,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        8,
-                        0,
-                        8,
-                        PlatformUtils.isMobile ? 0 : 4,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
                       child:
                           NotificationListener<SizeChangedLayoutNotification>(
                         onNotification: (l) {

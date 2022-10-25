@@ -241,11 +241,6 @@ class HiveRxChat implements RxChat {
       for (HiveChatItem item in items) {
         if (item.value.chatId == id) {
           put(item);
-
-          ChatItem chatItem = item.value;
-          if (chatItem is ChatCall && chatItem.finishReasonIndex == null) {
-            chat.value.ongoingCall = chatItem;
-          }
         } else {
           _chatRepository.putChatItem(item);
         }

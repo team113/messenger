@@ -52,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Style style = Theme.of(context).extension<Style>()!;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(8, PlatformUtils.isMobile ? 0 : 4, 8, 0),
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
