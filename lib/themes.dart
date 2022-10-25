@@ -51,6 +51,12 @@ class Themes {
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            messageColor: Colors.white,
+            primaryBorder:
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            readMessageColor: const Color(0xFFD2E3F9),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             dropButtonColor: Colors.red,
             hoveredBorderUnselected:
                 Border.all(color: const Color(0xFFDAEDFF), width: 0.5),
@@ -71,6 +77,7 @@ class Themes {
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
+            unreadMessageColor: const Color(0xFFF4F9FF),
           ),
         ],
         colorScheme: colors,
@@ -297,6 +304,10 @@ class Style extends ThemeExtension<Style> {
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.messageColor,
+    required this.primaryBorder,
+    required this.readMessageColor,
+    required this.secondaryBorder,
     required this.dropButtonColor,
     required this.hoveredBorderUnselected,
     required this.primaryBorder,
@@ -309,6 +320,7 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.unreadMessageColor,
     required this.unselectedHoverColor,
   });
 
@@ -338,6 +350,19 @@ class Style extends ThemeExtension<Style> {
 
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
+
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
+  final Color messageColor;
+
+  /// [Border] to apply to [ColorScheme.primary] color.
+  final Border primaryBorder;
+
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s
+  /// posted by the authenticated [MyUser].
+  final Color readMessageColor;
+
+  /// [Border] to apply to [ColorScheme.secondary] color.
+  final Border secondaryBorder;
 
   /// [Color] reset button.
   final Color dropButtonColor;
@@ -375,6 +400,10 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
+  /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s posted by the authenticated [MyUser].
+  final Color unreadMessageColor;
+
   /// [Color] to use in sidebar for unselected chats when hovering.
   final Color unselectedHoverColor;
 
@@ -391,6 +420,9 @@ class Style extends ThemeExtension<Style> {
     Color? contextMenuHoveredColor,
     Color? dropButtonColor,
     Color? primaryCardColor,
+    Color? messageColor,
+    Color? readMessageColor,
+    Border? secondaryBorder,
     Color? sidebarColor,
     Color? statusMessageError,
     Color? statusMessageNotRead,
@@ -402,6 +434,7 @@ class Style extends ThemeExtension<Style> {
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
+    Color? unreadMessageColor,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
@@ -415,10 +448,13 @@ class Style extends ThemeExtension<Style> {
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      messageColor: messageColor ?? this.messageColor,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      readMessageColor: readMessageColor ?? this.readMessageColor,
+      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       dropButtonColor: dropButtonColor ?? this.dropButtonColor,
       hoveredBorderUnselected:
           hoveredBorderUnselected ?? this.hoveredBorderUnselected,
-      primaryBorder: primaryBorder ?? this.primaryBorder,
       primaryCardColor: primaryCardColor ?? this.primaryCardColor,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       statusMessageError: statusMessageError ?? this.statusMessageError,
@@ -429,6 +465,7 @@ class Style extends ThemeExtension<Style> {
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
 
@@ -457,6 +494,11 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      messageColor: Color.lerp(messageColor, other.messageColor, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      readMessageColor:
+          Color.lerp(readMessageColor, other.readMessageColor, t)!,
+      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       dropButtonColor: Color.lerp(dropButtonColor, other.dropButtonColor, t)!,
       hoveredBorderUnselected: Border.lerp(
           hoveredBorderUnselected, other.hoveredBorderUnselected, t)!,
@@ -482,6 +524,8 @@ class Style extends ThemeExtension<Style> {
         other.systemMessageStyle,
         t,
       )!,
+      unreadMessageColor:
+          Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
   }
 }

@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -447,21 +448,27 @@ class ChatController extends GetxController {
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);
 
-          ListElementId? key = elements.lastKeyBefore(element.id);
-          ListElement? previous = elements[key];
+          ListElement? previous = elements[elements.lastKeyBefore(element.id)];
+          ListElement? next = elements[elements.firstKeyAfter(element.id)];
 
           bool insert = true;
 
-          // Combine this [ChatMessage] with previous [ChatForward], if it was
-          // posted less than [groupForwardThreshold] ago.
-          if (previous is ChatForwardElement) {
-            if (previous.authorId == item.authorId &&
-                item.at.val.difference(previous.forwards.last.value.at.val) <
-                    groupForwardThreshold &&
-                previous.note.value == null) {
-              insert = false;
-              previous.note.value = e;
-            }
+          // Combine this [ChatMessage] with previous and next [ChatForward]s,
+          // if it was posted less than [groupForwardThreshold] ago.
+          if (previous is ChatForwardElement &&
+              previous.authorId == item.authorId &&
+              item.at.val.difference(previous.forwards.last.value.at.val) <
+                  groupForwardThreshold &&
+              previous.note.value == null) {
+            insert = false;
+            previous.note.value = e;
+          } else if (next is ChatForwardElement &&
+              next.authorId == item.authorId &&
+              next.forwards.last.value.at.val.difference(item.at.val) <
+                  groupForwardThreshold &&
+              next.note.value == null) {
+            insert = false;
+            next.note.value = e;
           }
 
           if (insert) {
@@ -477,34 +484,48 @@ class ChatController extends GetxController {
           ChatForwardElement element =
               ChatForwardElement(forwards: [e], e.value.at);
 
-          ListElement? previous;
-          ListElementId? key = elements.lastKeyBefore(element.id);
-          if (key != null) {
-            previous = elements[key];
-          }
+          ListElementId? previousKey = elements.lastKeyBefore(element.id);
+          ListElement? previous = elements[previousKey];
+
+          ListElementId? nextKey = elements.firstKeyAfter(element.id);
+          ListElement? next = elements[nextKey];
 
           bool insert = true;
 
-          if (previous is ChatForwardElement) {
-            // Combine this [ChatForward] with previous [ChatForward], if it was
-            // posted less than [groupForwardThreshold] ago.
-            if (previous.authorId == item.authorId &&
-                item.at.val.difference(previous.forwards.last.value.at.val) <
-                    groupForwardThreshold) {
-              previous.forwards.add(e);
-              previous.forwards
-                  .sort((a, b) => a.value.at.compareTo(b.value.at));
-              insert = false;
-            }
-          } else if (previous is ChatMessageElement) {
-            // Combine the previous [ChatMessage] with this [ChatForward], if it
+          if (previous is ChatForwardElement &&
+              previous.authorId == item.authorId &&
+              item.at.val.difference(previous.forwards.last.value.at.val) <
+                  groupForwardThreshold) {
+            // Add this [ChatForward] to previous [ChatForwardElement], if it
             // was posted less than [groupForwardThreshold] ago.
-            if (previous.item.value.authorId == item.authorId &&
-                item.at.val.difference(previous.item.value.at.val) <
-                    groupForwardThreshold) {
-              element.note.value = previous.item;
-              elements.remove(key);
-            }
+            previous.forwards.add(e);
+            previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+            insert = false;
+          } else if (previous is ChatMessageElement &&
+              previous.item.value.authorId == item.authorId &&
+              item.at.val.difference(previous.item.value.at.val) <
+                  groupForwardThreshold) {
+            // Add the previous [ChatMessage] to this [ChatForwardElement.note],
+            // if it was posted less than [groupForwardThreshold] ago.
+            element.note.value = previous.item;
+            elements.remove(previousKey);
+          } else if (next is ChatForwardElement &&
+              next.authorId == item.authorId &&
+              next.forwards.first.value.at.val.difference(item.at.val) <
+                  groupForwardThreshold) {
+            // Add this [ChatForward] to next [ChatForwardElement], if it was
+            // posted less than [groupForwardThreshold] ago.
+            next.forwards.add(e);
+            next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+            insert = false;
+          } else if (next is ChatMessageElement &&
+              next.item.value.authorId == item.authorId &&
+              next.item.value.at.val.difference(item.at.val) <
+                  groupForwardThreshold) {
+            // Add the next [ChatMessage] to this [ChatForwardElement.note], if
+            // it was posted less than [groupForwardThreshold] ago.
+            element.note.value = next.item;
+            elements.remove(nextKey);
           }
 
           if (insert) {
@@ -765,7 +786,13 @@ class ChatController extends GetxController {
     bool offsetBasedOnBottom = false,
     double offset = 0,
   }) async {
-    int index = elements.values.toList().indexWhere((e) => e.id.id == id);
+    int index = elements.values.toList().indexWhere((e) {
+      return e.id.id == id ||
+          (e is ChatForwardElement &&
+              (e.forwards.any((e1) => e1.value.id == id) ||
+                  e.note.value?.value.id == id));
+    });
+
     if (index != -1) {
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
@@ -933,7 +960,11 @@ class ChatController extends GetxController {
     } else {
       try {
         await attachment.download();
-      } catch (_) {
+      } catch (e) {
+        if (e is DioError && e.type == DioErrorType.cancel) {
+          return;
+        }
+
         await chat?.updateAttachments(item);
         await Future.delayed(Duration.zero);
         await attachment.download();
