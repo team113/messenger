@@ -899,7 +899,11 @@ class _ChatViewState extends State<ChatView>
                                           MainAxisAlignment.start,
                                       children: c.attachments
                                           .map(
-                                            (e) => _buildAttachment(c, e),
+                                            (e) => _buildAttachment(
+                                              c,
+                                              e.value,
+                                              e.key,
+                                            ),
                                           )
                                           .toList(),
                                     ),
@@ -998,7 +1002,9 @@ class _ChatViewState extends State<ChatView>
                                           .map((e) => ChatItemQuote(item: e))
                                           .toList(),
                                       text: c.send.text,
-                                      attachments: c.attachments,
+                                      attachments: c.attachments
+                                          .map((e) => e.value)
+                                          .toList(),
                                     );
 
                                     if (result == true) {
@@ -1199,7 +1205,7 @@ class _ChatViewState extends State<ChatView>
   }
 
   /// Returns a visual representation of the provided [Attachment].
-  Widget _buildAttachment(ChatController c, Attachment e) {
+  Widget _buildAttachment(ChatController c, Attachment e, GlobalKey key) {
     bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
     bool isVideo = (e is FileAttachment && e.isVideo) ||
@@ -1283,14 +1289,18 @@ class _ChatViewState extends State<ChatView>
           }
         }
 
-        List<Attachment> attachments = c.attachments.where((e) {
-          return e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo));
-        }).toList();
+        List<Attachment> attachments = c.attachments
+            .where((e) {
+              Attachment a = e.value;
+              return a is ImageAttachment ||
+                  (a is FileAttachment && a.isVideo) ||
+                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+            })
+            .map((e) => e.value)
+            .toList();
 
         return WidgetButton(
-          key: c.galleryKeys[attachments.indexOf(e)],
+          key: key,
           onPressed: () {
             int index = attachments.indexOf(e);
             if (index != -1) {
@@ -1298,10 +1308,10 @@ class _ChatViewState extends State<ChatView>
                 context: context,
                 gallery: GalleryPopup(
                   initial: attachments.indexOf(e),
-                  initialKey: c.galleryKeys[attachments.indexOf(e)],
+                  initialKey: key,
                   onTrashPressed: (int i) {
                     Attachment a = attachments[i];
-                    c.attachments.removeWhere((o) => o == a);
+                    c.attachments.removeWhere((o) => o.value == a);
                   },
                   children: attachments.map((o) {
                     var link = '${Config.files}${o.original.relativeRef}';
@@ -1447,7 +1457,8 @@ class _ChatViewState extends State<ChatView>
                                 PlatformUtils.isMobile)
                             ? InkWell(
                                 key: const Key('RemovePickedFile'),
-                                onTap: () => c.attachments.remove(e),
+                                onTap: () => c.attachments
+                                    .removeWhere((a) => a.value == e),
                                 child: Container(
                                   width: 15,
                                   height: 15,
@@ -1483,7 +1494,7 @@ class _ChatViewState extends State<ChatView>
     return Dismissible(
       key: Key(e.id.val),
       direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.remove(e),
+      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
       child: attachment(),
     );
   }

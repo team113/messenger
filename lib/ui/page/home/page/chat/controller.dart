@@ -133,11 +133,8 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// [Attachment]s to be attached to a message.
-  RxObsList<Attachment> attachments = RxObsList<Attachment>();
-
-  /// [GlobalKey]s of the [attachments]s used to animate a [GalleryPopup]
-  /// from/to corresponding [Widget].
-  List<GlobalKey> galleryKeys = [];
+  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -206,9 +203,6 @@ class ChatController extends GetxController {
 
   /// Subscription for the [RxChat.chat] updating the [_durationTimer].
   StreamSubscription? _chatSubscription;
-
-  /// Subscription for the [attachments] updating the [galleryKeys].
-  StreamSubscription? _attachmentsSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -286,7 +280,7 @@ class ChatController extends GetxController {
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
                 repliesTo: repliedMessages,
-                attachments: attachments,
+                attachments: attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -339,20 +333,6 @@ class ChatController extends GetxController {
       ),
     );
 
-    _attachmentsSubscription = attachments.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          galleryKeys.insert(e.pos, GlobalKey());
-          break;
-        case OperationKind.removed:
-          galleryKeys.removeAt(e.pos);
-          break;
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    });
-
     super.onInit();
   }
 
@@ -368,7 +348,6 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _chatSubscription?.cancel();
-    _attachmentsSubscription?.cancel();
     _messagesWorker?.dispose();
     _readWorker?.dispose();
     _typingSubscription?.cancel();
@@ -1052,13 +1031,13 @@ class ChatController extends GetxController {
     if (file.size < maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(attachment);
+        attachments.add(MapEntry(GlobalKey(), attachment));
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexOf(attachment);
         if (index != -1) {
-          attachments[index] = uploaded;
+          attachments[index] = MapEntry(attachments[index].key, uploaded);
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
