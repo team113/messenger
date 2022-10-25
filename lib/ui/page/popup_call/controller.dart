@@ -107,7 +107,7 @@ class PopupCallController extends GetxController {
     WebUtils.removeCall(call.value.chatId.value);
     _storageSubscription?.cancel();
     _stateWorker.dispose();
-    _calls.leave(call.value.chatId.value, call.value.deviceId!);
+    _calls.leave(call.value.chatId.value);
     super.dispose();
   }
 
