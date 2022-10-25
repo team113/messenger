@@ -251,6 +251,10 @@ class HiveRxChat implements RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {
+    if (item.id.isLocal) {
+      return;
+    }
+
     HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
