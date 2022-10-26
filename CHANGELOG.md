@@ -28,7 +28,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
         - Redesigned participants modal; ([#127], [#122])
-        - Proportionally resized secondary panel. ([#96], [#96])
+        - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
