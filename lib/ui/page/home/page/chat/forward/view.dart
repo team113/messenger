@@ -133,7 +133,7 @@ class ChatForwardView extends StatelessWidget {
         List<Widget> children = [
           Center(
             child: Text(
-              'Forward message(s)'.l10n,
+              'label_forward_message'.l10n,
               style: thin?.copyWith(fontSize: 18),
             ),
           ),
@@ -143,7 +143,7 @@ class ChatForwardView extends StatelessWidget {
             child: Center(
               child: ReactiveTextField(
                 state: c.search,
-                label: 'Search',
+                label: 'label_search'.l10n,
                 style: thin,
                 onChanged: () => c.query.value = c.search.text,
               ),
@@ -444,7 +444,7 @@ class ChatForwardView extends StatelessWidget {
                       Expanded(
                         child: Text(
                           chat.title.value == 'Wall_$me'
-                              ? 'Your wall'
+                              ? 'label_your_wall'.l10n
                               : chat.title.value,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
