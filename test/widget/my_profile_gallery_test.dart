@@ -220,6 +220,7 @@ void main() async {
                   'id': 'testId',
                   'original': {'relativeRef': ''},
                   'addedAt': DateTime.now().toString(),
+                  'square': {'relativeRef': ''},
                 },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
@@ -265,6 +266,7 @@ void main() async {
                   'id': 'testId',
                   'original': {'relativeRef': ''},
                   'addedAt': DateTime.now().toString(),
+                  'square': {'relativeRef': ''},
                 },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
@@ -381,10 +383,14 @@ void main() async {
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await mockNetworkImagesFor(
         () async => await tester.pumpAndSettle(const Duration(seconds: 2)));
-    expect(myUserService.myUser.value?.avatar?.galleryItem?.id,
-        const GalleryItemId('testId'));
-    expect(myUserService.myUser.value?.callCover?.galleryItem?.id,
-        const GalleryItemId('testId'));
+    expect(
+      myUserService.myUser.value?.avatar?.galleryItem?.id,
+      const GalleryItemId('testId'),
+    );
+    expect(
+      myUserService.myUser.value?.callCover?.galleryItem?.id,
+      const GalleryItemId('testId'),
+    );
 
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
