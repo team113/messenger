@@ -328,7 +328,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
               mColumns = rWidth / rHeight < 0.56 ? 1 : mColumns;
             }
 
-            if (diagonal < min) {
+            if (diagonal < min && min - diagonal > 1) {
               mColumns = columns;
               min = diagonal;
             }
