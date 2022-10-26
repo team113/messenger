@@ -107,9 +107,7 @@ class MyDismissible extends StatefulWidget {
     this.crossAxisEndOffset = 0.0,
     this.dragStartBehavior = DragStartBehavior.start,
     this.behavior = HitTestBehavior.opaque,
-  })  : assert(key != null),
-        assert(secondaryBackground == null || background != null),
-        assert(dragStartBehavior != null),
+  })  : assert(secondaryBackground == null || background != null),
         super(key: key);
 
   /// The widget below this widget in the tree.
@@ -254,46 +252,6 @@ class DismissUpdateDetails {
   final double progress;
 }
 
-class _MyDismissibleClipper extends CustomClipper<Rect> {
-  _MyDismissibleClipper({
-    required this.axis,
-    required this.moveAnimation,
-  })  : assert(axis != null),
-        assert(moveAnimation != null),
-        super(reclip: moveAnimation);
-
-  final Axis axis;
-  final Animation<Offset> moveAnimation;
-
-  @override
-  Rect getClip(Size size) {
-    assert(axis != null);
-    switch (axis) {
-      case Axis.horizontal:
-        final double offset = moveAnimation.value.dx * size.width;
-        if (offset < 0)
-          return Rect.fromLTRB(
-              size.width + offset, 0.0, size.width, size.height);
-        return Rect.fromLTRB(0.0, 0.0, offset, size.height);
-      case Axis.vertical:
-        final double offset = moveAnimation.value.dy * size.height;
-        if (offset < 0)
-          return Rect.fromLTRB(
-              0.0, size.height + offset, size.width, size.height);
-        return Rect.fromLTRB(0.0, 0.0, size.width, offset);
-    }
-  }
-
-  @override
-  Rect getApproximateClipRect(Size size) => getClip(size);
-
-  @override
-  bool shouldReclip(_MyDismissibleClipper oldClipper) {
-    return oldClipper.axis != axis ||
-        oldClipper.moveAnimation.value != moveAnimation.value;
-  }
-}
-
 enum _FlingGestureKind { none, forward, reverse }
 
 class _MyDismissibleState extends State<MyDismissible>
@@ -307,8 +265,6 @@ class _MyDismissibleState extends State<MyDismissible>
           ..addListener(_handleDismissUpdateValueChanged);
     _updateMoveAnimation();
   }
-
-  OverlayEntry? _entry;
 
   AnimationController? _moveController;
   late Animation<Offset> _moveAnimation;
@@ -357,7 +313,7 @@ class _MyDismissibleState extends State<MyDismissible>
     return extent > 0 ? MyDismissDirection.down : MyDismissDirection.up;
   }
 
-  MyDismissDirection get _MyDismissDirection => _extentToDirection(_dragExtent);
+  MyDismissDirection get _myDismissDirection => _extentToDirection(_dragExtent);
 
   bool get _isActive {
     return _dragUnderway || _moveController!.isAnimating;
@@ -443,9 +399,9 @@ class _MyDismissibleState extends State<MyDismissible>
     if (widget.onUpdate != null) {
       final bool oldDismissThresholdReached = _dismissThresholdReached;
       _dismissThresholdReached = _moveController!.value >
-          (widget.dismissThresholds[_MyDismissDirection] ?? _kDismissThreshold);
+          (widget.dismissThresholds[_myDismissDirection] ?? _kDismissThreshold);
       final DismissUpdateDetails details = DismissUpdateDetails(
-        direction: _MyDismissDirection,
+        direction: _myDismissDirection,
         reached: _dismissThresholdReached,
         previousReached: oldDismissThresholdReached,
         progress: _moveController!.value,
@@ -467,7 +423,6 @@ class _MyDismissibleState extends State<MyDismissible>
   }
 
   _FlingGestureKind _describeFlingGesture(Velocity velocity) {
-    assert(widget.direction != null);
     if (_dragExtent == 0.0) {
       // If it was a fling, then it was a fling that was let loose at the exact
       // middle of the range (i.e. when there's no displacement). In that case,
@@ -491,8 +446,7 @@ class _MyDismissibleState extends State<MyDismissible>
       assert(vy != 0.0);
       flingDirection = _extentToDirection(vy);
     }
-    assert(_MyDismissDirection != null);
-    if (flingDirection == _MyDismissDirection) return _FlingGestureKind.forward;
+    if (flingDirection == _myDismissDirection) return _FlingGestureKind.forward;
     return _FlingGestureKind.reverse;
   }
 
@@ -510,7 +464,7 @@ class _MyDismissibleState extends State<MyDismissible>
       case _FlingGestureKind.forward:
         assert(_dragExtent != 0.0);
         assert(!_moveController!.isDismissed);
-        if ((widget.dismissThresholds[_MyDismissDirection] ??
+        if ((widget.dismissThresholds[_myDismissDirection] ??
                 _kDismissThreshold) >=
             1.0) {
           _moveController!.reverse();
@@ -531,7 +485,7 @@ class _MyDismissibleState extends State<MyDismissible>
         if (!_moveController!.isDismissed) {
           // we already know it's not completed, we check that above
           if (_moveController!.value >
-              (widget.dismissThresholds[_MyDismissDirection] ??
+              (widget.dismissThresholds[_myDismissDirection] ??
                   _kDismissThreshold)) {
             _moveController!.forward();
           } else {
@@ -552,24 +506,25 @@ class _MyDismissibleState extends State<MyDismissible>
   }
 
   Future<void> _handleMoveCompleted() async {
-    if ((widget.dismissThresholds[_MyDismissDirection] ?? _kDismissThreshold) >=
+    if ((widget.dismissThresholds[_myDismissDirection] ?? _kDismissThreshold) >=
         1.0) {
       _moveController!.reverse();
       return;
     }
     final bool result = await _confirmStartResizeAnimation();
     if (mounted) {
-      if (result)
+      if (result) {
         _startResizeAnimation();
-      else
+      } else {
         _moveController!.reverse();
+      }
     }
   }
 
   Future<bool> _confirmStartResizeAnimation() async {
     if (widget.confirmDismiss != null) {
       _confirming = true;
-      final MyDismissDirection direction = _MyDismissDirection;
+      final MyDismissDirection direction = _myDismissDirection;
       try {
         return await widget.confirmDismiss!(direction) ?? false;
       } finally {
@@ -585,7 +540,7 @@ class _MyDismissibleState extends State<MyDismissible>
     assert(_sizePriorToCollapse == null);
     if (widget.resizeDuration == null) {
       if (widget.onDismissed != null) {
-        final MyDismissDirection direction = _MyDismissDirection;
+        final MyDismissDirection direction = _myDismissDirection;
         widget.onDismissed!(direction);
       }
     } else {
@@ -614,7 +569,7 @@ class _MyDismissibleState extends State<MyDismissible>
 
   void _handleResizeProgressChanged() {
     if (_resizeController!.isCompleted) {
-      widget.onDismissed?.call(_MyDismissDirection);
+      widget.onDismissed?.call(_myDismissDirection);
     } else {
       widget.onResize?.call();
     }
@@ -628,10 +583,11 @@ class _MyDismissibleState extends State<MyDismissible>
 
     Widget? background = widget.background;
     if (widget.secondaryBackground != null) {
-      final MyDismissDirection direction = _MyDismissDirection;
+      final MyDismissDirection direction = _myDismissDirection;
       if (direction == MyDismissDirection.endToStart ||
-          direction == MyDismissDirection.up)
+          direction == MyDismissDirection.up) {
         background = widget.secondaryBackground;
+      }
     }
 
     if (_resizeAnimation != null) {
@@ -669,13 +625,6 @@ class _MyDismissibleState extends State<MyDismissible>
           opacity: 1.0 + _moveAnimation.value.dy,
           child: child,
         );
-        // return Transform.scale(
-        //   scale: 1.0 + _moveAnimation.value.dy,
-        //   child: Opacity(
-        //     opacity: 1.0 + _moveAnimation.value.dy,
-        //     child: child,
-        //   ),
-        // );
       },
       child: SlideTransition(
         position: _moveAnimation,
@@ -688,13 +637,6 @@ class _MyDismissibleState extends State<MyDismissible>
         if (!_moveAnimation.isDismissed)
           Positioned.fill(
             child: background,
-            // child: ClipRect(
-            //   clipper: _MyDismissibleClipper(
-            //     axis: _directionIsXAxis ? Axis.horizontal : Axis.vertical,
-            //     moveAnimation: _moveAnimation,
-            //   ),
-            //   child: background,
-            // ),
           ),
         content,
       ]);

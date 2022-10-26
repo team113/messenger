@@ -24,27 +24,27 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/repository/contact.dart';
-import 'package:messenger/domain/service/contact.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -66,26 +66,29 @@ class ChatForwardController extends GetxController {
 
   /// [Chat]s to forward the [quotes] to.
   final RxList<RxChat> selectedChats = RxList();
+
+  /// [Contact]s to forward the [quotes] to.
   final RxList<RxChatContact> selectedContacts = RxList<RxChatContact>([]);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
 
+  /// Indicator whether reply is hovered or not.
   final Rx<ChatItem?> hoveredReply = Rx(null);
 
   /// [User]s search results.
   final Rx<RxList<RxUser>?> searchResults = Rx(null);
 
+  ///
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   final String? text;
   late final TextFieldState search;
 
   /// Worker to react on [SearchResult.status] changes.
-  Worker? _searchStatusWorker;
   Worker? _searchWorker;
-  Worker? _searchDebounce;
 
+  /// Search query.
   final RxnString query = RxnString();
 
   /// [ChatItemQuote]s to be forwarded.
@@ -96,6 +99,12 @@ class ChatForwardController extends GetxController {
 
   /// [Attachment]s to attach to the [quotes].
   final RxList<Attachment> attachments;
+
+  /// Map of [Chat]s.
+  final RxMap<ChatId, RxChat> chats = RxMap();
+
+  /// Map of [Contact]s.
+  final RxMap<UserId, RxChatContact> contacts = RxMap();
 
   final RxInt selected = RxInt(0);
   final FlutterListViewController controller = FlutterListViewController();
@@ -196,6 +205,11 @@ class ChatForwardController extends GetxController {
     };
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _searchWorker?.dispose();
   }
 
   Future<void> forward() async {
@@ -330,6 +344,47 @@ class ChatForwardController extends GetxController {
     }
   }
 
+  void populate() {
+    chats.value = {
+      for (var c in sortedChats.where((p) {
+        if (query.value != null) {
+          if (query.value != null &&
+              p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+            return true;
+          }
+          return false;
+        }
+
+        return true;
+      }))
+        c.chat.value.id: c,
+    };
+
+    contacts.value = {
+      for (var u in _contactService.contacts.values.where((e) {
+        if (e.contact.value.users.length == 1) {
+          bool contains = chats.values.firstWhereOrNull((m) =>
+                  m.chat.value.isDialog &&
+                  m.members[e.user.value!.id] != null) !=
+              null;
+
+          if (!contains) {
+            if (query.value != null) {
+              if (e.contact.value.name.val.contains(query.value!) == true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      }))
+        u.user.value!.id: u,
+    };
+  }
+
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
   @visibleForTesting
@@ -400,49 +455,5 @@ class ChatForwardController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
-  }
-
-  final RxMap<ChatId, RxChat> chats = RxMap();
-  final RxMap<UserId, RxChatContact> contacts = RxMap();
-
-  void populate() {
-    chats.value = {
-      for (var c in sortedChats.where((p) {
-        if (query.value != null) {
-          if (query.value != null &&
-              p.title.toLowerCase().contains(query.value!.toLowerCase())) {
-            return true;
-          }
-          return false;
-        }
-
-        return true;
-      }))
-        c.chat.value.id: c,
-    };
-
-    contacts.value = {
-      for (var u in _contactService.contacts.values.where((e) {
-        if (e.contact.value.users.length == 1) {
-          bool contains = chats.values.firstWhereOrNull((m) =>
-                  m.chat.value.isDialog &&
-                  m.members[e.user.value!.id] != null) !=
-              null;
-
-          if (!contains) {
-            if (query.value != null) {
-              if (e.contact.value.name.val.contains(query.value!) == true) {
-                return true;
-              }
-            } else {
-              return true;
-            }
-          }
-        }
-
-        return false;
-      }))
-        u.user.value!.id: u,
-    };
   }
 }

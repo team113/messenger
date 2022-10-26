@@ -68,9 +68,16 @@ class RoundFloatingButton extends StatefulWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
+  /// Optional [TextStyle] of the [text].
   final TextStyle? textStyle;
+
+  /// Optional spacing of the [text].
   final double? textSpacing;
+
+  /// Indicator whether text size should auto or not.
   final bool autoSizeText;
+
+  /// Optional max lines of the [text].
   final int? maxLines;
 
   @override

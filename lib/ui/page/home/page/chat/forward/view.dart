@@ -48,7 +48,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/forward/controller.dart';
-import '/ui/page/home/page/chat/widget/animated_fab.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/modal_popup.dart';
@@ -165,7 +164,7 @@ class ChatForwardView extends StatelessWidget {
                           onPressed: () => c.jumpTo(0),
                           child: Obx(() {
                             return Text(
-                              'Chats',
+                              'label_tab_chats'.l10n,
                               style: thin?.copyWith(
                                 fontSize: 15,
                                 color: c.selected.value == 0
@@ -180,7 +179,7 @@ class ChatForwardView extends StatelessWidget {
                           onPressed: () => c.jumpTo(1),
                           child: Obx(() {
                             return Text(
-                              'Contacts',
+                              'label_tab_contacts'.l10n,
                               style: thin?.copyWith(
                                 fontSize: 15,
                                 color: c.selected.value == 1
@@ -194,22 +193,15 @@ class ChatForwardView extends StatelessWidget {
                     ),
                   ),
                   Obx(() {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Selected: ',
+                    return Container(
+                        constraints: const BoxConstraints(minHeight: 50),
+                        child: Text(
+                          'label_selected'.l10nfmt({
+                            'count': c.selectedContacts.length +
+                                c.selectedChats.length
+                          }),
                           style: thin?.copyWith(fontSize: 15),
-                        ),
-                        Container(
-                          constraints: const BoxConstraints(minWidth: 14),
-                          child: Text(
-                            '${c.selectedContacts.length + c.selectedChats.length}',
-                            style: thin?.copyWith(fontSize: 15),
-                          ),
-                        ),
-                      ],
-                    );
+                        ));
                   }),
                   const SizedBox(width: 10),
                 ],
@@ -222,7 +214,6 @@ class ChatForwardView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: FlutterListView(
-                  // shrinkWrap: true,
                   primary: false,
                   controller: c.controller,
                   delegate: FlutterListViewDelegate(
@@ -293,11 +284,11 @@ class ChatForwardView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: OutlinedRoundedButton(
                 maxWidth: null,
-                title: const Text(
-                  'Send',
+                title: Text(
+                  'label_send'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
                   c.forward();
@@ -365,7 +356,6 @@ class ChatForwardView extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
               ...children,
-              // const SizedBox(height: 16),
             ],
           ),
         );
@@ -588,10 +578,7 @@ class ChatForwardView extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F5),
-          // color: const Color(0xFFD8D8D8),
-          // color: Colors.black.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
-          // border: Border(left: BorderSide(width: 1, color: Color(0xFF63B4FF))),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -862,7 +849,6 @@ class ChatForwardView extends StatelessWidget {
             return Stack(
               children: [
                 Obx(() {
-                  bool expanded = c.attachments.isNotEmpty || true;
                   return ConditionalBackdropFilter(
                     condition: style.cardBlur > 0,
                     filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
@@ -876,144 +862,135 @@ class ChatForwardView extends StatelessWidget {
                       fadeInCurve: Curves.ease,
                       fadeOutCurve: Curves.ease,
                       sizeCurve: Curves.ease,
-                      child: !expanded
-                          ? const SizedBox(height: 1, width: double.infinity)
-                          : Container(
-                              key: const Key('Attachments'),
-                              width: double.infinity,
-                              color: const Color(0xFFFBFBFB),
-                              // color: const Color(0xFFFFFFFF).withOpacity(0.7),
-                              padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxHeight:
-                                          MediaQuery.of(context).size.height /
-                                              3,
-                                    ),
-                                    child: ReorderableListView(
-                                      shrinkWrap: true,
-                                      buildDefaultDragHandles:
-                                          PlatformUtils.isMobile,
-                                      onReorder: (int old, int to) {
-                                        if (old < to) {
-                                          --to;
-                                        }
+                      child: Container(
+                        key: const Key('Attachments'),
+                        width: double.infinity,
+                        color: const Color(0xFFFBFBFB),
+                        padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height / 3,
+                              ),
+                              child: ReorderableListView(
+                                shrinkWrap: true,
+                                buildDefaultDragHandles: PlatformUtils.isMobile,
+                                onReorder: (int old, int to) {
+                                  if (old < to) {
+                                    --to;
+                                  }
 
-                                        final ChatItemQuote item =
-                                            c.quotes.removeAt(old);
-                                        c.quotes.insert(to, item);
+                                  final ChatItemQuote item =
+                                      c.quotes.removeAt(old);
+                                  c.quotes.insert(to, item);
 
-                                        HapticFeedback.lightImpact();
-                                      },
-                                      proxyDecorator: (child, i, animation) {
-                                        return AnimatedBuilder(
-                                          animation: animation,
-                                          builder: (
-                                            BuildContext context,
-                                            Widget? child,
-                                          ) {
-                                            final double t = Curves.easeInOut
-                                                .transform(animation.value);
-                                            final double elevation =
-                                                lerpDouble(0, 6, t)!;
-                                            final Color color = Color.lerp(
-                                              const Color(0x00000000),
-                                              const Color(0x33000000),
-                                              t,
-                                            )!;
+                                  HapticFeedback.lightImpact();
+                                },
+                                proxyDecorator: (child, i, animation) {
+                                  return AnimatedBuilder(
+                                    animation: animation,
+                                    builder: (
+                                      BuildContext context,
+                                      Widget? child,
+                                    ) {
+                                      final double t = Curves.easeInOut
+                                          .transform(animation.value);
+                                      final double elevation =
+                                          lerpDouble(0, 6, t)!;
+                                      final Color color = Color.lerp(
+                                        const Color(0x00000000),
+                                        const Color(0x33000000),
+                                        t,
+                                      )!;
 
-                                            return InitCallback(
-                                              callback:
-                                                  HapticFeedback.selectionClick,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  boxShadow: [
-                                                    CustomBoxShadow(
-                                                      color: color,
-                                                      blurRadius: elevation,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: child,
+                                      return InitCallback(
+                                        callback: HapticFeedback.selectionClick,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            boxShadow: [
+                                              CustomBoxShadow(
+                                                color: color,
+                                                blurRadius: elevation,
                                               ),
-                                            );
-                                          },
+                                            ],
+                                          ),
                                           child: child,
-                                        );
+                                        ),
+                                      );
+                                    },
+                                    child: child,
+                                  );
+                                },
+                                reverse: true,
+                                padding: const EdgeInsets.fromLTRB(1, 0, 1, 0),
+                                children: c.quotes.map((e) {
+                                  return ReorderableDragStartListener(
+                                    key: Key('Handle_${e.item.id}'),
+                                    enabled: !PlatformUtils.isMobile,
+                                    index: c.quotes.indexOf(e),
+                                    child: MyDismissible(
+                                      key: Key('${e.item.id}'),
+                                      direction: MyDismissDirection.horizontal,
+                                      onDismissed: (_) {
+                                        c.quotes.remove(e);
+                                        if (c.quotes.isEmpty) {
+                                          Navigator.of(context).pop();
+                                        }
                                       },
-                                      reverse: true,
-                                      padding:
-                                          const EdgeInsets.fromLTRB(1, 0, 1, 0),
-                                      children: c.quotes.map((e) {
-                                        return ReorderableDragStartListener(
-                                          key: Key('Handle_${e.item.id}'),
-                                          enabled: !PlatformUtils.isMobile,
-                                          index: c.quotes.indexOf(e),
-                                          child: MyDismissible(
-                                            key: Key('${e.item.id}'),
-                                            direction:
-                                                MyDismissDirection.horizontal,
-                                            onDismissed: (_) {
-                                              c.quotes.remove(e);
-                                              if (c.quotes.isEmpty) {
-                                                Navigator.of(context).pop();
-                                              }
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                              ),
-                                              child: _forwardedMessage(
-                                                context,
-                                                c,
-                                                e.item,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: MouseRegion(
-                                      cursor: grab
-                                          ? SystemMouseCursors.grab
-                                          : MouseCursor.defer,
-                                      opaque: false,
-                                      child: ScrollConfiguration(
-                                        behavior: MyCustomScrollBehavior(),
-                                        child: SingleChildScrollView(
-                                          clipBehavior: Clip.none,
-                                          physics: grab
-                                              ? null
-                                              : const NeverScrollableScrollPhysics(),
-                                          scrollDirection: Axis.horizontal,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.max,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: c.attachments
-                                                .map(
-                                                  (e) => _buildAttachment(
-                                                    c,
-                                                    e,
-                                                    grab,
-                                                  ),
-                                                )
-                                                .toList(),
-                                          ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                        ),
+                                        child: _forwardedMessage(
+                                          context,
+                                          c,
+                                          e.item,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  );
+                                }).toList(),
                               ),
                             ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: MouseRegion(
+                                cursor: grab
+                                    ? SystemMouseCursors.grab
+                                    : MouseCursor.defer,
+                                opaque: false,
+                                child: ScrollConfiguration(
+                                  behavior: MyCustomScrollBehavior(),
+                                  child: SingleChildScrollView(
+                                    clipBehavior: Clip.none,
+                                    physics: grab
+                                        ? null
+                                        : const NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: c.attachments
+                                          .map(
+                                            (e) => _buildAttachment(
+                                              c,
+                                              e,
+                                              grab,
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 }),
@@ -1183,7 +1160,7 @@ class ChatForwardView extends StatelessWidget {
 
       List<Widget> children = [
         button(
-          text: isAndroid ? 'Фото' : 'Камера',
+          text: isAndroid ? 'label_photo'.l10n : 'label_media_camera'.l10n,
           onPressed: c.pickImageFromCamera,
           child: SvgLoader.asset(
             'assets/icons/make_photo.svg',
@@ -1193,7 +1170,7 @@ class ChatForwardView extends StatelessWidget {
         ),
         if (isAndroid)
           button(
-            text: 'Видео',
+            text: 'label_video'.l10n,
             onPressed: c.pickVideoFromCamera,
             child: SvgLoader.asset(
               'assets/icons/video_on.svg',
@@ -1202,7 +1179,7 @@ class ChatForwardView extends StatelessWidget {
             ),
           ),
         button(
-          text: 'Галерея',
+          text: 'label_gallery'.l10n,
           onPressed: c.pickMedia,
           child: SvgLoader.asset(
             'assets/icons/gallery.svg',
@@ -1211,7 +1188,7 @@ class ChatForwardView extends StatelessWidget {
           ),
         ),
         button(
-          text: 'Файл',
+          text: 'label_file'.l10n,
           onPressed: c.pickFile,
           child: SvgLoader.asset(
             'assets/icons/file.svg',
@@ -1242,144 +1219,16 @@ class ChatForwardView extends StatelessWidget {
       );
     });
   }
+}
 
-  /// Returns a [ReactiveTextField] for constructing a [ChatMessage] to attach
-  /// to the [quotes] to be forwarded.
-  // Widget _sendField(BuildContext context, ChatForwardController c) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 8),
-  //     child: Container(
-  //       decoration: const BoxDecoration(
-  //         color: Color(0xFFFFFFFF),
-  //         borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-  //       ),
-  //       padding: const EdgeInsets.fromLTRB(11, 7, 11, 7),
-  //       child: SafeArea(
-  //         child: Row(
-  //           crossAxisAlignment: CrossAxisAlignment.end,
-  //           children: [
-  //             Padding(
-  //               padding: const EdgeInsets.only(bottom: 0.5),
-  //               child: AnimatedFab(
-  //                 labelStyle: const TextStyle(fontSize: 17),
-  //                 closedIcon: const Icon(
-  //                   Icons.more_horiz,
-  //                   color: Colors.blue,
-  //                   size: 30,
-  //                 ),
-  //                 openedIcon:
-  //                     const Icon(Icons.close, color: Colors.blue, size: 30),
-  //                 height: PlatformUtils.isMobile && !PlatformUtils.isWeb
-  //                     ? PlatformUtils.isIOS
-  //                         ? 220
-  //                         : 280
-  //                     : 100,
-  //                 actions: [
-  //                   AnimatedFabAction(
-  //                     icon: const Icon(Icons.attachment, color: Colors.blue),
-  //                     label: 'label_file'.l10n,
-  //                     onTap: c.send.editable.value ? c.pickFile : null,
-  //                   ),
-  //                   if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
-  //                     AnimatedFabAction(
-  //                       icon: const Icon(Icons.photo, color: Colors.blue),
-  //                       label: 'label_gallery'.l10n,
-  //                     ),
-  //                     if (PlatformUtils.isAndroid) ...[
-  //                       AnimatedFabAction(
-  //                         icon: const Icon(
-  //                           Icons.photo_camera,
-  //                           color: Colors.blue,
-  //                         ),
-  //                         label: 'label_photo'.l10n,
-  //                       ),
-  //                       AnimatedFabAction(
-  //                         icon: const Icon(
-  //                           Icons.video_camera_back,
-  //                           color: Colors.blue,
-  //                         ),
-  //                         label: 'label_video'.l10n,
-  //                       ),
-  //                     ],
-  //                     if (PlatformUtils.isIOS)
-  //                       AnimatedFabAction(
-  //                         icon: const Icon(
-  //                           Icons.camera,
-  //                           color: Colors.blue,
-  //                         ),
-  //                         label: 'label_camera'.l10n,
-  //                       ),
-  //                   ],
-  //                 ],
-  //               ),
-  //             ),
-  //             const SizedBox(width: 8),
-  //             Expanded(
-  //               child: Material(
-  //                 elevation: 6,
-  //                 borderRadius: BorderRadius.circular(25),
-  //                 child: ReactiveTextField(
-  //                   key: const Key('ForwardField'),
-  //                   state: c.send,
-  //                   hint: 'label_send_message_hint'.l10n,
-  //                   minLines: 1,
-  //                   maxLines: 6,
-  //                   style: const TextStyle(fontSize: 17),
-  //                   type: PlatformUtils.isDesktop
-  //                       ? TextInputType.text
-  //                       : TextInputType.multiline,
-  //                   textInputAction: TextInputAction.send,
-  //                 ),
-  //               ),
-  //             ),
-  //             const SizedBox(width: 8),
-  //             _button(
-  //               key: const Key('SendForward'),
-  //               icon: const AnimatedSwitcher(
-  //                 duration: Duration(milliseconds: 150),
-  //                 child: Padding(
-  //                   padding: EdgeInsets.only(left: 2, top: 1),
-  //                   child: Icon(Icons.send, size: 24),
-  //                 ),
-  //               ),
-  //               onTap: () {
-  //                 c.send.submit();
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  /// Returns an [InkWell] circular button with the provided [icon].
-  Widget _button({
-    Key? key,
-    void Function()? onTap,
-    required Widget icon,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 0.5),
-      child: Material(
-        type: MaterialType.circle,
-        color: Colors.white,
-        elevation: 6,
-        child: InkWell(
-          key: key,
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Container(
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            width: 42,
-            height: 42,
-            child: Center(child: icon),
-          ),
-        ),
-      ),
-    );
-  }
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.unknown,
+      };
 }
