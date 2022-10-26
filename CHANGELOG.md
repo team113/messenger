@@ -36,6 +36,8 @@ All user visible changes to this project will be documented in this file. This p
     - Escape not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
+    - Media panel:
+        - Inability to disable certain incoming videos. ([#182], [#179])
 
 [#95]: /../../issues/95
 [#96]: /../../pull/96
@@ -55,6 +57,8 @@ All user visible changes to this project will be documented in this file. This p
 [#169]: /../../pull/169
 [#170]: /../../pull/170
 [#171]: /../../pull/171
+[#179]: /../../issues/179
+[#182]: /../../pull/182
 
 
 
