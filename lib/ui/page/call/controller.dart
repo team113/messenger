@@ -522,7 +522,7 @@ class CallController extends GetxController {
 
     Size callSize = this.size;
     double secondarySize = (callSize.shortestSide *
-            (callSize.aspectRatio > 1.5 || callSize.aspectRatio < 0.66
+            (callSize.aspectRatio > 2 || callSize.aspectRatio < 0.5
                 ? 0.45
                 : 0.33))
         .clamp(_minSHeight, 300)
