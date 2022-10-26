@@ -27,7 +27,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned messages and forwards; ([#162], [#151])
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal. ([#127], [#122])
+        - Redesigned participants modal; ([#127], [#122])
+        - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
@@ -38,6 +39,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Inability to disable certain incoming videos. ([#182], [#179])
 
+[#95]: /../../issues/95
+[#96]: /../../pull/96
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#128]: /../../issues/128
