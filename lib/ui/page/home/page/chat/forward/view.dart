@@ -24,6 +24,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/ui/page/call/search/controller.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
@@ -33,6 +34,7 @@ import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
+import '../../../../call/search/view.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -177,6 +179,42 @@ class ChatForwardView extends StatelessWidget {
                         const SizedBox(width: 20),
                         WidgetButton(
                           onPressed: () => c.jumpTo(1),
+                          child: Obx(() {
+                            return Text(
+                              'label_tab_contacts'.l10n,
+                              style: thin?.copyWith(
+                                fontSize: 15,
+                                color: c.selected.value == 1
+                                    ? const Color(0xFF63B4FF)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(width: 20),
+                        WidgetButton(
+                          onPressed: () => ModalPopup.show(
+                            context: context,
+                            desktopConstraints: const BoxConstraints(
+                              maxWidth: double.infinity,
+                              maxHeight: double.infinity,
+                            ),
+                            modalConstraints:
+                                const BoxConstraints(maxWidth: 380),
+                            mobileConstraints: const BoxConstraints(
+                              maxWidth: double.infinity,
+                              maxHeight: double.infinity,
+                            ),
+                            mobilePadding: const EdgeInsets.all(0),
+                            child: SearchView.new(
+                              categories: [
+                                SearchCategory.contacts,
+                                SearchCategory.recent,
+                                SearchCategory.users,
+                              ],
+                              title: 'test',
+                            ),
+                          ),
                           child: Obx(() {
                             return Text(
                               'label_tab_contacts'.l10n,

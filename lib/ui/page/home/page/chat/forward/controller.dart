@@ -110,6 +110,7 @@ class ChatForwardController extends GetxController {
   final FlutterListViewController controller = FlutterListViewController();
 
   void jumpTo(int i) {
+    print('jumpTo $i');
     if (i == 0) {
       controller.jumpTo(0);
     } else if (i == 1) {
