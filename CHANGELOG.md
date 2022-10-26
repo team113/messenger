@@ -25,9 +25,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Redesigned system messages. ([#161], [#158])
+        - Redesigned system messages; ([#161], [#158])
+        - Redesigned messages and forwards; ([#162], [#151])
+        - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal. ([#127], [#122])
+        - Redesigned participants modal; ([#127], [#122])
+        - Proportionally resized secondary panel. ([#96], [#95])
 
 ### Fixed
 
@@ -35,21 +38,31 @@ All user visible changes to this project will be documented in this file. This p
     - Escape not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
+    - Media panel:
+        - Inability to disable certain incoming videos. ([#182], [#179])
 
+[#95]: /../../issues/95
+[#96]: /../../pull/96
 [#102]: /../../issues/102
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#128]: /../../issues/128
+[#133]: /../../issues/133
 [#137]: /../../issues/137
 [#146]: /../../issues/146
+[#151]: /../../issues/151
 [#158]: /../../issues/158
 [#159]: /../../pull/159
 [#161]: /../../pull/161
+[#162]: /../../pull/162
 [#163]: /../../pull/163
 [#166]: /../../issues/166
 [#169]: /../../pull/169
+[#170]: /../../pull/170
 [#171]: /../../pull/171
 [#173]: /../../pull/173
+[#179]: /../../issues/179
+[#182]: /../../pull/182
 
 
 
