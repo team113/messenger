@@ -215,7 +215,12 @@ void main() async {
               'userId': 'id',
               'avatar': {
                 '__typename': 'UserAvatar',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
                 'full': {'relativeRef': 'orig.jpg'},
@@ -255,7 +260,12 @@ void main() async {
               'userId': 'id',
               'callCover': {
                 '__typename': 'UserCallCover',
-                'galleryItemId': 'testId',
+                'galleryItem': {
+                  '__typename': 'ImageGalleryItem',
+                  'id': 'testId',
+                  'original': {'relativeRef': ''},
+                  'addedAt': DateTime.now().toString(),
+                },
                 'crop': null,
                 'original': {'relativeRef': 'orig.jpg'},
                 'full': {'relativeRef': 'orig.jpg'},
@@ -371,15 +381,15 @@ void main() async {
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await mockNetworkImagesFor(
         () async => await tester.pumpAndSettle(const Duration(seconds: 2)));
-    expect(myUserService.myUser.value?.avatar?.galleryItemId,
+    expect(myUserService.myUser.value?.avatar?.galleryItem?.id,
         const GalleryItemId('testId'));
-    expect(myUserService.myUser.value?.callCover?.galleryItemId,
+    expect(myUserService.myUser.value?.callCover?.galleryItem?.id,
         const GalleryItemId('testId'));
 
     await tester.tap(find.byKey(const Key('AvatarStatus')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(myUserService.myUser.value?.avatar?.galleryItemId, isNull);
-    expect(myUserService.myUser.value?.callCover?.galleryItemId, isNull);
+    expect(myUserService.myUser.value?.avatar?.galleryItem?.id, isNull);
+    expect(myUserService.myUser.value?.callCover?.galleryItem?.id, isNull);
 
     await tester.tap(find.byKey(const Key('DeleteGallery')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
