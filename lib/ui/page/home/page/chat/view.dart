@@ -963,7 +963,6 @@ class _ChatViewState extends State<ChatView>
                                         : const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      key: const Key('ChatAttachments'),
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
