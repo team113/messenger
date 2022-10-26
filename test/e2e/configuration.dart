@@ -86,7 +86,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
-        iBackToPreviousPage,
+        iReturnToPreviousPage,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,

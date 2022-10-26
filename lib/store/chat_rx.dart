@@ -58,7 +58,7 @@ class HiveRxChat implements RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _local = ChatItemHiveProvider(hiveChat.value.id),
-        draftMessage = Rx<ChatMessage?>(hiveChat.draftMessage);
+        draft = Rx<ChatMessage?>(hiveChat.draftMessage);
 
   @override
   final Rx<Chat> chat;
@@ -82,7 +82,7 @@ class HiveRxChat implements RxChat {
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
   @override
-  Rx<ChatMessage?>? draftMessage;
+  Rx<ChatMessage?> draft;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -228,8 +228,8 @@ class HiveRxChat implements RxChat {
   Future<void> setDraftMessage(ChatMessage? message) async {
     HiveChat? hiveChat = _chatLocal.get(id);
     if (hiveChat != null &&
-        (message != null || message == null && draftMessage?.value != null)) {
-      draftMessage?.value = message;
+        (message != null || message == null && draft.value != null)) {
+      draft.value = message;
       hiveChat.draftMessage = message;
       await _chatLocal.put(hiveChat);
     }
@@ -420,7 +420,7 @@ class HiveRxChat implements RxChat {
 
         HiveChat? hiveChat = _chatLocal.get(id);
         if (hiveChat != null) {
-          draftMessage?.value = null;
+          draft.value = null;
           hiveChat.draftMessage = null;
           await _chatLocal.put(hiveChat);
         }

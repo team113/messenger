@@ -326,7 +326,11 @@ label_ago_date = { $years ->
 label_application = приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = вложение(я)
+label_attachments = { $quantity ->
+    [1] 1 вложение
+    [few] {$quantity} вложения
+    *[other] {$quantity} вложений
+}
 label_audio_call = Аудиозвонок
 label_away = Нет на месте
 label_biography = Биография
@@ -481,7 +485,11 @@ label_recent = Недавние
 label_recover_account = Восстановление доступа
 label_recovery_code = Код восстановления
 label_repeat_password = Повторите пароль
-label_replies = ответ(ов)
+label_replies = { $quantity ->
+    [1] 1 ответ
+    [few] {$quantity} ответа
+    *[other] {$quantity} ответов
+}
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
 label_search_not_found = Ничего не найдено
@@ -520,4 +528,5 @@ label_was_removed = {$who} был(а) удален(а)
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 plus = +
+semicolon_space = :
 space_vertical_space = {" "}|{" "}

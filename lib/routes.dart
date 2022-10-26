@@ -130,7 +130,7 @@ class RouterState extends ChangeNotifier {
   final AuthService _auth;
 
   /// Routes history stack.
-  List<String> _routes = [];
+  final RxList<String> _routes = RxList<String>();
 
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
@@ -139,7 +139,7 @@ class RouterState extends ChangeNotifier {
   String get route => _routes.lastOrNull == null ? Routes.home : _routes.last;
 
   /// Route history stack.
-  List<String> get routes => List.unmodifiable(_routes);
+  RxList<String> get routes => _routes;
 
   /// Current [Routes.home] tab.
   HomeTab get tab => _tab;
@@ -157,7 +157,7 @@ class RouterState extends ChangeNotifier {
   /// Clears the whole [routes] stack.
   void go(String to) {
     arguments = null;
-    _routes = [_guarded(to)];
+    _routes.value = [_guarded(to)];
     notifyListeners();
   }
 
@@ -315,7 +315,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Future<void> setNewRoutePath(RouteConfiguration configuration) async {
-    _state._routes = [configuration.route];
+    _state._routes.value = [configuration.route];
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }

@@ -963,6 +963,7 @@ class _ChatViewState extends State<ChatView>
                                         : const NeverScrollableScrollPhysics(),
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
+                                      key: const Key('ChatAttachments'),
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
@@ -1040,7 +1041,10 @@ class _ChatViewState extends State<ChatView>
                         child: Transform.translate(
                           offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                           child: ReactiveTextField(
-                            onChanged: c.keepTyping,
+                            onChanged: () {
+                              c.keepTyping();
+                              c.updateDraftMessage();
+                            },
                             key: const Key('MessageField'),
                             state: c.send,
                             hint: 'label_send_message_hint'.l10n,

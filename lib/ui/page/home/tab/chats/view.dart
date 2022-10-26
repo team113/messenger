@@ -109,25 +109,27 @@ class ChatsTabView extends StatelessWidget {
             .map((e) => e.name?.val ?? e.num.val);
 
         if (chat.ongoingCall == null) {
-          ChatMessage? draft = rxChat.draftMessage?.value;
+          ChatMessage? draft = rxChat.draft?.value;
           if (draft != null &&
-              c.route.value != '${Routes.chat}/${rxChat.chat.value.id}') {
+              router.routes.last != '${Routes.chat}/${rxChat.chat.value.id}') {
             var desc = StringBuffer();
             if (draft.text != null) {
               desc.write(draft.text!.val);
             }
             if (draft.attachments.isNotEmpty) {
-              desc.write(
-                  ' [${draft.attachments.length} ${'label_attachments'.l10n}]');
+              desc.write(' [${'label_attachments'.l10nfmt(
+                {'quantity': draft.attachments.length},
+              )}]');
             }
             if (draft.repliesTo.isNotEmpty) {
-              desc.write(
-                  ' [${draft.repliesTo.length} ${'label_replies'.l10n}]');
+              desc.write(' [${'label_replies'.l10nfmt(
+                {'quantity': draft.repliesTo.length},
+              )}]');
             }
             subtitle = [
               Flexible(
                 child: Text(
-                  '${'label_draft'.l10n}: ${desc.toString().trim()}',
+                  '${'label_draft'.l10n}${'semicolon_space'.l10n} ${desc.toString().trim()}',
                   maxLines: 2,
                   key: const Key('DraftMessage'),
                 ),

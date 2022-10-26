@@ -33,8 +33,8 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
 );
 
 /// Routes the [RouterState] to the previous page.
-final StepDefinitionGeneric iBackToPreviousPage = then<CustomWorld>(
-  'I back to previous page',
+final StepDefinitionGeneric iReturnToPreviousPage = then<CustomWorld>(
+  'I return to previous page',
   (context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();

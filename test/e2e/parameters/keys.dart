@@ -26,6 +26,7 @@ enum WidgetKey {
   BioField,
   ChangeAvatar,
   ChangePasswordButton,
+  ChatAttachments,
   ChatAvatar,
   ChatDirectLinkExpandable,
   ChatForwardView,

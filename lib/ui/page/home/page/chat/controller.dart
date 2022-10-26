@@ -339,8 +339,8 @@ class ChatController extends GetxController {
         },
       ),
     );
-    _repliesWorker = ever(repliedMessages, (_) => _updateDraftMessage());
-    _attachmentsWorker = ever(attachments, (_) => _updateDraftMessage());
+    _repliesWorker = ever(repliedMessages, (_) => updateDraftMessage());
+    _attachmentsWorker = ever(attachments, (_) => updateDraftMessage());
 
     super.onInit();
   }
@@ -474,7 +474,7 @@ class ChatController extends GetxController {
   }
 
   /// Updates draft message of this [Chat].
-  Future<void> _updateDraftMessage() async {
+  Future<void> updateDraftMessage() async {
     if (send.text.isNotEmpty ||
         attachments.isNotEmpty ||
         repliedMessages.isNotEmpty) {
@@ -485,7 +485,7 @@ class ChatController extends GetxController {
           const UserId(''),
           PreciseDateTime.now(),
           text: send.text.isEmpty ? null : ChatMessageText(send.text),
-          attachments: attachments,
+          attachments: attachments.map((e) => e.value).toList(),
           repliesTo: repliedMessages,
         ),
       );
@@ -502,9 +502,13 @@ class ChatController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       unreadMessages = chat!.chat.value.unreadCount;
-      ChatMessage? chatMessage = chat!.draftMessage?.value;
+      ChatMessage? chatMessage = chat!.draft?.value;
       send.text = chatMessage?.text?.val ?? '';
-      attachments.value = chatMessage?.attachments ?? [];
+      if (chatMessage?.attachments != null) {
+        for (var element in chatMessage!.attachments) {
+          attachments.add(MapEntry(GlobalKey(), element));
+        }
+      }
       repliedMessages.value = chatMessage?.repliesTo ?? [];
 
       // Adds the provided [ChatItem] to the [elements].
@@ -1045,7 +1049,6 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void keepTyping() async {
-    await _updateDraftMessage();
     _typingSubscription ??= (await _chatService.keepTyping(id)).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingDuration, () {

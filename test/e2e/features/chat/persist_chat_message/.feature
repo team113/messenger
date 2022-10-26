@@ -21,16 +21,15 @@ Feature: Chat message have correct persisting
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I attach "test.txt" file
+    And I fill `MessageField` field with "123"
 
   Scenario: Persist chat message
-    When I attach "test.txt" file
-    Then I fill `MessageField` field with "123"
-
-    When I back to previous page
+    When I return to previous page
     Then I wait until `DraftMessage` is present
 
     When I am in chat with Bob
-    Then I wait until text "test.txt" is present
+    Then I wait until text "test" is present
     And I wait until text "123" is present
 
     When I tap `Send` button

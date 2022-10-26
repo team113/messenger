@@ -310,7 +310,10 @@ label_ago_date = { $years ->
 label_application = application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
-label_attachments = attachment(s)
+label_attachments = { $quantity ->
+    [1] 1 attachment
+    *[other] {$quantity} attachments
+}
 label_audio_call = Audio call
 label_away = Away
 label_biography = Biography
@@ -463,7 +466,10 @@ label_recent = Recent
 label_recover_account = Access recovery
 label_recovery_code = Recovery code
 label_repeat_password = Repeat password
-label_replies = reply(ies)
+label_replies = { $quantity ->
+    [1] 1 reply
+    *[other] {$quantity} replies
+}
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
 label_search_not_found = Not found
@@ -502,4 +508,5 @@ label_was_removed = {$who} was removed
 label_you = You
 label_you_were_added_to_group = You were added to the group
 plus = +
+semicolon_space = :
 space_vertical_space = {" "}|{" "}
