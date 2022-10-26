@@ -26,7 +26,7 @@ class StyledBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (ModalRoute.of(context)?.canPop == true) {
       return WidgetButton(
-        key: const Key('BackButton'),
+        key: const Key('StyledBackButton'),
         onPressed: () => Navigator.maybePop(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

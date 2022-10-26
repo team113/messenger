@@ -39,7 +39,7 @@ final StepDefinitionGeneric iReturnToPreviousPage = then<CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
       final finder =
-          context.world.appDriver.findByKeySkipOffstage('BackButton');
+          context.world.appDriver.findByKeySkipOffstage('StyledBackButton');
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.tap(
