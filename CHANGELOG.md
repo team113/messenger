@@ -16,7 +16,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
-        - Depending initial secondary view size on panel size. ([#96], [#96])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
 
@@ -28,7 +27,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned messages and forwards; ([#162], [#151])
         - Redesigned header and send field. ([#170], [#133])
     - Media panel:
-        - Redesigned participants modal. ([#127], [#122])
+        - Redesigned participants modal; ([#127], [#122])
+        - Proportionally resized secondary panel. ([#96], [#96])
 
 ### Fixed
 
