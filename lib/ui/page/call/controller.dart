@@ -1447,7 +1447,7 @@ class CallController extends GetxController {
           }
 
           if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width);
+            secondaryHeight.value = _applySHeight(width * secondary.length);
           }
         }
         break;
@@ -1461,7 +1461,7 @@ class CallController extends GetxController {
           }
 
           if (secondaryAlignment.value != null) {
-            secondaryHeight.value = _applySHeight(width);
+            secondaryHeight.value = _applySHeight(width * secondary.length);
           }
         }
         break;
@@ -1487,7 +1487,7 @@ class CallController extends GetxController {
           }
 
           if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height);
+            secondaryWidth.value = _applySWidth(height * secondary.length);
           }
         }
         break;
@@ -1501,7 +1501,7 @@ class CallController extends GetxController {
           }
 
           if (secondaryAlignment.value != null) {
-            secondaryWidth.value = _applySWidth(height);
+            secondaryWidth.value = _applySWidth(height * secondary.length);
           }
         }
         break;

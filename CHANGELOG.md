@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock buttons persistence. ([#159], [#137])
+        - Depending initial secondary view size on panel size. ([#96], [#96])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
 
@@ -36,6 +37,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
 
+[#95]: /../../issues/95
+[#96]: /../../pull/96
 [#122]: /../../issues/122
 [#127]: /../../pull/127
 [#128]: /../../issues/128
