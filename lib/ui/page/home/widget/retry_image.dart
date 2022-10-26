@@ -20,7 +20,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// [Image] wrapper performs image loading with backoff.
+/// [Image] wrapper performing image loading with the exponential backoff
+/// algorithm.
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
@@ -46,18 +47,19 @@ class RetryImage extends StatefulWidget {
   State<RetryImage> createState() => _RetryImageState();
 }
 
-/// [State] of [RetryImage] maintaining image data loading with backoff.
+/// [State] of [RetryImage] maintaining image data loading with the exponential
+/// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// [Timer] used to performs image loading with backoff.
+  /// [Timer] used to retry image data loading.
   Timer? _timer;
 
-  /// [Uint8List] image bytes.
+  /// Byte data of this image.
   Uint8List? _image;
 
   /// Image downloading progress.
   double _progress = 0;
 
-  /// Timeout of the backoff loading.
+  /// Timeout of the [_timer].
   Duration _backoffTimeout = const Duration(microseconds: 250);
 
   @override
@@ -101,7 +103,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
         );
 
-  /// Loads image with backoff.
+  /// Loads image using the exponential backoff algorithm.
   Future<void> _loadImage() async {
     Response? data;
 

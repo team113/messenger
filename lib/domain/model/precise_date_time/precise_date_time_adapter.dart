@@ -16,12 +16,13 @@
 
 import 'package:hive/hive.dart';
 
+import '/domain/model_type_id.dart';
 import 'precise_date_time.dart';
 
-/// Adapter for hive of [PreciseDateTime].
+/// [Hive] adapter for a [PreciseDateTime].
 class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
   @override
-  final typeId = 73;
+  final typeId = ModelTypeId.preciseDateTime;
 
   @override
   PreciseDateTime read(BinaryReader reader) => PreciseDateTime(

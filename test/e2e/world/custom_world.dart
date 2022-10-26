@@ -16,7 +16,6 @@
 
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -31,9 +30,6 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [ClipboardData] currently stored in this [CustomWorld].
   ClipboardData? clipboard;
-
-  /// Stored old [Config.files] value.
-  String? oldConfigFiles;
 }
 
 /// [Session] with some additional info about the [User] it represents.

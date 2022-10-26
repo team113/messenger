@@ -93,11 +93,11 @@ class ModelTypeId {
   static const mediaSettings = 71;
   static const chatCallDeviceId = 72;
   static const preciseDateTime = 73;
-  static const applicationSettings = 75;
-  static const sendingStatus = 76;
-  static const nativeFile = 77;
-  static const localAttachment = 78;
-  static const mediaType = 79;
-  static const hiveBackground = 80;
-  static const storageFile = 81;
+  static const applicationSettings = 74;
+  static const sendingStatus = 75;
+  static const nativeFile = 76;
+  static const localAttachment = 77;
+  static const mediaType = 78;
+  static const hiveBackground = 79;
+  static const storageFile = 80;
 }
