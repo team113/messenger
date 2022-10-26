@@ -35,7 +35,8 @@ All user visible changes to this project will be documented in this file. This p
     - Escape not exiting fullscreen in calls. ([#169], [#166])
 - UI:
     - Local notifications displaying in focused chats. ([#171], [#128])
-    - Fix disabling incoming videos in call ([#179], [#182])
+    - Media panel:
+        - Inability to disable certain incoming videos. ([#182], [#179])
 
 [#122]: /../../issues/122
 [#127]: /../../pull/127
