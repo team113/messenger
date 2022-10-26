@@ -17,6 +17,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -227,29 +228,6 @@ class PlatformUtilsImpl {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
   }) {
-    var completer = Completer<File?>();
-
-    _download(
-      url,
-      filename,
-      size,
-      completer: completer,
-      onReceiveProgress: onReceiveProgress,
-      cancelToken: cancelToken,
-    );
-
-    return completer.future;
-  }
-
-  /// Implementation of the [download].
-  Future<void> _download(
-    String url,
-    String filename,
-    int? size, {
-    required Completer<File?> completer,
-    Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-  }) async {
     // Calls the provided [callback] using the exponential backoff algorithm.
     Future<T?> withBackoff<T>(Future<T> Function() callback) async {
       Duration backoff = Duration.zero;
@@ -281,57 +259,51 @@ class PlatformUtilsImpl {
       return result;
     }
 
-    cancelToken?.whenCancel.whenComplete(() {
-      completer.complete(null);
-    });
+    CancelableOperation<File?> operation = CancelableOperation.fromFuture(
+      Future(() async {
+        if (PlatformUtils.isWeb) {
+          await withBackoff(() => WebUtils.downloadFile(url, filename));
+        } else {
+          File? file;
 
-    if (PlatformUtils.isWeb) {
-      await withBackoff(
-        () => WebUtils.downloadFile(url, filename),
-      );
-
-      if (!completer.isCompleted) {
-        completer.complete(null);
-      }
-    } else {
-      File? file;
-      try {
-        // Retry fetching the size unless any other that `404` error is thrown.
-        file = await withBackoff<File?>(
-          () => fileExists(filename, size: size, url: url),
-        );
-
-        if (file == null) {
-          final String name = p.basenameWithoutExtension(filename);
-          final String extension = p.extension(filename);
-          final String path = await downloadsDirectory;
-
-          file = File('$path/$filename');
-          for (int i = 1; await file!.exists(); ++i) {
-            file = File('$path/$name ($i)$extension');
-          }
-
-          // Retry the downloading unless any other that `404` error is thrown.
-          await withBackoff(
-            () => Dio().download(
-              url,
-              file!.path,
-              onReceiveProgress: onReceiveProgress,
-              cancelToken: cancelToken,
-            ),
+          // Retry fetching the size unless any other that `404` error is
+          // thrown.
+          file = await withBackoff<File?>(
+            () => fileExists(filename, size: size, url: url),
           );
-        }
-      } catch (e) {
-        if (!completer.isCompleted) {
-          completer.completeError(e);
-        }
-        return;
-      }
 
-      if (!completer.isCompleted) {
-        completer.complete(file);
-      }
-    }
+          if (file == null) {
+            final String name = p.basenameWithoutExtension(filename);
+            final String extension = p.extension(filename);
+            final String path = await downloadsDirectory;
+
+            file = File('$path/$filename');
+            for (int i = 1; await file!.exists(); ++i) {
+              file = File('$path/$name ($i)$extension');
+            }
+
+            // Retry the downloading unless any other that `404` error is
+            // thrown.
+            await withBackoff(
+              () => Dio().download(
+                url,
+                file!.path,
+                onReceiveProgress: onReceiveProgress,
+                cancelToken: cancelToken,
+              ),
+            );
+
+            return file;
+          }
+        }
+
+        return null;
+      }),
+    );
+
+    cancelToken?.whenCancel.whenComplete(operation.cancel);
+
+    return operation.value;
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
