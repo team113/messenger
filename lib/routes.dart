@@ -411,6 +411,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 graphQlProvider,
                 userRepository,
                 settingsRepository,
+                me: me,
               ));
               AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
@@ -504,6 +505,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               graphQlProvider,
               userRepository,
               settingsRepository,
+              me: me,
             ));
             AbstractChatRepository chatRepository =
                 deps.put<AbstractChatRepository>(

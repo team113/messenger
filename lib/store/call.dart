@@ -43,14 +43,14 @@ class CallRepository implements AbstractCallRepository {
     this._graphQlProvider,
     this._userRepo,
     this._settingsRepository, {
-    this.me,
+    required this.me,
   });
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _calls;
 
   /// [UserId] of the currently authenticated [MyUser].
-  final UserId? me;
+  final UserId me;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
