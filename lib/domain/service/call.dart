@@ -59,7 +59,7 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepo;
 
-  /// [ChatService] used to ensure that an [Chat] exist.
+  /// Chat]s service used to check an [Chat] existence.
   final ChatService _chatService;
 
   /// Settings repository, used to get the stored [MediaSettings].
@@ -352,7 +352,7 @@ class CallService extends DisposableService {
 
           case IncomingChatCallsTopEventKind.added:
             e as EventIncomingChatCallsTopChatCallAdded;
-            bool exist = _chatService.ensureExists(e.call.chatId);
+            bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
               // If we're already in this call, then ignore it.
@@ -384,7 +384,7 @@ class CallService extends DisposableService {
 
           case IncomingChatCallsTopEventKind.removed:
             e as EventIncomingChatCallsTopChatCallRemoved;
-            bool exist = _chatService.ensureExists(e.call.chatId);
+            bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
               Rx<OngoingCall>? call = _callsRepo[e.call.chatId];

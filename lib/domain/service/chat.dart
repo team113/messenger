@@ -76,7 +76,7 @@ class ChatService extends DisposableService {
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
 
   /// Ensures that the [Chat] with the provided [id] is exist.
-  bool ensureExists(ChatId id) {
+  bool ensureExist(ChatId id) {
     if (chats[id] != null) {
       return true;
     }
