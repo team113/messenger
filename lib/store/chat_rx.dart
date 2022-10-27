@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:uuid/uuid.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -36,7 +35,6 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -59,7 +57,6 @@ class HiveRxChat implements RxChat {
   HiveRxChat(
     this._chatRepository,
     this._callsRepository,
-    this._settingsRepository,
     this._chatLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
@@ -91,9 +88,6 @@ class HiveRxChat implements RxChat {
 
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callsRepository;
-
-  /// Settings repository, used to get the stored [MediaSettings].
-  final AbstractSettingsRepository _settingsRepository;
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
@@ -795,30 +789,7 @@ class HiveRxChat implements RxChat {
                     PreciseDateTime.now();
               }
 
-              // If we're already in this call, then ignore it.
-              if (event.call.members.any((e) => e.user.id == me)) {
-                break;
-              }
-
-              Rx<OngoingCall>? call = _callsRepository[event.call.chatId];
-
-              if (call == null) {
-                Rx<OngoingCall> call = Rx<OngoingCall>(
-                  OngoingCall(
-                    event.call.chatId,
-                    me!,
-                    call: event.call,
-                    withAudio: false,
-                    withVideo: false,
-                    withScreen: false,
-                    mediaSettings: _settingsRepository.mediaSettings.value,
-                    creds: ChatCallCredentials(const Uuid().v4()),
-                  ),
-                );
-                _callsRepository.add(call);
-              } else {
-                call.value.call.value = event.call;
-              }
+              _callsRepository.onCallAdded(event.call);
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -847,15 +818,7 @@ class HiveRxChat implements RxChat {
                 message.save();
               }
 
-              Rx<OngoingCall>? call = _callsRepository[event.call.chatId];
-              // If call is not yet connected to the remote updates, then it's
-              // still just a notification and it should be removed.
-              if (call?.value.connected == false &&
-                  call?.value.isActive == false) {
-                var removed = _callsRepository.remove(event.call.chatId);
-                removed?.value.state.value = OngoingCallState.ended;
-                removed?.value.dispose();
-              }
+              _callsRepository.onCallRemoved(event.call.chatId);
               break;
 
             case ChatEventKind.callMemberLeft:

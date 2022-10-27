@@ -355,30 +355,7 @@ class CallService extends DisposableService {
             bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
-              // If we're already in this call, then ignore it.
-              if (e.call.members.any((e) => e.user.id == me)) {
-                return;
-              }
-
-              Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
-
-              if (call == null) {
-                Rx<OngoingCall> call = Rx<OngoingCall>(
-                  OngoingCall(
-                    e.call.chatId,
-                    me,
-                    call: e.call,
-                    withAudio: false,
-                    withVideo: false,
-                    withScreen: false,
-                    mediaSettings: media.value,
-                    creds: ChatCallCredentials(const Uuid().v4()),
-                  ),
-                );
-                _callsRepo.add(call);
-              } else {
-                call.value.call.value = e.call;
-              }
+              _callsRepo.onCallAdded(e.call);
             }
             break;
 
@@ -387,15 +364,7 @@ class CallService extends DisposableService {
             bool exist = _chatService.ensureExist(e.call.chatId);
 
             if (!exist) {
-              Rx<OngoingCall>? call = _callsRepo[e.call.chatId];
-              // If call is not yet connected to the remote updates, then it's
-              // still just a notification and it should be removed.
-              if (call?.value.connected == false &&
-                  call?.value.isActive == false) {
-                var removed = _callsRepo.remove(e.call.chatId);
-                removed?.value.state.value = OngoingCallState.ended;
-                removed?.value.dispose();
-              }
+              _callsRepo.onCallRemoved(e.call.chatId);
             }
             break;
         }

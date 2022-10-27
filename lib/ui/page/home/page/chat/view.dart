@@ -1335,6 +1335,11 @@ class _ChatViewState extends State<ChatView>
               fit: BoxFit.cover,
               width: size,
               height: size,
+              errorBuilder: (_, __, ___) => const SizedBox(
+                width: size,
+                height: size,
+                child: Center(child: Icon(Icons.error, color: Colors.red)),
+              ),
             );
           }
         } else {

@@ -17,6 +17,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -28,6 +29,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/settings.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
@@ -37,16 +39,27 @@ import 'event/incoming_chat_call.dart';
 
 /// Implementation of an [AbstractCallRepository].
 class CallRepository implements AbstractCallRepository {
-  CallRepository(this._graphQlProvider, this._userRepo);
+  CallRepository(
+    this._graphQlProvider,
+    this._userRepo,
+    this._settingsRepository, {
+    this.me,
+  });
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _calls;
+
+  /// [UserId] of the currently authenticated [MyUser].
+  final UserId? me;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
+
+  /// Settings repository, used to get the stored [MediaSettings].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// Reactive map of the current [OngoingCall]s.
   final RxObsMap<ChatId, Rx<OngoingCall>> _calls =
@@ -118,6 +131,46 @@ class CallRepository implements AbstractCallRepository {
   Future<void> decline(ChatId chatId) async {
     await _graphQlProvider.declineChatCall(chatId);
     _calls.remove(chatId);
+  }
+
+  @override
+  void onCallAdded(ChatCall chatCall) {
+    // If we're already in this call, then ignore it.
+    if (chatCall.members.any((e) => e.user.id == me)) {
+      return;
+    }
+
+    Rx<OngoingCall>? call = _calls[chatCall.chatId];
+
+    if (call == null) {
+      Rx<OngoingCall> call = Rx<OngoingCall>(
+        OngoingCall(
+          chatCall.chatId,
+          me!,
+          call: chatCall,
+          withAudio: false,
+          withVideo: false,
+          withScreen: false,
+          mediaSettings: _settingsRepository.mediaSettings.value,
+          creds: ChatCallCredentials(const Uuid().v4()),
+        ),
+      );
+      add(call);
+    } else {
+      call.value.call.value = chatCall;
+    }
+  }
+
+  @override
+  void onCallRemoved(ChatId chatId) {
+    Rx<OngoingCall>? call = _calls[chatId];
+    // If call is not yet connected to the remote updates, then it's
+    // still just a notification and it should be removed.
+    if (call?.value.connected == false && call?.value.isActive == false) {
+      var removed = remove(chatId);
+      removed?.value.state.value = OngoingCallState.ended;
+      removed?.value.dispose();
+    }
   }
 
   @override
