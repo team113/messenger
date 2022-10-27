@@ -16,10 +16,10 @@
 
 import 'package:gherkin/gherkin.dart';
 
-/// [RetryImageStatus]es available in an [RetryImageParameter].
+/// Image loading statuses available in an [RetryImageParameter].
 enum RetryImageStatus { loading, loaded }
 
-/// [CustomParameter] representing an image loading status.
+/// [CustomParameter] representing a [RetryImageStatus].
 class RetryImageParameter extends CustomParameter<RetryImageStatus> {
   RetryImageParameter()
       : super(

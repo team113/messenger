@@ -20,8 +20,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// [Image] wrapper performing image loading with the exponential backoff
-/// algorithm.
+/// [Image.memory] displaying an image fetched from the provided [url].
+///
+/// Uses exponential backoff algorithm to re-fetch the [url] in case an error
+/// occurs.
+///
+/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
+/// errors.
 class RetryImage extends StatefulWidget {
   const RetryImage(
     this.url, {
@@ -31,19 +36,17 @@ class RetryImage extends StatefulWidget {
     this.onForbidden,
   }) : super(key: key);
 
-  /// URL of the image.
+  /// URL of an image to display.
   final String url;
 
   /// Callback, called when loading an image from the provided [url] failed with
   /// a forbidden network error.
-  ///
-  /// This callback is exposed to  if a [StorageFile.relativeRef] is used as an [url], thus up.
   final Future<void> Function()? onForbidden;
 
-  /// [BoxFit] of the image.
+  /// [BoxFit] to apply to the fetched image.
   final BoxFit? fit;
 
-  /// Height of the image.
+  /// Height of the fetched image.
   final double? height;
 
   @override
@@ -53,16 +56,16 @@ class RetryImage extends StatefulWidget {
 /// [State] of [RetryImage] maintaining image data loading with the exponential
 /// backoff algorithm.
 class _RetryImageState extends State<RetryImage> {
-  /// [Timer] used to retry image data loading.
+  /// [Timer] retrying the image fetching.
   Timer? _timer;
 
-  /// Byte data of this image.
+  /// Byte data of the fetched image.
   Uint8List? _image;
 
-  /// Image downloading progress.
+  /// Image fetching progress.
   double _progress = 0;
 
-  /// Timeout of the [_timer].
+  /// [Duration] of the [_timer].
   Duration _backoffTimeout = const Duration(microseconds: 250);
 
   @override
@@ -78,33 +81,37 @@ class _RetryImageState extends State<RetryImage> {
   }
 
   @override
-  Widget build(BuildContext context) => _image != null
-      ? Image.memory(
-          _image!,
-          height: widget.height,
-          fit: widget.fit,
-          key: const Key('RetryImageLoaded'),
-        )
-      : Container(
-          height: widget.height,
-          width: 200,
-          alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 40,
-              maxWidth: 40,
-              minWidth: 10,
-              minHeight: 10,
-            ),
-            child: AspectRatio(
-              aspectRatio: 1 / 1,
-              child: CircularProgressIndicator(
-                key: const Key('RetryImageLoading'),
-                value: _progress == 0 ? null : _progress,
-              ),
-            ),
+  Widget build(BuildContext context) {
+    if (_image != null) {
+      return Image.memory(
+        _image!,
+        key: const Key('RetryImageLoaded'),
+        height: widget.height,
+        fit: widget.fit,
+      );
+    }
+
+    return Container(
+      height: widget.height,
+      width: 200,
+      alignment: Alignment.center,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 40,
+          maxWidth: 40,
+          minWidth: 10,
+          minHeight: 10,
+        ),
+        child: AspectRatio(
+          aspectRatio: 1 / 1,
+          child: CircularProgressIndicator(
+            key: const Key('RetryImageLoading'),
+            value: _progress == 0 ? null : _progress,
           ),
-        );
+        ),
+      ),
+    );
+  }
 
   /// Loads image using the exponential backoff algorithm.
   Future<void> _loadImage() async {
@@ -123,14 +130,14 @@ class _RetryImageState extends State<RetryImage> {
         },
         options: Options(responseType: ResponseType.bytes),
       );
-    } on DioError catch (_) {
-      if (_.response?.statusCode == 403) {
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 403) {
         await widget.onForbidden?.call();
       }
     }
 
-    if (data?.data != null && data!.statusCode == 200) {
-      _image = data.data;
+    if (data?.data != null && data?.statusCode == 200) {
+      _image = data?.data;
       if (mounted) {
         setState(() {});
       }
@@ -143,6 +150,7 @@ class _RetryImageState extends State<RetryImage> {
         if (_backoffTimeout < const Duration(seconds: 32)) {
           _backoffTimeout *= 2;
         }
+
         _loadImage();
       },
     );

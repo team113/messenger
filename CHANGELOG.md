@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.8] · 2022-10-27
+[0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
+
+[Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Image attachments not loading. ([#164], [#126])
+
+[#126]: /../../issues/126
+[#164]: /../../pull/164
+
+
+
+
 ## [0.1.0-alpha.7] · 2022-10-27
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
@@ -18,8 +35,6 @@ All user visible changes to this project will be documented in this file. This p
         - Dock buttons persistence. ([#159], [#137])
     - Chat info page:
         - Chat avatar uploading and deleting. ([#163], [#146])
-    - Chat page:
-        - Backoff retry failed images. ([#164], [#126])
 
 ### Changed
 
@@ -44,7 +59,6 @@ All user visible changes to this project will be documented in this file. This p
 [#95]: /../../issues/95
 [#96]: /../../pull/96
 [#122]: /../../issues/122
-[#126]: /../../issues/126
 [#127]: /../../pull/127
 [#128]: /../../issues/128
 [#133]: /../../issues/133
@@ -56,7 +70,6 @@ All user visible changes to this project will be documented in this file. This p
 [#161]: /../../pull/161
 [#162]: /../../pull/162
 [#163]: /../../pull/163
-[#164]: /../../pull/164
 [#166]: /../../issues/166
 [#169]: /../../pull/169
 [#170]: /../../pull/170
