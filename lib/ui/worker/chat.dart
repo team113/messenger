@@ -19,7 +19,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatMemberInfoAction;
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
