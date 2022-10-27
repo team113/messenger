@@ -98,7 +98,7 @@ class Config {
 
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        : (document['downloads']?['directory'] ?? 'messenger');
+        : (document['downloads']?['directory'] ?? '');
 
     origin = url;
 
