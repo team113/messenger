@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,8 @@ import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
+
+import 'swipeable_info.dart';
 
 class PostWidget extends StatefulWidget {
   const PostWidget({
@@ -160,9 +163,11 @@ class _PostWidgetState extends State<PostWidget> {
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
+    const Color iconColor = Color(0xFF03a803);
+
     Widget reaction({
       bool enabled = false,
-      IconData? icon,
+      String? icon,
       List<Widget> children = const [],
     }) {
       return WidgetButton(
@@ -182,19 +187,24 @@ class _PostWidgetState extends State<PostWidget> {
           child: DefaultTextStyle.merge(
             style: style.systemMessageTextStyle.copyWith(
               fontSize: 15,
-              color: Theme.of(context).colorScheme.secondary,
+              color: iconColor,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
-                  Icon(
+                  Text(
                     icon,
-                    size: 21,
-                    color: enabled
-                        ? const Color.fromARGB(255, 0, 132, 255)
-                        : Theme.of(context).colorScheme.secondary,
+                    style: const TextStyle(
+                      fontSize: 21,
+                      color: Color(0xFF888888),
+                    ),
                   ),
+                  // Icon(
+                  //   icon,
+                  //   size: 21,
+                  //   color: iconColor,
+                  // ),
                   const SizedBox(width: 4),
                   const Text('4'),
                 ] else
@@ -278,27 +288,79 @@ class _PostWidgetState extends State<PostWidget> {
                           ),
                   ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 8 : 16, 8, 8),
+                  padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 0 : 0, 8, 8),
                   child: DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF888888),
-                    ),
+                    style:
+                        const TextStyle(fontSize: 15, color: Color(0xFF888888)),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // reaction(icon: Icons.comment),
                         // const SizedBox(width: 12),
-                        reaction(icon: Icons.thumb_up_outlined),
+                        // reaction(icon: '👍'),
+                        // const SizedBox(width: 12),
+
+                        const Icon(
+                          Icons.comment,
+                          size: 12,
+                          color: Color(0xFF888888),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          '14К',
+                          style: TextStyle(fontSize: 11),
+                        ),
+                        const SizedBox(width: 8),
+                        const Spacer(),
+                        const SizedBox(width: 8),
+                        // SvgLoader.asset(
+                        //   'assets/icons/eye.svg',
+                        //   height: 14.25,
+                        // ),
+                        // const SizedBox(width: 4),
+                        // const Text('1235'),
+                        // const SizedBox(width: 12),
+                        Text(
+                          DateFormat.Hm().format(
+                            widget.item.value.at.val.toLocal(),
+                          ),
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                /* Padding(
+                  padding: EdgeInsets.fromLTRB(8, media.isEmpty ? 8 : 16, 8, 8),
+                  child: DefaultTextStyle.merge(
+                    style:
+                        const TextStyle(fontSize: 15, color: Color(0xFF888888)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // reaction(icon: Icons.comment),
+                        // const SizedBox(width: 12),
+                        reaction(icon: '👍'),
                         const SizedBox(width: 12),
-                        reaction(icon: Icons.thumb_down_outlined),
+                        reaction(icon: '👎'),
                         const SizedBox(width: 12),
                         const Spacer(),
                         // if (context.isNarrow)
                         //   const Spacer()
                         // else
                         //   const SizedBox(width: 12),
-                        const Icon(Icons.face, size: 21),
+                        const SizedBox(width: 8),
+                        SvgLoader.asset(
+                          'assets/icons/eye.svg',
+                          // width: 23.07,
+                          height: 14.25,
+                        ),
+                        // const Icon(
+                        //   Icons.visibility_outlined,
+                        //   size: 21,
+                        //   // color: iconColor,
+                        //   color: Color(0xFF888888),
+                        // ),
                         const SizedBox(width: 4),
                         const Text('1235'),
                         const SizedBox(width: 12),
@@ -329,12 +391,13 @@ class _PostWidgetState extends State<PostWidget> {
                         ),
                         // border: style.systemMessageBorder,
                         // color: Colors.white.darken(0.04),
-                        color: Color(0xFFD7ECFF),
+                        color: Color.fromRGBO(241, 249, 241, 1),
                       ),
                       child: DefaultTextStyle.merge(
                         style: style.systemMessageTextStyle.copyWith(
                           fontSize: 15,
-                          color: const Color(0xFF3078BA),
+                          color: const Color(0xFF888888),
+                          // color: const Color(0xFF3078BA),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -355,7 +418,7 @@ class _PostWidgetState extends State<PostWidget> {
                       ),
                     ),
                   ),
-                ),
+                ),*/
               ],
             ),
           ),
@@ -603,7 +666,7 @@ class _PostWidgetState extends State<PostWidget> {
 
     bool isSent = widget.item.value.status.value == SendingStatus.sent;
 
-    return SwipeableStatus(
+    return SwipeableInfo(
       animation: widget.animation,
       asStack: true,
       isSent: isSent,
@@ -643,169 +706,172 @@ class _PostWidgetState extends State<PostWidget> {
           ),
           Flexible(
             child: LayoutBuilder(builder: (context, constraints) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Material(
-                    key: Key('Message_${widget.item.value.id}'),
-                    type: MaterialType.transparency,
-                    child: ContextMenuRegion(
-                      preventContextMenu: false,
-                      alignment: Alignment.bottomLeft,
-                      actions: [
-                        if (widget.item.value is ChatMessage &&
-                            (widget.item.value as ChatMessage)
-                                .attachments
-                                .isNotEmpty) ...[
-                          ContextMenuButton(
-                            label: 'Download all'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/copy_small.svg',
-                              width: 14.82,
-                              height: 17,
-                            ),
-                            onPressed: () {},
-                          ),
-                          ContextMenuButton(
-                            label: 'Download all as'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/copy_small.svg',
-                              width: 14.82,
-                              height: 17,
-                            ),
-                            onPressed: () {},
-                          ),
-                        ],
-                        if (copyable != null)
-                          ContextMenuButton(
-                            key: const Key('CopyButton'),
-                            label: 'Copy'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/copy_small.svg',
-                              width: 14.82,
-                              height: 17,
-                            ),
-                            onPressed: () {
-                              widget.onCopy?.call(copyable!);
-                            },
-                          ),
-                        if (item.status.value == SendingStatus.sent) ...[
-                          ContextMenuButton(
-                            key: const Key('ReplyButton'),
-                            label: 'Reply'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/reply.svg',
-                              width: 18.8,
-                              height: 16,
-                            ),
-                            onPressed: () => widget.onReply?.call(),
-                          ),
-                          if (item is ChatMessage || item is ChatForward)
+              return ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 550),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Material(
+                      key: Key('Message_${widget.item.value.id}'),
+                      type: MaterialType.transparency,
+                      child: ContextMenuRegion(
+                        preventContextMenu: false,
+                        alignment: Alignment.bottomLeft,
+                        actions: [
+                          if (widget.item.value is ChatMessage &&
+                              (widget.item.value as ChatMessage)
+                                  .attachments
+                                  .isNotEmpty) ...[
                             ContextMenuButton(
-                              key: const Key('ForwardButton'),
-                              label: 'Forward'.l10n,
+                              label: 'Download all'.l10n,
                               leading: SvgLoader.asset(
-                                'assets/icons/forward.svg',
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
+                              ),
+                              onPressed: () {},
+                            ),
+                            ContextMenuButton(
+                              label: 'Download all as'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
+                              ),
+                              onPressed: () {},
+                            ),
+                          ],
+                          if (copyable != null)
+                            ContextMenuButton(
+                              key: const Key('CopyButton'),
+                              label: 'Copy'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
+                              ),
+                              onPressed: () {
+                                widget.onCopy?.call(copyable!);
+                              },
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: 'Reply'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/reply.svg',
                                 width: 18.8,
                                 height: 16,
                               ),
-                              onPressed: () async {
-                                List<AttachmentId> attachments = [];
-                                if (item is ChatMessage) {
-                                  attachments = item.attachments
-                                      .map((a) => a.id)
-                                      .toList();
-                                } else if (item is ChatForward) {
-                                  ChatItem nested = item.item;
-                                  if (nested is ChatMessage) {
-                                    attachments = nested.attachments
+                              onPressed: () => widget.onReply?.call(),
+                            ),
+                            if (item is ChatMessage || item is ChatForward)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: 'Forward'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  width: 18.8,
+                                  height: 16,
+                                ),
+                                onPressed: () async {
+                                  List<AttachmentId> attachments = [];
+                                  if (item is ChatMessage) {
+                                    attachments = item.attachments
                                         .map((a) => a.id)
                                         .toList();
+                                  } else if (item is ChatForward) {
+                                    ChatItem nested = item.item;
+                                    if (nested is ChatMessage) {
+                                      attachments = nested.attachments
+                                          .map((a) => a.id)
+                                          .toList();
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                          if (widget.item.value is ChatMessage)
+                                },
+                              ),
+                            if (widget.item.value is ChatMessage)
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'Edit'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  width: 17,
+                                  height: 17,
+                                ),
+                                onPressed: () => widget.onEdit?.call(),
+                              ),
                             ContextMenuButton(
-                              key: const Key('EditButton'),
-                              label: 'Edit'.l10n,
+                              // key: const Key('HideForMe'),
+                              // key: _deleteKey,
+                              label: 'Delete'.l10n,
                               leading: SvgLoader.asset(
-                                'assets/icons/edit.svg',
-                                width: 17,
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
                                 height: 17,
                               ),
-                              onPressed: () => widget.onEdit?.call(),
+                              onPressed: () async {
+                                widget.onDelete?.call();
+                                // await ModalPopup.show(
+                                //   context: context,
+                                //   child: _buildDelete2(item),
+                                // );
+                              },
                             ),
-                          ContextMenuButton(
-                            // key: const Key('HideForMe'),
-                            // key: _deleteKey,
-                            label: 'Delete'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/delete_small.svg',
-                              width: 17.75,
-                              height: 17,
+                          ],
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: 'Resend'.l10n,
+                              // leading: const Icon(Icons.send),
+                              leading: SvgLoader.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: () => widget.onResend?.call(),
                             ),
-                            onPressed: () async {
-                              widget.onDelete?.call();
-                              // await ModalPopup.show(
-                              //   context: context,
-                              //   child: _buildDelete2(item),
-                              // );
-                            },
-                          ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'Delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                // await ModalPopup.show(
+                                //   context: context,
+                                //   child: _buildDelete2(item),
+                                // );
+                              },
+                            ),
+                          ],
                         ],
-                        if (item.status.value == SendingStatus.error) ...[
-                          ContextMenuButton(
-                            key: const Key('Resend'),
-                            label: 'Resend'.l10n,
-                            // leading: const Icon(Icons.send),
-                            leading: SvgLoader.asset(
-                              'assets/icons/send_small.svg',
-                              width: 18.37,
-                              height: 16,
-                            ),
-                            onPressed: () => widget.onResend?.call(),
-                          ),
-                          ContextMenuButton(
-                            key: const Key('Delete'),
-                            label: 'Delete'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/delete_small.svg',
-                              width: 17.75,
-                              height: 17,
-                            ),
-                            onPressed: () async {
-                              // await ModalPopup.show(
-                              //   context: context,
-                              //   child: _buildDelete2(item),
-                              // );
-                            },
-                          ),
-                        ],
-                      ],
-                      child: child,
+                        child: child,
+                      ),
                     ),
-                  ),
-                  // Row(
-                  //   mainAxisSize: MainAxisSize.min,
-                  //   children: [
-                  //     ElevatedButton(
-                  //       onPressed: () {},
-                  //       child: Icon(Icons.favorite),
-                  //     ),
-                  //     const SizedBox(width: 8),
-                  //     ElevatedButton(
-                  //       onPressed: () {},
-                  //       child: Icon(Icons.favorite),
-                  //     ),
-                  //     const SizedBox(width: 20),
-                  //     Icon(Icons.face),
-                  //     const SizedBox(width: 4),
-                  //     Text('1235'),
-                  //   ],
-                  // ),
-                ],
+                    // Row(
+                    //   mainAxisSize: MainAxisSize.min,
+                    //   children: [
+                    //     ElevatedButton(
+                    //       onPressed: () {},
+                    //       child: Icon(Icons.favorite),
+                    //     ),
+                    //     const SizedBox(width: 8),
+                    //     ElevatedButton(
+                    //       onPressed: () {},
+                    //       child: Icon(Icons.favorite),
+                    //     ),
+                    //     const SizedBox(width: 20),
+                    //     Icon(Icons.face),
+                    //     const SizedBox(width: 4),
+                    //     Text('1235'),
+                    //   ],
+                    // ),
+                  ],
+                ),
               );
             }),
           ),

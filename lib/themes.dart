@@ -88,6 +88,7 @@ class Themes {
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
             systemMessageColor: const Color(0xFFEFEFEF).withOpacity(0.95),
+            green: const Color(0xFF03a803),
           ),
         ],
         colorScheme: colors,
@@ -364,6 +365,7 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageTextStyle,
     required this.systemMessageBorder,
     required this.systemMessageColor,
+    required this.green,
   });
 
   /// [Color] of the modal background barrier color.
@@ -375,6 +377,8 @@ class Style extends ThemeExtension<Style> {
   final Border secondaryBorder;
   final double cardBlur;
   final Color cardColor;
+
+  final Color green;
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
@@ -418,6 +422,7 @@ class Style extends ThemeExtension<Style> {
     TextStyle? systemMessageTextStyle,
     Border? systemMessageBorder,
     Color? systemMessageColor,
+    Color? green,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
@@ -441,6 +446,7 @@ class Style extends ThemeExtension<Style> {
           systemMessageTextStyle ?? this.systemMessageTextStyle,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
+      green: green ?? this.green,
     );
   }
 
@@ -484,6 +490,7 @@ class Style extends ThemeExtension<Style> {
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:
           Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
+      green: Color.lerp(green, other.green, t)!,
     );
   }
 }

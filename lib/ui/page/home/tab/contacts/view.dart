@@ -374,7 +374,7 @@ class ContactsTabView extends StatelessWidget {
                           return CustomScrollView(
                             slivers: [
                               const SliverPadding(
-                                padding: EdgeInsets.only(top: 0),
+                                padding: EdgeInsets.only(top: 3),
                               ),
                               if (!isSearching) ...[
                                 // SliverToBoxAdapter(
@@ -461,7 +461,7 @@ class ContactsTabView extends StatelessWidget {
                                 ),
                               ),
                               const SliverPadding(
-                                padding: EdgeInsets.only(top: 8),
+                                padding: EdgeInsets.only(top: 4),
                               ),
                             ],
                           );
@@ -489,7 +489,8 @@ class ContactsTabView extends StatelessWidget {
       key: Key(contact.id.val),
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: ContactTile(
-        radius: enlarge ? 26 + 7 : 26,
+        radius: enlarge ? 30 + 7 : 30,
+        // radius: enlarge ? 26 + 7 : 26,
         contact: contact,
         darken: 0,
         folded: favorite,

@@ -1436,7 +1436,7 @@ extension IsChatItemEditable on ChatItem {
 
 /// Extension adding conversion from [PreciseDateTime] to date-only
 /// [PreciseDateTime].
-extension _PreciseDateTimeToDayConversion on PreciseDateTime {
+extension PreciseDateTimeToDayConversion on PreciseDateTime {
   /// Returns a [PreciseDateTime] containing only the date.
   ///
   /// For example, `2022-09-22 16:54:44.100` -> `2022-09-22 00:00:00.000`,

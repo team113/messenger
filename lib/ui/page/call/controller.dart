@@ -489,20 +489,12 @@ class CallController extends GetxController {
 
     Size size = router.context!.mediaQuerySize;
 
-    if (router.context!.isMobile) {
-      secondaryWidth = RxDouble(150);
-      secondaryHeight = RxDouble(151);
-    } else {
-      secondaryWidth = RxDouble(200);
-      secondaryHeight = RxDouble(200);
-    }
-
     if (PlatformUtils.isAndroid) {
       BackButtonInterceptor.add(_onBack);
     }
 
     fullscreen = RxBool(false);
-    minimized = RxBool(!router.context!.isMobile);
+    minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = router.context!.isMobile;
 
     if (isMobile) {
@@ -524,6 +516,14 @@ class CallController extends GetxController {
       );
       height = RxDouble(width.value);
     }
+
+    double secondarySize = (this.size.shortestSide *
+            (this.size.aspectRatio > 2 || this.size.aspectRatio < 0.5
+                ? 0.45
+                : 0.33))
+        .clamp(_minSHeight, 250);
+    secondaryWidth = RxDouble(secondarySize);
+    secondaryHeight = RxDouble(secondarySize);
 
     left = size.width - width.value - 50 > 0
         ? RxDouble(size.width - width.value - 50)
@@ -1455,7 +1455,12 @@ class CallController extends GetxController {
             secondaryLeft.value = size.width - width;
             secondaryWidth.value = width;
           }
+
+          if (secondaryAlignment.value != null) {
+            secondaryHeight.value = _applySHeight(width * secondary.length);
+          }
         }
+
         break;
 
       case ScaleModeX.right:
@@ -1464,6 +1469,10 @@ class CallController extends GetxController {
           double right = secondaryLeft.value! + width;
           if (right < size.width) {
             secondaryWidth.value = width;
+          }
+
+          if (secondaryAlignment.value != null) {
+            secondaryHeight.value = _applySHeight(width * secondary.length);
           }
         }
         break;
@@ -1487,6 +1496,10 @@ class CallController extends GetxController {
             secondaryTop.value = size.height - height;
             secondaryHeight.value = height;
           }
+
+          if (secondaryAlignment.value != null) {
+            secondaryWidth.value = _applySWidth(height * secondary.length);
+          }
         }
         break;
 
@@ -1496,6 +1509,10 @@ class CallController extends GetxController {
           double bottom = secondaryTop.value! + height;
           if (bottom < size.height) {
             secondaryHeight.value = height;
+          }
+
+          if (secondaryAlignment.value != null) {
+            secondaryWidth.value = _applySWidth(height * secondary.length);
           }
         }
         break;

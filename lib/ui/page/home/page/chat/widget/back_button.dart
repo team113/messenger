@@ -20,7 +20,12 @@ import '/ui/widget/widget_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({Key? key}) : super(key: key);
+  const StyledBackButton({
+    Key? key,
+    this.color,
+  }) : super(key: key);
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,7 @@ class StyledBackButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Icon(
             Icons.arrow_back_ios_rounded,
-            color: Theme.of(context).colorScheme.secondary,
+            color: color ?? Theme.of(context).colorScheme.secondary,
             size: 22,
           ),
         ),
@@ -42,7 +47,6 @@ class StyledBackButton extends StatelessWidget {
       );
     } else {
       return const SizedBox(width: 30);
-      return Container();
     }
   }
 }

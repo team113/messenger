@@ -640,10 +640,10 @@ class ChatsTabView extends StatelessWidget {
                                 child: FadeInAnimation(
                                   child: Padding(
                                     padding: EdgeInsets.only(
-                                      top: i == 0 ? 10 : 0,
+                                      top: i == 0 ? 5 : 0,
                                       left: 10,
                                       right: 10,
-                                      bottom: i == c.chats.length - 1 ? 10 : 0,
+                                      bottom: i == c.chats.length - 1 ? 5 : 0,
                                     ),
                                     child: buildChatTile(context, c, e),
                                   ),
@@ -1398,7 +1398,7 @@ class ChatsTabView extends StatelessWidget {
             ),
         ],
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
           child: ConditionalBackdropFilter(
             condition: false,
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),

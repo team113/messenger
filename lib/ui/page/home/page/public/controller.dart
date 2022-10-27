@@ -25,9 +25,11 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/native_file.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -41,6 +43,8 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/obs/obs.dart';
+import 'package:messenger/util/obs/rxsplay.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 class PublicController extends GetxController {
@@ -60,12 +64,18 @@ class PublicController extends GetxController {
 
   final Rx<RxStatus> status = Rx(RxStatus.loading());
 
+  /// [RxSplayTreeMap] of the [ListElement]s to display.
+  final RxSplayTreeMap<ListElementId, ListElement> elements = RxSplayTreeMap();
+
   RxList<Attachment> attachments = RxList<Attachment>();
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
   final AuthService _authService;
   final MyUserService _myUserService;
   final ChatService _chatService;
+
+  /// Subscription for the [RxChat.messages] updating the [elements].
+  late final StreamSubscription _messagesSubscription;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
@@ -156,6 +166,7 @@ class PublicController extends GetxController {
 
   @override
   void onClose() {
+    _messagesSubscription.cancel();
     _audioPlayer?.dispose();
     [AudioCache.instance.loadedFiles['audio/message_sent.mp3']]
         .whereNotNull()
@@ -311,6 +322,125 @@ class PublicController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      // Adds the provided [ChatItem] to the [elements].
+      void add(Rx<ChatItem> e) {
+        ChatItem item = e.value;
+
+        // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
+        PreciseDateTime day = item.at.toDay();
+        DateTimeElement dateElement = DateTimeElement(day);
+        elements.putIfAbsent(dateElement.id, () => dateElement);
+
+        if (item is ChatMessage) {
+          ChatMessageElement element = ChatMessageElement(e);
+          elements[element.id] = element;
+        } else if (item is ChatCall) {
+          ChatCallElement element = ChatCallElement(e);
+          elements[element.id] = element;
+        } else if (item is ChatMemberInfo) {
+          ChatMemberInfoElement element = ChatMemberInfoElement(e);
+          elements[element.id] = element;
+        } else if (item is ChatForward) {
+          ChatForwardElement element =
+              ChatForwardElement(forwards: [e], e.value.at);
+          elements[element.id] = element;
+        }
+      }
+
+      for (Rx<ChatItem> e in chat!.messages) {
+        add(e);
+      }
+
+      _messagesSubscription = chat!.messages.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            add(e.element);
+            break;
+
+          case OperationKind.removed:
+            ChatItem item = e.element.value;
+
+            ListElementId key = ListElementId(item.at, item.id);
+            ListElement? element = elements[key];
+
+            ListElementId? before = elements.lastKeyBefore(key);
+            ListElement? beforeElement = elements[before];
+
+            ListElementId? after = elements.firstKeyAfter(key);
+            ListElement? afterElement = elements[after];
+
+            // Remove the [DateTimeElement] before, if this [ChatItem] is the
+            // last in this [DateTime] period.
+            if (beforeElement is DateTimeElement &&
+                (afterElement == null || afterElement is DateTimeElement) &&
+                (element is! ChatForwardElement ||
+                    (element.forwards.length == 1 &&
+                        element.note.value == null))) {
+              elements.remove(before);
+            }
+
+            // When removing [ChatMessage] or [ChatForward], the [before] and
+            // [after] elements must be considered as well, since they may be
+            // grouped in the same [ChatForwardElement].
+            if (item is ChatMessage) {
+              if (element is ChatMessageElement &&
+                  item.id == element.item.value.id) {
+                elements.remove(key);
+              } else if (beforeElement is ChatForwardElement &&
+                  beforeElement.note.value?.value.id == item.id) {
+                beforeElement.note.value = null;
+              } else if (afterElement is ChatForwardElement &&
+                  afterElement.note.value?.value.id == item.id) {
+                afterElement.note.value = null;
+              } else if (element is ChatForwardElement &&
+                  element.note.value?.value.id == item.id) {
+                element.note.value = null;
+              }
+            } else if (item is ChatCall && element is ChatCallElement) {
+              if (item.id == element.item.value.id) {
+                elements.remove(key);
+              }
+            } else if (item is ChatMemberInfo &&
+                element is ChatMemberInfoElement) {
+              if (item.id == element.item.value.id) {
+                elements.remove(key);
+              }
+            } else if (item is ChatForward) {
+              ChatForwardElement? forward;
+
+              if (beforeElement is ChatForwardElement &&
+                  beforeElement.forwards.any((e) => e.value.id == item.id)) {
+                forward = beforeElement;
+              } else if (afterElement is ChatForwardElement &&
+                  afterElement.forwards.any((e) => e.value.id == item.id)) {
+                forward = afterElement;
+              } else if (element is ChatForwardElement &&
+                  element.forwards.any((e) => e.value.id == item.id)) {
+                forward = element;
+              }
+
+              if (forward != null) {
+                forward.forwards.removeWhere((e) => e.value.id == item.id);
+
+                if (forward.forwards.isEmpty) {
+                  elements.remove(forward.id);
+
+                  if (forward.note.value != null) {
+                    ChatMessageElement message =
+                        ChatMessageElement(forward.note.value!);
+                    elements[message.id] = message;
+                  }
+                }
+              }
+            }
+            break;
+
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      });
+
       status.value = RxStatus.loadingMore();
       await chat!.fetchMessages();
       status.value = RxStatus.success();

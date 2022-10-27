@@ -25,8 +25,11 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatMemberInfoAction;
+import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
 import 'package:messenger/ui/page/home/tab/chats/search/view.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
@@ -489,7 +492,7 @@ class PublicsTabView extends StatelessWidget {
                                   );
                                 },
                           child: SvgLoader.asset(
-                            'assets/icons/search.svg',
+                            'assets/icons/search_green.svg',
                             width: 17.77,
                           ),
                         ),
@@ -513,6 +516,8 @@ class PublicsTabView extends StatelessWidget {
                           ),
                         );
                       } else {
+                        Style style = Theme.of(context).extension<Style>()!;
+
                         child = WidgetButton(
                           onPressed: c.searching.value || c.groupCreating.value
                               ? null
@@ -547,18 +552,22 @@ class PublicsTabView extends StatelessWidget {
                                   }
                                 },
                           child: SizedBox(
-                            width: 21.77,
-                            child: c.groupCreating.value
-                                ? SvgLoader.asset(
-                                    'assets/icons/group.svg',
-                                    width: 21.77,
-                                    height: 18.44,
-                                  )
-                                : SvgLoader.asset(
-                                    'assets/icons/group.svg',
-                                    width: 21.77,
-                                    height: 18.44,
-                                  ),
+                            child: SvgLoader.asset(
+                              'assets/icons/add_green.svg',
+                              width: 17,
+                              height: 17,
+                            ),
+                            // width: 21.77,
+                            // child: Icon(
+                            //   Icons.add_rounded,
+                            //   color: style.green,
+                            //   size: 26,
+                            // ),
+                            // child: SvgLoader.asset(
+                            //   'assets/icons/group.svg',
+                            //   width: 21.77,
+                            //   height: 18.44,
+                            // ),
                           ),
                         );
                       }
@@ -610,10 +619,10 @@ class PublicsTabView extends StatelessWidget {
                                 child: FadeInAnimation(
                                   child: Padding(
                                     padding: EdgeInsets.only(
-                                      top: i == 0 ? 10 : 0,
+                                      top: i == 0 ? 5 : 0,
                                       left: 10,
                                       right: 10,
-                                      bottom: i == c.chats.length - 1 ? 10 : 0,
+                                      bottom: i == c.chats.length - 1 ? 5 : 0,
                                     ),
                                     child: buildChatTile(context, c, e),
                                   ),
@@ -1201,50 +1210,113 @@ class PublicsTabView extends StatelessWidget {
           if (text != null) {
             desc.write(text);
             if (item.attachments.isNotEmpty) {
-              desc.write(
-                  ' [${item.attachments.length} ${'label_attachments'.l10n}]');
+              // desc.write(
+              // ' [${item.attachments.length} ${'label_attachments'.l10n}]');
             }
           } else if (item.attachments.isNotEmpty) {
-            desc.write(
-                '[${item.attachments.length} ${'label_attachments'.l10n}]');
+            // desc.write(
+            // '[${item.attachments.length} ${'label_attachments'.l10n}]');
           } else {
             desc.write('[Quoted message]');
           }
 
-          subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => AvatarWidget.fromRxUser(
-                    snapshot.data,
-                    radius: 10,
+          final List<Widget> images = [];
+
+          if (item.attachments.whereType<ImageAttachment>().isNotEmpty) {
+            Widget image(ImageAttachment e) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Image.network(
+                    '${Config.files}${e.medium.relativeRef}',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) {
+                      return InitCallback(
+                        callback: () {
+                          if (chat.lastItem != null) {
+                            rxChat.updateAttachments(chat.lastItem!);
+                          }
+                        },
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
                   ),
                 ),
-              ),
+              );
+            }
+
+            if (text == null) {
+              images.addAll(
+                item.attachments.whereType<ImageAttachment>().map((e) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: image(e),
+                  );
+                }),
+              );
+            } else {
+              images.add(
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: image(
+                      item.attachments.whereType<ImageAttachment>().first),
+                ),
+              );
+            }
+
+            // if (text == null) {
+            //   images.addAll(
+            //     item.attachments.whereType<ImageAttachment>().map((e) {
+            //       return SizedBox(
+            //         width: 40,
+            //         height: 40,
+            //         child: Image.network(
+            //           '${Config.files}${e.medium.relativeRef}',
+            //           fit: BoxFit.cover,
+            //         ),
+            //       );
+            //     }),
+            //   );
+            // }
+          }
+
+          subtitle = [
+            ...images,
+            // if (chat.isGroup)
+            //   Padding(
+            //     padding: const EdgeInsets.only(right: 5),
+            //     child: FutureBuilder<RxUser?>(
+            //       future: c.getUser(item.authorId),
+            //       builder: (_, snapshot) => AvatarWidget.fromRxUser(
+            //         snapshot.data,
+            //         radius: 10,
+            //       ),
+            //     ),
+            //   ),
             Flexible(child: Text(desc.toString(), maxLines: 2)),
           ];
         } else if (item is ChatForward) {
           subtitle = [
-            if (chat.isGroup)
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: c.getUser(item.authorId),
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? Obx(
-                          () => AvatarWidget.fromUser(
-                            snapshot.data!.user.value,
-                            radius: 10,
-                          ),
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
-                          radius: 10,
-                        ),
-                ),
-              ),
+            // if (chat.isGroup)
+            //   Padding(
+            //     padding: const EdgeInsets.only(right: 5),
+            //     child: FutureBuilder<RxUser?>(
+            //       future: c.getUser(item.authorId),
+            //       builder: (_, snapshot) => snapshot.data != null
+            //           ? Obx(
+            //               () => AvatarWidget.fromUser(
+            //                 snapshot.data!.user.value,
+            //                 radius: 10,
+            //               ),
+            //             )
+            //           : AvatarWidget.fromUser(
+            //               chat.getUser(item!.authorId),
+            //               radius: 10,
+            //             ),
+            //     ),
+            //   ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
           ];
         } else if (item is ChatMemberInfo) {
@@ -1316,40 +1388,40 @@ class PublicsTabView extends StatelessWidget {
           true;
 
       final List<Widget> additional = [];
-      if (item?.authorId == c.me) {
-        bool isSent = item?.status.value == SendingStatus.sent;
+      // if (item?.authorId == c.me) {
+      //   bool isSent = item?.status.value == SendingStatus.sent;
 
-        bool isRead = false;
-        isRead = chat.lastReads.firstWhereOrNull(
-                    (e) => e.memberId != c.me && !e.at.isBefore(item!.at)) !=
-                null &&
-            isSent;
+      //   bool isRead = false;
+      //   isRead = chat.lastReads.firstWhereOrNull(
+      //               (e) => e.memberId != c.me && !e.at.isBefore(item!.at)) !=
+      //           null &&
+      //       isSent;
 
-        bool isDelivered = isSent && !chat.lastDelivery.isBefore(item!.at);
-        bool isError = item?.status.value == SendingStatus.error;
-        bool isSending = item?.status.value == SendingStatus.sending;
+      //   bool isDelivered = isSent && !chat.lastDelivery.isBefore(item!.at);
+      //   bool isError = item?.status.value == SendingStatus.error;
+      //   bool isSending = item?.status.value == SendingStatus.sending;
 
-        if (isSent || isDelivered || isRead || isSending || isError) {
-          additional.addAll([
-            const SizedBox(width: 10),
-            Icon(
-              (isRead || isDelivered)
-                  ? Icons.done_all
-                  : isSending
-                      ? Icons.access_alarm
-                      : isError
-                          ? Icons.error_outline
-                          : Icons.done,
-              color: isRead
-                  ? const Color(0xFF63B4FF)
-                  : isError
-                      ? Colors.red
-                      : const Color(0xFF888888),
-              size: 16,
-            ),
-          ]);
-        }
-      }
+      //   if (isSent || isDelivered || isRead || isSending || isError) {
+      //     additional.addAll([
+      //       const SizedBox(width: 10),
+      //       Icon(
+      //         (isRead || isDelivered)
+      //             ? Icons.done_all
+      //             : isSending
+      //                 ? Icons.access_alarm
+      //                 : isError
+      //                     ? Icons.error_outline
+      //                     : Icons.done,
+      //         color: isRead
+      //             ? const Color(0xFF63B4FF)
+      //             : isError
+      //                 ? Colors.red
+      //                 : const Color(0xFF888888),
+      //         size: 16,
+      //       ),
+      //     ]);
+      //   }
+      // }
 
       return ContextMenuRegion(
         key: Key('ContextMenuRegion_${chat.id}'),
@@ -1368,7 +1440,7 @@ class PublicsTabView extends StatelessWidget {
             ),
         ],
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+          padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
           child: ConditionalBackdropFilter(
             condition: false,
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -1395,10 +1467,10 @@ class PublicsTabView extends StatelessWidget {
               // unselectedHoverColor: const Color.fromRGBO(230, 241, 254, 1),
               selectedHoverColor: const Color(0xFFD7ECFF).withOpacity(0.8),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 child: Row(
                   children: [
-                    AvatarWidget.fromRxChat(rxChat, radius: 30),
+                    AvatarWidget.fromRxChat(rxChat, radius: 36),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -1430,6 +1502,7 @@ class PublicsTabView extends StatelessWidget {
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 4),
                           Row(
                             children: [
                               const SizedBox(height: 3),
@@ -1439,7 +1512,9 @@ class PublicsTabView extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   child: Padding(
                                     padding: const EdgeInsets.only(top: 3),
-                                    child: Row(children: subtitle ?? []),
+                                    child: ClipRect(
+                                      child: Row(children: subtitle ?? []),
+                                    ),
                                   ),
                                 ),
                               ),

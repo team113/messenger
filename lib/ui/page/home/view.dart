@@ -184,6 +184,23 @@ class _HomeViewState extends State<HomeView> {
                       bottomNavigationBar: SafeArea(
                         key: const Key('NavigationBar'),
                         child: Obx(() {
+                          Widget animated({
+                            HomeTab tab = HomeTab.finance,
+                            required Widget child,
+                          }) {
+                            return Obx(() {
+                              return AnimatedScale(
+                                duration: 150.milliseconds,
+                                scale: c.page.value == tab ? 1.2 : 1,
+                                child: AnimatedOpacity(
+                                  duration: 150.milliseconds,
+                                  opacity: c.page.value == tab ? 1 : 0.7,
+                                  child: child,
+                                ),
+                              );
+                            });
+                          }
+
                           Widget child = router.navigation.value ??
                               CustomNavigationBar(
                                 selectedColor: const Color(0xFF63B4FF),
@@ -194,39 +211,23 @@ class _HomeViewState extends State<HomeView> {
                                     key: const Key('FinanceButton'),
                                     // icon: FontAwesomeIcons.solidCircleUser,
                                     // label: 'label_tab_contacts'.l10n,
-                                    leading: Obx(
-                                      () => AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity: c.page.value == HomeTab.finance
-                                            ? 1
-                                            : 0.6,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/money.svg',
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                        // child: const Icon(
-                                        //   Icons.monetization_on,
-                                        //   color: Color(0xFF63b4ff),
-                                        //   size: 36,
-                                        // ),
+                                    leading: animated(
+                                      tab: HomeTab.finance,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/money.svg',
+                                        width: 30,
+                                        height: 30,
                                       ),
                                     ),
                                   ),
                                   CustomNavigationBarItem(
                                     key: const Key('ContactsButton'),
-                                    leading: Obx(
-                                      () => AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity:
-                                            c.page.value == HomeTab.contacts
-                                                ? 1
-                                                : 0.6,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/contacts.svg',
-                                          width: 30,
-                                          height: 30,
-                                        ),
+                                    leading: animated(
+                                      tab: HomeTab.contacts,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/contacts.svg',
+                                        width: 30,
+                                        height: 30,
                                       ),
                                     ),
                                   ),
@@ -235,18 +236,12 @@ class _HomeViewState extends State<HomeView> {
                                     badge: c.unreadChatsCount.value == 0
                                         ? null
                                         : '${c.unreadChatsCount.value}',
-                                    leading: Padding(
-                                      padding: const EdgeInsets.only(top: 0),
-                                      child: AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity: c.page.value == HomeTab.public
-                                            ? 1
-                                            : 0.6,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/content.svg',
-                                          width: 30,
-                                          height: 30,
-                                        ),
+                                    leading: animated(
+                                      tab: HomeTab.public,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/publics.svg',
+                                        width: 30,
+                                        height: 30,
                                       ),
                                     ),
                                   ),
@@ -255,18 +250,12 @@ class _HomeViewState extends State<HomeView> {
                                     badge: c.unreadChatsCount.value == 0
                                         ? null
                                         : '${c.unreadChatsCount.value}',
-                                    leading: Padding(
-                                      padding: const EdgeInsets.only(top: 0),
-                                      child: AnimatedOpacity(
-                                        duration: 150.milliseconds,
-                                        opacity: c.page.value == HomeTab.chats
-                                            ? 1
-                                            : 0.6,
-                                        child: SvgLoader.asset(
-                                          'assets/icons/chats.svg',
-                                          width: 36.06,
-                                          height: 30,
-                                        ),
+                                    leading: animated(
+                                      tab: HomeTab.chats,
+                                      child: SvgLoader.asset(
+                                        'assets/icons/chats.svg',
+                                        width: 36.06,
+                                        height: 30,
                                       ),
                                     ),
                                   ),
@@ -325,17 +314,11 @@ class _HomeViewState extends State<HomeView> {
                                         key: c.profileKey,
                                         padding:
                                             const EdgeInsets.only(bottom: 2),
-                                        child: Obx(
-                                          () => AnimatedOpacity(
-                                            duration: 150.milliseconds,
-                                            opacity:
-                                                c.page.value == HomeTab.menu
-                                                    ? 1
-                                                    : 0.6,
-                                            child: AvatarWidget.fromMyUser(
-                                              c.myUser.value,
-                                              radius: 15,
-                                            ),
+                                        child: animated(
+                                          tab: HomeTab.menu,
+                                          child: AvatarWidget.fromMyUser(
+                                            c.myUser.value,
+                                            radius: 15,
                                           ),
                                         ),
                                       ),

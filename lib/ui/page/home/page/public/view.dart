@@ -21,10 +21,13 @@ import 'dart:io';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -36,6 +39,7 @@ import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import 'package:messenger/ui/page/home/page/my_profile/view.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
@@ -102,7 +106,7 @@ class _PublicViewState extends State<PublicView>
             );
           }
 
-          Chat chat = c.chat!.chat.value;
+          Style style = Theme.of(context).extension<Style>()!;
 
           return Scaffold(
             appBar: CustomAppBar.from(
@@ -144,7 +148,9 @@ class _PublicViewState extends State<PublicView>
                               style: const TextStyle(color: Colors.black),
                             ),
                             Text(
-                              c.chat!.chat.value.getSubtitle() ?? '...',
+                              c.chat?.chat.value.isDialog == true
+                                  ? '1 follower'
+                                  : '${c.chat!.members.length} follower(s)',
                               style: Theme.of(context).textTheme.caption,
                             )
                           ],
@@ -155,19 +161,24 @@ class _PublicViewState extends State<PublicView>
                   const SizedBox(width: 10),
                 ],
               ),
-              leading: const [StyledBackButton()],
+              leading: [StyledBackButton(color: style.green)],
               automaticallyImplyLeading: false,
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: WidgetButton(
-                    // onPressed: () => MyProfileView.show(context),
-                    onPressed: () => router.chatInfo(widget.id, Routes.public),
+                    onPressed: () {},
                     child: SvgLoader.asset(
-                      'assets/icons/chat_settings.svg',
-                      width: 22,
-                      height: 22,
+                      'assets/icons/search_green.svg',
+                      width: 17.77,
                     ),
+                    // onPressed: () => MyProfileView.show(context),
+                    // onPressed: () => router.chatInfo(widget.id, Routes.public),
+                    // child: SvgLoader.asset(
+                    //   'assets/icons/chat_settings.svg',
+                    //   width: 22,
+                    //   height: 22,
+                    // ),
                   ),
                 ),
               ],
@@ -215,26 +226,62 @@ class _PublicViewState extends State<PublicView>
                     },
                     child: ContextMenuInterceptor(
                       child: Obx(() {
-                        return ListView(
+                        return FlutterListView(
                           physics: c.horizontalScrollTimer.value == null
                               ? const BouncingScrollPhysics()
                               : const NeverScrollableScrollPhysics(),
-                          children: c.chat!.messages.map((e) {
-                            return PostWidget(
-                              animation: _animation,
-                              item: e,
-                              me: c.me,
-                              getUser: c.getUser,
-                              onGallery: c.calculateGallery,
-                              onDelete: () => c.deleteMessage(e.value),
-                              onAttachmentError: () async {
-                                await c.chat?.updateAttachments(e.value);
-                                await Future.delayed(
-                                  Duration.zero,
+                          delegate: FlutterListViewDelegate(
+                            (context, i) {
+                              ListElement element =
+                                  c.elements.values.elementAt(i);
+
+                              if (element is ChatMessageElement ||
+                                  element is ChatCallElement ||
+                                  element is ChatMemberInfoElement) {
+                                Rx<ChatItem> e;
+
+                                if (element is ChatMessageElement) {
+                                  e = element.item;
+                                } else if (element is ChatCallElement) {
+                                  e = element.item;
+                                } else if (element is ChatMemberInfoElement) {
+                                  e = element.item;
+                                } else {
+                                  throw Exception('Unreachable');
+                                }
+
+                                return PostWidget(
+                                  animation: _animation,
+                                  item: e,
+                                  me: c.me,
+                                  getUser: c.getUser,
+                                  onGallery: c.calculateGallery,
+                                  onDelete: () => c.deleteMessage(e.value),
+                                  onAttachmentError: () async {
+                                    await c.chat?.updateAttachments(e.value);
+                                    await Future.delayed(
+                                      Duration.zero,
+                                    );
+                                  },
                                 );
-                              },
-                            );
-                          }).toList(),
+                              } else if (element is ChatForwardElement) {
+                                return Container();
+                              } else if (element is DateTimeElement) {
+                                return _timeLabel(element.id.at.val);
+                              }
+
+                              return Container();
+                            },
+                            childCount: c.elements.length,
+                            keepPosition: true,
+                            onItemKey: (i) =>
+                                c.elements.values.elementAt(i).id.toString(),
+                            onItemSticky: (i) => c.elements.values.elementAt(i)
+                                is DateTimeElement,
+                            // initIndex: c.initIndex,
+                            // initOffset: c.initOffset,
+                            initOffsetBasedOnBottom: false,
+                          ),
                         );
                       }),
                     ),
@@ -242,7 +289,7 @@ class _PublicViewState extends State<PublicView>
                 ),
               );
             }),
-            floatingActionButton: context.isNarrow
+            floatingActionButton: false && context.isNarrow
                 ? SizedBox.square(
                     dimension: 50,
                     child: FloatingActionButton(
@@ -273,7 +320,7 @@ class _PublicViewState extends State<PublicView>
                     ),
                   )
                 : null,
-            bottomNavigationBar: context.isNarrow
+            bottomNavigationBar: false && context.isNarrow
                 ? null
                 : Padding(
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -456,7 +503,7 @@ class _PublicViewState extends State<PublicView>
                               width: iconSize,
                               height: iconSize,
                               child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
+                                'assets/icons/attach_green.svg',
                                 height: iconSize,
                               ),
                             ),
@@ -484,7 +531,7 @@ class _PublicViewState extends State<PublicView>
                               width: iconSize,
                               height: iconSize,
                               child: SvgLoader.asset(
-                                'assets/icons/attach.svg',
+                                'assets/icons/attach_green.svg',
                                 height: iconSize,
                               ),
                             ),
@@ -531,7 +578,7 @@ class _PublicViewState extends State<PublicView>
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 0),
                                 child: SvgLoader.asset(
-                                  'assets/icons/send.svg',
+                                  'assets/icons/send_green.svg',
                                   height: 22.85,
                                 ),
                               ),
@@ -547,6 +594,43 @@ class _PublicViewState extends State<PublicView>
           ],
         ),
       ),
+    );
+  }
+
+  /// Returns a centered [time] label.
+  Widget _timeLabel(DateTime time) {
+    Style style = Theme.of(context).extension<Style>()!;
+    return Column(
+      children: [
+        const SizedBox(height: 16 * 1.5 / 2),
+        SwipeableStatus(
+          animation: _animation,
+          asStack: true,
+          padding: const EdgeInsets.only(right: 8),
+          crossAxisAlignment: CrossAxisAlignment.center,
+          swipeable: Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(DateFormat('dd.MM.yy').format(time)),
+          ),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
+                // border: style.cardBorder,
+                // color: const Color(0xFFF8F8F8),
+              ),
+              child: Text(
+                time.toRelative(),
+                style: const TextStyle(color: Color(0xFF888888)),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16 * 1.5 / 2),
+      ],
     );
   }
 

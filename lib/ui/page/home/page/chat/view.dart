@@ -822,7 +822,7 @@ class _ChatViewState extends State<ChatView>
     Style style = Theme.of(context).extension<Style>()!;
     return Column(
       children: [
-        const SizedBox(height: 16 * 1.5),
+        const SizedBox(height: 16 * 1.5 / 2),
         SwipeableStatus(
           animation: _animation,
           asStack: true,
@@ -849,7 +849,7 @@ class _ChatViewState extends State<ChatView>
             ),
           ),
         ),
-        const SizedBox(height: 16 * 1.5),
+        const SizedBox(height: 16 * 1.5 / 2),
       ],
     );
   }
