@@ -30,7 +30,6 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
-import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -1332,7 +1331,7 @@ class _ChatViewState extends State<ChatView>
             }
           } else {
             child = Image.network(
-              '${Config.files}${e.original.relativeRef}',
+              e.original.url,
               fit: BoxFit.cover,
               width: size,
               height: size,
@@ -1352,9 +1351,7 @@ class _ChatViewState extends State<ChatView>
               child = VideoThumbnail.bytes(bytes: e.file.bytes!);
             }
           } else {
-            child = VideoThumbnail.url(
-              url: '${Config.files}${e.original.relativeRef}',
-            );
+            child = VideoThumbnail.url(url: e.original.url);
           }
         }
 
@@ -1383,12 +1380,19 @@ class _ChatViewState extends State<ChatView>
                     c.attachments.removeWhere((o) => o.value == a);
                   },
                   children: attachments.map((o) {
-                    var link = '${Config.files}${o.original.relativeRef}';
                     if (o is ImageAttachment ||
                         (o is LocalAttachment && o.file.isImage)) {
-                      return GalleryItem.image(link, o.filename);
+                      return GalleryItem.image(
+                        e.original.url,
+                        o.filename,
+                        size: o.original.size,
+                      );
                     }
-                    return GalleryItem.video(link, o.filename);
+                    return GalleryItem.video(
+                      e.original.url,
+                      o.filename,
+                      size: o.original.size,
+                    );
                   }).toList(),
                 ),
               );
@@ -1593,11 +1597,7 @@ class _ChatViewState extends State<ChatView>
               borderRadius: BorderRadius.circular(4),
               image: image == null
                   ? null
-                  : DecorationImage(
-                      image: NetworkImage(
-                        '${Config.files}${image.small.relativeRef}',
-                      ),
-                    ),
+                  : DecorationImage(image: NetworkImage(image.small.url)),
             ),
             width: 30,
             height: 30,
@@ -1833,11 +1833,7 @@ class _ChatViewState extends State<ChatView>
                 borderRadius: BorderRadius.circular(4),
                 image: image == null
                     ? null
-                    : DecorationImage(
-                        image: NetworkImage(
-                          '${Config.files}${image.small.relativeRef}',
-                        ),
-                      ),
+                    : DecorationImage(image: NetworkImage(image.small.url)),
               ),
               width: 30,
               height: 30,
