@@ -15,26 +15,26 @@ pass = "test"
 verify_cert = false
 
 [background.event_handler.create_call_heartbeat]
-period = "300ms"
+period = "150ms"
 [background.event_handler.create_call_room]
-period = "300ms"
-[background.event_handler.create_online_session_heartbeat]
-period = "300ms"
-[background.event_handler.delete_typing_heartbeat]
-period = "500ms"
+period = "150ms"
 [background.event_handler.ensure_call_member_joined_room]
-period = "300ms"
+period = "150ms"
 [background.event_handler.invalidate_chat_counts]
-period = "500ms"
+period = "250ms"
 [background.event_handler.synchronize_call_room]
-period = "300ms"
+period = "150ms"
 [background.event_handler.transcode_image_set]
-timeout = "10m"
-batch_size = 16
+timeout = "5m"
+batch_size = 8
 [background.event_handler.update_chat_last_item]
-period = "500ms"
+period = "250ms"
 [background.event_handler.update_chat_ongoing_call]
-period = "300ms"
+period = "150ms"
+[background.event_handler.update_online_session_heartbeat]
+period = "150ms"
+[background.event_handler.update_typing_heartbeat]
+period = "250ms"
 
 [background.poll.chat_events]
 period = "500ms"
