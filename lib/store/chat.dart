@@ -891,8 +891,13 @@ class ChatRepository implements AbstractChatRepository {
       } else {
         HiveRxChat? chat = _chats[ChatId(event.key)];
         if (chat == null) {
-          HiveRxChat entry =
-              HiveRxChat(this, _callsRepo, _settingsRepo, _chatLocal, event.value);
+          HiveRxChat entry = HiveRxChat(
+            this,
+            _callsRepo,
+            _settingsRepo,
+            _chatLocal,
+            event.value,
+          );
           _chats[ChatId(event.key)] = entry;
           entry.init();
           entry.subscribe();
@@ -1000,7 +1005,13 @@ class ChatRepository implements AbstractChatRepository {
     _putChat(data.chat);
 
     if (entry == null) {
-      entry = HiveRxChat(this, _callsRepo, _settingsRepo, _chatLocal, data.chat);
+      entry = HiveRxChat(
+        this,
+        _callsRepo,
+        _settingsRepo,
+        _chatLocal,
+        data.chat,
+      );
       _chats[data.chat.value.id] = entry;
       entry.init();
       entry.subscribe();

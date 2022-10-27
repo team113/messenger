@@ -77,7 +77,7 @@ class ChatService extends DisposableService {
 
   /// Ensures that the [Chat] with the provided [id] is exist.
   bool ensureExists(ChatId id) {
-    if(chats[id] != null) {
+    if (chats[id] != null) {
       return true;
     }
 
