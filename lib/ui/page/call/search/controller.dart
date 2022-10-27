@@ -226,6 +226,7 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String? query) async {
+    print('search');
     if (!categories.contains(SearchCategory.users) || query == null) {
       return;
     }
@@ -256,17 +257,21 @@ class SearchController extends GetxController {
         // No-op.
       }
 
+      print('1');
       if (num != null || name != null || login != null) {
+        print('2');
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
+        print('3');
         searchResults.value = result.users;
         searchStatus.value = result.status.value;
 
         _searchStatusWorker = ever(result.status, (RxStatus s) {
+          print(s);
           searchStatus.value = s;
           populate();
         });

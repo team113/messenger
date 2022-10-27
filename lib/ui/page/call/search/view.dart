@@ -157,7 +157,8 @@ class SearchView extends StatelessWidget {
                 child: Obx(() {
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
-                      c.users.isEmpty) {
+                      c.users.isEmpty &&
+                      c.chats.isEmpty) {
                     if (c.searchStatus.value.isSuccess) {
                       return Center(child: Text('label_nothing_found'.l10n));
                     } else if (c.searchStatus.value.isEmpty) {

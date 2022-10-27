@@ -126,16 +126,13 @@ class ChatForwardView extends StatelessWidget {
         text: text,
       ),
       builder: (ChatForwardController c) {
-        ThemeData theme = Theme.of(context);
-        final TextStyle? thin =
-            theme.textTheme.bodyText1?.copyWith(color: Colors.black);
-
         List<Widget> children = [
           Expanded(
             child: SearchView(
               categories: const [
                 SearchCategory.chats,
                 SearchCategory.contacts,
+                SearchCategory.users,
               ],
               title: 'label_forward_message'.l10n,
               showSubmitButton: false,
