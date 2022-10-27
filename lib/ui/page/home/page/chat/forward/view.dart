@@ -20,21 +20,15 @@ import 'dart:ui';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/init_callback.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
-import 'package:messenger/ui/page/home/widget/contact_tile.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
-import '../../../../call/search/view.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -43,7 +37,6 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -119,7 +112,6 @@ class ChatForwardView extends StatelessWidget {
       init: ChatForwardController(
         Get.find(),
         Get.find(),
-        Get.find(),
         from: from,
         quotes: quotes,
         attachments: attachments,
@@ -129,14 +121,16 @@ class ChatForwardView extends StatelessWidget {
         List<Widget> children = [
           Expanded(
             child: SearchView(
-              categories: const [
-                SearchCategory.chats,
-                SearchCategory.contacts,
-                SearchCategory.users,
-              ],
-              title: 'label_forward_message'.l10n,
-              showSubmitButton: false,
-            ),
+                categories: const [
+                  SearchCategory.recent,
+                  SearchCategory.contacts,
+                  SearchCategory.users,
+                ],
+                title: 'label_forward_message'.l10n,
+                showSubmitButton: false,
+                onChanged: (SearchViewResults result) {
+                  c.searchResults.value = result;
+                }),
           ),
           if (noEditing) ...[
             Padding(
@@ -865,7 +859,7 @@ class ChatForwardView extends StatelessWidget {
                   const SizedBox(width: 0),
                   Obx(() {
                     return WidgetButton(
-                      onPressed: c.selectedChats.isEmpty
+                      onPressed: c.searchResults.value == null
                           ? null
                           : () {
                               c.forward();

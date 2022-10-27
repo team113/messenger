@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -46,6 +47,7 @@ class SearchView extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     this.onBack,
+    this.onChanged,
   }) : super(key: key);
 
   /// [SearchCategory]ies to search through.
@@ -79,6 +81,9 @@ class SearchView extends StatelessWidget {
   /// Callback, called when the submit button is pressed.
   final void Function(List<UserId> ids)? onSubmit;
 
+  /// Callback, called when the submit button is pressed.
+  final void Function(SearchViewResults results)? onChanged;
+
   /// Callback, called when the back button is pressed.
   ///
   /// If `null`, then no back button will be displayed.
@@ -96,6 +101,7 @@ class SearchView extends StatelessWidget {
         Get.find(),
         chat: chat,
         categories: categories,
+        onChanged: onChanged,
       ),
       builder: (SearchController c) {
         return Container(
@@ -454,4 +460,14 @@ extension _SearchCategoryL10n on SearchCategory {
         return 'label_chats'.l10n;
     }
   }
+}
+
+class SearchViewResults {
+  const SearchViewResults(this.chats, this.users, this.contacts);
+
+  final List<RxChat> chats;
+
+  final List<RxUser> users;
+
+  final List<RxChatContact> contacts;
 }

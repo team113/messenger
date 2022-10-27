@@ -19,6 +19,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/call/search/view.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -56,6 +57,7 @@ class SearchController extends GetxController {
     this._contactService, {
     required this.categories,
     this.chat,
+    this.onChanged,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -119,6 +121,9 @@ class SearchController extends GetxController {
 
   /// Selected [SearchCategory].
   final Rx<SearchCategory> category = Rx(SearchCategory.recent);
+
+  /// Callback, called when the submit button is pressed.
+  final void Function(SearchViewResults results)? onChanged;
 
   /// Worker to react on [SearchResult.status] changes.
   Worker? _searchStatusWorker;
@@ -202,6 +207,7 @@ class SearchController extends GetxController {
     } else {
       selectedContacts.add(contact);
     }
+    onChangedCall();
   }
 
   /// Selects or unselects the specified [user].
@@ -211,6 +217,7 @@ class SearchController extends GetxController {
     } else {
       selectedUsers.add(user);
     }
+    onChangedCall();
   }
 
   /// Selects or unselects the specified [user].
@@ -220,13 +227,22 @@ class SearchController extends GetxController {
     } else {
       selectedChats.add(chat);
     }
+    onChangedCall();
   }
+
+  /// Calls [onChanged] callback.
+  void onChangedCall() => onChanged?.call(
+        SearchViewResults(
+          selectedChats,
+          selectedUsers,
+          selectedContacts,
+        ),
+      );
 
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String? query) async {
-    print('search');
     if (!categories.contains(SearchCategory.users) || query == null) {
       return;
     }
@@ -257,21 +273,17 @@ class SearchController extends GetxController {
         // No-op.
       }
 
-      print('1');
       if (num != null || name != null || login != null) {
-        print('2');
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
         final SearchResult result =
             _userService.search(num: num, name: name, login: login);
 
-        print('3');
         searchResults.value = result.users;
         searchStatus.value = result.status.value;
 
         _searchStatusWorker = ever(result.status, (RxStatus s) {
-          print(s);
           searchStatus.value = s;
           populate();
         });
@@ -332,20 +344,22 @@ class SearchController extends GetxController {
 
   /// Updates the [recent], [contacts] and [users] according to the [query].
   void populate() {
-    chats.value = {
-      for (var c in sortedChats.where((p) {
-        if (query.value != null) {
-          if (query.value != null &&
-              p.title.toLowerCase().contains(query.value!.toLowerCase())) {
-            return true;
+    if (categories.contains(SearchCategory.chats)) {
+      chats.value = {
+        for (var c in sortedChats.where((p) {
+          if (query.value != null) {
+            if (query.value != null &&
+                p.title.toLowerCase().contains(query.value!.toLowerCase())) {
+              return true;
+            }
+            return false;
           }
-          return false;
-        }
 
-        return true;
-      }))
-        c.chat.value.id: c,
-    };
+          return true;
+        }))
+          c.chat.value.id: c,
+      };
+    }
 
     if (categories.contains(SearchCategory.recent)) {
       recent.value = {
