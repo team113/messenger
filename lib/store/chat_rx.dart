@@ -26,6 +26,7 @@ import '/api/backend/schema.dart'
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -251,6 +252,10 @@ class HiveRxChat implements RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {
+    if (item.id.isLocal) {
+      return;
+    }
+
     HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
     if (stored != null) {
       List<Attachment> response = await _chatRepository.attachments(stored);
@@ -772,6 +777,11 @@ class HiveRxChat implements RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
               chatEntity.value.ongoingCall = event.call;
+
+              if (chat.value.isGroup) {
+                chatEntity.value.ongoingCall!.conversationStartedAt =
+                    PreciseDateTime.now();
+              }
               break;
 
             case ChatEventKind.unreadItemsCountUpdated:
@@ -802,11 +812,37 @@ class HiveRxChat implements RxChat {
               break;
 
             case ChatEventKind.callMemberLeft:
-              // TODO: Implement EventChatCallMemberLeft.
+              event as EventChatCallMemberLeft;
+              int? i = chatEntity.value.ongoingCall?.members
+                      .indexWhere((e) => e.user.id == event.user.id) ??
+                  -1;
+
+              if (i != -1) {
+                chatEntity.value.ongoingCall?.members.removeAt(i);
+              }
               break;
 
             case ChatEventKind.callMemberJoined:
-              // TODO: Implement EventChatCallMemberJoined.
+              event as EventChatCallMemberJoined;
+              chatEntity.value.ongoingCall?.members.add(
+                ChatCallMember(
+                  user: event.user,
+                  handRaised: false,
+                  joinedAt: event.at,
+                ),
+              );
+
+              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
+                  chat.value.isDialog) {
+                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                    .map((e) => e.user.id)
+                    .toSet();
+
+                if (ids != null && ids.length >= 2) {
+                  chatEntity.value.ongoingCall?.conversationStartedAt =
+                      PreciseDateTime.now();
+                }
+              }
               break;
 
             case ChatEventKind.lastItemUpdated:

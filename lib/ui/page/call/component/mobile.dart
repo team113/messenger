@@ -707,7 +707,7 @@ Widget _callTile(BuildContext context, CallController c) => Obx(
         if (c.isGroup) {
           var actualMembers = c.members.keys.map((k) => k.userId).toSet();
           subtitle = 'label_a_of_b'.l10nfmt({
-            'a': '${actualMembers.length + 1}',
+            'a': '${actualMembers.length}',
             'b': '${c.chat.value?.members.length}',
           });
         }

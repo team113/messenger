@@ -36,7 +36,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
       if (cancelToken?.isCancelled == true) {
         break;
       }
-      await Future.delayed(20.milliseconds);
+      await Future.delayed(40.milliseconds);
       onReceiveProgress?.call(count, total);
     }
 

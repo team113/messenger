@@ -44,12 +44,19 @@ class Themes {
               fontSize: 17,
               fontWeight: FontWeight.w400,
             ),
+            cardBlur: 5,
             cardBorder: Border.all(color: const Color(0xFFEBEBEB), width: 0.5),
             cardColor: Colors.white.withOpacity(0.95),
             cardRadius: BorderRadius.circular(14),
             contextMenuBackgroundColor: const Color(0xFFF2F2F2),
             contextMenuHoveredColor: const Color(0xFFE5E7E9),
             contextMenuRadius: BorderRadius.circular(10),
+            messageColor: Colors.white,
+            primaryBorder:
+                Border.all(color: const Color(0xFFDADADA), width: 0.5),
+            readMessageColor: const Color(0xFFD2E3F9),
+            secondaryBorder:
+                Border.all(color: const Color(0xFFB9D9FA), width: 0.5),
             sidebarColor: Colors.white.withOpacity(0.4),
             systemMessageBorder:
                 Border.all(color: const Color(0xFFD2D2D2), width: 0.5),
@@ -59,6 +66,7 @@ class Themes {
               fontSize: 13,
               fontWeight: FontWeight.w300,
             ),
+            unreadMessageColor: const Color(0xFFF4F9FF),
           ),
         ],
         colorScheme: colors,
@@ -80,14 +88,17 @@ class Themes {
               ),
               elevation: 0,
               centerTitle: true,
+              titleTextStyle: GoogleFonts.roboto(
+                color: Colors.black,
+                fontWeight: FontWeight.w300,
+                fontSize: 18,
+              ),
             ),
         tabBarTheme: ThemeData.light().tabBarTheme.copyWith(
               labelColor: colors.secondary,
               unselectedLabelColor: colors.primary,
             ),
-        primaryTextTheme: ThemeData.light()
-            .primaryTextTheme
-            .copyWith(headline6: TextStyle(color: colors.primary)),
+        primaryTextTheme: GoogleFonts.robotoTextTheme(),
         primaryIconTheme:
             const IconThemeData.fallback().copyWith(color: colors.primary),
         iconTheme: ThemeData.light().iconTheme.copyWith(color: Colors.black),
@@ -103,10 +114,10 @@ class Themes {
             fontWeight: FontWeight.w400,
             fontSize: 18,
           ),
-          caption: const TextStyle(
-            color: Colors.black,
+          caption: TextStyle(
+            color: colors.primary,
             fontWeight: FontWeight.w300,
-            fontSize: 17,
+            fontSize: 13,
           ),
           subtitle1: const TextStyle(color: Colors.black, fontSize: 15),
           subtitle2: TextStyle(
@@ -268,16 +279,22 @@ class Style extends ThemeExtension<Style> {
   const Style({
     required this.barrierColor,
     required this.boldBody,
+    required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
     required this.cardRadius,
     required this.contextMenuBackgroundColor,
     required this.contextMenuHoveredColor,
     required this.contextMenuRadius,
+    required this.messageColor,
+    required this.primaryBorder,
+    required this.readMessageColor,
+    required this.secondaryBorder,
     required this.sidebarColor,
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.unreadMessageColor,
   });
 
   /// [Color] of the modal background barrier color.
@@ -285,6 +302,9 @@ class Style extends ThemeExtension<Style> {
 
   /// [TextStyle] to use in the body to make content readable.
   final TextStyle boldBody;
+
+  /// Blur to apply to card-like [Widget]s.
+  final double cardBlur;
 
   /// [Border] to apply to card-like [Widget]s.
   final Border cardBorder;
@@ -304,6 +324,19 @@ class Style extends ThemeExtension<Style> {
   /// [BorderRadius] of the [ContextMenu].
   final BorderRadius contextMenuRadius;
 
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s.
+  final Color messageColor;
+
+  /// [Border] to apply to [ColorScheme.primary] color.
+  final Border primaryBorder;
+
+  /// Background [Color] of [ChatMessage]s, [ChatForward]s and [ChatCall]s
+  /// posted by the authenticated [MyUser].
+  final Color readMessageColor;
+
+  /// [Border] to apply to [ColorScheme.secondary] color.
+  final Border secondaryBorder;
+
   /// [Color] of the [HomeView]'s side bar.
   final Color sidebarColor;
 
@@ -316,24 +349,35 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
+  /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
+  /// [ChatCall]s posted by the authenticated [MyUser].
+  final Color unreadMessageColor;
+
   @override
   ThemeExtension<Style> copyWith({
     Color? barrierColor,
     TextStyle? boldBody,
+    double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
     BorderRadius? cardRadius,
     Color? contextMenuBackgroundColor,
     Color? contextMenuHoveredColor,
     BorderRadius? contextMenuRadius,
+    Color? messageColor,
+    Border? primaryBorder,
+    Color? readMessageColor,
+    Border? secondaryBorder,
     Color? sidebarColor,
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
+    Color? unreadMessageColor,
   }) {
     return Style(
       barrierColor: barrierColor ?? this.barrierColor,
       boldBody: boldBody ?? this.boldBody,
+      cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
       cardRadius: cardRadius ?? this.cardRadius,
@@ -342,10 +386,15 @@ class Style extends ThemeExtension<Style> {
       contextMenuHoveredColor:
           contextMenuHoveredColor ?? this.contextMenuHoveredColor,
       contextMenuRadius: contextMenuRadius ?? this.contextMenuRadius,
+      messageColor: messageColor ?? this.messageColor,
+      primaryBorder: primaryBorder ?? this.primaryBorder,
+      readMessageColor: readMessageColor ?? this.readMessageColor,
+      secondaryBorder: secondaryBorder ?? this.secondaryBorder,
       sidebarColor: sidebarColor ?? this.sidebarColor,
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
 
@@ -358,6 +407,7 @@ class Style extends ThemeExtension<Style> {
     return Style(
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       boldBody: TextStyle.lerp(boldBody, other.boldBody, t)!,
+      cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
@@ -373,6 +423,11 @@ class Style extends ThemeExtension<Style> {
       )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      messageColor: Color.lerp(messageColor, other.messageColor, t)!,
+      primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
+      readMessageColor:
+          Color.lerp(readMessageColor, other.readMessageColor, t)!,
+      secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
       systemMessageBorder:
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
@@ -383,6 +438,8 @@ class Style extends ThemeExtension<Style> {
         other.systemMessageStyle,
         t,
       )!,
+      unreadMessageColor:
+          Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
   }
 }
