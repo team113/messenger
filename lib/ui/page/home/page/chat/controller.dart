@@ -134,7 +134,8 @@ class ChatController extends GetxController {
   final FlutterListViewController listController = FlutterListViewController();
 
   /// [Attachment]s to be attached to a message.
-  RxMap<GlobalKey, Attachment> attachments = RxMap<GlobalKey, Attachment>({});
+  RxObsList<MapEntry<GlobalKey, Attachment>> attachments =
+      RxObsList<MapEntry<GlobalKey, Attachment>>();
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -286,7 +287,7 @@ class ChatController extends GetxController {
                 chat!.chat.value.id,
                 text: s.text.isEmpty ? null : ChatMessageText(s.text),
                 repliesTo: repliedMessages,
-                attachments: attachments.values.toList(),
+                attachments: attachments.map((e) => e.value).toList(),
               )
               .then((_) => _playMessageSent())
               .onError<PostChatMessageException>(
@@ -484,7 +485,7 @@ class ChatController extends GetxController {
           const UserId(''),
           PreciseDateTime.now(),
           text: send.text.isEmpty ? null : ChatMessageText(send.text),
-          attachments: attachments.values.toList(),
+          attachments: attachments.map((e) => e.value).toList(),
           repliesTo: repliedMessages,
         ),
       );
@@ -505,7 +506,7 @@ class ChatController extends GetxController {
       send.text = chatMessage?.text?.val ?? '';
       if (chatMessage?.attachments != null) {
         for (var element in chatMessage!.attachments) {
-          attachments[GlobalKey()] = element;
+          attachments.add(MapEntry(GlobalKey(), element));
         }
       }
       repliedMessages.value = chatMessage?.repliesTo ?? [];
@@ -1101,11 +1102,10 @@ class ChatController extends GetxController {
     if (file.size < maxAttachmentSize) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments[GlobalKey()] = attachment;
+        attachments.add(MapEntry(GlobalKey(), attachment));
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
-        attachments.values.firstWhereOrNull((e) => e == attachment);
         int index = attachments.indexOf(attachment);
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
