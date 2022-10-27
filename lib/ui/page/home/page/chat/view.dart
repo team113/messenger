@@ -286,19 +286,51 @@ class _ChatViewState extends State<ChatView>
                           }
                         }
                       },
-                      child: GestureDetector(
+                      child: RawGestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        onHorizontalDragUpdate: (d) {
-                          double value = _animation.value - d.delta.dx / 100;
-                          _animation.value = value.clamp(0, 1);
-                        },
-                        onHorizontalDragEnd: (d) {
-                          if (_animation.value >= 0.5) {
-                            _animation.forward();
-                          } else {
-                            _animation.reverse();
-                          }
-                        },
+                        gestures: c.horizontalScrollTimer.value == null
+                            ? {
+                          AllowMultipleHorizontalDragGestureRecognizer:
+                          GestureRecognizerFactoryWithHandlers<
+                              AllowMultipleHorizontalDragGestureRecognizer>(
+                                () =>
+                                AllowMultipleHorizontalDragGestureRecognizer(),
+                                (AllowMultipleHorizontalDragGestureRecognizer
+                            instance) {
+                              instance.onStart = (d) {};
+
+                              instance.onUpdate = (d) {
+                                if (!c.isItemDragged.value) {
+                                  double value =
+                                      _animation.value - d.delta.dx / 100;
+                                  _animation.value = value.clamp(0, 1);
+
+                                  if (_animation.value == 1 ||
+                                      _animation.value == 0) {
+                                    if (!c.timelineFeedback.value) {
+                                      HapticFeedback.selectionClick();
+                                    }
+                                    c.timelineFeedback.value = true;
+                                  } else {
+                                    c.timelineFeedback.value = false;
+                                  }
+                                }
+                              };
+
+                              instance.onEnd = (d) {
+                                c.timelineFeedback.value = false;
+                                if (!c.isItemDragged.value) {
+                                  if (_animation.value >= 0.5) {
+                                    _animation.forward();
+                                  } else {
+                                    _animation.reverse();
+                                  }
+                                }
+                              };
+                            },
+                          )
+                        }
+                            : {},
                         child: Stack(
                           children: [
                             // Required for the [Stack] to take [Scaffold]'s
@@ -513,6 +545,7 @@ class _ChatViewState extends State<ChatView>
             onGallery: c.calculateGallery,
             onResend: () => c.resendItem(e.value),
             onEdit: () => c.editMessage(e.value),
+            onDrag: (d) => c.isItemDragged.value = d,
             onFileTap: (a) => c.download(e.value, a),
             onAttachmentError: () async {
               await c.chat?.updateAttachments(e.value);
@@ -834,7 +867,7 @@ class _ChatViewState extends State<ChatView>
             children: [
               LayoutBuilder(builder: (context, constraints) {
                 bool grab =
-                    127 * c.attachments.length > constraints.maxWidth - 16;
+                    (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
 
                 return ConditionalBackdropFilter(
                   condition: style.cardBlur > 0,
@@ -2043,5 +2076,13 @@ extension DateTimeToRelative on DateTime {
         (((153 * x1) + 2) / 5).floor() +
         day +
         1721119;
+  }
+}
+
+class AllowMultipleHorizontalDragGestureRecognizer
+    extends HorizontalDragGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
   }
 }

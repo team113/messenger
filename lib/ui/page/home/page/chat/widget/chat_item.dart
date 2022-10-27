@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
@@ -42,6 +43,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
+import '/ui/page/home/page/chat/widget/animated_transform.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -74,6 +76,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onGallery,
     this.onRepliedTap,
     this.onResend,
+    this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
   }) : super(key: key);
@@ -125,6 +128,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a resend action of this [ChatItem] is triggered.
   final void Function()? onResend;
+
+  /// Callback, called when this [ChatItem] is dragged.
+  final void Function(bool)? onDrag;
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(FileAttachment)? onFileTap;
@@ -1197,6 +1203,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  Offset _offset = Offset.zero;
+  Duration _offsetDuration = Duration.zero;
+  bool _dragging = false;
+  bool _draggingStarted = false;
+  bool _draggingFeedback = false;
+
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(
     BuildContext context,
@@ -1223,206 +1235,258 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(DateFormat.Hm().format(item.at.val.toLocal())),
-      child: Row(
-        crossAxisAlignment:
-            _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        mainAxisAlignment:
-            _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (_fromMe)
-            Padding(
-              key: Key('MessageStatus_${item.id}'),
-              padding: const EdgeInsets.only(top: 16),
-              child: AnimatedDelayedSwitcher(
-                delay: item.status.value == SendingStatus.sending
-                    ? const Duration(seconds: 2)
-                    : Duration.zero,
-                child: item.status.value == SendingStatus.sending
-                    ? const Padding(
-                        key: Key('Sending'),
-                        padding: EdgeInsets.only(left: 8),
-                        child: Icon(Icons.access_alarm, size: 15),
-                      )
-                    : item.status.value == SendingStatus.error
-                        ? const Padding(
-                            key: Key('Error'),
-                            padding: EdgeInsets.only(left: 8),
-                            child: Icon(
-                              Icons.error_outline,
-                              size: 15,
-                              color: Colors.red,
-                            ),
-                          )
-                        : Container(key: const Key('Sent')),
-              ),
-            ),
-          if (!_fromMe && widget.chat.value!.isGroup)
-            Padding(
-              padding: EdgeInsets.only(top: 8 + avatarOffset),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => router.user(item.authorId, push: true),
-                child: AvatarWidget.fromRxUser(widget.user, radius: 15),
-              ),
-            ),
-          Flexible(
-            child: LayoutBuilder(builder: (context, constraints) {
-              return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: min(
-                    550,
-                    constraints.maxWidth * 0.84 +
-                        (_fromMe ? SwipeableStatus.width : -10),
-                  ),
-                ),
-                child: Material(
-                  key: Key('Message_${item.id}'),
-                  type: MaterialType.transparency,
-                  child: ContextMenuRegion(
-                    preventContextMenu: false,
-                    alignment:
-                        _fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
-                    actions: [
-                      if (copyable != null)
-                        ContextMenuButton(
-                          key: const Key('CopyButton'),
-                          label: 'btn_copy'.l10n,
-                          leading: SvgLoader.asset(
-                            'assets/icons/copy_small.svg',
-                            width: 14.82,
-                            height: 17,
-                          ),
-                          onPressed: () => widget.onCopy?.call(copyable!),
-                        ),
-                      if (item.status.value == SendingStatus.sent) ...[
-                        ContextMenuButton(
-                          key: const Key('ReplyButton'),
-                          label: 'btn_reply'.l10n,
-                          leading: SvgLoader.asset(
-                            'assets/icons/reply.svg',
-                            width: 18.8,
-                            height: 16,
-                          ),
-                          onPressed: widget.onReply,
-                        ),
-                        if (item is ChatMessage)
-                          ContextMenuButton(
-                            key: const Key('ForwardButton'),
-                            label: 'btn_forward'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/forward.svg',
-                              width: 18.8,
-                              height: 16,
-                            ),
-                            onPressed: () async {
-                              await ChatForwardView.show(
-                                context,
-                                widget.chat.value!.id,
-                                [ChatItemQuote(item: item)],
-                              );
-                            },
-                          ),
-                        if (item is ChatMessage &&
-                            _fromMe &&
-                            (item.at
-                                    .add(ChatController.editMessageTimeout)
-                                    .isAfter(PreciseDateTime.now()) ||
-                                !_isRead))
-                          ContextMenuButton(
-                            key: const Key('EditButton'),
-                            label: 'btn_edit'.l10n,
-                            leading: SvgLoader.asset(
-                              'assets/icons/edit.svg',
-                              width: 17,
-                              height: 17,
-                            ),
-                            onPressed: widget.onEdit,
-                          ),
-                        ContextMenuButton(
-                          key: const Key('Delete'),
-                          label: 'btn_delete'.l10n,
-                          leading: SvgLoader.asset(
-                            'assets/icons/delete_small.svg',
-                            width: 17.75,
-                            height: 17,
-                          ),
-                          onPressed: () async {
-                            bool deletable = _fromMe &&
-                                !widget.chat.value!
-                                    .isRead(widget.item.value, widget.me) &&
-                                (widget.item.value is ChatMessage);
+      child: AnimatedTransform(
+        duration: _offsetDuration,
+        offset: _offset,
+        curve: Curves.ease,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragStart: (d) {
+            _draggingStarted = true;
+            setState(() => _offsetDuration = Duration.zero);
+          },
+          onHorizontalDragUpdate: (d) {
+            if (_draggingStarted) {
+              if (widget.animation?.value == 0 &&
+                  _offset.dx == 0 &&
+                  d.delta.dx > 0) {
+                _dragging = true;
+                widget.onDrag?.call(_dragging);
+              }
+              _draggingStarted = false;
+            }
 
-                            await ConfirmDialog.show(
-                              context,
-                              title: 'label_delete_message'.l10n,
-                              description: deletable
-                                  ? null
-                                  : 'label_message_will_deleted_for_you'.l10n,
-                              variants: [
-                                ConfirmDialogVariant(
-                                  onProceed: widget.onHide,
-                                  child: Text(
-                                    'label_delete_for_me'.l10n,
-                                    key: const Key('HideForMe'),
-                                  ),
+            if (_dragging) {
+              _offset += d.delta;
+              if (_offset.dx > 30) {
+                if (!_draggingFeedback) {
+                  _draggingFeedback = true;
+                  HapticFeedback.selectionClick();
+                  widget.onReply?.call();
+                }
+              } else {
+                _draggingFeedback = false;
+              }
+
+              setState(() {});
+            }
+          },
+          onHorizontalDragEnd: _dragging
+              ? (d) {
+            if (_offset.dx > 30) {
+              // widget.onReply?.call();
+            }
+
+            _dragging = false;
+            _draggingFeedback = false;
+            _offset = Offset.zero;
+            _offsetDuration = 200.milliseconds;
+            widget.onDrag?.call(_dragging);
+            setState(() {});
+          }
+              : null,
+          child: Row(
+            crossAxisAlignment:
+                _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            mainAxisAlignment:
+                _fromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (_fromMe)
+                Padding(
+                  key: Key('MessageStatus_${item.id}'),
+                  padding: const EdgeInsets.only(top: 16),
+                  child: AnimatedDelayedSwitcher(
+                    delay: item.status.value == SendingStatus.sending
+                        ? const Duration(seconds: 2)
+                        : Duration.zero,
+                    child: item.status.value == SendingStatus.sending
+                        ? const Padding(
+                            key: Key('Sending'),
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(Icons.access_alarm, size: 15),
+                          )
+                        : item.status.value == SendingStatus.error
+                            ? const Padding(
+                                key: Key('Error'),
+                                padding: EdgeInsets.only(left: 8),
+                                child: Icon(
+                                  Icons.error_outline,
+                                  size: 15,
+                                  color: Colors.red,
                                 ),
-                                if (deletable)
-                                  ConfirmDialogVariant(
-                                    onProceed: widget.onDelete,
-                                    child: Text(
-                                      'label_delete_for_everyone'.l10n,
-                                      key: const Key('DeleteForAll'),
-                                    ),
-                                  )
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                      if (item.status.value == SendingStatus.error) ...[
-                        ContextMenuButton(
-                          key: const Key('Resend'),
-                          label: 'btn_resend_message'.l10n,
-                          leading: SvgLoader.asset(
-                            'assets/icons/send_small.svg',
-                            width: 18.37,
-                            height: 16,
-                          ),
-                          onPressed: widget.onResend,
-                        ),
-                        ContextMenuButton(
-                          key: const Key('Delete'),
-                          label: 'btn_delete'.l10n,
-                          leading: SvgLoader.asset(
-                            'assets/icons/delete_small.svg',
-                            width: 17.75,
-                            height: 17,
-                          ),
-                          onPressed: () async {
-                            await ConfirmDialog.show(
-                              context,
-                              title: 'label_delete_message'.l10n,
-                              variants: [
-                                ConfirmDialogVariant(
-                                  onProceed: widget.onDelete,
-                                  child: Text(
-                                    'label_delete_for_everyone'.l10n,
-                                    key: const Key('DeleteForAll'),
-                                  ),
-                                )
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    ],
-                    child: child,
+                              )
+                            : Container(key: const Key('Sent')),
                   ),
                 ),
-              );
-            }),
+              if (!_fromMe && widget.chat.value!.isGroup)
+                Padding(
+                  padding: EdgeInsets.only(top: 8 + avatarOffset),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => router.user(item.authorId, push: true),
+                    child: AvatarWidget.fromRxUser(widget.user, radius: 15),
+                  ),
+                ),
+              Flexible(
+                child: LayoutBuilder(builder: (context, constraints) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: min(
+                        550,
+                        constraints.maxWidth * 0.84 +
+                            (_fromMe ? SwipeableStatus.width : -10),
+                      ),
+                    ),
+                    child: Material(
+                      key: Key('Message_${item.id}'),
+                      type: MaterialType.transparency,
+                      child: ContextMenuRegion(
+                        preventContextMenu: false,
+                        alignment:
+                            _fromMe ? Alignment.bottomRight : Alignment.bottomLeft,
+                        actions: [
+                          if (copyable != null)
+                            ContextMenuButton(
+                              key: const Key('CopyButton'),
+                              label: 'btn_copy'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/copy_small.svg',
+                                width: 14.82,
+                                height: 17,
+                              ),
+                              onPressed: () => widget.onCopy?.call(copyable!),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('ReplyButton'),
+                              label: 'btn_reply'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/reply.svg',
+                                width: 18.8,
+                                height: 16,
+                              ),
+                              onPressed: widget.onReply,
+                            ),
+                            if (item is ChatMessage)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: 'btn_forward'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/forward.svg',
+                                  width: 18.8,
+                                  height: 16,
+                                ),
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [ChatItemQuote(item: item)],
+                                  );
+                                },
+                              ),
+                            if (item is ChatMessage &&
+                                _fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !_isRead))
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                leading: SvgLoader.asset(
+                                  'assets/icons/edit.svg',
+                                  width: 17,
+                                  height: 17,
+                                ),
+                                onPressed: widget.onEdit,
+                              ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                bool deletable = _fromMe &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage);
+
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'.l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onHide,
+                                      child: Text(
+                                        'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
+                                      ),
+                                    ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        onProceed: widget.onDelete,
+                                        child: Text(
+                                          'label_delete_for_everyone'.l10n,
+                                          key: const Key('DeleteForAll'),
+                                        ),
+                                      )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: 'btn_resend_message'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/send_small.svg',
+                                width: 18.37,
+                                height: 16,
+                              ),
+                              onPressed: widget.onResend,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: 'btn_delete'.l10n,
+                              leading: SvgLoader.asset(
+                                'assets/icons/delete_small.svg',
+                                width: 17.75,
+                                height: 17,
+                              ),
+                              onPressed: () async {
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
+                                    ConfirmDialogVariant(
+                                      onProceed: widget.onDelete,
+                                      child: Text(
+                                        'label_delete_for_everyone'.l10n,
+                                        key: const Key('DeleteForAll'),
+                                      ),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ],
+                        child: child,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

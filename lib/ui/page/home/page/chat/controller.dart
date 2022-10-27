@@ -78,6 +78,10 @@ class ChatController extends GetxController {
     this.itemId,
   });
 
+  final RxBool isItemDragged = RxBool(false);
+
+  final RxBool timelineFeedback = RxBool(false);
+
   /// ID of this [Chat].
   final ChatId id;
 
